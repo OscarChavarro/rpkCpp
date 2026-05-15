@@ -145,7 +145,7 @@ Raytrace::rayTraceExecute(
     ToneMappingContext *toneMapOptions,
     RenderOptions *renderOptions)
 {
-    renderOptions->renderRayTracedImage = true;
+    renderOptions->setRenderRayTracedImage(true);
     scene->camera->changed = false;
 
     Canvas::canvasPushMode();

@@ -4,10 +4,10 @@
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 class OrientedGathererVisitor: public ClusterLeafVisitor{ private:
     Interaction *link;
-    ColorRgb *sourceRadiance;
+    ColorRgbMutable *sourceRadiance;
 
   public:
-    OrientedGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance);
+    OrientedGathererVisitor(Interaction *inLink, ColorRgbMutable *inSourceRadiance);
     ~OrientedGathererVisitor();
 
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState);

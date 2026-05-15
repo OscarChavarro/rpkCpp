@@ -6,11 +6,30 @@
 #include <stdlib.h>
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/Math.h"
+#include "common/color/Cie.h"
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/context/TokenValidationContext.h"
 #include "io/mgf/MgfEntityControl.h"
 #include "io/mgf/MgfMaterialEntitySupport.h"
 #include "io/context/MaterialContext.h"
+
+static ColorRgb
+addColor(const ColorRgb &a, const ColorRgb &b) {
+    return ColorRgb(a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB());
+}
+
+static ColorRgb
+scaleColor(const ColorRgb &c, float scale) {
+    return ColorRgb(c.getR() * scale, c.getG() * scale, c.getB() * scale);
+}
+
+static bool
+isBlack(const ColorRgb &c) {
+    return Math::abs(c.getR()) < Numeric::EPSILON
+        && Math::abs(c.getG()) < Numeric::EPSILON
+        && Math::abs(c.getB()) < Numeric::EPSILON;
+}
 
 /**
 Looks up a material with given name in the given material list. Returns
@@ -64,18 +83,18 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorR
     if ( Cie::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
-    colorOut->set(rgb[0], rgb[1], rgb[2]);
+    *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
 }
 
 void
 MgfMaterialEntitySupport::specSamples(const ColorRgb &col, float *rgb) {
-    rgb[0] = col.r;
-    rgb[1] = col.g;
-    rgb[2] = col.b;
+    rgb[0] = col.getR();
+    rgb[1] = col.getG();
+    rgb[2] = col.getB();
 }
 
 float
-MgfMaterialEntitySupport::colorMax(ColorRgb col) {
+MgfMaterialEntitySupport::colorMax(const ColorRgb &col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
@@ -101,13 +120,13 @@ The routine returns true if the material being used has changed
 */
 bool
 MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
-    ColorRgb Ed;
-    ColorRgb Es;
-    ColorRgb Rd;
-    ColorRgb Td;
-    ColorRgb Rs;
-    ColorRgb Ts;
-    ColorRgb A;
+    ColorRgb Ed(0.0f, 0.0f, 0.0f);
+    ColorRgb Es(0.0f, 0.0f, 0.0f);
+    ColorRgb Rd(0.0f, 0.0f, 0.0f);
+    ColorRgb Td(0.0f, 0.0f, 0.0f);
+    ColorRgb Rs(0.0f, 0.0f, 0.0f);
+    ColorRgb Ts(0.0f, 0.0f, 0.0f);
+    ColorRgb A(0.0f, 0.0f, 0.0f);
     MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
@@ -136,28 +155,27 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
-    A.add(Rd, Rs);
+    A = addColor(Rd, Rs);
     float a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0f - Numeric::EPSILON_FLOAT) / a;
-        Rd.scale(a);
-        Rs.scale(a);
+        Rd = scaleColor(Rd, a);
+        Rs = scaleColor(Rs, a);
     }
 
-    A.add(Td, Ts);
+    A = addColor(Td, Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0f - Numeric::EPSILON_FLOAT) / a;
-        Td.scale(a);
-        Ts.scale(a);
+        Td = scaleColor(Td, a);
+        Ts = scaleColor(Ts, a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed.scale(1.0f / Cie::WHITE_EFFICACY);
-
-    Es.clear();
+    Ed = scaleColor(Ed, 1.0f / Cie::WHITE_EFFICACY);
+    Es = ColorRgb(0.0f, 0.0f, 0.0f);
 
     float Nr;
     float Nt;
@@ -178,27 +196,33 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     }
 
     if ( context->monochrome ) {
-        Ed.setMonochrome(Cie::spectrumGray(Ed.r, Ed.g, Ed.b));
-        Es.setMonochrome(Cie::spectrumGray(Es.r, Es.g, Es.b));
-        Rd.setMonochrome(Cie::spectrumGray(Rd.r, Rd.g, Rd.b));
-        Rs.setMonochrome(Cie::spectrumGray(Rs.r, Rs.g, Rs.b));
-        Td.setMonochrome(Cie::spectrumGray(Td.r, Td.g, Td.b));
-        Ts.setMonochrome(Cie::spectrumGray(Ts.r, Ts.g, Ts.b));
+        const float EdGray = Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB());
+        const float EsGray = Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB());
+        const float RdGray = Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB());
+        const float RsGray = Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB());
+        const float TdGray = Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB());
+        const float TsGray = Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB());
+        Ed = ColorRgb(EdGray, EdGray, EdGray);
+        Es = ColorRgb(EsGray, EsGray, EsGray);
+        Rd = ColorRgb(RdGray, RdGray, RdGray);
+        Rs = ColorRgb(RsGray, RsGray, RsGray);
+        Td = ColorRgb(TdGray, TdGray, TdGray);
+        Ts = ColorRgb(TsGray, TsGray, TsGray);
     }
 
     PhongEmitDistFunc* edf = NULL;
-    if ( !Ed.isBlack() || !Es.isBlack() ) {
+    if ( !isBlack(Ed) || !isBlack(Es) ) {
         CONSTEXPR float Ne = 0.0;
         edf = new PhongEmitDistFunc(&Ed, &Es, Ne);
     }
 
     PhongBidirReflDistFunc *brdf = NULL;
-    if ( !Rd.isBlack() || !Rs.isBlack() ) {
+    if ( !isBlack(Rd) || !isBlack(Rs) ) {
         brdf = new PhongBidirReflDistFunc(&Rd, &Rs, Nr);
     }
 
     PhongBidirTransDistFunc *btdf = NULL;
-    if ( !Td.isBlack() || !Ts.isBlack() ) {
+    if ( !isBlack(Td) || !isBlack(Ts) ) {
         btdf = new PhongBidirTransDistFunc(
             &Td,
             &Ts,

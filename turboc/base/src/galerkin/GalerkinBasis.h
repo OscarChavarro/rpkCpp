@@ -35,19 +35,19 @@ class GalerkinBasis {
     // sigma. See PushRadiance() and PullRadiance() in basis.c
     double regularFilter[4][GALERKIN_MAX_BASIS_SIZE][GALERKIN_MAX_BASIS_SIZE];
 
-    static ColorRgb
+    static ColorRgbMutable
     radianceAtPoint(
         const GalerkinElement *element,
-        const ColorRgb *coefficients,
+        const ColorRgbMutable *coefficients,
         double u,
         double v);
 
     static void
     push(
         const GalerkinElement *element,
-        const ColorRgb *parentCoefficients,
+        const ColorRgbMutable *parentCoefficients,
         const GalerkinElement *child,
-        ColorRgb *childCoefficients);
+        ColorRgbMutable *childCoefficients);
 
     static void pushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState);
 
@@ -64,15 +64,15 @@ class GalerkinBasis {
     static void
     pull(
         const GalerkinElement *parent,
-        ColorRgb *parentCoefficients,
+        ColorRgbMutable *parentCoefficients,
         const GalerkinElement *child,
-        const ColorRgb *childCoefficients);
+        const ColorRgbMutable *childCoefficients);
 
     static void
     pushPullRadianceRecursive(
         GalerkinElement *element,
-        ColorRgb *Bdown,
-        ColorRgb *Bup,
+        ColorRgbMutable *Bdown,
+        ColorRgbMutable *Bup,
         GalerkinState *galerkinState);
 
     static void

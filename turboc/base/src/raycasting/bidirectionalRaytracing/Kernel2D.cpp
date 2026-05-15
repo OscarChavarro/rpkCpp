@@ -83,7 +83,10 @@ Kernel2D::cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenB
             if ( (nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) && (ny < screen->getVRes()) ) {
                 center = screen->getPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
-                addCol.scaledCopy(factor, col);
+                addCol = ColorRgb(
+                    factor * col.getR(),
+                    factor * col.getG(),
+                    factor * col.getB());
                 screen->add(nx, ny, addCol);
             } else {
                 // Handle boundary bias !

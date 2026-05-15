@@ -42,24 +42,31 @@ Returns the transmittance of the BTDF
 */
 ColorRgb
 PhongBidirTransDistFunc::transmittance(char flags) const {
-    ColorRgb result;
-
-    result.clear();
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, Kd);
+        r += Kd.getR();
+        g += Kd.getG();
+        b += Kd.getB();
     }
 
     if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     }
 
+    ColorRgb result(r, g, b);
     if ( !Float::isFinite(result.average()) ) {
         Logger::fatal(-1, "transmittance", "Oops - result is not finite!");
     }
@@ -87,8 +94,9 @@ PhongBidirTransDistFunc::evaluate(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    ColorRgb result;
-    result.clear();
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {
         // Diffuse part
@@ -97,8 +105,9 @@ PhongBidirTransDistFunc::evaluate(
         bool isReflection = (normal->dotProduct(*out) >= 0);
 
         if ( !isReflection ) {
-            result = Kd;
-            result.scale(M_1_PI);
+            r += M_1_PI * Kd.getR();
+            g += M_1_PI * Kd.getG();
+            b += M_1_PI * Kd.getB();
         }
     }
 
@@ -119,11 +128,13 @@ PhongBidirTransDistFunc::evaluate(
         if ( localDotProduct > 0 ) {
             float tmpFloat = Math::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0f) / (2.0f * ((float)(M_PI))); // Ks -> ks
-            result.addScaled(result, tmpFloat, Ks);
+            r += tmpFloat * Ks.getR();
+            g += tmpFloat * Ks.getG();
+            b += tmpFloat * Ks.getB();
         }
     }
 
-    return result;
+    return ColorRgb(r, g, b);
 }
 
 Vector3D

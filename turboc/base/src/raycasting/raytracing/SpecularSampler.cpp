@@ -25,14 +25,14 @@ SpecularSampler::sample(
 
     // Choose a scattering mode : reflection vs. refraction
     ColorRgb reflectance;
-    reflectance.clear();
+    reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( thisNode->m_useBsdf != NULL ) {
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
                 &thisNode->m_hit,
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
     ColorRgb transmittance;
-    transmittance.clear();
+    transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( thisNode->m_useBsdf != NULL ) {
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
                 &thisNode->m_hit,

@@ -222,13 +222,16 @@ Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
 Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
-    ColorRgb res;
-    res.clear();
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
     for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        res.addScaled(res, ((float)(s)), rad[i]);
+        r += ((float)(s)) * rad[i].getR();
+        g += ((float)(s)) * rad[i].getG();
+        b += ((float)(s)) * rad[i].getB();
     }
-    return res;
+    return ColorRgb(r, g, b);
 }
 
 /**
@@ -238,19 +241,33 @@ the result to the destination coefficients
 void
 Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
+        float r = child[i].getR();
+        float g = child[i].getG();
+        float b = child[i].getB();
         for ( int j = 0; j < n; j++ ) {
-            child[i].addScaled(child[i], ((float)((*h)[j][i])), parent[j]);
+            float w = ((float)((*h)[j][i]));
+            r += w * parent[j].getR();
+            g += w * parent[j].getG();
+            b += w * parent[j].getB();
         }
+        child[i] = ColorRgb(r, g, b);
     }
 }
 
 void
 Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
+        float r = parent[i].getR();
+        float g = parent[i].getG();
+        float b = parent[i].getB();
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i].addScaled(parent[i], ((float)(H)), child[j]);
+            float w = ((float)(H));
+            r += w * child[j].getR();
+            g += w * child[j].getG();
+            b += w * child[j].getB();
         }
+        parent[i] = ColorRgb(r, g, b);
     }
 }
 

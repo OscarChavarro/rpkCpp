@@ -18,6 +18,7 @@ class OptionsGroupToneMapping{ public:
     static char toneMappingMethodsString[TONE_MAP_MTHS_STR_LEN];
     static char *toneMapName;
     static ToneMappingContext *toneMapOptions;
+    static float gammaValue;
 
     static void makeToneMappingMethodsString();
     static void toneMappingMethodOption(char *&name);

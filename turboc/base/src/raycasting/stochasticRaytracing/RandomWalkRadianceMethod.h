@@ -22,7 +22,7 @@ class RandomWalkRadianceMethod: public RadianceMethod{ public:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;
@@ -40,7 +40,7 @@ class RandomWalkRadianceMethod: public RadianceMethod{ public:
     static double randomWalkRadiosityPatchArea(const Patch *patch);
     static double rndmWalkRadSclrSrcPwr(const Patch *patch);
     static double rndmWalkRadSclrRefl(const Patch *patch);
-    static ColorRgb *rndmWalkRadGetSelfEmitRadn(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *rndmWalkRadGetSelfEmitRadn(const StochasticRadiosityElement *elem);
     static void randomWalkRadiosityReduceSource(const ArrayList<Patch *> *scenePatches);
     static double randomWalkRadiosityScoreWeight(const Path *path, int nodeIndex);
     static void rndmWalkRadShootScr( const Path *path, long numberOfPaths, double (*birthProbability)(const Patch *patch));

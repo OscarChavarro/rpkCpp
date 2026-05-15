@@ -22,7 +22,7 @@ Vertex::Vertex(
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
     patches = inPatches;
-    color.set(0.0f, 0.0f, 0.0f);
+    color = ColorRgb(0.0f, 0.0f, 0.0f);
     radianceData = NULL;
     back = ((Vertex *)(NULL));
 }
@@ -44,23 +44,26 @@ void
 Vertex::computeColor() {
     long numberOfPatches;
 
-    color.set(0.0f, 0.0f, 0.0f);
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
     numberOfPatches = 0;
 
     if ( patches != NULL ) {
         for ( int i = 0; i < patches->size(); i++) {
             const Patch *patch = patches->get(i);
-            color.r += patch->color.r;
-            color.g += patch->color.g;
-            color.b += patch->color.b;
+            r += patch->color.getR();
+            g += patch->color.getG();
+            b += patch->color.getB();
         }
         numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
-        color.r /= ((float)(numberOfPatches));
-        color.g /= ((float)(numberOfPatches));
-        color.b /= ((float)(numberOfPatches));
+        const float inv = 1.0f / ((float)(numberOfPatches));
+        color = ColorRgb(r * inv, g * inv, b * inv);
+    } else {
+        color = ColorRgb(0.0f, 0.0f, 0.0f);
     }
 }
 

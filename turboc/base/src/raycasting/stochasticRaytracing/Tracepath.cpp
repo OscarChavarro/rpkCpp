@@ -191,22 +191,23 @@ Tracepath::tracePaths(
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, ((double)(numberOfPaths)) / sumProbabilities);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
-            StochasticRelaxation::activeState().unShotFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
-            StochasticRelaxation::activeState().totalFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchRad(patch)[0]);
+        const float k = ((float)(M_PI)) * patch->area;
+        StochasticRelaxation::activeState().unShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().unShotFlux.getR() + k * McradP::getTopLevelPatchUnShotRad(patch)[0].getR(),
+            StochasticRelaxation::activeState().unShotFlux.getG() + k * McradP::getTopLevelPatchUnShotRad(patch)[0].getG(),
+            StochasticRelaxation::activeState().unShotFlux.getB() + k * McradP::getTopLevelPatchUnShotRad(patch)[0].getB());
+        StochasticRelaxation::activeState().totalFlux = ColorRgb(
+            StochasticRelaxation::activeState().totalFlux.getR() + k * McradP::getTopLevelPatchRad(patch)[0].getR(),
+            StochasticRelaxation::activeState().totalFlux.getG() + k * McradP::getTopLevelPatchRad(patch)[0].getG(),
+            StochasticRelaxation::activeState().totalFlux.getB() + k * McradP::getTopLevelPatchRad(patch)[0].getB());
     }
 }
 

@@ -1,3 +1,4 @@
+#include "common/color/Cie.h"
 #include "tonemap/WardToneMap.h"
 
 /**
@@ -28,14 +29,17 @@ WardToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 WardToneMap::scaleForComputations(ColorRgb radiance) const {
-    radiance.scale(comp);
-    return radiance;
+    return ColorRgb(
+        radiance.getR() * comp,
+        radiance.getG() * comp,
+        radiance.getB() * comp);
 }
 
 ColorRgb
 WardToneMap::scaleForDisplay(ColorRgb radiance) const {
     float eff = Cie::getLuminousEfficacy();
-
-    radiance.scale(eff * display);
-    return radiance;
+    return ColorRgb(
+        radiance.getR() * eff * display,
+        radiance.getG() * eff * display,
+        radiance.getB() * eff * display);
 }

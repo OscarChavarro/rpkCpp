@@ -276,7 +276,7 @@ PhotonMapRadianceMethod::phtnMapDCompPxlFluxEstmt(
 
     float factor = 1.0f / ((float)(bp->evalPdfAcc()));
 
-    f.scale(factor); // Flux estimate
+    f = ColorRgb(factor * f.getR(), factor * f.getG(), factor * f.getB()); // Flux estimate
 
     // Restore old values
     lightEndNode->m_bsdfEval = oldBsdfL;
@@ -351,7 +351,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
                       / ((float)(photonMapState.totalCPaths)));
         }
 
-        f.scale(factor);
+        f = ColorRgb(factor * f.getR(), factor * f.getG(), factor * f.getB());
 
         config->screen->add(nx, ny, f);
     }
@@ -417,7 +417,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
 {
     bool lDone;
     BiPath *bp = &config->biPath;
-    ColorRgb accPower;
+    ColorRgb accPower(1.0f, 1.0f, 1.0f);
     float factor;
 
     // Iterate over all light nodes
@@ -429,12 +429,13 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     bp->m_geomConnect = 1.0; // No connection yet
 
     lDone = false;
-    accPower.setMonochrome(1.0);
-
     while ( !lDone ) {
         // Adjust accPower
         factor = ((float)(currentNode->m_G / currentNode->m_pdfFromPrev));
-        accPower.scale(factor);
+        accPower = ColorRgb(
+            factor * accPower.getR(),
+            factor * accPower.getG(),
+            factor * accPower.getB());
 
         // Store photon, but not emitted light
         if ( config->currentMap == config->map ) {
@@ -458,7 +459,10 @@ PhotonMapRadianceMethod::photonMapHandlePath(
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
         if ( !(currentNode->ends()) ) {
-            accPower.selfScalarProduct(currentNode->m_bsdfEval);
+            accPower = ColorRgb(
+                accPower.getR() * currentNode->m_bsdfEval.getR(),
+                accPower.getG() * currentNode->m_bsdfEval.getG(),
+                accPower.getB() * currentNode->m_bsdfEval.getB());
 
             currentNode = currentNode->next();
             bp->m_lightSize++;
@@ -691,7 +695,7 @@ PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const 
     return col;
 }
 
-ColorRgb
+ColorRgbMutable
 PhotonMapRadianceMethod::getRadiance(
     Camera *camera,
     Patch *patch,
@@ -713,8 +717,7 @@ PhotonMapRadianceMethod::getRadiance(
     hit.setNormal(&normal);
 
     if ( PhotonMap::zeroAlbedo(bsdf, &hit, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT) ) {
-        radiance.clear();
-        return radiance;
+        return ColorRgbMutable(0.0f, 0.0f, 0.0f);
     }
 
     RadiosityReturnOption radiosityReturn = GLOBAL_RADIANCE;
@@ -761,11 +764,11 @@ PhotonMapRadianceMethod::getRadiance(
                     &hit, dir, bsdf, NULL, bsdf);
             break;
         default:
-            radiance.clear();
+            radiance = ColorRgb(0.0f, 0.0f, 0.0f);
             Logger::error("photonMapGetRadiance", "Unknown radiance return");
     }
 
-    return radiance;
+    return ColorRgbMutable(radiance.getR(), radiance.getG(), radiance.getB());
 }
 
 char *

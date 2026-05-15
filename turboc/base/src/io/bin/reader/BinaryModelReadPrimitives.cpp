@@ -202,9 +202,10 @@ BinaryModelReadPrimitives::readColor(InputStream &input, ColorRgb *color) {
     if ( color == NULL ) {
         return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
     }
-    color->r = readFloatLE(input);
-    color->g = readFloatLE(input);
-    color->b = readFloatLE(input);
+    const float r = readFloatLE(input);
+    const float g = readFloatLE(input);
+    const float b = readFloatLE(input);
+    *color = ColorRgb(r, g, b);
     return true;
 }
 

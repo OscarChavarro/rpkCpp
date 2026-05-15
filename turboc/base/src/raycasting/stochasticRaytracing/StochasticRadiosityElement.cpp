@@ -150,8 +150,8 @@ StochasticRadiosityElement::mntCarloRadCreateClust(Geometry *geometry) {
     elem->geometry = geometry;
     elem->flags = IS_CLUSTER_MASK;
 
-    elem->Rd.setMonochrome(1.0);
-    elem->Ed.clear();
+    elem->Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+    elem->Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
 
     // elem->area will be computed from the sub-elements in the cluster later
     elem->midPoint = geometry->boundingBox.center();
@@ -609,8 +609,8 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
     NiederreiterIndex msb1;
     NiederreiterIndex rMostSignificantBit2;
     NiederreiterIndex n;
-    ColorRgb albedo;
-    ColorRgb emittance;
+    ColorRgbMutable albedo;
+    ColorRgbMutable emittance;
     RayHit hit;
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
@@ -622,7 +622,7 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
 
     n = 1;
     for ( int i = 0; i < numberOfSamples; i++, n++ ) {
-        ColorRgb sample;
+        ColorRgbMutable sample;
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(((double)(xi[0])) * RECIP, ((double)(xi[1])) * RECIP);
         unsigned int newFlags = hit.getFlags() | UV;
@@ -868,13 +868,13 @@ void
 StochasticRadiosityElement::stchsRadElemPushRadn(
     const StochasticRadiosityElement *parent,
     StochasticRadiosityElement *child,
-    const ColorRgb *parentRadiance,
-    ColorRgb *childRadiance)
+    const ColorRgbMutable *parentRadiance,
+    ColorRgbMutable *childRadiance)
 {
     if ( parent->isCluster() || child->basis->size == 1 ) {
         childRadiance[0].add(childRadiance[0], parentRadiance[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        Basismcrad::filterColorDown(parentRadiance, &(*child->basis->regularFilter)[child->childNumber], childRadiance,
+        Basismcrad::filterColorDown((const ColorRgb *)parentRadiance, &(*child->basis->regularFilter)[child->childNumber], (ColorRgb *)childRadiance,
                         child->basis->size);
     } else {
         Logger::fatal(-1, "stchsRadElemPushRadn",
@@ -891,15 +891,15 @@ void
 StochasticRadiosityElement::stchsRadElemPullRadn(
     const StochasticRadiosityElement *parent,
     const StochasticRadiosityElement *child,
-    ColorRgb *parentRad,
-    const ColorRgb *childRad)
+    ColorRgbMutable *parentRad,
+    const ColorRgbMutable *childRad)
 {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
         parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        Basismcrad::filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
-                      parentRad, child->basis->size, areaFactor);
+        Basismcrad::filterColorUp((const ColorRgb *)childRad, &(*child->basis->regularFilter)[child->childNumber],
+                      (ColorRgb *)parentRad, child->basis->size, areaFactor);
     } else {
         Logger::fatal(-1, "stchsRadElemPullRadn",
                  "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");

@@ -130,9 +130,9 @@ BinaryModelSerializer::writeString(OutputStream &output, const char *text) {
 
 void
 BinaryModelSerializer::writeColor(OutputStream &output, const ColorRgb &color) {
-    PersistenceElement::writeFloatLE(output, color.r);
-    PersistenceElement::writeFloatLE(output, color.g);
-    PersistenceElement::writeFloatLE(output, color.b);
+    PersistenceElement::writeFloatLE(output, color.getR());
+    PersistenceElement::writeFloatLE(output, color.getG());
+    PersistenceElement::writeFloatLE(output, color.getB());
 }
 
 void

@@ -26,7 +26,7 @@ class HierarchicalRefinementStrategy {
         const GalerkinState *galerkinState);
 
     static double
-    hierRefClrTErrr(ColorRgb radiance);
+    hierRefClrTErrr(ColorRgbMutable radiance);
 
     static double
     hierRefLinkErrrThrsh(
@@ -37,14 +37,14 @@ class HierarchicalRefinementStrategy {
     static double
     hierRefApprxErrr(
         Interaction *interaction,
-        ColorRgb srcRho,
-        ColorRgb rcvRho,
+        ColorRgbMutable srcRho,
+        ColorRgbMutable rcvRho,
         GalerkinState *galerkinState);
 
     static double
     srcClustRadnVrtnErrr(
         Interaction *interaction,
-        ColorRgb rcvRho,
+        ColorRgbMutable rcvRho,
         double receiverArea,
         GalerkinState *galerkinState);
 

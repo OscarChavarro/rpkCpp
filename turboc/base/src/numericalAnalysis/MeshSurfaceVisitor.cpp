@@ -34,20 +34,23 @@ MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
             break;
         case VERTEX_COLORS:
             // Average color of the vertices
-            face->color.set(0, 0, 0);
+            {
+            float r = 0.0f;
+            float g = 0.0f;
+            float b = 0.0f;
             for ( i = 0; i < face->numberOfVertices; i++ ) {
-                face->color.r += face->vertex[i]->color.r;
-                face->color.g += face->vertex[i]->color.g;
-                face->color.b += face->vertex[i]->color.b;
+                r += face->vertex[i]->color.getR();
+                g += face->vertex[i]->color.getG();
+                b += face->vertex[i]->color.getB();
             }
-            face->color.r /= ((float)(i));
-            face->color.g /= ((float)(i));
-            face->color.b /= ((float)(i));
+            const float inv = 1.0f / ((float)(i));
+            face->color = ColorRgb(r * inv, g * inv, b * inv);
+            }
             break;
         default: {
             ColorRgb rho;
             rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            rho.set(face->color.r, face->color.g, face->color.b);
+            face->color = rho;
         }
     }
 }

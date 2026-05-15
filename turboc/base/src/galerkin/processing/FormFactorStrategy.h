@@ -65,8 +65,8 @@ class FormFactorStrategy {
         const GalerkinElement *receiverElement,
         double gMin,
         double gMax,
-        const ColorRgb *sourceRadiance,
-        ColorRgb *deltaRadiance,
+        const ColorRgbMutable *sourceRadiance,
+        ColorRgbMutable *deltaRadiance,
         Interaction *link);
 
     static inline void
@@ -78,10 +78,10 @@ class FormFactorStrategy {
         const GalerkinElement *receiverElement,
         const GalerkinBasis *sourceBasis,
         const GalerkinBasis *receiverBasis,
-        const ColorRgb *sourceRadiance,
+        const ColorRgbMutable *sourceRadiance,
         double *gMin,
         double *gMax,
-        ColorRgb *deltaRadiance,
+        ColorRgbMutable *deltaRadiance,
         Interaction *twoPatchesInteraction);
 
   public:

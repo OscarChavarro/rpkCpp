@@ -47,7 +47,10 @@ DensityBuffer::add(float x, float y, ColorRgb color) {
     ColorRgb tmpCol;
 
     if ( color.average() > Numeric::EPSILON ) {
-        tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
+        tmpCol = ColorRgb(
+            factor * color.getR(),
+            factor * color.getG(),
+            factor * color.getB()); // Undo part of flux to rad factor
 
         DensityHit hit(x, y, tmpCol);
 

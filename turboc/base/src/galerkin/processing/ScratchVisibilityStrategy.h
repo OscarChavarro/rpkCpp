@@ -13,7 +13,7 @@ class ScratchVisibilityStrategy {
     static void scratchInit(GalerkinState *galerkinState);
     static void scratchTerminate(GalerkinState *galerkinState);
     static BoundingBox *scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState);
-    static ColorRgb scratchRadiance(const GalerkinState *galerkinState);
+    static ColorRgbMutable scratchRadiance(const GalerkinState *galerkinState);
     static int scratchNonBackgroundPixels(const GalerkinState *galerkinState);
     static void scratchPixelsPerElement(const GalerkinState *galerkinState);
 };

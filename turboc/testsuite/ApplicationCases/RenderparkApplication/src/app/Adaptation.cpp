@@ -29,11 +29,11 @@ ColorRgb
 Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb emittance = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
     ColorRgb reflectance = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
-    ColorRgb radiance;
-
-    radiance.scalarProduct(reflectance, Statistics::instance().radiance.estimatedAverageRadiance);
-    radiance.addScaled(radiance, (1.0f / ((float)(M_PI))), emittance);
-    return radiance;
+    ColorRgb avgRad = Statistics::instance().radiance.estimatedAverageRadiance;
+    return ColorRgb(
+        reflectance.getR() * avgRad.getR() + (1.0f / ((float)(M_PI))) * emittance.getR(),
+        reflectance.getG() * avgRad.getG() + (1.0f / ((float)(M_PI))) * emittance.getG(),
+        reflectance.getB() * avgRad.getB() + (1.0f / ((float)(M_PI))) * emittance.getB());
 }
 
 int
@@ -51,7 +51,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = patchRadianceEstimate(patch);
-    float brightness = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    float brightness = Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
     }

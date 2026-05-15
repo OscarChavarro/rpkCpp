@@ -80,11 +80,18 @@ PicOutputHandle::~PicOutputHandle() {
 Writes scanline of high-dynamic range radiance data in RGB format
 */
 int
-PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
+PicOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != NULL ) {
-        result = DkColor::writeScan(((DK_COLOR *)(rgbRadiance)), width, outputStream);
+        float *scanline = new float[width * 3];
+        for ( int i = 0; i < width; i++ ) {
+            scanline[3 * i] = rgbRadiance[i].getR();
+            scanline[3 * i + 1] = rgbRadiance[i].getG();
+            scanline[3 * i + 2] = rgbRadiance[i].getB();
+        }
+        result = DkColor::writeScan(((DK_COLOR *)(scanline)), width, outputStream);
+        delete[] scanline;
     }
 
     if ( result ) {

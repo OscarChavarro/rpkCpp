@@ -32,7 +32,10 @@ class Photon {
 
     inline void
     addPower(ColorRgb col) {
-        m_power.add(m_power, col);
+        m_power = ColorRgb(
+            m_power.getR() + col.getR(),
+            m_power.getG() + col.getG(),
+            m_power.getB() + col.getB());
     }
 
     inline Vector3D

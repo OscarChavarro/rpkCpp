@@ -18,9 +18,10 @@ ToneMap::gammaTableEntry(float x) {
 
 void
 ToneMap::toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions) {
-    rgb.r = toneMapOptions.gammaTab[0][gammaTableEntry(rgb.r)];
-    rgb.g = toneMapOptions.gammaTab[1][gammaTableEntry(rgb.g)];
-    rgb.b = toneMapOptions.gammaTab[2][gammaTableEntry(rgb.b)];
+    rgb = ColorRgb(
+        toneMapOptions.gammaTab[0][gammaTableEntry(rgb.getR())],
+        toneMapOptions.gammaTab[1][gammaTableEntry(rgb.getG())],
+        toneMapOptions.gammaTab[2][gammaTableEntry(rgb.getB())]);
 }
 
 ColorRgb
@@ -58,9 +59,9 @@ Recomputes gamma tables for the given gamma values for red, green and blue
 */
 void
 ToneMap::recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma) {
-    ToneMap::recomputeGammaTable(toneMapOptions, 0, gamma.r);
-    ToneMap::recomputeGammaTable(toneMapOptions, 1, gamma.g);
-    ToneMap::recomputeGammaTable(toneMapOptions, 2, gamma.b);
+    ToneMap::recomputeGammaTable(toneMapOptions, 0, gamma.getR());
+    ToneMap::recomputeGammaTable(toneMapOptions, 1, gamma.getG());
+    ToneMap::recomputeGammaTable(toneMapOptions, 2, gamma.getB());
 }
 
 /**
@@ -68,7 +69,10 @@ Rescale real world radiance using properly set up tone mapping algorithm
 */
 ColorRgb *
 ToneMap::rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions) {
-    in.scale(toneMapOptions.pow_bright_adjust);
+    in = ColorRgb(
+        in.getR() * toneMapOptions.pow_bright_adjust,
+        in.getG() * toneMapOptions.pow_bright_adjust,
+        in.getB() * toneMapOptions.pow_bright_adjust);
     *out = ToneMap::toneMapScaleForDisplay(in);
     return out;
 }
@@ -89,7 +93,10 @@ Does most to convert radiance to display RGB color
 ColorRgb *
 ToneMap::radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions) {
     ToneMap::rescaleRadiance(color, &color, toneMapOptions);
-    rgb->set(color.r, color.g, color.b);
-    rgb->clip();
+    *rgb = ColorRgb(color.getR(), color.getG(), color.getB());
+    *rgb = ColorRgb(
+        Math::max(0.0f, Math::min(1.0f, rgb->getR())),
+        Math::max(0.0f, Math::min(1.0f, rgb->getG())),
+        Math::max(0.0f, Math::min(1.0f, rgb->getB())));
     return rgb;
 }

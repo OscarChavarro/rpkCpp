@@ -240,10 +240,10 @@ FormFactorStrategy::computeInteractionFormFactor(
     const GalerkinElement *receiverElement,
     const GalerkinBasis *sourceBasis,
     const GalerkinBasis *receiverBasis,
-    const ColorRgb *sourceRadiance,
+    const ColorRgbMutable *sourceRadiance,
     double *gMin,
     double *gMax,
-    ColorRgb *deltaRadiance,
+    ColorRgbMutable *deltaRadiance,
     Interaction *twoPatchesInteraction)
 {
     // 1. Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
@@ -348,8 +348,8 @@ FormFactorStrategy::computeInteractionError(
     const GalerkinElement *receiverElement,
     const double gMin,
     const double gMax,
-    const ColorRgb *sourceRadiance,
-    ColorRgb *deltaRadiance,
+    const ColorRgbMutable *sourceRadiance,
+    ColorRgbMutable *deltaRadiance,
     Interaction *link)
 {
     // Compute error and write it to interaction deltaK
@@ -408,9 +408,9 @@ FormFactorStrategy::dHighOrdAreaTAreaFormFactor(
     }
 
     // 2. Compute form factor (sets K)
-    const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
+    const ColorRgbMutable *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
          sourceElement->unShotRadiance : sourceElement->radiance;
-    ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
+    ColorRgbMutable deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
     double gMin = Numeric::HUGE_DOUBLE_VALUE;
     double gMax = -Numeric::HUGE_DOUBLE_VALUE;
 

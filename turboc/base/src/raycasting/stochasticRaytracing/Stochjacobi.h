@@ -2,7 +2,7 @@
 #define __STOCHASTIC_JACOBI__
 
 #include "java/util/ArrayList.h"
-#include "common/color/ColorRgb.h"
+#include "common/color/ColorRgbMutable.h"
 #include "material/RendererConfiguration.h"
 #include "environment/geometry/elements/Patch.h"
 #include "scene/VoxelGrid.h"
@@ -33,7 +33,7 @@ CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
 class StochasticJacobi{ public:
-    typedef ColorRgb *(*GetRadianceCallback)(const StochasticRadiosityElement *);
+    typedef ColorRgbMutable *(*GetRadianceCallback)(const StochasticRadiosityElement *);
     typedef float (*GetImportanceCallback)(const StochasticRadiosityElement *);
     typedef void (*UpdateCallback)(StochasticRadiosityElement *elem, double w);
 
@@ -53,11 +53,11 @@ class StochasticJacobi{ public:
     static void stchsJacElemClearAccums(StochasticRadiosityElement *elem);
     static void stochasticJacobiElementSetup(Element *element);
     static bool stochasticJacobiSetup(const ArrayList<Patch *> *scenePatches);
-    static ColorRgb stchsJacGetSrcRadn(const StochasticRadiosityElement *src, double us, double vs);
-    static void stchsJacPropRadnTSurf( StochasticRadiosityElement *rcv, double ur, double vr, ColorRgb rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
-    static void stchsJacPropRadnTClustIstrp( StochasticRadiosityElement *cluster, ColorRgb rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
-    static void stchsJacPropRadnClustRec( StochasticRadiosityElement *currentElement, ColorRgb rayPower, Ray *ray, float dir, double projectedArea, double fraction);
-    static void stchsJacPropRadnTClustOrntd( StochasticRadiosityElement *cluster, ColorRgb rayPower, Ray *ray, float dir, const StochasticRadiosityElement *src, double projectedArea, double fraction, double weight);
+    static ColorRgbMutable stchsJacGetSrcRadn(const StochasticRadiosityElement *src, double us, double vs);
+    static void stchsJacPropRadnTSurf( StochasticRadiosityElement *rcv, double ur, double vr, ColorRgbMutable rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
+    static void stchsJacPropRadnTClustIstrp( StochasticRadiosityElement *cluster, ColorRgbMutable rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
+    static void stchsJacPropRadnClustRec( StochasticRadiosityElement *currentElement, ColorRgbMutable rayPower, Ray *ray, float dir, double projectedArea, double fraction);
+    static void stchsJacPropRadnTClustOrntd( StochasticRadiosityElement *cluster, ColorRgbMutable rayPower, Ray *ray, float dir, const StochasticRadiosityElement *src, double projectedArea, double fraction, double weight);
     static void stchsJacPropRadn( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, Ray *ray, float dir);
     static void stchsJacPropImp( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, const Ray *ray, float dir);
     static double stchsJacRecvPrjctArea( const StochasticRadiosityElement *cluster, Ray *ray, float dir);

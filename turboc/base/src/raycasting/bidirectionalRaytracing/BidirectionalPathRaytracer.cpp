@@ -281,7 +281,10 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
                            * ((float)(config->baseConfig->totalSamples));
 
             if ( f.average() > Numeric::EPSILON ) {
-                g.scaledCopy(factor, f); // Undo part of flux to rad factor
+                g = ColorRgb(
+                    factor * f.getR(),
+                    factor * f.getG(),
+                    factor * f.getB()); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,
                                         ((int)(config->baseConfig->totalSamples)), config->scaleSamples,
@@ -358,7 +361,7 @@ BidirectionalPathRaytracer::handlePathX0(
         if ( endingEdf != NULL ) {
             // Landed on a light : fill in values for BPT
             if ( endingEdf == NULL ) {
-                eyeEndNode->m_bsdfEval.clear();
+                eyeEndNode->m_bsdfEval = ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
                 eyeEndNode->m_bsdfEval = endingEdf->phongEdfEval(
                     &eyeEndNode->m_hit,
@@ -397,11 +400,11 @@ BidirectionalPathRaytracer::handlePathX0(
 
             path->m_pdfLNE = pdfLNE;
         } else if ( hasEnvironmentBackground ) {
-            eyeEndNode->m_bsdfEval = Background::backgroundRadiance(
+            eyeEndNode->m_bsdfEval = ColorRgb(Background::backgroundRadiance(
                 sceneBackground,
                 NULL,
                 &eyeEndNode->m_inDirF,
-                NULL);
+                NULL));
             eyeEndNode->m_bsdfComp.Fill(
                 eyeEndNode->m_bsdfEval,
                 BRDF_DIFFUSE_COMPONENT);
@@ -429,14 +432,23 @@ BidirectionalPathRaytracer::handlePathX0(
         factor *= ((float)(config->fluxToRadFactor)) / ((float)(config->baseConfig->samplesPerPixel));
 
         if ( config->baseConfig->useSpars ) {
-            fRad.scale(factor);
+            ColorRgb fRadScaled(
+                factor * fRad.getR(),
+                factor * fRad.getG(),
+                factor * fRad.getB());
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, fRad, true);
-            f.scale(factor);
+                              config->xSample, config->ySample, fRadScaled, true);
+            ColorRgb fScaled(
+                factor * f.getR(),
+                factor * f.getG(),
+                factor * f.getB());
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, f, false);
+                              config->xSample, config->ySample, fScaled, false);
         } else {
-            f.scale(factor);
+            f = ColorRgb(
+                factor * f.getR(),
+                factor * f.getG(),
+                factor * f.getB());
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, f);
         }
@@ -515,7 +527,7 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BsdfComponentInfo::BSDF_ALL_COMPONENTS, BsdfComponentInfo::BSDF_ALL_COMPONENTS, &path->m_dirEL);
 
-    path->m_dirLE.scaledCopy(-1, path->m_dirEL);
+    path->m_dirLE.scaledCopy(-1.0f, path->m_dirEL);
 
     // Evaluate radiance and pdf and weight
     if ( config->baseConfig->useSpars ) {
@@ -524,7 +536,10 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
         f = path->evalRadiance();
 
         float factor = path->evalPdfAndWeight(config->baseConfig, pPdf, pWeight);
-        f.scale(factor); // Flux estimate
+        f = ColorRgb(
+            factor * f.getR(),
+            factor * f.getG(),
+            factor * f.getB()); // Flux estimate
     }
 
     // Restore old values
@@ -623,12 +638,18 @@ BidirectionalPathRaytracer::handlePathXx(
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         float factor = ((float)(config->fluxToRadFactor)) / ((float)(config->baseConfig->samplesPerPixel));
-        f.scale(factor);
+        ColorRgb fScaled(
+            factor * f.getR(),
+            factor * f.getG(),
+            factor * f.getB());
         addWithSpikeCheck(config, path, config->nx, config->ny,
-                          config->xSample, config->ySample, f);
+                          config->xSample, config->ySample, fScaled);
 
         if ( config->baseConfig->useSpars ) {
-            fRad.scale(factor);
+            fRad = ColorRgb(
+                factor * fRad.getR(),
+                factor * fRad.getG(),
+                factor * fRad.getB());
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, fRad, true);
         }
@@ -684,12 +705,18 @@ BidirectionalPathRaytracer::handlePath1X(
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
         float factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / ((float)(config->baseConfig->totalSamples)));
-        f.scale(factor);
+        f = ColorRgb(
+            factor * f.getR(),
+            factor * f.getG(),
+            factor * f.getB());
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
 
         if ( config->baseConfig->useSpars ) {
-            fRad.scale(factor);
+            fRad = ColorRgb(
+                factor * fRad.getR(),
+                factor * fRad.getG(),
+                factor * fRad.getB());
             addWithSpikeCheck(config, path, nx, ny, pixX, pixY, fRad, true);
         }
     }
@@ -812,7 +839,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
     SimpleRaytracingPathNode *pixNode;
     SimpleRaytracingPathNode *nextNode;
 
-    result.clear();
+    result = ColorRgb(0.0f, 0.0f, 0.0f);
 
     // We sample the eye here since it's always the same point
     if ( config->eyePath == NULL ) {

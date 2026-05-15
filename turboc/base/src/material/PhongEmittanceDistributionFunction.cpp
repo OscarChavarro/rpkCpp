@@ -1,7 +1,31 @@
 #include "common/logging/Logger.h"
+#include "common/linealAlgebra/Numeric.h"
+#include "java/lang/Math.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/Xxdf.h"
+
+static ColorRgb
+black() {
+    return ColorRgb(0.0f, 0.0f, 0.0f);
+}
+
+static bool
+isBlack(const ColorRgb &c) {
+    return Math::abs(c.getR()) < Numeric::EPSILON
+        && Math::abs(c.getG()) < Numeric::EPSILON
+        && Math::abs(c.getB()) < Numeric::EPSILON;
+}
+
+static ColorRgb
+addColor(const ColorRgb &a, const ColorRgb &b) {
+    return ColorRgb(a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB());
+}
+
+static ColorRgb
+scaleColor(float scale, const ColorRgb &c) {
+    return ColorRgb(scale * c.getR(), scale * c.getG(), scale * c.getB());
+}
 
 bool
 PhongEmitDistFunc::isSpecular() const {
@@ -18,15 +42,15 @@ note: Emittance is total power emitted by the light source per unit of area
 PhongEmitDistFunc::PhongEmitDistFunc(
     const ColorRgb *KdParameter,
     const ColorRgb *KsParameter,
-    double NsParameter)
+    double NsParameter):
+    Kd(*KdParameter),
+    kd(scaleColor((1.00f / ((float)(M_PI))), *KdParameter)),
+    Ks(*KsParameter),
+    Ns(((float)(NsParameter)))
 {
-    Kd = *KdParameter;
-    kd.scaledCopy((1.00f / ((float)(M_PI))), Kd); // Because we use it often
-    Ks = *KsParameter;
-    if ( !Ks.isBlack() ) {
+    if ( !isBlack(Ks) ) {
         Logger::warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
-    Ns = ((float)(NsParameter));
 }
 
 PhongEmitDistFunc::~PhongEmitDistFunc() {
@@ -37,20 +61,18 @@ Returns emittance, reflectance, transmittance
 */
 ColorRgb
 PhongEmitDistFunc::phongEmittance(const ShadingContext & /*context*/, const char flags) const {
-    ColorRgb result;
-
-    result.clear();
+    ColorRgb result = black();
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, Kd);
+        result = addColor(result, Kd);
     }
 
     if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, Ks);
+            result = addColor(result, Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, Ks);
+            result = addColor(result, Ks);
         }
     }
 
@@ -93,10 +115,8 @@ PhongEmitDistFunc::phongEdfEval(
     double *probabilityDensityFunction) const
 {
     Vector3D normal;
-    ColorRgb result;
+    ColorRgb result = black();
     double cosL;
-
-    result.clear();
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;
     }
@@ -117,7 +137,7 @@ PhongEmitDistFunc::phongEdfEval(
 
     if ( flags & DIFFUSE_COMPONENT ) {
         // Divide by PI to turn radiant exitance [W / m ^ 2] into exitant radiance [W / m ^ 2 sr]
-        result.add(result, kd);
+        result = addColor(result, kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
         }
@@ -141,18 +161,14 @@ PhongEmitDistFunc::phongEdfEval(
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;
         }
-        ColorRgb result;
-        result.clear();
-        return result;
+        return black();
     }
     Vector3D normal;
     if ( !hit->shadingNormal(&normal) ) {
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;
         }
-        ColorRgb result;
-        result.clear();
-        return result;
+        return black();
     }
     Vector3D texCoord;
     unsigned int localFlags = NORMAL;
@@ -189,7 +205,7 @@ PhongEmitDistFunc::phongEdfSample(
     double *probabilityDensityFunction) const
 {
     if ( selfEmittedRadiance ) {
-        selfEmittedRadiance->clear();
+        *selfEmittedRadiance = black();
     }
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;
@@ -214,7 +230,7 @@ PhongEmitDistFunc::phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->scaledCopy((1.0f / ((float)(M_PI))), Kd);
+            *selfEmittedRadiance = scaleColor((1.0f / ((float)(M_PI))), Kd);
         }
     }
 
@@ -232,7 +248,7 @@ PhongEmitDistFunc::phongEdfSample(
 {
     if ( hit == NULL ) {
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->clear();
+            *selfEmittedRadiance = black();
         }
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;
@@ -243,7 +259,7 @@ PhongEmitDistFunc::phongEdfSample(
     Vector3D normal;
     if ( !hit->shadingNormal(&normal) ) {
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->clear();
+            *selfEmittedRadiance = black();
         }
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;

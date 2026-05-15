@@ -33,17 +33,19 @@ evaluation, no pdf involved
 */
 ColorRgb
 BiPath::evalRadiance() const {
-    ColorRgb col;
+    float r = 1.0f;
+    float g = 1.0f;
+    float b = 1.0f;
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;
 
-    col.setMonochrome(1.0);
-
     node = m_eyePath;
 
     for ( i = 0; i < m_eyeSize; i++ ) {
-        col.selfScalarProduct(node->m_bsdfEval);
+        r *= node->m_bsdfEval.getR();
+        g *= node->m_bsdfEval.getG();
+        b *= node->m_bsdfEval.getB();
         factor *= node->m_G;
         node = node->next();
     }
@@ -51,16 +53,19 @@ BiPath::evalRadiance() const {
     node = m_lightPath;
 
     for ( i = 0; i < m_lightSize; i++ ) {
-        col.selfScalarProduct(node->m_bsdfEval);
+        r *= node->m_bsdfEval.getR();
+        g *= node->m_bsdfEval.getG();
+        b *= node->m_bsdfEval.getB();
         factor *= node->m_G;
         node = node->next();
     }
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    col.scale(((float)(factor)));
-
-    return col;
+    return ColorRgb(
+        r * ((float)(factor)),
+        g * ((float)(factor)),
+        b * ((float)(factor)));
 }
 
 /**

@@ -45,7 +45,7 @@ SoftIds::softRenderPatch(
 
     Vector3D vertices[4];
 
-    if ( renderOptions->backfaceCulling &&
+    if ( renderOptions->isBackfaceCulling() &&
          patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < Numeric::EPSILON ) {
         return;
     }
@@ -111,9 +111,9 @@ SoftIds::softRenderPixels(int width, int height, const ColorRgb *rgb, const Tone
             ColorRgb corrected_rgb = rgb[rowRgbStart + i];
             ToneMap::toneMappingGammaCorrection(corrected_rgb, toneMapOptions);
             const int pixelOffset = rowStart + 4 * i;
-            c[pixelOffset] = ((unsigned char)(corrected_rgb.r * 255.0));
-            c[pixelOffset + 1] = ((unsigned char)(corrected_rgb.g * 255.0));
-            c[pixelOffset + 2] = ((unsigned char)(corrected_rgb.b * 255.0));
+            c[pixelOffset] = ((unsigned char)(corrected_rgb.getR() * 255.0));
+            c[pixelOffset + 1] = ((unsigned char)(corrected_rgb.getG() * 255.0));
+            c[pixelOffset + 2] = ((unsigned char)(corrected_rgb.getB() * 255.0));
             c[pixelOffset + 3] = 255; // alpha = 1.0
         }
     }

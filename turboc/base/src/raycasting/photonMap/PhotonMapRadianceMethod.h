@@ -46,7 +46,7 @@ class PhotonMapRadianceMethod: public RadianceMethod{ private:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;

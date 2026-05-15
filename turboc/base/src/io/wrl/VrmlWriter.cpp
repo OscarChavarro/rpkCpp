@@ -187,7 +187,7 @@ VrmlWriter::writeHeader(
         modelRotationAxis.z,
         modelRotationAngle);
 
-    writeFormatted(outputStream, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
+    writeFormatted(outputStream, "\tsolid %s\n", renderOptions->isBackfaceCulling() ? "TRUE" : "FALSE");
 }
 
 void

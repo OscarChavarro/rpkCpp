@@ -35,14 +35,14 @@ PhotonMapSampler::chooseComponent(
     float totalPower;
 
     // Choose between flags1 or flags2 scattering
-    color.clear();
+    color = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( bsdf != NULL ) {
         color = bsdf->splitBsdfScatteredPower(hit, flags1);
     }
     power1 = color.average();
 
-    color.clear();
+    color = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
         color = bsdf->splitBsdfScatteredPower(hit, flags2);
     }
@@ -188,13 +188,13 @@ PhotonMapSampler::chooseFresnelDirection(
     // would be zero
     const PhongBidirScattDistFunc *bsdf = thisNode->m_useBsdf;
     ColorRgb reflectance;
-    reflectance.clear();
+    reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
         reflectance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
-    transmittance.clear();
+    transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
         transmittance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
     }
@@ -304,14 +304,23 @@ PhotonMapSampler::chooseFresnelDirection(
     // specular transmission
     if ( reflected ) {
         if ( reflective ) {
-            scatteringColor->scaledCopy(F, reflectance);
+            *scatteringColor = ColorRgb(
+                F * reflectance.getR(),
+                F * reflectance.getG(),
+                F * reflectance.getB());
             *doCosInverse = false;
         } else {
-            scatteringColor->scaledCopy(F, transmittance);
+            *scatteringColor = ColorRgb(
+                F * transmittance.getR(),
+                F * transmittance.getG(),
+                F * transmittance.getB());
             *doCosInverse = true;
         }
     } else {
-        scatteringColor->scaledCopy(T, transmittance);
+        *scatteringColor = ColorRgb(
+            T * transmittance.getR(),
+            T * transmittance.getG(),
+            T * transmittance.getB());
         *doCosInverse = true;
     }
 
@@ -352,7 +361,11 @@ PhotonMapSampler::fresnelSample(
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
         float cosB = Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
-        thisNode->m_bsdfEval.scaleInverse(cosB, scatteringColor);
+        float inv = (cosB < -Numeric::EPSILON || cosB > Numeric::EPSILON) ? 1.0f / cosB : 1.0f;
+        thisNode->m_bsdfEval = ColorRgb(
+            inv * scatteringColor.getR(),
+            inv * scatteringColor.getG(),
+            inv * scatteringColor.getB());
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }

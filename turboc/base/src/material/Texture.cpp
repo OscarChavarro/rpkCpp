@@ -41,11 +41,6 @@ Texture::~Texture() {
     data = NULL;
 }
 
-void
-Texture::setMonochrome(ColorRgb rgb, float val) {
-    rgb.set(val, val, val);
-}
-
 ColorRgb
 Texture::evaluateColor(float u, float v) const {
     double u1 = u - Math::floor(u);
@@ -75,11 +70,8 @@ Texture::evaluateColor(float u, float v) const {
         j1 -= height;
     }
 
-    ColorRgb rgb = ColorRgb();
-
-    rgb.clear();
     if ( !data ) {
-        return rgb;
+        return ColorRgb(0.0f, 0.0f, 0.0f);
     }
 
     const int pixelIndex00 = (j * width + i) * channels;
@@ -87,33 +79,48 @@ Texture::evaluateColor(float u, float v) const {
     const int pixelIndex10 = (j * width + i1) * channels;
     const int pixelIndex11 = (j1 * width + i1) * channels;
 
-    ColorRgb rgb00 = ColorRgb();
-    ColorRgb rgb10 = ColorRgb();
-    ColorRgb rgb01 = ColorRgb();
-    ColorRgb rgb11 = ColorRgb();
+    float r00 = 0.0f;
+    float g00 = 0.0f;
+    float b00 = 0.0f;
+    float r10 = 0.0f;
+    float g10 = 0.0f;
+    float b10 = 0.0f;
+    float r01 = 0.0f;
+    float g01 = 0.0f;
+    float b01 = 0.0f;
+    float r11 = 0.0f;
+    float g11 = 0.0f;
+    float b11 = 0.0f;
 
     switch ( channels ) {
         case 1:
-            setMonochrome(rgb00, textureChannelValue(data, pixelIndex00, 0));
-            setMonochrome(rgb10, textureChannelValue(data, pixelIndex10, 0));
-            setMonochrome(rgb01, textureChannelValue(data, pixelIndex01, 0));
-            setMonochrome(rgb11, textureChannelValue(data, pixelIndex11, 0));
+            r00 = g00 = b00 = textureChannelValue(data, pixelIndex00, 0);
+            r10 = g10 = b10 = textureChannelValue(data, pixelIndex10, 0);
+            r01 = g01 = b01 = textureChannelValue(data, pixelIndex01, 0);
+            r11 = g11 = b11 = textureChannelValue(data, pixelIndex11, 0);
             break;
         case 3:
         case 4: {
-            rgb00.set(textureChannelValue(data, pixelIndex00, 0), textureChannelValue(data, pixelIndex00, 1), textureChannelValue(data, pixelIndex00, 2));
-            rgb10.set(textureChannelValue(data, pixelIndex10, 0), textureChannelValue(data, pixelIndex10, 1), textureChannelValue(data, pixelIndex10, 2));
-            rgb01.set(textureChannelValue(data, pixelIndex01, 0), textureChannelValue(data, pixelIndex01, 1), textureChannelValue(data, pixelIndex01, 2));
-            rgb11.set(textureChannelValue(data, pixelIndex11, 0), textureChannelValue(data, pixelIndex11, 1), textureChannelValue(data, pixelIndex11, 2));
+            r00 = textureChannelValue(data, pixelIndex00, 0);
+            g00 = textureChannelValue(data, pixelIndex00, 1);
+            b00 = textureChannelValue(data, pixelIndex00, 2);
+            r10 = textureChannelValue(data, pixelIndex10, 0);
+            g10 = textureChannelValue(data, pixelIndex10, 1);
+            b10 = textureChannelValue(data, pixelIndex10, 2);
+            r01 = textureChannelValue(data, pixelIndex01, 0);
+            g01 = textureChannelValue(data, pixelIndex01, 1);
+            b01 = textureChannelValue(data, pixelIndex01, 2);
+            r11 = textureChannelValue(data, pixelIndex11, 0);
+            g11 = textureChannelValue(data, pixelIndex11, 1);
+            b11 = textureChannelValue(data, pixelIndex11, 2);
         }
             break;
         default:
             break;
     }
 
-    rgb.set(
-        0.25f * ((float)(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r)),
-        0.25f * ((float)(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g)),
-        0.25f * ((float)(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b)));
-    return rgb;
+    const float r = 0.25f * ((float)(u0 * v0 * r00 + u1 * v0 * r10 + u0 * v1 * r01 + u1 * v1 * r11));
+    const float g = 0.25f * ((float)(u0 * v0 * g00 + u1 * v0 * g10 + u0 * v1 * g01 + u1 * v1 * g11));
+    const float b = 0.25f * ((float)(u0 * v0 * b00 + u1 * v0 * b10 + u0 * v1 * b01 + u1 * v1 * b11));
+    return ColorRgb(r, g, b);
 }

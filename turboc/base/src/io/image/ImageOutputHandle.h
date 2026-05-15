@@ -15,7 +15,7 @@ class ImageOutputHandle {
     int height;
 
     void init(const char *_name, int _width, int _height);
-    static void gammaCorrect(ColorRgb &rgb, const float gamma[3]);
+    static ColorRgb gammaCorrect(const ColorRgb &rgb, const float gamma[3]);
 
   public:
     ImageOutputHandle();
@@ -35,7 +35,7 @@ class ImageOutputHandle {
 
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
-    virtual int writeRadianceRGB(ColorRgb *rgbRadiance);
+    virtual int writeRadianceRGB(const ColorRgb *rgbRadiance);
     void setToneMappingContext(const ToneMappingContext *inToneMapOptions);
 
     static ImageOutputHandle *

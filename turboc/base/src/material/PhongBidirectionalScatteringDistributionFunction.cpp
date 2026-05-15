@@ -8,6 +8,21 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 #include "material/RendererConfiguration.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
+static ColorRgb
+black() {
+    return ColorRgb(0.0f, 0.0f, 0.0f);
+}
+
+static ColorRgb
+addColor(const ColorRgb &a, const ColorRgb &b) {
+    return ColorRgb(a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB());
+}
+
+static ColorRgb
+addScaledColor(const ColorRgb &a, float scale, const ColorRgb &b) {
+    return ColorRgb(a.getR() + scale * b.getR(), a.getG() + scale * b.getG(), a.getB() + scale * b.getB());
+}
+
 static bool
 extractHitData(
     RayHit *hit,
@@ -97,8 +112,7 @@ PhongBidirScattDistFunc::bsdfShadingFrame(
 
 ColorRgb
 PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context) {
-    ColorRgb col;
-    col.clear();
+    ColorRgb col = black();
 
     if ( texture == NULL ) {
         return col;
@@ -115,8 +129,7 @@ PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const Shad
 ColorRgb
 PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture,  RayHit *hit) {
     Vector3D texCoord;
-    ColorRgb col;
-    col.clear();
+    ColorRgb col = black();
 
     if ( texture == NULL ) {
         return col;
@@ -135,12 +148,11 @@ Returns the scattered power (diffuse/glossy/specular reflectance and/or transmit
 */
 ColorRgb
 PhongBidirScattDistFunc::splitBsdfScatteredPower(const ShadingContext &context, char flags) const {
-    ColorRgb albedo;
-    albedo.clear();
+    ColorRgb albedo = black();
 
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
         ColorRgb textureColor = PhongBidirScattDistFunc::splitBsdfEvalTexture(texture, context);
-        albedo.add(albedo, textureColor);
+        albedo = addColor(albedo, textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -150,12 +162,12 @@ PhongBidirScattDistFunc::splitBsdfScatteredPower(const ShadingContext &context, 
             Logger::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
 
-        albedo.add(albedo, reflectance);
+        albedo = addColor(albedo, reflectance);
     }
 
     if ( btdf != NULL ) {
         ColorRgb transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
-        albedo.add(albedo, transmitted);
+        albedo = addColor(albedo, transmitted);
     }
 
     return albedo;
@@ -167,8 +179,7 @@ PhongBidirScattDistFunc::splitBsdfScatteredPower(RayHit *hit, char flags) const 
     Vector3D texCoord;
     unsigned int localFlags;
     if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb out;
-        out.clear();
+        ColorRgb out = black();
         return out;
     }
     ShadingContext context(
@@ -243,18 +254,14 @@ PhongBidirScattDistFunc::splitBsdfProbabilities(
     *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
     *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
-    ColorRgb reflectance;
-    if ( brdf == NULL ) {
-        reflectance.clear();
-    } else {
+    ColorRgb reflectance = black();
+    if ( brdf != NULL ) {
         reflectance = brdf->reflectance(*brdfFlags);
     }
     *reflection = reflectance.average();
 
-    ColorRgb transmittance;
-    if ( btdf == NULL ) {
-        transmittance.clear();
-    } else {
+    ColorRgb transmittance = black();
+    if ( btdf != NULL ) {
         transmittance = btdf->transmittance(*btdfFlags);
     }
     *transmission = transmittance.average();
@@ -282,18 +289,14 @@ PhongBidirScattDistFunc::splitBsdfProbabilities(
     *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
     *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
-    ColorRgb reflectance;
-    if ( brdf == NULL ) {
-        reflectance.clear();
-    } else {
+    ColorRgb reflectance = black();
+    if ( brdf != NULL ) {
         reflectance = brdf->reflectance(*brdfFlags);
     }
     *reflection = reflectance.average();
 
-    ColorRgb transmittance;
-    if ( btdf == NULL ) {
-        transmittance.clear();
-    } else {
+    ColorRgb transmittance = black();
+    if ( btdf != NULL ) {
         transmittance = btdf->transmittance(*btdfFlags);
     }
     *transmission = transmittance.average();
@@ -537,10 +540,8 @@ PhongBidirScattDistFunc::evaluate(
     const Vector3D *out,
     char flags) const
 {
-    ColorRgb result;
+    ColorRgb result = black();
     Vector3D normal;
-
-    result.clear();
     if ( !context.hasFlag(NORMAL) ) {
         Logger::warning("evaluate", "Couldn't determine shading normal");
         return result;
@@ -551,7 +552,7 @@ PhongBidirScattDistFunc::evaluate(
         double textureBsdf = PhongBidirScattDistFunc::texturedScattererEval(
                 in, out, &normal);
         ColorRgb textureCol = PhongBidirScattDistFunc::splitBsdfEvalTexture(texture, context);
-        result.addScaled(result, ((float)(textureBsdf)), textureCol);
+        result = addScaledColor(result, ((float)(textureBsdf)), textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -559,11 +560,11 @@ PhongBidirScattDistFunc::evaluate(
     // Note that out * normal is computed more than once :-(
     if ( brdf != NULL ) {
         ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
-        result.add(result, reflectionCol);
+        result = addColor(result, reflectionCol);
 
         RefractionIndex inIndex = RefractionIndex();
         RefractionIndex outIndex = RefractionIndex();
-        ColorRgb refractionCol;
+        ColorRgb refractionCol = black();
 
         if ( inBsdf != NULL ) {
             inBsdf->indexOfRefraction(&inIndex);
@@ -573,14 +574,12 @@ PhongBidirScattDistFunc::evaluate(
             outBsdf->indexOfRefraction(&outIndex);
         }
 
-        if ( btdf == NULL ) {
-            refractionCol.clear();
-        } else {
+        if ( btdf != NULL ) {
             refractionCol = btdf->evaluate(
                     inIndex, outIndex, in, out, &normal, BsdfComponentFlag::getBtdfFlags(flags));
         }
 
-        result.add(result, refractionCol);
+        result = addColor(result, refractionCol);
     }
 
     return result;
@@ -599,8 +598,7 @@ PhongBidirScattDistFunc::evaluate(
     Vector3D texCoord;
     unsigned int localFlags;
     if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb result;
-        result.clear();
+        ColorRgb result = black();
         return result;
     }
     ShadingContext context(
@@ -750,12 +748,9 @@ PhongBidirScattDistFunc::bsdfEvalComponents(
         ColorRgb *colArray) const
 {
     // Some caching optimisation could be used here
-    ColorRgb result;
-    ColorRgb empty;
+    ColorRgb result = black();
+    ColorRgb empty = black();
     char thisFlag;
-
-    empty.clear();
-    result.clear();
 
     for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         thisFlag = ((char)(BsdfComponentFlag::bsdfIndexToComp(i)));
@@ -763,7 +758,7 @@ PhongBidirScattDistFunc::bsdfEvalComponents(
         if ( flags & thisFlag ) {
             colArray[i] = PhongBidirScattDistFunc::evaluate(
                     context, inBsdf, outBsdf, in, out, thisFlag);
-            result.add(result, colArray[i]);
+            result = addColor(result, colArray[i]);
         } else {
             colArray[i] = empty;  // Set to 0 for safety
         }
@@ -786,8 +781,7 @@ PhongBidirScattDistFunc::bsdfEvalComponents(
     Vector3D texCoord;
     unsigned int localFlags;
     if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb result;
-        result.clear();
+        ColorRgb result = black();
         return result;
     }
     ShadingContext context(

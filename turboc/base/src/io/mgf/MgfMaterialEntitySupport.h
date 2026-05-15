@@ -22,7 +22,7 @@ class MgfMaterialEntitySupport {
     static Material *materialLookup(const char *name, const ParseRuntimeContext *context);
     static void mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context);
     static void specSamples(const ColorRgb &col, float *rgb);
-    static float colorMax(ColorRgb col);
+    static float colorMax(const ColorRgb &col);
 };
 
 #endif

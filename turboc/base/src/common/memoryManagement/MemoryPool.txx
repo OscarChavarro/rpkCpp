@@ -63,7 +63,7 @@ MemoryPool<T>::init(long int sizeInBytes) {
         return;
     }
 
-    long int elements = sizeInBytes / static_cast<long int>(sizeof(T));
+    long int elements = sizeInBytes / ((long int)(sizeof(T)));
     if ( elements <= 0 ) {
         elements = 1;
     }
@@ -90,7 +90,7 @@ MemoryPool<T>::allocate(int numberOfElements) {
     Block *scan = current != NULL ? current : tail;
     while ( scan != NULL ) {
         if ( scan->usedElements + request <= scan->capacityElements ) {
-            T *out = reinterpret_cast<T *>(
+            T *out = (T *)(
                 scan->buffer + (scan->usedElements * ((long int)sizeof(T))));
             scan->usedElements += request;
             current = scan;
@@ -109,7 +109,7 @@ MemoryPool<T>::free(int numberOfElements) {
         return;
     }
 
-    long int remaining = static_cast<long int>(numberOfElements);
+    long int remaining = ((long int)(numberOfElements));
     Block *scan = current != NULL ? current : tail;
     while ( scan != NULL && remaining > 0 ) {
         if ( scan->usedElements >= remaining ) {

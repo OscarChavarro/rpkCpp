@@ -24,42 +24,44 @@ Computes average scattered power and emittance of the Patch
 */
 ColorRgb
 PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
-    ColorRgb albedo;
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
     RayHit hit;
 
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
-    albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample;
+        ColorRgb sample(0.0f, 0.0f, 0.0f);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         unsigned int newFlags = hit.getFlags() | UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
-        sample.clear();
         if ( patch->material->getBsdf() != NULL ) {
             sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, components);
         }
-        albedo.add(albedo, sample);
+        r += sample.getR();
+        g += sample.getG();
+        b += sample.getB();
     }
-    albedo.scaleInverse(((float)(numberOfSamples)), albedo);
-
-    return albedo;
+    const float inv = 1.0f / ((float)(numberOfSamples));
+    return ColorRgb(r * inv, g * inv, b * inv);
 }
 
 ColorRgb
 PatchVisitor::averageEmittance(Patch *patch, char components) {
-    ColorRgb emittance;
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
     RayHit hit;
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
-    emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample;
+        ColorRgb sample(0.0f, 0.0f, 0.0f);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         unsigned int newFlags = hit.getFlags() | UV;
@@ -67,14 +69,13 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
 
-        if ( patch->material->getEdf() == NULL ) {
-            sample.clear();
-        } else {
+        if ( patch->material->getEdf() != NULL ) {
             sample = patch->material->getEdf()->phongEmittance(&hit, components);
         }
-        emittance.add(emittance, sample);
+        r += sample.getR();
+        g += sample.getG();
+        b += sample.getB();
     }
-    emittance.scaleInverse(((float)(numberOfSamples)), emittance);
-
-    return emittance;
+    const float inv = 1.0f / ((float)(numberOfSamples));
+    return ColorRgb(r * inv, g * inv, b * inv);
 }

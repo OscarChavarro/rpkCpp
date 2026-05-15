@@ -203,7 +203,7 @@ GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkin
     flags |= IS_CLUSTER_MASK;
     reAllocCoefficients();
 
-    Rd.setMonochrome(1.0);
+    Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     numberOfClusters++;
@@ -279,10 +279,10 @@ GalerkinElement::renderMode(const RenderOptions *renderOptions) {
     }
 
     int renderCode = 0;
-    if ( renderOptions->drawOutlines ) {
+    if ( renderOptions->isDrawOutlines() ) {
         renderCode |= OUTLINE;
     }
-    if ( renderOptions->smoothShading ) {
+    if ( renderOptions->isSmoothShading() ) {
         renderCode |= GOURAUD;
     } else {
         renderCode |= FLAT;
@@ -321,28 +321,28 @@ GalerkinElement::reAllocCoefficients() {
         }
     }
 
-    ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
-    ColorRgb::arrayClear(defaultRadiance, localBasisSize);
+    ColorRgbMutable *defaultRadiance = new ColorRgbMutable[localBasisSize];
+    ColorRgbMutable::arrayClear(defaultRadiance, localBasisSize);
     if ( radiance != NULL ) {
-        ColorRgb::arrayCopy(defaultRadiance, radiance, Math::min(basisSize, localBasisSize));
+        ColorRgbMutable::arrayCopy(defaultRadiance, radiance, Math::min(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
 
-    ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
-    ColorRgb::arrayClear(defaultReceivedRadiance, localBasisSize);
+    ColorRgbMutable *defaultReceivedRadiance = new ColorRgbMutable[localBasisSize];
+    ColorRgbMutable::arrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance != NULL ) {
-        ColorRgb::arrayCopy(defaultReceivedRadiance, receivedRadiance, Math::min(basisSize, localBasisSize));
+        ColorRgbMutable::arrayCopy(defaultReceivedRadiance, receivedRadiance, Math::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-        ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
-        ColorRgb::arrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgbMutable *defaultUnShotRadiance = new ColorRgbMutable[localBasisSize];
+        ColorRgbMutable::arrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                ColorRgb::arrayCopy(defaultUnShotRadiance, unShotRadiance, Math::min(basisSize, localBasisSize));
+                ColorRgbMutable::arrayCopy(defaultUnShotRadiance, unShotRadiance, Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->material != NULL ) {
                 defaultUnShotRadiance[0] = patch->radianceData->Ed;

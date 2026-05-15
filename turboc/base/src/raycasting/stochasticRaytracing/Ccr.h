@@ -11,11 +11,12 @@ Constant Control Radiosity
 
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
+#include "common/color/ColorRgbMutable.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "environment/geometry/elements/Patch.h"
 
 class Ccr{ public:
-    typedef ColorRgb *(*GetRadianceCallback)(const StochasticRadiosityElement *);
+    typedef ColorRgbMutable *(*GetRadianceCallback)(const StochasticRadiosityElement *);
     typedef ColorRgb (*GetScalingCallback)(StochasticRadiosityElement *);
 
     static ColorRgb determineControlRadiosity( GetRadianceCallback getRadiance, GetScalingCallback getScaling, const ArrayList<Patch *> *scenePatches);

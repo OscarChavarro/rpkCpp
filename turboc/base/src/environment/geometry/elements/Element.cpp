@@ -22,8 +22,8 @@ Element::Element():
     transformToParent()
 {
     flags = 0x00;
-    Ed.clear();
-    Rd.clear();
+    Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    Rd = ColorRgbMutable(0.0f, 0.0f, 0.0f);
 }
 
 /**

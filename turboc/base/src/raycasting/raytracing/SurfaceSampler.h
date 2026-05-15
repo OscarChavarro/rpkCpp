@@ -40,21 +40,17 @@ class SurfaceSampler : public Sampler {
     {
         if ( m_computeBsdfComponents ) {
             if ( bsdf == NULL ) {
-                ColorRgb black;
-                black.clear();
-                return black;
+                return ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
                 return bsdf->bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
             }
         } else {
             bsdfComp->Clear();
-            ColorRgb radiance;
             if ( bsdf == NULL ) {
-                radiance.clear();
+                return ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
-                radiance = bsdf->evaluate(hit, inBsdf, outBsdf, in, out, flags);
+                return bsdf->evaluate(hit, inBsdf, outBsdf, in, out, flags);
             }
-            return radiance;
         }
     }
 

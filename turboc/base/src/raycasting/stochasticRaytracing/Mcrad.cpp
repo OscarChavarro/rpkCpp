@@ -40,7 +40,7 @@ Mcrad::monteCarloRadiosityDefaults() {
     StochasticRelaxation::activeState().rayUnitsPerIt = 10;
     StochasticRelaxation::activeState().bidirectionalTransfers = false;
     StochasticRelaxation::activeState().constantControlVariate = false;
-    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().indirectOnly = false;
     StochasticRelaxation::activeState().sequence = NIEDERREITER;
     StochasticRelaxation::activeState().approximationOrderType = CONSTANT;
@@ -113,7 +113,7 @@ Initialises patch data
 */
  void
 Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
-    ColorRgb Ed = McradP::topLvlStochRadElem(patch)->Ed;
+    ColorRgb Ed(McradP::topLvlStochRadElem(patch)->Ed);
 
     Coefficientsmcrad::reAllocCoefficients(McradP::topLvlStochRadElem(patch));
     Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
@@ -121,7 +121,7 @@ Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
     Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
 
     McradP::getTopLevelPatchRad(patch)[0] = McradP::getTopLevelPatchUnShotRad(patch)[0] = McradP::topLvlStochRadElem(patch)->sourceRad = Ed;
-    McradP::getTopLevelPatchReceivedRad(patch)[0].clear();
+    McradP::getTopLevelPatchReceivedRad(patch)[0] = ColorRgb(0.0f, 0.0f, 0.0f);
 
     McradP::topLvlStochRadElem(patch)->rayIndex = patch->id * 11;
     McradP::topLvlStochRadElem(patch)->quality = 0.0;
@@ -310,29 +310,32 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOption
     StochasticRelaxation::activeState().importanceTracedRays = StochasticRelaxation::activeState().prevImportanceTracedRays = 0;
     StochasticRelaxation::activeState().setSource = StochasticRelaxation::activeState().indirectOnly;
     StochasticRelaxation::activeState().tracedPaths = 0;
-    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
 
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.clear();
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
         Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
-            StochasticRelaxation::activeState().unShotFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
-            StochasticRelaxation::activeState().totalFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.addScaled(
-            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux,
-            ((float)(M_PI)) * patch->area *
-            (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance),
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        float k1 = ((float)(M_PI)) * patch->area;
+        ColorRgb us = ColorRgb(McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        ColorRgb tr = ColorRgb(McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().unShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().unShotFlux.getR() + k1 * us.getR(),
+            StochasticRelaxation::activeState().unShotFlux.getG() + k1 * us.getG(),
+            StochasticRelaxation::activeState().unShotFlux.getB() + k1 * us.getB());
+        StochasticRelaxation::activeState().totalFlux = ColorRgb(
+            StochasticRelaxation::activeState().totalFlux.getR() + k1 * tr.getR(),
+            StochasticRelaxation::activeState().totalFlux.getG() + k1 * tr.getG(),
+            StochasticRelaxation::activeState().totalFlux.getB() + k1 * tr.getB());
+        float k2 = ((float)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance);
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + k2 * us.getR(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + k2 * us.getG(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getB() + k2 * us.getB());
         StochasticRelaxation::activeState().unShotYmp += patch->area * Math::abs(McradP::topLvlStochRadElem(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLvlStochRadElem(patch)->importance;
         StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLvlStochRadElem(patch)->sourceImportance;
@@ -381,7 +384,7 @@ Mcrad::mntCarloRadDffsReflAPnt(Patch *patch, double u, double v) {
     unsigned int newFlags = hit.getFlags() | UV;
     hit.setFlags(newFlags);
     ColorRgb result;
-    result.clear();
+    result = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( hit.getMaterial()->getBsdf() != NULL ) {
         result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
     }
@@ -393,7 +396,7 @@ Mcrad::vertexReflectance(const Vertex *v) {
     int count = 0;
     ColorRgb rd;
 
-    rd.clear();
+    rd = ColorRgb(0.0f, 0.0f, 0.0f);
     for ( int i = 0; v->radianceData != NULL && i < v->radianceData->size(); i++ ) {
         Element *genericElement = v->radianceData->get(i);
         if ( genericElement->className != ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -401,13 +404,17 @@ Mcrad::vertexReflectance(const Vertex *v) {
         }
         const StochasticRadiosityElement *element = ((StochasticRadiosityElement *)(genericElement));
         if ( !element->regularSubElements ) {
-            rd.add(rd, element->Rd);
+            rd = ColorRgb(
+                rd.getR() + element->Rd.getR(),
+                rd.getG() + element->Rd.getG(),
+                rd.getB() + element->Rd.getB());
             count++;
         }
     }
 
     if ( count > 0 ) {
-        rd.scaleInverse(((float)(count)), rd);
+        float inv = 1.0f / ((float)(count));
+        rd = ColorRgb(inv * rd.getR(), inv * rd.getG(), inv * rd.getB());
     }
 
     return rd;
@@ -427,13 +434,28 @@ Mcrad::mntCarloRadInterpReflAPnt(const StochasticRadiosityElement *leaf, double 
         }
         cachedLeaf = leaf;
 
-        rd.clear();
+        rd = ColorRgb(0.0f, 0.0f, 0.0f);
         switch ( leaf->numberOfVertices ) {
             case 3:
-                rd.interpolateBarycentric(vrd[0], vrd[1], vrd[2], ((float)(u)), ((float)(v)));
+                rd = ColorRgb(
+                    (1.0f - ((float)(u)) - ((float)(v))) * vrd[0].getR() + ((float)(u)) * vrd[1].getR() + ((float)(v)) * vrd[2].getR(),
+                    (1.0f - ((float)(u)) - ((float)(v))) * vrd[0].getG() + ((float)(u)) * vrd[1].getG() + ((float)(v)) * vrd[2].getG(),
+                    (1.0f - ((float)(u)) - ((float)(v))) * vrd[0].getB() + ((float)(u)) * vrd[1].getB() + ((float)(v)) * vrd[2].getB());
                 break;
             case 4:
-                rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], ((float)(u)), ((float)(v)));
+                rd = ColorRgb(
+                    (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * vrd[0].getR() +
+                    ((float)(u)) * (1.0f - ((float)(v))) * vrd[1].getR() +
+                    ((float)(u)) * ((float)(v)) * vrd[2].getR() +
+                    (1.0f - ((float)(u))) * ((float)(v)) * vrd[3].getR(),
+                    (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * vrd[0].getG() +
+                    ((float)(u)) * (1.0f - ((float)(v))) * vrd[1].getG() +
+                    ((float)(u)) * ((float)(v)) * vrd[2].getG() +
+                    (1.0f - ((float)(u))) * ((float)(v)) * vrd[3].getG(),
+                    (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * vrd[0].getB() +
+                    ((float)(u)) * (1.0f - ((float)(v))) * vrd[1].getB() +
+                    ((float)(u)) * ((float)(v)) * vrd[2].getB() +
+                    (1.0f - ((float)(u))) * ((float)(v)) * vrd[3].getB());
                 break;
             default:
                 Logger::fatal(-1, "mntCarloRadInterpReflAPnt", "Invalid nr of vertices %d",
@@ -452,10 +474,10 @@ Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D
     ColorRgb TrueRdAtPoint = mntCarloRadDffsReflAPnt(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stchsRadElemRegLeafElemAPnt(
         McradP::topLvlStochRadElem(patch), &u, &v);
-    ColorRgb UsedRdAtPoint = renderOptions->smoothShading ? mntCarloRadInterpReflAPnt(leaf, u, v) : leaf->Rd;
+    ColorRgb UsedRdAtPoint = renderOptions->isSmoothShading() ? mntCarloRadInterpReflAPnt(leaf, u, v) : ColorRgb(leaf->Rd);
     ColorRgb radianceAtPoint = StochasticRadiosityElement::stchsRadElemDispRadnAPnt(leaf, u, v, renderOptions);
     ColorRgb sourceRad;
-    sourceRad.clear();
+    sourceRad = ColorRgb(0.0f, 0.0f, 0.0f);
 
     // Subtract source radiance
     if ( StochasticRelaxation::activeState().show != SHOW_INDIRECT_RADIANCE ) {
@@ -466,16 +488,31 @@ Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D
         }
         if ( StochasticRelaxation::activeState().indirectOnly || StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             // Subtract self-emitted radiance
-            sourceRad.add(sourceRad, leaf->Ed);
+            sourceRad = ColorRgb(
+                sourceRad.getR() + leaf->Ed.getR(),
+                sourceRad.getG() + leaf->Ed.getG(),
+                sourceRad.getB() + leaf->Ed.getB());
         }
     }
-    radianceAtPoint.subtract(radianceAtPoint, sourceRad);
+    radianceAtPoint = ColorRgb(
+        radianceAtPoint.getR() - sourceRad.getR(),
+        radianceAtPoint.getG() - sourceRad.getG(),
+        radianceAtPoint.getB() - sourceRad.getB());
 
-    radianceAtPoint.scalarProduct(radianceAtPoint, TrueRdAtPoint);
-    radianceAtPoint.divide(radianceAtPoint, UsedRdAtPoint);
+    radianceAtPoint = ColorRgb(
+        radianceAtPoint.getR() * TrueRdAtPoint.getR(),
+        radianceAtPoint.getG() * TrueRdAtPoint.getG(),
+        radianceAtPoint.getB() * TrueRdAtPoint.getB());
+    radianceAtPoint = ColorRgb(
+        UsedRdAtPoint.getR() != 0.0f ? radianceAtPoint.getR() / UsedRdAtPoint.getR() : radianceAtPoint.getR(),
+        UsedRdAtPoint.getG() != 0.0f ? radianceAtPoint.getG() / UsedRdAtPoint.getG() : radianceAtPoint.getG(),
+        UsedRdAtPoint.getB() != 0.0f ? radianceAtPoint.getB() / UsedRdAtPoint.getB() : radianceAtPoint.getB());
 
     // Re-add source radiance
-    radianceAtPoint.add(radianceAtPoint, sourceRad);
+    radianceAtPoint = ColorRgb(
+        radianceAtPoint.getR() + sourceRad.getR(),
+        radianceAtPoint.getG() + sourceRad.getG(),
+        radianceAtPoint.getB() + sourceRad.getB());
 
     return radianceAtPoint;
 }

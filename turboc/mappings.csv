@@ -712,3 +712,5 @@ base/src/tonemap/WardToneMap.h,base/src/tonemap/WATOMARD.H,WardToneMap.h,WATOMAR
 base/CMakeLists.txt,base/CMALIKES.TXT,CMakeLists.txt,CMALIKE5.TXT
 testsuite/ApplicationCases/RenderparkApplication/CMakeLists.txt,testsuite/ApplicationCases/RenderparkApplication/CMALIKES.TXT,CMakeLists.txt,CMALIKE6.TXT
 scripts/renderpark_env.sh,scripts/REENVAK.SH,renderpark_env.sh,REENVAK.SH
+base/src/common/color/ColorRgbMutable.cpp,base/src/common/CORMUGBL.CPP,ColorRgbMutable.cpp,CORMUGBL.CPP
+base/src/common/color/ColorRgbMutable.h,base/src/common/CORMUGBL.H,ColorRgbMutable.h,CORMUGBL.H

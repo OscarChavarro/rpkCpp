@@ -130,14 +130,24 @@ Hierarchy::lowPowerLink(
     float propagatedPower;
 
     // Compute receiver reflectance times source radiosity
-    rhoSrcRad.scaledCopy(((float)(M_PI)), src->radiance[0]);
+    rhoSrcRad = ColorRgb(
+        ((float)(M_PI)) * src->radiance[0].getR(),
+        ((float)(M_PI)) * src->radiance[0].getG(),
+        ((float)(M_PI)) * src->radiance[0].getB());
     if ( !rcv->isCluster() ) {
-        ColorRgb Rd = McradP::topLvlStochRadElem(rcv->patch)->Rd;
-        rhoSrcRad.selfScalarProduct(Rd);
+        ColorRgbMutable Rd = McradP::topLvlStochRadElem(rcv->patch)->Rd;
+        rhoSrcRad = ColorRgb(
+            rhoSrcRad.getR() * Rd.getR(),
+            rhoSrcRad.getG() * Rd.getG(),
+            rhoSrcRad.getB() * Rd.getB());
     }
 
-    threshold = ElementHierarchyState::activeState().epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
-    propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
+    threshold = ElementHierarchyState::activeState().epsilon * Math::max(
+        statistics->radiance.maxSelfEmittedPower.getR(),
+        Math::max(
+            statistics->radiance.maxSelfEmittedPower.getG(),
+            statistics->radiance.maxSelfEmittedPower.getB()));
+    propagatedPower = rcv->area * ff * Math::max(rhoSrcRad.getR(), Math::max(rhoSrcRad.getG(), rhoSrcRad.getB()));
     if ( StochasticRelaxation::activeState().importanceDriven ) {
         propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {

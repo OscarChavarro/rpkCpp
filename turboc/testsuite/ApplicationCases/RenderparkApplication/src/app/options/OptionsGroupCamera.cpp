@@ -34,7 +34,7 @@ OptionsGroupCamera::cameraDefaults(Camera *camera, int imageWidth, int imageHeig
     Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
     Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
     Vector3D upDirection = DEFAULT_CAMERA_UP_DIRECTION;
-    ColorRgb backgroundColorSelected = DEFAULT_BACKGROUND_COLOR;
+    ColorRgbMutable backgroundColorSelected = ColorRgbMutable(DEFAULT_BACKGROUND_COLOR.getR(), DEFAULT_BACKGROUND_COLOR.getG(), DEFAULT_BACKGROUND_COLOR.getB());
 
     camera->set(
         &eyePosition,

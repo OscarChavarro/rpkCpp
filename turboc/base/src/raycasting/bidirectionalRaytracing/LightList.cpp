@@ -49,7 +49,7 @@ LightList::LightList(const ArrayList<Patch *> *list, bool includeVirtualPatches)
             if ( light->hasZeroVertices() ) {
                 ColorRgb e;
                 if ( light->material->getEdf() == NULL ) {
-                    e.clear();
+                    e = ColorRgb(0.0f, 0.0f, 0.0f);
                 } else {
                     e = light->material->getEdf()->phongEmittance(NULL, DIFFUSE_COMPONENT);
                 }
@@ -134,7 +134,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3D */*point*/) const {
 
     ColorRgb e;
     if ( light->material->getEdf() == NULL) {
-        e.clear();
+        e = ColorRgb(0.0f, 0.0f, 0.0f);
     } else {
         e = light->material->getEdf()->phongEmittance(NULL, all);
     }
@@ -186,7 +186,7 @@ LightList::cmptOneLightImpVrtl(
     ColorRgb e;
 
     if ( light->material->getEdf() == NULL ) {
-        e.clear();
+        e = ColorRgb(0.0f, 0.0f, 0.0f);
     } else {
         e = light->material->getEdf()->phongEmittance(NULL, all);
     }

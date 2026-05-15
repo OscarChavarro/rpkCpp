@@ -32,7 +32,7 @@ Nondiff::makeLightSourceTable(const ArrayList<Patch *> *scenePatches, const Arra
     for ( int i = 0; lightPatches != NULL && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
         ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
-        double flux = M_PI * light->area * emittedRadiance.sumAbsComponents();
+        double flux = M_PI * light->area * (Math::abs(emittedRadiance.getR()) + Math::abs(emittedRadiance.getG()) + Math::abs(emittedRadiance.getB()));
         totalFlux += flux;
         lights[i] = LightSourceTable(light, flux);
     }
@@ -42,7 +42,7 @@ Nondiff::makeLightSourceTable(const ArrayList<Patch *> *scenePatches, const Arra
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
-        McradP::topLvlStochRadElem(patch)->sourceRad.clear();
+        McradP::topLvlStochRadElem(patch)->sourceRad = ColorRgb(0.0f, 0.0f, 0.0f);
     }
 }
 
@@ -107,13 +107,24 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
-        ColorRgb Rd = McradP::topLvlStochRadElem(hit->getPatch())->Rd;
-        receivedRadiosity.scaledCopy(((float)(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples))), rad);
-        receivedRadiosity.selfScalarProduct(Rd);
-        McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
-        McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
-        McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.add(
-            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad, receivedRadiosity);
+        ColorRgbMutable Rd = McradP::topLvlStochRadElem(hit->getPatch())->Rd;
+        float k = ((float)(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)));
+        receivedRadiosity = ColorRgb(
+            k * rad.getR() * Rd.getR(),
+            k * rad.getG() * Rd.getG(),
+            k * rad.getB() * Rd.getB());
+        McradP::getTopLevelPatchRad(hit->getPatch())[0] = ColorRgb(
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getR() + receivedRadiosity.getR(),
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getG() + receivedRadiosity.getG(),
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getB() + receivedRadiosity.getB());
+        McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0] = ColorRgb(
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getR() + receivedRadiosity.getR(),
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getG() + receivedRadiosity.getG(),
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getB() + receivedRadiosity.getB());
+        McradP::topLvlStochRadElem(hit->getPatch())->sourceRad = ColorRgb(
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getR() + receivedRadiosity.getR(),
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getG() + receivedRadiosity.getG(),
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getB() + receivedRadiosity.getB());
     }
 }
 
@@ -143,26 +154,29 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCou
 
 void
 Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.clear();
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
-            StochasticRelaxation::activeState().unShotFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
-            StochasticRelaxation::activeState().totalFlux,
-            ((float)(M_PI)) * patch->area,
-            McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.addScaled(
-            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux,
-            ((float)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance -
-                                                      McradP::topLvlStochRadElem(patch)->sourceImportance),
-              McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        float k1 = ((float)(M_PI)) * patch->area;
+        ColorRgb us = ColorRgb(McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        ColorRgb tr = ColorRgb(McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().unShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().unShotFlux.getR() + k1 * us.getR(),
+            StochasticRelaxation::activeState().unShotFlux.getG() + k1 * us.getG(),
+            StochasticRelaxation::activeState().unShotFlux.getB() + k1 * us.getB());
+        StochasticRelaxation::activeState().totalFlux = ColorRgb(
+            StochasticRelaxation::activeState().totalFlux.getR() + k1 * tr.getR(),
+            StochasticRelaxation::activeState().totalFlux.getG() + k1 * tr.getG(),
+            StochasticRelaxation::activeState().totalFlux.getB() + k1 * tr.getB());
+        float k2 = ((float)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance);
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + k2 * us.getR(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + k2 * us.getG(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getB() + k2 * us.getB());
         StochasticRelaxation::activeState().unShotYmp += patch->area * Math::abs(
                 McradP::topLvlStochRadElem(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLvlStochRadElem(patch)->importance;

@@ -159,8 +159,7 @@ RadianceImageExporter::getRadianceAtPixel(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
-    ColorRgb radiance = ColorRgb();
-    radiance.clear();
+    ColorRgb radiance = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( screenBuffer == NULL || camera == NULL || patch == NULL || radianceMethod == NULL || renderOptions == NULL ) {
         return radiance;
@@ -185,5 +184,5 @@ RadianceImageExporter::getRadianceAtPixel(
     RadianceImageExporter::clipUv(patch->numberOfVertices, &u, &v);
 
     Vector3D eyeDirection(-rayDirection.x, -rayDirection.y, -rayDirection.z);
-    return radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions);
+    return ColorRgb(radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions));
 }

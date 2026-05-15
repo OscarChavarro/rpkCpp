@@ -24,11 +24,12 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
     return 0;
 }
 
-inline void
-ImageOutputHandle::gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
-  rgb.r = gamma[0] == 1.0 ? rgb.r : Math::pow(rgb.r, 1.0f / gamma[0]);
-  rgb.g = gamma[1] == 1.0 ? rgb.g : Math::pow(rgb.g, 1.0f / gamma[1]);
-  rgb.b = gamma[2] == 1.0 ? rgb.b : Math::pow(rgb.b, 1.0f / gamma[2]);
+inline ColorRgb
+ImageOutputHandle::gammaCorrect(const ColorRgb &rgb, const float gamma[3]) {
+    return ColorRgb(
+        gamma[0] == 1.0f ? rgb.getR() : Math::pow(rgb.getR(), 1.0f / gamma[0]),
+        gamma[1] == 1.0f ? rgb.getG() : Math::pow(rgb.getG(), 1.0f / gamma[1]),
+        gamma[2] == 1.0f ? rgb.getB() : Math::pow(rgb.getB(), 1.0f / gamma[2]));
 }
 
 int
@@ -36,13 +37,13 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb = *((ColorRgb *)(&rgbFloatArray[3 * i]));
+        ColorRgb displayRgb(rgbFloatArray[3 * i], rgbFloatArray[3 * i + 1], rgbFloatArray[3 * i + 2]);
         // Apply gamma correction
-        gammaCorrect(displayRgb, gamma);
+        displayRgb = gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation
-        rgb[3 * i] = ((unsigned char)(displayRgb.r * 255.0));
-        rgb[3 * i + 1] = ((unsigned char)(displayRgb.g * 255.0));
-        rgb[3 * i + 2] = ((unsigned char)(displayRgb.b * 255.0));
+        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0f));
+        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0f));
+        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0f));
     }
 
     // Output display RGB values
@@ -57,7 +58,7 @@ Writes a scanline of raw radiance data
 returns the number of pixels written
 */
 int
-ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
+ImageOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     if ( toneMapOptions == NULL ) {
         Logger::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
@@ -65,16 +66,16 @@ ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb = ColorRgb();
+        ColorRgb displayRgb;
         ToneMap::radianceToRgb(rgbRadiance[i], &displayRgb, *toneMapOptions);
 
         // Apply gamma correction
-        gammaCorrect(displayRgb, gamma);
+        displayRgb = gammaCorrect(displayRgb, gamma);
 
         // Convert float to byte representation
-        rgb[3 * i] = ((unsigned char)(displayRgb.r * 255.0));
-        rgb[3 * i + 1] = ((unsigned char)(displayRgb.g * 255.0));
-        rgb[3 * i + 2] = ((unsigned char)(displayRgb.b * 255.0));
+        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0f));
+        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0f));
+        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0f));
     }
 
     // Output display RGB values

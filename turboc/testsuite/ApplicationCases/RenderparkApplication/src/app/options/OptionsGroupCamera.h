@@ -6,6 +6,7 @@
 #define CMMND_LINE_CMR_OPTNS_GRP
 
 #include "scene/Camera.h"
+#include "common/color/ColorRgb.h"
 
 class OptionsGroupCamera{ public:
     static void cameraParseOptions( int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight);

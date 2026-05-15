@@ -9,7 +9,7 @@ Background::Background():
 Background::~Background() {
 }
 
-ColorRgb
+ColorRgbMutable
 Background::radiance(
     Vector3D * /*position*/,
     Vector3D * /*direction*/,
@@ -18,9 +18,7 @@ Background::radiance(
     if ( probabilityDensityFunction != NULL ) {
         *probabilityDensityFunction = 0.0f;
     }
-    ColorRgb black;
-    black.setMonochrome(0.0f);
-    return black;
+    return ColorRgbMutable(0.0f, 0.0f, 0.0f);
 }
 
 Vector3D
@@ -28,11 +26,11 @@ Background::sample(
     Vector3D * /*position*/,
     float /*xi1*/,
     float /*xi2*/,
-    ColorRgb *radianceValue,
+    ColorRgbMutable *radianceValue,
     float *probabilityDensityFunction) const
 {
     if ( radianceValue != NULL ) {
-        radianceValue->setMonochrome(0.0f);
+        *radianceValue = ColorRgbMutable(0.0f, 0.0f, 0.0f);
     }
     if ( probabilityDensityFunction != NULL ) {
         *probabilityDensityFunction = 0.0f;
@@ -40,35 +38,29 @@ Background::sample(
     return Vector3D();
 }
 
-ColorRgb
+ColorRgbMutable
 Background::power(Vector3D * /*position*/) const {
-    ColorRgb black;
-    black.setMonochrome(0.0f);
-    return black;
+    return ColorRgbMutable(0.0f, 0.0f, 0.0f);
 }
 
-ColorRgb
+ColorRgbMutable
 Background::backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg ) {
-        ColorRgb black;
-        black.setMonochrome(0.0);
-        return black;
+        return ColorRgbMutable(0.0f, 0.0f, 0.0f);
     } else {
         return bkg->power(position);
     }
 }
 
 #ifdef RAYTRACING_ENABLED
-ColorRgb
+ColorRgbMutable
 Background::backgroundRadiance(
         Background *bkg,
         Vector3D *position,
         Vector3D *direction,
         float *probabilityDensityFunction) {
     if ( !bkg ) {
-        ColorRgb black;
-        black.setMonochrome(0.0);
-        return black;
+        return ColorRgbMutable(0.0f, 0.0f, 0.0f);
     } else {
         return bkg->radiance(position, direction, probabilityDensityFunction);
     }

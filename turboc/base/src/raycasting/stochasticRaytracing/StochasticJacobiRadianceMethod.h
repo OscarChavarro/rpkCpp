@@ -21,7 +21,7 @@ class StochasticJacobiRadianceMethod: public RadianceMethod{ public:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;
@@ -38,7 +38,7 @@ class StochasticJacobiRadianceMethod: public RadianceMethod{ public:
     static long stchsRelaxRadRndRnd(float x);
     static void stchsRelaxRadRecompDispClrs(const ArrayList<Patch *> *scenePatches);
     static double stchsRelaxRadQualFactor(const StochasticRadiosityElement *elem, double w);
-    static ColorRgb *stchsRelaxRadElemUnShotRadn(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *stchsRelaxRadElemUnShotRadn(const StochasticRadiosityElement *elem);
     static void stchsRelaxRadElemIncrRadn(StochasticRadiosityElement *elem, double w);
     static void stchRelaRadPrinIncrRadnStat();
     static void stchsRelaxRadDIncrmRadnItrtn( Scene *scene, const RadianceMethod *radianceMethod, RenderOptions *renderOptions);
@@ -46,7 +46,7 @@ class StochasticJacobiRadianceMethod: public RadianceMethod{ public:
     static void stchsRelaxRadElemIncrImp(StochasticRadiosityElement *elem, double w);
     static void stchsRelaxRadPrintIncrmImpStats();
     static void stchsRelaxRadDIncrmImpItrtn( VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
-    static ColorRgb *stchsRelaxRadElemRadn(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *stchsRelaxRadElemRadn(const StochasticRadiosityElement *elem);
     static void stchsRelaxRadElemUpdRadn(StochasticRadiosityElement *elem, double w);
     static void stchsRelaxRadPrintRegStats();
     static void stchsRelaxRadDRegRadnItrtn( VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);

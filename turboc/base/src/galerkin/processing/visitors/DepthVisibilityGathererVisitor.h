@@ -4,11 +4,11 @@
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 class DepthVisibilityGathererVisitor: public ClusterLeafVisitor{ private:
     Interaction *link;
-    ColorRgb *sourceRadiance;
+    ColorRgbMutable *sourceRadiance;
     double pixelArea;
 
   public:
-    DepthVisibilityGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance, double inPixelArea);
+    DepthVisibilityGathererVisitor(Interaction *inLink, ColorRgbMutable *inSourceRadiance, double inPixelArea);
     ~DepthVisibilityGathererVisitor();
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState);
 };

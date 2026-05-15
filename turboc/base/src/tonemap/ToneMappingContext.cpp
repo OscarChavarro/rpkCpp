@@ -1,3 +1,4 @@
+#include "common/color/Cie.h"
 #include "tonemap/ToneMappingContext.h"
 #include "tonemap/ToneMap.h"
 
@@ -42,7 +43,7 @@ ToneMappingContext::ToneMappingContext():
     yw = 0.333333333333f;
     Cie::cmptClrConvXforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
-    gamma.set(ToneMappingContext::DEFAULT_GAMMA, ToneMappingContext::DEFAULT_GAMMA, ToneMappingContext::DEFAULT_GAMMA);
+    gamma = ColorRgb(ToneMappingContext::DEFAULT_GAMMA, ToneMappingContext::DEFAULT_GAMMA, ToneMappingContext::DEFAULT_GAMMA);
     ToneMap::recomputeGammaTables(*this, gamma);
 }
 

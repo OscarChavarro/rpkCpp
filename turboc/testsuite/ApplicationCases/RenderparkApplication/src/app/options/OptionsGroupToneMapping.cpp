@@ -12,6 +12,7 @@
 char OptionsGroupToneMapping::toneMappingMethodsString[TONE_MAP_MTHS_STR_LEN];
 char *OptionsGroupToneMapping::toneMapName = NULL;
 ToneMappingContext *OptionsGroupToneMapping::toneMapOptions = NULL;
+float OptionsGroupToneMapping::gammaValue = 0.0f;
 
 void
 OptionsGroupToneMapping::makeToneMappingMethodsString() {
@@ -112,7 +113,7 @@ OptionsGroupToneMapping::gammaOption(float &gam) {
     if ( toneMapOptions == NULL ) {
         Logger::fatal(-1, "CmdLineToneMppngOptsGrp::gammaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).gamma.set(gam, gam, gam);
+    (*toneMapOptions).gamma = ColorRgb(gam, gam, gam);
 }
 
 void
@@ -134,7 +135,8 @@ OptionsGroupToneMapping::toneMapParseOptions(
     TypedOption<float> lwaOpt("-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, NULL, NULL);
     TypedOption<float> ldmaxOpt("-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, NULL, NULL);
     TypedOption<float> cmaxOpt("-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, NULL, NULL);
-    TypedOption<float> gammaOpt("-gamma", &toneMapOptionsContext.gamma.r, 1, OptionsGroupToneMapping::gammaOption, NULL);
+    gammaValue = toneMapOptionsContext.gamma.getR();
+    TypedOption<float> gammaOpt("-gamma", &gammaValue, 1, OptionsGroupToneMapping::gammaOption, NULL);
     TypedOption<ColorRgb> rgbGammaOpt("-rgbgamma", &toneMapOptionsContext.gamma, 3, NULL, OptionsGroupToneMapping::parseColor3);
     TypedOption<Vector3D> redOpt("-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy);
     TypedOption<Vector3D> greenOpt("-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy);
@@ -173,18 +175,19 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = NULL;
-    value.r = strtof(argv[0], &endPointer);
+    float r = strtof(argv[0], &endPointer);
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value.g = strtof(argv[1], &endPointer);
+    float g = strtof(argv[1], &endPointer);
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value.b = strtof(argv[2], &endPointer);
+    float b = strtof(argv[2], &endPointer);
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }
+    value = ColorRgb(r, g, b);
     return true;
 }
 

@@ -15,13 +15,13 @@ class McradP{ public:
     static inline StochasticRadiosityElement *topLvlStochRadElem(const Patch *patch){ return ((StochasticRadiosityElement *)(patch->radianceData));
     }
 
-    static inline ColorRgb *getTopLevelPatchRad(const Patch *patch){ return topLvlStochRadElem(patch)->radiance;
+    static inline ColorRgbMutable *getTopLevelPatchRad(const Patch *patch){ return topLvlStochRadElem(patch)->radiance;
     }
 
-    static inline ColorRgb *getTopLevelPatchUnShotRad(const Patch *patch){ return topLvlStochRadElem(patch)->unShotRadiance;
+    static inline ColorRgbMutable *getTopLevelPatchUnShotRad(const Patch *patch){ return topLvlStochRadElem(patch)->unShotRadiance;
     }
 
-    static inline ColorRgb *getTopLevelPatchReceivedRad(const Patch *patch){ return topLvlStochRadElem(patch)->receivedRadiance;
+    static inline ColorRgbMutable *getTopLevelPatchReceivedRad(const Patch *patch){ return topLvlStochRadElem(patch)->receivedRadiance;
     }
 
     static inline GalerkinBasis *getTopLevelPatchBasis(const Patch *patch){ return topLvlStochRadElem(patch)->basis;

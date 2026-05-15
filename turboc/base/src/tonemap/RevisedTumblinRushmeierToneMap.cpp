@@ -1,3 +1,4 @@
+#include "common/color/Cie.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 
 /**
@@ -37,7 +38,7 @@ RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    float rwl = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    float rwl = Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
     float scale;
 
     if ( rwl > 0.0 ) {
@@ -47,15 +48,18 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
         scale = 0.0;
     }
 
-    radiance.scale(scale);
+    radiance = ColorRgb(radiance.getR() * scale, radiance.getG() * scale, radiance.getB() * scale);
     return radiance;
 }
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = ((float)(M_PI)) * Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    float rwl = ((float)(M_PI)) * Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
     float eff = Cie::getLuminousEfficacy();
-    radiance.scale(eff * ((float)(M_PI)));
+    radiance = ColorRgb(
+        radiance.getR() * eff * ((float)(M_PI)),
+        radiance.getG() * eff * ((float)(M_PI)),
+        radiance.getB() * eff * ((float)(M_PI)));
 
     float scale;
     if ( rwl > 0.0 ) {
@@ -65,7 +69,7 @@ RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
         scale = 0.0f;
     }
 
-    radiance.scale(scale);
+    radiance = ColorRgb(radiance.getR() * scale, radiance.getG() * scale, radiance.getB() * scale);
     return radiance;
 }
 

@@ -54,3 +54,4 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
 8. `try/catch` removed from binary model deserialization path
    - Replaced exception wrapper with explicit checks + `goto fail` cleanup flow
    - Goal: keep deterministic C++98-compatible control flow
+9. Remove all uses of namespaces. Those were not still invented in early 1990s.

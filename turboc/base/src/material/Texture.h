@@ -10,8 +10,6 @@ class Texture {
     int channels;
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 
-    static void setMonochrome(ColorRgb rgb, float val);
-
   public:
     Texture();
     Texture(int inWidth, int inHeight, int inChannels, const unsigned char *inData);

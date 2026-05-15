@@ -167,7 +167,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
             }
 
             ColorRgb matte;
-            matte.set(value, value, value);
+            matte = ColorRgb(value, value, value);
             screenBuffer->add(x, y, matte);
         }
 

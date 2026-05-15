@@ -45,7 +45,7 @@ BsdfSampler::sample(
     newNode->accmlRssnRlttFctrs = thisNode->accmlRssnRlttFctrs;
     if ( doRR ) {
         ColorRgb albedo;
-        albedo.clear();
+        albedo = ColorRgb(0.0f, 0.0f, 0.0f);
         if ( thisNode->m_useBsdf != NULL ) {
             albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, flags);
         }
@@ -209,6 +209,5 @@ BsdfSampler::EvalPDFPrev(
 }
 
 #endif
-
 
 

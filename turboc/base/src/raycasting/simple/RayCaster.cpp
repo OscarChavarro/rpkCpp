@@ -116,7 +116,7 @@ RayCaster::getRadianceAtPixel(
     const RenderOptions *renderOptions) const
 {
     ColorRgb radiance = ColorRgb();
-    radiance.clear();
+    radiance = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( radianceMethod != NULL ) {
         // Ray pointing from the eye through the center of the pixel.
@@ -143,7 +143,7 @@ RayCaster::getRadianceAtPixel(
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.direction.x, -ray.direction.y, -ray.direction.z);
-        radiance = radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions);
+        radiance = ColorRgb(radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions));
     }
     return radiance;
 }

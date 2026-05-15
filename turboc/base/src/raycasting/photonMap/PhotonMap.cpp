@@ -14,7 +14,7 @@ bool
 PhotonMap::zeroAlbedo(const PhongBidirScattDistFunc *bsdf, RayHit *hit, char flags) {
     ColorRgb color;
     if ( bsdf == NULL ) {
-        color.clear();
+        color = ColorRgb(0.0f, 0.0f, 0.0f);
     } else {
         color = bsdf->splitBsdfScatteredPower(hit, flags);
     }
@@ -46,7 +46,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
 
     if ( photonMapState.falseColMono ) {
         tmp = PhotonMap::getFalseMonochrome(val, photonMapState);
-        col.set(tmp, tmp, tmp);
+        col = ColorRgb(tmp, tmp, tmp);
         return col;
     }
 
@@ -73,7 +73,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
         g = 1.0f - r;
     }
 
-    col.set(r, g, b);
+    col = ColorRgb(r, g, b);
     return col;
 }
 
@@ -220,7 +220,7 @@ PhotonMap::redistribute(const Photon &photon) const {
     float factor = 1.0f / ((float)(m_nrpCosinePos));
 
     ColorRgb pow = photon.power();
-    deltaPower.scaledCopy(factor, pow);
+    deltaPower = ColorRgb(factor * pow.getR(), factor * pow.getG(), factor * pow.getB());
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         if ( m_cosines[i] > 0.0 ) {
@@ -295,7 +295,7 @@ PhotonMap::GetMaxR2() {
 void
 PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
     ColorRgb irradiance;
-    irradiance.clear();
+    irradiance = ColorRgb(0.0f, 0.0f, 0.0f);
 
     // Locate the nearest photons using a max radius limit
     Vector3D pos = photon->pos();
@@ -308,7 +308,10 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
                 ColorRgb power = m_photons[i]->power();
-                irradiance.add(irradiance, power);
+                irradiance = ColorRgb(
+                    irradiance.getR() + power.getR(),
+                    irradiance.getG() + power.getG(),
+                    irradiance.getB() + power.getB());
             }
         }
 
@@ -316,7 +319,10 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
         float factor = (1.0f / (((float)(M_PI)) * ((float)(M_PI)) * maxDistance * ((float)(m_totalPaths))));
-        irradiance.scale(factor);
+        irradiance = ColorRgb(
+            factor * irradiance.getR(),
+            factor * irradiance.getG(),
+            factor * irradiance.getB());
     }
 
     photon->SetIrradiance(irradiance);
@@ -355,7 +361,10 @@ PhotonMap::irradianceReconstruct(
     hit->setNormal(&normal);
 
     if ( photon ) {
-        result->scalarProduct(photon->m_irradiance, diffuseAlbedo);
+        *result = ColorRgb(
+            photon->m_irradiance.getR() * diffuseAlbedo.getR(),
+            photon->m_irradiance.getG() * diffuseAlbedo.getG(),
+            photon->m_irradiance.getB() * diffuseAlbedo.getB());
         return true;
     } else {
         // No appropriate photon found
@@ -376,13 +385,13 @@ PhotonMap::reconstruct(
     ColorRgb eval;
     ColorRgb col;
 
-    result.clear();
+    result = ColorRgb(0.0f, 0.0f, 0.0f);
 
     ColorRgb diffuseAlbedo;
     ColorRgb glossyAlbedo;
 
-    diffuseAlbedo.clear();
-    glossyAlbedo.clear();
+    diffuseAlbedo = ColorRgb(0.0f, 0.0f, 0.0f);
+    glossyAlbedo = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( bsdf != NULL ) {
         diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit, BRDF_DIFFUSE_COMPONENT);
@@ -423,15 +432,21 @@ PhotonMap::reconstruct(
         Vector3D dir = m_photons[i]->dir();
 
         if ( bsdf == NULL ) {
-            eval.clear();
+            eval = ColorRgb(0.0f, 0.0f, 0.0f);
         } else {
             eval = bsdf->evaluate(
                 hit, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
         }
         ColorRgb power = m_photons[i]->power();
 
-        col.scalarProduct(eval, power);
-        result.add(result, col);
+        col = ColorRgb(
+            eval.getR() * power.getR(),
+            eval.getG() * power.getG(),
+            eval.getB() * power.getB());
+        result = ColorRgb(
+            result.getR() + col.getR(),
+            result.getG() + col.getG(),
+            result.getB() + col.getB());
     }
 
     // Now we have a radiance integrated over area estimate,
@@ -439,7 +454,10 @@ PhotonMap::reconstruct(
 
     float factor = 1.0f / (((float)(M_PI)) * maxDistance * ((float)(m_totalPaths)));
 
-    result.scale(factor);
+    result = ColorRgb(
+        factor * result.getR(),
+        factor * result.getG(),
+        factor * result.getB());
 
     return result;
 }

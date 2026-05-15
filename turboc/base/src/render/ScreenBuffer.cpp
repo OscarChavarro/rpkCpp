@@ -58,15 +58,15 @@ ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
         radiance = new ColorRgb[camera.xSize * camera.ySize];
         rgbColor = new ColorRgb[camera.xSize * camera.ySize];
         for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-            radiance[i].clear();
-            rgbColor[i].clear();
+            radiance[i] = ColorRgb(0.0f, 0.0f, 0.0f);
+            rgbColor[i] = ColorRgb(0.0f, 0.0f, 0.0f);
         }
     }
 
     // Clear
     ColorRgb black(0.0, 0.0, 0.0);
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        radiance[i].setMonochrome(0.0);
+        radiance[i] = ColorRgb(0.0f, 0.0f, 0.0f);
         rgbColor[i] = black;
     }
 
@@ -106,7 +106,10 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
     int N = getVRes() * getHRes();
 
     for ( int i = 0; i < N; i++ ) {
-        radiance[i].add(src1->radiance[i], src2->radiance[i]);
+        radiance[i] = ColorRgb(
+            src1->radiance[i].getR() + src2->radiance[i].getR(),
+            src1->radiance[i].getG() + src2->radiance[i].getG(),
+            src1->radiance[i].getB() + src2->radiance[i].getB());
     }
 }
 
@@ -114,14 +117,20 @@ void
 ScreenBuffer::add(int x, int y, ColorRgb inRadiance) {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
 
-    radiance[index].addScaled(radiance[index], addFactor, inRadiance);
+    radiance[index] = ColorRgb(
+        radiance[index].getR() + addFactor * inRadiance.getR(),
+        radiance[index].getG() + addFactor * inRadiance.getG(),
+        radiance[index].getB() + addFactor * inRadiance.getB());
     synced = false;
 }
 
 void
 ScreenBuffer::set(int x, int y, ColorRgb inRadiance) {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
-    radiance[index].scaledCopy(addFactor, inRadiance);
+    radiance[index] = ColorRgb(
+        addFactor * inRadiance.getR(),
+        addFactor * inRadiance.getG(),
+        addFactor * inRadiance.getB());
     synced = false;
 }
 
@@ -155,9 +164,9 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
     ip->setToneMappingContext(&activeToneMapOptions);
-    ip->gamma[0] = activeToneMapOptions.gamma.r; // For default radiance -> display RGB
-    ip->gamma[1] = activeToneMapOptions.gamma.g;
-    ip->gamma[2] = activeToneMapOptions.gamma.b;
+    ip->gamma[0] = activeToneMapOptions.gamma.getR(); // For default radiance -> display RGB
+    ip->gamma[1] = activeToneMapOptions.gamma.getG();
+    ip->gamma[2] = activeToneMapOptions.gamma.getB();
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
@@ -183,15 +192,18 @@ ScreenBuffer::renderScanline(int y) {
 
 void
 ScreenBuffer::sync() {
-    ColorRgb tmpRad = ColorRgb();
+    ColorRgb tmpRad = ColorRgb(0.0f, 0.0f, 0.0f);
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
 
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        tmpRad.scaledCopy(factor, radiance[i]);
+        tmpRad = ColorRgb(
+            factor * radiance[i].getR(),
+            factor * radiance[i].getG(),
+            factor * radiance[i].getB());
         if ( !isRgbImage() ) {
             ToneMap::radianceToRgb(tmpRad, &rgbColor[i], activeToneMapOptions);
         } else {
-            tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
+            tmpRad = ColorRgb(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
         }
     }
 
@@ -201,11 +213,14 @@ ScreenBuffer::sync() {
 
 void
 ScreenBuffer::syncLine(int lineNumber) {
-    ColorRgb tmpRad = ColorRgb();
+    ColorRgb tmpRad = ColorRgb(0.0f, 0.0f, 0.0f);
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
 
     for ( int i = 0; i < camera.xSize; i++ ) {
-        tmpRad.scaledCopy(factor, radiance[lineNumber * camera.xSize + i]);
+        tmpRad = ColorRgb(
+            factor * radiance[lineNumber * camera.xSize + i].getR(),
+            factor * radiance[lineNumber * camera.xSize + i].getG(),
+            factor * radiance[lineNumber * camera.xSize + i].getB());
         if ( !isRgbImage() ) {
             ToneMap::radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i], activeToneMapOptions);
         } else {
@@ -344,7 +359,7 @@ ScreenBuffer::getBiLinear(float x, float y) const {
     int ny0;
     int ny1;
     Vector2D center;
-    ColorRgb color = ColorRgb();
+    ColorRgb color = ColorRgb(0.0f, 0.0f, 0.0f);
 
     getPixel(x, y, &nx0, &ny0);
     center = getPixelCenter(nx0, ny0);
@@ -375,7 +390,10 @@ ScreenBuffer::getBiLinear(float x, float y) const {
     ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
     ColorRgb c3 = get(nx0, ny1); // v = 1
 
-    color.interpolateBiLinear(c0, c1, c2, c3, x, y);
+    color = ColorRgb(
+        (1.0f - x) * (1.0f - y) * c0.getR() + x * (1.0f - y) * c1.getR() + x * y * c2.getR() + (1.0f - x) * y * c3.getR(),
+        (1.0f - x) * (1.0f - y) * c0.getG() + x * (1.0f - y) * c1.getG() + x * y * c2.getG() + (1.0f - x) * y * c3.getG(),
+        (1.0f - x) * (1.0f - y) * c0.getB() + x * (1.0f - y) * c1.getB() + x * y * c2.getB() + (1.0f - x) * y * c3.getB());
 
     return color;
 }
@@ -383,7 +401,10 @@ ScreenBuffer::getBiLinear(float x, float y) const {
 void
 ScreenBuffer::scaleRadiance(float inFactor) {
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        radiance[i].scale(inFactor);
+        radiance[i] = ColorRgb(
+            inFactor * radiance[i].getR(),
+            inFactor * radiance[i].getG(),
+            inFactor * radiance[i].getB());
     }
 
     synced = false;

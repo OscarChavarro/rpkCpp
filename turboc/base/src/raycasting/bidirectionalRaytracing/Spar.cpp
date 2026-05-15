@@ -59,7 +59,7 @@ ColorRgb
 Spar::handlePath(SparConfig */*config*/, BiPath */*path*/) {
     ColorRgb result;
 
-    result.clear();
+    result = ColorRgb(0.0f, 0.0f, 0.0f);
 
     return result;
 }
@@ -112,19 +112,32 @@ SparList::handlePath(
     CSparListIter iter(*this);
     Spar **spar;
     ColorRgb col;
+    float fBptR = 0.0f;
+    float fBptG = 0.0f;
+    float fBptB = 0.0f;
+    float fRadR = 0.0f;
+    float fRadG = 0.0f;
+    float fRadB = 0.0f;
 
-    fBpt->clear();
-    fRad->clear();
+    *fBpt = ColorRgb(0.0f, 0.0f, 0.0f);
+    *fRad = ColorRgb(0.0f, 0.0f, 0.0f);
 
     while ( (spar = iter.nextOnSequence()) ) {
         col = (*spar)->handlePath(config, path);
 
         if ( *spar == config->leSpar ) {
-            fBpt->add(col, *fBpt);
+            fBptR += col.getR();
+            fBptG += col.getG();
+            fBptB += col.getB();
         } else {
-            fRad->add(col, *fRad);
+            fRadR += col.getR();
+            fRadG += col.getG();
+            fRadB += col.getB();
         }
     }
+
+    *fBpt = ColorRgb(fBptR, fBptG, fBptB);
+    *fRad = ColorRgb(fRadR, fRadG, fRadB);
 }
 
 SparList::~SparList() {

@@ -89,7 +89,9 @@ by the chain. Eye and light node ARE INCLUDED
 ColorRgb
 FlagChain::compute(BiPath *path) const{ ColorRgb result;
     ColorRgb tmpCol;
-    result.setMonochrome(1.0);
+    float r = 1.0f;
+    float g = 1.0f;
+    float b = 1.0f;
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -103,20 +105,28 @@ FlagChain::compute(BiPath *path) const{ ColorRgb result;
     node = path->m_lightPath;
 
     for ( int i = 0; i < lightSize; i++){ tmpCol = node->m_bsdfComp.Sum(chain[i]);
-        result.selfScalarProduct(tmpCol);
+        r *= tmpCol.getR();
+        g *= tmpCol.getG();
+        b *= tmpCol.getB();
         node = node->next();
     }
 
     node = path->m_eyePath;
 
     for ( int i = 0; i < eyeSize; i++){ tmpCol = node->m_bsdfComp.Sum(chain[length - 1 - i]);
-        result.selfScalarProduct(tmpCol);
+        r *= tmpCol.getR();
+        g *= tmpCol.getG();
+        b *= tmpCol.getB();
         node = node->next();
     }
 
-    if ( subtract){ result.scale(-1);
+    if ( subtract){
+        r = -r;
+        g = -g;
+        b = -b;
     }
 
+    result = ColorRgb(r, g, b);
     return result;
 }
 
@@ -171,17 +181,20 @@ FlagChainList::addDisjoint(const FlagChain &chain){ if ( count > 0){ if ( chain.
 ColorRgb
 FlagChainList::compute(BiPath *path){ ColorRgb result;
     ColorRgb tmpCol;
-
-    result.clear();
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
 
     FlagChainIterator iter(*this);
     const FlagChain *chain;
 
     while ( (chain = iter.nextOnSequence()) != NULL){ tmpCol = chain->compute(path);
-
-        result.add(tmpCol, result);
+        r += tmpCol.getR();
+        g += tmpCol.getG();
+        b += tmpCol.getB();
     }
 
+    result = ColorRgb(r, g, b);
     return result;
 }
 
@@ -235,7 +248,7 @@ ColorRgb
 ContribHandler::compute(BiPath *path){ ColorRgb result;
     int length;
 
-    result.clear();
+    result = ColorRgb(0.0f, 0.0f, 0.0f);
 
     length = path->m_eyeSize + path->m_lightSize;
 

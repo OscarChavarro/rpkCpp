@@ -1,4 +1,5 @@
 #include "common/logging/Logger.h"
+#include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "tonemap/LightnessToneMap.h"
 
@@ -20,7 +21,7 @@ LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float max = radiance.maximumComponent();
+    float max = Math::max(Math::max(radiance.getR(), radiance.getG()), radiance.getB());
     if ( max < 1e-32 ) {
         return radiance;
     }
@@ -32,7 +33,10 @@ LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
         return radiance;
     }
 
-    radiance.scale(scaleFactor / max);
+    radiance = ColorRgb(
+        radiance.getR() * (scaleFactor / max),
+        radiance.getG() * (scaleFactor / max),
+        radiance.getB() * (scaleFactor / max));
     return radiance;
 }
 

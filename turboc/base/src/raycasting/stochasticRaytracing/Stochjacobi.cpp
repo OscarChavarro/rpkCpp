@@ -87,11 +87,14 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
 
     if ( getRadianceCallback ) {
         // Probability proportional to power to be propagated
-        ColorRgb radiance = getRadianceCallback(elem)[0];
+        ColorRgb radiance = ColorRgb(getRadianceCallback(elem)[0]);
         if ( StochasticRelaxation::activeState().constantControlVariate ) {
-            radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
+            radiance = ColorRgb(
+                radiance.getR() - StochasticRelaxation::activeState().controlRadiance.getR(),
+                radiance.getG() - StochasticRelaxation::activeState().controlRadiance.getG(),
+                radiance.getB() - StochasticRelaxation::activeState().controlRadiance.getB());
         }
-        prob = elem->area * radiance.sumAbsComponents();
+        prob = elem->area * (Math::abs(radiance.getR()) + Math::abs(radiance.getG()) + Math::abs(radiance.getB()));
         if ( StochasticRelaxation::activeState().importanceDriven ) {
             // Weight with received importance
             float w = elem->importance - elem->sourceImportance;
@@ -105,9 +108,11 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
 
         if ( StochasticRelaxation::activeState().radianceDriven ) {
             // Received-radiance weighted importance transport
-            ColorRgb receivedRadiance;
-            receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
-            prob2 *= receivedRadiance.sumAbsComponents();
+            ColorRgb receivedRadiance = ColorRgb(
+                elem->radiance[0].getR() - elem->sourceRad.getR(),
+                elem->radiance[0].getG() - elem->sourceRad.getG(),
+                elem->radiance[0].getB() - elem->sourceRad.getB());
+            prob2 *= (Math::abs(receivedRadiance.getR()) + Math::abs(receivedRadiance.getG()) + Math::abs(receivedRadiance.getB()));
         }
 
         // Equal weight to importance and radiance propagation for constant approximation,
@@ -166,7 +171,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
 bool
 StochasticJacobi::stochasticJacobiSetup(const ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
-    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( useControlVariate ) {
         StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(getRadianceCallback, NULL, scenePatches);
     }
@@ -184,10 +189,10 @@ StochasticJacobi::stochasticJacobiSetup(const ArrayList<Patch *> *scenePatches) 
 /**
 Returns radiance to be propagated from the given location of the element
 */
-ColorRgb
+ColorRgbMutable
 StochasticJacobi::stchsJacGetSrcRadn(const StochasticRadiosityElement *src, double us, double vs) {
-    const ColorRgb *srcRad = getRadianceCallback(src);
-    return Basismcrad::colorAtUv(src->basis, srcRad, us, vs);
+    const ColorRgbMutable *srcRad = getRadianceCallback(src);
+    return ColorRgbMutable(Basismcrad::colorAtUv(src->basis, (const ColorRgb *)srcRad, us, vs));
 }
 
 void
@@ -195,7 +200,7 @@ StochasticJacobi::stchsJacPropRadnTSurf(
     StochasticRadiosityElement *rcv,
     double ur,
     double vr,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     const StochasticRadiosityElement * /*src*/,
     double fraction,
     double /*weight*/)
@@ -210,7 +215,7 @@ StochasticJacobi::stchsJacPropRadnTSurf(
 void
 StochasticJacobi::stchsJacPropRadnTClustIstrp(
     StochasticRadiosityElement *cluster,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     const StochasticRadiosityElement * /*src*/,
     double fraction,
     double /*weight*/)
@@ -225,7 +230,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 void
 StochasticJacobi::stchsJacPropRadnClustRec(
     StochasticRadiosityElement *currentElement,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     Ray *ray,
     float dir,
     double projectedArea,
@@ -256,7 +261,7 @@ StochasticJacobi::stchsJacPropRadnClustRec(
 void
 StochasticJacobi::stchsJacPropRadnTClustOrntd(
     StochasticRadiosityElement *cluster,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     Ray *ray,
     float dir,
     const StochasticRadiosityElement * /*src*/,
@@ -326,8 +331,8 @@ StochasticJacobi::stchsJacPropRadn(
     Ray *ray,
     float dir)
 {
-    ColorRgb radiance;
-    ColorRgb rayPower;
+    ColorRgbMutable radiance;
+    ColorRgbMutable rayPower;
     double area;
     double weight = sumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
@@ -340,7 +345,10 @@ StochasticJacobi::stchsJacPropRadn(
 
     radiance = stchsJacGetSrcRadn(src, us, vs);
     if ( StochasticRelaxation::activeState().constantControlVariate ) {
-        radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
+        radiance = ColorRgbMutable(
+            radiance.getR() - StochasticRelaxation::activeState().controlRadiance.getR(),
+            radiance.getG() - StochasticRelaxation::activeState().controlRadiance.getG(),
+            radiance.getB() - StochasticRelaxation::activeState().controlRadiance.getB());
     }
     rayPower.scaledCopy(((float)(weight)), radiance);
 
@@ -697,8 +705,10 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
     if ( getRadianceCallback ) {
         if ( useControlVariate ) {
             // Add constant radiosity contribution to received flux
-            elem->receivedRadiance[0].add(
-                elem->receivedRadiance[0], StochasticRelaxation::activeState().controlRadiance);
+            elem->receivedRadiance[0] = ColorRgbMutable(
+                elem->receivedRadiance[0].getR() + StochasticRelaxation::activeState().controlRadiance.getR(),
+                elem->receivedRadiance[0].getG() + StochasticRelaxation::activeState().controlRadiance.getG(),
+                elem->receivedRadiance[0].getB() + StochasticRelaxation::activeState().controlRadiance.getB());
         }
         // Multiply with reflectivity on leaf elements only
         Coefficientsmcrad::stchsRadMltplCoeff(elem->Rd, elem->receivedRadiance, elem->basis);
@@ -706,18 +716,20 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
 
     reflectCallback(elem, ((double)(numberOfRaysToShoot)) / sumOfProbabilities);
 
-    StochasticRelaxation::activeState().unShotFlux.addScaled(
-        StochasticRelaxation::activeState().unShotFlux,
-        ((float)(M_PI)) * elem->area,
-        elem->unShotRadiance[0]);
-    StochasticRelaxation::activeState().totalFlux.addScaled(
-        StochasticRelaxation::activeState().totalFlux,
-        ((float)(M_PI)) * elem->area,
-        elem->radiance[0]);
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.addScaled(
-        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux,
-        ((float)(M_PI)) * elem->area * (elem->importance - elem->sourceImportance),
-        elem->unShotRadiance[0]);
+    const float kFlux = ((float)(M_PI)) * elem->area;
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(
+        StochasticRelaxation::activeState().unShotFlux.getR() + kFlux * elem->unShotRadiance[0].getR(),
+        StochasticRelaxation::activeState().unShotFlux.getG() + kFlux * elem->unShotRadiance[0].getG(),
+        StochasticRelaxation::activeState().unShotFlux.getB() + kFlux * elem->unShotRadiance[0].getB());
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(
+        StochasticRelaxation::activeState().totalFlux.getR() + kFlux * elem->radiance[0].getR(),
+        StochasticRelaxation::activeState().totalFlux.getG() + kFlux * elem->radiance[0].getG(),
+        StochasticRelaxation::activeState().totalFlux.getB() + kFlux * elem->radiance[0].getB());
+    const float kImpFlux = ((float)(M_PI)) * elem->area * (elem->importance - elem->sourceImportance);
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + kImpFlux * elem->unShotRadiance[0].getR(),
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + kImpFlux * elem->unShotRadiance[0].getG(),
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getB() + kImpFlux * elem->unShotRadiance[0].getB());
     StochasticRelaxation::activeState().unShotYmp += (elem->area * Math::abs(elem->unShotImportance));
     StochasticRelaxation::activeState().totalYmp += elem->area * elem->importance;
 }
@@ -725,14 +737,13 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
 void
 StochasticJacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( getRadianceCallback ) {
-        ColorRgb Rd;
-        Rd.clear();
-
         if ( parent->isCluster() && !child->isCluster() ) {
             // Multiply with reflectance (See PropRadnTClustIstrp() above)
-            ColorRgb rad = parent->receivedRadiance[0];
-            Rd = child->Rd;
-            rad.selfScalarProduct(Rd);
+            ColorRgbMutable rad = parent->receivedRadiance[0];
+            rad = ColorRgbMutable(
+                rad.getR() * child->Rd.getR(),
+                rad.getG() * child->Rd.getG(),
+                rad.getB() * child->Rd.getB());
             StochasticRadiosityElement::stchsRadElemPushRadn(parent, child, &rad, child->receivedRadiance);
         } else
             StochasticRadiosityElement::stchsRadElemPushRadn(parent, child, parent->receivedRadiance, child->receivedRadiance);
@@ -797,10 +808,16 @@ StochasticJacobi::stchsJacPullRdEdFromChld(Element *element) {
 
     stochasticJacobiPullRdEd(child);
 
-    parent->Ed.addScaled(parent->Ed, child->area / parent->area, child->Ed);
-    parent->Rd.addScaled(parent->Rd, child->area / parent->area, child->Rd);
+    parent->Ed = ColorRgbMutable(
+        parent->Ed.getR() + (child->area / parent->area) * child->Ed.getR(),
+        parent->Ed.getG() + (child->area / parent->area) * child->Ed.getG(),
+        parent->Ed.getB() + (child->area / parent->area) * child->Ed.getB());
+    parent->Rd = ColorRgbMutable(
+        parent->Rd.getR() + (child->area / parent->area) * child->Rd.getR(),
+        parent->Rd.getG() + (child->area / parent->area) * child->Rd.getG(),
+        parent->Rd.getB() + (child->area / parent->area) * child->Rd.getB());
     if ( parent->isCluster() )
-        parent->Rd.setMonochrome(1.0);
+        parent->Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
 }
 
 void
@@ -809,19 +826,19 @@ StochasticJacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) 
         return;
     }
 
-    element->Ed.clear();
-    element->Rd.clear();
+    element->Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    element->Rd = ColorRgbMutable(0.0f, 0.0f, 0.0f);
     element->traverseAllChildren(stchsJacPullRdEdFromChld);
 }
 
 void
 StochasticJacobi::stchsJacPushUpdPullSwp() {
     // Update radiance, compute new total and un-shot flux
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.clear();
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
 
     // Update reflectances and emittances (refinement yields more accurate estimates
     // on textured surfaces)

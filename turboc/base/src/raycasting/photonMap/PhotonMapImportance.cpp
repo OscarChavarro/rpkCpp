@@ -67,12 +67,14 @@ PhotonMapImportance::tracePotentialPath(
     }
     photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-    ColorRgb accImportance;  // Track importance along the ray
-    accImportance.setMonochrome(1.0);
+    ColorRgb accImportance(1.0f, 1.0f, 1.0f);  // Track importance along the ray
 
     // Adjust importance for eye ray
     float factor = ((float)(path->m_G / path->m_pdfFromPrev));
-    accImportance.scale(factor);
+    accImportance = ColorRgb(
+        factor * accImportance.getR(),
+        factor * accImportance.getG(),
+        factor * accImportance.getB());
 
     bool indirectImportance = false; // Can we store in the indirect importance map
 
@@ -109,9 +111,15 @@ PhotonMapImportance::tracePotentialPath(
         }
 
         // Adjust importance
-        accImportance.selfScalarProduct(prev->m_bsdfEval);
+        accImportance = ColorRgb(
+            accImportance.getR() * prev->m_bsdfEval.getR(),
+            accImportance.getG() * prev->m_bsdfEval.getG(),
+            accImportance.getB() * prev->m_bsdfEval.getB());
         factor = ((float)(node->m_G / node->m_pdfFromPrev));
-        accImportance.scale(factor);
+        accImportance = ColorRgb(
+            factor * accImportance.getR(),
+            factor * accImportance.getG(),
+            factor * accImportance.getB());
 
         // Store in map
         ImportanceMap *imap = (indirectImportance ? photonMapConfig.importanceMap :

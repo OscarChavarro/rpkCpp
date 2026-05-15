@@ -2,7 +2,7 @@
 #include "galerkin/processing/visitors/DepthVisibilityGathererVisitor.h"
 DepthVisibilityGathererVisitor::DepthVisibilityGathererVisitor(
     Interaction *inLink,
-    ColorRgb *inSourceRadiance,
+    ColorRgbMutable *inSourceRadiance,
     double inPixelArea)
 {
     link = inLink;

@@ -12,6 +12,7 @@ Galerkin radiosity, with the following variants:
 #include "java/util/Formatter.h"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
+#include "common/color/Cie.h"
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
@@ -136,7 +137,7 @@ GalerkinRadianceMethod::writeCoords() {
 }
 
 void
-GalerkinRadianceMethod::writeVertexColor(const ColorRgb *color) {
+GalerkinRadianceMethod::writeVertexColor(const ColorRgbMutable *color) {
     if ( numberOfWrites > 0 ) {
         writeFormatted("%s", ", ");
     }
@@ -144,14 +145,14 @@ GalerkinRadianceMethod::writeVertexColor(const ColorRgb *color) {
     if ( numberOfWrites % 4 == 0 ) {
         writeFormatted("%s", "\n\t  ");
     }
-    writeFormatted("%.3g %.3g %.3g", color->r, color->g, color->b);
+    writeFormatted("%.3g %.3g %.3g", color->getR(), color->getG(), color->getB());
     vertexId++;
 }
 
 void
 GalerkinRadianceMethod::writeVertexColors(Element *element) {
     const GalerkinElement *galerkinElement = ((GalerkinElement *)(element));
-    ColorRgb vertexRadiosity[4];
+    ColorRgbMutable vertexRadiosity[4];
     int i;
 
     if ( galerkinElement->patch->numberOfVertices == 3 ) {
@@ -166,8 +167,8 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
     }
 
     if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
-        ColorRgb reflectivity = galerkinElement->patch->radianceData->Rd;
-        ColorRgb ambient;
+        ColorRgbMutable reflectivity = galerkinElement->patch->radianceData->Rd;
+        ColorRgbMutable ambient;
 
         ambient.scalarProduct(reflectivity, GalerkinRadianceMethod::galerkinState.ambientRadiance);
         for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
@@ -176,9 +177,10 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
     }
 
     for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
-        ColorRgb col = ColorRgb();
-        ToneMap::radianceToRgb(vertexRadiosity[i], &col, *GalerkinRadianceMethod::galerkinState.toneMapOptions);
-        writeVertexColor(&col);
+        ColorRgb col;
+        ToneMap::radianceToRgb(ColorRgb(vertexRadiosity[i]), &col, *GalerkinRadianceMethod::galerkinState.toneMapOptions);
+        ColorRgbMutable out(col.getR(), col.getG(), col.getB());
+        writeVertexColor(&out);
     }
 }
 
@@ -193,7 +195,7 @@ GalerkinRadianceMethod::writeVertexColorsTopCluster() {
 
 void
 GalerkinRadianceMethod::writeColors(const RenderOptions *renderOptions) {
-    if ( !renderOptions->smoothShading ) {
+    if ( !renderOptions->isSmoothShading() ) {
         Logger::warning(NULL, "I assume you want a smooth shaded model ...");
     }
     writeFormatted("\tcolorPerVertex %s\n", "TRUE");
@@ -262,8 +264,8 @@ GalerkinRadianceMethod::updateCpuSecs() {
 
 void
 GalerkinRadianceMethod::patchInit(Patch *patch) {
-    ColorRgb reflectivity = patch->radianceData->Rd;
-    ColorRgb selfEmittanceRadiance = patch->radianceData->Ed;
+    ColorRgbMutable reflectivity = patch->radianceData->Rd;
+    ColorRgbMutable selfEmittanceRadiance = patch->radianceData->Ed;
 
     if ( galerkinState.useConstantRadiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
@@ -303,16 +305,16 @@ Recomputes the color of a patch using ambient radiance term, ... if requested fo
 */
 void
 GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
-    ColorRgb reflectivity = patch->radianceData->Rd;
-    ColorRgb radVis;
+    ColorRgbMutable reflectivity = patch->radianceData->Rd;
+    ColorRgbMutable radVis;
 
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( galerkinState.useAmbientRadiance ) {
         radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
-        ToneMap::radianceToRgb(radVis, &patch->color, *galerkinState.toneMapOptions);
+        ToneMap::radianceToRgb(ColorRgb(radVis), &patch->color, *galerkinState.toneMapOptions);
     } else {
-        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patch->color, *galerkinState.toneMapOptions);
+        ToneMap::radianceToRgb(ColorRgb(galerkinGetRadiance(patch)), &patch->color, *galerkinState.toneMapOptions);
     }
     patch->computeVertexColors();
 }
@@ -347,11 +349,11 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 
     GalerkinElement::initializeBasis();
 
-    galerkinState.constantRadiance = Statistics::instance().radiance.estimatedAverageRadiance;
+    galerkinState.constantRadiance = ColorRgbMutable(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB());
     if ( galerkinState.useConstantRadiance ) {
-        galerkinState.ambientRadiance.clear();
+        galerkinState.ambientRadiance = ColorRgbMutable(0.0f, 0.0f, 0.0f);
     } else {
-        galerkinState.ambientRadiance = Statistics::instance().radiance.estimatedAverageRadiance;
+        galerkinState.ambientRadiance = ColorRgbMutable(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB());
     }
 
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
@@ -428,11 +430,11 @@ GalerkinRadianceMethod::terminate(ArrayList<Patch *> */*scenePatches*/) {
     }
 }
 
-ColorRgb
+ColorRgbMutable
 GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) const
 {
     const GalerkinElement *leaf;
-    ColorRgb rad;
+    ColorRgbMutable rad;
 
     if ( patch->jacobian ) {
         patch->biLinearToUniform(&u, &v);
@@ -445,8 +447,8 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
 
     if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
-        ColorRgb reflectivity = patch->radianceData->Rd;
-        ColorRgb ambientRadiance;
+        ColorRgbMutable reflectivity = patch->radianceData->Rd;
+        ColorRgbMutable ambientRadiance;
         ambientRadiance.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         rad.add(rad, ambientRadiance);
     }
@@ -454,7 +456,7 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
     return rad;
 }
 
-ColorRgb
+ColorRgbMutable
 GalerkinRadianceMethod::getRadiance(
     Camera * /*camera*/,
     Patch *patch,
@@ -512,9 +514,9 @@ GalerkinRadianceMethod::getStats() const {
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.r, Statistics::instance().radiance.maxSelfEmittedRadiance.g, Statistics::instance().radiance.maxSelfEmittedRadiance.b)) :
+                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
                    galerkinState.relLinkErrorThreshold *
-                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.r, Statistics::instance().radiance.maxSelfEmittedPower.g, Statistics::instance().radiance.maxSelfEmittedPower.b)),
+                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

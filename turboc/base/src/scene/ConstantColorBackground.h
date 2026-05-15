@@ -10,9 +10,9 @@
 class ConstantColorBackground : public Background {
   public:
     ConstantColorBackground();
-    explicit ConstantColorBackground(const ColorRgb &backgroundColor);
+    explicit ConstantColorBackground(const ColorRgbMutable &backgroundColor);
 
-    ColorRgb
+    ColorRgbMutable
     radiance(Vector3D *position, Vector3D *direction, float *probabilityDensityFunction) const;
 
     Vector3D
@@ -20,17 +20,17 @@ class ConstantColorBackground : public Background {
         Vector3D *position,
         float xi1,
         float xi2,
-        ColorRgb *radiance,
+        ColorRgbMutable *radiance,
         float *probabilityDensityFunction) const;
 
-    ColorRgb
+    ColorRgbMutable
     power(Vector3D *position) const;
 
   private:
     static const float FOUR_PI;
     static const float INV_FOUR_PI;
 
-    ColorRgb color;
+    ColorRgbMutable color;
 };
 
 #endif

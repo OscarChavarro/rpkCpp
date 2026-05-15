@@ -49,9 +49,9 @@ class StochasticRadiosityElement: public Element{ public:
 
     static bool stchsRadElemITex(const StochasticRadiosityElement *elem);
     static float stchsRadElemSclrRefl(const StochasticRadiosityElement *elem);
-    static void stchsRadElemPushRadn( const StochasticRadiosityElement *parent, StochasticRadiosityElement *child, const ColorRgb *parentRadiance, ColorRgb *childRadiance);
+    static void stchsRadElemPushRadn( const StochasticRadiosityElement *parent, StochasticRadiosityElement *child, const ColorRgbMutable *parentRadiance, ColorRgbMutable *childRadiance);
     static void stchsRadElemPushImp(const float *parentImportance, float *childImportance);
-    static void stchsRadElemPullRadn( const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, ColorRgb *parentRad, const ColorRgb *childRad);
+    static void stchsRadElemPullRadn( const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, ColorRgbMutable *parentRad, const ColorRgbMutable *childRad);
     static void stchsRadElemPullImp( const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, float *parentImportance, const float *childImportance);
 
     static ColorRgb stchsRadElemDispRadn(const StochasticRadiosityElement *elem);
