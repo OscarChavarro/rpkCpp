@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-gradle run --args "../etc/floor_gloss.mgf -raytracing-method RayCasting \
+"${RPK_GRADLE}" "${RPK_GRADLE_QUIET}" "${RPK_APP_TASK}" --args "${RPK_ETC_DIR}/floor_gloss.mgf -raytracing-method RayCasting \
     -obf output/11_floorRayCasting.bin \
     -nqcdivs 16 \
     -iterations 9 -radiance-method Galerkin \

@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-gradle run --args "../etc/office2/office2.mgf \
+"${RPK_GRADLE}" "${RPK_GRADLE_QUIET}" "${RPK_APP_TASK}" --args "${RPK_ETC_DIR}/office2/office2.mgf \
     -obf output/05_office2.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/05_office2.wrl \

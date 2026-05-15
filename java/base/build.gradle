@@ -1,0 +1,58 @@
+plugins {
+    id "java-library"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    api("org.jogamp.jogl:jogl-all:2.5.0")
+    api("org.jogamp.gluegen:gluegen-rt:2.5.0")
+    runtimeOnly("org.jogamp.jogl:jogl-all-main:2.5.0")
+    runtimeOnly("org.jogamp.gluegen:gluegen-rt-main:2.5.0")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main/java"]
+        }
+    }
+    test {
+        java {
+            srcDirs = ["src/test"]
+        }
+    }
+    joglDemo {
+        java {
+            srcDirs = ["src/test"]
+        }
+    }
+}
+
+configurations {
+    joglDemoImplementation.extendsFrom implementation
+    joglDemoRuntimeOnly.extendsFrom runtimeOnly
+}
+
+tasks.register("runHelloWorldJOGL", JavaExec) {
+    group = "application"
+    description = "Run JOGL demo from CLI"
+    mainClass = "jogl.HelloWorldJOGL"
+    classpath = sourceSets.joglDemo.runtimeClasspath
+}
+
+tasks.named("compileJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/main")
+}
+
+tasks.named("compileTestJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/test")
+}
+
+tasks.named("compileJoglDemoJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/joglDemo")
+}

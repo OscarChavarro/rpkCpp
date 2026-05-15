@@ -1,7 +1,8 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
-gradle run --args "../etc/corridor.mgf \
+"${RPK_GRADLE}" "${RPK_GRADLE_QUIET}" "${RPK_APP_TASK}" --args "${RPK_ETC_DIR}/corridor.mgf \
     -obf output/02_corridor.bin \
     -raytracing-method none \
     -nqcdivs 18 -iterations 21 -radiance-method Galerkin \
