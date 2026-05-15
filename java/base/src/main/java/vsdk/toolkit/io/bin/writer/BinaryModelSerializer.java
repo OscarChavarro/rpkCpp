@@ -179,9 +179,9 @@ public class BinaryModelSerializer {
     }
 
     private static void writeColor(OutputStream output, ColorRgb color) {
-        writeFloatLE(output, color.r);
-        writeFloatLE(output, color.g);
-        writeFloatLE(output, color.b);
+        writeFloatLE(output, (float)color.r);
+        writeFloatLE(output, (float)color.g);
+        writeFloatLE(output, (float)color.b);
     }
 
     private static void writeVector(OutputStream output, Vector3D vector) {

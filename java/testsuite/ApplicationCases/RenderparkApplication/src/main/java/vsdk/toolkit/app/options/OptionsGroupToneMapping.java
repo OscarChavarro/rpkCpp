@@ -174,7 +174,7 @@ public final class OptionsGroupToneMapping {
             null);
         TypedOption<Float> gammaOpt = new TypedOption<>(
             "-gamma",
-            TypedOption.reference(() -> toneMapOptionsContext.gamma.r, v -> toneMapOptionsContext.gamma.r = v),
+            TypedOption.reference(() -> (float)toneMapOptionsContext.gamma.r, v -> toneMapOptionsContext.gamma.r = v),
             1,
             OptionsGroupToneMapping::gammaOption,
             null);

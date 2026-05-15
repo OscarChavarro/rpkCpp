@@ -8,37 +8,33 @@ import java.io.PrintStream;
 import java.util.Locale;
 
 public class ColorRgb {
-    public float r;
-    public float g;
-    public float b;
+    public double r;
+    public double g;
+    public double b;
 
     public ColorRgb() {
-        this(0.0f, 0.0f, 0.0f);
+        this(0.0, 0.0, 0.0);
     }
 
-    public ColorRgb(float inR, float inG, float inB) {
+    public ColorRgb(double inR, double inG, double inB) {
         this.r = inR;
         this.g = inG;
         this.b = inB;
     }
 
-    public ColorRgb(double inR, double inG, double inB) {
-        this((float)inR, (float)inG, (float)inB);
-    }
-
     public void clear() {
-        r = 0.0f;
-        g = 0.0f;
-        b = 0.0f;
+        r = 0.0;
+        g = 0.0;
+        b = 0.0;
     }
 
-    public void set(float v1, float v2, float v3) {
+    public void set(double v1, double v2, double v3) {
         r = v1;
         g = v2;
         b = v3;
     }
 
-    public void setMonochrome(float v) {
+    public void setMonochrome(double v) {
         r = v;
         g = v;
         b = v;
@@ -50,13 +46,13 @@ public class ColorRgb {
             b > -vsdk.toolkit.common.linealAlgebra.Numeric.EPSILON && b < vsdk.toolkit.common.linealAlgebra.Numeric.EPSILON);
     }
 
-    public void scaledCopy(float a, ColorRgb c) {
+    public void scaledCopy(double a, ColorRgb c) {
         r = a * c.r;
         g = a * c.g;
         b = a * c.b;
     }
 
-    public void scale(float a) {
+    public void scale(double a) {
         r *= a;
         g *= a;
         b *= a;
@@ -74,7 +70,7 @@ public class ColorRgb {
         b *= s.b;
     }
 
-    public void scalarProductScaled(ColorRgb s, float a, ColorRgb t) {
+    public void scalarProductScaled(ColorRgb s, double a, ColorRgb t) {
         r = s.r * a * t.r;
         g = s.g * a * t.g;
         b = s.b * a * t.b;
@@ -86,13 +82,13 @@ public class ColorRgb {
         b = s.b + t.b;
     }
 
-    public void addScaled(ColorRgb s, float a, ColorRgb t) {
+    public void addScaled(ColorRgb s, double a, ColorRgb t) {
         r = s.r + a * t.r;
         g = s.g + a * t.g;
         b = s.b + a * t.b;
     }
 
-    public void addConstant(ColorRgb s, float a) {
+    public void addConstant(ColorRgb s, double a) {
         r = s.r + a;
         g = s.g + a;
         b = s.b + a;
@@ -105,13 +101,13 @@ public class ColorRgb {
     }
 
     public void divide(ColorRgb s, ColorRgb t) {
-        r = (t.r != 0.0f) ? s.r / t.r : s.r;
-        g = (t.g != 0.0f) ? s.g / t.g : s.g;
-        b = (t.b != 0.0f) ? s.b / t.b : s.b;
+        r = (t.r != 0.0) ? s.r / t.r : s.r;
+        g = (t.g != 0.0) ? s.g / t.g : s.g;
+        b = (t.b != 0.0) ? s.b / t.b : s.b;
     }
 
-    public void scaleInverse(float scale, ColorRgb s) {
-        float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
+    public void scaleInverse(double scale, ColorRgb s) {
+        double a = (scale != 0.0) ? 1.0 / scale : 1.0;
         r = a * s.r;
         g = a * s.g;
         b = a * s.b;
@@ -119,12 +115,12 @@ public class ColorRgb {
 
     public float maximumComponent() {
         if (r > g) {
-            return (r > b) ? r : b;
+            return (float)((r > b) ? r : b);
         }
-        return (g > b) ? g : b;
+        return (float)((g > b) ? g : b);
     }
 
-    public float sumAbsComponents() {
+    public double sumAbsComponents() {
         return Math.abs(r) + Math.abs(g) + Math.abs(b);
     }
 
@@ -147,19 +143,19 @@ public class ColorRgb {
     }
 
     public float average() {
-        return (r + g + b) / 3.0f;
+        return (float)((r + g + b) / 3.0);
     }
 
-    public void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v) {
+    public void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, double u, double v) {
         r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
         g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);
         b = c0.b + u * (c1.b - c0.b) + v * (c2.b - c0.b);
     }
 
-    public void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v) {
-        float c = u * v;
-        float bb = u - c;
-        float d = v - c;
+    public void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, double u, double v) {
+        double c = u * v;
+        double bb = u - c;
+        double d = v - c;
 
         r = c0.r + bb * (c1.r - c0.r) + c * (c2.r - c0.r) + d * (c3.r - c0.r);
         g = c0.g + bb * (c1.g - c0.g) + c * (c2.g - c0.g) + d * (c3.g - c0.g);
@@ -167,25 +163,25 @@ public class ColorRgb {
     }
 
     public void clip() {
-        if (r < 0.0f) {
-            r = 0.0f;
+        if (r < 0.0) {
+            r = 0.0;
         }
-        else if (r > 1.0f) {
-            r = 1.0f;
-        }
-
-        if (g < 0.0f) {
-            g = 0.0f;
-        }
-        else if (g > 1.0f) {
-            g = 1.0f;
+        else if (r > 1.0) {
+            r = 1.0;
         }
 
-        if (b < 0.0f) {
-            b = 0.0f;
+        if (g < 0.0) {
+            g = 0.0;
         }
-        else if (b > 1.0f) {
-            b = 1.0f;
+        else if (g > 1.0) {
+            g = 1.0;
+        }
+
+        if (b < 0.0) {
+            b = 0.0;
+        }
+        else if (b > 1.0) {
+            b = 1.0;
         }
     }
 

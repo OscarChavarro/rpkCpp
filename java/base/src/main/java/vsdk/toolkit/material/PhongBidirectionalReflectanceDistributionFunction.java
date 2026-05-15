@@ -92,6 +92,7 @@ Brdf sampling
 // Glossy or specular
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -128,35 +129,35 @@ public class PhongBidirectionalReflectanceDistributionFunction {
     }
 
     public ColorRgb reflectance(int flags) {
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, Kd);
+            result.add(result, new ColorRgbMutable(Kd));
         }
 
         if (isSpecular()) {
             if ((flags & XxdfComponentFlag.SPECULAR_COMPONENT) != 0) {
-                result.add(result, Ks);
+                result.add(result, new ColorRgbMutable(Ks));
             }
         }
         else if ((flags & XxdfComponentFlag.GLOSSY_COMPONENT) != 0) {
-            result.add(result, Ks);
+            result.add(result, new ColorRgbMutable(Ks));
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public ColorRgb evaluate(Vector3D in, Vector3D out, Vector3D normal, int flags) {
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if (out.dotProduct(normal) < 0.0f) {
-            return result;
+            return result.toImmutable();
         }
 
         if (((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) && (avgKd > 0.0f)) {
-            result.addScaled(result, (float)(1.0 / Math.PI), Kd);
+            result.addScaled(result, (1.0 / Math.PI), new ColorRgbMutable(Kd));
         }
 
         int nonDiffuseFlag = isSpecular() ? XxdfComponentFlag.SPECULAR_COMPONENT : XxdfComponentFlag.GLOSSY_COMPONENT;
@@ -170,11 +171,11 @@ public class PhongBidirectionalReflectanceDistributionFunction {
             if (localDotProduct > 0.0f) {
                 float tmpFloat = (float)Math.pow(localDotProduct, Ns);
                 tmpFloat *= (Ns + 2.0f) / (2.0f * (float)Math.PI);
-                result.addScaled(result, tmpFloat, Ks);
+                result.addScaled(result, tmpFloat, new ColorRgbMutable(Ks));
             }
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public Vector3D sample(

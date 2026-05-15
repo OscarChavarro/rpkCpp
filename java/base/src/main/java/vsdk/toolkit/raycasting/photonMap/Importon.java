@@ -38,11 +38,11 @@ public class Importon extends IrrPhoton {
 
     public float
     Importance() {
-        return m_power.r;
+        return (float)m_power.r;
     }
 
     public float
     PImportance() {
-        return m_irradiance.r;
+        return (float)m_irradiance.r;
     }
 }

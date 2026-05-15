@@ -102,7 +102,7 @@ public final class FerwerdaToneMap extends ToneMap {
         // Compute the scotopic grayscale shift
         p.set(radiance.r, radiance.g, radiance.b);
         // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-        sl = smComp * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
+        sl = (float)(smComp * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b));
 
         // Scale the photopic luminance
         radiance.scale(pmComp);
@@ -127,7 +127,7 @@ public final class FerwerdaToneMap extends ToneMap {
         // Compute the scotopic grayscale shift
         radiance.set(p.r, p.g, p.b);
         // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-        sl = smDisplay * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
+        sl = (float)(smDisplay * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b));
 
         // Scale the photopic luminance
         radiance.scale(pmDisplay);

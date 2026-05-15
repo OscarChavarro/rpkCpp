@@ -236,7 +236,15 @@ public final class Cie {
         return gray(r, g, b);
     }
 
+    public static float spectrumGray(double r, double g, double b) {
+        return gray((float)r, (float)g, (float)b);
+    }
+
     public static float spectrumLuminance(float r, float g, float b) {
         return luminance(r, g, b);
+    }
+
+    public static float spectrumLuminance(double r, double g, double b) {
+        return luminance((float)r, (float)g, (float)b);
     }
 }

@@ -46,7 +46,7 @@ public final class Opengl {
         if ( gl == null || camera == null ) {
             return;
         }
-        gl.glClearColor(camera.background.r, camera.background.g, camera.background.b, 0.0f);
+        gl.glClearColor((float)camera.background.r, (float)camera.background.g, (float)camera.background.b, 0.0f);
         gl.glClearDepth(1.0);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
     }
@@ -80,7 +80,7 @@ public final class Opengl {
             Logger.warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
-        gl.glColor3f(corrected.r, corrected.g, corrected.b);
+        gl.glColor3f((float)corrected.r, (float)corrected.g, (float)corrected.b);
     }
 
     public static void openGlRenderPolygonFlat(int numberOfVertices, Vector3D[] vertices) {

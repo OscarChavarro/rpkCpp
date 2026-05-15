@@ -74,9 +74,9 @@ a pointer to the material if found, or nullptr if not found
     }
 
     private static void specSamples(ColorRgb col, float[] rgb) {
-        rgb[0] = col.r;
-        rgb[1] = col.g;
-        rgb[2] = col.b;
+        rgb[0] = (float)col.r;
+        rgb[1] = (float)col.g;
+        rgb[2] = (float)col.b;
     }
 
     private static float colorMax(ColorRgb col) {

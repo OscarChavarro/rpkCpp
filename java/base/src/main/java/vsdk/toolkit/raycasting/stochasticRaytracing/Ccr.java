@@ -226,16 +226,16 @@ method). Does so component wise
                 // Copy components
                 switch ( s ) {
                     case 0:
-                        fc[i] = f[i].r;
-                        radC[i] = rad[i].r;
+                        fc[i] = (float)f[i].r;
+                        radC[i] = (float)rad[i].r;
                         break;
                     case 1:
-                        fc[i] = f[i].g;
-                        radC[i] = rad[i].g;
+                        fc[i] = (float)f[i].g;
+                        radC[i] = (float)rad[i].g;
                         break;
                     case 2:
-                        fc[i] = f[i].b;
-                        radC[i] = rad[i].b;
+                        fc[i] = (float)f[i].b;
+                        radC[i] = (float)rad[i].b;
                         break;
                     default:
                         break;
@@ -243,10 +243,10 @@ method). Does so component wise
             }
             switch ( s ) {
                 case 0: {
-                    float[] min = new float[] {minRad.r};
-                    float[] max = new float[] {maxRad.r};
-                    float[] fMinC = new float[] {fMin.r};
-                    float[] fMaxC = new float[] {fMax.r};
+                    float[] min = new float[] {(float)minRad.r};
+                    float[] max = new float[] {(float)maxRad.r};
+                    float[] fMinC = new float[] {(float)fMin.r};
+                    float[] fMaxC = new float[] {(float)fMax.r};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
                     minRad.r = min[0];
                     maxRad.r = max[0];
@@ -255,10 +255,10 @@ method). Does so component wise
                     break;
                 }
                 case 1: {
-                    float[] min = new float[] {minRad.g};
-                    float[] max = new float[] {maxRad.g};
-                    float[] fMinC = new float[] {fMin.g};
-                    float[] fMaxC = new float[] {fMax.g};
+                    float[] min = new float[] {(float)minRad.g};
+                    float[] max = new float[] {(float)maxRad.g};
+                    float[] fMinC = new float[] {(float)fMin.g};
+                    float[] fMaxC = new float[] {(float)fMax.g};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
                     minRad.g = min[0];
                     maxRad.g = max[0];
@@ -267,10 +267,10 @@ method). Does so component wise
                     break;
                 }
                 case 2: {
-                    float[] min = new float[] {minRad.b};
-                    float[] max = new float[] {maxRad.b};
-                    float[] fMinC = new float[] {fMin.b};
-                    float[] fMaxC = new float[] {fMax.b};
+                    float[] min = new float[] {(float)minRad.b};
+                    float[] max = new float[] {(float)maxRad.b};
+                    float[] fMinC = new float[] {(float)fMin.b};
+                    float[] fMaxC = new float[] {(float)fMax.b};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
                     minRad.b = min[0];
                     maxRad.b = max[0];

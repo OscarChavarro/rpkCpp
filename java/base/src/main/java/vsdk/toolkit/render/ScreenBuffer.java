@@ -207,9 +207,9 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
 
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
         ip.setToneMappingContext(activeToneMapOptions);
-        ip.gamma[0] = activeToneMapOptions.gamma.r; // For default radiance -> display RGB
-        ip.gamma[1] = activeToneMapOptions.gamma.g;
-        ip.gamma[2] = activeToneMapOptions.gamma.b;
+        ip.gamma[0] = (float)activeToneMapOptions.gamma.r; // For default radiance -> display RGB
+        ip.gamma[1] = (float)activeToneMapOptions.gamma.g;
+        ip.gamma[2] = (float)activeToneMapOptions.gamma.b;
         for (int i = camera.ySize - 1; i >= 0; i--) {
             // Write scan lines
             if (!isRgbImage()) {
@@ -226,9 +226,9 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
                 for (int j = 0; j < camera.xSize; j++) {
                     ColorRgb color = radiance[rowStart + j];
                     int base = 3 * j;
-                    rgbFloatArray[base] = color.r;
-                    rgbFloatArray[base + 1] = color.g;
-                    rgbFloatArray[base + 2] = color.b;
+                    rgbFloatArray[base] = (float)color.r;
+                    rgbFloatArray[base + 1] = (float)color.g;
+                    rgbFloatArray[base + 2] = (float)color.b;
                 }
                 ip.writeDisplayRGB(rgbFloatArray);
             }
