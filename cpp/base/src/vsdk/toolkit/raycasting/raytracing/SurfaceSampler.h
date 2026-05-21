@@ -1,7 +1,7 @@
 #ifndef C_SURFACE_SAMPLER__
 #define C_SURFACE_SAMPLER__
 
-#include <vector>
+#include "vsdk/toolkit/java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"
 
 /**
@@ -28,7 +28,7 @@ class SurfaceSampler : public Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    inline ColorRgbMutable
+    ColorRgbMutable
     DoBsdfEval(
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
@@ -37,37 +37,7 @@ class SurfaceSampler : public Sampler {
         const Vector3D *in,
         const Vector3D *out,
         char flags,
-        BsdfComp *bsdfComp) const
-    {
-        bool ok = false;
-        const ShadingContext context = hit->shadingContext(&ok);
-
-        if ( m_computeBsdfComponents ) {
-            if ( bsdf == nullptr ) {
-                ColorRgbMutable black;
-                black.clear();
-                return black;
-            } else {
-                std::vector<ColorRgb> componentArray(
-                    BsdfComponentInfo::BSDF_COMPONENTS, ColorRgb(0.0, 0.0, 0.0));
-                const ColorRgb radiance = bsdf->bsdfEvalComponents(
-                    context, inBsdf, outBsdf, in, out, flags, componentArray.data());
-                for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
-                    (*bsdfComp)[i] = static_cast<ColorRgbMutable>(componentArray[i]);
-                }
-                return static_cast<ColorRgbMutable>(radiance);
-            }
-        } else {
-            bsdfComp->Clear();
-            ColorRgbMutable radiance;
-            if ( bsdf == nullptr ) {
-                radiance.clear();
-            } else {
-                radiance = bsdf->evaluate(context, inBsdf, outBsdf, in, out, flags);
-            }
-            return radiance;
-        }
-    }
+        BsdfComp *bsdfComp) const;
 
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends

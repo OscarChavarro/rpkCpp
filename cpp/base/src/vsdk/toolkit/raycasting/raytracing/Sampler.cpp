@@ -1,4 +1,5 @@
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
+#include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/raycasting/common/Raytools.h"
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"
@@ -120,6 +121,48 @@ SurfaceSampler::DetermineRayType(
         thisNode->m_rayType = PathRayType::REFLECTS;
         newNode->m_inBsdf = thisNode->m_inBsdf; // staying in same medium
     }
+}
+
+ColorRgbMutable
+SurfaceSampler::DoBsdfEval(
+    const PhongBidirectionalScatteringDistributionFunction *bsdf,
+    RayHit *hit,
+    const PhongBidirectionalScatteringDistributionFunction *inBsdf,
+    const PhongBidirectionalScatteringDistributionFunction *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags,
+    BsdfComp *bsdfComp) const
+{
+    bool ok = false;
+    const ShadingContext context = hit->shadingContext(&ok);
+
+    if ( m_computeBsdfComponents ) {
+        if ( bsdf == nullptr ) {
+            ColorRgbMutable black;
+            black.clear();
+            return black;
+        }
+        java::ArrayList<ColorRgb> componentArray(BsdfComponentInfo::BSDF_COMPONENTS);
+        for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
+            componentArray.add(ColorRgb(0.0, 0.0, 0.0));
+        }
+        const ColorRgb radiance = bsdf->bsdfEvalComponents(
+            context, inBsdf, outBsdf, in, out, flags, componentArray.data());
+        for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
+            (*bsdfComp)[i] = static_cast<ColorRgbMutable>(componentArray[i]);
+        }
+        return static_cast<ColorRgbMutable>(radiance);
+    }
+
+    bsdfComp->Clear();
+    ColorRgbMutable radiance;
+    if ( bsdf == nullptr ) {
+        radiance.clear();
+    } else {
+        radiance = bsdf->evaluate(context, inBsdf, outBsdf, in, out, flags);
+    }
+    return radiance;
 }
 
 #endif

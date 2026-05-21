@@ -1,7 +1,7 @@
 #include <cstring>
-#include <vector>
 
 #include "vsdk/toolkit/java/lang/System.h"
+#include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
@@ -162,18 +162,18 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
-            std::vector<ColorRgb> scanline(static_cast<size_t>(camera.xSize), ColorRgb(0.0, 0.0, 0.0));
+            java::ArrayList<ColorRgb> scanline(camera.xSize > 0 ? camera.xSize : 1);
             for ( int x = 0; x < camera.xSize; x++ ) {
-                scanline[x] = ColorRgb(radiance[i * camera.xSize + x]);
+                scanline.add(ColorRgb(radiance[i * camera.xSize + x]));
             }
             ip->writeRadianceRGB(scanline.data());
         } else {
-            std::vector<float> scanline(static_cast<size_t>(camera.xSize) * 3U);
+            java::ArrayList<float> scanline(camera.xSize * 3 > 0 ? camera.xSize * 3 : 1);
             for ( int x = 0; x < camera.xSize; x++ ) {
                 const ColorRgbMutable &pixel = radiance[i * camera.xSize + x];
-                scanline[3 * x] = static_cast<float>(pixel.getR());
-                scanline[3 * x + 1] = static_cast<float>(pixel.getG());
-                scanline[3 * x + 2] = static_cast<float>(pixel.getB());
+                scanline.add(static_cast<float>(pixel.getR()));
+                scanline.add(static_cast<float>(pixel.getG()));
+                scanline.add(static_cast<float>(pixel.getB()));
             }
             ip->writeDisplayRGB(scanline.data());
         }

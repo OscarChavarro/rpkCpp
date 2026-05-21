@@ -5,7 +5,6 @@
 
 #include <map>
 #include <set>
-#include <vector>
 
 #include "ProcReader.h"
 #include "ProcessSnapshot.h"
@@ -38,10 +37,10 @@ LoadWatcher::run() const {
     std::map<pid_t, ProcessStats> trackedProcesses;
 
     while ( true ) {
-        std::vector<ProcessSnapshot> snapshots = ProcReader::readProcessesByName(TARGET_PROCESS_NAME);
+        java::ArrayList<ProcessSnapshot> snapshots = ProcReader::readProcessesByName(TARGET_PROCESS_NAME);
         std::set<pid_t> livePids;
 
-        for ( size_t i = 0; i < snapshots.size(); i++ ) {
+        for ( long int i = 0; i < snapshots.size(); i++ ) {
             const ProcessSnapshot &snapshot = snapshots[i];
             livePids.insert(snapshot.pid);
 
@@ -53,7 +52,7 @@ LoadWatcher::run() const {
             }
         }
 
-        if ( !snapshots.empty() ) {
+        if ( snapshots.size() > 0 ) {
             batchStarted = true;
         }
 
@@ -68,7 +67,7 @@ LoadWatcher::run() const {
             }
         }
 
-        if ( batchStarted && trackedProcesses.empty() && snapshots.empty() ) {
+        if ( batchStarted && trackedProcesses.empty() && snapshots.size() == 0 ) {
             break;
         }
 

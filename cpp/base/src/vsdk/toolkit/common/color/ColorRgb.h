@@ -10,6 +10,13 @@ class ColorRgb {
     double b;
 
   public:
+    ColorRgb():
+        r(0.0),
+        g(0.0),
+        b(0.0)
+    {
+    }
+
     ColorRgb(double inR, double inG, double inB):
         r(inR),
         g(inG),

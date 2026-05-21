@@ -8,7 +8,8 @@
 #include <unistd.h>
 
 #include <string>
-#include <vector>
+
+#include "vsdk/toolkit/java/util/ArrayList.txx"
 
 namespace {
 
@@ -52,7 +53,7 @@ bool readProcessName(pid_t pid, std::string *name) {
     return true;
 }
 
-bool readCommandLine(pid_t pid, std::vector<std::string> *arguments) {
+bool readCommandLine(pid_t pid, java::ArrayList<std::string> *arguments) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/cmdline", pid);
 
@@ -73,21 +74,21 @@ bool readCommandLine(pid_t pid, std::vector<std::string> *arguments) {
     for ( size_t i = 0; i < readCount; i++ ) {
         if ( buffer[i] == '\0' ) {
             if ( i > start ) {
-                arguments->push_back(std::string(buffer + start, i - start));
+                arguments->add(std::string(buffer + start, i - start));
             }
             start = i + 1;
         }
     }
 
     if ( start < readCount ) {
-        arguments->push_back(std::string(buffer + start, readCount - start));
+        arguments->add(std::string(buffer + start, readCount - start));
     }
 
-    return !arguments->empty();
+    return arguments->size() > 0;
 }
 
-std::string chooseInputFile(const std::vector<std::string> &arguments) {
-    for ( size_t i = 1; i < arguments.size(); i++ ) {
+std::string chooseInputFile(const java::ArrayList<std::string> &arguments) {
+    for ( long int i = 1; i < arguments.size(); i++ ) {
         if ( arguments[i].find("etc") != std::string::npos ) {
             return arguments[i];
         }
@@ -188,7 +189,7 @@ bool readUserSeconds(pid_t pid, double *userSeconds) {
 }
 
 bool readSnapshot(pid_t pid, ProcessSnapshot *snapshot) {
-    std::vector<std::string> arguments;
+    java::ArrayList<std::string> arguments;
     unsigned long long rssBytes = 0;
     unsigned long long virtualBytes = 0;
     double userSeconds = 0.0;
@@ -214,9 +215,9 @@ bool readSnapshot(pid_t pid, ProcessSnapshot *snapshot) {
 
 }
 
-std::vector<ProcessSnapshot>
+java::ArrayList<ProcessSnapshot>
 ProcReader::readProcessesByName(const char *processName) {
-    std::vector<ProcessSnapshot> snapshots;
+    java::ArrayList<ProcessSnapshot> snapshots;
 
     DIR *directory = opendir("/proc");
     if ( directory == nullptr ) {
@@ -241,7 +242,7 @@ ProcReader::readProcessesByName(const char *processName) {
 
         ProcessSnapshot snapshot;
         if ( readSnapshot(pid, &snapshot) ) {
-            snapshots.push_back(snapshot);
+            snapshots.add(snapshot);
         }
     }
 

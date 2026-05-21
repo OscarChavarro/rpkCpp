@@ -1,7 +1,6 @@
-#include <vector>
-
 #include "vsdk/toolkit/java/io/FileOutputStream.h"
 #include "vsdk/toolkit/java/lang/System.h"
+#include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/java/util/Formatter.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/image/Dkcolor.h"
@@ -86,11 +85,11 @@ PicOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != nullptr ) {
-        std::vector<float> scanline(static_cast<size_t>(width) * 3U);
+        java::ArrayList<float> scanline(width * 3 > 0 ? width * 3 : 1);
         for ( int i = 0; i < width; i++ ) {
-            scanline[3 * i] = static_cast<float>(rgbRadiance[i].getR());
-            scanline[3 * i + 1] = static_cast<float>(rgbRadiance[i].getG());
-            scanline[3 * i + 2] = static_cast<float>(rgbRadiance[i].getB());
+            scanline.add(static_cast<float>(rgbRadiance[i].getR()));
+            scanline.add(static_cast<float>(rgbRadiance[i].getG()));
+            scanline.add(static_cast<float>(rgbRadiance[i].getB()));
         }
         result = DkColor::writeScan(reinterpret_cast<DK_COLOR *>(scanline.data()), width, outputStream);
     }
