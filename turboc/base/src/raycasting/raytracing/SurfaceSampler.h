@@ -42,14 +42,14 @@ class SurfaceSampler : public Sampler {
             if ( bsdf == NULL ) {
                 return ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
-                return bsdf->bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
+                return bsdf->bsdfEvalComponents(hit->shadingContext(NULL), inBsdf, outBsdf, in, out, flags, *bsdfComp);
             }
         } else {
             bsdfComp->Clear();
             if ( bsdf == NULL ) {
                 return ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
-                return bsdf->evaluate(hit, inBsdf, outBsdf, in, out, flags);
+                return bsdf->evaluate(hit->shadingContext(NULL), inBsdf, outBsdf, in, out, flags);
             }
         }
     }

@@ -18,6 +18,8 @@ enum {
     MAX_EXCLUDED_PATCHES = 4
 };
 
+class RayHit;
+
 class Patch {
   private:
     #define TOLERANCE 1e-5

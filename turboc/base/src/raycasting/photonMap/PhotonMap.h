@@ -4,6 +4,7 @@
 #include "java/io/PrintStream.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/color/ColorRgb.h"
+#include "environment/geometry/elements/RayHit.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/photonMap/PhotonClass.h"
 #include "raycasting/photonMap/PhotonKDTree.h"

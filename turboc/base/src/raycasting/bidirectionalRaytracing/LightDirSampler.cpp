@@ -31,7 +31,8 @@ LightDirSampler::sample(
     // Sample a light direction
     Vector3D dir(0.0f, 0.0f, 0.0f);
     if ( thisNode->m_hit.getMaterial()->getEdf() != NULL ) {
-        dir = thisNode->m_hit.getMaterial()->getEdf()->phongEdfSample(&thisNode->m_hit, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
+        dir = thisNode->m_hit.getMaterial()->getEdf()->phongEdfSample(&context, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
     }
 
     if ( pdfDir < Numeric::EPSILON ) {
@@ -92,7 +93,8 @@ LightDirSampler::evalPDF(
     if ( thisNode->m_hit.getMaterial()->getEdf() == NULL ) {
         pdfDir = 0.0;
     } else {
-        thisNode->m_hit.getMaterial()->getEdf()->phongEdfEval(&thisNode->m_hit, &outDir, DIFFUSE_COMPONENT, &pdfDir);
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
+        thisNode->m_hit.getMaterial()->getEdf()->phongEdfEval(&context, &outDir, DIFFUSE_COMPONENT, &pdfDir);
     }
 
     if ( pdfDir < 0.0 ) {

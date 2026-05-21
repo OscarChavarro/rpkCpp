@@ -1,5 +1,6 @@
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "numericalAnalysis/PatchVisitor.h"
+#include "environment/geometry/elements/RayHit.h"
 
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {
@@ -41,7 +42,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
         if ( patch->material->getBsdf() != NULL ) {
-            sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, components);
+            sample = patch->material->getBsdf()->splitBsdfScatteredPower(hit.shadingContext(NULL), components);
         }
         r += sample.getR();
         g += sample.getG();
@@ -70,7 +71,8 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
 
         if ( patch->material->getEdf() != NULL ) {
-            sample = patch->material->getEdf()->phongEmittance(&hit, components);
+            ShadingContext context = hit.shadingContext(NULL);
+            sample = patch->material->getEdf()->phongEmittance(&context, components);
         }
         r += sample.getR();
         g += sample.getG();

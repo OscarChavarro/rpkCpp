@@ -632,12 +632,13 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
         if ( patch->material->getBsdf() ) {
             sample.clear();
             if ( patch->material->getBsdf() != NULL ) {
-                sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+                sample = patch->material->getBsdf()->splitBsdfScatteredPower(hit.shadingContext(NULL), BRDF_DIFFUSE_COMPONENT);
             }
             albedo.add(albedo, sample);
         }
         if ( patch->material->getEdf() ) {
-            sample = patch->material->getEdf()->phongEmittance(&hit, DIFFUSE_COMPONENT);
+            ShadingContext context = hit.shadingContext(NULL);
+            sample = patch->material->getEdf()->phongEmittance(&context, DIFFUSE_COMPONENT);
             emittance.add(emittance, sample);
         }
     }

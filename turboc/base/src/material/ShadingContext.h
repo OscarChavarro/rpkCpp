@@ -1,26 +1,27 @@
-#ifndef __SHADING_CONTEXT__
-#define __SHADING_CONTEXT__
+#ifndef SHADING_CONTEXT__
+#define SHADING_CONTEXT__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "environment/geometry/elements/RayHitFlag.h"
+#include "material/ShadingContextFlag.h"
 
 class Material;
 
 /**
 Immutable shading input data used by material evaluation.
+Phase 1: introduced but not yet wired into BSDF/EDF APIs.
 */
 class ShadingContext {
   private:
-    Vector3D point;
-    Vector3D geometricNormal;
-    Vector3D shadingNormal;
-    Vector3D texCoord;
-    Vector2Dd uv;
-    CoordinateSystem shadingFrame;
-    Material *material;
-    unsigned int flags;
+    const Vector3D point;
+    const Vector3D geometricNormal;
+    const Vector3D shadingNormal;
+    const Vector3D texCoord;
+    const Vector2Dd uv;
+    const CoordinateSystem shadingFrame;
+    const Material * const material;
+    const unsigned int flags;
 
   public:
     ShadingContext(
@@ -30,7 +31,7 @@ class ShadingContext {
         const Vector3D &inTexCoord,
         const Vector2Dd &inUv,
         const CoordinateSystem &inShadingFrame,
-        Material *inMaterial,
+        const Material *inMaterial,
         unsigned int inFlags):
         point(inPoint),
         geometricNormal(inGeometricNormal),
@@ -48,7 +49,7 @@ class ShadingContext {
     const Vector3D &getTexCoord() const { return texCoord; }
     const Vector2Dd &getUv() const { return uv; }
     const CoordinateSystem &getShadingFrame() const { return shadingFrame; }
-    Material *getMaterial() const { return material; }
+    const Material *getMaterial() const { return material; }
     unsigned int getFlags() const { return flags; }
     bool hasFlag(unsigned int mask) const { return (flags & mask) == mask; }
 };

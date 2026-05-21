@@ -179,7 +179,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
             // Some bigger value may be more efficient
             ColorRgb albedo(0.0f, 0.0f, 0.0f);
             if ( thisNode->m_useBsdf != NULL ) {
-                albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, si->flags);
+                albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), si->flags);
             }
             if ( albedo.average() < Numeric::EPSILON ) {
                 // Skip, no contribution anyway
@@ -535,8 +535,9 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 if ( thisEdf == NULL ) {
                     diffEmit = ColorRgb(0.0f, 0.0f, 0.0f);
                 } else {
+                    ShadingContext context = thisNode->m_hit.shadingContext(NULL);
                     diffEmit = thisEdf->phongEdfEval(
-                        &thisNode->m_hit, &(thisNode->m_inDirF), BRDF_DIFFUSE_COMPONENT, NULL);
+                        &context, &(thisNode->m_inDirF), BRDF_DIFFUSE_COMPONENT, NULL);
                 }
 
                 radiance = ColorRgb(
@@ -631,7 +632,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             if ( thisEdf == NULL ) {
                 col = ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
-                col = thisEdf->phongEdfEval(&thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, NULL);
+                ShadingContext context = thisNode->m_hit.shadingContext(NULL);
+                col = thisEdf->phongEdfEval(&context, &(thisNode->m_inDirF), edfFlags, NULL);
             }
 
             result = ColorRgb(

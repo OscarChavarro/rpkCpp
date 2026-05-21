@@ -3,6 +3,8 @@
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/RayHit.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {NULL, NULL, NULL, NULL};

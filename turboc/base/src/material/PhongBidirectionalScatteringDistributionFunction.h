@@ -16,7 +16,6 @@ functions that relate to brdf or btdf like reflectance etc.
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/ShadingContext.h"
-#include "environment/geometry/elements/RayHit.h"
 #include "material/Texture.h"
 #include "material/Xxdf.h"
 
@@ -32,7 +31,6 @@ class PhongBidirScattDistFunc {
     Texture *texture;
 
     static ColorRgb splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context);
-    static ColorRgb splitBsdfEvalTexture(const Texture *texture,  RayHit *hit);
 
 #ifdef RAYTRACING_ENABLED
     static Vector3D
@@ -53,16 +51,6 @@ class PhongBidirScattDistFunc {
     void
     splitBsdfProbabilities(
         const ShadingContext &context,
-        char flags,
-        double *texture,
-        double *reflection,
-        double *transmission,
-        char *brdfFlags,
-        char *btdfFlags) const;
-
-    void
-    splitBsdfProbabilities(
-        RayHit *hit,
         char flags,
         double *texture,
         double *reflection,
@@ -98,14 +86,7 @@ public:
         const Vector3D *Y,
         const Vector3D *Z);
 
-    static bool bsdfShadingFrame(
-        const RayHit *hit,
-        const Vector3D *X,
-        const Vector3D *Y,
-        const Vector3D *Z);
-
     ColorRgb splitBsdfScatteredPower(const ShadingContext &context, char flags) const;
-    ColorRgb splitBsdfScatteredPower(RayHit *hit, char flags) const;
     bool splitBsdfIsTextured() const;
 
 #ifdef RAYTRACING_ENABLED
@@ -123,18 +104,6 @@ public:
         double x2,
         double *probabilityDensityFunction) const;
 
-    Vector3D
-    sample(
-        RayHit *hit,
-        const PhongBidirScattDistFunc *inBsdf,
-        const PhongBidirScattDistFunc *outBsdf,
-        const Vector3D *in,
-        int doRussianRoulette,
-        char flags,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction) const;
-
     ColorRgb
     evaluate(
         const ShadingContext &context,
@@ -144,29 +113,9 @@ public:
         const Vector3D *out,
         char flags) const;
 
-    ColorRgb
-    evaluate(
-        RayHit *hit,
-        const PhongBidirScattDistFunc *inBsdf,
-        const PhongBidirScattDistFunc *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        char flags) const;
-
     void
     evalProbDensFunc(
         const ShadingContext &context,
-        const PhongBidirScattDistFunc *inBsdf,
-        const PhongBidirScattDistFunc *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        char flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR) const;
-
-    void
-    evalProbDensFunc(
-        RayHit *hit,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
         const Vector3D *in,
@@ -185,15 +134,6 @@ public:
         char flags,
         ColorRgb *colArray) const;
 
-    ColorRgb
-    bsdfEvalComponents(
-        RayHit *hit,
-        const PhongBidirScattDistFunc *inBsdf,
-        const PhongBidirScattDistFunc *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        char flags,
-        ColorRgb *colArray) const;
 #endif
 
 };

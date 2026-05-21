@@ -38,13 +38,13 @@ PhotonMapSampler::chooseComponent(
     color = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( bsdf != NULL ) {
-        color = bsdf->splitBsdfScatteredPower(hit, flags1);
+        color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags1);
     }
     power1 = color.average();
 
     color = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
-        color = bsdf->splitBsdfScatteredPower(hit, flags2);
+        color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags2);
     }
     power2 = color.average();
 
@@ -190,13 +190,13 @@ PhotonMapSampler::chooseFresnelDirection(
     ColorRgb reflectance;
     reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
-        reflectance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
+        reflectance = bsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
     transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( bsdf != NULL ) {
-        transmittance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
+        transmittance = bsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), SPECULAR_COMPONENT);
     }
 
     bool reflective = (reflectance.average() > Numeric::EPSILON);

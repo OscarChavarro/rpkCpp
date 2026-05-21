@@ -9,6 +9,7 @@ and contain necessary information for raytracing-like algorithms
 #include "java/io/PrintStream.h"
 #include "common/linealAlgebra/Ray.h"
 #include "common/color/ColorRgb.h"
+#include "environment/geometry/elements/RayHit.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/BsdfComp.h"
 #include "raycasting/common/PathRayType.h"

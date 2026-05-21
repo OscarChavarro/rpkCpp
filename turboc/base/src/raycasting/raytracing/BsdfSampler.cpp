@@ -25,8 +25,9 @@ BsdfSampler::sample(
     pdfDir = 0.0;
 
     if ( thisNode->m_useBsdf != NULL ) {
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         dir = thisNode->m_useBsdf->sample(
-            &thisNode->m_hit,
+            context,
             thisNode->m_inBsdf,
             thisNode->m_outBsdf,
             &thisNode->m_inDirF,
@@ -47,7 +48,7 @@ BsdfSampler::sample(
         ColorRgb albedo;
         albedo = ColorRgb(0.0f, 0.0f, 0.0f);
         if ( thisNode->m_useBsdf != NULL ) {
-            albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, flags);
+            albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), flags);
         }
         newNode->accmlRssnRlttFctrs *= albedo.average();
     }
@@ -83,11 +84,12 @@ BsdfSampler::sample(
         double pdfRR = 0.0;
 
         if ( thisNode->m_useBsdf != NULL ) {
+            ShadingContext context = thisNode->m_hit.shadingContext(NULL);
             // prevpdf : new->this->prev pdf evaluation
             // normal direction is handled by the evalpdf routine
             // Are the flags usable in both directions?
             thisNode->m_useBsdf->evalProbDensFunc(
-                &thisNode->m_hit,
+                context,
                 thisNode->m_outBsdf,
                 thisNode->m_inBsdf,
                 &newNode->m_inDirT,
@@ -138,8 +140,9 @@ BsdfSampler::evalPDF(
     pdfDir = 0;
     *pdfRR = 0;
     if ( thisNode->m_useBsdf != NULL ) {
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         thisNode->m_useBsdf->evalProbDensFunc(
-            &thisNode->m_hit,
+            context,
             thisNode->m_inBsdf,
             thisNode->m_outBsdf,
             &thisNode->m_inDirF,
@@ -189,8 +192,9 @@ BsdfSampler::EvalPDFPrev(
     pdfDir = 0.0;
     *pdfRR = 0.0;
     if ( thisNode->m_useBsdf != NULL ) {
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         thisNode->m_useBsdf->evalProbDensFunc(
-            &thisNode->m_hit,
+            context,
             thisNode->m_outBsdf,
             thisNode->m_inBsdf,
             &outDir,
@@ -209,5 +213,4 @@ BsdfSampler::EvalPDFPrev(
 }
 
 #endif
-
 

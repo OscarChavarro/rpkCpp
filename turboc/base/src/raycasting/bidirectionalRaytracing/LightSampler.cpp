@@ -106,7 +106,8 @@ UniformLightSampler::sample(
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
         if ( light->material->getEdf() != NULL ) {
-            dir = light->material->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, NULL, &pdf);
+            ShadingContext context = thisNode->m_hit.shadingContext(NULL);
+            dir = light->material->getEdf()->phongEdfSample(&context, flags, x1, x2, NULL, &pdf);
         }
 
         point.subtraction(thisNode->m_hit.getPoint(), dir); // Fake hit at distance 1!

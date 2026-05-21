@@ -80,8 +80,9 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
         ray.direction.y = 0.0;
         ray.direction.z = 0.0;
         if ( patch->material->getEdf() != NULL ) {
+            ShadingContext context = hit.shadingContext(NULL);
             ray.direction = patch->material->getEdf()->phongEdfSample(
-                &hit, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+                &context, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
         }
     } while ( *dirSelectionPdf == 0.0 );
 

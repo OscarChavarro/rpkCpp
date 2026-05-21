@@ -386,7 +386,7 @@ Mcrad::mntCarloRadDffsReflAPnt(Patch *patch, double u, double v) {
     ColorRgb result;
     result = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( hit.getMaterial()->getBsdf() != NULL ) {
-        result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+        result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(hit.shadingContext(NULL), BRDF_DIFFUSE_COMPONENT);
     }
     return result;
 }

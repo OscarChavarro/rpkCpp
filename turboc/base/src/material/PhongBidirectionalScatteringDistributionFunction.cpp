@@ -23,28 +23,6 @@ addScaledColor(const ColorRgb &a, float scale, const ColorRgb &b) {
     return ColorRgb(a.getR() + scale * b.getR(), a.getG() + scale * b.getG(), a.getB() + scale * b.getB());
 }
 
-static bool
-extractHitData(
-    RayHit *hit,
-    Vector3D *normal,
-    Vector3D *texCoord,
-    unsigned int *flags)
-{
-    if ( hit == NULL || normal == NULL || texCoord == NULL || flags == NULL ) {
-        return false;
-    }
-    if ( !hit->shadingNormal(normal) ) {
-        return false;
-    }
-    *flags = NORMAL;
-    if ( hit->getTexCoord(texCoord) ) {
-        *flags |= TEXTURE_COORDINATE;
-    } else {
-        texCoord->set(0.0, 0.0, 0.0);
-    }
-    return true;
-}
-
 /**
 Creates a BSDF instance with given data and methods
 */
@@ -99,17 +77,6 @@ PhongBidirScattDistFunc::bsdfShadingFrame(
     return false;
 }
 
-bool
-PhongBidirScattDistFunc::bsdfShadingFrame(
-    const RayHit * /*hit*/,
-    const Vector3D * /*X*/,
-    const Vector3D * /*Y*/,
-    const Vector3D * /*Z*/)
-{
-    // Not implemented, should call to bsdf->methods->setShadingFrame or something like that
-    return false;
-}
-
 ColorRgb
 PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context) {
     ColorRgb col = black();
@@ -117,29 +84,12 @@ PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const Shad
     if ( texture == NULL ) {
         return col;
     }
-    if ( !context.hasFlag(TEXTURE_COORDINATE) ) {
+    if ( !context.hasFlag(SHCTX_TEXTURE_COORDINATE) ) {
         Logger::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
     const Vector3D texCoord = context.getTexCoord();
-    return texture->evaluateColor(texCoord.x, texCoord.y);
-}
-
-ColorRgb
-PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture,  RayHit *hit) {
-    Vector3D texCoord;
-    ColorRgb col = black();
-
-    if ( texture == NULL ) {
-        return col;
-    }
-
-    if ( hit == NULL || !hit->getTexCoord(&texCoord) ) {
-        Logger::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
-        return col;
-    }
-
     return texture->evaluateColor(texCoord.x, texCoord.y);
 }
 
@@ -171,27 +121,6 @@ PhongBidirScattDistFunc::splitBsdfScatteredPower(const ShadingContext &context, 
     }
 
     return albedo;
-}
-
-ColorRgb
-PhongBidirScattDistFunc::splitBsdfScatteredPower(RayHit *hit, char flags) const {
-    Vector3D normal;
-    Vector3D texCoord;
-    unsigned int localFlags;
-    if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb out = black();
-        return out;
-    }
-    ShadingContext context(
-        hit->getPoint(),
-        hit->getGeometricNormal(),
-        normal,
-        texCoord,
-        hit->getUv(),
-        hit->getShadingFrame(),
-        hit->getMaterial(),
-        localFlags);
-    return splitBsdfScatteredPower(context, flags);
 }
 
 bool
@@ -247,41 +176,6 @@ PhongBidirScattDistFunc::splitBsdfProbabilities(
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
         ColorRgb textureColor;
         textureColor = PhongBidirScattDistFunc::splitBsdfEvalTexture(texture, context);
-        *inTexture = textureColor.average();
-        flags &= ~TEXTURED_COMPONENT;
-    }
-
-    *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
-    *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
-
-    ColorRgb reflectance = black();
-    if ( brdf != NULL ) {
-        reflectance = brdf->reflectance(*brdfFlags);
-    }
-    *reflection = reflectance.average();
-
-    ColorRgb transmittance = black();
-    if ( btdf != NULL ) {
-        transmittance = btdf->transmittance(*btdfFlags);
-    }
-    *transmission = transmittance.average();
-}
-
-void
-PhongBidirScattDistFunc::splitBsdfProbabilities(
-    RayHit *hit,
-    char flags,
-    double *inTexture,
-    double *reflection,
-    double *transmission,
-    char *brdfFlags,
-    char *btdfFlags) const
-{
-    *inTexture = 0.0;
-    if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        // bsdf has a texture for diffuse reflection and diffuse reflection needs to be sampled
-        ColorRgb textureColor;
-        textureColor = PhongBidirScattDistFunc::splitBsdfEvalTexture(texture, hit);
         *inTexture = textureColor.average();
         flags &= ~TEXTURED_COMPONENT;
     }
@@ -358,7 +252,7 @@ PhongBidirScattDistFunc::sample(
     Vector3D out;
 
     *probabilityDensityFunction = 0; // So we can return safely
-    if ( !context.hasFlag(NORMAL) ) {
+    if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::warning("sample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
         return out;
@@ -476,41 +370,6 @@ PhongBidirScattDistFunc::sample(
     return out;
 }
 
-Vector3D
-PhongBidirScattDistFunc::sample(
-    RayHit *hit,
-    const PhongBidirScattDistFunc *inBsdf,
-    const PhongBidirScattDistFunc *outBsdf,
-    const Vector3D *in,
-    int doRussianRoulette,
-    char flags,
-    double x1,
-    double x2,
-    double *probabilityDensityFunction) const
-{
-    Vector3D normal;
-    Vector3D texCoord;
-    unsigned int localFlags;
-    if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        Vector3D out;
-        out.set(0.0, 0.0, 1.0);
-        if ( probabilityDensityFunction ) {
-            *probabilityDensityFunction = 0.0;
-        }
-        return out;
-    }
-    ShadingContext context(
-        hit->getPoint(),
-        hit->getGeometricNormal(),
-        normal,
-        texCoord,
-        hit->getUv(),
-        hit->getShadingFrame(),
-        hit->getMaterial(),
-        localFlags);
-    return sample(context, inBsdf, outBsdf, in, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
-}
-
 double
 PhongBidirScattDistFunc::texturedScattererEval(
     const Vector3D * /*in*/,
@@ -542,7 +401,7 @@ PhongBidirScattDistFunc::evaluate(
 {
     ColorRgb result = black();
     Vector3D normal;
-    if ( !context.hasFlag(NORMAL) ) {
+    if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::warning("evaluate", "Couldn't determine shading normal");
         return result;
     }
@@ -585,34 +444,6 @@ PhongBidirScattDistFunc::evaluate(
     return result;
 }
 
-ColorRgb
-PhongBidirScattDistFunc::evaluate(
-    RayHit *hit,
-    const PhongBidirScattDistFunc *inBsdf,
-    const PhongBidirScattDistFunc *outBsdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    char flags) const
-{
-    Vector3D normal;
-    Vector3D texCoord;
-    unsigned int localFlags;
-    if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb result = black();
-        return result;
-    }
-    ShadingContext context(
-        hit->getPoint(),
-        hit->getGeometricNormal(),
-        normal,
-        texCoord,
-        hit->getUv(),
-        hit->getShadingFrame(),
-        hit->getMaterial(),
-        localFlags);
-    return evaluate(context, inBsdf, outBsdf, in, out, flags);
-}
-
 /**
 Constructs shading frame at hit point. Returns TRUE if successful and
 FALSE if not. X and Y may be null pointers
@@ -644,7 +475,7 @@ PhongBidirScattDistFunc::evalProbDensFunc(
     Vector3D normal;
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
-    if ( !context.hasFlag(NORMAL) ) {
+    if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::warning("evalProbDensFunc", "Couldn't determine shading normal");
         return;
     }
@@ -701,37 +532,6 @@ PhongBidirScattDistFunc::evalProbDensFunc(
     *probabilityDensityFunction /= pScattering;
 }
 
-void
-PhongBidirScattDistFunc::evalProbDensFunc(
-    RayHit *hit,
-    const PhongBidirScattDistFunc *inBsdf,
-    const PhongBidirScattDistFunc *outBsdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR) const
-{
-    Vector3D normal;
-    Vector3D texCoord;
-    unsigned int localFlags;
-    if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        *probabilityDensityFunction = 0.0;
-        *probabilityDensityFunctionRR = 0.0;
-        return;
-    }
-    ShadingContext context(
-        hit->getPoint(),
-        hit->getGeometricNormal(),
-        normal,
-        texCoord,
-        hit->getUv(),
-        hit->getShadingFrame(),
-        hit->getMaterial(),
-        localFlags);
-    evalProbDensFunc(context, inBsdf, outBsdf, in, out, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
-}
-
 /**
 Evaluates all requested components of the BSDF separately and
 stores the result in 'colArray'.
@@ -767,32 +567,4 @@ PhongBidirScattDistFunc::bsdfEvalComponents(
     return result;
 }
 
-ColorRgb
-PhongBidirScattDistFunc::bsdfEvalComponents(
-        RayHit *hit,
-        const PhongBidirScattDistFunc *inBsdf,
-        const PhongBidirScattDistFunc *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        const char flags,
-        ColorRgb *colArray) const
-{
-    Vector3D normal;
-    Vector3D texCoord;
-    unsigned int localFlags;
-    if ( !extractHitData(hit, &normal, &texCoord, &localFlags) ) {
-        ColorRgb result = black();
-        return result;
-    }
-    ShadingContext context(
-        hit->getPoint(),
-        hit->getGeometricNormal(),
-        normal,
-        texCoord,
-        hit->getUv(),
-        hit->getShadingFrame(),
-        hit->getMaterial(),
-        localFlags);
-    return bsdfEvalComponents(context, inBsdf, outBsdf, in, out, flags, colArray);
-}
 #endif

@@ -1,3 +1,4 @@
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "galerkin/ShadowCache.h"
 
 /**

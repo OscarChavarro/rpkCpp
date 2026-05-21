@@ -16,7 +16,7 @@ PhotonMap::zeroAlbedo(const PhongBidirScattDistFunc *bsdf, RayHit *hit, char fla
     if ( bsdf == NULL ) {
         color = ColorRgb(0.0f, 0.0f, 0.0f);
     } else {
-        color = bsdf->splitBsdfScatteredPower(hit, flags);
+        color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags);
     }
     return (color.average() < Numeric::EPSILON);
 }
@@ -394,9 +394,9 @@ PhotonMap::reconstruct(
     glossyAlbedo = ColorRgb(0.0f, 0.0f, 0.0f);
 
     if ( bsdf != NULL ) {
-        diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit, BRDF_DIFFUSE_COMPONENT);
+        diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), BRDF_DIFFUSE_COMPONENT);
         // -- TODO Irradiance pre-computation for diffuse transmission
-        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit, BTDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
+        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), BTDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
     }
 
     checkNBalance();
@@ -427,6 +427,7 @@ PhotonMap::reconstruct(
 
     // Construct radiance estimate
     float maxDistance = m_distances[0];
+    ShadingContext context = hit->shadingContext(NULL);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         Vector3D dir = m_photons[i]->dir();
@@ -435,7 +436,7 @@ PhotonMap::reconstruct(
             eval = ColorRgb(0.0f, 0.0f, 0.0f);
         } else {
             eval = bsdf->evaluate(
-                hit, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
+                context, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
         }
         ColorRgb power = m_photons[i]->power();
 

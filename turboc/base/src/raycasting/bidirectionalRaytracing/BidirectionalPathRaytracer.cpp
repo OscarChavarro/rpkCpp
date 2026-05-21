@@ -363,8 +363,9 @@ BidirectionalPathRaytracer::handlePathX0(
             if ( endingEdf == NULL ) {
                 eyeEndNode->m_bsdfEval = ColorRgb(0.0f, 0.0f, 0.0f);
             } else {
+                ShadingContext context = eyeEndNode->m_hit.shadingContext(NULL);
                 eyeEndNode->m_bsdfEval = endingEdf->phongEdfEval(
-                    &eyeEndNode->m_hit,
+                    &context,
                     &eyeEndNode->m_inDirF,
                     XxdfComponentFlagInfo::ALL_COMPONENTS,
                     NULL);

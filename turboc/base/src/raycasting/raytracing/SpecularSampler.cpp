@@ -27,15 +27,17 @@ SpecularSampler::sample(
     ColorRgb reflectance;
     reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( thisNode->m_useBsdf != NULL ) {
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-                &thisNode->m_hit,
+                context,
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
     ColorRgb transmittance;
     transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( thisNode->m_useBsdf != NULL ) {
+        ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-                &thisNode->m_hit,
+                context,
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 
