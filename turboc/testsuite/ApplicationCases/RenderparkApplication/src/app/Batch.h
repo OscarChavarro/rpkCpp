@@ -1,14 +1,14 @@
 #ifndef __BATCH__
 #define __BATCH__
 
-#include "vsdk/java/io/OutputStream.h"
-#include "vsdk/java/util/ArrayList.h"
-#include "vsdk/raycasting/common/RayTracer.h"
-#include "vsdk/scene/RadianceMethod.h"
-#include "vsdk/environment/geometry/elements/Patch.h"
-#include "vsdk/scene/Scene.h"
+#include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
+#include "raycasting/common/RayTracer.h"
+#include "scene/RadianceMethod.h"
+#include "environment/geometry/elements/Patch.h"
+#include "scene/Scene.h"
 #include "app/options/BatchOptions.h"
-#include "vsdk/tonemap/ToneMappingContext.h"
+#include "tonemap/ToneMappingContext.h"
 
 class Batch{ public:
     static void batchExecuteRadianceSimulation( Scene *scene, RadianceMethod *radianceMethod, const RayTracer *rayTracer, ToneMappingContext *toneMapOptions, RenderOptions *renderOptions);

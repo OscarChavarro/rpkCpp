@@ -1,7 +1,7 @@
 #ifndef __RAYTRACING_OPTIONS_GROUP__
 #define __RAYTRACING_OPTIONS_GROUP__
 
-#include "vsdk/common/VSDK.h"
+#include "common/VSDK.h"
 
 class OptionsGroupRaytracing{ public:
     static void parse( int *argc, char **argv, char *rayTracerName);

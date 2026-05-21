@@ -5,15 +5,15 @@
 #ifndef __RADIANCE_OPTIONS_GROUP__
 #define __RADIANCE_OPTIONS_GROUP__
 
-#include "vsdk/raycasting/photonMap/PhotonMapConfig.h"
-#include "vsdk/raycasting/photonMap/PhotonMapState.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "vsdk/raycasting/simple/RayMatterState.h"
-#include "vsdk/raycasting/stochasticRaytracing/Basismcrad.h"
-#include "vsdk/raycasting/stochasticRaytracing/ElementHierarchyState.h"
-#include "vsdk/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "vsdk/raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "vsdk/scene/RadianceMethod.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/PhotonMapState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "scene/RadianceMethod.h"
 
 class OptionsGroupRadiance{ public:
     static void parse( int *argc, char **argv, RadianceMethod **newRadianceMethod, StochasticRelaxation &stochasticRelaxationState, ElementHierarchyState &elementHierarchyState, StochasticRadiosityBasisState &stochasticRadiosityBasisState, PhotonMapState &photonMapState, PhotonMapConfig &photonMapConfig, RayMatterState &rayMatterState, BidirectionalPathTracingState &bidirectionalPathState, StochasticRayTracingState &stochasticRayTracingState);

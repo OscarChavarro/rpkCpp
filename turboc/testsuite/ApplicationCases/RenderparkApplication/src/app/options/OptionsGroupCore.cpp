@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vsdk/java/lang/System.h"
-#include "vsdk/scene/ConstantColorBackground.h"
-#include "vsdk/common/commandLineOptions/OptionParser.h"
-#include "vsdk/common/commandLineOptions/TypedOption.h"
+#include "java/lang/System.h"
+#include "scene/ConstantColorBackground.h"
+#include "common/commandLineOptions/OptionParser.h"
+#include "common/commandLineOptions/TypedOption.h"
 #include "app/options/EnumAppOptions.h"
 #include "app/options/OptionsGroupCore.h"
 #include "app/options/OptionsGroupRender.h"

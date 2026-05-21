@@ -1,16 +1,16 @@
 #ifndef __RAYTRACE__
 #define __RAYTRACE__
 
-#include "vsdk/java/io/OutputStream.h"
-#include "vsdk/java/util/ArrayList.h"
-#include "vsdk/material/RendererConfiguration.h"
-#include "vsdk/scene/Scene.h"
-#include "vsdk/raycasting/common/RayTracer.h"
-#include "vsdk/raycasting/simple/RayMatterState.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "vsdk/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/LightList.h"
-#include "vsdk/tonemap/ToneMappingContext.h"
+#include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
+#include "material/RendererConfiguration.h"
+#include "scene/Scene.h"
+#include "raycasting/common/RayTracer.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
+#include "tonemap/ToneMappingContext.h"
 
 #ifdef RAYTRACING_ENABLED
 class Raytrace{ public:

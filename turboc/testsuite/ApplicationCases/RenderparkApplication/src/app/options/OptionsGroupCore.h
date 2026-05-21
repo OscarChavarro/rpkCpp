@@ -6,11 +6,11 @@
 #define CMMND_LINE_CORE_OPTNS_GRP
 
 #include "app/options/EnumBackgroundMode.h"
-#include "vsdk/common/color/ColorRgb.h"
-#include "vsdk/material/RendererConfiguration.h"
-#include "vsdk/io/context/ParseRuntimeContext.h"
-#include "vsdk/scene/Scene.h"
-#include "vsdk/tonemap/ToneMappingContext.h"
+#include "common/color/ColorRgb.h"
+#include "material/RendererConfiguration.h"
+#include "io/context/ParseRuntimeContext.h"
+#include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class Background;
 

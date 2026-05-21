@@ -1,7 +1,7 @@
 #ifndef __BATCH_OPTIONS__
 #define __BATCH_OPTIONS__
 
-#include "vsdk/common/VSDK.h"
+#include "common/VSDK.h"
 
 class BatchOptions {
   public:

@@ -1,8 +1,8 @@
 #include <string.h>
 #include <strings.h>
 
-#include "vsdk/common/commandLineOptions/OptionParser.h"
-#include "vsdk/common/commandLineOptions/TypedOption.h"
+#include "common/commandLineOptions/OptionParser.h"
+#include "common/commandLineOptions/TypedOption.h"
 #include "app/options/OptionsGroupRandomWalkRadiosity.h"
 
 template<typename T>

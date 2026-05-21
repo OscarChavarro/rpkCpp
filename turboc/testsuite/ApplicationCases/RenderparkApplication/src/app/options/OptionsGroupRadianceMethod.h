@@ -1,5 +1,5 @@
 
-#include "vsdk/common/VSDK.h"
+#include "common/VSDK.h"
 #ifndef CMMND_LINE_RDNC_MTHD_OPTNS_GRP
 #define CMMND_LINE_RDNC_MTHD_OPTNS_GRP
 

@@ -1,17 +1,17 @@
-#include "vsdk/material/RendererConfiguration.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
-#include "vsdk/java/lang/System.h"
+#include "java/lang/System.h"
 #include <string.h>
 
-#include "vsdk/common/logging/Logger.h"
-#include "vsdk/render/Canvas.h"
-#include "vsdk/raycasting/stochasticRaytracing/StochasticRaytracer.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/LightList.h"
-#include "vsdk/raycasting/simple/RayCaster.h"
-#include "vsdk/raycasting/simple/RayMatter.h"
+#include "common/logging/Logger.h"
+#include "render/Canvas.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
+#include "raycasting/simple/RayCaster.h"
+#include "raycasting/simple/RayMatter.h"
 #include "app/Raytrace.h"
 #include "app/options/OptionsGroupRaytracing.h"
 

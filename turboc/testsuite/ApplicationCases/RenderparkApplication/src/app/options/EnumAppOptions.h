@@ -1,7 +1,7 @@
 #ifndef __APP_OPTIONS_CONTEXT__
 #define __APP_OPTIONS_CONTEXT__
 
-#include "vsdk/common/VSDK.h"
+#include "common/VSDK.h"
 
 class EnumAppOptions {
   public:

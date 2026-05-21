@@ -1,9 +1,9 @@
 #include <string.h>
 #include <strings.h>
 
-#include "vsdk/common/commandLineOptions/OptionParser.h"
-#include "vsdk/common/commandLineOptions/TypedOption.h"
-#include "vsdk/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
+#include "common/commandLineOptions/OptionParser.h"
+#include "common/commandLineOptions/TypedOption.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "app/options/OptionsGroupBidirectionalRaytracing.h"
 
 int OptsGrpBidirRaytr::regExpStringLength = MAX_REGEXP_SIZE;

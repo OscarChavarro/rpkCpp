@@ -2,8 +2,8 @@
 #define OPTNS_GRP_STCHS_RLXTN_RDSTY
 
 #include "app/options/EnumDesc.h"
-#include "vsdk/raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "vsdk/raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
 
 class OptsGrpStochRelaxRad{ public:
     static void parse( int *argc, char **argv, StochasticRelaxation &stochasticRelaxationState, ElementHierarchyState &elementHierarchyState);

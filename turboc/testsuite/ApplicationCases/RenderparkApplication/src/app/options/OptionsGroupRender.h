@@ -1,7 +1,7 @@
 #ifndef CMMND_LINE_RNDR_OPTNS_GRP
 #define CMMND_LINE_RNDR_OPTNS_GRP
 
-#include "vsdk/material/RendererConfiguration.h"
+#include "material/RendererConfiguration.h"
 
 class OptionsGroupRender{ public:
     static void renderParseOptions( int *argc, char **argv, RenderOptions *renderOptions);
