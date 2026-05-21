@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Jacobian;
@@ -154,12 +155,12 @@ public class BinaryModelDeserializer {
                 PhongEmittanceDistributionFunction edf = null;
                 boolean hasEdf = BinaryModelReadPrimitives.readBool(input);
                 if (hasEdf) {
-                    ColorRgb kd = new ColorRgb();
-                    ColorRgb ks = new ColorRgb();
+                    ColorRgbMutable kd = new ColorRgbMutable();
+                    ColorRgbMutable ks = new ColorRgbMutable();
                     require(BinaryModelReadPrimitives.readColor(input, kd));
                     require(BinaryModelReadPrimitives.readColor(input, ks));
                     float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                    edf = new PhongEmittanceDistributionFunction(kd, ks, ns);
+                    edf = new PhongEmittanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns);
                 }
 
                 PhongBidirectionalScatteringDistributionFunction bsdf = null;
@@ -171,24 +172,24 @@ public class BinaryModelDeserializer {
 
                     boolean hasBrdf = BinaryModelReadPrimitives.readBool(input);
                     if (hasBrdf) {
-                        ColorRgb kd = new ColorRgb();
-                        ColorRgb ks = new ColorRgb();
+                        ColorRgbMutable kd = new ColorRgbMutable();
+                        ColorRgbMutable ks = new ColorRgbMutable();
                         require(BinaryModelReadPrimitives.readColor(input, kd));
                         require(BinaryModelReadPrimitives.readColor(input, ks));
                         float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                        brdf = new PhongBidirectionalReflectanceDistributionFunction(kd, ks, ns);
+                        brdf = new PhongBidirectionalReflectanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns);
                     }
 
                     boolean hasBtdf = BinaryModelReadPrimitives.readBool(input);
                     if (hasBtdf) {
-                        ColorRgb kd = new ColorRgb();
-                        ColorRgb ks = new ColorRgb();
+                        ColorRgbMutable kd = new ColorRgbMutable();
+                        ColorRgbMutable ks = new ColorRgbMutable();
                         require(BinaryModelReadPrimitives.readColor(input, kd));
                         require(BinaryModelReadPrimitives.readColor(input, ks));
                         float ns = BinaryModelReadPrimitives.readFloatLE(input);
                         float nr = BinaryModelReadPrimitives.readFloatLE(input);
                         float ni = BinaryModelReadPrimitives.readFloatLE(input);
-                        btdf = new PhongBidirectionalTransmittanceDistributionFunction(kd, ks, ns, nr, ni);
+                        btdf = new PhongBidirectionalTransmittanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns, nr, ni);
                     }
 
                     boolean hasTexture = BinaryModelReadPrimitives.readBool(input);
@@ -359,7 +360,7 @@ public class BinaryModelDeserializer {
 
                 Vertex vertex = new Vertex(pointOut.value, normalOut.value, texCoordsOut.value, new ArrayList<Patch>());
                 vertex.id = record.id;
-                vertex.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
+                vertex.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
                 vertex.tmp = record.tmp;
                 vertex.radianceData = null;
                 vertices.set(i, vertex);
@@ -445,7 +446,7 @@ public class BinaryModelDeserializer {
                 }
                 patch.omit = (byte)(record.omit ? 1 : 0);
                 patch.setFlags(Byte.toUnsignedInt(record.flags));
-                patch.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
+                patch.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
 
                 BinaryModelReadPrimitives.Out<Material> materialOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));

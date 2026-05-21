@@ -9,6 +9,7 @@ A chain list is a set of scattering modes
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
@@ -133,7 +134,7 @@ public class FlagChain {
     by the chain. Eye and light node ARE INCLUDED
     */
     public ColorRgb compute(BiPath path) {
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         ColorRgb tmpCol;
         result.setMonochrome(1.0f);
         int eyeSize = path.m_eyeSize;
@@ -143,7 +144,7 @@ public class FlagChain {
 
         if ( lightSize + eyeSize != length ) {
             Logger.error("FlagChain::Compute", "Wrong path length");
-            return result;
+            return result.toImmutable();
         }
 
         // Flag chain start at the light node and end at the eye node
@@ -151,7 +152,7 @@ public class FlagChain {
 
         for ( int i = 0; i < lightSize; i++ ) {
             tmpCol = node.m_bsdfComp.Sum(chain[i]);
-            result.selfScalarProduct(tmpCol);
+            result.selfScalarProduct(new ColorRgbMutable(tmpCol));
             node = node.next();
         }
 
@@ -159,7 +160,7 @@ public class FlagChain {
 
         for ( int i = 0; i < eyeSize; i++ ) {
             tmpCol = node.m_bsdfComp.Sum(chain[length - 1 - i]);
-            result.selfScalarProduct(tmpCol);
+            result.selfScalarProduct(new ColorRgbMutable(tmpCol));
             node = node.next();
         }
 
@@ -167,6 +168,6 @@ public class FlagChain {
             result.scale(-1.0f);
         }
 
-        return result;
+        return result.toImmutable();
     }
 }

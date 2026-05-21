@@ -107,9 +107,9 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
             ColorRgb[] callbackRadiance = getRadianceCallback.apply(elem);
             ColorRgb radiance = new ColorRgb();
             radiance.set(
-                callbackRadiance[0].r,
-                callbackRadiance[0].g,
-                callbackRadiance[0].b);
+                callbackRadiance[0].getR(),
+                callbackRadiance[0].getG(),
+                callbackRadiance[0].getB());
             if ( StochasticRelaxation.activeState().constantControlVariate != 0 ) {
                 radiance.subtract(radiance, StochasticRelaxation.activeState().controlRadiance);
             }
@@ -774,7 +774,7 @@ approximation of total and un-shot radiance and importance
             if ( parent.isCluster() && !child.isCluster() ) {
                 // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
                 ColorRgb rad = new ColorRgb(
-                    parent.receivedRadiance[0].r, parent.receivedRadiance[0].g, parent.receivedRadiance[0].b);
+                    parent.receivedRadiance[0].getR(), parent.receivedRadiance[0].getG(), parent.receivedRadiance[0].getB());
                 ColorRgb Rd = child.Rd;
                 rad.selfScalarProduct(Rd);
                 StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(

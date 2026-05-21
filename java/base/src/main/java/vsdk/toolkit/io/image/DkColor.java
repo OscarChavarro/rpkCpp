@@ -195,7 +195,7 @@ Write out a scanline
         // Convert scanline
         for (int n = 0; n < len; n++) {
             int base = n * 4;
-            setByteColors(colorScan, base, scanline[n].r, scanline[n].g, scanline[n].b);
+            setByteColors(colorScan, base, scanline[n].getR(), scanline[n].getG(), scanline[n].getB());
         }
         return writeByteColors(colorScan, len, outputStream);
     }

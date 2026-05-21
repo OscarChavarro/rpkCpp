@@ -1,8 +1,8 @@
 #ifndef __COMMAND_LINE_OPTIONS__
 #define __COMMAND_LINE_OPTIONS__
 
-#include "raycasting/common/RayTracer.h"
-#include "raycasting/simple/RayMatterState.h"
+#include "vsdk/raycasting/common/RayTracer.h"
+#include "vsdk/raycasting/simple/RayMatterState.h"
 #include "app/options/EnumDesc.h"
 
 class OptionsGroupRayMatter{ public:

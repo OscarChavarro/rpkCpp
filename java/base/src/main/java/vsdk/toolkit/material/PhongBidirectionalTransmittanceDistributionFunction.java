@@ -82,6 +82,7 @@ Refraction index
 */
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -105,9 +106,9 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
         float inNs,
         float inNr,
         float inNi) {
-        Kd = new ColorRgb(inKd.r, inKd.g, inKd.b);
+        Kd = new ColorRgb(inKd.getR(), inKd.getG(), inKd.getB());
         avgKd = Kd.average();
-        Ks = new ColorRgb(inKs.r, inKs.g, inKs.b);
+        Ks = new ColorRgb(inKs.getR(), inKs.getG(), inKs.getB());
         avgKs = Ks.average();
         Ns = inNs;
         refractionIndex = new RefractionIndex();
@@ -131,27 +132,27 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
     }
 
     public ColorRgb transmittance(int flags) {
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, Kd);
+            result.add(result, new ColorRgbMutable(Kd));
         }
 
         if (isSpecular()) {
             if ((flags & XxdfComponentFlag.SPECULAR_COMPONENT) != 0) {
-                result.add(result, Ks);
+                result.add(result, new ColorRgbMutable(Ks));
             }
         }
         else if ((flags & XxdfComponentFlag.GLOSSY_COMPONENT) != 0) {
-            result.add(result, Ks);
+            result.add(result, new ColorRgbMutable(Ks));
         }
 
         if (!Float.isFinite(result.average())) {
             Logger.fatal(-1, "transmittance", "Oops - result is not finite!");
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public ColorRgb evaluate(
@@ -164,14 +165,14 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
         Vector3D inRev = new Vector3D();
         inRev.scaledCopy(-1.0f, in);
 
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if (((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) && (avgKd > 0.0f)) {
             boolean isReflection = normal.dotProduct(out) >= 0.0f;
             if (!isReflection) {
-                result = new ColorRgb(Kd.r, Kd.g, Kd.b);
-                result.scale((float)(1.0 / Math.PI));
+                result = new ColorRgbMutable(Kd);
+                result.scale((1.0 / Math.PI));
             }
         }
 
@@ -184,11 +185,11 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
             if (localDotProduct > 0.0f) {
                 float tmpFloat = (float)Math.pow(localDotProduct, Ns);
                 tmpFloat *= (Ns + 2.0f) / (2.0f * (float)Math.PI);
-                result.addScaled(result, tmpFloat, Ks);
+                result.addScaled(result, tmpFloat, new ColorRgbMutable(Ks));
             }
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public Vector3D sample(

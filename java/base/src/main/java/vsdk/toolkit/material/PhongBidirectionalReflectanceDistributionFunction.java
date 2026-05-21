@@ -109,9 +109,9 @@ public class PhongBidirectionalReflectanceDistributionFunction {
     }
 
     public PhongBidirectionalReflectanceDistributionFunction(ColorRgb inKd, ColorRgb inKs, double inNs) {
-        Kd = new ColorRgb(inKd.r, inKd.g, inKd.b);
+        Kd = new ColorRgb(inKd.getR(), inKd.getG(), inKd.getB());
         avgKd = Kd.average();
-        Ks = new ColorRgb(inKs.r, inKs.g, inKs.b);
+        Ks = new ColorRgb(inKs.getR(), inKs.getG(), inKs.getB());
         avgKs = Ks.average();
         Ns = (float)inNs;
     }

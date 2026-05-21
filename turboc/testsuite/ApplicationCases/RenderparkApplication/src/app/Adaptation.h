@@ -5,11 +5,11 @@ Estimate static adaptation luminance in the current scene
 #ifndef __ADAPTATION__
 #define __ADAPTATION__
 
-#include "java/util/ArrayList.h"
-#include "common/color/ColorRgb.h"
-#include "environment/geometry/elements/Patch.h"
+#include "vsdk/java/util/ArrayList.h"
+#include "vsdk/common/color/ColorRgb.h"
+#include "vsdk/environment/geometry/elements/Patch.h"
 #include "app/LuminanceArea.h"
-#include "tonemap/ToneMappingContext.h"
+#include "vsdk/tonemap/ToneMappingContext.h"
 
 class Adaptation{ public:
     static void initSceneAdaptation( const ArrayList<Patch *> *scenePatches, ToneMappingContext &toneMapOptions);

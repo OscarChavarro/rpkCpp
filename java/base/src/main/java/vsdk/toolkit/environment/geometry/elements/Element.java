@@ -4,6 +4,7 @@ import vsdk.toolkit.skin.*;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
@@ -18,11 +19,11 @@ public class Element {
     }
 
     public int id; // Unique ID number for the element
-    public ColorRgb Ed; // Diffuse emittance radiance
-    public ColorRgb Rd; // Reflectance
-    public ColorRgb[] radiance; // Total radiance on the element as computed so far
-    public ColorRgb[] receivedRadiance; // Radiance received during iteration
-    public ColorRgb[] unShotRadiance; // For progressive refinement radiosity
+    public ColorRgbMutable Ed; // Diffuse emittance radiance
+    public ColorRgbMutable Rd; // Reflectance
+    public ColorRgbMutable[] radiance; // Total radiance on the element as computed so far
+    public ColorRgbMutable[] receivedRadiance; // Radiance received during iteration
+    public ColorRgbMutable[] unShotRadiance; // For progressive refinement radiosity
     public float area; // Area of all surfaces contained in the element
     public int className;
     public int flags;
@@ -40,8 +41,8 @@ public class Element {
 
     public Element() {
         id = 0;
-        Ed = new ColorRgb();
-        Rd = new ColorRgb();
+        Ed = new ColorRgbMutable();
+        Rd = new ColorRgbMutable();
         radiance = null;
         receivedRadiance = null;
         unShotRadiance = null;

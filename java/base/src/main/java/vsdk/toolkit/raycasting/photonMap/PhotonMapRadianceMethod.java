@@ -209,13 +209,13 @@ Initializes the computations for the current scene (if any)
     }
 
     private static ColorRgb cloneColor(ColorRgb c) {
-        return new ColorRgb(c.r, c.g, c.b);
+        return new ColorRgb(c.getR(), c.getG(), c.getB());
     }
 
     private static BsdfComp cloneBsdfComp(BsdfComp comp) {
         BsdfComp copy = new BsdfComp();
         for ( int i = 0; i < copy.comp.length; i++ ) {
-            copy.comp[i].set(comp.comp[i].r, comp.comp[i].g, comp.comp[i].b);
+            copy.comp[i].set(comp.comp[i].getR(), comp.comp[i].getG(), comp.comp[i].getB());
         }
         return copy;
     }
@@ -294,10 +294,10 @@ Adapted from bi-directional path, this is a bit overkill for here
         f.scale(factor); // Flux estimate
 
         // Restore old values
-        lightEndNode.m_bsdfEval.set(oldBsdfL.r, oldBsdfL.g, oldBsdfL.b);
+        lightEndNode.m_bsdfEval.set(oldBsdfL.getR(), oldBsdfL.getG(), oldBsdfL.getB());
         lightEndNode.m_bsdfComp = oldBsdfCompL;
 
-        eyeEndNode.m_bsdfEval.set(oldBsdfE.r, oldBsdfE.g, oldBsdfE.b);
+        eyeEndNode.m_bsdfEval.set(oldBsdfE.getR(), oldBsdfE.getG(), oldBsdfE.getB());
         eyeEndNode.m_bsdfComp = oldBsdfCompE;
 
         lightEndNode.m_pdfFromNext = oldPdfL;

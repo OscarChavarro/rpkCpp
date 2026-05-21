@@ -185,7 +185,7 @@ public class GlutDebugTools implements GLEventListener {
             else {
                 System.out.printf(
                     "Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %d\n",
-                    c.r, c.g, c.b, numberOfInteractions);
+                    c.getR(), c.getG(), c.getB(), numberOfInteractions);
             }
         }
         else {
@@ -195,7 +195,7 @@ public class GlutDebugTools implements GLEventListener {
             else {
                 System.out.printf(
                     "Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %d\n",
-                    c.r, c.g, c.b, numberOfInteractions);
+                    c.getR(), c.getG(), c.getB(), numberOfInteractions);
             }
             for ( int i = 0; i < 4; i++ ) {
                 if ( element.regularSubElements[i] instanceof GalerkinElement ) {

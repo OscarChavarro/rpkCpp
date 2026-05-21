@@ -1,7 +1,7 @@
 #ifndef OPTNS_GRP_BDRCT_RYTRC
 #define OPTNS_GRP_BDRCT_RYTRC
 
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "vsdk/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 
 class OptsGrpBidirRaytr{ public:
     static void parse( int *argc, char **argv, BidirectionalPathTracingState &bidirectionalPathState);

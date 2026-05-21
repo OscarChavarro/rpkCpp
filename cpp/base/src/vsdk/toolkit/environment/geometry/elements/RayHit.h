@@ -11,7 +11,7 @@ used as a parameter for BSDF/EDF queries
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/ShadingContext.h"
-#include "RayHitFlag.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 
 class Patch; // TODO: this is coupling RayHit with skin level classes :(
 class Material;

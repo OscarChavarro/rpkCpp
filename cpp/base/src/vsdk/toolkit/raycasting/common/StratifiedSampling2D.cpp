@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "vsdk/toolkit/java/lang/Math.h"
-#include "StratifiedSampling2D.h"
+#include "vsdk/toolkit/raycasting/common/StratifiedSampling2D.h"
 
 StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {
     getNumberOfDivisions(nrSamples, &xMaxStratum, &yMaxStratum);

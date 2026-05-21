@@ -1,7 +1,7 @@
 #ifndef __LUMINANCE_AREA__
 #define __LUMINANCE_AREA__
 
-#include "common/VSDK.h"
+#include "vsdk/common/VSDK.h"
 
 /**
 Stores luminance-area pairs for median area-weighted luminance

@@ -21,7 +21,7 @@ public class Photon {
 
     public Photon(Vector3D pos, ColorRgb power, Vector3D dir) {
         m_pos = new Vector3D(pos.x, pos.y, pos.z);
-        m_power = new ColorRgb(power.r, power.g, power.b);
+        m_power = new ColorRgb(power.getR(), power.getG(), power.getB());
         m_dir = new Vector3D(dir.x, dir.y, dir.z);
     }
 

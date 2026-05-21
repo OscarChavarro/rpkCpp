@@ -5,6 +5,7 @@ Density estimation on screen
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.render.ScreenBuffer;
@@ -57,12 +58,12 @@ public class DensityBuffer {
     public void add(float x, float y, ColorRgb color) {
         float factor = screenBuffer.getPixXSize() * screenBuffer.getPixYSize()
             * (float)baseConfig.totalSamples;
-        ColorRgb tmpCol = new ColorRgb();
+        ColorRgbMutable tmpCol = new ColorRgbMutable();
 
         if ( color.average() > Numeric.EPSILON ) {
-            tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
+            tmpCol.scaledCopy(factor, new ColorRgbMutable(color)); // Undo part of flux to rad factor
 
-            DensityHit hit = new DensityHit(x, y, tmpCol);
+            DensityHit hit = new DensityHit(x, y, tmpCol.toImmutable());
 
             hitGrid[xIndex(x)][yIndex(y)].add(hit);
         }

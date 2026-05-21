@@ -53,7 +53,7 @@ of the generated direction is computed and returned in probabilityDensityFunctio
 /**
 Computes a shading frame at the given hit point. The Z axis of this frame is
 the shading normal, The X axis is in the tangent plane on the surface at the
-hit point ("brush" direction relevant for anisotropic shaders e.g.). Y
+hit point ("brush" direction relevant for anisotropic shaders e.getG().). Y
 is perpendicular to X and Z. X and Y may be null pointers. In this case,
 only the shading normal is returned, avoiding computation of the X and
 Y axis if possible).
@@ -73,6 +73,7 @@ needed)
 /*Z*/
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
@@ -94,10 +95,11 @@ public class PhongEmittanceDistributionFunction {
     }
 
     public PhongEmittanceDistributionFunction(ColorRgb KdParameter, ColorRgb KsParameter, double NsParameter) {
-        Kd = new ColorRgb(KdParameter.r, KdParameter.g, KdParameter.b);
-        kd = new ColorRgb();
-        kd.scaledCopy((float)(1.0 / Math.PI), Kd);
-        Ks = new ColorRgb(KsParameter.r, KsParameter.g, KsParameter.b);
+        Kd = new ColorRgb(KdParameter.getR(), KdParameter.getG(), KdParameter.getB());
+        ColorRgbMutable kdMutable = new ColorRgbMutable();
+        kdMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
+        kd = kdMutable.toImmutable();
+        Ks = new ColorRgb(KsParameter.getR(), KsParameter.getG(), KsParameter.getB());
         if (!Ks.isBlack()) {
             Logger.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
         }
@@ -129,23 +131,23 @@ public class PhongEmittanceDistributionFunction {
     }
 
     public ColorRgb phongEmittance(ShadingContext context, int flags) {
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, Kd);
+            result.add(result, new ColorRgbMutable(Kd));
         }
 
         if (isSpecular()) {
             if ((flags & XxdfComponentFlag.SPECULAR_COMPONENT) != 0) {
-                result.add(result, Ks);
+                result.add(result, new ColorRgbMutable(Ks));
             }
         }
         else if ((flags & XxdfComponentFlag.GLOSSY_COMPONENT) != 0) {
-            result.add(result, Ks);
+            result.add(result, new ColorRgbMutable(Ks));
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public ColorRgb phongEmittance(RayHit hit, int flags) {
@@ -163,23 +165,23 @@ public class PhongEmittanceDistributionFunction {
 
     public ColorRgb phongEdfEval(ShadingContext context, Vector3D out, int flags, double[] probabilityDensityFunction) {
         Vector3D normal = new Vector3D();
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
         setOut(probabilityDensityFunction, 0.0);
 
         if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
             Logger.warning("phongEdfEval", "Couldn't determine shading normal");
-            return result;
+            return result.toImmutable();
         }
         normal.copy(context.getShadingNormal());
 
         double cosL = out.dotProduct(normal);
         if (cosL < 0.0) {
-            return result;
+            return result.toImmutable();
         }
 
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, kd);
+            result.add(result, new ColorRgbMutable(kd));
             setOut(probabilityDensityFunction, cosL / Math.PI);
         }
 
@@ -187,21 +189,19 @@ public class PhongEmittanceDistributionFunction {
             // Not implemented in original C++ code.
         }
 
-        return result;
+        return result.toImmutable();
     }
 
     public ColorRgb phongEdfEval(RayHit hit, Vector3D out, int flags, double[] probabilityDensityFunction) {
         if (hit == null) {
             setOut(probabilityDensityFunction, 0.0);
             ColorRgb result = new ColorRgb();
-            result.clear();
             return result;
         }
         Vector3D normal = new Vector3D();
         if (!hit.shadingNormal(normal)) {
             setOut(probabilityDensityFunction, 0.0);
             ColorRgb result = new ColorRgb();
-            result.clear();
             return result;
         }
         Vector3D texCoord = new Vector3D();
@@ -232,7 +232,7 @@ public class PhongEmittanceDistributionFunction {
         ColorRgb selfEmittedRadiance,
         double[] probabilityDensityFunction) {
         if (selfEmittedRadiance != null) {
-            selfEmittedRadiance.clear();
+            selfEmittedRadiance = new ColorRgb(0.0, 0.0, 0.0);
         }
         setOut(probabilityDensityFunction, 0.0);
 
@@ -251,7 +251,9 @@ public class PhongEmittanceDistributionFunction {
             setOut(probabilityDensityFunction, sampledPdf[0]);
 
             if (selfEmittedRadiance != null) {
-                selfEmittedRadiance.scaledCopy((float)(1.0 / Math.PI), Kd);
+                ColorRgbMutable radianceMutable = new ColorRgbMutable();
+                radianceMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
+                selfEmittedRadiance = radianceMutable.toImmutable();
             }
         }
 
@@ -265,9 +267,6 @@ public class PhongEmittanceDistributionFunction {
         double xi2,
         ColorRgb selfEmittedRadiance,
         double[] probabilityDensityFunction) {
-        if (selfEmittedRadiance != null) {
-            selfEmittedRadiance.clear();
-        }
         if (hit == null) {
             setOut(probabilityDensityFunction, 0.0);
             return new Vector3D(0.0, 0.0, 1.0);

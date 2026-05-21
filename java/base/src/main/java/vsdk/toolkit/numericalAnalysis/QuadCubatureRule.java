@@ -41,7 +41,7 @@ You'll find the same rule in: Schmid, "On Cubature Formulae with a Minimal
 Number of Knots", Numer. Math. Vol 31 (1978) p281
 */
 
-// Degree 5, 7 positions, Radon's rule see e.g. Stroud '71
+// Degree 5, 7 positions, Radon's rule see e.getG(). Stroud '71
 
 // Degree 5, 9 positions product Gauss-Legendre rule
 

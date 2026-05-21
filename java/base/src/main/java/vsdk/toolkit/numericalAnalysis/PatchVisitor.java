@@ -1,6 +1,7 @@
 package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -35,7 +36,7 @@ public class PatchVisitor {
     Computes average scattered power and emittance of the Patch
     */
     public static ColorRgb averageNormalAlbedo(Patch patch, int components) {
-        ColorRgb albedo = new ColorRgb();
+        ColorRgbMutable albedo = new ColorRgbMutable();
         RayHit hit = new RayHit();
 
         hit.init(patch, patch.midPoint, patch.normal, patch.material);
@@ -51,19 +52,18 @@ public class PatchVisitor {
             Vector3D position = hit.getPoint();
             patch.pointBarycentricMapping(hit.getUv().u, hit.getUv().v, position);
             sample = new ColorRgb();
-            sample.clear();
             if (patch.material.getBsdf() != null) {
                 sample = patch.material.getBsdf().splitBsdfScatteredPower(hit, components);
             }
-            albedo.add(albedo, sample);
+            albedo.add(albedo, new ColorRgbMutable(sample));
         }
         albedo.scaleInverse(numberOfSamples, albedo);
 
-        return albedo;
+        return albedo.toImmutable();
     }
 
     public static ColorRgb averageEmittance(Patch patch, int components) {
-        ColorRgb emittance = new ColorRgb();
+        ColorRgbMutable emittance = new ColorRgbMutable();
         RayHit hit = new RayHit();
         hit.init(patch, patch.midPoint, patch.normal, patch.material);
 
@@ -79,15 +79,15 @@ public class PatchVisitor {
             patch.pointBarycentricMapping(hit.getUv().u, hit.getUv().v, position);
 
             if (patch.material.getEdf() == null) {
-                sample.clear();
+                sample = new ColorRgb();
             }
             else {
                 sample = patch.material.getEdf().phongEmittance(hit, components);
             }
-            emittance.add(emittance, sample);
+            emittance.add(emittance, new ColorRgbMutable(sample));
         }
         emittance.scaleInverse(numberOfSamples, emittance);
 
-        return emittance;
+        return emittance.toImmutable();
     }
 }

@@ -2,7 +2,7 @@
 #define OPTNS_GRP_STCHS_RYTRC
 
 #include "app/options/EnumDesc.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "vsdk/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 
 class OptsGrpStochRaytr{ public:
     static void parse( int *argc, char **argv, StochasticRayTracingState &stochasticRayTracingState);

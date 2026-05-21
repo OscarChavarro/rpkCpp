@@ -4,6 +4,7 @@ import vsdk.toolkit.skin.*;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 
@@ -16,7 +17,7 @@ public class Vertex {
     public Vector3D point;
     public Vector3D normal;
     public Vector3D textureCoordinates;
-    public ColorRgb color; // Used when rendering with Gouraud interpolation
+    public ColorRgbMutable color; // Used when rendering with Gouraud interpolation
     public ArrayList<Element> radianceData; // Data for the vertex maintained by the current radiance method
     public Vertex back; // Vertex at the same position, but with reversed normal, for back faces
     public ArrayList<Patch> patches; // List of references to patches sharing the vertex
@@ -37,8 +38,7 @@ public class Vertex {
         normal = inNormal;
         textureCoordinates = inTextureCoordinates;
         patches = inPatches;
-        color = new ColorRgb();
-        color.set(0.0f, 0.0f, 0.0f);
+        color = new ColorRgbMutable();
         radianceData = null;
         back = null;
         tmp = 0;
@@ -60,7 +60,7 @@ public class Vertex {
     public void computeColor() {
         long numberOfPatches;
 
-        color.set(0.0f, 0.0f, 0.0f);
+        color.clear();
         numberOfPatches = 0;
 
         if (patches != null) {

@@ -1,6 +1,7 @@
 package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
@@ -45,7 +46,7 @@ public class MeshSurfaceVisitor {
                 rho = PatchVisitor.averageNormalAlbedo(
                     face,
                     BsdfComponent.BRDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT);
-                rho.set(face.color.r, face.color.g, face.color.b);
+                face.color = new ColorRgbMutable(rho);
             }
         }
     }

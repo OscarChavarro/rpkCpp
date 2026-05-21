@@ -1,6 +1,6 @@
 package vsdk.toolkit.io.bin.reader;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
@@ -24,7 +24,7 @@ public class BinaryModelPatchRecordData {
     public int dominantIndex;
     public boolean omit;
     public byte flags;
-    public ColorRgb color;
+    public ColorRgbMutable color;
     public int materialIndex;
     public boolean hasRadianceData;
 
@@ -54,7 +54,7 @@ public class BinaryModelPatchRecordData {
         dominantIndex = 0;
         omit = false;
         flags = 0;
-        color = new ColorRgb();
+        color = new ColorRgbMutable();
         materialIndex = -1;
         hasRadianceData = false;
     }

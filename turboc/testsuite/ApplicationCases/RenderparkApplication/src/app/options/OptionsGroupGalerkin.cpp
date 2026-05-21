@@ -1,9 +1,9 @@
 #include <strings.h>
 
-#include "common/logging/Logger.h"
-#include "galerkin/GalerkinRadianceMethod.h"
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
+#include "vsdk/common/logging/Logger.h"
+#include "vsdk/galerkin/GalerkinRadianceMethod.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/TypedOption.h"
 #include "app/options/OptionsGroupGalerkin.h"
 
 int OptionsGroupGalerkin::trueValue = true;

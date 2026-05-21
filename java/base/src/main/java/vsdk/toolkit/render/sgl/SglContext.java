@@ -6,7 +6,7 @@ package vsdk.toolkit.render.sgl;
 
 /**
 Small Graphics Library. Software rendering into a user
-accessible memory buffer. E.g. for clustering where a small number
+accessible memory buffer. E.getG(). for clustering where a small number
 of patches needs to be ID rendered very often
 */
 

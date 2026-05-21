@@ -4,6 +4,7 @@ package vsdk.toolkit.material;
 
 import java.util.Arrays;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 public class Texture {
     private int width;
@@ -11,7 +12,7 @@ public class Texture {
     private int channels;
     private byte[] data;
 
-    private static void setMonochrome(ColorRgb rgb, float val) {
+    private static void setMonochrome(ColorRgbMutable rgb, float val) {
         rgb.set(val, val, val);
     }
 
@@ -52,11 +53,11 @@ public class Texture {
     }
 
     public ColorRgb evaluateColor(float u, float v) {
-        ColorRgb rgb = new ColorRgb();
+        ColorRgbMutable rgb = new ColorRgbMutable();
         rgb.clear();
 
         if (data == null || width <= 0 || height <= 0 || channels <= 0) {
-            return rgb;
+            return rgb.toImmutable();
         }
 
         double u1 = u - Math.floor(u);
@@ -93,10 +94,10 @@ public class Texture {
         int pixelIndex10 = (j * width + i1) * channels;
         int pixelIndex11 = (j1 * width + i1) * channels;
 
-        ColorRgb rgb00 = new ColorRgb();
-        ColorRgb rgb10 = new ColorRgb();
-        ColorRgb rgb01 = new ColorRgb();
-        ColorRgb rgb11 = new ColorRgb();
+        ColorRgbMutable rgb00 = new ColorRgbMutable();
+        ColorRgbMutable rgb10 = new ColorRgbMutable();
+        ColorRgbMutable rgb01 = new ColorRgbMutable();
+        ColorRgbMutable rgb11 = new ColorRgbMutable();
 
         switch (channels) {
             case 1:
@@ -121,7 +122,7 @@ public class Texture {
             (float)(0.25 * (u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g)),
             (float)(0.25 * (u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b)));
 
-        return rgb;
+        return rgb.toImmutable();
     }
 
     private float channelValue(int pixelIndex, int channel) {

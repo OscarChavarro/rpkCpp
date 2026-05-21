@@ -3,7 +3,7 @@ package vsdk.toolkit.io.bin.reader;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.io.PersistenceElement;
@@ -195,7 +195,7 @@ public class BinaryModelReadPrimitives {
         return true;
     }
 
-    public static boolean readColor(InputStream input, ColorRgb color) {
+    public static boolean readColor(InputStream input, ColorRgbMutable color) {
         if (color == null) {
             return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
         }

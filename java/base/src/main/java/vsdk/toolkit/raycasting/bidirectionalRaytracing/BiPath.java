@@ -5,6 +5,7 @@ Stores eyePath and lightPath, lengths and end nodes
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
@@ -48,7 +49,7 @@ public class BiPath {
     evaluation, no pdf involved
     */
     public ColorRgb evalRadiance() {
-        ColorRgb col = new ColorRgb();
+        ColorRgbMutable col = new ColorRgbMutable();
         double factor = 1.0;
         SimpleRaytracingPathNode node;
 
@@ -57,7 +58,7 @@ public class BiPath {
         node = m_eyePath;
 
         for ( int i = 0; i < m_eyeSize; i++ ) {
-            col.selfScalarProduct(node.m_bsdfEval);
+            col.selfScalarProduct(new ColorRgbMutable(node.m_bsdfEval));
             factor *= node.m_G;
             node = node.next();
         }
@@ -65,7 +66,7 @@ public class BiPath {
         node = m_lightPath;
 
         for ( int i = 0; i < m_lightSize; i++ ) {
-            col.selfScalarProduct(node.m_bsdfEval);
+            col.selfScalarProduct(new ColorRgbMutable(node.m_bsdfEval));
             factor *= node.m_G;
             node = node.next();
         }
@@ -74,7 +75,7 @@ public class BiPath {
 
         col.scale((float)factor);
 
-        return col;
+        return col.toImmutable();
     }
 
     /**

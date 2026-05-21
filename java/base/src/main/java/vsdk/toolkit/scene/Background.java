@@ -23,9 +23,7 @@ public class Background {
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = 0.0f;
         }
-        ColorRgb black = new ColorRgb();
-        black.setMonochrome(0.0f);
-        return black;
+        return new ColorRgb(0.0, 0.0, 0.0);
     }
 
     /*
@@ -44,9 +42,6 @@ public class Background {
         float xi2,
         ColorRgb radianceValue,
         float[] probabilityDensityFunction) {
-        if (radianceValue != null) {
-            radianceValue.setMonochrome(0.0f);
-        }
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = 0.0f;
         }
@@ -58,9 +53,7 @@ public class Background {
     the full sphere of the background radiance.
     */
     public ColorRgb power(Vector3D position) {
-        ColorRgb black = new ColorRgb();
-        black.setMonochrome(0.0f);
-        return black;
+        return new ColorRgb(0.0, 0.0, 0.0);
     }
 
     public static ColorRgb backgroundRadiance(
@@ -69,9 +62,7 @@ public class Background {
         Vector3D direction,
         float[] probabilityDensityFunction) {
         if (bkg == null) {
-            ColorRgb black = new ColorRgb();
-            black.setMonochrome(0.0f);
-            return black;
+            return new ColorRgb(0.0, 0.0, 0.0);
         }
         else {
             return bkg.radiance(position, direction, probabilityDensityFunction);
@@ -80,9 +71,7 @@ public class Background {
 
     public static ColorRgb backgroundPower(Background bkg, Vector3D position) {
         if (bkg == null) {
-            ColorRgb black = new ColorRgb();
-            black.setMonochrome(0.0f);
-            return black;
+            return new ColorRgb(0.0, 0.0, 0.0);
         }
         else {
             return bkg.power(position);

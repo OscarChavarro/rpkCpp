@@ -7,6 +7,7 @@ package vsdk.toolkit.raycasting.raytracing;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -353,7 +354,7 @@ public class SamplerConfig {
         // bsdf(EP->E->L)
         if ( nodeEP == null ) {
             // Eye
-            nodeX.m_bsdfEval.setMonochrome(1.0f);
+            nodeX.m_bsdfEval = new ColorRgb(1.0, 1.0, 1.0);
             nodeX.m_bsdfComp.Clear();
             nodeX.m_bsdfComp.Fill(nodeX.m_bsdfEval, (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         } else {
@@ -372,7 +373,7 @@ public class SamplerConfig {
         if ( nodeLP == null ) {
             // nodeL is  light source
             if ( nodeY.m_hit.getMaterial() == null || nodeY.m_hit.getMaterial().getEdf() == null ) {
-                nodeY.m_bsdfEval.clear();
+                nodeY.m_bsdfEval = new ColorRgb();
             } else {
                 nodeY.m_bsdfEval = nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
                     nodeY.m_hit, dirLE, bsdfFlagsL & 0xFF, null);

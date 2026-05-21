@@ -10,12 +10,11 @@ public class ConstantColorBackground extends Background {
     private ColorRgb color;
 
     public ConstantColorBackground() {
-        color = new ColorRgb();
-        color.clear();
+        color = new ColorRgb(0.0, 0.0, 0.0);
     }
 
     public ConstantColorBackground(ColorRgb backgroundColor) {
-        color = new ColorRgb(backgroundColor.r, backgroundColor.g, backgroundColor.b);
+        color = new ColorRgb(backgroundColor.getR(), backgroundColor.getG(), backgroundColor.getB());
     }
 
     @Override
@@ -41,9 +40,6 @@ public class ConstantColorBackground extends Background {
         final float radialSquared = Math.max(0.0f, 1.0f - z * z);
         final float radius = (float)Math.sqrt(radialSquared);
 
-        if (radianceValue != null) {
-            radianceValue.set(color.r, color.g, color.b);
-        }
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = ConstantColorBackground.INV_FOUR_PI;
         }
@@ -58,8 +54,9 @@ public class ConstantColorBackground extends Background {
 
     @Override
     public ColorRgb power(Vector3D position) {
-        ColorRgb emittedPower = new ColorRgb();
-        emittedPower.scaledCopy(ConstantColorBackground.FOUR_PI, color);
-        return emittedPower;
+        return new ColorRgb(
+            ConstantColorBackground.FOUR_PI * color.getR(),
+            ConstantColorBackground.FOUR_PI * color.getG(),
+            ConstantColorBackground.FOUR_PI * color.getB());
     }
 }

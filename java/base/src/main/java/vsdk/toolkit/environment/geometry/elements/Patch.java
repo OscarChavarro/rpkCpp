@@ -2,7 +2,7 @@ package vsdk.toolkit.environment.geometry.elements;
 
 import vsdk.toolkit.skin.*;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Jacobian;
@@ -47,7 +47,7 @@ public class Patch {
     // testing, shaft culling, ... set to FALSE by
     // default. Do not forget to set to FALSE again
     // after you changed it.
-    public ColorRgb color; // Color used to flat render the patch
+    public ColorRgbMutable color; // Color used to flat render the patch
     // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     public Element radianceData;
     public Material material;
@@ -366,7 +366,7 @@ public class Patch {
     }
 
     /**
-    Computes a certain width for the plane, e.g. for co-planar testing.
+    Computes a certain width for the plane, e.getG(). for co-planar testing.
     */
     private float computeTolerance() {
         // Fill in the vertices in the plane equation + take into account the vertex position tolerance
@@ -715,8 +715,8 @@ public class Patch {
         connectVertices();
 
         directPotential = 0.0f;
-        color = new ColorRgb();
-        color.set(0.0f, 0.0f, 0.0f);
+        color = new ColorRgbMutable();
+        color.clear();
 
         omit = 0;
         flags = 0; // Other flags

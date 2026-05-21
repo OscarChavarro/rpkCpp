@@ -9,7 +9,7 @@ Copies the vector v to d: d = v. They may be different vector types
 */
 
 /**
-Tolerance value for e.g. a vertex position
+Tolerance value for e.getG(). a vertex position
 */
 
 /**
@@ -25,16 +25,16 @@ Vector sum: d = a + b
 */
 
 /**
-Scaled vector sum: d = a + s.b
+Scaled vector sum: d = a + s.getB()
 */
 
 /**
-Scalar vector product: a.b
+Scalar vector product: a.getB()
 */
 
 /**
 Compute (T * vector) with
-T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
+T = transpose[ X Y Z ] so that e.getG(). T.X = (1 0 0) if
 X, Y, Z form a coordinate system
 */
 

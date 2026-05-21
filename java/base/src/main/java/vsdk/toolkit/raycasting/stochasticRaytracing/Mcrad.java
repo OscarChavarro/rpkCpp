@@ -82,7 +82,7 @@ For counting how much CPU time was used for the computations
     }
 
     /**
-Compute new color for the patch: fine if no hierarchical refinement is used, e.g.
+Compute new color for the patch: fine if no hierarchical refinement is used, e.getG().
 in the current random walk radiosity implementation
 */
     public static void monteCarloRadiosityPatchComputeNewColor(Patch patch) {
@@ -109,9 +109,9 @@ Initialises patch data
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchBasis(patch));
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
 
-        McradP.getTopLevelPatchRad(patch)[0] = new ColorRgb(Ed.r, Ed.g, Ed.b);
-        McradP.getTopLevelPatchUnShotRad(patch)[0] = new ColorRgb(Ed.r, Ed.g, Ed.b);
-        McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgb(Ed.r, Ed.g, Ed.b);
+        McradP.getTopLevelPatchRad(patch)[0] = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
+        McradP.getTopLevelPatchUnShotRad(patch)[0] = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
+        McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
         McradP.getTopLevelPatchReceivedRad(patch)[0].clear();
 
         McradP.topLevelStochasticRadiosityElement(patch).rayIndex = patch.id * 11L;

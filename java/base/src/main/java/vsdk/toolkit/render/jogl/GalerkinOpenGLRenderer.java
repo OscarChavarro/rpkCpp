@@ -154,9 +154,9 @@ public final class GalerkinOpenGLRenderer {
 
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
             RenderOptions modified = new RenderOptions();
-            modified.outlineColor = new ColorRgb(renderOptions.outlineColor.r, renderOptions.outlineColor.g, renderOptions.outlineColor.b);
-            modified.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.r, renderOptions.boundingBoxColor.g, renderOptions.boundingBoxColor.b);
-            modified.clusterColor = new ColorRgb(renderOptions.clusterColor.r, renderOptions.clusterColor.g, renderOptions.clusterColor.b);
+            modified.outlineColor = new ColorRgb(renderOptions.outlineColor.getR(), renderOptions.outlineColor.getG(), renderOptions.outlineColor.getB());
+            modified.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.getR(), renderOptions.boundingBoxColor.getG(), renderOptions.boundingBoxColor.getB());
+            modified.clusterColor = new ColorRgb(renderOptions.clusterColor.getR(), renderOptions.clusterColor.getG(), renderOptions.clusterColor.getB());
             modified.lineWidth = renderOptions.lineWidth;
             modified.drawOutlines = renderOptions.drawOutlines;
             modified.drawSurfaces = renderOptions.drawSurfaces;

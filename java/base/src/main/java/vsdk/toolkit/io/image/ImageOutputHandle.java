@@ -55,10 +55,11 @@ public class ImageOutputHandle {
         return 0;
     }
 
-    protected static void gammaCorrect(ColorRgb rgb, final float[] gamma) {
-        rgb.r = gamma[0] == 1.0f ? rgb.r : (float)Math.pow(rgb.r, 1.0f / gamma[0]);
-        rgb.g = gamma[1] == 1.0f ? rgb.g : (float)Math.pow(rgb.g, 1.0f / gamma[1]);
-        rgb.b = gamma[2] == 1.0f ? rgb.b : (float)Math.pow(rgb.b, 1.0f / gamma[2]);
+    protected static ColorRgb gammaCorrect(ColorRgb rgb, final float[] gamma) {
+        double r = gamma[0] == 1.0f ? rgb.getR() : Math.pow(rgb.getR(), 1.0f / gamma[0]);
+        double g = gamma[1] == 1.0f ? rgb.getG() : Math.pow(rgb.getG(), 1.0f / gamma[1]);
+        double b = gamma[2] == 1.0f ? rgb.getB() : Math.pow(rgb.getB(), 1.0f / gamma[2]);
+        return new ColorRgb(r, g, b);
     }
 
     public int writeDisplayRGB(float[] rgbFloatArray) {
@@ -70,11 +71,11 @@ public class ImageOutputHandle {
                 rgbFloatArray[3 * i + 1],
                 rgbFloatArray[3 * i + 2]);
             // Apply gamma correction
-            gammaCorrect(displayRgb, gamma);
+            displayRgb = gammaCorrect(displayRgb, gamma);
             // Convert float to byte representation
-            rgb[3 * i] = (byte)(int)(displayRgb.r * 255.0f);
-            rgb[3 * i + 1] = (byte)(int)(displayRgb.g * 255.0f);
-            rgb[3 * i + 2] = (byte)(int)(displayRgb.b * 255.0f);
+            rgb[3 * i] = (byte)(int)(displayRgb.getR() * 255.0f);
+            rgb[3 * i + 1] = (byte)(int)(displayRgb.getG() * 255.0f);
+            rgb[3 * i + 2] = (byte)(int)(displayRgb.getB() * 255.0f);
         }
 
         // Output display RGB values
@@ -99,12 +100,12 @@ returns the number of pixels written
             ToneMap.radianceToRgb(rgbRadiance[i], displayRgb, toneMapOptions);
 
             // Apply gamma correction
-            gammaCorrect(displayRgb, gamma);
+            displayRgb = gammaCorrect(displayRgb, gamma);
 
             // Convert float to byte representation
-            rgb[3 * i] = (byte)(int)(displayRgb.r * 255.0f);
-            rgb[3 * i + 1] = (byte)(int)(displayRgb.g * 255.0f);
-            rgb[3 * i + 2] = (byte)(int)(displayRgb.b * 255.0f);
+            rgb[3 * i] = (byte)(int)(displayRgb.getR() * 255.0f);
+            rgb[3 * i + 1] = (byte)(int)(displayRgb.getG() * 255.0f);
+            rgb[3 * i + 2] = (byte)(int)(displayRgb.getB() * 255.0f);
         }
 
         // Output display RGB values

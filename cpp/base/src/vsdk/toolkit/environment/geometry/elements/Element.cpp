@@ -5,7 +5,7 @@
 #ifdef RAYTRACING_ENABLED
 #endif
 
-#include "Element.h"
+#include "vsdk/toolkit/environment/geometry/elements/Element.h"
 
 Element::Element():
     id(),

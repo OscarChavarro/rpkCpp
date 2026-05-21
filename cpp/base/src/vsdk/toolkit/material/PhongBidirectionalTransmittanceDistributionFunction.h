@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/RefractionIndex.h"
 
 /**

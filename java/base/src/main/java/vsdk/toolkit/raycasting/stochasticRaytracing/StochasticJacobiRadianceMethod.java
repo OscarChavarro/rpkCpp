@@ -226,8 +226,8 @@ distribution
         Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.unShotRadiance, elem.receivedRadiance, elem.basis);
         if ( StochasticRelaxation.activeState().setSource != 0 ) {
             // Copy direct illumination and forget self emitted illumination
-            elem.radiance[0].set(elem.receivedRadiance[0].r, elem.receivedRadiance[0].g, elem.receivedRadiance[0].b);
-            elem.sourceRad.set(elem.receivedRadiance[0].r, elem.receivedRadiance[0].g, elem.receivedRadiance[0].b);
+            elem.radiance[0].set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
+            elem.sourceRad.set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
         }
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
     }

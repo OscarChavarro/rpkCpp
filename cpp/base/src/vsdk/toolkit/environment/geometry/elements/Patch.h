@@ -5,8 +5,8 @@
 #include "vsdk/toolkit/common/linealAlgebra/Ray.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
-#include "PatchConstants.h"
-#include "Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
+#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
 
 class RayHit;
 

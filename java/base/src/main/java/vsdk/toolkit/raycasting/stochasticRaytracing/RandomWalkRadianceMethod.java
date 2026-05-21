@@ -179,7 +179,7 @@ a survival stochasticJacobiProbability function
     private static ColorRgb[] randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement elem) {
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(selfEmittedRadiance, elem.basis);
         ColorRgb ed = McradP.topLevelStochasticRadiosityElement(elem.patch).Ed; // Emittance
-        selfEmittedRadiance[0].set(ed.r, ed.g, ed.b);
+        selfEmittedRadiance[0].set(ed.getR(), ed.getG(), ed.getB());
         return selfEmittedRadiance;
     }
 
@@ -197,7 +197,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
             newSourceRadiance.selfScalarProduct(StochasticRelaxation.activeState().controlRadiance); // (1-rho) * beta
             newSourceRadiance.subtract(McradP.topLevelStochasticRadiosityElement(patch).sourceRad, newSourceRadiance); // E - (1-rho) * beta
             McradP.topLevelStochasticRadiosityElement(patch).sourceRad.set(
-                newSourceRadiance.r, newSourceRadiance.g, newSourceRadiance.b);
+                newSourceRadiance.getR(), newSourceRadiance.getG(), newSourceRadiance.getB());
         }
     }
 
@@ -395,7 +395,7 @@ Determines control radiosity value for collision gathering estimator
         cr.divide(c1, c2);
         System.err.printf("Control radiosity value = ");
         cr.print(System.err);
-        System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b));
+        System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
 
         return cr;
     }
@@ -411,9 +411,9 @@ Determines control radiosity value for collision gathering estimator
         ColorRgb accumRad;
         int lastNodeIndex = path.numberOfNodes - 1;
         accumRad = new ColorRgb(
-            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.r,
-            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.g,
-            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.b);
+            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getR(),
+            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getG(),
+            McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getB());
         for ( int n = lastNodeIndex - 1; n >= 0; n-- ) {
             StochasticRaytracingPathNode node = path.nodes[n];
             double[] uin = new double[] {0.0};
@@ -481,9 +481,9 @@ Determines control radiosity value for collision gathering estimator
         if ( StochasticRelaxation.activeState().constantControlVariate != 0 ) {
             // Add constant control radiosity value
             ColorRgb cr = new ColorRgb(
-                StochasticRelaxation.activeState().controlRadiance.r,
-                StochasticRelaxation.activeState().controlRadiance.g,
-                StochasticRelaxation.activeState().controlRadiance.b);
+                StochasticRelaxation.activeState().controlRadiance.getR(),
+                StochasticRelaxation.activeState().controlRadiance.getG(),
+                StochasticRelaxation.activeState().controlRadiance.getB());
             if ( StochasticRelaxation.activeState().indirectOnly != 0 ) {
                 ColorRgb Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
                 cr.scalarProduct(Rd, StochasticRelaxation.activeState().controlRadiance);
@@ -539,7 +539,7 @@ Determines control radiosity value for collision gathering estimator
             // Keep C++ signature.
         }
         Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
-        elem.sourceRad.set(elem.receivedRadiance[0].r, elem.receivedRadiance[0].g, elem.receivedRadiance[0].b);
+        elem.sourceRad.set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
     }

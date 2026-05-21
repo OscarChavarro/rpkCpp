@@ -179,9 +179,9 @@ public class BinaryModelSerializer {
     }
 
     private static void writeColor(OutputStream output, ColorRgb color) {
-        writeFloatLE(output, (float)color.r);
-        writeFloatLE(output, (float)color.g);
-        writeFloatLE(output, (float)color.b);
+        writeFloatLE(output, (float)color.getR());
+        writeFloatLE(output, (float)color.getG());
+        writeFloatLE(output, (float)color.getB());
     }
 
     private static void writeVector(OutputStream output, Vector3D vector) {
@@ -420,7 +420,7 @@ public class BinaryModelSerializer {
         }
         writeInt32LE(output, textureIndex[0]);
 
-        writeColor(output, vertex.color);
+        writeColor(output, vertex.color.toImmutable());
 
         int[] backIndex = new int[1];
         if (!indexOfPointer(vertex.back, context.vertexIndices, "vertex.back", backIndex)) {
@@ -474,7 +474,7 @@ public class BinaryModelSerializer {
         writeInt32LE(output, dominantIndex);
         writeBool(output, patch.omit != 0);
         writeByte(output, patch.getFlags());
-        writeColor(output, patch.color);
+        writeColor(output, patch.color.toImmutable());
 
         int[] materialIndex = new int[1];
         if (!indexOfPointer(patch.material, context.materialIndices, "patch.material", materialIndex)) {

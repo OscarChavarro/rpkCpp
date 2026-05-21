@@ -2,9 +2,9 @@
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
-#include "Patch.h"
-#include "RayHit.h"
-#include "RayHitFlag.h"
+#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};

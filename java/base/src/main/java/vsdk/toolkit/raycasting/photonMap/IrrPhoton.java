@@ -23,13 +23,13 @@ public class IrrPhoton extends Photon {
     }
 
     public void SetIrradiance(ColorRgb irr) {
-        m_irradiance = new ColorRgb(irr.r, irr.g, irr.b);
+        m_irradiance = new ColorRgb(irr.getR(), irr.getG(), irr.getB());
     }
 
     public void
     copy(Photon photon) {
         m_pos = new Vector3D(photon.pos().x, photon.pos().y, photon.pos().z);
-        m_power = new ColorRgb(photon.power().r, photon.power().g, photon.power().b);
+        m_power = new ColorRgb(photon.power().getR(), photon.power().getG(), photon.power().getB());
         m_dir = new Vector3D(photon.dir().x, photon.dir().y, photon.dir().z);
     }
 }

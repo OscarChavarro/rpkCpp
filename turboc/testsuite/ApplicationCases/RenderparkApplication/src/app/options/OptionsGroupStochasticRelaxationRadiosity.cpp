@@ -1,9 +1,9 @@
 #include <string.h>
 #include <strings.h>
 
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
-#include "raycasting/stochasticRaytracing/Hierarchy.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/TypedOption.h"
+#include "vsdk/raycasting/stochasticRaytracing/Hierarchy.h"
 #include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
 
 template<typename T>

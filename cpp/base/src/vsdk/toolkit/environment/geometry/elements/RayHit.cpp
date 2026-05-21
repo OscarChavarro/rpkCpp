@@ -1,8 +1,8 @@
-#include "RayHitFlag.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "RayHit.h"
-#include "Patch.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 RayHit::RayHit():
     point(),

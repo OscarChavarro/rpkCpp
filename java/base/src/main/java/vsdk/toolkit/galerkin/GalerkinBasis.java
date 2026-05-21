@@ -72,9 +72,9 @@ public class GalerkinBasis {
         if ( element.isCluster() ) {
             ColorRgb.arrayClear(childCoefficients, child.basisSize);
             childCoefficients[0].set(
-                parentCoefficients[0].r,
-                parentCoefficients[0].g,
-                parentCoefficients[0].b);
+                parentCoefficients[0].getR(),
+                parentCoefficients[0].getG(),
+                parentCoefficients[0].getB());
             return;
         }
 
@@ -82,9 +82,9 @@ public class GalerkinBasis {
             Logger.error("GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
             ColorRgb.arrayClear(childCoefficients, child.basisSize);
             childCoefficients[0].set(
-                parentCoefficients[0].r,
-                parentCoefficients[0].g,
-                parentCoefficients[0].b);
+                parentCoefficients[0].getR(),
+                parentCoefficients[0].getG(),
+                parentCoefficients[0].getB());
             return;
         }
 

@@ -24,9 +24,9 @@ public final class OptionsGroupCore {
     private static int glutDebugEnabled = 0;
     private static EnumBackgroundMode backgroundMode = EnumBackgroundMode.NONE;
     private static ColorRgb backgroundColor = new ColorRgb(
-        DEFAULT_BACKGROUND_COLOR.r,
-        DEFAULT_BACKGROUND_COLOR.g,
-        DEFAULT_BACKGROUND_COLOR.b);
+        DEFAULT_BACKGROUND_COLOR.getR(),
+        DEFAULT_BACKGROUND_COLOR.getG(),
+        DEFAULT_BACKGROUND_COLOR.getB());
 
     private OptionsGroupCore() {
     }
@@ -259,9 +259,9 @@ public final class OptionsGroupCore {
         numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
         backgroundMode = EnumBackgroundMode.NONE;
         backgroundColor = new ColorRgb(
-            DEFAULT_BACKGROUND_COLOR.r,
-            DEFAULT_BACKGROUND_COLOR.g,
-            DEFAULT_BACKGROUND_COLOR.b);
+            DEFAULT_BACKGROUND_COLOR.getR(),
+            DEFAULT_BACKGROUND_COLOR.getG(),
+            DEFAULT_BACKGROUND_COLOR.getB());
         glutDebugEnabled = appOptions.debug;
 
         OptionsGroupCore.commandLineParseBackgroundOption(argc, argv);

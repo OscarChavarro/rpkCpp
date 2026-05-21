@@ -5,7 +5,7 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 */
 #include "vsdk/toolkit/java/lang/Float.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 
 namespace {

@@ -1,7 +1,7 @@
 #ifndef SPLIT_BSDF_SAMPLING_MODE__
 #define SPLIT_BSDF_SAMPLING_MODE__
 
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 /**

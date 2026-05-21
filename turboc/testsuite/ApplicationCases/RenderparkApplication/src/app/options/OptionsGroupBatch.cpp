@@ -1,4 +1,4 @@
-#include "common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
 #include "app/options/OptionsGroupBatch.h"
 
 BatchOptions OptionsGroupBatch::batchOptionsState;

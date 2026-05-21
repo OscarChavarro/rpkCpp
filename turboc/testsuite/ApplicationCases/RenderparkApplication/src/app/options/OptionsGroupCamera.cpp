@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
 #include "app/options/OptionsGroupCamera.h"
 
 const Vector3D OptionsGroupCamera::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);

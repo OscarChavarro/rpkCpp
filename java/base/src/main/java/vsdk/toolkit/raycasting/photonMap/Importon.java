@@ -8,14 +8,14 @@ public class Importon extends IrrPhoton {
     SetAll(float imp, float pot, float foot) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power.r = imp;
+        m_power.getR() = imp;
     }
 
     public void
     PSetAll(float imp, float pot, float foot) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance.r = imp;
+        m_irradiance.getR() = imp;
     }
 
     public Importon() {
@@ -38,11 +38,11 @@ public class Importon extends IrrPhoton {
 
     public float
     Importance() {
-        return (float)m_power.r;
+        return (float)m_power.getR();
     }
 
     public float
     PImportance() {
-        return (float)m_irradiance.r;
+        return (float)m_irradiance.getR();
     }
 }

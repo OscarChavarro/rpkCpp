@@ -3,6 +3,7 @@ package vsdk.toolkit.render;
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
@@ -55,7 +56,7 @@ public class ScreenBuffer {
         target.X.copy(source.X);
         target.Y.copy(source.Y);
         target.Z.copy(source.Z);
-        target.background.set(source.background.r, source.background.g, source.background.b);
+        target.background = new ColorRgb(source.background.getR(), source.background.getG(), source.background.getB());
         target.changed = source.changed;
         target.pixelWidth = source.pixelWidth;
         target.pixelHeight = source.pixelHeight;
@@ -93,16 +94,14 @@ public class ScreenBuffer {
             for (int i = 0; i < camera.xSize * camera.ySize; i++) {
                 radiance[i] = new ColorRgb();
                 rgbColor[i] = new ColorRgb();
-                radiance[i].clear();
-                rgbColor[i].clear();
             }
         }
 
         // Clear
         ColorRgb black = new ColorRgb(0.0, 0.0, 0.0);
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i].setMonochrome(0.0f);
-            rgbColor[i].set(black.r, black.g, black.b);
+            radiance[i] = new ColorRgb(0.0, 0.0, 0.0);
+            rgbColor[i] = new ColorRgb(black.getR(), black.getG(), black.getB());
         }
 
         factor = 1.0f;
@@ -143,7 +142,7 @@ Copy dimensions and contents (radiance only) from source
 
         // Now the resolution is ok.
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i].set(source.radiance[i].r, source.radiance[i].g, source.radiance[i].b);
+            radiance[i] = new ColorRgb(source.radiance[i].getR(), source.radiance[i].getG(), source.radiance[i].getB());
         }
         synced = false;
     }
@@ -163,20 +162,29 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
         int N = getVRes() * getHRes();
 
         for (int i = 0; i < N; i++) {
-            radiance[i].add(src1.radiance[i], src2.radiance[i]);
+            radiance[i] = new ColorRgb(
+                src1.radiance[i].getR() + src2.radiance[i].getR(),
+                src1.radiance[i].getG() + src2.radiance[i].getG(),
+                src1.radiance[i].getB() + src2.radiance[i].getB());
         }
     }
 
     public void add(int x, int y, ColorRgb inRadiance) {
         int index = x + (camera.ySize - y - 1) * camera.xSize;
 
-        radiance[index].addScaled(radiance[index], addFactor, inRadiance);
+        radiance[index] = new ColorRgb(
+            radiance[index].getR() + addFactor * inRadiance.getR(),
+            radiance[index].getG() + addFactor * inRadiance.getG(),
+            radiance[index].getB() + addFactor * inRadiance.getB());
         synced = false;
     }
 
     public void set(int x, int y, ColorRgb inRadiance) {
         int index = x + (camera.ySize - y - 1) * camera.xSize;
-        radiance[index].scaledCopy(addFactor, inRadiance);
+        radiance[index] = new ColorRgb(
+            addFactor * inRadiance.getR(),
+            addFactor * inRadiance.getG(),
+            addFactor * inRadiance.getB());
         synced = false;
     }
 
@@ -207,9 +215,9 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
 
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
         ip.setToneMappingContext(activeToneMapOptions);
-        ip.gamma[0] = (float)activeToneMapOptions.gamma.r; // For default radiance -> display RGB
-        ip.gamma[1] = (float)activeToneMapOptions.gamma.g;
-        ip.gamma[2] = (float)activeToneMapOptions.gamma.b;
+        ip.gamma[0] = (float)activeToneMapOptions.gamma.getR(); // For default radiance -> display RGB
+        ip.gamma[1] = (float)activeToneMapOptions.gamma.getG();
+        ip.gamma[2] = (float)activeToneMapOptions.gamma.getB();
         for (int i = camera.ySize - 1; i >= 0; i--) {
             // Write scan lines
             if (!isRgbImage()) {
@@ -226,9 +234,9 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
                 for (int j = 0; j < camera.xSize; j++) {
                     ColorRgb color = radiance[rowStart + j];
                     int base = 3 * j;
-                    rgbFloatArray[base] = (float)color.r;
-                    rgbFloatArray[base + 1] = (float)color.g;
-                    rgbFloatArray[base + 2] = (float)color.b;
+                    rgbFloatArray[base] = (float)color.getR();
+                    rgbFloatArray[base + 1] = (float)color.getG();
+                    rgbFloatArray[base + 2] = (float)color.getB();
                 }
                 ip.writeDisplayRGB(rgbFloatArray);
             }
@@ -253,16 +261,16 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
     }
 
     public void sync() {
-        ColorRgb tmpRad = new ColorRgb();
+        ColorRgbMutable tmpRad = new ColorRgbMutable();
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
 
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            tmpRad.scaledCopy(factor, radiance[i]);
+            tmpRad.scaledCopy(factor, new ColorRgbMutable(radiance[i]));
             if (!isRgbImage()) {
-                ToneMap.radianceToRgb(tmpRad, rgbColor[i], activeToneMapOptions);
+                ToneMap.radianceToRgb(tmpRad.toImmutable(), rgbColor[i], activeToneMapOptions);
             }
             else {
-                tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
+                tmpRad.set(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
             }
         }
 
@@ -270,16 +278,19 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
     }
 
     protected void syncLine(int lineNumber) {
-        ColorRgb tmpRad = new ColorRgb();
+        ColorRgbMutable tmpRad = new ColorRgbMutable();
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
 
         for (int i = 0; i < camera.xSize; i++) {
-            tmpRad.scaledCopy(factor, radiance[lineNumber * camera.xSize + i]);
+            tmpRad.scaledCopy(factor, new ColorRgbMutable(radiance[lineNumber * camera.xSize + i]));
             if (!isRgbImage()) {
-                ToneMap.radianceToRgb(tmpRad, rgbColor[lineNumber * camera.xSize + i], activeToneMapOptions);
+                ToneMap.radianceToRgb(tmpRad.toImmutable(), rgbColor[lineNumber * camera.xSize + i], activeToneMapOptions);
             }
             else {
-                tmpRad = rgbColor[lineNumber * camera.xSize + i];
+                tmpRad.set(
+                    rgbColor[lineNumber * camera.xSize + i].getR(),
+                    rgbColor[lineNumber * camera.xSize + i].getG(),
+                    rgbColor[lineNumber * camera.xSize + i].getB());
             }
         }
     }
@@ -406,7 +417,7 @@ Screen resolution
         int nx1;
         int ny1;
         Vector2D center;
-        ColorRgb color = new ColorRgb();
+        ColorRgbMutable color = new ColorRgbMutable();
 
         getPixel(x, y, nx0v, ny0v);
         int nx0 = nx0v[0];
@@ -441,14 +452,22 @@ Screen resolution
         ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
         ColorRgb c3 = get(nx0, ny1); // v = 1
 
-        color.interpolateBiLinear(c0, c1, c2, c3, x, y);
+        color.interpolateBiLinear(
+            new ColorRgbMutable(c0),
+            new ColorRgbMutable(c1),
+            new ColorRgbMutable(c2),
+            new ColorRgbMutable(c3),
+            x, y);
 
-        return color;
+        return color.toImmutable();
     }
 
     public void scaleRadiance(float inFactor) {
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i].scale(inFactor);
+            radiance[i] = new ColorRgb(
+                radiance[i].getR() * inFactor,
+                radiance[i].getG() * inFactor,
+                radiance[i].getB() * inFactor);
         }
 
         synced = false;

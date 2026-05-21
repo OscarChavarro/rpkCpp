@@ -97,9 +97,9 @@ Initial guess for constant control radiance value
         }
 
         minRad.clear();
-        fMin.set(totalFluxColor.r, totalFluxColor.g, totalFluxColor.b);
+        fMin.set(totalFluxColor.getR(), totalFluxColor.getG(), totalFluxColor.getB());
 
-        maxRad.set(maxRadColor.r, maxRadColor.g, maxRadColor.b);
+        maxRad.set(maxRadColor.getR(), maxRadColor.getG(), maxRadColor.getB());
         fMax.scaledCopy((float)area[0], maxRadColor);
         fMax.subtract(fMax, totalFluxColor);
     }
@@ -226,16 +226,16 @@ method). Does so component wise
                 // Copy components
                 switch ( s ) {
                     case 0:
-                        fc[i] = (float)f[i].r;
-                        radC[i] = (float)rad[i].r;
+                        fc[i] = (float)f[i].getR();
+                        radC[i] = (float)rad[i].getR();
                         break;
                     case 1:
-                        fc[i] = (float)f[i].g;
-                        radC[i] = (float)rad[i].g;
+                        fc[i] = (float)f[i].getG();
+                        radC[i] = (float)rad[i].getG();
                         break;
                     case 2:
-                        fc[i] = (float)f[i].b;
-                        radC[i] = (float)rad[i].b;
+                        fc[i] = (float)f[i].getB();
+                        radC[i] = (float)rad[i].getB();
                         break;
                     default:
                         break;
@@ -243,39 +243,39 @@ method). Does so component wise
             }
             switch ( s ) {
                 case 0: {
-                    float[] min = new float[] {(float)minRad.r};
-                    float[] max = new float[] {(float)maxRad.r};
-                    float[] fMinC = new float[] {(float)fMin.r};
-                    float[] fMaxC = new float[] {(float)fMax.r};
+                    float[] min = new float[] {(float)minRad.getR()};
+                    float[] max = new float[] {(float)maxRad.getR()};
+                    float[] fMinC = new float[] {(float)fMin.getR()};
+                    float[] fMaxC = new float[] {(float)fMax.getR()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.r = min[0];
-                    maxRad.r = max[0];
-                    fMin.r = fMinC[0];
-                    fMax.r = fMaxC[0];
+                    minRad.getR() = min[0];
+                    maxRad.getR() = max[0];
+                    fMin.getR() = fMinC[0];
+                    fMax.getR() = fMaxC[0];
                     break;
                 }
                 case 1: {
-                    float[] min = new float[] {(float)minRad.g};
-                    float[] max = new float[] {(float)maxRad.g};
-                    float[] fMinC = new float[] {(float)fMin.g};
-                    float[] fMaxC = new float[] {(float)fMax.g};
+                    float[] min = new float[] {(float)minRad.getG()};
+                    float[] max = new float[] {(float)maxRad.getG()};
+                    float[] fMinC = new float[] {(float)fMin.getG()};
+                    float[] fMaxC = new float[] {(float)fMax.getG()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.g = min[0];
-                    maxRad.g = max[0];
-                    fMin.g = fMinC[0];
-                    fMax.g = fMaxC[0];
+                    minRad.getG() = min[0];
+                    maxRad.getG() = max[0];
+                    fMin.getG() = fMinC[0];
+                    fMax.getG() = fMaxC[0];
                     break;
                 }
                 case 2: {
-                    float[] min = new float[] {(float)minRad.b};
-                    float[] max = new float[] {(float)maxRad.b};
-                    float[] fMinC = new float[] {(float)fMin.b};
-                    float[] fMaxC = new float[] {(float)fMax.b};
+                    float[] min = new float[] {(float)minRad.getB()};
+                    float[] max = new float[] {(float)maxRad.getB()};
+                    float[] fMinC = new float[] {(float)fMin.getB()};
+                    float[] fMaxC = new float[] {(float)fMax.getB()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.b = min[0];
-                    maxRad.b = max[0];
-                    fMin.b = fMinC[0];
-                    fMax.b = fMaxC[0];
+                    minRad.getB() = min[0];
+                    maxRad.getB() = max[0];
+                    fMin.getB() = fMinC[0];
+                    fMax.getB() = fMaxC[0];
                     break;
                 }
                 default:
@@ -333,7 +333,7 @@ random walk radiosity
         beta.add(minRad, maxRad);
         beta.scale(0.5f);
         beta.print(System.err);
-        System.err.printf(" (%g lux)", Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b));
+        System.err.printf(" (%g lux)", Math.PI * Cie.spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
         System.err.printf("\n");
         return beta;
     }

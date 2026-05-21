@@ -3,6 +3,7 @@ package vsdk.toolkit.io.mgf;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.io.context.ColorContext;
@@ -37,7 +38,7 @@ a pointer to the material if found, or nullptr if not found
     /**
     Translates mgf color into out color representation
     */
-    private static void mgfGetColor(ColorContext cin, float intensity, ColorRgb colorOut, ParseRuntimeContext context) {
+    private static void mgfGetColor(ColorContext cin, float intensity, ColorRgbMutable colorOut, ParseRuntimeContext context) {
         float[] xyz = new float[3];
         float[] rgb = new float[3];
 
@@ -73,13 +74,13 @@ a pointer to the material if found, or nullptr if not found
         colorOut.set(rgb[0], rgb[1], rgb[2]);
     }
 
-    private static void specSamples(ColorRgb col, float[] rgb) {
+    private static void specSamples(ColorRgbMutable col, float[] rgb) {
         rgb[0] = (float)col.r;
         rgb[1] = (float)col.g;
         rgb[2] = (float)col.b;
     }
 
-    private static float colorMax(ColorRgb col) {
+    private static float colorMax(ColorRgbMutable col) {
         // We should check every wavelength in the visible spectrum, but
         // as a first approximation, only the three RGB primary colors
         // are checked
@@ -104,13 +105,13 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
     */
     public static boolean mgfGetCurrentMaterial(Material[] material, boolean allSurfacesSided, ParseRuntimeContext context) {
-        ColorRgb Ed = new ColorRgb();
-        ColorRgb Es = new ColorRgb();
-        ColorRgb Rd = new ColorRgb();
-        ColorRgb Td = new ColorRgb();
-        ColorRgb Rs = new ColorRgb();
-        ColorRgb Ts = new ColorRgb();
-        ColorRgb A = new ColorRgb();
+        ColorRgbMutable Ed = new ColorRgbMutable();
+        ColorRgbMutable Es = new ColorRgbMutable();
+        ColorRgbMutable Rd = new ColorRgbMutable();
+        ColorRgbMutable Td = new ColorRgbMutable();
+        ColorRgbMutable Rs = new ColorRgbMutable();
+        ColorRgbMutable Ts = new ColorRgbMutable();
+        ColorRgbMutable A = new ColorRgbMutable();
         MaterialContext currentMaterialContext = context.materialRepository.currentMaterialContext;
         String materialName = context.currentMaterialName;
         if (materialName == null || materialName.isEmpty()) {
@@ -181,30 +182,30 @@ The routine returns true if the material being used has changed
         }
 
         if (context.monochrome) {
-            Ed.setMonochrome(Cie.spectrumGray(Ed.r, Ed.g, Ed.b));
-            Es.setMonochrome(Cie.spectrumGray(Es.r, Es.g, Es.b));
-            Rd.setMonochrome(Cie.spectrumGray(Rd.r, Rd.g, Rd.b));
-            Rs.setMonochrome(Cie.spectrumGray(Rs.r, Rs.g, Rs.b));
-            Td.setMonochrome(Cie.spectrumGray(Td.r, Td.g, Td.b));
-            Ts.setMonochrome(Cie.spectrumGray(Ts.r, Ts.g, Ts.b));
+            Ed.setMonochrome(Cie.spectrumGray((float)Ed.r, (float)Ed.g, (float)Ed.b));
+            Es.setMonochrome(Cie.spectrumGray((float)Es.r, (float)Es.g, (float)Es.b));
+            Rd.setMonochrome(Cie.spectrumGray((float)Rd.r, (float)Rd.g, (float)Rd.b));
+            Rs.setMonochrome(Cie.spectrumGray((float)Rs.r, (float)Rs.g, (float)Rs.b));
+            Td.setMonochrome(Cie.spectrumGray((float)Td.r, (float)Td.g, (float)Td.b));
+            Ts.setMonochrome(Cie.spectrumGray((float)Ts.r, (float)Ts.g, (float)Ts.b));
         }
 
         PhongEmittanceDistributionFunction edf = null;
         if (!Ed.isBlack() || !Es.isBlack()) {
             final float Ne = 0.0f;
-            edf = new PhongEmittanceDistributionFunction(Ed, Es, Ne);
+            edf = new PhongEmittanceDistributionFunction(Ed.toImmutable(), Es.toImmutable(), Ne);
         }
 
         PhongBidirectionalReflectanceDistributionFunction brdf = null;
         if (!Rd.isBlack() || !Rs.isBlack()) {
-            brdf = new PhongBidirectionalReflectanceDistributionFunction(Rd, Rs, Nr);
+            brdf = new PhongBidirectionalReflectanceDistributionFunction(Rd.toImmutable(), Rs.toImmutable(), Nr);
         }
 
         PhongBidirectionalTransmittanceDistributionFunction btdf = null;
         if (!Td.isBlack() || !Ts.isBlack()) {
             btdf = new PhongBidirectionalTransmittanceDistributionFunction(
-                Td,
-                Ts,
+                Td.toImmutable(),
+                Ts.toImmutable(),
                 Nt,
                 currentMaterialContext.nr,
                 currentMaterialContext.ni);

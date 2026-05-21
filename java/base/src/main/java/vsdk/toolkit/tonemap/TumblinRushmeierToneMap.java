@@ -50,7 +50,7 @@ public final class TumblinRushmeierToneMap extends ToneMap {
 
     @Override
     public ColorRgb scaleForComputations(ColorRgb radiance) {
-        float rwl = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
+        float rwl = Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
 
         float scale;
         if (rwl > 0.0) {
@@ -67,7 +67,7 @@ public final class TumblinRushmeierToneMap extends ToneMap {
 
     @Override
     public ColorRgb scaleForDisplay(ColorRgb radiance) {
-        float rwl = (float)Math.PI * Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
+        float rwl = (float)Math.PI * Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         float eff = Cie.getLuminousEfficacy();
         radiance.scale(eff * (float)Math.PI);
 

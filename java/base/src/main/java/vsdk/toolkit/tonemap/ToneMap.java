@@ -37,10 +37,10 @@ public abstract class ToneMap {
 Rescale real world radiance using properly set up tone mapping algorithm
 */
     private static ColorRgb rescaleRadiance(ColorRgb in, ColorRgb out, ToneMappingContext toneMapOptions) {
-        ColorRgb scaledInput = new ColorRgb(in.r, in.g, in.b);
+        ColorRgb scaledInput = new ColorRgb(in.getR(), in.getG(), in.getB());
         scaledInput.scale(toneMapOptions.pow_bright_adjust);
         ColorRgb scaled = ToneMap.toneMapScaleForDisplay(scaledInput);
-        out.set(scaled.r, scaled.g, scaled.b);
+        out.set(scaled.getR(), scaled.getG(), scaled.getB());
         return out;
     }
 
@@ -86,18 +86,18 @@ Rescale real world radiance using properly set up tone mapping algorithm
     }
 
     public static void toneMappingGammaCorrection(ColorRgb rgb, ToneMappingContext toneMapOptions) {
-        rgb.r = toneMapOptions.gammaTab[0][gammaTableEntry((float)rgb.r)];
-        rgb.g = toneMapOptions.gammaTab[1][gammaTableEntry((float)rgb.g)];
-        rgb.b = toneMapOptions.gammaTab[2][gammaTableEntry((float)rgb.b)];
+        rgb.getR() = toneMapOptions.gammaTab[0][gammaTableEntry((float)rgb.getR())];
+        rgb.getG() = toneMapOptions.gammaTab[1][gammaTableEntry((float)rgb.getG())];
+        rgb.getB() = toneMapOptions.gammaTab[2][gammaTableEntry((float)rgb.getB())];
     }
 
     /**
 Recomputes gamma tables for the given gamma values for red, green and blue
 */
     public static void recomputeGammaTables(ToneMappingContext toneMapOptions, ColorRgb gamma) {
-        ToneMap.recomputeGammaTable(toneMapOptions, 0, gamma.r);
-        ToneMap.recomputeGammaTable(toneMapOptions, 1, gamma.g);
-        ToneMap.recomputeGammaTable(toneMapOptions, 2, gamma.b);
+        ToneMap.recomputeGammaTable(toneMapOptions, 0, gamma.getR());
+        ToneMap.recomputeGammaTable(toneMapOptions, 1, gamma.getG());
+        ToneMap.recomputeGammaTable(toneMapOptions, 2, gamma.getB());
     }
 
     /**
@@ -111,7 +111,7 @@ Does most to convert radiance to display RGB color
     public static ColorRgb radianceToRgb(ColorRgb color, ColorRgb rgb, ToneMappingContext toneMapOptions) {
         ColorRgb rescaled = new ColorRgb();
         ToneMap.rescaleRadiance(color, rescaled, toneMapOptions);
-        rgb.set(rescaled.r, rescaled.g, rescaled.b);
+        rgb.set(rescaled.getR(), rescaled.getG(), rescaled.getB());
         rgb.clip();
         return rgb;
     }

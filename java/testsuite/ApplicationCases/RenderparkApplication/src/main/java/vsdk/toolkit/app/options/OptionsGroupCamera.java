@@ -37,9 +37,9 @@ public final class OptionsGroupCamera {
         Vector3D lookPosition = new Vector3D(DEFAULT_CAMERA_LOOK_POSITION.x, DEFAULT_CAMERA_LOOK_POSITION.y, DEFAULT_CAMERA_LOOK_POSITION.z);
         Vector3D upDirection = new Vector3D(DEFAULT_CAMERA_UP_DIRECTION.x, DEFAULT_CAMERA_UP_DIRECTION.y, DEFAULT_CAMERA_UP_DIRECTION.z);
         ColorRgb backgroundColorSelected = new ColorRgb(
-            DEFAULT_BACKGROUND_COLOR.r,
-            DEFAULT_BACKGROUND_COLOR.g,
-            DEFAULT_BACKGROUND_COLOR.b);
+            DEFAULT_BACKGROUND_COLOR.getR(),
+            DEFAULT_BACKGROUND_COLOR.getG(),
+            DEFAULT_BACKGROUND_COLOR.getB());
 
         camera.set(
             eyePosition,

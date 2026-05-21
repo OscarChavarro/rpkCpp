@@ -108,7 +108,7 @@ public final class GlutDebugPatchHierarchy {
         if ( renderOptions.drawSurfaces ) {
             ColorRgb radianceSample = new ColorRgb();
             if ( element.radiance != null && element.radiance.length > 0 ) {
-                radianceSample = new ColorRgb(element.radiance[0].r, element.radiance[0].g, element.radiance[0].b);
+                radianceSample = new ColorRgb(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
             }
 
             if ( element.galerkinState != null
@@ -122,7 +122,7 @@ public final class GlutDebugPatchHierarchy {
 
             ColorRgb rgbColor = new ColorRgb();
             ToneMap.radianceToRgb(radianceSample, rgbColor, toneMapOptions);
-            grayValue = toneMappedGrayAndDarkened(Cie.spectrumLuminance(rgbColor.r, rgbColor.g, rgbColor.b));
+            grayValue = toneMappedGrayAndDarkened(Cie.spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
             Opengl.openGlRenderSetColor(new ColorRgb(grayValue, grayValue, grayValue), renderOptions);
             Opengl.openGlRenderPolygonFlat(numberOfVertices, vertices);
         }
@@ -133,9 +133,9 @@ public final class GlutDebugPatchHierarchy {
         }
         else {
             outlineGray = toneMappedGrayAndDarkened(Cie.spectrumLuminance(
-                renderOptions.outlineColor.r,
-                renderOptions.outlineColor.g,
-                renderOptions.outlineColor.b));
+                renderOptions.outlineColor.getR(),
+                renderOptions.outlineColor.getG(),
+                renderOptions.outlineColor.getB()));
         }
         outlineGray = clamp01(outlineGray);
         if ( outlineGray < OUTLINE_MIN_GRAY ) {
@@ -280,8 +280,8 @@ public final class GlutDebugPatchHierarchy {
 
         RenderOptions secondary = new RenderOptions();
         secondary.outlineColor = new ColorRgb(1.0f, 1.0f, 0.0f);
-        secondary.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.r, renderOptions.boundingBoxColor.g, renderOptions.boundingBoxColor.b);
-        secondary.clusterColor = new ColorRgb(renderOptions.clusterColor.r, renderOptions.clusterColor.g, renderOptions.clusterColor.b);
+        secondary.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.getR(), renderOptions.boundingBoxColor.getG(), renderOptions.boundingBoxColor.getB());
+        secondary.clusterColor = new ColorRgb(renderOptions.clusterColor.getR(), renderOptions.clusterColor.getG(), renderOptions.clusterColor.getB());
         secondary.lineWidth = renderOptions.lineWidth;
         secondary.drawOutlines = true;
         secondary.drawSurfaces = true;
@@ -320,9 +320,9 @@ public final class GlutDebugPatchHierarchy {
             int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
 
             RenderOptions selected = new RenderOptions();
-            selected.outlineColor = new ColorRgb(renderOptions.outlineColor.r, renderOptions.outlineColor.g, renderOptions.outlineColor.b);
-            selected.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.r, renderOptions.boundingBoxColor.g, renderOptions.boundingBoxColor.b);
-            selected.clusterColor = new ColorRgb(renderOptions.clusterColor.r, renderOptions.clusterColor.g, renderOptions.clusterColor.b);
+            selected.outlineColor = new ColorRgb(renderOptions.outlineColor.getR(), renderOptions.outlineColor.getG(), renderOptions.outlineColor.getB());
+            selected.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.getR(), renderOptions.boundingBoxColor.getG(), renderOptions.boundingBoxColor.getB());
+            selected.clusterColor = new ColorRgb(renderOptions.clusterColor.getR(), renderOptions.clusterColor.getG(), renderOptions.clusterColor.getB());
             selected.lineWidth = renderOptions.lineWidth;
             selected.drawOutlines = true;
             selected.drawSurfaces = true;

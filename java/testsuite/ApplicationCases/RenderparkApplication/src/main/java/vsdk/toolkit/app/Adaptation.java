@@ -58,7 +58,7 @@ A-priori estimate of a patch's radiance
 
     private static float patchBrightnessEstimate(Patch patch) {
         ColorRgb radiance = patchRadianceEstimate.apply(patch);
-        float brightness = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
+        float brightness = Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         if ( brightness < Numeric.EPSILON_FLOAT ) {
             brightness = Numeric.EPSILON_FLOAT;
         }

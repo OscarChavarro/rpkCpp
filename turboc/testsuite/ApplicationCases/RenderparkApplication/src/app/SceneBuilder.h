@@ -1,9 +1,9 @@
 #ifndef __SCENE_BUILDER__
 #define __SCENE_BUILDER__
 
-#include "scene/Scene.h"
-#include "io/context/ParseRuntimeContext.h"
-#include "tonemap/ToneMappingContext.h"
+#include "vsdk/scene/Scene.h"
+#include "vsdk/io/context/ParseRuntimeContext.h"
+#include "vsdk/tonemap/ToneMappingContext.h"
 
 class SceneBuilder{ public:
     static void sceneBuilderCreateModel( const int *argc, char *const *argv, ParseRuntimeContext *mgfContext, Scene *scene, ToneMappingContext &toneMapOptions);

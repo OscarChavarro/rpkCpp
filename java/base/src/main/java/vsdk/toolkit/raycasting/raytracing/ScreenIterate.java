@@ -98,7 +98,7 @@ public class ScreenIterate {
         for ( int x = x0; x < x1; x++ ) {
             for ( int y = y0; y < y1; y++ ) {
                 ColorRgb c = rgb[y * camera.xSize + x];
-                c.set(col.r, col.g, col.b);
+                c.set(col.getR(), col.getG(), col.getB());
             }
         }
     }
@@ -112,7 +112,7 @@ public class ScreenIterate {
         int srcOffset = yMin * width;
         for ( int i = 0; i < segment.length; i++ ) {
             ColorRgb src = rgb[srcOffset + i];
-            segment[i] = new ColorRgb(src.r, src.g, src.b);
+            segment[i] = new ColorRgb(src.getR(), src.getG(), src.getB());
         }
         SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
     }
@@ -153,7 +153,7 @@ public class ScreenIterate {
         ColorRgb white = new ColorRgb(1.0, 1.0, 1.0);
 
         for ( int i = 0; i < width * height; i++ ) {
-            rgb[i] = new ColorRgb(white.r, white.g, white.b);
+            rgb[i] = new ColorRgb(white.getR(), white.getG(), white.getB());
         }
 
         stepSize = 64;

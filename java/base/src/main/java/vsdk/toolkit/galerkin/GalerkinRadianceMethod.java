@@ -132,9 +132,9 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
             }
         }
         else {
-            element.radiance[0].set(selfEmittanceRadiance.r, selfEmittanceRadiance.g, selfEmittanceRadiance.b);
+            element.radiance[0].set(selfEmittanceRadiance.getR(), selfEmittanceRadiance.getG(), selfEmittanceRadiance.getB());
             if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-                element.unShotRadiance[0].set(element.radiance[0].r, element.radiance[0].g, element.radiance[0].b);
+                element.unShotRadiance[0].set(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
             }
         }
 
@@ -463,7 +463,7 @@ Disposes of the cluster hierarchy
         if ( numberOfWrites % 4 == 0 ) {
             writeFormatted("%s", "\n\t  ");
         }
-        writeFormatted("%.3g %.3g %.3g", color.r, color.g, color.b);
+        writeFormatted("%.3g %.3g %.3g", color.getR(), color.getG(), color.getB());
         vertexId++;
     }
 

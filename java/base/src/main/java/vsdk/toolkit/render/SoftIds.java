@@ -122,14 +122,14 @@ left corner of image, relative to the lower left corner of the window)
             int rowStart = j * rowLength;
             for (int i = 0; i < width; i++) {
                 ColorRgb corrected_rgb = new ColorRgb(
-                    rgb[rowRgbStart + i].r,
-                    rgb[rowRgbStart + i].g,
-                    rgb[rowRgbStart + i].b);
+                    rgb[rowRgbStart + i].getR(),
+                    rgb[rowRgbStart + i].getG(),
+                    rgb[rowRgbStart + i].getB());
                 ToneMap.toneMappingGammaCorrection(corrected_rgb, toneMapOptions);
                 int pixelOffset = rowStart + 4 * i;
-                c[pixelOffset] = (byte)(int)(corrected_rgb.r * 255.0);
-                c[pixelOffset + 1] = (byte)(int)(corrected_rgb.g * 255.0);
-                c[pixelOffset + 2] = (byte)(int)(corrected_rgb.b * 255.0);
+                c[pixelOffset] = (byte)(int)(corrected_rgb.getR() * 255.0);
+                c[pixelOffset + 1] = (byte)(int)(corrected_rgb.getG() * 255.0);
+                c[pixelOffset + 2] = (byte)(int)(corrected_rgb.getB() * 255.0);
                 c[pixelOffset + 3] = (byte)255; // alpha = 1.0
             }
         }

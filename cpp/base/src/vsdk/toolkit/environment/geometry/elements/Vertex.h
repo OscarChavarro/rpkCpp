@@ -4,7 +4,7 @@
 #include "vsdk/toolkit/java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
-#include "VertexCompareFlags.h"
+#include "vsdk/toolkit/environment/geometry/elements/VertexCompareFlags.h"
 
 class Element;
 class Patch;
@@ -60,7 +60,7 @@ The vertex comparison routines return
   Vector3D
 */
 
-#include "Patch.h"
+#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
 
 #endif

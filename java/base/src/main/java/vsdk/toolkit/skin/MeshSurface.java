@@ -43,7 +43,7 @@ public final class MeshSurface extends Geometry {
     The patches making up the MeshSurface. Each patch contains pointers to three
     or four vertices in the vertices list of the MeshSurface. Different patches
     can share the same Vertex. Each vertex also contains a list of pointers to
-    the patches that share the vertex. This can be used for e.g. Gouraud shading
+    the patches that share the vertex. This can be used for e.getG(). Gouraud shading
     if a color is assigned to each vertex.
     */
     public ArrayList<Patch> faces;

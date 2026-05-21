@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/java/util/ArrayList.txx"
-#include "PatchSet.h"
+#include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 
 PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClassId::PATCH_SET) {
     memoryPoolManaged = false;

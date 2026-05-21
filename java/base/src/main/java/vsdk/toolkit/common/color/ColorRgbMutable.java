@@ -22,7 +22,7 @@ public class ColorRgbMutable {
     }
 
     public ColorRgbMutable(ColorRgb c) {
-        this(c.r, c.g, c.b);
+        this(c.getR(), c.getG(), c.getB());
     }
 
     public void clear() { r = 0.0; g = 0.0; b = 0.0; }

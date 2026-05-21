@@ -8,7 +8,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #define PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/ShadingContext.h"

@@ -37,9 +37,9 @@ public final class OptionsGroupRender {
             return false;
         }
         try {
-            value.value.r = Float.parseFloat(argv[0]);
-            value.value.g = Float.parseFloat(argv[1]);
-            value.value.b = Float.parseFloat(argv[2]);
+            value.value.getR() = Float.parseFloat(argv[0]);
+            value.value.getG() = Float.parseFloat(argv[1]);
+            value.value.getB() = Float.parseFloat(argv[2]);
             return true;
         }
         catch (NumberFormatException e) {
@@ -52,9 +52,9 @@ public final class OptionsGroupRender {
             return;
         }
 
-        target.outlineColor = new ColorRgb(source.outlineColor.r, source.outlineColor.g, source.outlineColor.b);
-        target.boundingBoxColor = new ColorRgb(source.boundingBoxColor.r, source.boundingBoxColor.g, source.boundingBoxColor.b);
-        target.clusterColor = new ColorRgb(source.clusterColor.r, source.clusterColor.g, source.clusterColor.b);
+        target.outlineColor = new ColorRgb(source.outlineColor.getR(), source.outlineColor.getG(), source.outlineColor.getB());
+        target.boundingBoxColor = new ColorRgb(source.boundingBoxColor.getR(), source.boundingBoxColor.getG(), source.boundingBoxColor.getB());
+        target.clusterColor = new ColorRgb(source.clusterColor.getR(), source.clusterColor.getG(), source.clusterColor.getB());
         target.lineWidth = source.lineWidth;
         target.drawOutlines = source.drawOutlines;
         target.drawSurfaces = source.drawSurfaces;
@@ -118,8 +118,8 @@ public final class OptionsGroupRender {
         OptionParser.parse(argc, argv, renderGroups, 1);
 
         copyFrom(renderOptionsState, renderOptions);
-        renderOptions.outlineColor.r = outlineColor.r;
-        renderOptions.outlineColor.g = outlineColor.g;
-        renderOptions.outlineColor.b = outlineColor.b;
+        renderOptions.outlineColor.getR() = outlineColor.getR();
+        renderOptions.outlineColor.getG() = outlineColor.getG();
+        renderOptions.outlineColor.getB() = outlineColor.getB();
     }
 }

@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "java/lang/System.h"
+#include "vsdk/java/lang/System.h"
 #include "app/options/OptionsGroupRayMatter.h"
 #include "app/options/OptionsGroupBidirectionalRaytracing.h"
 #include "app/options/OptionsGroupGalerkin.h"
@@ -10,13 +10,13 @@
 #include "app/options/OptionsGroupRandomWalkRadiosity.h"
 #include "app/options/OptionsGroupStochasticRaytracing.h"
 #include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
-#include "galerkin/GalerkinRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "vsdk/galerkin/GalerkinRadianceMethod.h"
+#include "vsdk/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/photonMap/PhotonMapRadianceMethod.h"
-    #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
-    #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
+    #include "vsdk/raycasting/photonMap/PhotonMapRadianceMethod.h"
+    #include "vsdk/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+    #include "vsdk/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
 void

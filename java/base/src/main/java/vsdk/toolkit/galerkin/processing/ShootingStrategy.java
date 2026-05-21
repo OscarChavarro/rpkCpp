@@ -226,7 +226,7 @@ public class ShootingStrategy {
                  && galerkinState.topCluster.unShotRadiance.length > 0
                  && galerkinState.topCluster.unShotRadiance[0] != null ) {
                 ColorRgb ambient = galerkinState.topCluster.unShotRadiance[0];
-                galerkinState.ambientRadiance.set(ambient.r, ambient.g, ambient.b);
+                galerkinState.ambientRadiance.set(ambient.getR(), ambient.getG(), ambient.getB());
             }
         }
         else {

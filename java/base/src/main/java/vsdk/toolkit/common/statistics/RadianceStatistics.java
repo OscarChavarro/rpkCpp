@@ -23,11 +23,11 @@ public class RadianceStatistics {
 
     public void reset() {
         totalArea = 0.0f;
-        maxSelfEmittedRadiance.clear();
-        maxSelfEmittedPower.clear();
+        maxSelfEmittedRadiance = new ColorRgb();
+        maxSelfEmittedPower = new ColorRgb();
         referenceLuminance = 0.0;
-        totalEmittedPower.clear();
-        estimatedAverageRadiance.clear();
-        averageReflectivity.clear();
+        totalEmittedPower = new ColorRgb();
+        estimatedAverageRadiance = new ColorRgb();
+        averageReflectivity = new ColorRgb();
     }
 }

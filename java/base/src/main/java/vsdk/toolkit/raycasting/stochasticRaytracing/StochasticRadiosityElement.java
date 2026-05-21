@@ -258,7 +258,7 @@ Initialises parent cluster radiance/importance/area for child voxelData
     }
 
     /**
-Determine the (u, v) coordinate range of the element w.r.t. the patch to
+Determine the (u, v) coordinate range of the element w.getR().t. the patch to
 which it belongs when using regular quadtree subdivision in
 order to efficiently generate samples with Niederreiter::NextNiedInRange()
 in the Niederreiter core implementation. Niederreiter::NextNiedInRange() creates a sample on a quadrilateral
@@ -627,7 +627,7 @@ Computes average reflectance and emittance of a surface sub-element
 Initial push operation for surface sub-elements
 */
     private static void monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement parent, StochasticRadiosityElement child) {
-        child.sourceRad = new ColorRgb(parent.sourceRad.r, parent.sourceRad.g, parent.sourceRad.b);
+        child.sourceRad = new ColorRgb(parent.sourceRad.getR(), parent.sourceRad.getG(), parent.sourceRad.getB());
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.radiance, child.radiance);
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.unShotRadiance, child.unShotRadiance);
 
@@ -650,8 +650,8 @@ Initial push operation for surface sub-elements
         child.quality = parent.quality;
         child.samplingProbability = parent.samplingProbability * child.area / parent.area;
 
-        child.Rd = new ColorRgb(parent.Rd.r, parent.Rd.g, parent.Rd.b);
-        child.Ed = new ColorRgb(parent.Ed.r, parent.Ed.g, parent.Ed.b);
+        child.Rd = new ColorRgb(parent.Rd.getR(), parent.Rd.getG(), parent.Rd.getB());
+        child.Ed = new ColorRgb(parent.Ed.getR(), parent.Ed.getG(), parent.Ed.getB());
         monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(child);
     }
 
@@ -1015,9 +1015,9 @@ Compute new vertex colors
             ColorRgb color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
             for ( int i = 0; i < stochasticRadiosityElement.numberOfVertices; i++ ) {
                 if ( m[i] != null ) {
-                    m[i].color.r = (m[i].color.r + color.r) * 0.5f;
-                    m[i].color.g = (m[i].color.g + color.g) * 0.5f;
-                    m[i].color.b = (m[i].color.b + color.b) * 0.5f;
+                    m[i].color.getR() = (m[i].color.getR() + color.getR()) * 0.5f;
+                    m[i].color.getG() = (m[i].color.getG() + color.getG()) * 0.5f;
+                    m[i].color.getB() = (m[i].color.getB() + color.getB()) * 0.5f;
                 }
             }
         }

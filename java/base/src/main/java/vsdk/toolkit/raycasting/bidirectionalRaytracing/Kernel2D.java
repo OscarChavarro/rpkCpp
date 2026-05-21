@@ -5,6 +5,7 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.render.ScreenBuffer;
@@ -76,7 +77,7 @@ public class Kernel2D {
         int[] nyMinV = new int[1];
         int[] nyMaxV = new int[1];
         Vector2D center;
-        ColorRgb addCol = new ColorRgb();
+        ColorRgbMutable addCol = new ColorRgbMutable();
         float factor;
 
         // Get extents of possible pixels that are affected
@@ -93,8 +94,8 @@ public class Kernel2D {
                 if ( (nx >= 0) && (ny >= 0) && (nx < screen.getHRes()) && (ny < screen.getVRes()) ) {
                     center = screen.getPixelCenter(nx, ny);
                     factor = scale * Evaluate(point, center);
-                    addCol.scaledCopy(factor, col);
-                    screen.add(nx, ny, addCol);
+                    addCol.scaledCopy(factor, new ColorRgbMutable(col));
+                    screen.add(nx, ny, addCol.toImmutable());
                 } else {
                     // Handle boundary bias !
                 }

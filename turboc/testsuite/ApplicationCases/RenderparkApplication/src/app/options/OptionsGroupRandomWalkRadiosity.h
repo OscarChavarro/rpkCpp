@@ -2,7 +2,7 @@
 #define OPTNS_GRP_RNDM_WALK_RDSTY
 
 #include "app/options/EnumDesc.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "vsdk/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 class OptionsGroupRandomWalkRadiosity{ public:
     static void parse( int *argc, char **argv, StochasticRelaxation &stochasticRelaxationState);

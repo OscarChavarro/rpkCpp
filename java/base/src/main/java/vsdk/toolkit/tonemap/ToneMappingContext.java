@@ -56,8 +56,7 @@ public class ToneMappingContext {
         yw = 0.333333333333f;
         Cie.computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
-        gamma = new ColorRgb();
-        gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+        gamma = new ColorRgb(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
         gammaTab = new float[3][GAMMA_TABLE_SIZE];
         ToneMap.recomputeGammaTables(this, gamma);
     }

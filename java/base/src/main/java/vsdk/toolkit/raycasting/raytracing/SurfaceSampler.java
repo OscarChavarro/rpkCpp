@@ -64,9 +64,7 @@ public abstract class SurfaceSampler extends Sampler {
     {
         if ( m_computeBsdfComponents ) {
             if ( bsdf == null ) {
-                ColorRgb black = new ColorRgb();
-                black.clear();
-                return black;
+                return new ColorRgb();
             } else {
                 BsdfComp localBsdfComp = bsdfComp != null ? bsdfComp : new BsdfComp();
                 return bsdf.bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags & 0xFF, localBsdfComp.asArray());
@@ -77,7 +75,7 @@ public abstract class SurfaceSampler extends Sampler {
             }
             ColorRgb radiance = new ColorRgb();
             if ( bsdf == null ) {
-                radiance.clear();
+                radiance = new ColorRgb();
             } else {
                 radiance = bsdf.evaluate(hit, inBsdf, outBsdf, in, out, flags & 0xFF);
             }

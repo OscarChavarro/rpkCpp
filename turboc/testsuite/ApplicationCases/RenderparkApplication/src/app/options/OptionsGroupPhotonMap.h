@@ -1,7 +1,7 @@
 #ifndef __OPTIONS_GROUP_PHOTON_MAP__
 #define __OPTIONS_GROUP_PHOTON_MAP__
 
-#include "raycasting/photonMap/PhotonMapState.h"
+#include "vsdk/raycasting/photonMap/PhotonMapState.h"
 
 class OptionsGroupPhotonMap{ public:
     static void parse( int *argc, char **argv, PhotonMapState &photonMapState);

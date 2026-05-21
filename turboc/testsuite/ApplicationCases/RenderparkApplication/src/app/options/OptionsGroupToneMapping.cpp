@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include "java/lang/Math.h"
-#include "common/logging/Logger.h"
-#include "common/color/Cie.h"
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
-#include "tonemap/ToneMap.h"
+#include "vsdk/java/lang/Math.h"
+#include "vsdk/common/logging/Logger.h"
+#include "vsdk/common/color/Cie.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/TypedOption.h"
+#include "vsdk/tonemap/ToneMap.h"
 #include "app/options/OptionsGroupToneMapping.h"
 
 char OptionsGroupToneMapping::toneMappingMethodsString[TONE_MAP_MTHS_STR_LEN];

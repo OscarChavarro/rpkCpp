@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/java/lang/Float.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/Xxdf.h"

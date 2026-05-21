@@ -64,9 +64,9 @@ public class Poly {
         dst.z = src.z;
         dst.u = src.u;
         dst.v = src.v;
-        dst.r = src.r;
-        dst.g = src.g;
-        dst.b = src.b;
+        dst.getR() = src.getR();
+        dst.getG() = src.getG();
+        dst.getB() = src.getB();
     }
 
     private static void polygonSwap(Polygon a, Polygon b) {
@@ -123,13 +123,13 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
                 vertex.v = value;
                 break;
             case 9:
-                vertex.r = value;
+                vertex.getR() = value;
                 break;
             case 10:
-                vertex.g = value;
+                vertex.getG() = value;
                 break;
             case 11:
-                vertex.b = value;
+                vertex.getB() = value;
                 break;
             default:
                 break;

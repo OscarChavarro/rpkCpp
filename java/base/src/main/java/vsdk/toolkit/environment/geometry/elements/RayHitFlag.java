@@ -44,7 +44,7 @@ a ray intersection routine is a front or back hit
 
 // Return intersections with surfaces oriented away from the origin of the ray
 
-// Return any intersection point, not necessarily the nearest one. Used for shadow rays e.g.
+// Return any intersection point, not necessarily the nearest one. Used for shadow rays e.getG().
 
 public final class RayHitFlag {
     public static final int GEOMETRY = 0x01;

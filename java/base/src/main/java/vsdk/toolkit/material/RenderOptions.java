@@ -72,9 +72,9 @@ public class RenderOptions {
         drawBoundingBoxes = DEFAULT_BOUNDING_BOX_DRAWING;
         drawClusters = DEFAULT_CLUSTER_DRAWING;
 
-        outlineColor = new ColorRgb(DEFAULT_OUTLINE_COLOR.r, DEFAULT_OUTLINE_COLOR.g, DEFAULT_OUTLINE_COLOR.b);
-        boundingBoxColor = new ColorRgb(DEFAULT_BOUNDING_BOX_COLOR.r, DEFAULT_BOUNDING_BOX_COLOR.g, DEFAULT_BOUNDING_BOX_COLOR.b);
-        clusterColor = new ColorRgb(DEFAULT_CLUSTER_COLOR.r, DEFAULT_CLUSTER_COLOR.g, DEFAULT_CLUSTER_COLOR.b);
+        outlineColor = new ColorRgb(DEFAULT_OUTLINE_COLOR.getR(), DEFAULT_OUTLINE_COLOR.getG(), DEFAULT_OUTLINE_COLOR.getB());
+        boundingBoxColor = new ColorRgb(DEFAULT_BOUNDING_BOX_COLOR.getR(), DEFAULT_BOUNDING_BOX_COLOR.getG(), DEFAULT_BOUNDING_BOX_COLOR.getB());
+        clusterColor = new ColorRgb(DEFAULT_CLUSTER_COLOR.getR(), DEFAULT_CLUSTER_COLOR.getG(), DEFAULT_CLUSTER_COLOR.getB());
 
         frustumCulling = false;
         noShading = false;

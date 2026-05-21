@@ -1,6 +1,7 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
 
@@ -9,8 +10,8 @@ public final class SparList extends CircularList<Spar> {
     handlePath(
         SparConfig config,
         BiPath path,
-        ColorRgb fRad,
-        ColorRgb fBpt)
+        ColorRgbMutable fRad,
+        ColorRgbMutable fBpt)
     {
         CircularListIterator<Spar> iter = new CircularListIterator<>(this);
         Spar spar;
@@ -23,9 +24,9 @@ public final class SparList extends CircularList<Spar> {
             col = spar.handlePath(config, path);
 
             if ( spar == config.leSpar ) {
-                fBpt.add(col, fBpt);
+                fBpt.add(new ColorRgbMutable(col), fBpt);
             } else {
-                fRad.add(col, fRad);
+                fRad.add(new ColorRgbMutable(col), fRad);
             }
         }
     }

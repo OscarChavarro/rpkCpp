@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
+#include "vsdk/common/commandLineOptions/OptionParser.h"
+#include "vsdk/common/commandLineOptions/TypedOption.h"
 #include "app/options/OptionsGroupRender.h"
 
 int OptionsGroupRender::trueValue = true;

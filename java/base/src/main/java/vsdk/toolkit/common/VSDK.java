@@ -173,9 +173,9 @@ public class VSDK
 
     public static double colorDistance(ColorRgb a, ColorRgb b)
     {
-        return Math.sqrt((a.r-b.r)*(a.r-b.r) + 
-                         (a.g-b.g)*(a.g-b.g) +
-                         (a.b-b.b)*(a.b-b.b));
+        return Math.sqrt((a.getR()-b.getR())*(a.getR()-b.getR()) + 
+                         (a.getG()-b.getG())*(a.getG()-b.getG()) +
+                         (a.getB()-b.getB())*(a.getB()-b.getB()));
     }
 
     public static double square(double a)

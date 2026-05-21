@@ -4,13 +4,13 @@ Estimate static adaptation for tone mapping
 
 #include <stdlib.h>
 
-#include "java/lang/Float.h"
+#include "vsdk/java/lang/Float.h"
 #include "java/util/ArrayList.txx"
-#include "common/logging/Logger.h"
-#include "common/color/Cie.h"
-#include "common/statistics/Statistics.h"
-#include "tonemap/ToneMap.h"
-#include "numericalAnalysis/PatchVisitor.h"
+#include "vsdk/common/logging/Logger.h"
+#include "vsdk/common/color/Cie.h"
+#include "vsdk/common/statistics/Statistics.h"
+#include "vsdk/tonemap/ToneMap.h"
+#include "vsdk/numericalAnalysis/PatchVisitor.h"
 #include "app/Adaptation.h"
 #include "app/LuminanceArea.h"
 

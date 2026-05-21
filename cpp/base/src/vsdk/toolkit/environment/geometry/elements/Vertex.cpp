@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
-#include "Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
 
 unsigned int Vertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 

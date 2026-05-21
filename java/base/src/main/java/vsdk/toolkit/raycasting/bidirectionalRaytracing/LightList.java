@@ -52,7 +52,6 @@ public class LightList extends CircularList<LightInfo> {
                     ColorRgb e;
                     if ( light.material.getEdf() == null ) {
                         e = new ColorRgb();
-                        e.clear();
                     } else {
                         e = light.material.getEdf().phongEmittance((RayHit)null, XxdfComponentFlag.DIFFUSE_COMPONENT);
                     }
@@ -137,7 +136,6 @@ public class LightList extends CircularList<LightInfo> {
         ColorRgb e;
         if ( light.material.getEdf() == null ) {
             e = new ColorRgb();
-            e.clear();
         } else {
             e = light.material.getEdf().phongEmittance((RayHit)null, all);
         }
@@ -189,7 +187,6 @@ public class LightList extends CircularList<LightInfo> {
 
         if ( light.material.getEdf() == null ) {
             e = new ColorRgb();
-            e.clear();
         } else {
             e = light.material.getEdf().phongEmittance((RayHit)null, all);
         }

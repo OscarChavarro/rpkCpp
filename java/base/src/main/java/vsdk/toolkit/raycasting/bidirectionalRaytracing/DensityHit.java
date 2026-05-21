@@ -19,7 +19,7 @@ public class DensityHit {
     public void init(float x, float y, ColorRgb col) {
         m_x = x;
         m_y = y;
-        color = new ColorRgb(col.r, col.g, col.b);
+        color = new ColorRgb(col.getR(), col.getG(), col.getB());
     }
 
     public DensityHit(float x, float y, ColorRgb col) {

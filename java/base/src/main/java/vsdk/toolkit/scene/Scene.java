@@ -24,7 +24,7 @@ public class Scene {
     // The list of all patches in the current scene
     public ArrayList<Patch> patchList;
 
-    // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
+    // The light of all patches on light sources, useful for e.getG(). next event estimation in Monte Carlo raytracing etc.
     public ArrayList<Patch> lightSourcePatchList;
 
     public Scene() {

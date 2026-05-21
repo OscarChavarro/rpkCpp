@@ -109,7 +109,7 @@ public class Geometry {
     aggregate is a geometry that consists of simpler geometries. Currently,
     there is only one type of aggregate geometry: the compound, which is basically
     just a list of simpler geometries. Other aggregate geometries are also
-    possible, e.g. CSG objects. If the given geometry is a primitive, zero is
+    possible, e.getG(). CSG objects. If the given geometry is a primitive, zero is
     returned. A primitive geometry is a geometry that does not consist of
     simpler geometries.
     */

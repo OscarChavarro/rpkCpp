@@ -41,7 +41,7 @@ public class BsdfComp {
     public void Clear(byte flags) {
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
             if ((flags & (BsdfComponentFlag.bsdfIndexToComp(i))) != 0) {
-                comp[i].clear();
+                comp[i] = new ColorRgb();
             }
         }
     }
@@ -53,7 +53,7 @@ public class BsdfComp {
     public void Fill(ColorRgb col, byte flags) {
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
             if ((flags & (BsdfComponentFlag.bsdfIndexToComp(i))) != 0) {
-                comp[i].set(col.r, col.g, col.b);
+                comp[i] = new ColorRgb(col.getR(), col.getG(), col.getB());
             }
         }
     }
@@ -63,16 +63,18 @@ public class BsdfComp {
     }
 
     public ColorRgb Sum(byte flags) {
-        ColorRgb result = new ColorRgb();
-
-        result.clear();
+        double r = 0.0;
+        double g = 0.0;
+        double b = 0.0;
 
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
             if ((flags & (BsdfComponentFlag.bsdfIndexToComp(i))) != 0) {
-                result.add(result, comp[i]);
+                r += comp[i].getR();
+                g += comp[i].getG();
+                b += comp[i].getB();
             }
         }
 
-        return result;
+        return new ColorRgb(r, g, b);
     }
 }

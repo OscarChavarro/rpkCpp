@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.raytracing;
 
 /**
 Next event samplers provide a few functions to
-enumerate different 'next event units' (e.g. light sources
+enumerate different 'next event units' (e.getG(). light sources
 or cameras). This allows to sample all units separately,
 f.i. if you want to sample all light sources.
 

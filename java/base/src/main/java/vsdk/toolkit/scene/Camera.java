@@ -160,7 +160,7 @@ public class Camera {
         fieldOfVision = inFieldOfVision;
         xSize = inXSize;
         ySize = inYSize;
-        background = new ColorRgb(inBackground.r, inBackground.g, inBackground.b);
+        background = new ColorRgb(inBackground.getR(), inBackground.getG(), inBackground.getB());
         changed = 1;
         complete();
     }

@@ -1,4 +1,4 @@
-#include "RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 
 const ColorRgb RendererConfiguration::DEFAULT_OUTLINE_COLOR = {0.5, 0.0, 0.0};
 const ColorRgb RendererConfiguration::DEFAULT_BOUNDING_BOX_COLOR = {0.5, 0.0, 1.0};

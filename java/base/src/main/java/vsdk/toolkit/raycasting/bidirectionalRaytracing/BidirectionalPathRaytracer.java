@@ -51,7 +51,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         ColorRgb[] dst = copy.asArray();
 
         for ( int i = 0; i < src.length && i < dst.length; i++ ) {
-            dst[i].set(src[i].r, src[i].g, src[i].b);
+            dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
         }
 
         return copy;
@@ -66,7 +66,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         ColorRgb[] dst = destination.asArray();
 
         for ( int i = 0; i < src.length && i < dst.length; i++ ) {
-            dst[i].set(src[i].r, src[i].g, src[i].b);
+            dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
         }
     }
 
@@ -393,7 +393,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
 
             eyePrevNode = eyeEndNode.previous(); // Always != nullptr
 
-            oldBsdfEval.set(eyeEndNode.m_bsdfEval.r, eyeEndNode.m_bsdfEval.g, eyeEndNode.m_bsdfEval.b);
+            oldBsdfEval.set(eyeEndNode.m_bsdfEval.getR(), eyeEndNode.m_bsdfEval.getG(), eyeEndNode.m_bsdfEval.getB());
             oldBsdfComp = copyBsdfComp(eyeEndNode.m_bsdfComp);
             oldPDFLightEval = eyeEndNode.m_pdfFromNext;
 
@@ -495,7 +495,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
 
             // Restore the Brdf and PDF evaluations
             path.m_pdfLNE = oldPdfLNE;
-            eyeEndNode.m_bsdfEval.set(oldBsdfEval.r, oldBsdfEval.g, oldBsdfEval.b);
+            eyeEndNode.m_bsdfEval.set(oldBsdfEval.getR(), oldBsdfEval.getG(), oldBsdfEval.getB());
             assignBsdfComp(eyeEndNode.m_bsdfComp, oldBsdfComp);
             eyeEndNode.m_pdfFromNext = oldPDFLightEval;
             eyePrevNode.m_pdfFromNext = oldPDFDirEval;
@@ -537,10 +537,10 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         eyePrevNode = eyeEndNode.previous();
         lightPrevNode = lightEndNode.previous();
 
-        oldBsdfL.set(lightEndNode.m_bsdfEval.r, lightEndNode.m_bsdfEval.g, lightEndNode.m_bsdfEval.b);
+        oldBsdfL.set(lightEndNode.m_bsdfEval.getR(), lightEndNode.m_bsdfEval.getG(), lightEndNode.m_bsdfEval.getB());
         oldBsdfCompL = copyBsdfComp(lightEndNode.m_bsdfComp);
 
-        oldBsdfE.set(eyeEndNode.m_bsdfEval.r, eyeEndNode.m_bsdfEval.g, eyeEndNode.m_bsdfEval.b);
+        oldBsdfE.set(eyeEndNode.m_bsdfEval.getR(), eyeEndNode.m_bsdfEval.getG(), eyeEndNode.m_bsdfEval.getB());
         oldBsdfCompE = copyBsdfComp(eyeEndNode.m_bsdfComp);
 
         oldPdfL = lightEndNode.m_pdfFromNext;
@@ -585,10 +585,10 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
 
         // Restore old values
-        lightEndNode.m_bsdfEval.set(oldBsdfL.r, oldBsdfL.g, oldBsdfL.b);
+        lightEndNode.m_bsdfEval.set(oldBsdfL.getR(), oldBsdfL.getG(), oldBsdfL.getB());
         assignBsdfComp(lightEndNode.m_bsdfComp, oldBsdfCompL);
 
-        eyeEndNode.m_bsdfEval.set(oldBsdfE.r, oldBsdfE.g, oldBsdfE.b);
+        eyeEndNode.m_bsdfEval.set(oldBsdfE.getR(), oldBsdfE.getG(), oldBsdfE.getB());
         assignBsdfComp(eyeEndNode.m_bsdfComp, oldBsdfCompE);
 
         lightEndNode.m_pdfFromNext = oldPdfL;
@@ -940,7 +940,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             src = config.screen.get(nx, ny);
         }
 
-        result.set(src.r, src.g, src.b);
+        result.set(src.getR(), src.getG(), src.getB());
         return result;
     }
 

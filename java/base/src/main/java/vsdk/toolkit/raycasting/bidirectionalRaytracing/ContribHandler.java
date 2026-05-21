@@ -35,16 +35,13 @@ public class ContribHandler {
     }
 
     public ColorRgb compute(BiPath path) {
-        ColorRgb result = new ColorRgb();
         int length;
-
-        result.clear();
 
         length = path.m_eyeSize + path.m_lightSize;
 
         if ( length > maxLength ) {
             Logger.error("CContribHandler::Compute", "Path too long !!");
-            return result;
+            return new ColorRgb();
         }
 
         return array[length].compute(path);

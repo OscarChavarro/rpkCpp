@@ -29,7 +29,7 @@ public final class Coefficientsmcrad {
             if ( src[i] == null ) {
                 src[i] = new ColorRgb();
             }
-            dst[i].set(src[i].r, src[i].g, src[i].b);
+            dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
         }
     }
 
@@ -64,7 +64,7 @@ public final class Coefficientsmcrad {
         if ( coefficients == null || galerkinBasis == null || color == null ) {
             return;
         }
-        ColorRgb c = new ColorRgb(color.r, color.g, color.b);
+        ColorRgb c = new ColorRgb(color.getR(), color.getG(), color.getB());
 
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( coefficients[i] == null ) {
