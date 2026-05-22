@@ -1,5 +1,5 @@
-#ifndef __COMMAND_LINE_OPTIONS__
-#define __COMMAND_LINE_OPTIONS__
+#ifndef __OPTIONS_GROUP_RAY_MATTER__
+#define __OPTIONS_GROUP_RAY_MATTER__
 
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/simple/RayMatterState.h"
@@ -16,6 +16,7 @@ class OptionsGroupRayMatter{ public:
     };
 
     static EnumDesc rayMatterPixelFilterValues[];
+    static bool parseRayMatterFilterBinding(int argc, char **argv, EnumBinding<RayMatterFilterType> &binding);
 
     template<typename T>
     static bool parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding);

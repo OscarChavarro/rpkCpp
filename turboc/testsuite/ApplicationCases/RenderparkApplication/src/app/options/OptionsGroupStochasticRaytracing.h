@@ -17,6 +17,9 @@ class OptsGrpStochRaytr{ public:
     static EnumDesc rayTracingRadianceModeValues[];
     static EnumDesc rayTracingLightModeValues[];
     static EnumDesc rayTracingSamplingModeValues[];
+    static bool parseRadModeBinding(int argc, char **argv, EnumBinding<RayTracingRadMode> &binding);
+    static bool parseLightModeBinding(int argc, char **argv, EnumBinding<RayTracingLightMode> &binding);
+    static bool parseSamplingModeBinding(int argc, char **argv, EnumBinding<RayTracingSamplingMode> &binding);
 
     template<typename T>
     static bool parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding);

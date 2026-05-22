@@ -20,9 +20,8 @@ Geometry::Geometry():
     bounded(),
     omit(),
     isDuplicate(),
-    className()
+    className(UNDEFINED)
 {
-    className = UNDEFINED;
     shaftCullGeometry = false;
 }
 

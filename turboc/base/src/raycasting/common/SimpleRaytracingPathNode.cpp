@@ -16,7 +16,7 @@ and contain necessary information for raytracing-like algorithms
 SimpleRaytracingPathNode::SimpleRaytracingPathNode():
         m_G(), m_pdfFromPrev(), m_pdfFromNext(), m_rrPdfFromNext(), accmlRssnRlttFctrs(),
         m_usedComponents(), m_accUsedComponents(), m_useBsdf(), m_inBsdf(), m_outBsdf(),
-        m_rayType(), m_depth()
+        m_rayType(STARTS), m_depth()
 {
     m_next = NULL;
     m_previous = NULL;

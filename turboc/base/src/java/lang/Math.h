@@ -190,12 +190,25 @@ Math::sqrt(double a) {
 
 inline int
 Math::getExponent(double a) {
-    return ::ilogb(a);
+    int exponent;
+    float fa = (float)a;
+
+    if ( fa == 0.0f ) {
+        return 0;
+    }
+    ::frexp(fa, &exponent);
+    return exponent - 1;
 }
 
 inline int
 Math::getExponent(float a) {
-    return ::ilogb(a);
+    int exponent;
+
+    if ( a == 0.0f ) {
+        return 0;
+    }
+    ::frexp(a, &exponent);
+    return exponent - 1;
 }
 
 inline double

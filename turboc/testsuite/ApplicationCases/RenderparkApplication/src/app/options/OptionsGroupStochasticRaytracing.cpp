@@ -49,6 +49,21 @@ EnumDesc OptsGrpStochRaytr::rayTracingSamplingModeValues[] = {
     {0, NULL, 0}
 };
 
+bool
+OptsGrpStochRaytr::parseRadModeBinding(int argc, char **argv, EnumBinding<RayTracingRadMode> &binding) {
+    return parseEnumBinding<RayTracingRadMode>(argc, argv, binding);
+}
+
+bool
+OptsGrpStochRaytr::parseLightModeBinding(int argc, char **argv, EnumBinding<RayTracingLightMode> &binding) {
+    return parseEnumBinding<RayTracingLightMode>(argc, argv, binding);
+}
+
+bool
+OptsGrpStochRaytr::parseSamplingModeBinding(int argc, char **argv, EnumBinding<RayTracingSamplingMode> &binding) {
+    return parseEnumBinding<RayTracingSamplingMode>(argc, argv, binding);
+}
+
 void
 OptsGrpStochRaytr::parse(
         int *argc,
@@ -60,15 +75,15 @@ OptsGrpStochRaytr::parse(
     EnumBinding<RayTracingSamplingMode> samplingModeBinding = {&stochasticRayTracingState.reflectionSampling, rayTracingSamplingModeValues};
     TypedOption<int> rtsSamplesPerPixelOpt("-rts-samples-per-pixel", &stochasticRayTracingState.samplesPerPixel, 1, NULL, NULL);
     TypedOption<int> rtsNoProgressiveOpt("-rts-no-progressive", &stochasticRayTracingState.progressiveTracing, 0, setIntFalse, NULL);
-    TypedOption<EnumBinding<RayTracingRadMode> > rtsRadModeOpt("-rts-rad-mode", &radModeBinding, 1, NULL, parseEnumBinding<RayTracingRadMode>);
+    TypedOption<EnumBinding<RayTracingRadMode> > rtsRadModeOpt("-rts-rad-mode", &radModeBinding, 1, (void (*)(EnumBinding<RayTracingRadMode> &))NULL, parseRadModeBinding);
     TypedOption<int> rtsNoLightSamplingOpt("-rts-no-lightsampling", &stochasticRayTracingState.nextEvent, 0, setIntFalse, NULL);
-    TypedOption<EnumBinding<RayTracingLightMode> > rtsLightModeOpt("-rts-l-mode", &lightModeBinding, 1, NULL, parseEnumBinding<RayTracingLightMode>);
+    TypedOption<EnumBinding<RayTracingLightMode> > rtsLightModeOpt("-rts-l-mode", &lightModeBinding, 1, (void (*)(EnumBinding<RayTracingLightMode> &))NULL, parseLightModeBinding);
     TypedOption<int> rtsLightSamplesOpt("-rts-l-samples", &stochasticRayTracingState.nextEventSamples, 1, NULL, NULL);
     TypedOption<int> rtsScatterSamplesOpt("-rts-scatter-samples", &stochasticRayTracingState.scatterSamples, 1, NULL, NULL);
     TypedOption<int> rtsDoFdgOpt("-rts-do-fdg", &stochasticRayTracingState.differentFirstDG, 0, setIntTrue, NULL);
     TypedOption<int> rtsFdgSamplesOpt("-rts-fdg-samples", &stochasticRayTracingState.firstDGSamples, 1, NULL, NULL);
     TypedOption<int> rtsSeparateSpecularOpt("-rts-separate-specular", &stochasticRayTracingState.separateSpecular, 0, setIntTrue, NULL);
-    TypedOption<EnumBinding<RayTracingSamplingMode> > rtsSamplingModeOpt("-rts-s-mode", &samplingModeBinding, 1, NULL, parseEnumBinding<RayTracingSamplingMode>);
+    TypedOption<EnumBinding<RayTracingSamplingMode> > rtsSamplingModeOpt("-rts-s-mode", &samplingModeBinding, 1, (void (*)(EnumBinding<RayTracingSamplingMode> &))NULL, parseSamplingModeBinding);
     TypedOption<int> rtsMinPathLengthOpt("-rts-min-path-length", &stochasticRayTracingState.minPathDepth, 1, NULL, NULL);
     TypedOption<int> rtsMaxPathLengthOpt("-rts-max-path-length", &stochasticRayTracingState.maxPathDepth, 1, NULL, NULL);
     TypedOption<int> rtsNoDirectBackgroundOpt("-rts-NOdirect-background-rad", &stochasticRayTracingState.backgroundDirect, 0, setIntFalse, NULL);

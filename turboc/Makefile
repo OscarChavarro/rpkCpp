@@ -8,7 +8,7 @@ MKDIR_P ?= mkdir -p
 
 # Build options for old gmake/gcc environments
 CPPFLAGS := -DRAYTRACING_ENABLED -DMGF_ENABLED
-CXXFLAGS ?= -O2 -ffast-math -Wall
+CXXFLAGS ?= -O0 -g -Wall -fno-exceptions -fno-rtti
 LDFLAGS ?=
 LDLIBS ?= -lm
 

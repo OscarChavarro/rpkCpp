@@ -14,7 +14,7 @@ ElementHierarchyState::ElementHierarchyState():
     nr_elements(),
     nr_clusters(),
     tvertex_elimination(),
-    clustering(),
+    clustering(NO_CLUSTERING),
     oracle(),
     topCluster(),
     coords(),

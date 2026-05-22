@@ -26,6 +26,15 @@ EnumDesc OptionsGroupRayMatter::rayMatterPixelFilterValues[] = {
     {0, NULL, 0}
 };
 
+bool
+OptionsGroupRayMatter::parseRayMatterFilterBinding(
+        int argc,
+        char **argv,
+        EnumBinding<RayMatterFilterType> &binding)
+{
+    return parseEnumBinding<RayMatterFilterType>(argc, argv, binding);
+}
+
 void
 OptionsGroupRayMatter::rayMattingParseOptions(
         int *argc,
@@ -33,8 +42,13 @@ OptionsGroupRayMatter::rayMattingParseOptions(
         RayMatterState &rayMatterState)
 {
     EnumBinding<RayMatterFilterType> pixelFilterBinding = {&rayMatterState.filter, rayMatterPixelFilterValues};
-    TypedOption<int> rmSamplesOpt("-rm-samples-per-pixel", &rayMatterState.samplesPerPixel, 1, NULL, NULL);
-    TypedOption<EnumBinding<RayMatterFilterType> > rmPixelFilterOpt("-rm-pixel-filter", &pixelFilterBinding, 1, NULL, parseEnumBinding<RayMatterFilterType>);
+    TypedOption<int> rmSamplesOpt("-rm-samples-per-pixel", &rayMatterState.samplesPerPixel, 1, (void (*)(int &))NULL, (bool (*)(int, char **, int &))NULL);
+    TypedOption<EnumBinding<RayMatterFilterType> > rmPixelFilterOpt(
+        "-rm-pixel-filter",
+        &pixelFilterBinding,
+        1,
+        (void (*)(EnumBinding<RayMatterFilterType> &))NULL,
+        parseRayMatterFilterBinding);
     OptionBase rayMatterOptions[] = {
         REGISTER_OPTION(int, rmSamplesOpt, 6),
         REGISTER_OPTION(EnumBinding<RayMatterFilterType>, rmPixelFilterOpt, 7)

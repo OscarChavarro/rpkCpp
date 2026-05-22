@@ -15,7 +15,7 @@ Element::Element():
     receivedRadiance(),
     unShotRadiance(),
     area(),
-    className(),
+    className(ELEMENT_GALERKIN),
     parent(),
     regularSubElements(),
     irregularSubElements(),

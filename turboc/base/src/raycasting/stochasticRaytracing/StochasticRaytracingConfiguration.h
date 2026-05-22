@@ -78,11 +78,11 @@ public:
             LightList *&rayTracingLightList):
             samplesPerPixel(),
             nextEventSamples(),
-            lightMode(),
-            radMode(),
+            lightMode(POWER_LIGHTS),
+            radMode(STORED_NONE),
             scatterSamples(),
             firstDGSamples(),
-            reflectionSampling(),
+            reflectionSampling(BRDF_SAMPLING),
             separateSpecular(),
             backgroundIndirect(),
             backgroundDirect(),
@@ -97,7 +97,7 @@ public:
             siStorage(),
             siOthers(),
             siOthersCount(),
-            initialReadout()
+            initialReadout(SCATTER)
         {
         init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, rayTracingLightList);
     }

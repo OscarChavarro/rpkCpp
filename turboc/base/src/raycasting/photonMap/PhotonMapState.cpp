@@ -3,9 +3,9 @@
 PhotonMapState::PhotonMapState():
         doGlobalMap(), gPathsPerIteration(), precomputeGIrradiance(), doCausticMap(), cPathsPerIteration(),
         renderImage(), reconGPhotons(), reconCPhotons(), reconIPhotons(), distribPhotons(), balanceKDTree(),
-        usePhotonMapSampler(), densityControl(), importanceOption(), acceptPdfType(), constantRD(), minimumImpRD(),
+        usePhotonMapSampler(), densityControl(NO_DENSITY_CONTROL), importanceOption(), acceptPdfType(STEP), constantRD(), minimumImpRD(),
         doImportanceMap(), iPathsPerIteration(), cImpScale(), gImpScale(), gThreshold(),
-        falseColMax(), falseColLog(), falseColMono(), radianceReturn(), minimumLightPathDepth(),
+        falseColMax(), falseColLog(), falseColMono(), radianceReturn(GLOBAL_RADIANCE), minimumLightPathDepth(),
         maximumLightPathDepth(), iterationNumber(), gIterationNumber(), cIterationNumber(),
         i_iteration_nr(), totalCPaths(), totalGPaths(), totalIPaths(), runStopNumber(),
         cpuSecs(), lastClock()

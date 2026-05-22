@@ -10,7 +10,7 @@ const float ToneMappingContext::DEFAULT_TM_C_MAXIMUM = ((float)50.0);
 ToneMappingContext::ToneMappingContext():
     brightness_adjust(),
     pow_bright_adjust(),
-    staticAdaptationMethod(),
+    staticAdaptationMethod(TMA_MEDIAN),
     realWorldAdaptionLuminance(),
     maximumDisplayLuminance(),
     maximumDisplayContrast(),
@@ -28,7 +28,6 @@ ToneMappingContext::ToneMappingContext():
     brightness_adjust = 0.0;
     pow_bright_adjust = Math::pow(2.0f, brightness_adjust);
 
-    staticAdaptationMethod = TMA_MEDIAN;
     realWorldAdaptionLuminance = ToneMappingContext::DEFAULT_TM_LWA;
     maximumDisplayLuminance = ToneMappingContext::DEFAULT_TM_LD_MAXIMUM;
     maximumDisplayContrast = ToneMappingContext::DEFAULT_TM_C_MAXIMUM;
