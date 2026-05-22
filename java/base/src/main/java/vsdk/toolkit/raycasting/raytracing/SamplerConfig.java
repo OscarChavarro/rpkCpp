@@ -376,7 +376,7 @@ public class SamplerConfig {
                 nodeY.m_bsdfEval = new ColorRgb();
             } else {
                 nodeY.m_bsdfEval = nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
-                    nodeY.m_hit, dirLE, bsdfFlagsL & 0xFF, null);
+                    nodeY.m_hit.shadingContext(), dirLE, bsdfFlagsL & 0xFF, null);
             }
             nodeY.m_bsdfComp.Clear();
             nodeY.m_bsdfComp.Fill(nodeY.m_bsdfEval, (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);

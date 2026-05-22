@@ -248,10 +248,10 @@ method). Does so component wise
                     float[] fMinC = new float[] {(float)fMin.getR()};
                     float[] fMaxC = new float[] {(float)fMax.getR()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.getR() = min[0];
-                    maxRad.getR() = max[0];
-                    fMin.getR() = fMinC[0];
-                    fMax.getR() = fMaxC[0];
+                    minRad.r = min[0];
+                    maxRad.r = max[0];
+                    fMin.r = fMinC[0];
+                    fMax.r = fMaxC[0];
                     break;
                 }
                 case 1: {
@@ -260,10 +260,10 @@ method). Does so component wise
                     float[] fMinC = new float[] {(float)fMin.getG()};
                     float[] fMaxC = new float[] {(float)fMax.getG()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.getG() = min[0];
-                    maxRad.getG() = max[0];
-                    fMin.getG() = fMinC[0];
-                    fMax.getG() = fMaxC[0];
+                    minRad.g = min[0];
+                    maxRad.g = max[0];
+                    fMin.g = fMinC[0];
+                    fMax.g = fMaxC[0];
                     break;
                 }
                 case 2: {
@@ -272,10 +272,10 @@ method). Does so component wise
                     float[] fMinC = new float[] {(float)fMin.getB()};
                     float[] fMaxC = new float[] {(float)fMax.getB()};
                     refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.getB() = min[0];
-                    maxRad.getB() = max[0];
-                    fMin.getB() = fMinC[0];
-                    fMax.getB() = fMaxC[0];
+                    minRad.b = min[0];
+                    maxRad.b = max[0];
+                    fMin.b = fMinC[0];
+                    fMax.b = fMaxC[0];
                     break;
                 }
                 default:

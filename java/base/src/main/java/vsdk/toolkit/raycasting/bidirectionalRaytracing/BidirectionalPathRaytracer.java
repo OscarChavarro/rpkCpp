@@ -413,7 +413,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                     eyeEndNode.m_bsdfEval.clear();
                 } else {
                     eyeEndNode.m_bsdfEval = endingEdf.phongEdfEval(
-                        eyeEndNode.m_hit,
+                        eyeEndNode.m_hit.shadingContext(),
                         eyeEndNode.m_inDirF,
                         XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
                         null);

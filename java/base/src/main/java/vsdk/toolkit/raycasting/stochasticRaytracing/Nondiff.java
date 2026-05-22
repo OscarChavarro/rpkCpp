@@ -82,7 +82,7 @@ public final class Nondiff {
             ray.direction.set(0.0f, 0.0f, 0.0f);
             if ( patch.material.getEdf() != null ) {
                 ray.direction = patch.material.getEdf().phongEdfSample(
-                    hit, 0x01 | 0x02 | 0x04, zeta[2], zeta[3], emittedRad, dirSelectionPdf);
+                    hit.shadingContext(), 0x01 | 0x02 | 0x04, zeta[2], zeta[3], emittedRad, dirSelectionPdf);
             }
         } while ( dirSelectionPdf[0] == 0.0 );
 

@@ -361,7 +361,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
         ColorRgb result = new ColorRgb();
         result.clear();
         if ( hit.getMaterial().getBsdf() != null ) {
-            result = hit.getMaterial().getBsdf().splitBsdfScatteredPower(hit, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+            result = hit.getMaterial().getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         }
         return result;
     }

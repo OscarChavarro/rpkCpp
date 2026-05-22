@@ -1,7 +1,5 @@
 package vsdk.toolkit.skin;
 
-import vsdk.toolkit.environment.geometry.elements.*;
-
 public final class BoundingBoxCoordinateIndex {
     public static final int MIN_X = 0;
     public static final int MIN_Y = 1;

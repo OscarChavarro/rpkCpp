@@ -25,6 +25,10 @@ public class ColorRgbMutable {
         this(c.getR(), c.getG(), c.getB());
     }
 
+    public double getR() { return r; }
+    public double getG() { return g; }
+    public double getB() { return b; }
+
     public void clear() { r = 0.0; g = 0.0; b = 0.0; }
     public void set(double v1, double v2, double v3) { r = v1; g = v2; b = v3; }
     public void setMonochrome(double v) { r = v; g = v; b = v; }

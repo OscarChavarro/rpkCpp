@@ -37,9 +37,9 @@ public final class OptionsGroupRender {
             return false;
         }
         try {
-            value.value.getR() = Float.parseFloat(argv[0]);
-            value.value.getG() = Float.parseFloat(argv[1]);
-            value.value.getB() = Float.parseFloat(argv[2]);
+            value.value.r = Float.parseFloat(argv[0]);
+            value.value.g = Float.parseFloat(argv[1]);
+            value.value.b = Float.parseFloat(argv[2]);
             return true;
         }
         catch (NumberFormatException e) {
@@ -118,8 +118,8 @@ public final class OptionsGroupRender {
         OptionParser.parse(argc, argv, renderGroups, 1);
 
         copyFrom(renderOptionsState, renderOptions);
-        renderOptions.outlineColor.getR() = outlineColor.getR();
-        renderOptions.outlineColor.getG() = outlineColor.getG();
-        renderOptions.outlineColor.getB() = outlineColor.getB();
+        renderOptions.outlineColor.r = outlineColor.getR();
+        renderOptions.outlineColor.g = outlineColor.getG();
+        renderOptions.outlineColor.b = outlineColor.getB();
     }
 }

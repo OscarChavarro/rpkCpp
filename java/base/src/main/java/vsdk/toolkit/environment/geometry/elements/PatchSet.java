@@ -1,6 +1,7 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.*;
+import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.GeometryClassId;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Ray;

@@ -67,7 +67,7 @@ public abstract class SurfaceSampler extends Sampler {
                 return new ColorRgb();
             } else {
                 BsdfComp localBsdfComp = bsdfComp != null ? bsdfComp : new BsdfComp();
-                return bsdf.bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags & 0xFF, localBsdfComp.asArray());
+                return bsdf.bsdfEvalComponents(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF, localBsdfComp.asArray());
             }
         } else {
             if ( bsdfComp != null ) {
@@ -77,7 +77,7 @@ public abstract class SurfaceSampler extends Sampler {
             if ( bsdf == null ) {
                 radiance = new ColorRgb();
             } else {
-                radiance = bsdf.evaluate(hit, inBsdf, outBsdf, in, out, flags & 0xFF);
+                radiance = bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF);
             }
             return radiance;
         }

@@ -1,7 +1,5 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.*;
-
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
@@ -10,6 +8,7 @@ import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.ShadingContext;
+import vsdk.toolkit.material.ShadingContextFlag;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 
 /**
@@ -345,14 +344,23 @@ public class RayHit {
         }
 
         Vector3D localTexCoord = new Vector3D();
-        int localFlags = RayHitFlag.NORMAL;
+        int localFlags = 0;
+        boolean ok = true;
+        if (normal != null) {
+            localFlags |= ShadingContextFlag.SHCTX_NORMAL;
+        }
+        else {
+            ok = false;
+        }
         if (getTexCoord(localTexCoord)) {
-            localFlags |= RayHitFlag.TEXTURE_COORDINATE;
+            localFlags |= ShadingContextFlag.SHCTX_TEXTURE_COORDINATE;
         }
         else {
             localTexCoord.set(0.0f, 0.0f, 0.0f);
         }
-
+        if (!ok) {
+            normal.set(0.0f, 0.0f, 1.0f);
+        }
         return new ShadingContext(
             getPoint(),
             getGeometricNormal(),

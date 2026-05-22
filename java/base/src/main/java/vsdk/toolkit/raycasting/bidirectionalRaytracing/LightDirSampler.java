@@ -44,7 +44,7 @@ public class LightDirSampler extends Sampler {
         // Sample a light direction
         Vector3D dir = new Vector3D(0.0f, 0.0f, 0.0f);
         if ( thisNode.m_hit.getMaterial().getEdf() != null ) {
-            dir = thisNode.m_hit.getMaterial().getEdf().phongEdfSample(thisNode.m_hit, XxdfComponentFlag.DIFFUSE_COMPONENT, x1, x2, thisNode.m_bsdfEval, pdfDir);
+            dir = thisNode.m_hit.getMaterial().getEdf().phongEdfSample(thisNode.m_hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT, x1, x2, thisNode.m_bsdfEval, pdfDir);
         }
 
         if ( pdfDir[0] < Numeric.EPSILON ) {
@@ -105,7 +105,7 @@ public class LightDirSampler extends Sampler {
             pdfDir = 0.0;
         } else {
             double[] outPdf = new double[] {0.0};
-            thisNode.m_hit.getMaterial().getEdf().phongEdfEval(thisNode.m_hit, outDir, XxdfComponentFlag.DIFFUSE_COMPONENT, outPdf);
+            thisNode.m_hit.getMaterial().getEdf().phongEdfEval(thisNode.m_hit.shadingContext(), outDir, XxdfComponentFlag.DIFFUSE_COMPONENT, outPdf);
             pdfDir = outPdf[0];
         }
 

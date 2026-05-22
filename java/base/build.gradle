@@ -56,3 +56,7 @@ tasks.named("compileTestJava", JavaCompile) {
 tasks.named("compileJoglDemoJava", JavaCompile) {
     destinationDirectory = layout.buildDirectory.dir("classes/java/joglDemo")
 }
+
+tasks.named("test", Test) {
+    failOnNoDiscoveredTests = false
+}

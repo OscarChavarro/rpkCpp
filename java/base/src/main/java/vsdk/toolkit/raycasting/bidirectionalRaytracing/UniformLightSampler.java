@@ -118,7 +118,7 @@ public class UniformLightSampler extends NextEventSampler {
             Vector3D dir = new Vector3D(0.0f, 0.0f, 0.0f);
 
             if ( light.material.getEdf() != null ) {
-                dir = light.material.getEdf().phongEdfSample(thisNode.m_hit, flags & 0xFF, x1, x2, null, pdf);
+                dir = light.material.getEdf().phongEdfSample(thisNode.m_hit.shadingContext(), flags & 0xFF, x1, x2, null, pdf);
             }
 
             point.subtraction(thisNode.m_hit.getPoint(), dir); // Fake hit at distance 1!
@@ -186,7 +186,7 @@ public class UniformLightSampler extends NextEventSampler {
             } else {
                 double[] outPdfDir = new double[] {0.0};
                 newNode.m_hit.getPatch().material.getEdf().phongEdfEval(
-                    (RayHit)null,
+                    null,
                     newNode.m_inDirF,
                     XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
                     outPdfDir);

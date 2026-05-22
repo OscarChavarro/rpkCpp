@@ -123,7 +123,7 @@ public class PhotonMap {
             color = new ColorRgb();
             color.clear();
         } else {
-            color = bsdf.splitBsdfScatteredPower(hit, flags & 0xFF);
+            color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags & 0xFF);
         }
         return (color.average() < Numeric.EPSILON);
     }
@@ -470,9 +470,9 @@ Get a maximum radius^2 to be used when locating photons
         glossyAlbedo.clear();
 
         if ( bsdf != null ) {
-            diffuseAlbedo = bsdf.splitBsdfScatteredPower(hit, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+            diffuseAlbedo = bsdf.splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
             // -- TODO Irradiance pre-computation for diffuse transmission
-            glossyAlbedo = bsdf.splitBsdfScatteredPower(hit,
+            glossyAlbedo = bsdf.splitBsdfScatteredPower(hit.shadingContext(),
                 BsdfComponent.BTDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT | BsdfComponent.BTDF_GLOSSY_COMPONENT);
         }
 
@@ -512,7 +512,7 @@ Get a maximum radius^2 to be used when locating photons
                 eval.clear();
             } else {
                 eval = bsdf.evaluate(
-                    hit,
+                    hit.shadingContext(),
                     inBsdf,
                     outBsdf,
                     outDir,

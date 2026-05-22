@@ -53,7 +53,7 @@ public class LightList extends CircularList<LightInfo> {
                     if ( light.material.getEdf() == null ) {
                         e = new ColorRgb();
                     } else {
-                        e = light.material.getEdf().phongEmittance((RayHit)null, XxdfComponentFlag.DIFFUSE_COMPONENT);
+                        e = light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT);
                     }
                     info.emittedFlux = e.average();
                 } else {
@@ -137,7 +137,7 @@ public class LightList extends CircularList<LightInfo> {
         if ( light.material.getEdf() == null ) {
             e = new ColorRgb();
         } else {
-            e = light.material.getEdf().phongEmittance((RayHit)null, all);
+            e = light.material.getEdf().phongEmittance(null, all);
         }
         probabilityDensityFunction = e.average() / totalFlux;
 
@@ -188,7 +188,7 @@ public class LightList extends CircularList<LightInfo> {
         if ( light.material.getEdf() == null ) {
             e = new ColorRgb();
         } else {
-            e = light.material.getEdf().phongEmittance((RayHit)null, all);
+            e = light.material.getEdf().phongEmittance(null, all);
         }
         return e.average();
     }

@@ -53,7 +53,7 @@ public class PatchVisitor {
             patch.pointBarycentricMapping(hit.getUv().u, hit.getUv().v, position);
             sample = new ColorRgb();
             if (patch.material.getBsdf() != null) {
-                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit, components);
+                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), components);
             }
             albedo.add(albedo, new ColorRgbMutable(sample));
         }
@@ -82,7 +82,7 @@ public class PatchVisitor {
                 sample = new ColorRgb();
             }
             else {
-                sample = patch.material.getEdf().phongEmittance(hit, components);
+                sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), components);
             }
             emittance.add(emittance, new ColorRgbMutable(sample));
         }

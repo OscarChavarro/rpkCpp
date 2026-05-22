@@ -1,7 +1,5 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.*;
-
 /**
 The flags below have a double function: if passed as an argument
 to a ray intersection routine, they indicate that only front or back

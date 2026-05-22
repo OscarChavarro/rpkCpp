@@ -2,7 +2,9 @@ package vsdk.toolkit.skin;
 
 import vsdk.toolkit.material.MaterialColorFlags;
 
-import vsdk.toolkit.environment.geometry.elements.*;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Ray;

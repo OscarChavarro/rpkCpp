@@ -611,11 +611,11 @@ Computes average reflectance and emittance of a surface sub-element
             Vector3D position = hit.getPoint();
             patch.uniformPoint(hit.getUv().u, hit.getUv().v, position);
             if ( patch.material.getBsdf() != null ) {
-                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
                 albedo.add(albedo, sample);
             }
             if ( patch.material.getEdf() != null ) {
-                sample = patch.material.getEdf().phongEmittance(hit, XxdfComponentFlag.DIFFUSE_COMPONENT);
+                sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT);
                 emittance.add(emittance, sample);
             }
         }
@@ -1015,9 +1015,9 @@ Compute new vertex colors
             ColorRgb color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
             for ( int i = 0; i < stochasticRadiosityElement.numberOfVertices; i++ ) {
                 if ( m[i] != null ) {
-                    m[i].color.getR() = (m[i].color.getR() + color.getR()) * 0.5f;
-                    m[i].color.getG() = (m[i].color.getG() + color.getG()) * 0.5f;
-                    m[i].color.getB() = (m[i].color.getB() + color.getB()) * 0.5f;
+                    m[i].color.r = (m[i].color.r + color.getR()) * 0.5f;
+                    m[i].color.g = (m[i].color.g + color.getG()) * 0.5f;
+                    m[i].color.b = (m[i].color.b + color.getB()) * 0.5f;
                 }
             }
         }

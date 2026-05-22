@@ -196,7 +196,7 @@ pointed to by 'fp'
                 ColorRgb albedo = new ColorRgb();
                 albedo.clear();
                 if ( thisNode.m_useBsdf != null ) {
-                    albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit, si.flags);
+                    albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags);
                 }
                 if ( albedo.average() < Numeric.EPSILON ) {
                     // Skip, no contribution anyway
@@ -538,7 +538,7 @@ pointed to by 'fp'
                         diffEmit.clear();
                     } else {
                         diffEmit = thisEdf.phongEdfEval(
-                            thisNode.m_hit, thisNode.m_inDirF, BsdfComponent.BRDF_DIFFUSE_COMPONENT, null);
+                            thisNode.m_hit.shadingContext(), thisNode.m_inDirF, BsdfComponent.BRDF_DIFFUSE_COMPONENT, null);
                     }
 
                     radiance.subtract(radiance, diffEmit);
@@ -619,7 +619,7 @@ pointed to by 'fp'
                     col = new ColorRgb();
                     col.clear();
                 } else {
-                    col = thisEdf.phongEdfEval(thisNode.m_hit, thisNode.m_inDirF, edfFlags, null);
+                    col = thisEdf.phongEdfEval(thisNode.m_hit.shadingContext(), thisNode.m_inDirF, edfFlags, null);
                 }
 
                 result.addScaled(result, (float)weight, col);

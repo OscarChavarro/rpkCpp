@@ -1,6 +1,9 @@
 package vsdk.toolkit.skin;
 
-import vsdk.toolkit.environment.geometry.elements.*;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.logging.Logger;

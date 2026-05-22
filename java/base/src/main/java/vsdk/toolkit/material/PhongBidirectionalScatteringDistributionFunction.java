@@ -150,8 +150,6 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 A simple combination of BRDF and BTDF.
@@ -184,29 +182,8 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return texture;
     }
 
-    public static boolean bsdfShadingFrame(RayHit hit, Vector3D X, Vector3D Y, Vector3D Z) {
-        return false;
-    }
-
     public static boolean bsdfShadingFrame(ShadingContext context, Vector3D X, Vector3D Y, Vector3D Z) {
         return false;
-    }
-
-    private static boolean extractHitData(RayHit hit, Vector3D normal, Vector3D texCoord, int[] flags) {
-        if (hit == null || normal == null || texCoord == null || flags == null || flags.length == 0) {
-            return false;
-        }
-        if (!hit.shadingNormal(normal)) {
-            return false;
-        }
-        flags[0] = RayHitFlag.NORMAL;
-        if (hit.getTexCoord(texCoord)) {
-            flags[0] |= RayHitFlag.TEXTURE_COORDINATE;
-        }
-        else {
-            texCoord.set(0.0f, 0.0f, 0.0f);
-        }
-        return true;
     }
 
     private static ColorRgb splitBsdfEvalTexture(Texture texture, ShadingContext context) {
@@ -216,7 +193,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         if (texture == null) {
             return col.toImmutable();
         }
-        if (context == null || !context.hasFlag(RayHitFlag.TEXTURE_COORDINATE)) {
+        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE)) {
             Logger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
             return col.toImmutable();
         }
@@ -224,22 +201,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return texture.evaluateColor(texCoord.x, texCoord.y);
     }
 
-    private static ColorRgb splitBsdfEvalTexture(Texture texture, RayHit hit) {
-        Vector3D texCoord = new Vector3D();
-        ColorRgbMutable col = new ColorRgbMutable();
-        col.clear();
-
-        if (texture == null) {
-            return col.toImmutable();
-        }
-
-        if (hit == null || !hit.getTexCoord(texCoord)) {
-            Logger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
-            return col.toImmutable();
-        }
-
-        return texture.evaluateColor(texCoord.x, texCoord.y);
-    }
 
     public ColorRgb splitBsdfScatteredPower(ShadingContext context, int flags) {
         ColorRgbMutable albedo = new ColorRgbMutable();
@@ -265,25 +226,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         }
 
         return albedo.toImmutable();
-    }
-
-    public ColorRgb splitBsdfScatteredPower(RayHit hit, int flags) {
-        Vector3D normal = new Vector3D();
-        Vector3D texCoord = new Vector3D();
-        int[] localFlags = new int[] {0};
-        if (!extractHitData(hit, normal, texCoord, localFlags)) {
-            return new ColorRgb();
-        }
-        ShadingContext context = new ShadingContext(
-            hit.getPoint(),
-            hit.getGeometricNormal(),
-            normal,
-            texCoord,
-            hit.getUv(),
-            hit.getShadingFrame(),
-            hit.getMaterial(),
-            localFlags[0]);
-        return splitBsdfScatteredPower(context, flags);
     }
 
     public boolean splitBsdfIsTextured() {
@@ -321,44 +263,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
             ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
-            setOut(inTexture, textureColor.average());
-            flags &= ~TEXTURED_COMPONENT;
-        }
-
-        setOut(brdfFlags, BsdfComponentFlag.getBrdfFlags(flags));
-        setOut(btdfFlags, BsdfComponentFlag.getBtdfFlags(flags));
-
-        ColorRgb reflectance;
-        if (brdf == null) {
-            reflectance = new ColorRgb();
-        }
-        else {
-            reflectance = brdf.reflectance(brdfFlags[0]);
-        }
-        setOut(reflection, reflectance.average());
-
-        ColorRgb transmittance;
-        if (btdf == null) {
-            transmittance = new ColorRgb();
-        }
-        else {
-            transmittance = btdf.transmittance(btdfFlags[0]);
-        }
-        setOut(transmission, transmittance.average());
-    }
-
-    private void splitBsdfProbabilities(
-        RayHit hit,
-        int flags,
-        double[] inTexture,
-        double[] reflection,
-        double[] transmission,
-        int[] brdfFlags,
-        int[] btdfFlags) {
-        setOut(inTexture, 0.0);
-
-        if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
-            ColorRgb textureColor = splitBsdfEvalTexture(texture, hit);
             setOut(inTexture, textureColor.average());
             flags &= ~TEXTURED_COMPONENT;
         }
@@ -437,7 +341,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D out = new Vector3D();
 
         setOut(probabilityDensityFunction, 0.0);
-        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
+        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
             Logger.warning("sample", "Couldn't determine shading normal");
             out.set(0.0f, 0.0f, 1.0f);
             return out;
@@ -555,36 +459,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return out;
     }
 
-    public Vector3D sample(
-        RayHit hit,
-        PhongBidirectionalScatteringDistributionFunction inBsdf,
-        PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3D in,
-        int doRussianRoulette,
-        int flags,
-        double x1,
-        double x2,
-        double[] probabilityDensityFunction) {
-        Vector3D normal = new Vector3D();
-        Vector3D texCoord = new Vector3D();
-        int[] localFlags = new int[] {0};
-        if (!extractHitData(hit, normal, texCoord, localFlags)) {
-            Vector3D out = new Vector3D(0.0, 0.0, 1.0);
-            setOut(probabilityDensityFunction, 0.0);
-            return out;
-        }
-        ShadingContext context = new ShadingContext(
-            hit.getPoint(),
-            hit.getGeometricNormal(),
-            normal,
-            texCoord,
-            hit.getUv(),
-            hit.getShadingFrame(),
-            hit.getMaterial(),
-            localFlags[0]);
-        return sample(context, inBsdf, outBsdf, in, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
-    }
-
     private static double texturedScattererEval(Vector3D in, Vector3D out, Vector3D normal) {
         return 1.0 / Math.PI;
     }
@@ -600,7 +474,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D normal = new Vector3D();
 
         result.clear();
-        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
+        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
             Logger.warning("evaluate", "Couldn't determine shading normal");
             return result.toImmutable();
         }
@@ -641,31 +515,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return result.toImmutable();
     }
 
-    public ColorRgb evaluate(
-        RayHit hit,
-        PhongBidirectionalScatteringDistributionFunction inBsdf,
-        PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3D in,
-        Vector3D out,
-        int flags) {
-        Vector3D normal = new Vector3D();
-        Vector3D texCoord = new Vector3D();
-        int[] localFlags = new int[] {0};
-        if (!extractHitData(hit, normal, texCoord, localFlags)) {
-            return new ColorRgb();
-        }
-        ShadingContext context = new ShadingContext(
-            hit.getPoint(),
-            hit.getGeometricNormal(),
-            normal,
-            texCoord,
-            hit.getUv(),
-            hit.getShadingFrame(),
-            hit.getMaterial(),
-            localFlags[0]);
-        return evaluate(context, inBsdf, outBsdf, in, out, flags);
-    }
-
     public void evaluateProbabilityDensityFunction(
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
@@ -679,7 +528,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         setOut(probabilityDensityFunctionRR, 0.0);
 
         Vector3D normal = new Vector3D();
-        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
+        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
             Logger.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
             return;
         }
@@ -741,35 +590,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         setOut(probabilityDensityFunction, probabilityDensityFunction[0] / pScattering);
     }
 
-    public void evaluateProbabilityDensityFunction(
-        RayHit hit,
-        PhongBidirectionalScatteringDistributionFunction inBsdf,
-        PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3D in,
-        Vector3D out,
-        int flags,
-        double[] probabilityDensityFunction,
-        double[] probabilityDensityFunctionRR) {
-        Vector3D normal = new Vector3D();
-        Vector3D texCoord = new Vector3D();
-        int[] localFlags = new int[] {0};
-        if (!extractHitData(hit, normal, texCoord, localFlags)) {
-            setOut(probabilityDensityFunction, 0.0);
-            setOut(probabilityDensityFunctionRR, 0.0);
-            return;
-        }
-        ShadingContext context = new ShadingContext(
-            hit.getPoint(),
-            hit.getGeometricNormal(),
-            normal,
-            texCoord,
-            hit.getUv(),
-            hit.getShadingFrame(),
-            hit.getMaterial(),
-            localFlags[0]);
-        evaluateProbabilityDensityFunction(context, inBsdf, outBsdf, in, out, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
-    }
-
     public ColorRgb bsdfEvalComponents(
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
@@ -794,32 +614,6 @@ public class PhongBidirectionalScatteringDistributionFunction {
         }
 
         return result.toImmutable();
-    }
-
-    public ColorRgb bsdfEvalComponents(
-        RayHit hit,
-        PhongBidirectionalScatteringDistributionFunction inBsdf,
-        PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3D in,
-        Vector3D out,
-        int flags,
-        ColorRgb[] colArray) {
-        Vector3D normal = new Vector3D();
-        Vector3D texCoord = new Vector3D();
-        int[] localFlags = new int[] {0};
-        if (!extractHitData(hit, normal, texCoord, localFlags)) {
-            return new ColorRgb();
-        }
-        ShadingContext context = new ShadingContext(
-            hit.getPoint(),
-            hit.getGeometricNormal(),
-            normal,
-            texCoord,
-            hit.getUv(),
-            hit.getShadingFrame(),
-            hit.getMaterial(),
-            localFlags[0]);
-        return bsdfEvalComponents(context, inBsdf, outBsdf, in, out, flags, colArray);
     }
 
     private static void setOut(double[] out, double value) {

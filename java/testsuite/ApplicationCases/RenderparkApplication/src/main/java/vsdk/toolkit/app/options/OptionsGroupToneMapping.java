@@ -174,7 +174,7 @@ public final class OptionsGroupToneMapping {
             null);
         TypedOption<Float> gammaOpt = new TypedOption<>(
             "-gamma",
-            TypedOption.reference(() -> (float)toneMapOptionsContext.gamma.getR(), v -> toneMapOptionsContext.gamma.getR() = v),
+            TypedOption.reference(() -> (float)toneMapOptionsContext.gamma.getR(), v -> toneMapOptionsContext.gamma.r = v),
             1,
             OptionsGroupToneMapping::gammaOption,
             null);
@@ -244,9 +244,9 @@ public final class OptionsGroupToneMapping {
             return false;
         }
         try {
-            value.value.getR() = Float.parseFloat(argv[0]);
-            value.value.getG() = Float.parseFloat(argv[1]);
-            value.value.getB() = Float.parseFloat(argv[2]);
+            value.value.r = Float.parseFloat(argv[0]);
+            value.value.g = Float.parseFloat(argv[1]);
+            value.value.b = Float.parseFloat(argv[2]);
             return true;
         }
         catch ( NumberFormatException e ) {

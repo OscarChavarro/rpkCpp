@@ -1,8 +1,6 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.*;
-
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Jacobian;
@@ -13,6 +11,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
+import vsdk.toolkit.skin.BoundingBox;
 
 public class Patch {
     public static final int MAXIMUM_VERTICES_PER_PATCH = 4;
@@ -47,7 +46,7 @@ public class Patch {
     // testing, shaft culling, ... set to FALSE by
     // default. Do not forget to set to FALSE again
     // after you changed it.
-    public ColorRgbMutable color; // Color used to flat render the patch
+    public ColorRgb color; // Color used to flat render the patch
     // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     public Element radianceData;
     public Material material;
@@ -715,7 +714,7 @@ public class Patch {
         connectVertices();
 
         directPotential = 0.0f;
-        color = new ColorRgbMutable();
+        color = new ColorRgb();
         color.clear();
 
         omit = 0;

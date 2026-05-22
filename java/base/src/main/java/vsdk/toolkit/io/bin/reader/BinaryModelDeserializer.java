@@ -360,7 +360,7 @@ public class BinaryModelDeserializer {
 
                 Vertex vertex = new Vertex(pointOut.value, normalOut.value, texCoordsOut.value, new ArrayList<Patch>());
                 vertex.id = record.id;
-                vertex.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
+                vertex.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
                 vertex.tmp = record.tmp;
                 vertex.radianceData = null;
                 vertices.set(i, vertex);
@@ -446,7 +446,7 @@ public class BinaryModelDeserializer {
                 }
                 patch.omit = (byte)(record.omit ? 1 : 0);
                 patch.setFlags(Byte.toUnsignedInt(record.flags));
-                patch.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
+                patch.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
 
                 BinaryModelReadPrimitives.Out<Material> materialOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));

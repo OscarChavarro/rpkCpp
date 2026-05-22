@@ -7,6 +7,7 @@ package vsdk.toolkit.raycasting.raytracing;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.material.ShadingContext;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
@@ -36,9 +37,10 @@ public class BsdfSampler extends SurfaceSampler {
         // Sample direction
         Vector3D dir = new Vector3D(0.0f, 0.0f, 0.0f);
 
-        if ( thisNode.m_useBsdf != null ) {
+        ShadingContext thisContext = thisNode.m_hit.shadingContext();
+        if ( thisNode.m_useBsdf != null && thisContext != null ) {
             dir = thisNode.m_useBsdf.sample(
-                thisNode.m_hit,
+                thisContext,
                 thisNode.m_inBsdf,
                 thisNode.m_outBsdf,
                 thisNode.m_inDirF,
@@ -58,8 +60,8 @@ public class BsdfSampler extends SurfaceSampler {
         if ( doRR ) {
             ColorRgb albedo = new ColorRgb();
             albedo.clear();
-            if ( thisNode.m_useBsdf != null ) {
-                albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit, flags & 0xFF);
+            if ( thisNode.m_useBsdf != null && thisContext != null ) {
+                albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisContext, flags & 0xFF);
             }
             newNode.accumulatedRussianRouletteFactors *= albedo.average();
         }
@@ -94,12 +96,12 @@ public class BsdfSampler extends SurfaceSampler {
             double[] pdfDirI = new double[] {0.0};
             double[] pdfRR = new double[] {0.0};
 
-            if ( thisNode.m_useBsdf != null ) {
+            if ( thisNode.m_useBsdf != null && thisContext != null ) {
                 // prevpdf : new->this->prev pdf evaluation
                 // normal direction is handled by the evalpdf routine
                 // Are the flags usable in both directions?
                 thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-                    thisNode.m_hit,
+                    thisContext,
                     thisNode.m_outBsdf,
                     thisNode.m_inBsdf,
                     newNode.m_inDirT,
@@ -150,9 +152,10 @@ public class BsdfSampler extends SurfaceSampler {
         // Beware : NOT RECIPROKE!
         double[] pdfDir = new double[] {0.0};
         pdfRR[0] = 0.0;
-        if ( thisNode.m_useBsdf != null ) {
+        ShadingContext thisContext = thisNode.m_hit.shadingContext();
+        if ( thisNode.m_useBsdf != null && thisContext != null ) {
             thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-                thisNode.m_hit,
+                thisContext,
                 thisNode.m_inBsdf,
                 thisNode.m_outBsdf,
                 thisNode.m_inDirF,
@@ -204,9 +207,10 @@ public class BsdfSampler extends SurfaceSampler {
         // Beware : NOT RECIPROCAL!
         double[] pdfDir = new double[] {0.0};
         pdfRR[0] = 0.0;
-        if ( thisNode.m_useBsdf != null ) {
+        ShadingContext thisContext = thisNode.m_hit.shadingContext();
+        if ( thisNode.m_useBsdf != null && thisContext != null ) {
             thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-                thisNode.m_hit,
+                thisContext,
                 thisNode.m_outBsdf,
                 thisNode.m_inBsdf,
                 outDir,

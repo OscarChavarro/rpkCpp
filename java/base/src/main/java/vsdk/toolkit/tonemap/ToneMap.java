@@ -86,9 +86,9 @@ Rescale real world radiance using properly set up tone mapping algorithm
     }
 
     public static void toneMappingGammaCorrection(ColorRgb rgb, ToneMappingContext toneMapOptions) {
-        rgb.getR() = toneMapOptions.gammaTab[0][gammaTableEntry((float)rgb.getR())];
-        rgb.getG() = toneMapOptions.gammaTab[1][gammaTableEntry((float)rgb.getG())];
-        rgb.getB() = toneMapOptions.gammaTab[2][gammaTableEntry((float)rgb.getB())];
+        rgb.r = toneMapOptions.gammaTab[0][gammaTableEntry((float)rgb.getR())];
+        rgb.g = toneMapOptions.gammaTab[1][gammaTableEntry((float)rgb.getG())];
+        rgb.b = toneMapOptions.gammaTab[2][gammaTableEntry((float)rgb.getB())];
     }
 
     /**

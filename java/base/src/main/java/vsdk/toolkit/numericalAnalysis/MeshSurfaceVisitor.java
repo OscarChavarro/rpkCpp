@@ -46,7 +46,7 @@ public class MeshSurfaceVisitor {
                 rho = PatchVisitor.averageNormalAlbedo(
                     face,
                     BsdfComponent.BRDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT);
-                face.color = new ColorRgbMutable(rho);
+                face.color = new ColorRgb(rho);
             }
         }
     }

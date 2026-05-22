@@ -1,7 +1,5 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.*;
-
 public final class ElementFlags {
     // If set, indicates that the element is a cluster element. If not set, the element is a surface element
     public static final int IS_CLUSTER_MASK = 0x01;

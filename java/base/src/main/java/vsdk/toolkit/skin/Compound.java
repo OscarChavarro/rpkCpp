@@ -1,6 +1,6 @@
 package vsdk.toolkit.skin;
 
-import vsdk.toolkit.environment.geometry.elements.*;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Ray;
