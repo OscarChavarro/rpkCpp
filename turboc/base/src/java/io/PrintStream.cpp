@@ -1,8 +1,17 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "java/io/PrintStream.h"
 #include "java/util/Formatter.h"
+
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
 
 
 PrintStream::PrintStream(OutputStream *stream):
@@ -91,4 +100,3 @@ PrintStream::flush() const {
     }
     stream->flush();
 }
-

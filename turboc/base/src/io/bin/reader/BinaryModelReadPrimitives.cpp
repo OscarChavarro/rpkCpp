@@ -1,6 +1,5 @@
 #include <string.h>
 #include <limits.h>
-#include <stdint.h>
 
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
@@ -114,13 +113,8 @@ BinaryModelReadPrimitives::readDoubleLE(InputStream &input) {
     unsigned char bytes[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     readBytes(input, bytes, 8);
 
-    uint64_t bits = 0;
-    for ( int i = 0; i < 8; i++ ) {
-        bits |= (((uint64_t)(bytes[i])) << (8 * i));
-    }
-
     double value = 0.0;
-    memcpy(&value, &bits, sizeof(double));
+    memcpy(&value, bytes, sizeof(double));
     return value;
 }
 

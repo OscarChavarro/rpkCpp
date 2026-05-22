@@ -6,6 +6,7 @@ Galerkin radiosity, with the following variants:
 - With potential-driven or not
 */
 
+#include <stdarg.h>
 #include <string.h>
 
 #include "java/util/ArrayList.txx"
@@ -23,6 +24,14 @@ Galerkin radiosity, with the following variants:
 #include "galerkin/processing/GatheringSimpleStrategy.h"
 #include "galerkin/processing/ScratchVisibilityStrategy.h"
 #include "galerkin/processing/ShootingStrategy.h"
+
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
 OutputStream *GalerkinRadianceMethod::vrmlOutputStream = NULL;

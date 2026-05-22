@@ -2,9 +2,19 @@
 Saves the result of a radiosity computation as a VRML file
 */
 
+#include <stdarg.h>
+
 #include "java/util/Formatter.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
+
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 Camera VrmlWriter::cameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];

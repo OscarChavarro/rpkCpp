@@ -4,6 +4,14 @@
 #include "java/lang/String.h"
 #include "java/util/Formatter.h"
 
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
+
 
 void
 String::assignText(const char *text) {
@@ -187,4 +195,3 @@ String::formatCStringToJavaString(const char *format, va_list arguments) {
     delete[] dynamicBuffer;
     return result;
 }
-

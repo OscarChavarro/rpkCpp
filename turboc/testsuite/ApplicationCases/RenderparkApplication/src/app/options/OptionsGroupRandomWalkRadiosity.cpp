@@ -20,6 +20,26 @@ bool OptionsGroupRandomWalkRadiosity::parseEnumBinding(int argc, char **argv, En
 }
 
 bool
+OptionsGroupRandomWalkRadiosity::parseSequenceBinding(int argc, char **argv, EnumBinding<Sampler4DSequence> &binding) {
+    return parseEnumBinding<Sampler4DSequence>(argc, argv, binding);
+}
+
+bool
+OptionsGroupRandomWalkRadiosity::parseApproximationBinding(int argc, char **argv, EnumBinding<StochRaytrApprx> &binding) {
+    return parseEnumBinding<StochRaytrApprx>(argc, argv, binding);
+}
+
+bool
+OptionsGroupRandomWalkRadiosity::parseEstimatorTypeBinding(int argc, char **argv, EnumBinding<RandomWalkEstimatorType> &binding) {
+    return parseEnumBinding<RandomWalkEstimatorType>(argc, argv, binding);
+}
+
+bool
+OptionsGroupRandomWalkRadiosity::parseEstimatorKindBinding(int argc, char **argv, EnumBinding<RandomWalkEstimatorKind> &binding) {
+    return parseEnumBinding<RandomWalkEstimatorKind>(argc, argv, binding);
+}
+
+bool
 OptionsGroupRandomWalkRadiosity::parseBoolInt(int argc, char **argv, int &value) {
     if ( argc < 1 || argv == NULL || argv[0] == NULL ) {
         return false;
@@ -80,10 +100,10 @@ OptionsGroupRandomWalkRadiosity::parse(
     TypedOption<int> rwrContinuousOpt("-rwr-continuous", &stochasticRelaxationState.continuousRandomWalk, 1, NULL, parseBoolInt);
     TypedOption<int> rwrControlVariateOpt("-rwr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, NULL, parseBoolInt);
     TypedOption<int> rwrIndirectOnlyOpt("-rwr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, NULL, parseBoolInt);
-    TypedOption<EnumBinding<Sampler4DSequence> > rwrSequenceOpt("-rwr-sampling-sequence", &sequenceBinding, 1, NULL, parseEnumBinding<Sampler4DSequence>);
-    TypedOption<EnumBinding<StochRaytrApprx> > rwrApproximationOpt("-rwr-approximation", &approximationBinding, 1, NULL, parseEnumBinding<StochRaytrApprx>);
-    TypedOption<EnumBinding<RandomWalkEstimatorType> > rwrEstimatorOpt("-rwr-estimator", &estimatorTypeBinding, 1, NULL, parseEnumBinding<RandomWalkEstimatorType>);
-    TypedOption<EnumBinding<RandomWalkEstimatorKind> > rwrScoreOpt("-rwr-score", &estimatorKindBinding, 1, NULL, parseEnumBinding<RandomWalkEstimatorKind>);
+    TypedOption<EnumBinding<Sampler4DSequence> > rwrSequenceOpt("-rwr-sampling-sequence", &sequenceBinding, 1, NULL, parseSequenceBinding);
+    TypedOption<EnumBinding<StochRaytrApprx> > rwrApproximationOpt("-rwr-approximation", &approximationBinding, 1, NULL, parseApproximationBinding);
+    TypedOption<EnumBinding<RandomWalkEstimatorType> > rwrEstimatorOpt("-rwr-estimator", &estimatorTypeBinding, 1, NULL, parseEstimatorTypeBinding);
+    TypedOption<EnumBinding<RandomWalkEstimatorKind> > rwrScoreOpt("-rwr-score", &estimatorKindBinding, 1, NULL, parseEstimatorKindBinding);
     TypedOption<int> rwrNumlastOpt("-rwr-numlast", &stochasticRelaxationState.randomWalkNumLast, 1, NULL, NULL);
     OptionBase rwrOptions[] = {
         REGISTER_OPTION(int, rwrRayUnitsOpt, 8),

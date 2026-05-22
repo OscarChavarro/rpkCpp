@@ -5,6 +5,14 @@
 #include "java/io/OutputStream.h"
 #include "java/util/Formatter.h"
 
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
+
 
 String
 Formatter::appendText(const String &left, const String &right) {
@@ -132,4 +140,3 @@ Formatter::vformat(char *buffer, int bufferSize, const char *formatText, va_list
     }
     return written;
 }
-

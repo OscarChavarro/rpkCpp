@@ -21,6 +21,26 @@ bool OptsGrpStochRelaxRad::parseEnumBinding(int argc, char **argv, EnumBinding<T
 }
 
 bool
+OptsGrpStochRelaxRad::parseSequenceBinding(int argc, char **argv, EnumBinding<Sampler4DSequence> &binding) {
+    return parseEnumBinding<Sampler4DSequence>(argc, argv, binding);
+}
+
+bool
+OptsGrpStochRelaxRad::parseApproximationBinding(int argc, char **argv, EnumBinding<StochRaytrApprx> &binding) {
+    return parseEnumBinding<StochRaytrApprx>(argc, argv, binding);
+}
+
+bool
+OptsGrpStochRelaxRad::parseClusteringBinding(int argc, char **argv, EnumBinding<HierarchyClusteringMode> &binding) {
+    return parseEnumBinding<HierarchyClusteringMode>(argc, argv, binding);
+}
+
+bool
+OptsGrpStochRelaxRad::parseShowBinding(int argc, char **argv, EnumBinding<WhatToShow> &binding) {
+    return parseEnumBinding<WhatToShow>(argc, argv, binding);
+}
+
+bool
 OptsGrpStochRelaxRad::parseBoolInt(int argc, char **argv, int &value) {
     if ( argc < 1 || argv == NULL || argv[0] == NULL ) {
         return false;
@@ -82,13 +102,13 @@ OptsGrpStochRelaxRad::parse(
     TypedOption<int> srrControlVariateOpt("-srr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, NULL, parseBoolInt);
     TypedOption<int> srrIndirectOnlyOpt("-srr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, NULL, parseBoolInt);
     TypedOption<int> srrImportanceDrivenOpt("-srr-importance-driven", &stochasticRelaxationState.importanceDriven, 1, NULL, parseBoolInt);
-    TypedOption<EnumBinding<Sampler4DSequence> > srrSequenceOpt("-srr-sampling-sequence", &sequenceBinding, 1, NULL, parseEnumBinding<Sampler4DSequence>);
-    TypedOption<EnumBinding<StochRaytrApprx> > srrApproximationOpt("-srr-approximation", &approximationBinding, 1, NULL, parseEnumBinding<StochRaytrApprx>);
+    TypedOption<EnumBinding<Sampler4DSequence> > srrSequenceOpt("-srr-sampling-sequence", &sequenceBinding, 1, NULL, parseSequenceBinding);
+    TypedOption<EnumBinding<StochRaytrApprx> > srrApproximationOpt("-srr-approximation", &approximationBinding, 1, NULL, parseApproximationBinding);
     TypedOption<int> srrHierarchicalOpt("-srr-hierarchical", &elementHierarchyState.do_h_meshing, 1, NULL, parseBoolInt);
-    TypedOption<EnumBinding<HierarchyClusteringMode> > srrClusteringOpt("-srr-clustering", &clusteringBinding, 1, NULL, parseEnumBinding<HierarchyClusteringMode>);
+    TypedOption<EnumBinding<HierarchyClusteringMode> > srrClusteringOpt("-srr-clustering", &clusteringBinding, 1, NULL, parseClusteringBinding);
     TypedOption<float> srrEpsilonOpt("-srr-epsilon", &elementHierarchyState.epsilon, 1, NULL, NULL);
     TypedOption<float> srrMinAreaOpt("-srr-minarea", &elementHierarchyState.minimumArea, 1, NULL, NULL);
-    TypedOption<EnumBinding<WhatToShow> > srrDisplayOpt("-srr-display", &showBinding, 1, NULL, parseEnumBinding<WhatToShow>);
+    TypedOption<EnumBinding<WhatToShow> > srrDisplayOpt("-srr-display", &showBinding, 1, NULL, parseShowBinding);
     TypedOption<int> srrDiscardIncrementalOpt("-srr-discard-incremental", &stochasticRelaxationState.discardIncremental, 1, NULL, parseBoolInt);
     TypedOption<int> srrIncrementalImportanceOpt("-srr-incremental-uses-importance", &stochasticRelaxationState.incrementalUsesImportance, 1, NULL, parseBoolInt);
     TypedOption<int> srrNaiveMergingOpt("-srr-naive-merging", &stochasticRelaxationState.naiveMerging, 1, NULL, parseBoolInt);

@@ -1,9 +1,19 @@
+#include <stdarg.h>
+
 #include "java/io/FileOutputStream.h"
 #include "java/lang/System.h"
 #include "java/util/Formatter.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/image/Dkcolor.h"
 #include "io/image/PicOutputHandle.h"
+
+#ifndef va_copy
+#if defined(__va_copy)
+#define va_copy(dst, src) __va_copy((dst), (src))
+#else
+#define va_copy(dst, src) ((dst) = (src))
+#endif
+#endif
 
 String
 PicOutputHandle::formatToString(const char *format, va_list arguments) {
