@@ -43,7 +43,7 @@ export class LightList extends CircularList<LightInfo> {
             e.clear();
           }
           else {
-            e = light.material.getEdf()!.phongEmittance(null as any, XxdfComponentFlag.DIFFUSE_COMPONENT);
+            e = light.material.getEdf()!.phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT);
           }
           info.emittedFlux = e.average();
         }
@@ -122,7 +122,7 @@ export class LightList extends CircularList<LightInfo> {
       e.clear();
     }
     else {
-      e = light.material.getEdf()!.phongEmittance(null as any, all);
+      e = light.material.getEdf()!.phongEmittance(null, all);
     }
     probabilityDensityFunction = e.average() / this.totalFlux;
 
@@ -164,7 +164,7 @@ export class LightList extends CircularList<LightInfo> {
       e.clear();
     }
     else {
-      e = light.material.getEdf()!.phongEmittance(null as any, all);
+      e = light.material.getEdf()!.phongEmittance(null, all);
     }
     return e.average();
   }

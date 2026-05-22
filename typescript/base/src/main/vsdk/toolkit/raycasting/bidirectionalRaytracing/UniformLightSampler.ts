@@ -113,7 +113,12 @@ export class UniformLightSampler extends NextEventSampler {
       let dir = new Vector3D(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null && thisNode !== null) {
-        dir = light.material.getEdf()!.phongEdfSample(thisNode.m_hit, flags, x1, x2, null, pdf);
+        const thisContextOk = [false];
+        const thisContext = thisNode.m_hit.shadingContext(thisContextOk);
+        if (!thisContextOk[0]) {
+          return false;
+        }
+        dir = light.material.getEdf()!.phongEdfSample(thisContext, flags, x1, x2, null, pdf);
       }
 
       point.subtraction(thisNode!.m_hit.getPoint(), dir);
@@ -178,7 +183,7 @@ export class UniformLightSampler extends NextEventSampler {
       else {
         const outPdfDir = [0.0];
         (newNode.m_hit.getPatch() as Patch).material!.getEdf()!.phongEdfEval(
-          null as any,
+          null,
           newNode.m_inDirF,
           XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
           outPdfDir

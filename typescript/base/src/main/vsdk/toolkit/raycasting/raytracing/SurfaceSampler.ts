@@ -62,7 +62,7 @@ export abstract class SurfaceSampler extends Sampler {
       }
 
       const localBsdfComp = bsdfComp !== null ? bsdfComp : new BsdfComp();
-      return bsdf.bsdfEvalComponents(hit, inBsdf, outBsdf, incoming, outgoing, flags, localBsdfComp.asArray());
+      return bsdf.bsdfEvalComponents(hit.shadingContext(), inBsdf, outBsdf, incoming, outgoing, flags, localBsdfComp.asArray());
     }
 
     if (bsdfComp !== null) {
@@ -73,7 +73,7 @@ export abstract class SurfaceSampler extends Sampler {
       radiance.clear();
     }
     else {
-      radiance = bsdf.evaluate(hit, inBsdf, outBsdf, incoming, outgoing, flags);
+      radiance = bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, incoming, outgoing, flags);
     }
     return radiance;
   }

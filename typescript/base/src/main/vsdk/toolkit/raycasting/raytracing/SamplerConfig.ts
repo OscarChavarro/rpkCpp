@@ -395,12 +395,19 @@ export class SamplerConfig {
         nodeY.m_bsdfEval.clear();
       }
       else {
-        nodeY.m_bsdfEval = nodeY.m_hit.getMaterial()!.getEdf()!.phongEdfEval(
-          nodeY.m_hit,
-          dirLE,
-          bsdfFlagsLValue,
-          null
-        );
+        const lightContextOk = [false];
+        const lightContext = nodeY.m_hit.shadingContext(lightContextOk);
+        if (!lightContextOk[0]) {
+          nodeY.m_bsdfEval.clear();
+        }
+        else {
+          nodeY.m_bsdfEval = nodeY.m_hit.getMaterial()!.getEdf()!.phongEdfEval(
+            lightContext,
+            dirLE,
+            bsdfFlagsLValue,
+            null
+          );
+        }
       }
       nodeY.m_bsdfComp.Clear();
       nodeY.m_bsdfComp.Fill(nodeY.m_bsdfEval, BsdfComponent.BRDF_DIFFUSE_COMPONENT);

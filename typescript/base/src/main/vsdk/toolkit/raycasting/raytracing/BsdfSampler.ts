@@ -28,8 +28,9 @@ export class BsdfSampler extends SurfaceSampler {
     let dir = new Vector3D(0.0, 0.0, 0.0);
 
     if (thisNode.m_useBsdf !== null) {
+      const thisContext = thisNode.m_hit.shadingContext();
       dir = thisNode.m_useBsdf.sample(
-        thisNode.m_hit,
+        thisContext,
         thisNode.m_inBsdf,
         thisNode.m_outBsdf,
         thisNode.m_inDirF,
@@ -50,7 +51,7 @@ export class BsdfSampler extends SurfaceSampler {
       let albedo = new ColorRgb();
       albedo.clear();
       if (thisNode.m_useBsdf !== null) {
-        albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit, flags);
+        albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), flags);
       }
       newNode.accumulatedRussianRouletteFactors *= albedo.average();
     }
@@ -83,7 +84,7 @@ export class BsdfSampler extends SurfaceSampler {
 
       if (thisNode.m_useBsdf !== null) {
         thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-          thisNode.m_hit,
+          thisNode.m_hit.shadingContext(),
           thisNode.m_outBsdf,
           thisNode.m_inBsdf,
           newNode.m_inDirT,
@@ -127,7 +128,7 @@ export class BsdfSampler extends SurfaceSampler {
     outPdfRR[0] = 0.0;
     if (thisNode.m_useBsdf !== null) {
       thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-        thisNode.m_hit,
+        thisNode.m_hit.shadingContext(),
         thisNode.m_inBsdf,
         thisNode.m_outBsdf,
         thisNode.m_inDirF,
@@ -168,7 +169,7 @@ export class BsdfSampler extends SurfaceSampler {
     outPdfRR[0] = 0.0;
     if (thisNode.m_useBsdf !== null) {
       thisNode.m_useBsdf.evaluateProbabilityDensityFunction(
-        thisNode.m_hit,
+        thisNode.m_hit.shadingContext(),
         thisNode.m_outBsdf,
         thisNode.m_inBsdf,
         outDir,

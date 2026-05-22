@@ -55,13 +55,13 @@ Returns true a component was chosen, false if absorbed
 
     color.clear();
     if (bsdf !== null) {
-      color = bsdf.splitBsdfScatteredPower(hit, flags1 & 0xFF);
+      color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF);
     }
     power1 = color.average();
 
     color.clear();
     if (bsdf !== null) {
-      color = bsdf.splitBsdfScatteredPower(hit, flags2 & 0xFF);
+      color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF);
     }
     power2 = color.average();
 
@@ -202,7 +202,7 @@ The Fresnel sampler works as follows:
     reflectance.clear();
     if (bsdf !== null) {
       reflectance = bsdf.splitBsdfScatteredPower(
-        thisNode.m_hit,
+        thisNode.m_hit.shadingContext(),
         BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT
       );
     }
@@ -211,7 +211,7 @@ The Fresnel sampler works as follows:
     transmittance.clear();
     if (bsdf !== null) {
       transmittance = bsdf.splitBsdfScatteredPower(
-        thisNode.m_hit,
+        thisNode.m_hit.shadingContext(),
         BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT
       );
     }

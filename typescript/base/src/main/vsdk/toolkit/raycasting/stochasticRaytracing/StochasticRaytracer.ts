@@ -200,7 +200,7 @@ Raytrace the current scene as seen with the current camera.
         let albedo = new ColorRgb();
         albedo.clear();
         if (thisNode.m_useBsdf !== null) {
-          albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit, si.flags);
+          albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags);
         }
         if (albedo.average() < Numeric.EPSILON) {
           numberOfSamples = 0;
@@ -530,8 +530,10 @@ Raytrace the current scene as seen with the current camera.
             diffEmit.clear();
           }
           else {
+            const thisContextOk = [false];
+            const thisContext = thisNode.m_hit.shadingContext(thisContextOk);
             diffEmit = thisEdf.phongEdfEval(
-              thisNode.m_hit,
+              thisContextOk[0] ? thisContext : null,
               thisNode.m_inDirF,
               BsdfComponent.BRDF_DIFFUSE_COMPONENT,
               null
@@ -612,7 +614,9 @@ Raytrace the current scene as seen with the current camera.
           col.clear();
         }
         else {
-          col = thisEdf.phongEdfEval(thisNode.m_hit, thisNode.m_inDirF, edfFlags, null);
+          const thisContextOk = [false];
+          const thisContext = thisNode.m_hit.shadingContext(thisContextOk);
+          col = thisEdf.phongEdfEval(thisContextOk[0] ? thisContext : null, thisNode.m_inDirF, edfFlags, null);
         }
 
         result.addScaled(result, weight, col);

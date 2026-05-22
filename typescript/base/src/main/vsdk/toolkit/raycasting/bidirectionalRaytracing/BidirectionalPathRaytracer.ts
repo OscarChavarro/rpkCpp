@@ -413,8 +413,10 @@ export class BidirectionalPathRaytracer extends RayTracer {
       eyeEndNode.m_bsdfComp.Clear();
 
       if (endingEdf !== null) {
+        const endingContextOk = [false];
+        const endingContext = eyeEndNode.m_hit.shadingContext(endingContextOk);
         eyeEndNode.m_bsdfEval = endingEdf.phongEdfEval(
-          eyeEndNode.m_hit,
+          endingContextOk[0] ? endingContext : null,
           eyeEndNode.m_inDirF,
           XxdfComponentFlag.DIFFUSE_COMPONENT
             | XxdfComponentFlag.GLOSSY_COMPONENT

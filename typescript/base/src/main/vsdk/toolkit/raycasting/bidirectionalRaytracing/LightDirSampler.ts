@@ -34,8 +34,13 @@ export class LightDirSampler extends Sampler {
     }
 
     let dir = new Vector3D(0.0, 0.0, 0.0);
+    const lightContextOk = [false];
+    const lightContext = thisNode.m_hit.shadingContext(lightContextOk);
+    if (!lightContextOk[0]) {
+      return false;
+    }
     dir = thisNode.m_hit.getMaterial()!.getEdf()!.phongEdfSample(
-      thisNode.m_hit,
+      lightContext,
       XxdfComponentFlag.DIFFUSE_COMPONENT,
       x1,
       x2,
@@ -92,7 +97,7 @@ export class LightDirSampler extends Sampler {
 
     const outPdf = [0.0];
     thisNode.m_hit.getMaterial()!.getEdf()!.phongEdfEval(
-      thisNode.m_hit,
+      thisNode.m_hit.shadingContext(),
       outDir,
       XxdfComponentFlag.DIFFUSE_COMPONENT,
       outPdf

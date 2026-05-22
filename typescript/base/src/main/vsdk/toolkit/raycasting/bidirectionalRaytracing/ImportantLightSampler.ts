@@ -89,7 +89,7 @@ export class ImportantLightSampler extends NextEventSampler {
       let dir = new Vector3D(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null) {
-        dir = light.material.getEdf()!.phongEdfSample(null as any, flags, x1, x2, null, pdf);
+        dir = light.material.getEdf()!.phongEdfSample(null, flags, x1, x2, null, pdf);
       }
 
       point.addition(thisNode.m_hit.getPoint(), dir);
@@ -151,7 +151,7 @@ export class ImportantLightSampler extends NextEventSampler {
       else {
         const outPdfDir = [0.0];
         (newNode.m_hit.getPatch() as Patch).material!.getEdf()!.phongEdfEval(
-          null as any,
+          null,
           newNode.m_inDirF,
           XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
           outPdfDir

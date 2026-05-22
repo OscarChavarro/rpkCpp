@@ -91,8 +91,13 @@ export class Nondiff {
       dirSelectionPdf[0] = 0.0;
       ray.direction.set(0.0, 0.0, 0.0);
       if (patch.material !== null && patch.material.getEdf() !== null) {
+        const shctxOk = [false];
+        const shctx = hit.shadingContext(shctxOk);
+        if (!shctxOk[0]) {
+          continue;
+        }
         ray.direction = patch.material.getEdf()!.phongEdfSample(
-          hit,
+          shctx,
           0x01 | 0x02 | 0x04,
           zeta[2],
           zeta[3],

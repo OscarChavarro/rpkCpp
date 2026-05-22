@@ -5,6 +5,8 @@ import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { Material } from "../../../material/Material";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../../material/PhongBidirectionalScatteringDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
+import { ShadingContext } from "../../../material/ShadingContext";
+import { ShadingContextFlag } from "../../../material/ShadingContextFlag";
 import { RayHitFlag } from "./RayHitFlag";
 import type { Patch } from "./Patch";
 
@@ -68,11 +70,31 @@ export class RayHit {
     }
 
     if (this.material !== null && this.material.getBsdf() !== null) {
-      success = PhongBidirectionalScatteringDistributionFunction.bsdfShadingFrame(this, inX, inY, inZ);
+      const context = new ShadingContext(
+        this.getPoint(),
+        this.getGeometricNormal(),
+        this.shadingFrame.getZ(),
+        this.texCoord,
+        this.uv,
+        this.shadingFrame,
+        this.material,
+        0
+      );
+      success = PhongBidirectionalScatteringDistributionFunction.bsdfShadingFrame(context, inX, inY, inZ);
     }
 
     if (!success && this.material !== null && this.material.getEdf() !== null) {
-      success = PhongEmittanceDistributionFunction.edfShadingFrame(this, inX, inY, inZ);
+      const context = new ShadingContext(
+        this.getPoint(),
+        this.getGeometricNormal(),
+        this.shadingFrame.getZ(),
+        this.texCoord,
+        this.uv,
+        this.shadingFrame,
+        this.material,
+        0
+      );
+      success = PhongEmittanceDistributionFunction.edfShadingFrame(context, inX, inY, inZ);
     }
 
     if (!success && this.computeUv(this.uv) && this.patch !== null) {
@@ -169,6 +191,43 @@ export class RayHit {
     this.shadingFrame.setZ(localNormal);
     inNormal.copy(this.shadingFrame.getZ());
     return true;
+  }
+
+  public shadingContext(ok: boolean[] | null = null): ShadingContext {
+    const normal = new Vector3D();
+    const texCoord = new Vector3D();
+    let localFlags = 0;
+    let localOk = true;
+
+    if (!this.shadingNormal(normal)) {
+      localOk = false;
+      normal.set(0.0, 0.0, 1.0);
+    }
+    else {
+      localFlags |= ShadingContextFlag.SHCTX_NORMAL;
+    }
+
+    if (this.getTexCoord(texCoord)) {
+      localFlags |= ShadingContextFlag.SHCTX_TEXTURE_COORDINATE;
+    }
+    else {
+      texCoord.set(0.0, 0.0, 0.0);
+    }
+
+    if (ok !== null && ok.length > 0) {
+      ok[0] = localOk;
+    }
+
+    return new ShadingContext(
+      this.point,
+      this.geometricNormal,
+      normal,
+      texCoord,
+      this.uv,
+      this.shadingFrame,
+      this.material,
+      localFlags
+    );
   }
 
   public setShadingFrame(frame: CoordinateSystem): boolean;

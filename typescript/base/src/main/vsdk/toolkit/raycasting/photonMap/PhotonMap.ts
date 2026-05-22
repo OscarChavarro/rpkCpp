@@ -126,7 +126,15 @@ export class PhotonMap {
       color.clear();
     }
     else {
-      color = bsdf.splitBsdfScatteredPower(hit, flags & 0xFF);
+      const shctxOk = [false];
+      const shctx = hit.shadingContext(shctxOk);
+      if (shctxOk[0]) {
+        color = bsdf.splitBsdfScatteredPower(shctx, flags & 0xFF);
+      }
+      else {
+        color = new ColorRgb();
+        color.clear();
+      }
     }
     return color.average() < Numeric.EPSILON;
   }
@@ -423,10 +431,12 @@ Get a maximum radius^2 to be used when locating photons
     diffuseAlbedo.clear();
     glossyAlbedo.clear();
 
-    if (bsdf !== null) {
-      diffuseAlbedo = bsdf.splitBsdfScatteredPower(hit, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+    const shctxOk = [false];
+    const shctx = hit.shadingContext(shctxOk);
+    if (bsdf !== null && shctxOk[0]) {
+      diffuseAlbedo = bsdf.splitBsdfScatteredPower(shctx, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
       glossyAlbedo = bsdf.splitBsdfScatteredPower(
-        hit,
+        shctx,
         BsdfComponent.BTDF_DIFFUSE_COMPONENT
           | BsdfComponent.BRDF_GLOSSY_COMPONENT
           | BsdfComponent.BTDF_GLOSSY_COMPONENT
@@ -459,12 +469,12 @@ Get a maximum radius^2 to be used when locating photons
     for (let i = 0; i < this.m_nrpFound; i++) {
       const dir = this.m_photons[i].dir();
 
-      if (bsdf === null) {
+      if (bsdf === null || !shctxOk[0]) {
         evalColor.clear();
       }
       else {
         const evaluated = bsdf.evaluate(
-          hit,
+          shctx,
           inBsdf,
           outBsdf,
           outDir,

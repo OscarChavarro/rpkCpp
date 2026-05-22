@@ -631,11 +631,11 @@ Computes average reflectance and emittance of a surface sub-element
       const position = hit.getPoint();
       patch.uniformPoint(hit.getUv().u, hit.getUv().v, position);
       if (patch.material !== null && patch.material.getBsdf() !== null) {
-        sample = patch.material.getBsdf().splitBsdfScatteredPower(hit, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+        sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         albedo.add(albedo, sample);
       }
       if (patch.material !== null && patch.material.getEdf() !== null) {
-        sample = patch.material.getEdf().phongEmittance(hit, XxdfComponentFlag.DIFFUSE_COMPONENT);
+        sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT);
         emittance.add(emittance, sample);
       }
     }

@@ -47,7 +47,7 @@ export class PatchVisitor {
       sample = new ColorRgb();
       sample.clear();
       if (patch.material !== null && patch.material.getBsdf() !== null) {
-        sample = patch.material.getBsdf()!.splitBsdfScatteredPower(hit, components);
+        sample = patch.material.getBsdf()!.splitBsdfScatteredPower(hit.shadingContext(), components);
       }
       albedo.add(albedo, sample);
     }
@@ -76,7 +76,7 @@ export class PatchVisitor {
         sample.clear();
       }
       else {
-        sample = patch.material.getEdf().phongEmittance(hit, components);
+        sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), components);
       }
       emittance.add(emittance, sample);
     }

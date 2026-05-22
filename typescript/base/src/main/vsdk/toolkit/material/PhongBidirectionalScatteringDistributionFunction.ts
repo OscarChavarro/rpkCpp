@@ -3,15 +3,14 @@ import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { RayHit } from "../environment/geometry/elements/RayHit";
 import { BsdfComponent } from "./BsdfComponent";
 import { BsdfComponentFlag } from "./BsdfComponentFlag";
 import { BsdfComponentInfo } from "./BsdfComponent";
-import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { PhongBidirectionalReflectanceDistributionFunction } from "./PhongBidirectionalReflectanceDistributionFunction";
 import { PhongBidirectionalTransmittanceDistributionFunction } from "./PhongBidirectionalTransmittanceDistributionFunction";
 import { RefractionIndex } from "./RefractionIndex";
 import { ShadingContext } from "./ShadingContext";
+import { ShadingContextFlag } from "./ShadingContextFlag";
 import { SplitBSDFSamplingMode } from "./SplitBSDFSamplingMode";
 import { Texture } from "./Texture";
 
@@ -44,33 +43,15 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return this.texture;
   }
 
-  public static bsdfShadingFrame(hitOrContext: RayHit | ShadingContext, X: Vector3D | null, Y: Vector3D | null, Z: Vector3D | null): boolean {
-    void hitOrContext;
+  public static bsdfShadingFrame(context: ShadingContext, X: Vector3D | null, Y: Vector3D | null, Z: Vector3D | null): boolean {
+    void context;
     void X;
     void Y;
     void Z;
     return false;
   }
 
-  private static extractHitData(hit: RayHit | null, normal: Vector3D, texCoord: Vector3D, flags: number[]): boolean {
-    if (hit === null || flags.length < 1) {
-      return false;
-    }
-    if (!hit.shadingNormal(normal)) {
-      return false;
-    }
-    flags[0] = RayHitFlag.NORMAL;
-    if (hit.getTexCoord(texCoord)) {
-      flags[0] |= RayHitFlag.TEXTURE_COORDINATE;
-    }
-    else {
-      texCoord.set(0.0, 0.0, 0.0);
-    }
-    return true;
-  }
-
-  private static splitBsdfEvalTexture(texture: Texture | null, hitOrContext: RayHit | ShadingContext): ColorRgb {
-    const texCoord = new Vector3D();
+  private static splitBsdfEvalTexture(texture: Texture | null, context: ShadingContext): ColorRgb {
     const col = new ColorRgb();
     col.clear();
 
@@ -78,51 +59,20 @@ export class PhongBidirectionalScatteringDistributionFunction {
       return col;
     }
 
-    if (hitOrContext instanceof ShadingContext) {
-      if (!hitOrContext.hasFlag(RayHitFlag.TEXTURE_COORDINATE)) {
-        VsdkLogger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
-        return col;
-      }
-      const ctxTexCoord = hitOrContext.getTexCoord();
-      return texture.evaluateColor(ctxTexCoord.x, ctxTexCoord.y);
+    if (!context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE)) {
+      VsdkLogger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+      return col;
     }
-    else {
-      if (!hitOrContext.getTexCoord(texCoord)) {
-        VsdkLogger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
-        return col;
-      }
-      return texture.evaluateColor(texCoord.x, texCoord.y);
-    }
+    const texCoord = context.getTexCoord();
+    return texture.evaluateColor(texCoord.x, texCoord.y);
   }
 
-  public splitBsdfScatteredPower(hitOrContext: RayHit | ShadingContext, flags: number): ColorRgb {
-    if (!(hitOrContext instanceof ShadingContext)) {
-      const normal = new Vector3D();
-      const texCoord = new Vector3D();
-      const localFlags = [0];
-      if (!PhongBidirectionalScatteringDistributionFunction.extractHitData(hitOrContext, normal, texCoord, localFlags)) {
-        const out = new ColorRgb();
-        out.clear();
-        return out;
-      }
-      const context = new ShadingContext(
-        hitOrContext.getPoint(),
-        hitOrContext.getGeometricNormal(),
-        normal,
-        texCoord,
-        hitOrContext.getUv(),
-        hitOrContext.getShadingFrame(),
-        hitOrContext.getMaterial(),
-        localFlags[0]
-      );
-      return this.splitBsdfScatteredPower(context, flags);
-    }
-
+  public splitBsdfScatteredPower(context: ShadingContext, flags: number): ColorRgb {
     const albedo = new ColorRgb();
     albedo.clear();
 
     if (this.texture !== null && (flags & PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT) !== 0) {
-      const textureColor = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, hitOrContext);
+      const textureColor = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, context);
       albedo.add(albedo, textureColor);
       flags &= ~PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT;
     }
@@ -171,7 +121,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   private splitBsdfProbabilities(
-    hitOrContext: RayHit | ShadingContext,
+    context: ShadingContext,
     flags: number,
     inTexture: number[] | null,
     reflection: number[] | null,
@@ -182,7 +132,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     PhongBidirectionalScatteringDistributionFunction.setOut(inTexture, 0.0);
 
     if (this.texture !== null && (flags & PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT) !== 0) {
-      const textureColor = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, hitOrContext);
+      const textureColor = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, context);
       PhongBidirectionalScatteringDistributionFunction.setOut(inTexture, textureColor.average());
       flags &= ~PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT;
     }
@@ -237,7 +187,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   public sample(
-    hitOrContext: RayHit | ShadingContext,
+    context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inDirection: Vector3D,
@@ -247,39 +197,16 @@ export class PhongBidirectionalScatteringDistributionFunction {
     x2: number,
     probabilityDensityFunction: number[] | null
   ): Vector3D {
-    if (!(hitOrContext instanceof ShadingContext)) {
-      const normal0 = new Vector3D();
-      const texCoord0 = new Vector3D();
-      const localFlags0 = [0];
-      if (!PhongBidirectionalScatteringDistributionFunction.extractHitData(hitOrContext, normal0, texCoord0, localFlags0)) {
-        const out0 = new Vector3D();
-        out0.set(0.0, 0.0, 1.0);
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
-        return out0;
-      }
-      const context0 = new ShadingContext(
-        hitOrContext.getPoint(),
-        hitOrContext.getGeometricNormal(),
-        normal0,
-        texCoord0,
-        hitOrContext.getUv(),
-        hitOrContext.getShadingFrame(),
-        hitOrContext.getMaterial(),
-        localFlags0[0]
-      );
-      return this.sample(context0, inBsdf, outBsdf, inDirection, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
-    }
-
     const normal = new Vector3D();
     let out = new Vector3D();
 
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
-    if (!hitOrContext.hasFlag(RayHitFlag.NORMAL)) {
+    if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.warning("sample", "Couldn't determine shading normal");
       out.set(0.0, 0.0, 1.0);
       return out;
     }
-    normal.copy(hitOrContext.getShadingNormal());
+    normal.copy(context.getShadingNormal());
 
     const localTexture = [0.0];
     const reflection = [0.0];
@@ -287,7 +214,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     const brdfFlags = [0];
     const btdfFlags = [0];
 
-    this.splitBsdfProbabilities(hitOrContext, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
+    this.splitBsdfProbabilities(context, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
 
     const scattering = localTexture[0] + reflection[0] + transmission[0];
     if (scattering < Numeric.EPSILON) {
@@ -418,48 +345,26 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   public evaluate(
-    hitOrContext: RayHit | ShadingContext,
+    context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inDirection: Vector3D,
     out: Vector3D,
     flags: number
   ): ColorRgb {
-    if (!(hitOrContext instanceof ShadingContext)) {
-      const normal0 = new Vector3D();
-      const texCoord0 = new Vector3D();
-      const localFlags0 = [0];
-      if (!PhongBidirectionalScatteringDistributionFunction.extractHitData(hitOrContext, normal0, texCoord0, localFlags0)) {
-        const result0 = new ColorRgb();
-        result0.clear();
-        return result0;
-      }
-      const context0 = new ShadingContext(
-        hitOrContext.getPoint(),
-        hitOrContext.getGeometricNormal(),
-        normal0,
-        texCoord0,
-        hitOrContext.getUv(),
-        hitOrContext.getShadingFrame(),
-        hitOrContext.getMaterial(),
-        localFlags0[0]
-      );
-      return this.evaluate(context0, inBsdf, outBsdf, inDirection, out, flags);
-    }
-
     const result = new ColorRgb();
     const normal = new Vector3D();
 
     result.clear();
-    if (!hitOrContext.hasFlag(RayHitFlag.NORMAL)) {
+    if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.warning("evaluate", "Couldn't determine shading normal");
       return result;
     }
-    normal.copy(hitOrContext.getShadingNormal());
+    normal.copy(context.getShadingNormal());
 
     if (this.texture !== null && (flags & PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT) !== 0) {
       const textureBsdf = PhongBidirectionalScatteringDistributionFunction.texturedScattererEval(inDirection, out, normal);
-      const textureCol = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, hitOrContext);
+      const textureCol = PhongBidirectionalScatteringDistributionFunction.splitBsdfEvalTexture(this.texture, context);
       result.addScaled(result, textureBsdf, textureCol);
       flags &= ~PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT;
     }
@@ -496,7 +401,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   public evaluateProbabilityDensityFunction(
-    hitOrContext: RayHit | ShadingContext,
+    context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inDirection: Vector3D,
@@ -505,40 +410,15 @@ export class PhongBidirectionalScatteringDistributionFunction {
     probabilityDensityFunction: number[] | null,
     probabilityDensityFunctionRR: number[] | null
   ): void {
-    if (!(hitOrContext instanceof ShadingContext)) {
-      const normal0 = new Vector3D();
-      const texCoord0 = new Vector3D();
-      const localFlags0 = [0];
-      if (!PhongBidirectionalScatteringDistributionFunction.extractHitData(hitOrContext, normal0, texCoord0, localFlags0)) {
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
-        return;
-      }
-      const context0 = new ShadingContext(
-        hitOrContext.getPoint(),
-        hitOrContext.getGeometricNormal(),
-        normal0,
-        texCoord0,
-        hitOrContext.getUv(),
-        hitOrContext.getShadingFrame(),
-        hitOrContext.getMaterial(),
-        localFlags0[0]
-      );
-      this.evaluateProbabilityDensityFunction(
-        context0, inBsdf, outBsdf, inDirection, out, flags, probabilityDensityFunction, probabilityDensityFunctionRR
-      );
-      return;
-    }
-
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
 
     const normal = new Vector3D();
-    if (!hitOrContext.hasFlag(RayHitFlag.NORMAL)) {
+    if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
       return;
     }
-    normal.copy(hitOrContext.getShadingNormal());
+    normal.copy(context.getShadingNormal());
 
     const pTexture = [0.0];
     const pReflection = [0.0];
@@ -546,7 +426,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     const brdfFlags = [0];
     const btdfFlags = [0];
 
-    this.splitBsdfProbabilities(hitOrContext, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
+    this.splitBsdfProbabilities(context, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
 
     const pScattering = pTexture[0] + pReflection[0] + pTransmission[0];
     if (pScattering < Numeric.EPSILON) {
@@ -606,7 +486,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   public bsdfEvalComponents(
-    hitOrContext: RayHit | ShadingContext,
+    context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inDirection: Vector3D,
@@ -614,28 +494,6 @@ export class PhongBidirectionalScatteringDistributionFunction {
     flags: number,
     colArray: ColorRgb[]
   ): ColorRgb {
-    if (!(hitOrContext instanceof ShadingContext)) {
-      const normal0 = new Vector3D();
-      const texCoord0 = new Vector3D();
-      const localFlags0 = [0];
-      if (!PhongBidirectionalScatteringDistributionFunction.extractHitData(hitOrContext, normal0, texCoord0, localFlags0)) {
-        const result0 = new ColorRgb();
-        result0.clear();
-        return result0;
-      }
-      const context0 = new ShadingContext(
-        hitOrContext.getPoint(),
-        hitOrContext.getGeometricNormal(),
-        normal0,
-        texCoord0,
-        hitOrContext.getUv(),
-        hitOrContext.getShadingFrame(),
-        hitOrContext.getMaterial(),
-        localFlags0[0]
-      );
-      return this.bsdfEvalComponents(context0, inBsdf, outBsdf, inDirection, out, flags, colArray);
-    }
-
     const result = new ColorRgb();
     const empty = new ColorRgb();
     empty.clear();
@@ -644,7 +502,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     for (let i = 0; i < BsdfComponentInfo.BSDF_COMPONENTS; i++) {
       const thisFlag = BsdfComponentFlag.bsdfIndexToComp(i);
       if ((flags & thisFlag) !== 0) {
-        colArray[i] = this.evaluate(hitOrContext, inBsdf, outBsdf, inDirection, out, thisFlag);
+        colArray[i] = this.evaluate(context, inBsdf, outBsdf, inDirection, out, thisFlag);
         result.add(result, colArray[i]);
       }
       else {
