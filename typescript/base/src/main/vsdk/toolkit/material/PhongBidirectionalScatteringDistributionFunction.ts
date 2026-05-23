@@ -155,21 +155,21 @@ export class PhongBidirectionalScatteringDistributionFunction {
   ): SplitBSDFSamplingMode {
     let mode = SplitBSDFSamplingMode.SAMPLE_ABSORPTION;
 
-    if (x1[0] < texture) {
+    if (x1[0]! < texture) {
       mode = SplitBSDFSamplingMode.SAMPLE_TEXTURE;
-      x1[0] /= texture;
+      x1[0]! /= texture;
     }
     else {
-      x1[0] -= texture;
-      if (x1[0] < reflection) {
+      x1[0]! -= texture;
+      if (x1[0]! < reflection) {
         mode = SplitBSDFSamplingMode.SAMPLE_REFLECTION;
-        x1[0] /= reflection;
+        x1[0]! /= reflection;
       }
       else {
-        x1[0] -= reflection;
-        if (x1[0] < transmission) {
+        x1[0]! -= reflection;
+        if (x1[0]! < transmission) {
           mode = SplitBSDFSamplingMode.SAMPLE_TRANSMISSION;
-          x1[0] /= transmission;
+          x1[0]! /= transmission;
         }
       }
     }
@@ -216,20 +216,20 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
     this.splitBsdfProbabilities(context, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
 
-    const scattering = localTexture[0] + reflection[0] + transmission[0];
+    const scattering = localTexture[0]! + reflection[0]! + transmission[0]!;
     if (scattering < Numeric.EPSILON) {
       return out;
     }
 
     if (doRussianRoulette === 0) {
-      localTexture[0] /= scattering;
-      reflection[0] /= scattering;
-      transmission[0] /= scattering;
+      localTexture[0]! /= scattering;
+      reflection[0]! /= scattering;
+      transmission[0]! /= scattering;
     }
 
     const localX1 = [x1];
     const mode = PhongBidirectionalScatteringDistributionFunction.splitBsdfSamplingMode(
-      localTexture[0], reflection[0], transmission[0], localX1
+      localTexture[0]!, reflection[0]!, transmission[0]!, localX1
     );
 
     const inIndex = new RefractionIndex();
@@ -247,13 +247,13 @@ export class PhongBidirectionalScatteringDistributionFunction {
       case SplitBSDFSamplingMode.SAMPLE_TEXTURE: {
         const pTexture = [0.0];
         out = PhongBidirectionalScatteringDistributionFunction.texturedScattererSample(
-          inDirection, normal, localX1[0], x2, pTexture
+          inDirection, normal, localX1[0]!, x2, pTexture
         );
-        p = pTexture[0];
+        p = pTexture[0]!;
         if (p < Numeric.EPSILON) {
           return out;
         }
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, localTexture[0] * p);
+        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, localTexture[0]! * p);
         break;
       }
       case SplitBSDFSamplingMode.SAMPLE_REFLECTION: {
@@ -262,13 +262,13 @@ export class PhongBidirectionalScatteringDistributionFunction {
         }
         else {
           const pReflection = [0.0];
-          out = this.brdf.sample(inDirection, normal, 0, brdfFlags[0], localX1[0], x2, pReflection);
-          p = pReflection[0];
+          out = this.brdf.sample(inDirection, normal, 0, brdfFlags[0]!, localX1[0]!, x2, pReflection);
+          p = pReflection[0]!;
         }
         if (p < Numeric.EPSILON) {
           return out;
         }
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, reflection[0] * p);
+        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, reflection[0]! * p);
         break;
       }
       case SplitBSDFSamplingMode.SAMPLE_TRANSMISSION: {
@@ -280,13 +280,13 @@ export class PhongBidirectionalScatteringDistributionFunction {
         }
         else {
           const pTransmission = [0.0];
-          out = this.btdf.sample(inIndex, outIndex, inDirection, normal, 0, btdfFlags[0], localX1[0], x2, pTransmission);
-          p = pTransmission[0];
+          out = this.btdf.sample(inIndex, outIndex, inDirection, normal, 0, btdfFlags[0]!, localX1[0]!, x2, pTransmission);
+          p = pTransmission[0]!;
         }
         if (p < Numeric.EPSILON) {
           return out;
         }
-        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, transmission[0] * p);
+        PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, transmission[0]! * p);
         break;
       }
       case SplitBSDFSamplingMode.SAMPLE_ABSORPTION:
@@ -300,7 +300,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
       PhongBidirectionalScatteringDistributionFunction.texturedScattererEvalPdf(inDirection, out, normal, pTexture);
       PhongBidirectionalScatteringDistributionFunction.setOut(
         probabilityDensityFunction,
-        (probabilityDensityFunction?.[0] ?? 0.0) + localTexture[0] * pTexture[0]
+        (probabilityDensityFunction?.[0] ?? 0.0) + localTexture[0]! * pTexture[0]!
       );
     }
 
@@ -309,12 +309,12 @@ export class PhongBidirectionalScatteringDistributionFunction {
       if (this.brdf !== null) {
         const pRR = [0.0];
         const outP = [0.0];
-        this.brdf.evaluateProbabilityDensityFunction(inDirection, out, normal, brdfFlags[0], outP, pRR);
-        pReflection = outP[0];
+        this.brdf.evaluateProbabilityDensityFunction(inDirection, out, normal, brdfFlags[0]!, outP, pRR);
+        pReflection = outP[0]!;
       }
       PhongBidirectionalScatteringDistributionFunction.setOut(
         probabilityDensityFunction,
-        (probabilityDensityFunction?.[0] ?? 0.0) + reflection[0] * pReflection
+        (probabilityDensityFunction?.[0] ?? 0.0) + reflection[0]! * pReflection
       );
     }
 
@@ -324,13 +324,13 @@ export class PhongBidirectionalScatteringDistributionFunction {
         const pRR = [0.0];
         const outP = [0.0];
         this.btdf.evaluateProbabilityDensityFunction(
-          inIndex, outIndex, inDirection, out, normal, btdfFlags[0], outP, pRR
+          inIndex, outIndex, inDirection, out, normal, btdfFlags[0]!, outP, pRR
         );
-        pTransmission = outP[0];
+        pTransmission = outP[0]!;
       }
       PhongBidirectionalScatteringDistributionFunction.setOut(
         probabilityDensityFunction,
-        (probabilityDensityFunction?.[0] ?? 0.0) + transmission[0] * pTransmission
+        (probabilityDensityFunction?.[0] ?? 0.0) + transmission[0]! * pTransmission
       );
     }
 
@@ -428,7 +428,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
     this.splitBsdfProbabilities(context, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
 
-    const pScattering = pTexture[0] + pReflection[0] + pTransmission[0];
+    const pScattering = pTexture[0]! + pReflection[0]! + pTransmission[0]!;
     if (pScattering < Numeric.EPSILON) {
       return;
     }
@@ -453,18 +453,18 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
     const p = [0.0];
     PhongBidirectionalScatteringDistributionFunction.texturedScattererEvalPdf(inDirection, out, normal, p);
-    PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, pTexture[0] * p[0]);
+    PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, pTexture[0]! * p[0]!);
 
     if (this.brdf === null) {
       p[0] = 0.0;
     }
     else {
       const pRR = [0.0];
-      this.brdf.evaluateProbabilityDensityFunction(inDirection, out, normal, brdfFlags[0], p, pRR);
+      this.brdf.evaluateProbabilityDensityFunction(inDirection, out, normal, brdfFlags[0]!, p, pRR);
     }
     PhongBidirectionalScatteringDistributionFunction.setOut(
       probabilityDensityFunction,
-      (probabilityDensityFunction?.[0] ?? 0.0) + pReflection[0] * p[0]
+      (probabilityDensityFunction?.[0] ?? 0.0) + pReflection[0]! * p[0]!
     );
 
     if (this.btdf === null) {
@@ -472,11 +472,11 @@ export class PhongBidirectionalScatteringDistributionFunction {
     }
     else {
       const pRR = [0.0];
-      this.btdf.evaluateProbabilityDensityFunction(inIndex, outIndex, inDirection, out, normal, btdfFlags[0], p, pRR);
+      this.btdf.evaluateProbabilityDensityFunction(inIndex, outIndex, inDirection, out, normal, btdfFlags[0]!, p, pRR);
     }
     PhongBidirectionalScatteringDistributionFunction.setOut(
       probabilityDensityFunction,
-      (probabilityDensityFunction?.[0] ?? 0.0) + pTransmission[0] * p[0]
+      (probabilityDensityFunction?.[0] ?? 0.0) + pTransmission[0]! * p[0]!
     );
 
     PhongBidirectionalScatteringDistributionFunction.setOut(
@@ -503,7 +503,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
       const thisFlag = BsdfComponentFlag.bsdfIndexToComp(i);
       if ((flags & thisFlag) !== 0) {
         colArray[i] = this.evaluate(context, inBsdf, outBsdf, inDirection, out, thisFlag);
-        result.add(result, colArray[i]);
+        result.add(result, colArray[i]!);
       }
       else {
         colArray[i] = new ColorRgb(empty.r, empty.g, empty.b);

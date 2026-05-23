@@ -46,7 +46,7 @@ export class DensityBuffer {
     for (let i = 0; i < DensityBuffer.DHA_X_RES; i++) {
       this.hitGrid[i] = new Array<DensityHitList>(DensityBuffer.DHA_Y_RES);
       for (let j = 0; j < DensityBuffer.DHA_Y_RES; j++) {
-        this.hitGrid[i][j] = new DensityHitList();
+        this.hitGrid[i]![j] = new DensityHitList();
       }
     }
 
@@ -64,7 +64,7 @@ export class DensityBuffer {
 
       const hit = new DensityHit(x, y, tmpCol);
 
-      this.hitGrid[this.xIndex(x)][this.yIndex(y)].add(hit);
+      this.hitGrid[this.xIndex(x)]![this.yIndex(y)]!.add(hit);
     }
   }
 
@@ -83,10 +83,10 @@ export class DensityBuffer {
 
     for (let i = 0; i < DensityBuffer.DHA_X_RES; i++) {
       for (let j = 0; j < DensityBuffer.DHA_Y_RES; j++) {
-        const maxK = this.hitGrid[i][j].storedHits();
+        const maxK = this.hitGrid[i]![j]!.storedHits();
 
         for (let k = 0; k < maxK; k++) {
-          const hit = this.hitGrid[i][j].get(k);
+          const hit = this.hitGrid[i]![j]!.get(k);
 
           center.x = hit.m_x;
           center.y = hit.m_y;
@@ -107,10 +107,10 @@ export class DensityBuffer {
 
     for (let i = 0; i < DensityBuffer.DHA_X_RES; i++) {
       for (let j = 0; j < DensityBuffer.DHA_Y_RES; j++) {
-        const maxK = this.hitGrid[i][j].storedHits();
+        const maxK = this.hitGrid[i]![j]!.storedHits();
 
         for (let k = 0; k < maxK; k++) {
-          const hit = this.hitGrid[i][j].get(k);
+          const hit = this.hitGrid[i]![j]!.get(k);
 
           center.x = hit.m_x;
           center.y = hit.m_y;

@@ -8,8 +8,8 @@ export class StratifiedSampling2D {
     const divs1 = [0];
     const divs2 = [0];
     StratifiedSampling2D.getNumberOfDivisions(nrSamples, divs1, divs2);
-    this.xMaxStratum = divs1[0];
-    this.yMaxStratum = divs2[0];
+    this.xMaxStratum = divs1[0]!;
+    this.yMaxStratum = divs2[0]!;
     this.xStratum = 0;
     this.yStratum = 0;
   }
@@ -21,7 +21,7 @@ export class StratifiedSampling2D {
       const sx1 = [0.0];
       const sx2 = [0.0];
       this.sample(sx1, sx2);
-      return [sx1[0], sx2[0]];
+      return [sx1[0]!, sx2[0]!];
     }
 
     if (x1.length === 0 || x2.length === 0) {

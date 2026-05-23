@@ -42,7 +42,7 @@ export class BsdfSampler extends SurfaceSampler {
       );
     }
 
-    if (pdfDir[0] <= Numeric.EPSILON) {
+    if (pdfDir[0]! <= Numeric.EPSILON) {
       return false;
     }
 
@@ -58,7 +58,7 @@ export class BsdfSampler extends SurfaceSampler {
 
     SurfaceSampler.DetermineRayType(thisNode, newNode, dir);
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0])) {
+    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }
@@ -95,8 +95,8 @@ export class BsdfSampler extends SurfaceSampler {
         );
       }
 
-      prevNode.m_rrPdfFromNext = pdfRR[0];
-      prevNode.m_pdfFromNext = pdfDirI[0] * thisNode.m_G / cosI;
+      prevNode.m_rrPdfFromNext = pdfRR[0]!;
+      prevNode.m_pdfFromNext = pdfDirI[0]! * thisNode.m_G / cosI;
     }
 
     return true;
@@ -141,7 +141,7 @@ export class BsdfSampler extends SurfaceSampler {
 
     const cosA = -outDir.dotProduct(newNode.m_normal);
 
-    outPdf[0] = pdfDir[0] * cosA / dist2;
+    outPdf[0] = pdfDir[0]! * cosA / dist2;
 
     return outPdf[0] * outPdfRR[0];
   }
@@ -182,7 +182,7 @@ export class BsdfSampler extends SurfaceSampler {
 
     const cosB = thisNode.m_inDirF.dotProduct(thisNode.m_normal);
 
-    outPdf[0] = pdfDir[0] * thisNode.m_G / cosB;
+    outPdf[0] = pdfDir[0]! * thisNode.m_G / cosB;
 
     return outPdf[0] * outPdfRR[0];
   }

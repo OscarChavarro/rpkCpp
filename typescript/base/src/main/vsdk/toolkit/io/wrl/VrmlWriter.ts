@@ -106,7 +106,7 @@ export class VrmlWriter {
     if (index <= 0) {
       return null;
     }
-    return VrmlWriter.cameraStack[index - 1];
+    return VrmlWriter.cameraStack[index - 1] ?? null;
   }
 
   private static transformModel(camera: Camera, modelRotationAxis: Vector3D, modelRotationAngle: number[]): Matrix4x4 {

@@ -50,7 +50,7 @@ export class ClusterTraversalStrategy {
     }
     switch (galerkinState.clusteringStrategy) {
       case GalerkinClusteringStrategy.ISOTROPIC:
-        return (sourceElement.radiance as ColorRgb[])[0];
+        return (sourceElement.radiance as ColorRgb[])[0]!;
       case GalerkinClusteringStrategy.ORIENTED: {
         let sourceRadiance = new ColorRgb();
         sourceRadiance.clear();
@@ -61,7 +61,7 @@ export class ClusterTraversalStrategy {
         return sourceRadiance;
       }
       case GalerkinClusteringStrategy.Z_VISIBILITY:
-        return (sourceElement.radiance as ColorRgb[])[0];
+        return (sourceElement.radiance as ColorRgb[])[0]!;
       default:
         VsdkLogger.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
         return new ColorRgb();
@@ -134,17 +134,17 @@ export class ClusterTraversalStrategy {
     const rcvRad = rcv.receivedRadiance as ColorRgb[];
 
     if (link.numberOfBasisFunctionsOnReceiver === 1 && link.numberOfBasisFunctionsOnSource === 1) {
-      rcvRad[0].addScaled(rcvRad[0], areaFactor * link.K[0], sourceRadiance[0]);
+      rcvRad[0]!.addScaled(rcvRad[0]!, areaFactor * link.K[0]!, sourceRadiance[0]!);
     }
     else {
       const a = globalThis.Math.min(link.numberOfBasisFunctionsOnReceiver, rcv.basisSize);
       const b = globalThis.Math.min(link.numberOfBasisFunctionsOnSource, link.sourceElement.basisSize);
       for (let alpha = 0; alpha < a; alpha++) {
         for (let beta = 0; beta < b; beta++) {
-          rcvRad[alpha].addScaled(
-            rcvRad[alpha],
-            areaFactor * link.K[alpha * link.numberOfBasisFunctionsOnSource + beta],
-            sourceRadiance[beta],
+          rcvRad[alpha]!.addScaled(
+            rcvRad[alpha]!,
+            areaFactor * link.K[alpha * link.numberOfBasisFunctionsOnSource + beta]!,
+            sourceRadiance[beta]!,
           );
         }
       }

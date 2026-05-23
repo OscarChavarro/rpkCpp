@@ -125,7 +125,7 @@ Initialises patch data
     patchRad![0] = new ColorRgb(Ed.r, Ed.g, Ed.b);
     patchUnShotRad![0] = new ColorRgb(Ed.r, Ed.g, Ed.b);
     McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgb(Ed.r, Ed.g, Ed.b);
-    patchReceivedRad![0].clear();
+    patchReceivedRad![0]!.clear();
 
     McradP.topLevelStochasticRadiosityElement(patch).rayIndex = patch.id * 11;
     McradP.topLevelStochasticRadiosityElement(patch).quality = 0.0;
@@ -261,10 +261,10 @@ area in the scene, ignoring the 10% area occupied by the smallest patches
     let i = 0;
     let cumulative = 0.0;
     for (i = numberOfPatchIds - 1; i >= 0 && cumulative < Statistics.instance().radiance.totalArea * 0.1; i--) {
-      cumulative += areas[i];
+      cumulative += areas[i]!;
     }
-    const areaFrac = (i >= 0 && areas[i] > 0.0)
-      ? Statistics.instance().radiance.totalArea / areas[i]
+    const areaFrac = (i >= 0 && areas[i]! > 0.0)
+      ? Statistics.instance().radiance.totalArea / areas[i]!
       : Statistics.instance().reader.numberOfPatches;
 
     return areaFrac;
@@ -317,27 +317,27 @@ Really initialises: before the first iteration step
 
     const scenePatches = new ArrayList<Patch>();
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      scenePatches.add(scene.patchList[i]);
+      scenePatches.add(scene.patchList[i]!);
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      const patch = scene.patchList[i];
+      const patch = scene.patchList[i]!;
       Mcrad.monteCarloRadiosityInitPatch(patch);
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchUnShotRad(patch)![0]
+        McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchRad(patch)![0]
+        McradP.getTopLevelPatchRad(patch)![0]!
       );
       StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
         StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
         globalThis.Math.PI * patch.area *
         (McradP.topLevelStochasticRadiosityElement(patch).importance - McradP.topLevelStochasticRadiosityElement(patch).sourceImportance),
-        McradP.getTopLevelPatchUnShotRad(patch)![0]
+        McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().unShotYmp += patch.area * globalThis.Math.abs(McradP.topLevelStochasticRadiosityElement(patch).unShotImportance);
       StochasticRelaxation.activeState().totalYmp += patch.area * McradP.topLevelStochasticRadiosityElement(patch).importance;
@@ -347,7 +347,7 @@ Really initialises: before the first iteration step
 
     const sceneGeometries = new ArrayList<Geometry>();
     for (let i = 0; scene.geometryList !== null && i < scene.geometryList.length; i++) {
-      sceneGeometries.add(scene.geometryList[i]);
+      sceneGeometries.add(scene.geometryList[i]!);
     }
 
     Mcrad.monteCarloRadiosityDetermineInitialNrRays(scenePatches, sceneGeometries);
@@ -402,7 +402,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
 
     rd.clear();
     for (let i = 0; v.radianceData !== null && i < v.radianceData.length; i++) {
-      const genericElement = v.radianceData[i];
+      const genericElement = v.radianceData[i]!;
       if (genericElement.className !== ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY) {
         continue;
       }
@@ -440,10 +440,10 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
       Mcrad.cachedRd.clear();
       switch (leaf.numberOfVertices) {
         case 3:
-          Mcrad.cachedRd.interpolateBarycentric(Mcrad.vrd[0], Mcrad.vrd[1], Mcrad.vrd[2], u, v);
+          Mcrad.cachedRd.interpolateBarycentric(Mcrad.vrd[0]!, Mcrad.vrd[1]!, Mcrad.vrd[2]!, u, v);
           break;
         case 4:
-          Mcrad.cachedRd.interpolateBiLinear(Mcrad.vrd[0], Mcrad.vrd[1], Mcrad.vrd[2], Mcrad.vrd[3], u, v);
+          Mcrad.cachedRd.interpolateBiLinear(Mcrad.vrd[0]!, Mcrad.vrd[1]!, Mcrad.vrd[2]!, Mcrad.vrd[3]!, u, v);
           break;
         default:
           VsdkLogger.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf.numberOfVertices);
@@ -473,9 +473,9 @@ Returns the radiance emitted from the patch at the point with parameters
       McradP.topLevelStochasticRadiosityElement(patch), uu, vv
     );
     const usedRdAtPoint = renderOptions.smoothShading
-      ? Mcrad.monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, uu[0], vv[0])
+      ? Mcrad.monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, uu[0]!, vv[0]!)
       : leaf.Rd;
-    const radianceAtPoint = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadianceAtPoint(leaf, uu[0], vv[0], renderOptions);
+    const radianceAtPoint = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadianceAtPoint(leaf, uu[0]!, vv[0]!, renderOptions);
     let sourceRad = new ColorRgb();
     sourceRad.clear();
 

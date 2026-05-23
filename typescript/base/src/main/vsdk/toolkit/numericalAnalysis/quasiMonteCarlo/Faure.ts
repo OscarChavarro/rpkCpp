@@ -36,11 +36,11 @@ export class Faure {
     for (let j = 0; j < Faure.nDigits; j++) {
       for (let k = j; k < Faure.nDigits; k++) {
         if (j === 0 || j === k) {
-          Faure.generatorMatrix[0][j][k] = 1;
+          Faure.generatorMatrix[0]![j]![k] = 1;
         }
         else {
-          Faure.generatorMatrix[0][j][k] =
-            (Faure.generatorMatrix[0][j][k - 1] + Faure.generatorMatrix[0][j - 1][k - 1]) % Faure.primeBase;
+          Faure.generatorMatrix[0]![j]![k] =
+            (Faure.generatorMatrix[0]![j]![k - 1]! + Faure.generatorMatrix[0]![j - 1]![k - 1]!) % Faure.primeBase;
         }
       }
     }
@@ -48,8 +48,8 @@ export class Faure {
     for (let i = Faure.dimension - 1; i >= 0; i--) {
       for (let j = 0; j < Faure.nDigits; j++) {
         for (let k = j; k < Faure.nDigits; k++) {
-          Faure.generatorMatrix[i][j][k] = globalThis.Math.trunc(
-            (Faure.generatorMatrix[0][j][k] * globalThis.Math.pow(i, k - j)) % Faure.primeBase
+          Faure.generatorMatrix[i]![j]![k] = globalThis.Math.trunc(
+            (Faure.generatorMatrix[0]![j]![k]! * globalThis.Math.pow(i, k - j)) % Faure.primeBase
           );
         }
       }
@@ -62,16 +62,16 @@ export class Faure {
     const p = Faure.create2DIntArray(FaureSequenceLimits.MAX_PRIME_DIGITS, FaureSequenceLimits.MAX_PRIME_DIGITS);
 
     for (let j = 0; j < Faure.nDigits; j++) {
-      p[j][0] = 1;
-      p[j][j] = 1;
+      p[j]![0] = 1;
+      p[j]![j] = 1;
     }
 
     for (let j = 1; j < Faure.nDigits; j++) {
       for (let k = 1; k < j; k++) {
-        p[j][k] = (p[j - 1][k - 1] + p[j - 1][k]) % Faure.primeBase;
+        p[j]![k] = (p[j - 1]![k - 1]! + p[j - 1]![k]!) % Faure.primeBase;
       }
       for (let k = j + 1; k < Faure.nDigits; k++) {
-        p[j][k] = 0;
+        p[j]![k] = 0;
       }
     }
 
@@ -79,12 +79,12 @@ export class Faure {
       for (let m = 0; m < Faure.nDigits; m++) {
         for (let n = 0; n < Faure.nDigits; n++) {
           const qMax = m < n ? m : n;
-          Faure.generatorMatrix[i][m][n] = 0;
+          Faure.generatorMatrix[i]![m]![n] = 0;
           for (let q = 0; q <= qMax; q++) {
-            Faure.generatorMatrix[i][m][n] = globalThis.Math.trunc(
+            Faure.generatorMatrix[i]![m]![n] = globalThis.Math.trunc(
               (
-                Faure.generatorMatrix[i][m][n]
-                + p[m][q] * p[n][q] * globalThis.Math.pow(i, m + n - 2 * q)
+                Faure.generatorMatrix[i]![m]![n]!
+                + p[m]![q]! * p[n]![q]! * globalThis.Math.pow(i, m + n - 2 * q)
               ) % Faure.primeBase
             );
           }
@@ -109,8 +109,8 @@ export class Faure {
       xx = 0;
       for (let j = Faure.nDigits - 1; j >= 0; j--) {
         if (j < FaureSequenceLimits.MAX_PRIME_DIGITS) {
-          Faure.ix[i][j] = (Faure.ix[i][j] + Faure.generatorMatrix[i][j][k - 1]) % Faure.primeBase;
-          xx = xx / Faure.primeBase + Faure.ix[i][j];
+          Faure.ix[i]![j] = (Faure.ix[i]![j]! + Faure.generatorMatrix[i]![j]![k - 1]!) % Faure.primeBase;
+          xx = xx / Faure.primeBase + Faure.ix[i]![j]!;
         }
       }
       Faure.nextFaureSample[i] = xx / Faure.primeBase;
@@ -129,12 +129,12 @@ export class Faure {
       xx = 0;
       for (let j = Faure.nDigits - 1; j >= 0; j--) {
         save = Faure.nextN;
-        Faure.ix[i][j] = 0;
+        Faure.ix[i]![j] = 0;
         for (let k = 0; k < Faure.nDigits; k++) {
-          Faure.ix[i][j] = (Faure.ix[i][j] + Faure.generatorMatrix[i][j][k] * save) % Faure.primeBase;
+          Faure.ix[i]![j] = (Faure.ix[i]![j]! + Faure.generatorMatrix[i]![j]![k]! * save) % Faure.primeBase;
           save = globalThis.Math.trunc(save / Faure.primeBase);
         }
-        xx = xx / Faure.primeBase + Faure.ix[i][j];
+        xx = xx / Faure.primeBase + Faure.ix[i]![j]!;
       }
       Faure.faureSample[i] = xx / Faure.primeBase;
     }
@@ -145,14 +145,14 @@ export class Faure {
   public static initOriginalFaureSequence(iDim: number): void {
     Faure.dimension = iDim;
     Faure.nextN = 0;
-    Faure.primeBase = Faure.prime[Faure.dimension - 1];
+    Faure.primeBase = Faure.prime[Faure.dimension - 1]!;
     Faure.nDigits = globalThis.Math.trunc(
       globalThis.Math.log(FaureSequenceLimits.MAX_SEED) / globalThis.Math.log(Faure.primeBase) + 1
     );
     Faure.setFaureC();
     for (let i = 0; i < Faure.dimension; i++) {
       for (let j = 0; j < Faure.nDigits; j++) {
-        Faure.ix[i][j] = 0;
+        Faure.ix[i]![j] = 0;
       }
     }
 
@@ -165,14 +165,14 @@ export class Faure {
   public static initGeneralizedFaureSequence(iDim: number): void {
     Faure.dimension = iDim;
     Faure.nextN = 0;
-    Faure.primeBase = Faure.prime[Faure.dimension - 1];
+    Faure.primeBase = Faure.prime[Faure.dimension - 1]!;
     Faure.nDigits = globalThis.Math.trunc(
       globalThis.Math.log(FaureSequenceLimits.MAX_SEED) / globalThis.Math.log(Faure.primeBase) + 1
     );
     Faure.setGFaureC();
     for (let i = 0; i < Faure.dimension; i++) {
       for (let j = 0; j < Faure.nDigits; j++) {
-        Faure.ix[i][j] = 0;
+        Faure.ix[i]![j] = 0;
       }
     }
 

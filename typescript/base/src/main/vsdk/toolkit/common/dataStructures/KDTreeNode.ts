@@ -26,8 +26,13 @@ export class KDTreeNode {
 
   public findMinMaxDepth(depth: number, minDepth: number[], maxDepth: number[]): void {
     if ((this.loson === null) && (this.hison === null)) {
-      maxDepth[0] = globalThis.Math.max(maxDepth[0], depth);
-      minDepth[0] = globalThis.Math.min(minDepth[0], depth);
+      const currentMax = maxDepth[0];
+      const currentMin = minDepth[0];
+      if (currentMax === undefined || currentMin === undefined) {
+        return;
+      }
+      maxDepth[0] = globalThis.Math.max(currentMax, depth);
+      minDepth[0] = globalThis.Math.min(currentMin, depth);
     }
     else {
       if (this.loson !== null) {

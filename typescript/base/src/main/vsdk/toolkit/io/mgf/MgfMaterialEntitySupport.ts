@@ -26,7 +26,7 @@ export class MgfMaterialEntitySupport {
   */
   private static materialLookup(name: string, context: ParseRuntimeContext): Material | null {
     for (let i = 0; context.materials !== null && i < context.materials.length; i++) {
-      const material = context.materials[i];
+      const material = context.materials[i]!;
       if (material !== null && material.getName() !== null && material.getName() === name) {
         return material;
       }
@@ -71,7 +71,7 @@ export class MgfMaterialEntitySupport {
     if (Cie.clipGamut(rgb)) {
       MgfEntityControl.doWarning("color desaturated during gamut clipping", context);
     }
-    colorOut.set(rgb[0], rgb[1], rgb[2]);
+    colorOut.set(rgb[0]!, rgb[1]!, rgb[2]!);
   }
 
   private static specSamples(col: ColorRgb, rgb: number[]): void {
@@ -87,8 +87,8 @@ export class MgfMaterialEntitySupport {
 
     let mx = -Numeric.HUGE_FLOAT_VALUE;
     for (let i = 0; i < MgfMaterialEntitySupport.NUMBER_OF_SAMPLES; i++) {
-      if (samples[i] > mx) {
-        mx = samples[i];
+      if (samples[i]! > mx) {
+        mx = samples[i]!;
       }
     }
     return mx;
@@ -113,7 +113,7 @@ export class MgfMaterialEntitySupport {
     }
 
     // If same material and unchanged context, keep it.
-    if (material[0] !== null && materialName === material[0].getName() && currentMaterialContext.clock === 0) {
+    if (material[0] !== null && materialName === material[0]!.getName() && currentMaterialContext.clock === 0) {
       return false;
     }
 
@@ -257,7 +257,7 @@ export class MgfMaterialEntitySupport {
     let lp: LookUpEntity<MaterialContext> | null;
     let currentMaterialContext = context.materialRepository.currentMaterialContext as MaterialContext;
 
-    switch (MgfEntityControl.mgfEntity(av[0], context)) {
+    switch (MgfEntityControl.mgfEntity(av[0]!, context)) {
       case EntityTypeContext.MGF_MATERIAL:
         // Get / set material context
         if (ac > 4) {
@@ -272,10 +272,10 @@ export class MgfMaterialEntitySupport {
           context.materialState.currentMaterialName = null;
           return ParseErrorContext.MGF_OK;
         }
-        if (!TokenValidationContext.isName(av[1])) {
+        if (!TokenValidationContext.isName(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
-        lp = (context.materialRepository.materialLookUpTable as any).lookUpFind(av[1]);
+        lp = (context.materialRepository.materialLookUpTable as any).lookUpFind(av[1]!);
         // Lookup context
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
@@ -291,12 +291,12 @@ export class MgfMaterialEntitySupport {
           }
           return ParseErrorContext.MGF_OK;
         }
-        if (av[2].length !== 1 || av[2].charAt(0) !== "=") {
+        if (av[2]!.length !== 1 || av[2]!.charAt(0) !== "=") {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (currentMaterialContext === null) {
           // Create new material
-          lp.key = av[1];
+          lp.key = av[1]!;
           lp.data = new MaterialContext();
           context.currentMaterialName = lp.key;
           context.materialState.currentMaterialName = context.currentMaterialName;
@@ -328,11 +328,11 @@ export class MgfMaterialEntitySupport {
         if (ac !== 3) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
+        if (!TokenValidationContext.isFloat(av[1]!) || !TokenValidationContext.isFloat(av[2]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.nr = Number.parseFloat(av[1]);
-        currentMaterialContext.ni = Number.parseFloat(av[2]);
+        currentMaterialContext.nr = Number.parseFloat(av[1]!);
+        currentMaterialContext.ni = Number.parseFloat(av[2]!);
         if (currentMaterialContext.nr <= Numeric.EPSILON) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -344,10 +344,10 @@ export class MgfMaterialEntitySupport {
         if (ac !== 2) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1])) {
+        if (!TokenValidationContext.isFloat(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.rd = Number.parseFloat(av[1]);
+        currentMaterialContext.rd = Number.parseFloat(av[1]!);
         if (currentMaterialContext.rd < 0.0 || currentMaterialContext.rd > 1.0) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -360,10 +360,10 @@ export class MgfMaterialEntitySupport {
         if (ac !== 2) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1])) {
+        if (!TokenValidationContext.isFloat(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.ed = Number.parseFloat(av[1]);
+        currentMaterialContext.ed = Number.parseFloat(av[1]!);
         if (currentMaterialContext.ed < 0.0) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -376,10 +376,10 @@ export class MgfMaterialEntitySupport {
         if (ac !== 2) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1])) {
+        if (!TokenValidationContext.isFloat(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.td = Number.parseFloat(av[1]);
+        currentMaterialContext.td = Number.parseFloat(av[1]!);
         if (currentMaterialContext.td < 0.0 || currentMaterialContext.td > 1.0) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -392,11 +392,11 @@ export class MgfMaterialEntitySupport {
         if (ac !== 3) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
+        if (!TokenValidationContext.isFloat(av[1]!) || !TokenValidationContext.isFloat(av[2]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.rs = Number.parseFloat(av[1]);
-        currentMaterialContext.rs_a = Number.parseFloat(av[2]);
+        currentMaterialContext.rs = Number.parseFloat(av[1]!);
+        currentMaterialContext.rs_a = Number.parseFloat(av[2]!);
         if (currentMaterialContext.rs < 0.0 || currentMaterialContext.rs > 1.0 || currentMaterialContext.rs_a < 0.0) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -409,11 +409,11 @@ export class MgfMaterialEntitySupport {
         if (ac !== 3) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
+        if (!TokenValidationContext.isFloat(av[1]!) || !TokenValidationContext.isFloat(av[2]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        currentMaterialContext.ts = Number.parseFloat(av[1]);
-        currentMaterialContext.ts_a = Number.parseFloat(av[2]);
+        currentMaterialContext.ts = Number.parseFloat(av[1]!);
+        currentMaterialContext.ts_a = Number.parseFloat(av[2]!);
         if (currentMaterialContext.ts < 0.0 || currentMaterialContext.ts > 1.0 || currentMaterialContext.ts_a < 0.0) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
@@ -426,10 +426,10 @@ export class MgfMaterialEntitySupport {
         if (ac !== 2) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isInt(av[1])) {
+        if (!TokenValidationContext.isInt(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        i = Number.parseInt(av[1], 10);
+        i = Number.parseInt(av[1]!, 10);
         if (i === 1) {
           currentMaterialContext.sided = true;
         }

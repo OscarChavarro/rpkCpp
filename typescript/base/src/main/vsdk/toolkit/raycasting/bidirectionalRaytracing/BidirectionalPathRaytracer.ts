@@ -44,7 +44,7 @@ import { UniformLightSampler } from "./UniformLightSampler";
 
 export class BidirectionalPathRaytracer extends RayTracer {
   private static readonly STRINGS_SIZE = 300;
-  private static readonly name = "Bidirectional Path Tracing";
+  private static override readonly name = "Bidirectional Path Tracing";
 
   private bidirectionalPathState: BidirectionalPathTracingState;
   private lightList: LightList | null;
@@ -60,7 +60,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const dst = copy.asArray();
 
     for (let i = 0; i < src.length && i < dst.length; i++) {
-      dst[i].set(src[i].r, src[i].g, src[i].b);
+      dst[i]!.set(src[i]!.r, src[i]!.g, src[i]!.b);
     }
 
     return copy;
@@ -75,7 +75,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const dst = destination.asArray();
 
     for (let i = 0; i < src.length && i < dst.length; i++) {
-      dst[i].set(src[i].r, src[i].g, src[i].b);
+      dst[i]!.set(src[i]!.r, src[i]!.g, src[i]!.b);
     }
   }
 
@@ -788,16 +788,16 @@ export class BidirectionalPathRaytracer extends RayTracer {
 
       const f = BidirectionalPathRaytracer.computeNeFluxEstimate(camera, config, path, pdf, weight, fRad);
 
-      config.screen.getPixel(pixX[0], pixY[0], nx, ny);
+      config.screen.getPixel(pixX[0]!, pixY[0]!, nx, ny);
 
-      const factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0], ny[0]) / config.baseConfig.totalSamples;
+      const factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0]!, ny[0]!) / config.baseConfig.totalSamples;
       f.scale(factor);
 
-      BidirectionalPathRaytracer.addWithSpikeCheck(config, path, nx[0], ny[0], pixX[0], pixY[0], f);
+      BidirectionalPathRaytracer.addWithSpikeCheck(config, path, nx[0]!, ny[0]!, pixX[0]!, pixY[0]!, f);
 
       if (config.baseConfig.useSpars !== 0) {
         fRad.scale(factor);
-        BidirectionalPathRaytracer.addWithSpikeCheck(config, path, nx[0], ny[0], pixX[0], pixY[0], fRad, true);
+        BidirectionalPathRaytracer.addWithSpikeCheck(config, path, nx[0]!, ny[0]!, pixX[0]!, pixY[0]!, fRad, true);
       }
     }
 
@@ -959,7 +959,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
 
         config.eyePath.m_rayType = PathRayType.STARTS;
 
-        const tmpVec2D = config.screen.getPixelCenter(globalThis.Math.trunc(x1[0]), globalThis.Math.trunc(x2[0]));
+        const tmpVec2D = config.screen.getPixelCenter(globalThis.Math.trunc(x1[0]!), globalThis.Math.trunc(x2[0]!));
         config.xSample = tmpVec2D.x;
         config.ySample = tmpVec2D.y;
 
@@ -970,8 +970,8 @@ export class BidirectionalPathRaytracer extends RayTracer {
           null,
           config.eyePath,
           pixNode,
-          x1[0],
-          x2[0]
+          x1[0]!,
+          x2[0]!
         )) {
           pixNode.assignBsdfAndNormal();
           config.eyeConfig.tracePathDefault(camera, sceneVoxelGrid, sceneBackground, nextNode);

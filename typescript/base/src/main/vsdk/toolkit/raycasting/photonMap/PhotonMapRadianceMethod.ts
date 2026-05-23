@@ -55,7 +55,7 @@ export class PhotonMapRadianceMethod extends RadianceMethod {
   private readonly photonMapConfig: PhotonMapConfig;
 
   private static appendStatsText(buffer: StringBuilder, offset: number[], format: string, ...args: unknown[]): void {
-    if (offset[0] >= PhotonMapRadianceMethod.STRING_LENGTH - 1) {
+    if (offset[0]! >= PhotonMapRadianceMethod.STRING_LENGTH - 1) {
       return;
     }
 
@@ -67,7 +67,7 @@ export class PhotonMapRadianceMethod extends RadianceMethod {
       text = format;
     }
 
-    const available = PhotonMapRadianceMethod.STRING_LENGTH - offset[0];
+    const available = PhotonMapRadianceMethod.STRING_LENGTH - offset[0]!;
     if (available <= 0) {
       return;
     }
@@ -78,7 +78,7 @@ export class PhotonMapRadianceMethod extends RadianceMethod {
     }
     else {
       buffer.append(text);
-      offset[0] += text.length;
+      offset[0]! += text.length;
     }
   }
 
@@ -161,7 +161,7 @@ Initializes the computations for the current scene (if any)
 
     const lightPatches = new ArrayList<Patch>();
     for (let i = 0; scene.lightSourcePatchList !== null && i < scene.lightSourcePatchList.length; i++) {
-      lightPatches.add(scene.lightSourcePatchList[i]);
+      lightPatches.add(scene.lightSourcePatchList[i]!);
     }
     this.photonMapConfig.lightList = new LightList(lightPatches);
 
@@ -219,7 +219,7 @@ Initializes the computations for the current scene (if any)
   private static cloneBsdfComp(comp: BsdfComp): BsdfComp {
     const copy = new BsdfComp();
     for (let i = 0; i < copy.comp.length; i++) {
-      copy.comp[i].set(comp.comp[i].r, comp.comp[i].g, comp.comp[i].b);
+      copy.comp[i]!.set(comp.comp[i]!.r, comp.comp[i]!.g, comp.comp[i]!.b);
     }
     return copy;
   }
@@ -345,18 +345,18 @@ does not give correct display
       pixY
     )) {
       const f = this.photonMapDoComputePixelFluxEstimate(camera, config, radianceMethod);
-      config.screen.getPixel(pixX[0], pixY[0], nx, ny);
+      config.screen.getPixel(pixX[0]!, pixY[0]!, nx, ny);
 
       let factor: number;
       if (config.currentMap === config.map) {
-        factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0], ny[0]) / this.photonMapState.totalGPaths;
+        factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0]!, ny[0]!) / this.photonMapState.totalGPaths;
       }
       else {
-        factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0], ny[0]) / this.photonMapState.totalCPaths;
+        factor = ScreenBuffer.computeFluxToRadFactor(camera, nx[0]!, ny[0]!) / this.photonMapState.totalCPaths;
       }
 
       f.scale(factor);
-      config.screen.add(nx[0], ny[0], f);
+      config.screen.add(nx[0]!, ny[0]!, f);
     }
   }
 

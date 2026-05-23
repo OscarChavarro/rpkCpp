@@ -49,7 +49,7 @@ export class Vertex {
 
     if (this.patches !== null) {
       for (let i = 0; i < this.patches.length; i++) {
-        const patch = this.patches[i];
+        const patch = this.patches[i]!;
         this.color.r += patch.color.r;
         this.color.g += patch.color.g;
         this.color.b += patch.color.b;

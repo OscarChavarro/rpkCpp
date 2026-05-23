@@ -70,6 +70,9 @@ export namespace MemoryPool {
       while (scan !== null) {
         if (scan.usedElements + request <= scan.capacityElements) {
           const out = scan.buffer[scan.usedElements];
+          if (out === undefined) {
+            return null;
+          }
           scan.usedElements += request;
           this.current = scan;
           return out;
@@ -114,7 +117,7 @@ export namespace MemoryPool {
     public owns(value: T): boolean {
       for (let block = this.head; block !== null; block = block.next) {
         for (let i = 0; i < block.capacityElements; i++) {
-          if (block.buffer[i] === value) {
+          if (block.buffer[i] !== undefined && block.buffer[i] === value) {
             return true;
           }
         }

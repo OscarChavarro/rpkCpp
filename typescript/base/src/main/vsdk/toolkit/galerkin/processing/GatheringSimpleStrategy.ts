@@ -37,7 +37,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
       return;
     }
 
-    if (!(topLevelElement.radiance as NonNullable<GalerkinElement["radiance"]>)[0].isBlack()
+    if (!(topLevelElement.radiance as NonNullable<GalerkinElement["radiance"]>)[0]!.isBlack()
       && (topLevelElement.flags & ElementFlags.INTERACTIONS_CREATED_MASK) === 0) {
       LinkingSimpleStrategy.createInitialLinks(
         scene,
@@ -99,25 +99,25 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
       && galerkinState.lazyLinking !== 0
       && galerkinState.importanceDriven === 0) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        GatheringSimpleStrategy.patchLazyCreateInteractions(scene, scene.patchList[i], galerkinState);
+        GatheringSimpleStrategy.patchLazyCreateInteractions(scene, scene.patchList[i]!, galerkinState);
       }
     }
 
     galerkinState.ambientRadiance.clear();
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GatheringSimpleStrategy.patchGather(scene.patchList[i], scene, galerkinState);
+      GatheringSimpleStrategy.patchGather(scene.patchList[i]!, scene, galerkinState);
     }
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList[i], galerkinState);
+        GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList[i]!, galerkinState);
       }
     }
 
     if (galerkinState.importanceDriven !== 0) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        GatheringSimpleStrategy.patchUpdatePotential(scene.patchList[i]);
+        GatheringSimpleStrategy.patchUpdatePotential(scene.patchList[i]!);
       }
     }
 

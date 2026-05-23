@@ -71,7 +71,7 @@ export class Shaft {
 
     for (let i = candidateList.length - 1; i >= 0; i--) {
       const geometry = candidateList[i];
-      if (geometry !== null && geometry.shaftCullGeometry) {
+      if (geometry !== null && geometry !== undefined && geometry.shaftCullGeometry) {
         Geometry.destroy(geometry);
       }
     }
@@ -151,7 +151,7 @@ export class Shaft {
           dv = u2 - u1;
         }
 
-        const localPlane = this.planeSet[localPlaneIndex];
+      const localPlane = this.planeSet[localPlaneIndex]!;
         localPlane.n[a] = du;
         localPlane.n[b] = dv;
         localPlane.n[3 - a - b] = 0.0;
@@ -165,9 +165,9 @@ export class Shaft {
         }
         localPlane.d = dResolved;
 
-        localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0 ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
-        localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
-        localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
+        localPlane.coordinateOffset[0] = (localPlane.n[0] ?? 0.0) > 0.0 ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
+        localPlane.coordinateOffset[1] = (localPlane.n[1] ?? 0.0) > 0.0 ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
+        localPlane.coordinateOffset[2] = (localPlane.n[2] ?? 0.0) > 0.0 ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
 
         localPlaneIndex++;
       }
@@ -180,8 +180,12 @@ export class Shaft {
     let inside = false;
 
     for (let i = 0; i < polygon.numberOfVertices; i++) {
-      const e = normal.dotProduct(polygon.vertex[i]) + d;
-      const tolerance = Math.abs(d) * Numeric.EPSILON + polygon.vertex[i].tolerance(Numeric.EPSILON_FLOAT);
+      const vtx = polygon.vertex[i];
+      if (vtx === undefined) {
+        continue;
+      }
+      const e = normal.dotProduct(vtx) + d;
+      const tolerance = Math.abs(d) * Numeric.EPSILON + vtx.tolerance(Numeric.EPSILON_FLOAT);
       out = out || (e > tolerance);
       inside = inside || (e < -tolerance);
       if (out && inside) {
@@ -205,8 +209,12 @@ export class Shaft {
     let inside = false;
 
     for (let i = 0; i < polygon.numberOfVertices; i++) {
-      const e = normal.dotProduct(polygon.vertex[i]) + d;
-      const tolerance = Math.abs(d) * Numeric.EPSILON + polygon.vertex[i].tolerance(Numeric.EPSILON_FLOAT);
+      const vtx = polygon.vertex[i];
+      if (vtx === undefined) {
+        continue;
+      }
+      const e = normal.dotProduct(vtx) + d;
+      const tolerance = Math.abs(d) * Numeric.EPSILON + vtx.tolerance(Numeric.EPSILON_FLOAT);
       out = out || e > tolerance;
       if (out && side === ShaftPlanePosition.INSIDE) {
         return false;
@@ -243,24 +251,24 @@ export class Shaft {
   }
 
   private static compareShaftPlanes(plane1: ShaftPlane, plane2: ShaftPlane): number {
-    if (plane1.n[0] < plane2.n[0] - Numeric.EPSILON) {
+    if ((plane1.n[0] ?? 0.0) < (plane2.n[0] ?? 0.0) - Numeric.EPSILON) {
       return -1;
     }
-    else if (plane1.n[0] > plane2.n[0] + Numeric.EPSILON) {
+    else if ((plane1.n[0] ?? 0.0) > (plane2.n[0] ?? 0.0) + Numeric.EPSILON) {
       return +1;
     }
 
-    if (plane1.n[1] < plane2.n[1] - Numeric.EPSILON) {
+    if ((plane1.n[1] ?? 0.0) < (plane2.n[1] ?? 0.0) - Numeric.EPSILON) {
       return -1;
     }
-    else if (plane1.n[1] > plane2.n[1] + Numeric.EPSILON) {
+    else if ((plane1.n[1] ?? 0.0) > (plane2.n[1] ?? 0.0) + Numeric.EPSILON) {
       return +1;
     }
 
-    if (plane1.n[2] < plane2.n[2] - Numeric.EPSILON) {
+    if ((plane1.n[2] ?? 0.0) < (plane2.n[2] ?? 0.0) - Numeric.EPSILON) {
       return -1;
     }
-    else if (plane1.n[2] > plane2.n[2] + Numeric.EPSILON) {
+    else if ((plane1.n[2] ?? 0.0) > (plane2.n[2] ?? 0.0) + Numeric.EPSILON) {
       return +1;
     }
 
@@ -276,7 +284,7 @@ export class Shaft {
 
   private uniqueShaftPlane(parameterPlane: ShaftPlane): boolean {
     for (let i = 0; this.planeSet[i] !== parameterPlane; i++) {
-      if (Shaft.compareShaftPlanes(this.planeSet[i], parameterPlane) === 0) {
+      if (Shaft.compareShaftPlanes(this.planeSet[i]!, parameterPlane) === 0) {
         return false;
       }
     }
@@ -302,15 +310,15 @@ export class Shaft {
     normal.copy(polygon1.normal);
     switch (Shaft.testPolygonWithRespectToPlane(polygon2, normal, polygon1.planeConstant)) {
       case ShaftPlanePosition.INSIDE:
-        Shaft.fillInPlane(this.planeSet[localPlaneIndex], polygon1.normal.x, polygon1.normal.y, polygon1.normal.z, polygon1.planeConstant);
-        if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex])) {
+        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, polygon1.normal.x, polygon1.normal.y, polygon1.normal.z, polygon1.planeConstant);
+        if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
           localPlaneIndex++;
         }
         maxPlanesPerEdge = 1;
         break;
       case ShaftPlanePosition.OUTSIDE:
-        Shaft.fillInPlane(this.planeSet[localPlaneIndex], -polygon1.normal.x, -polygon1.normal.y, -polygon1.normal.z, -polygon1.planeConstant);
-        if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex])) {
+        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -polygon1.normal.x, -polygon1.normal.y, -polygon1.normal.z, -polygon1.planeConstant);
+        if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
           localPlaneIndex++;
         }
         maxPlanesPerEdge = 1;
@@ -325,10 +333,16 @@ export class Shaft {
     for (let i = 0; i < polygon1.numberOfVertices; i++) {
       const current = polygon1.vertex[i];
       const next = polygon1.vertex[(i + 1) % polygon1.numberOfVertices];
+      if (current === undefined || next === undefined) {
+        continue;
+      }
       let planesFoundForEdge = 0;
 
       for (let j = 0; j < polygon2.numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++) {
         const other = polygon2.vertex[j];
+        if (other === undefined) {
+          continue;
+        }
 
         normal.tripleCrossProduct(current, next, other);
         const localNorm = normal.norm();
@@ -350,12 +364,12 @@ export class Shaft {
         }
 
         let side = Shaft.testPointWithRespectToPlane(
-          polygon1.vertex[(i + 2) % polygon1.numberOfVertices],
+          polygon1.vertex[(i + 2) % polygon1.numberOfVertices] ?? current,
           normal,
           d,
         );
         for (let k = (i + 3) % polygon1.numberOfVertices; k !== i; k = (k + 1) % polygon1.numberOfVertices) {
-          const nSide = Shaft.testPointWithRespectToPlane(polygon1.vertex[k], normal, d);
+          const nSide = Shaft.testPointWithRespectToPlane(polygon1.vertex[k] ?? current, normal, d);
           if (side === ShaftPlanePosition.COPLANAR) {
             side = nSide;
           }
@@ -369,12 +383,12 @@ export class Shaft {
 
         if (Shaft.verifyPolygonWithRespectToPlane(polygon2, normal, d, side)) {
           if (side === ShaftPlanePosition.INSIDE) {
-            Shaft.fillInPlane(this.planeSet[localPlaneIndex], normal.x, normal.y, normal.z, d);
+            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, normal.x, normal.y, normal.z, d);
           }
           else {
-            Shaft.fillInPlane(this.planeSet[localPlaneIndex], -normal.x, -normal.y, -normal.z, -d);
+            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -normal.x, -normal.y, -normal.z, -d);
           }
-          if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex])) {
+          if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
             localPlaneIndex++;
           }
           planesFoundForEdge++;
@@ -400,15 +414,29 @@ export class Shaft {
     this.numberOfGeometriesToAvoidOpen = 0;
     this.cut = false;
 
-    this.center1.copy(polygon1.vertex[0]);
+    const poly1v0 = polygon1.vertex[0];
+    if (poly1v0 === undefined) {
+      return;
+    }
+    this.center1.copy(poly1v0);
     for (let i = 1; i < polygon1.numberOfVertices; i++) {
-      this.center1.addition(this.center1, polygon1.vertex[i]);
+      const v = polygon1.vertex[i];
+      if (v !== undefined) {
+        this.center1.addition(this.center1, v);
+      }
     }
     this.center1.inverseScaledCopy(polygon1.numberOfVertices, this.center1, Numeric.EPSILON_FLOAT);
 
-    this.center2.copy(polygon2.vertex[0]);
+    const poly2v0 = polygon2.vertex[0];
+    if (poly2v0 === undefined) {
+      return;
+    }
+    this.center2.copy(poly2v0);
     for (let i = 1; i < polygon2.numberOfVertices; i++) {
-      this.center2.addition(this.center2, polygon2.vertex[i]);
+      const v = polygon2.vertex[i];
+      if (v !== undefined) {
+        this.center2.addition(this.center2, v);
+      }
     }
     this.center2.inverseScaledCopy(polygon2.numberOfVertices, this.center2, Numeric.EPSILON_FLOAT);
 
@@ -418,7 +446,7 @@ export class Shaft {
   }
 
   private static evaluatePlane(plane: ShaftPlane, x: number, y: number, z: number): number {
-    return Shaft.fma(plane.n[1], y, Shaft.fma(plane.n[0], x, Shaft.fma(plane.n[2], z, plane.d)));
+    return Shaft.fma(plane.n[1] ?? 0.0, y, Shaft.fma(plane.n[0] ?? 0.0, x, Shaft.fma(plane.n[2] ?? 0.0, z, plane.d)));
   }
 
   private boundingBoxTest(parameterBoundingBox: BoundingBox): ShaftPlanePosition {
@@ -427,12 +455,12 @@ export class Shaft {
     }
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
-      const localPlane = this.planeSet[i];
+      const localPlane = this.planeSet[i]!;
       const e = Shaft.evaluatePlane(
         localPlane,
-        parameterBoundingBox.valueAt(localPlane.coordinateOffset[0]),
-        parameterBoundingBox.valueAt(localPlane.coordinateOffset[1]),
-        parameterBoundingBox.valueAt(localPlane.coordinateOffset[2]),
+        parameterBoundingBox.valueAt(localPlane.coordinateOffset[0] ?? BoundingBoxCoordinateIndex.MIN_X),
+        parameterBoundingBox.valueAt(localPlane.coordinateOffset[1] ?? BoundingBoxCoordinateIndex.MIN_Y),
+        parameterBoundingBox.valueAt(localPlane.coordinateOffset[2] ?? BoundingBoxCoordinateIndex.MIN_Z),
       );
       if (e > -Math.abs(localPlane.d * Numeric.EPSILON)) {
         return ShaftPlanePosition.OUTSIDE;
@@ -447,12 +475,12 @@ export class Shaft {
     }
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
-      const localPlane = this.planeSet[i];
+      const localPlane = this.planeSet[i]!;
       const e = Shaft.evaluatePlane(
         localPlane,
-        parameterBoundingBox.valueAt((localPlane.coordinateOffset[0] + 3) % 6),
-        parameterBoundingBox.valueAt((localPlane.coordinateOffset[1] + 3) % 6),
-        parameterBoundingBox.valueAt((localPlane.coordinateOffset[2] + 3) % 6),
+        parameterBoundingBox.valueAt(((localPlane.coordinateOffset[0] ?? BoundingBoxCoordinateIndex.MIN_X) + 3) % 6),
+        parameterBoundingBox.valueAt(((localPlane.coordinateOffset[1] ?? BoundingBoxCoordinateIndex.MIN_Y) + 3) % 6),
+        parameterBoundingBox.valueAt(((localPlane.coordinateOffset[2] ?? BoundingBoxCoordinateIndex.MIN_Z) + 3) % 6),
       );
       if (e > Math.abs(localPlane.d * Numeric.EPSILON)) {
         return ShaftPlanePosition.OVERLAP;
@@ -479,7 +507,7 @@ export class Shaft {
     }
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
-      const localPlane = this.planeSet[i];
+      const localPlane = this.planeSet[i]!;
       const e = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
       const side = new Array<ShaftPlanePosition>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(ShaftPlanePosition.COPLANAR);
       let inside = false;
@@ -488,13 +516,13 @@ export class Shaft {
       for (let j = 0; j < patch.numberOfVertices; j++) {
         const v = patch.vertex[j]!.point;
         e[j] = Shaft.evaluatePlane(localPlane, v.x, v.y, v.z);
-        const tolerance = Math.abs(localPlane.d) * Numeric.EPSILON + pTol[j];
+        const tolerance = Math.abs(localPlane.d) * Numeric.EPSILON + (pTol[j] ?? 0.0);
         side[j] = ShaftPlanePosition.COPLANAR;
-        if (e[j] > tolerance) {
+        if ((e[j] ?? 0.0) > tolerance) {
           side[j] = ShaftPlanePosition.OUTSIDE;
           out = true;
         }
-        else if (e[j] < -tolerance) {
+        else if ((e[j] ?? 0.0) < -tolerance) {
           side[j] = ShaftPlanePosition.INSIDE;
           inside = true;
         }
@@ -512,12 +540,12 @@ export class Shaft {
 
         for (let j = 0; j < patch.numberOfVertices; j++) {
           const k = (j + 1) % patch.numberOfVertices;
-          if (side[j] !== side[k]) {
-            if (side[k] === ShaftPlanePosition.OUTSIDE) {
-              if (side[j] === ShaftPlanePosition.INSIDE) {
-                if (tMax[j] > tMin[j]) {
-                  const t = e[j] / (e[j] - e[k]);
-                  if (t < tMax[j]) {
+          if ((side[j] ?? ShaftPlanePosition.COPLANAR) !== (side[k] ?? ShaftPlanePosition.COPLANAR)) {
+            if ((side[k] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.OUTSIDE) {
+              if ((side[j] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.INSIDE) {
+                if ((tMax[j] ?? 0.0) > (tMin[j] ?? 0.0)) {
+                  const t = (e[j] ?? 0.0) / ((e[j] ?? 0.0) - (e[k] ?? 0.0));
+                  if (t < (tMax[j] ?? 0.0)) {
                     tMax[j] = t;
                   }
                 }
@@ -526,11 +554,11 @@ export class Shaft {
                 tMax[j] = -Numeric.EPSILON;
               }
             }
-            else if (side[j] === ShaftPlanePosition.OUTSIDE) {
-              if (side[k] === ShaftPlanePosition.INSIDE) {
-                if (tMin[j] < tMax[j]) {
-                  const t = e[j] / (e[j] - e[k]);
-                  if (t > tMin[j]) {
+            else if ((side[j] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.OUTSIDE) {
+              if ((side[k] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.INSIDE) {
+                if ((tMin[j] ?? 0.0) < (tMax[j] ?? 0.0)) {
+                  const t = (e[j] ?? 0.0) / ((e[j] ?? 0.0) - (e[k] ?? 0.0));
+                  if (t > (tMin[j] ?? 0.0)) {
                     tMin[j] = t;
                   }
                 }
@@ -540,7 +568,7 @@ export class Shaft {
               }
             }
           }
-          else if (side[j] === ShaftPlanePosition.OUTSIDE) {
+          else if ((side[j] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.OUTSIDE) {
             tMax[j] = -Numeric.EPSILON;
           }
         }
@@ -562,7 +590,7 @@ export class Shaft {
     }
 
     for (let j = 0; j < patch.numberOfVertices; j++) {
-      if (tMin[j] + Numeric.EPSILON < tMax[j] - Numeric.EPSILON) {
+      if ((tMin[j] ?? 0.0) + Numeric.EPSILON < (tMax[j] ?? 0.0) - Numeric.EPSILON) {
         return ShaftPlanePosition.OVERLAP;
       }
     }
@@ -608,7 +636,7 @@ export class Shaft {
     culledPatchList.length = 0;
     for (let i = 0; patchList !== null && i < patchList.length && !this.cut; i++) {
       const patch = patchList[i];
-      if (patch.omit !== 0 || this.patchIsOnOmitSet(patch.id)) {
+      if (patch === undefined || patch.omit !== 0 || this.patchIsOnOmitSet(patch.id)) {
         continue;
       }
 
@@ -707,7 +735,7 @@ export class Shaft {
       return;
     }
     for (let i = 0; world !== null && i < world.length && !this.cut; i++) {
-      this.cullGeometry(world[i], candidateList, strategy);
+      this.cullGeometry(world[i] ?? null, candidateList, strategy);
     }
   }
 }

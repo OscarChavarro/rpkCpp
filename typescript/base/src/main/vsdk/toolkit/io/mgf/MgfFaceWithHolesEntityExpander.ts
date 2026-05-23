@@ -15,10 +15,10 @@ export class MgfFaceWithHolesEntityExpander {
     const newArgumentValues = new Array<string>(ReaderContext.MGF_MAXIMUM_ARGUMENT_COUNT);
     let lastPerimeterIndex = 0;
 
-    newArgumentValues[0] = context.entityNames[EntityTypeContext.FACE];
+    newArgumentValues[0] = context.entityNames[EntityTypeContext.FACE]!;
     let i = 1;
     for (; i < argumentCount; i++) {
-      if (argumentValues[i].charAt(0) === "-") {
+      if (argumentValues[i]!.charAt(0) === "-") {
         if (i < 4) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
@@ -29,23 +29,23 @@ export class MgfFaceWithHolesEntityExpander {
           lastPerimeterIndex = i - 1;
         }
         let j = i + 1;
-        for (; j < argumentCount - 1 && argumentValues[j + 1].charAt(0) !== "-"; j++) {
+        for (; j < argumentCount - 1 && argumentValues[j + 1]!.charAt(0) !== "-"; j++) {
         }
         if (j - i < 3) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         // Connect hole loop
-        newArgumentValues[i] = argumentValues[j];
+        newArgumentValues[i] = argumentValues[j]!;
       }
       else {
         // Hole or perimeter vertex
-        newArgumentValues[i] = argumentValues[i];
+        newArgumentValues[i] = argumentValues[i]!;
       }
     }
     if (lastPerimeterIndex !== 0) {
       // Finish seam to outside
-      newArgumentValues[i++] = argumentValues[lastPerimeterIndex];
+      newArgumentValues[i++] = argumentValues[lastPerimeterIndex]!;
     }
-    return MgfEntityControl.mgfHandle(EntityTypeContext.FACE, i, newArgumentValues, context);
+    return MgfEntityControl.mgfHandle(EntityTypeContext.FACE, i, newArgumentValues as string[], context);
   }
 }

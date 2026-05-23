@@ -96,7 +96,7 @@ export class Geometry {
   private static cloneGeometryList(input: Geometry[] | null): Geometry[] {
     const output: Geometry[] = [];
     for (let i = 0; input !== null && i < input.length; i++) {
-      output.push(input[i]);
+      output.push(input[i]!);
     }
     return output;
   }
@@ -155,7 +155,7 @@ export class Geometry {
       const vTmp = new Vector3D();
       vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
       if (this.boundingBox.outOfBounds(vTmp)) {
-        const nMaximumDistance = [maximumDistance[0]];
+        const nMaximumDistance = [maximumDistance[0]!];
         const minMaxBox = this.getRayIntersectionBox();
         if (!minMaxBox.intersect(ray, minimumDistance, nMaximumDistance)) {
           return false;
@@ -200,7 +200,7 @@ export class Geometry {
     let hit: RayHit | null = null;
 
     for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-      const h = geometryList[i].discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      const h = geometryList[i]!.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
       if (h !== null) {
         if ((hitFlags & RayHitFlag.ANY) !== 0) {
           return h;
@@ -213,7 +213,7 @@ export class Geometry {
 
   public static listBounds(geometryList: Geometry[] | null, boundingBox: BoundingBox): void {
     for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-      boundingBox.enlarge(geometryList[i].boundingBox);
+      boundingBox.enlarge(geometryList[i]!.boundingBox);
     }
   }
 
@@ -227,7 +227,7 @@ export class Geometry {
   ): RayHit | null {
     let hit: RayHit | null = null;
     for (let i = 0; patchList !== null && i < patchList.length; i++) {
-      const h = patchList[i].intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      const h = patchList[i]!.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
       if (h !== null) {
         if ((hitFlags & RayHitFlag.ANY) !== 0) {
           return h;
@@ -242,7 +242,7 @@ export class Geometry {
     const currentPatchBoundingBox = new BoundingBox();
 
     for (let i = 0; patchList !== null && i < patchList.length; i++) {
-      patchList[i].computeAndGetBoundingBox(currentPatchBoundingBox);
+      patchList[i]!.computeAndGetBoundingBox(currentPatchBoundingBox);
       boundingBox.enlarge(currentPatchBoundingBox);
     }
 

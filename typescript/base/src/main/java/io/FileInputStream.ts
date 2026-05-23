@@ -34,7 +34,8 @@ export class FileInputStream extends InputStream {
         return -1;
       }
       this.position += readCount;
-      return localBuffer[0];
+      const firstByte = localBuffer[0];
+      return firstByte === undefined ? -1 : firstByte;
     }
 
     const safeOffset = offset ?? 0;

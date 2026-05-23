@@ -165,7 +165,7 @@ export class VoxelGrid {
             this.volumeListsOfItems![index] = voxelList;
           }
 
-          voxelList.push(item);
+          voxelList!.push(item);
         }
       }
     }
@@ -202,14 +202,14 @@ export class VoxelGrid {
   private processCompoundGeometry(geometry: Geometry): void {
     const geometryList = (geometry as Compound).children;
     for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-      this.putSubGeometryInsideVoxelGrid(geometryList[i]);
+      this.putSubGeometryInsideVoxelGrid(geometryList[i]!);
     }
   }
 
   private processPatches(geometry: Geometry): void {
     const patches = Geometry.patchListReference(geometry);
     for (let i = 0; patches !== null && i < patches.length; i++) {
-      this.putPatchInsideVoxelGrid(patches[i]);
+      this.putPatchInsideVoxelGrid(patches[i]!);
     }
   }
 
@@ -338,22 +338,22 @@ export class VoxelGrid {
     let inGrid: number;
 
     if (tNext.x <= tNext.y && tNext.x <= tNext.z) {
-      g[0] += step[0];
+      g[0]! += step[0]!;
       t0[0] = tNext.x;
       tNext.x += tDelta.x;
-      inGrid = g[0] - out[0];
+      inGrid = g[0]! - out[0]!;
     }
     else if (tNext.y <= tNext.z) {
-      g[1] += step[1];
+      g[1]! += step[1]!;
       t0[0] = tNext.y;
       tNext.y += tDelta.y;
-      inGrid = g[1] - out[1];
+      inGrid = g[1]! - out[1]!;
     }
     else {
-      g[2] += step[2];
+      g[2]! += step[2]!;
       t0[0] = tNext.z;
       tNext.z += tDelta.z;
-      inGrid = g[2] - out[2];
+      inGrid = g[2]! - out[2]!;
     }
     return inGrid !== 0;
   }
@@ -370,7 +370,7 @@ export class VoxelGrid {
     let hit: RayHit | null = null;
 
     for (let i = 0; items !== null && i < items.length; i++) {
-      const item = items[i];
+      const item = items[i]!;
       if (item.lastRayId() !== counter) {
         let h: RayHit | null = null;
         if (item.isPatch() && item.patch !== null) {
@@ -414,23 +414,23 @@ export class VoxelGrid {
     let hit: RayHit | null = null;
     const t0 = [0.0];
 
-    if (!this.gridBoundsIntersect(ray, minimumDistance, maximumDistance[0], t0, p)) {
+    if (!this.gridBoundsIntersect(ray, minimumDistance, maximumDistance[0]!, t0, p)) {
       return null;
     }
 
-    this.gridTraceSetup(ray, t0[0], p, g, tDelta, tNext, step, out);
+    this.gridTraceSetup(ray, t0[0]!, p, g, tDelta, tNext, step, out);
 
     const counter = VoxelGrid.randomRayId();
 
     do {
-      const list = this.volumeListsOfItems![this.cellIndexAddress(g[0], g[1], g[2])];
+      const list = this.volumeListsOfItems![this.cellIndexAddress(g[0]!, g[1]!, g[2]!)];
       if (list !== null) {
-        const h = VoxelGrid.voxelIntersect(list, ray, counter, t0[0], maximumDistance, hitFlags, hitStore);
+        const h = VoxelGrid.voxelIntersect(list!, ray, counter, t0[0]!, maximumDistance, hitFlags, hitStore);
         if (h !== null) {
           hit = h;
         }
       }
-    } while (VoxelGrid.nextVoxel(t0, g, tNext, tDelta, step, out) && t0[0] <= maximumDistance[0]);
+    } while (VoxelGrid.nextVoxel(t0, g, tNext, tDelta, step, out) && t0[0]! <= maximumDistance[0]!);
 
     return hit;
   }
@@ -465,7 +465,7 @@ export class VoxelGrid {
 
     if (VoxelGrid.subGridsToDelete !== null) {
       for (let i = 0; i < VoxelGrid.subGridsToDelete.length; i++) {
-        const subGrid = VoxelGrid.subGridsToDelete[i];
+        const subGrid = VoxelGrid.subGridsToDelete[i]!;
         subGrid.gridItemPool = null;
         subGrid.volumeListsOfItems = null;
       }
@@ -488,7 +488,7 @@ export class VoxelGrid {
             process.stdout.write("[  ]");
           }
           else {
-            process.stdout.write(`(${list.length.toString().padStart(2, " ")})`);
+            process.stdout.write(`(${list!.length.toString().padStart(2, " ")})`);
           }
           process.stdout.write(" ");
         }

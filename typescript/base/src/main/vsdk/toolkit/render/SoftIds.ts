@@ -68,7 +68,7 @@ export class SoftIds {
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      SoftIds.softRenderPatch(scene.patchList[i], scene.camera, renderOptions, sglContext);
+      SoftIds.softRenderPatch(scene.patchList[i]!, scene.camera, renderOptions, sglContext);
     }
   }
 
@@ -96,7 +96,7 @@ export class SoftIds {
 
     const ids = new Array<number>(currentSglContext.width * currentSglContext.height);
     for (let i = 0; i < ids.length; i++) {
-      ids[i] = currentSglContext.frameBuffer[i];
+      ids[i] = currentSglContext.frameBuffer[i]!;
     }
     return ids;
   }
@@ -110,9 +110,9 @@ export class SoftIds {
       const rowStart = j * rowLength;
       for (let i = 0; i < width; i++) {
         const correctedRgb = new ColorRgb(
-          rgb[rowRgbStart + i].r,
-          rgb[rowRgbStart + i].g,
-          rgb[rowRgbStart + i].b
+          rgb[rowRgbStart + i]!.r,
+          rgb[rowRgbStart + i]!.g,
+          rgb[rowRgbStart + i]!.b
         );
         ToneMap.toneMappingGammaCorrection(correctedRgb, toneMapOptions);
         const pixelOffset = rowStart + 4 * i;

@@ -85,7 +85,7 @@ export class Scene {
     if (compound.children !== null) {
       process.stdout.write(`    . Outer children: ${compound.children.length}\n`);
       for (let i = 0; i < compound.children.length; i++) {
-        const child = compound.children[i];
+        const child = compound.children[i]!;
         process.stdout.write(`    . Child [${i}] / [${Scene.printGeometryType(child.className)}]\n`);
         if (child.className === GeometryClassId.SURFACE_MESH) {
           Scene.printSurfaceMesh(child as MeshSurface, 6);
@@ -113,7 +113,7 @@ export class Scene {
     process.stdout.write("= geometryList ================================================================\n");
     process.stdout.write(`Geometries on list: ${this.geometryList!.length}\n`);
     for (let i = 0; i < this.geometryList!.length; i++) {
-      const geometry = this.geometryList![i];
+      const geometry = this.geometryList![i]!;
       process.stdout.write(
         `  - Index: [${i + 1} of ${this.geometryList!.length}] / [${Scene.printGeometryType(geometry.className)}]\n`
       );
@@ -136,7 +136,7 @@ export class Scene {
     process.stdout.write("= clusteredGeometryList ================================================================\n");
     process.stdout.write(`Geometry clusters on list: ${this.clusteredGeometryList!.length}\n`);
     for (let i = 0; i < this.clusteredGeometryList!.length; i++) {
-      const geometry = this.clusteredGeometryList![i];
+      const geometry = this.clusteredGeometryList![i]!;
       process.stdout.write(
         `  - Index: [${i + 1} of ${this.clusteredGeometryList!.length}] / [${Scene.printGeometryType(geometry.className)}]\n`
       );
@@ -163,7 +163,7 @@ export class Scene {
     }
     process.stdout.write(`Patches on top level scene list: ${this.patchList.length}\n`);
     for (let i = 0; i < this.patchList.length; i++) {
-      const patch = this.patchList[i];
+      const patch = this.patchList[i]!;
       process.stdout.write(`  - patch[${i}]: vertices: ${patch.numberOfVertices}, area: ${patch.area.toFixed(3)}\n`);
     }
   }
@@ -195,27 +195,27 @@ export class Scene {
     }
 
     if (node.className === GeometryClassId.SURFACE_MESH) {
-      process.stdout.write(`Mesh (${elementCount[0]})\n`);
-      elementCount[0]++;
+      process.stdout.write(`Mesh (${elementCount[0]!})\n`);
+      elementCount[0]!++;
     }
     else if (node.className === GeometryClassId.COMPOUND) {
       const compound = node as Compound;
-      process.stdout.write(`Compound ${compound.id} (${elementCount[0]})\n`);
-      elementCount[0]++;
+      process.stdout.write(`Compound ${compound.id} (${elementCount[0]!})\n`);
+      elementCount[0]!++;
 
       for (let i = 0; compound.children !== null && i < compound.children.length; i++) {
-        Scene.printClusterHierarchy(compound.children[i], level + 1, elementCount);
+        Scene.printClusterHierarchy(compound.children[i]!, level + 1, elementCount);
       }
     }
     else if (node.className === GeometryClassId.PATCH_SET) {
       const patchSet = node as PatchSet;
       if (patchSet.getPatchList() === null) {
-        process.stdout.write(`empty PatchSet (${elementCount[0]})\n`);
+        process.stdout.write(`empty PatchSet (${elementCount[0]!})\n`);
       }
       else {
-        process.stdout.write(`PatchSet ${patchSet.id} with ${patchSet.getPatchList()!.length} patches (${elementCount[0]})\n`);
+        process.stdout.write(`PatchSet ${patchSet.id} with ${patchSet.getPatchList()!.length} patches (${elementCount[0]!})\n`);
       }
-      elementCount[0]++;
+      elementCount[0]!++;
     }
   }
 
@@ -231,6 +231,6 @@ export class Scene {
     const elementCount = [0];
     Scene.printClusterHierarchy(this.clusteredRootGeometry as Geometry, 0, elementCount);
     this.printVoxelGrid();
-    process.stdout.write(`*** Total number of geometry elements on cluster hierarchy: ${elementCount[0]}\n`);
+    process.stdout.write(`*** Total number of geometry elements on cluster hierarchy: ${elementCount[0]!}\n`);
   }
 }

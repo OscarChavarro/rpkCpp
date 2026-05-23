@@ -26,8 +26,8 @@ export class Sobol {
       save = globalThis.Math.trunc(save / 2);
     }
     for (let i = 0; i < Sobol.dim; i++) {
-      Sobol.x[i] = Sobol.x[i] ^ (Sobol.v[i][c - 1] << (Sobol.V_MAX - c));
-      Sobol.nextSobolSample[i] = Sobol.x[i] * Sobol.recip;
+      Sobol.x[i] = Sobol.x[i]! ^ (Sobol.v[i]![c - 1]! << (Sobol.V_MAX - c));
+      Sobol.nextSobolSample[i] = Sobol.x[i]! * Sobol.recip;
     }
     Sobol.nextN += 1;
 
@@ -46,13 +46,13 @@ export class Sobol {
       let gray = Sobol.sobolGray(seed);
       while (gray !== 0) {
         if ((gray & 1) !== 0) {
-          Sobol.x[i] = Sobol.x[i] ^ (Sobol.v[i][c - 1] << (Sobol.V_MAX - c));
+          Sobol.x[i] = Sobol.x[i]! ^ (Sobol.v[i]![c - 1]! << (Sobol.V_MAX - c));
         }
         c++;
         gray >>= 1;
       }
 
-      Sobol.sobolSample[i] = Sobol.x[i] * Sobol.recip;
+      Sobol.sobolSample[i] = Sobol.x[i]! * Sobol.recip;
     }
 
     return Sobol.sobolSample;
@@ -78,18 +78,21 @@ export class Sobol {
     d[4] = 5;
 
     for (let i = 0; i < Sobol.dim; i++) {
-      for (let j = 0; j < d[i]; j++) {
-        Sobol.v[i][j] = 1;
+      const degree = d[i]!;
+      for (let j = 0; j < degree; j++) {
+        Sobol.v[i]![j] = 1;
       }
     }
 
     for (let i = 0; i < Sobol.dim; i++) {
-      for (let j = d[i]; j < Sobol.V_MAX; j++) {
-        Sobol.v[i][j] = Sobol.v[i][j - d[i]];
-        let save = poly[i];
-        let m = globalThis.Math.trunc(globalThis.Math.pow(2.0, d[i]));
-        for (let k = d[i]; k > 0; k--) {
-          Sobol.v[i][j] = Sobol.v[i][j] ^ (m * (save % 2) * Sobol.v[i][j - k]);
+      const degree = d[i]!;
+      const row = Sobol.v[i]!;
+      for (let j = degree; j < Sobol.V_MAX; j++) {
+        row[j] = row[j - degree]!;
+        let save = poly[i]!;
+        let m = globalThis.Math.trunc(globalThis.Math.pow(2.0, degree));
+        for (let k = degree; k > 0; k--) {
+          row[j] = row[j]! ^ (m * (save % 2) * row[j - k]!);
           save = globalThis.Math.trunc(save / 2);
           m = globalThis.Math.trunc(m / 2);
         }

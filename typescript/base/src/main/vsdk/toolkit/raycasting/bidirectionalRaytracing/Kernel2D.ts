@@ -55,10 +55,10 @@ export class Kernel2D {
     screen.getPixel(point.x - this.m_h, point.y - this.m_h, nxMinV, nyMinV);
     screen.getPixel(point.x + this.m_h, point.y + this.m_h, nxMaxV, nyMaxV);
 
-    const nxMin = nxMinV[0];
-    const nxMax = nxMaxV[0];
-    const nyMin = nyMinV[0];
-    const nyMax = nyMaxV[0];
+    const nxMin = nxMinV[0]!;
+    const nxMax = nxMaxV[0]!;
+    const nyMin = nyMinV[0]!;
+    const nyMax = nyMaxV[0]!;
 
     for (let nx = nxMin; nx <= nxMax; nx++) {
       for (let ny = nyMin; ny <= nyMax; ny++) {

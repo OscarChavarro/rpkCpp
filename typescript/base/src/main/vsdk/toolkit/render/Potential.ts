@@ -34,21 +34,21 @@ export class Potential {
     const maximumPatchId = Patch.getNextId() - 1;
     const id2patch = new Array<Patch | null>(maximumPatchId + 1).fill(null);
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      const patch = scene.patchList[i];
+      const patch = scene.patchList[i]!;
       id2patch[patch.id] = patch;
     }
 
     const newDirectImportance = new Array<number>(maximumPatchId + 1).fill(0.0);
 
-    const h = 2.0 * globalThis.Math.tan(camera.horizontalFov * globalThis.Math.PI / 180.0) / x[0];
-    const v = 2.0 * globalThis.Math.tan(camera.verticalFov * globalThis.Math.PI / 180.0) / y[0];
+    const h = 2.0 * globalThis.Math.tan(camera.horizontalFov * globalThis.Math.PI / 180.0) / x[0]!;
+    const v = 2.0 * globalThis.Math.tan(camera.verticalFov * globalThis.Math.PI / 180.0) / y[0]!;
     const pixelArea = h * v;
 
-    for (let j = y[0] - 1, ySample = -v * (y[0] - 1) / 2.0; j >= 0; j--, ySample += v) {
-      const rowStart = j * x[0];
-      let xSample = -h * (x[0] - 1) / 2.0;
-      for (let i = 0; i < x[0]; i++, xSample += globalThis.Math.trunc(h)) {
-        const theId = ids[rowStart + i] & 0x00ffffff;
+    for (let j = y[0]! - 1, ySample = -v * (y[0]! - 1) / 2.0; j >= 0; j--, ySample += v) {
+      const rowStart = j * x[0]!;
+      let xSample = -h * (x[0]! - 1) / 2.0;
+      for (let i = 0; i < x[0]!; i++, xSample += globalThis.Math.trunc(h)) {
+        const theId = ids[rowStart + i]! & 0x00ffffff;
 
         if (theId > 0 && theId <= maximumPatchId) {
           const pixDir = new Vector3D();
@@ -56,7 +56,7 @@ export class Potential {
 
           let deltaImportance = camera.Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
           deltaImportance *= deltaImportance * pixelArea;
-          newDirectImportance[theId] += deltaImportance;
+          newDirectImportance[theId]! += deltaImportance;
         }
         else if (theId > maximumPatchId) {
           lostPixels++;
@@ -75,18 +75,18 @@ export class Potential {
     statistics.potential.maxDirectImportance = 0.0;
 
     for (let i = 1; i <= maximumPatchId; i++) {
-      const patch = id2patch[i];
+      const patch = id2patch[i]!;
       if (patch !== null) {
-        patch.directPotential = newDirectImportance[i] / patch.area;
+        patch.directPotential = newDirectImportance[i]! / patch.area;
 
         if (patch.directPotential > statistics.potential.maxDirectPotential) {
           statistics.potential.maxDirectPotential = patch.directPotential;
         }
-        statistics.potential.totalDirectPotential += newDirectImportance[i];
-        statistics.potential.averageDirectPotential += newDirectImportance[i];
+        statistics.potential.totalDirectPotential += newDirectImportance[i]!;
+        statistics.potential.averageDirectPotential += newDirectImportance[i]!;
 
-        if (newDirectImportance[i] > statistics.potential.maxDirectImportance) {
-          statistics.potential.maxDirectImportance = newDirectImportance[i];
+        if (newDirectImportance[i]! > statistics.potential.maxDirectImportance) {
+          statistics.potential.maxDirectImportance = newDirectImportance[i]!;
         }
       }
     }
@@ -95,12 +95,12 @@ export class Potential {
 
   private static softGetPatchPointers(sgl: SglContext, scenePatches: Patch[] | null): void {
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      scenePatches[i].setInvisible();
+      scenePatches[i]!.setInvisible();
     }
 
     const pixelCount = sgl.width * sgl.height;
     for (let i = 0; i < pixelCount; i++) {
-      const patch = sgl.patchBuffer[i];
+      const patch = sgl.patchBuffer[i]!;
       if (patch !== null) {
         patch.setVisible();
       }

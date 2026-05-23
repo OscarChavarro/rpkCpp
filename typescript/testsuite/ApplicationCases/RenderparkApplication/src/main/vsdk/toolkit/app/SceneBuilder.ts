@@ -80,7 +80,7 @@ export class SceneBuilder {
 
     // Accumulate
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      SceneBuilder.sceneBuilderPatchAccumulateStats(scene.patchList[i]);
+      SceneBuilder.sceneBuilderPatchAccumulateStats(scene.patchList[i]!);
     }
 
     // Averages
@@ -140,7 +140,7 @@ export class SceneBuilder {
     Statistics.instance().reader.numberOfLightSources = 0;
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      SceneBuilder.sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene.patchList[i]);
+      SceneBuilder.sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene.patchList[i]!);
     }
 
     scene.lightSourcePatchList = lights;
@@ -174,7 +174,7 @@ export class SceneBuilder {
   */
   private static sceneBuilderPatchList(geometryList: Geometry[] | null, patchList: Patch[]): void {
     for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-      const geometry = geometryList[i];
+      const geometry = geometryList[i]!;
       if (geometry.isCompound()) {
         // Recursive case
         const compound = geometry as Compound;
@@ -182,10 +182,10 @@ export class SceneBuilder {
       }
       else {
         // Trivial case
-        const patchesFromNonCompounds = Geometry.patchListReference(geometry);
+        const patchesFromNonCompounds = Geometry.patchListReference(geometry!);
 
         for (let j = 0; patchesFromNonCompounds !== null && j < patchesFromNonCompounds.length; j++) {
-          const patch = patchesFromNonCompounds[j];
+          const patch = patchesFromNonCompounds[j]!;
           if (patch !== null) {
             patchList.push(patch);
           }
@@ -199,7 +199,7 @@ export class SceneBuilder {
       return;
     }
     for (let i = 0; i < geometryList.length; i++) {
-      const geometry = geometryList[i];
+      const geometry = geometryList[i]!;
       if (geometry === null) {
         continue;
       }
@@ -223,7 +223,7 @@ export class SceneBuilder {
     }
 
     for (let i = 0; i < source.length; i++) {
-      const geometry = source[i];
+      const geometry = source[i]!;
       if (geometry === null) {
         continue;
       }
@@ -297,7 +297,7 @@ export class SceneBuilder {
     mgfContext.currentMaterial = null;
     if (mgfContext.materials !== null && mgfContext.currentMaterialName !== null) {
       for (let i = 0; i < mgfContext.materials.length; i++) {
-        const material = mgfContext.materials[i];
+      const material = mgfContext.materials[i]!;
         if (
           material !== null
           && material.getName() !== null
@@ -327,7 +327,7 @@ export class SceneBuilder {
     }
 
     for (let i = 0; i < geometryList.length; i++) {
-      const geometry = geometryList[i];
+      const geometry = geometryList[i]!;
       if (geometry.className === GeometryClassId.SURFACE_MESH) {
         const mesh = geometry as MeshSurface;
         if (mesh.vertices !== null && mesh.vertices.length === 0) {
@@ -707,11 +707,11 @@ export class SceneBuilder {
     }
 
     // All options should have disappeared from argv now
-    if (argc !== null && argc.length > 0 && argc[0] > 1) {
-      if (argv[1] !== null && argv[1].startsWith("-")) {
+    if (argc !== null && argc.length > 0 && argc[0]! > 1) {
+      if (argv[1] !== null && argv[1]!.startsWith("-")) {
         VsdkLogger.error(null, "Unrecognized option '%s'", argv[1]);
       }
-      else if (!SceneBuilder.sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions)) {
+      else if (!SceneBuilder.sceneBuilderReadFile(argv[1]!, mgfContext, scene, toneMapOptions)) {
         process.exit(1);
       }
     }

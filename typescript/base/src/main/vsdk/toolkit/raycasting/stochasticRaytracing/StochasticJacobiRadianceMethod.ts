@@ -44,7 +44,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     format: string,
     ...args: unknown[]
   ): void {
-    if (offset[0] >= StochasticJacobiRadianceMethod.STRING_LENGTH - 1) {
+    if (offset[0]! >= StochasticJacobiRadianceMethod.STRING_LENGTH - 1) {
       return;
     }
 
@@ -56,7 +56,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
       text = format;
     }
 
-    const available = StochasticJacobiRadianceMethod.STRING_LENGTH - offset[0];
+    const available = StochasticJacobiRadianceMethod.STRING_LENGTH - offset[0]!;
     if (available <= 0) {
       return;
     }
@@ -66,7 +66,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     }
     else {
       buffer.append(text);
-      offset[0] += text.length;
+      offset[0]! += text.length;
     }
   }
 
@@ -99,7 +99,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
   private static toArrayList(scenePatches: Patch[] | null): ArrayList<Patch> {
     const out = new ArrayList<Patch>();
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      out.add(scenePatches[i]);
+      out.add(scenePatches[i]!);
     }
     return out;
   }
@@ -205,7 +205,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
     }
     else {
       for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-        Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i));
+        Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i)!);
       }
     }
   }
@@ -242,8 +242,8 @@ Computes quality factor on given leaf element.
     Coefficientsmcrad.stochasticRadiosityAddCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
     Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.unShotRadiance, elem.receivedRadiance, elem.basis);
     if (StochasticRelaxation.activeState().setSource !== 0) {
-      elem.radiance![0].set(elem.receivedRadiance![0].r, elem.receivedRadiance![0].g, elem.receivedRadiance![0].b);
-      elem.sourceRad.set(elem.receivedRadiance![0].r, elem.receivedRadiance![0].g, elem.receivedRadiance![0].b);
+      elem.radiance![0]!.set(elem.receivedRadiance![0]!.r, elem.receivedRadiance![0]!.g, elem.receivedRadiance![0]!.b);
+      elem.sourceRad.set(elem.receivedRadiance![0]!.r, elem.receivedRadiance![0]!.g, elem.receivedRadiance![0]!.b);
     }
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
   }
@@ -299,7 +299,7 @@ Computes quality factor on given leaf element.
         ?? StochasticRaytracingApproximation.CONSTANT) as number;
       numberOfRays = StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityRandomRound(
         unShotFraction * StochasticRelaxation.activeState().initialNumberOfRays
-        * StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size
+        * StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size
       );
 
       stepNumber++;
@@ -451,13 +451,13 @@ Computes quality factor on given leaf element.
       elem.quality += quality;
     }
 
-    elem.radiance![0].subtract(elem.radiance![0], elem.sourceRad);
+    elem.radiance![0]!.subtract(elem.radiance![0]!, elem.sourceRad);
 
     Coefficientsmcrad.stochasticRadiosityScaleCoefficients(k, elem.radiance, elem.basis);
     Coefficientsmcrad.stochasticRadiosityScaleCoefficients((1.0 - k), elem.receivedRadiance, elem.basis);
     Coefficientsmcrad.stochasticRadiosityAddCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
 
-    elem.radiance![0].add(elem.radiance![0], elem.sourceRad);
+    elem.radiance![0]!.add(elem.radiance![0]!, elem.sourceRad);
 
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);

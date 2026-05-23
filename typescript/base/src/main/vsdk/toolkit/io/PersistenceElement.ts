@@ -28,18 +28,18 @@ export abstract class PersistenceElement {
   }
 
   private static getByte(arr: Uint8Array, index: number): number {
-    return arr[index] & 0xFF;
+    return arr[index]! & 0xFF;
   }
 
   public static readByteInt(is: InputStream): number {
     PersistenceElement.readBytes(is, PersistenceElement.byteBuffer1byte);
-    return PersistenceElement.toSignedByte(PersistenceElement.byteBuffer1byte[0]);
+    return PersistenceElement.toSignedByte(PersistenceElement.byteBuffer1byte[0]!);
   }
 
   public static readByteUnsignedInt(is: InputStream): number {
     PersistenceElement.readBytes(is, PersistenceElement.byteBuffer1byte);
     return VSDK.signedByte2unsignedInteger(
-      PersistenceElement.toSignedByte(PersistenceElement.byteBuffer1byte[0])
+      PersistenceElement.toSignedByte(PersistenceElement.byteBuffer1byte[0]!)
     );
   }
 
@@ -154,7 +154,7 @@ export abstract class PersistenceElement {
       PersistenceElement.byteBuffer2byte[i] = (inNumberToConvert >> (8 * i)) & 0xFF;
     }
     for (let i = inStartIndexInsideArray, cnt = 0; i < inStartIndexInsideArray + length; i++, cnt++) {
-      outArrayToBeExported[i] = PersistenceElement.byteBuffer2byte[cnt];
+      outArrayToBeExported[i] = PersistenceElement.byteBuffer2byte[cnt]!;
     }
   }
 
@@ -168,7 +168,7 @@ export abstract class PersistenceElement {
       PersistenceElement.byteBuffer2byte[length - i - 1] = (inNumberToConvert >> (8 * i)) & 0xFF;
     }
     for (let i = inStartIndexInsideArray, cnt = 0; i < inStartIndexInsideArray + length; i++, cnt++) {
-      outArrayToBeExported[i] = PersistenceElement.byteBuffer2byte[cnt];
+      outArrayToBeExported[i] = PersistenceElement.byteBuffer2byte[cnt]!;
     }
   }
 
@@ -218,7 +218,7 @@ export abstract class PersistenceElement {
   private static byteArray2floatDirect(arr: Uint8Array, start: number): number {
     const tmp = new Uint8Array(4);
     for (let i = 0; i < 4; i++) {
-      tmp[i] = arr[start + i];
+      tmp[i] = arr[start + i]!;
     }
     return new DataView(tmp.buffer).getFloat32(0, true);
   }
@@ -226,7 +226,7 @@ export abstract class PersistenceElement {
   private static byteArray2doubleDirect(arr: Uint8Array, start: number): number {
     const tmp = new Uint8Array(8);
     for (let i = 0; i < 8; i++) {
-      tmp[i] = arr[start + i];
+      tmp[i] = arr[start + i]!;
     }
     return new DataView(tmp.buffer).getFloat64(0, true);
   }
@@ -234,7 +234,7 @@ export abstract class PersistenceElement {
   private static byteArray2floatInvert(arr: Uint8Array, start: number): number {
     const tmp = new Uint8Array(4);
     for (let i = 0; i < 4; i++) {
-      tmp[3 - i] = arr[start + i];
+      tmp[3 - i] = arr[start + i]!;
     }
     return new DataView(tmp.buffer).getFloat32(0, true);
   }
@@ -242,7 +242,7 @@ export abstract class PersistenceElement {
   private static byteArray2doubleInvert(arr: Uint8Array, start: number): number {
     const tmp = new Uint8Array(8);
     for (let i = 0; i < 8; i++) {
-      tmp[7 - i] = arr[start + i];
+      tmp[7 - i] = arr[start + i]!;
     }
     return new DataView(tmp.buffer).getFloat64(0, true);
   }
@@ -458,7 +458,7 @@ export abstract class PersistenceElement {
     do {
       PersistenceElement.readBytes(is, character);
       if (character[0] !== 0x00) {
-        msg += String.fromCharCode(character[0]);
+        msg += String.fromCharCode(character[0]!);
       }
     } while (character[0] !== 0x00);
     return msg;
@@ -483,15 +483,15 @@ export abstract class PersistenceElement {
 
     do {
       PersistenceElement.readBytes(is, character);
-      const letter = character[0];
+      const letter = character[0]!;
       if (character[0] !== 0x00 && ((letter >> 7) === 0)) {
         msg += String.fromCharCode(letter);
       }
       else if (character[0] !== 0x00) {
-        a[0] = character[0];
+        a[0] = character[0]!;
         if (PersistenceElement.streamAvailable(is) >= 1) {
           PersistenceElement.readBytes(is, character);
-          a[1] = character[0];
+          a[1] = character[0]!;
           const cc = PersistenceElement.buildUtf8Char(a);
           if (cc !== null) {
             msg += cc;
@@ -520,11 +520,11 @@ export abstract class PersistenceElement {
     if (arr.length < 2 || outBytes.length < 2) {
       return false;
     }
-    const a = PersistenceElement.signedByte2unsignedInteger(PersistenceElement.toSignedByte(arr[0]));
-    const b = PersistenceElement.signedByte2unsignedInteger(PersistenceElement.toSignedByte(arr[1]));
+    const a = PersistenceElement.signedByte2unsignedInteger(PersistenceElement.toSignedByte(arr[0]!));
+    const b = PersistenceElement.signedByte2unsignedInteger(PersistenceElement.toSignedByte(arr[1]!));
     if (((a >> 5) === 0x06) && ((b >> 6) === 0x02)) {
-      outBytes[0] = arr[0];
-      outBytes[1] = arr[1];
+      outBytes[0] = arr[0]!;
+      outBytes[1] = arr[1]!;
       return true;
     }
     return false;
@@ -540,15 +540,15 @@ export abstract class PersistenceElement {
         return "";
       }
       PersistenceElement.readBytes(is, character);
-      const letter = character[0];
+      const letter = character[0]!;
       if (character[0] !== "\n".charCodeAt(0) && character[0] !== "\r".charCodeAt(0) && ((letter >> 7) === 0)) {
         msg += String.fromCharCode(letter);
       }
       else if (character[0] !== "\n".charCodeAt(0) && character[0] !== "\r".charCodeAt(0)) {
-        a[0] = character[0];
+        a[0] = character[0]!;
         if (PersistenceElement.streamAvailable(is) >= 1) {
           PersistenceElement.readBytes(is, character);
-          a[1] = character[0];
+          a[1] = character[0]!;
           const cc = PersistenceElement.buildUtf8Char(a);
           if (cc !== null) {
             msg += cc;
@@ -566,7 +566,7 @@ export abstract class PersistenceElement {
     do {
       PersistenceElement.readBytes(is, character);
       if (character[0] !== "\n".charCodeAt(0) && character[0] !== "\r".charCodeAt(0)) {
-        out += String.fromCharCode(character[0]);
+        out += String.fromCharCode(character[0]!);
       }
     } while (character[0] !== "\n".charCodeAt(0));
     return out;
@@ -577,7 +577,7 @@ export abstract class PersistenceElement {
   private static isInSet(key: number, set: Uint8Array, setLength?: number): boolean {
     const limit = setLength === undefined ? set.length : globalThis.Math.min(setLength, set.length);
     for (let i = 0; i < limit; i++) {
-      if (key === set[i]) {
+      if (key === set[i]!) {
         return true;
       }
     }
@@ -593,22 +593,22 @@ export abstract class PersistenceElement {
     if (separatorsLength === undefined) {
       do {
         PersistenceElement.readBytes(is, character);
-        if (!PersistenceElement.isInSet(character[0], separators)) {
-          msg += String.fromCharCode(character[0]);
+        if (!PersistenceElement.isInSet(character[0]!, separators)) {
+          msg += String.fromCharCode(character[0]!);
         }
-      } while (!PersistenceElement.isInSet(character[0], separators));
+      } while (!PersistenceElement.isInSet(character[0]!, separators));
       return msg;
     }
 
     do {
       PersistenceElement.readBytes(is, character, 1);
-      if (character[0] === 0x00) {
+      if (character[0]! === 0x00) {
         break;
       }
-      if (!PersistenceElement.isInSet(character[0], separators, separatorsLength)) {
-        msg += String.fromCharCode(character[0]);
+      if (!PersistenceElement.isInSet(character[0]!, separators, separatorsLength)) {
+        msg += String.fromCharCode(character[0]!);
       }
-    } while (!PersistenceElement.isInSet(character[0], separators, separatorsLength));
+    } while (!PersistenceElement.isInSet(character[0]!, separators, separatorsLength));
 
     return msg;
   }
@@ -791,4 +791,3 @@ export abstract class PersistenceElement {
     return PersistenceElement.duplicateCString(extension);
   }
 }
-

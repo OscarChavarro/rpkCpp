@@ -134,7 +134,7 @@ export class BinaryModelSerializationGraph {
 
     if (value.patches !== null) {
       for (let i = 0; i < value.patches.length; i++) {
-        if (!this.ensurePatch(value.patches[i])) {
+        if (!this.ensurePatch(value.patches[i]!)) {
           return false;
         }
       }
@@ -164,7 +164,7 @@ export class BinaryModelSerializationGraph {
     this.patchIndices.set(value, index);
 
     for (let i = 0; i < Patch.MAXIMUM_VERTICES_PER_PATCH; i++) {
-      if (!this.ensureVertex(value.vertex[i])) {
+      if (!this.ensureVertex(value.vertex[i]!)) {
         return false;
       }
     }
@@ -306,7 +306,7 @@ export class BinaryModelSerializationGraph {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.ensureVector(list[i])) {
+      if (!this.ensureVector(list[i]!)) {
         return false;
       }
     }
@@ -320,7 +320,7 @@ export class BinaryModelSerializationGraph {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.ensureVertex(list[i])) {
+      if (!this.ensureVertex(list[i]!)) {
         return false;
       }
     }
@@ -334,7 +334,7 @@ export class BinaryModelSerializationGraph {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.ensurePatch(list[i])) {
+      if (!this.ensurePatch(list[i]!)) {
         return false;
       }
     }
@@ -348,7 +348,7 @@ export class BinaryModelSerializationGraph {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.ensureMaterial(list[i])) {
+      if (!this.ensureMaterial(list[i]!)) {
         return false;
       }
     }
@@ -362,7 +362,7 @@ export class BinaryModelSerializationGraph {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.ensureGeometry(list[i])) {
+      if (!this.ensureGeometry(list[i]!)) {
         return false;
       }
     }

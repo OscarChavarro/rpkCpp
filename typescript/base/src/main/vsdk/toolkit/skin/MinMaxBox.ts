@@ -42,16 +42,16 @@ export class MinMaxBox {
       exitDistance = swapValue;
     }
 
-    if (exitDistance < nearDistance[0]) {
+    if (exitDistance < nearDistance[0]!) {
       return false;
     }
-    if (entryDistance > nearDistance[0]) {
-      nearDistance[0] = entryDistance;
+    if (entryDistance > nearDistance[0]!) {
+      nearDistance[0]! = entryDistance;
     }
-    if (exitDistance < farDistance[0]) {
-      farDistance[0] = exitDistance;
+    if (exitDistance < farDistance[0]!) {
+      farDistance[0]! = exitDistance;
     }
-    return nearDistance[0] <= (farDistance[0] * toleranceScale);
+    return nearDistance[0]! <= (farDistance[0]! * toleranceScale);
   }
 
   public intersectingSegment(ray: Ray | null, tMin: number[] | null, tMax: number[] | null): boolean {
@@ -59,15 +59,15 @@ export class MinMaxBox {
       return false;
     }
 
-    const minimumDistance = tMin[0];
-    const maximumDistance = tMax[0];
+    const minimumDistance = tMin[0]!;
+    const maximumDistance = tMax[0]!;
     const box = this.boundingBox.rawCoordinates();
     const nearDistance = [minimumDistance];
     const farDistance = [maximumDistance];
     const toleranceScale = 1.0 + Numeric.EPSILON_FLOAT;
 
     if (!MinMaxBox.clipAxisSlab(
-      box[BoundingBoxCoordinateIndex.MIN_X], box[BoundingBoxCoordinateIndex.MAX_X],
+      box[BoundingBoxCoordinateIndex.MIN_X]!, box[BoundingBoxCoordinateIndex.MAX_X]!,
       ray.position.x, ray.direction.x,
       toleranceScale,
       nearDistance, farDistance
@@ -75,7 +75,7 @@ export class MinMaxBox {
       return false;
     }
     if (!MinMaxBox.clipAxisSlab(
-      box[BoundingBoxCoordinateIndex.MIN_Y], box[BoundingBoxCoordinateIndex.MAX_Y],
+      box[BoundingBoxCoordinateIndex.MIN_Y]!, box[BoundingBoxCoordinateIndex.MAX_Y]!,
       ray.position.y, ray.direction.y,
       toleranceScale,
       nearDistance, farDistance
@@ -83,7 +83,7 @@ export class MinMaxBox {
       return false;
     }
     if (!MinMaxBox.clipAxisSlab(
-      box[BoundingBoxCoordinateIndex.MIN_Z], box[BoundingBoxCoordinateIndex.MAX_Z],
+      box[BoundingBoxCoordinateIndex.MIN_Z]!, box[BoundingBoxCoordinateIndex.MAX_Z]!,
       ray.position.z, ray.direction.z,
       toleranceScale,
       nearDistance, farDistance
@@ -91,13 +91,13 @@ export class MinMaxBox {
       return false;
     }
 
-    tMin[0] = nearDistance[0];
-    tMax[0] = farDistance[0];
+    tMin[0] = nearDistance[0]!;
+    tMax[0] = farDistance[0]!;
 
-    if (nearDistance[0] === minimumDistance) {
-      return farDistance[0] < maximumDistance;
+    if (nearDistance[0]! === minimumDistance) {
+      return farDistance[0]! < maximumDistance;
     }
-    return nearDistance[0] < maximumDistance;
+    return nearDistance[0]! < maximumDistance;
   }
 
   public intersect(ray: Ray, minimumDistance: number, maximumDistance: number[] | null): boolean {
@@ -106,16 +106,16 @@ export class MinMaxBox {
     }
 
     const tMin = [minimumDistance];
-    const tMax = [maximumDistance[0]];
+    const tMax = [maximumDistance[0]!];
     const hit = this.intersectingSegment(ray, tMin, tMax);
     if (hit) {
-      if (tMin[0] === minimumDistance) {
-        if (tMax[0] < maximumDistance[0]) {
-          maximumDistance[0] = tMax[0];
+      if (tMin[0]! === minimumDistance) {
+        if (tMax[0]! < maximumDistance[0]!) {
+          maximumDistance[0] = tMax[0]!;
         }
       }
-      else if (tMin[0] < maximumDistance[0]) {
-        maximumDistance[0] = tMin[0];
+      else if (tMin[0]! < maximumDistance[0]!) {
+        maximumDistance[0] = tMin[0]!;
       }
     }
     return hit;

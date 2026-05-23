@@ -64,7 +64,7 @@ export class Element {
 
   public traverseAllLeafElements(traversalCallbackFunction: (element: Element) => void): void {
     for (let i = 0; this.irregularSubElements !== null && i < this.irregularSubElements.length; i++) {
-      this.irregularSubElements[i].traverseAllLeafElements(traversalCallbackFunction);
+      this.irregularSubElements[i]?.traverseAllLeafElements(traversalCallbackFunction);
     }
 
     if (this.regularSubElements !== null) {
@@ -126,7 +126,10 @@ export class Element {
   public traverseAllChildren(traversalCallbackFunction: (element: Element) => void): boolean {
     if (this.isCluster()) {
       for (let i = 0; this.irregularSubElements !== null && i < this.irregularSubElements.length; i++) {
-        traversalCallbackFunction(this.irregularSubElements[i]);
+        const child = this.irregularSubElements[i];
+        if (child !== undefined) {
+          traversalCallbackFunction(child);
+        }
       }
       return true;
     }

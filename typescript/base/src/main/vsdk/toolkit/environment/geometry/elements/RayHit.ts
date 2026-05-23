@@ -50,8 +50,8 @@ export class RayHit {
       const u = [0.0];
       const v = [0.0];
       this.patch.uv(this.point, u, v);
-      this.uv.u = u[0];
-      this.uv.v = v[0];
+      this.uv.u = u[0] ?? 0.0;
+      this.uv.v = v[0] ?? 0.0;
       inUv.u = this.uv.u;
       inUv.v = this.uv.v;
       this.flags |= RayHitFlag.UV;

@@ -89,15 +89,15 @@ export class Poly {
     q.mask = p.mask;
 
     let previousVertexIndex = p.n - 1;
-    let tu = sign * p.vertices[previousVertexIndex].getCoord(index) - p.vertices[previousVertexIndex].sw * k;
+    let tu = sign * p.vertices[previousVertexIndex]!.getCoord(index) - p.vertices[previousVertexIndex]!.sw * k;
     for (let currentVertexIndex = 0; currentVertexIndex < p.n; currentVertexIndex++) {
-      const u = p.vertices[previousVertexIndex];
-      const v = p.vertices[currentVertexIndex];
+      const u = p.vertices[previousVertexIndex]!;
+      const v = p.vertices[currentVertexIndex]!;
       const tv = sign * v.getCoord(index) - v.sw * k;
 
       if (((tu <= 0.0) && (tv > 0.0)) || ((tu > 0.0) && (tv <= 0.0))) {
         const t = tu / (tu - tv);
-        const w = q.vertices[q.n];
+        const w = q.vertices[q.n]!;
         for (let attributeIndex = 0, maskBits = p.mask; maskBits !== 0; attributeIndex++, maskBits = maskBits >>> 1) {
           if ((maskBits & 1) !== 0) {
             const uCoord = u.getCoord(attributeIndex);
@@ -109,7 +109,7 @@ export class Poly {
       }
 
       if (tv <= 0.0) {
-        Poly.copyVertex(q.vertices[q.n], v);
+        Poly.copyVertex(q.vertices[q.n]!, v);
         q.n++;
       }
       previousVertexIndex = currentVertexIndex;
@@ -146,7 +146,7 @@ export class Poly {
     }
 
     for (let i = 0; i < p1.n; i++) {
-      const vertex = p1.vertices[i];
+      const vertex = p1.vertices[i]!;
       if (vertex.sx < box.x0 * vertex.sw) {
         x0out++;
       }
@@ -202,7 +202,7 @@ export class Poly {
       p1.n = p2.n;
       p1.mask = p2.mask;
       for (let i = 0; i < p2.n; i++) {
-        Poly.copyVertex(p1.vertices[i], p2.vertices[i]);
+        Poly.copyVertex(p1.vertices[i]!, p2.vertices[i]!);
       }
     }
     return PolygonClipResult.POLY_CLIP_PARTIAL;
@@ -262,8 +262,8 @@ export class Poly {
     let yMin = Numeric.HUGE_DOUBLE_VALUE;
     let top = -1;
     for (let i = 0; i < p.n; i++) {
-      if (p.vertices[i].sy < yMin) {
-        yMin = p.vertices[i].sy;
+      if (p.vertices[i]!.sy < yMin) {
+        yMin = p.vertices[i]!.sy;
         top = i;
       }
     }
@@ -287,8 +287,8 @@ export class Poly {
         if (i < 0) {
           i = p.n - 1;
         }
-        Poly.incrementalizeYFlat(p.vertices[li], p.vertices[i], l, dl, y);
-        ly = globalThis.Math.floor(p.vertices[i].sy + 0.5);
+        Poly.incrementalizeYFlat(p.vertices[li]!, p.vertices[i]!, l, dl, y);
+        ly = globalThis.Math.floor(p.vertices[i]!.sy + 0.5);
         li = i;
       }
 
@@ -298,8 +298,8 @@ export class Poly {
         if (i >= p.n) {
           i = 0;
         }
-        Poly.incrementalizeYFlat(p.vertices[ri], p.vertices[i], r, dr, y);
-        ry = globalThis.Math.floor(p.vertices[i].sy + 0.5);
+        Poly.incrementalizeYFlat(p.vertices[ri]!, p.vertices[i]!, r, dr, y);
+        ry = globalThis.Math.floor(p.vertices[i]!.sy + 0.5);
         ri = i;
       }
 
@@ -377,7 +377,7 @@ export class Poly {
     const rowStart = y * sglContext.width;
     let pixelIndex = rowStart + lx;
     for (let x = lx; x <= rx; x++) {
-      if (z <= (sglContext.depthBuffer as number[])[pixelIndex]) {
+      if (z <= (sglContext.depthBuffer as number[])[pixelIndex]!) {
         if (sglContext.pixelData === SglPixelContent.PATCH_POINTER) {
           sglContext.patchBuffer[pixelIndex] = sglContext.currentPatch;
         }
@@ -398,8 +398,8 @@ export class Poly {
     let yMin = Numeric.HUGE_DOUBLE_VALUE;
     let top = -1;
     for (let i = 0; i < p.n; i++) {
-      if (p.vertices[i].sy < yMin) {
-        yMin = p.vertices[i].sy;
+      if (p.vertices[i]!.sy < yMin) {
+        yMin = p.vertices[i]!.sy;
         top = i;
       }
     }
@@ -423,8 +423,8 @@ export class Poly {
         if (i < 0) {
           i = p.n - 1;
         }
-        Poly.incrementalizeYZ(p.vertices[li], p.vertices[i], l, dl, y);
-        ly = globalThis.Math.floor(p.vertices[i].sy + 0.5);
+        Poly.incrementalizeYZ(p.vertices[li]!, p.vertices[i]!, l, dl, y);
+        ly = globalThis.Math.floor(p.vertices[i]!.sy + 0.5);
         li = i;
       }
 
@@ -434,8 +434,8 @@ export class Poly {
         if (i >= p.n) {
           i = 0;
         }
-        Poly.incrementalizeYZ(p.vertices[ri], p.vertices[i], r, dr, y);
-        ry = globalThis.Math.floor(p.vertices[i].sy + 0.5);
+        Poly.incrementalizeYZ(p.vertices[ri]!, p.vertices[i]!, r, dr, y);
+        ry = globalThis.Math.floor(p.vertices[i]!.sy + 0.5);
         ri = i;
       }
 

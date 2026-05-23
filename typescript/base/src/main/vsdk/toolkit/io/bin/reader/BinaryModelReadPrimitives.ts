@@ -160,7 +160,7 @@ export class BinaryModelReadPrimitives {
   public static readByte(input: InputStream | null): number {
     const value = new Uint8Array(1);
     BinaryModelReadPrimitives.readBytes(input, value, 1);
-    return value[0];
+    return value[0]!;
   }
 
   public static readBool(input: InputStream | null): boolean {
@@ -356,14 +356,14 @@ export class BinaryModelReadPrimitives {
     const maxPoint = new Vector3D();
 
     minPoint.set(
-      coordinates[BoundingBoxCoordinateIndex.MIN_X],
-      coordinates[BoundingBoxCoordinateIndex.MIN_Y],
-      coordinates[BoundingBoxCoordinateIndex.MIN_Z]
+      coordinates[BoundingBoxCoordinateIndex.MIN_X]!,
+      coordinates[BoundingBoxCoordinateIndex.MIN_Y]!,
+      coordinates[BoundingBoxCoordinateIndex.MIN_Z]!
     );
     maxPoint.set(
-      coordinates[BoundingBoxCoordinateIndex.MAX_X],
-      coordinates[BoundingBoxCoordinateIndex.MAX_Y],
-      coordinates[BoundingBoxCoordinateIndex.MAX_Z]
+      coordinates[BoundingBoxCoordinateIndex.MAX_X]!,
+      coordinates[BoundingBoxCoordinateIndex.MAX_Y]!,
+      coordinates[BoundingBoxCoordinateIndex.MAX_Z]!
     );
 
     parsed.enlargeToIncludePoint(minPoint);
@@ -438,7 +438,7 @@ export class BinaryModelReadPrimitives {
       return false;
     }
 
-    result.value = values[index];
+    result.value = values[index] ?? null;
     return true;
   }
 
@@ -469,7 +469,7 @@ export class BinaryModelReadPrimitives {
     const list: Array<T | null> = [];
     const element = new BinaryModelReadPrimitives.Out<T | null>();
     for (let i = 0; i < record.indices.length; i++) {
-      if (!BinaryModelReadPrimitives.pointerFromIndex(values, record.indices[i], what, element)) {
+      if (!BinaryModelReadPrimitives.pointerFromIndex(values, record.indices[i]!, what, element)) {
         return false;
       }
       list.push(element.value);
@@ -530,17 +530,17 @@ export class BinaryModelReadPrimitives {
     if (!BinaryModelReadPrimitives.duplicateNullableString(record.hasCurrentMaterialName, record.currentMaterialName, tmp)) {
       return false;
     }
-    model.currentMaterialName = tmp[0];
+    model.currentMaterialName = tmp[0] ?? null;
 
     if (!BinaryModelReadPrimitives.duplicateNullableString(record.hasCurrentObjectName, record.currentObjectName, tmp)) {
       return false;
     }
-    model.currentObjectName = tmp[0];
+    model.currentObjectName = tmp[0] ?? null;
 
     if (!BinaryModelReadPrimitives.duplicateNullableString(record.hasCurrentVertexName, record.currentVertexName, tmp)) {
       return false;
     }
-    model.currentVertexName = tmp[0];
+    model.currentVertexName = tmp[0] ?? null;
 
     return true;
   }

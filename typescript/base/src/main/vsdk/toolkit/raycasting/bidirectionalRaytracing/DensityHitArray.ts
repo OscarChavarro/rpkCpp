@@ -26,7 +26,11 @@ export class DensityHitArray {
   }
 
   public get(i: number): DensityHit {
-    return this.hits[i];
+    const hit = this.hits[i];
+    if (hit === undefined) {
+      throw new RangeError(`DensityHitArray index out of bounds: ${i}`);
+    }
+    return hit;
   }
 
   public getNext(): DensityHitArray | null {

@@ -8,6 +8,8 @@ export interface NodeCallback {
   call(userData: unknown, nodeData: unknown): void;
 }
 
+type Point3 = [number, number, number];
+
 export class KDTree {
   protected numberOfNodes: number;
   protected dataSize: number;
@@ -66,7 +68,7 @@ export class KDTree {
       parent = current;
       const discriminator = parent.discriminator();
       const parentPoint = KDTree.asPoint(parent.mData);
-      if (newPoint[discriminator] <= parentPoint[discriminator]) {
+      if (newPoint[discriminator as 0 | 1 | 2] <= parentPoint[discriminator as 0 | 1 | 2]) {
         current = parent.loson;
       }
       else {
@@ -89,7 +91,7 @@ export class KDTree {
       }
 
       parent.setDiscriminator(discriminator);
-      if (newPoint[discriminator] <= parentPoint[discriminator]) {
+      if (newPoint[discriminator as 0 | 1 | 2] <= parentPoint[discriminator as 0 | 1 | 2]) {
         parent.loson = newNode;
       }
       else {
@@ -102,7 +104,7 @@ export class KDTree {
     else {
       const discriminator = parent.discriminator();
       const parentPoint = KDTree.asPoint(parent.mData);
-      if (newPoint[discriminator] <= parentPoint[discriminator]) {
+      if (newPoint[discriminator as 0 | 1 | 2] <= parentPoint[discriminator as 0 | 1 | 2]) {
         parent.loson = newNode;
       }
       else {
@@ -118,7 +120,10 @@ export class KDTree {
     }
 
     for (let i = 0; i < this.numBalanced; i++) {
-      callback.call(data, (this.balancedRootNode as BalancedKDTreeNode[])[i].mData);
+      const node = (this.balancedRootNode as BalancedKDTreeNode[])[i];
+      if (node !== undefined) {
+        callback.call(data, node.mData);
+      }
     }
   }
 
@@ -185,12 +190,15 @@ export class KDTree {
     for (let i = 0; i < broot.length; i++) {
       broot[i] = new BalancedKDTreeNode();
     }
-    broot[this.numberOfNodes].mData = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
-    broot[this.numberOfNodes].mFlags = 128;
+    broot[this.numberOfNodes]!.mData = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+    broot[this.numberOfNodes]!.mFlags = 128;
 
     let index = 0;
     for (let i = 0; i < this.numBalanced; i++) {
-      broot[index++] = (this.balancedRootNode as BalancedKDTreeNode[])[i];
+      const current = (this.balancedRootNode as BalancedKDTreeNode[])[i];
+      if (current !== undefined) {
+        broot[index++] = current;
+      }
     }
 
     const pIndex = [index];
@@ -206,8 +214,8 @@ export class KDTree {
     for (let i = 0; i < dest.length; i++) {
       dest[i] = new BalancedKDTreeNode();
     }
-    dest[this.numberOfNodes].mData = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
-    dest[this.numberOfNodes].mFlags = 64;
+    dest[this.numberOfNodes]!.mData = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+    dest[this.numberOfNodes]!.mFlags = 64;
 
     this.balanceRec(broot, dest, 0, 0, this.numberOfNodes - 1);
 
@@ -225,16 +233,16 @@ export class KDTree {
     high: number
   ): void {
     if (low === high) {
-      dest[destIndex] = broot[low];
-      dest[destIndex].setDiscriminator(0);
+      dest[destIndex] = broot[low]!;
+      dest[destIndex]!.setDiscriminator(0);
       return;
     }
 
     const discr = KDTree.bestDiscriminator(broot, low, high);
     const median = KDTree.quickSelect(broot, low, high, discr);
 
-    dest[destIndex] = broot[median];
-    dest[destIndex].setDiscriminator(discr);
+    dest[destIndex] = broot[median]!;
+    dest[destIndex]!.setDiscriminator(discr);
 
     if (low < median) {
       this.balanceRec(broot, dest, (destIndex << 1) + 1, low, median - 1);
@@ -260,7 +268,7 @@ export class KDTree {
     return data;
   }
 
-  private static asPoint(data: unknown): number[] {
+  private static asPoint(data: unknown): Point3 {
     if (!Array.isArray(data)) {
       throw new globalThis.Error("KDTree data must be a float[] with xyz coordinates in first entries");
     }
@@ -269,7 +277,7 @@ export class KDTree {
       throw new globalThis.Error("KDTree point data must have at least 3 components");
     }
 
-    return data as number[];
+    return data as Point3;
   }
 
   private deleteNodes(node: KDTreeNode | null, deleteData: boolean): void {
@@ -294,14 +302,14 @@ export class KDTree {
 
     if (deleteData) {
       for (let node = 0; node < this.numBalanced; node++) {
-        this.balancedRootNode[node].mData = null;
+        this.balancedRootNode[node]!.mData = null;
       }
     }
 
     this.balancedRootNode = null;
   }
 
-  private static sqrDistance3D(a: number[], b: number[]): number {
+  private static sqrDistance3D(a: Point3, b: Point3): number {
     let tmp = a[0] - b[0];
     let result = tmp * tmp;
 
@@ -318,11 +326,11 @@ export class KDTree {
     let son = queryData.foundN;
     let parent = (son - 1) >> 1;
 
-    while ((son > 0) && queryData.distances[parent] < queryData.distances[son]) {
-      const tmpDist = queryData.distances[parent];
+    while ((son > 0) && queryData.distances[parent]! < queryData.distances[son]!) {
+      const tmpDist = queryData.distances[parent]!;
       const tmpData = queryData.results[parent];
 
-      queryData.distances[parent] = queryData.distances[son];
+      queryData.distances[parent] = queryData.distances[son]!;
       queryData.results[parent] = queryData.results[son];
 
       queryData.distances[son] = tmpDist;
@@ -340,7 +348,7 @@ export class KDTree {
     KDTree.fixUp(queryData);
 
     if (++queryData.foundN === queryData.wantedN) {
-      queryData.maximumDistance = queryData.distances[0];
+      queryData.maximumDistance = queryData.distances[0]!;
       queryData.notFilled = false;
     }
   }
@@ -351,19 +359,19 @@ export class KDTree {
     let son = 1;
 
     while (son < max) {
-      if (queryData.distances[son] <= queryData.distances[parent]) {
-        if ((++son >= max) || queryData.distances[son] <= queryData.distances[parent]) {
+      if (queryData.distances[son]! <= queryData.distances[parent]!) {
+        if ((++son >= max) || queryData.distances[son]! <= queryData.distances[parent]!) {
           return;
         }
       }
-      else if ((son + 1 < max) && queryData.distances[son + 1] > queryData.distances[son]) {
+      else if ((son + 1 < max) && queryData.distances[son + 1]! > queryData.distances[son]!) {
         son++;
       }
 
-      const tmpDist = queryData.distances[parent];
+      const tmpDist = queryData.distances[parent]!;
       const tmpData = queryData.results[parent];
 
-      queryData.distances[parent] = queryData.distances[son];
+      queryData.distances[parent] = queryData.distances[son]!;
       queryData.results[parent] = queryData.results[son];
 
       queryData.distances[son] = tmpDist;
@@ -379,12 +387,12 @@ export class KDTree {
     queryData.results[0] = data;
 
     KDTree.fixDown(queryData);
-    queryData.maximumDistance = queryData.distances[0];
+    queryData.maximumDistance = queryData.distances[0]!;
   }
 
   private queryRec(node: KDTreeNode, queryData: KDQuery): void {
     const discriminator = node.discriminator();
-    let dist = KDTree.sqrDistance3D(KDTree.asPoint(node.mData), queryData.point);
+    let dist = KDTree.sqrDistance3D(KDTree.asPoint(node.mData), KDTree.asPoint(queryData.point));
 
     if (dist < queryData.maximumDistance) {
       if (queryData.notFilled) {
@@ -395,7 +403,7 @@ export class KDTree {
       }
     }
 
-    dist = KDTree.asPoint(node.mData)[discriminator] - queryData.point[discriminator];
+    dist = KDTree.asPoint(node.mData)[discriminator as 0 | 1 | 2] - KDTree.asPoint(queryData.point)[discriminator as 0 | 1 | 2];
 
     let nearNode: KDTreeNode | null;
     let farNode: KDTreeNode | null;
@@ -426,13 +434,16 @@ export class KDTree {
 
   private balancedQueryRec(index: number, queryData: KDQuery): void {
     const node = (this.balancedRootNode as BalancedKDTreeNode[])[index];
+    if (node === undefined) {
+      return;
+    }
     const discr = node.discriminator();
     let dist: number;
     let nearIndex: number;
     let farIndex: number;
 
     if (index < this.firstLeaf) {
-      dist = KDTree.asPoint(node.mData)[discr] - queryData.point[discr];
+      dist = KDTree.asPoint(node.mData)[discr as 0 | 1 | 2] - KDTree.asPoint(queryData.point)[discr as 0 | 1 | 2];
 
       if (dist >= 0.0) {
         nearIndex = (index << 1) + 1;
@@ -456,7 +467,7 @@ export class KDTree {
       }
     }
 
-    dist = KDTree.sqrDistance3D(KDTree.asPoint(node.mData), queryData.point);
+    dist = KDTree.sqrDistance3D(KDTree.asPoint(node.mData), KDTree.asPoint(queryData.point));
 
     if (dist < queryData.maximumDistance) {
       if (queryData.notFilled) {
@@ -470,12 +481,12 @@ export class KDTree {
 
   private static bkdswap(root: BalancedKDTreeNode[], a: number, b: number): void {
     const tmp = root[a];
-    root[a] = root[b];
-    root[b] = tmp;
+    root[a] = root[b]!;
+    root[b] = tmp!;
   }
 
   private static bkdval(root: BalancedKDTreeNode[], index: number, discr: number): number {
-    return KDTree.asPoint(root[index].mData)[discr];
+    return KDTree.asPoint(root[index]!.mData)[discr as 0 | 1 | 2];
   }
 
   private static eSwap(broot: BalancedKDTreeNode[], a: number, b: number): void {
@@ -571,7 +582,9 @@ export class KDTree {
     pindex: number[]
   ): void {
     if (node !== null) {
-      broot[pindex[0]++].copy(node);
+      const idx = pindex[0] ?? 0;
+      pindex[0] = idx + 1;
+      broot[idx]!.copy(node);
       KDTree.copyUnbalancedRec(node.loson, broot, pindex);
       KDTree.copyUnbalancedRec(node.hison, broot, pindex);
     }
@@ -591,40 +604,40 @@ export class KDTree {
 
     for (let i = low; i <= high; i++) {
       let tmp = KDTree.bkdval(broot, i, 0);
-      if (bMin[0] > tmp) {
+      if (bMin[0]! > tmp) {
         bMin[0] = tmp;
       }
-      if (bMax[0] < tmp) {
+      if (bMax[0]! < tmp) {
         bMax[0] = tmp;
       }
 
       tmp = KDTree.bkdval(broot, i, 1);
-      if (bMin[1] > tmp) {
+      if (bMin[1]! > tmp) {
         bMin[1] = tmp;
       }
-      if (bMax[1] < tmp) {
+      if (bMax[1]! < tmp) {
         bMax[1] = tmp;
       }
 
       tmp = KDTree.bkdval(broot, i, 2);
-      if (bMin[2] > tmp) {
+      if (bMin[2]! > tmp) {
         bMin[2] = tmp;
       }
-      if (bMax[2] < tmp) {
+      if (bMax[2]! < tmp) {
         bMax[2] = tmp;
       }
     }
 
     let discr = 0;
-    let spread = bMax[0] - bMin[0];
+    let spread = bMax[0]! - bMin[0]!;
 
-    let tmp = bMax[1] - bMin[1];
+    let tmp = bMax[1]! - bMin[1]!;
     if (tmp > spread) {
       discr = 1;
       spread = tmp;
     }
 
-    tmp = bMax[2] - bMin[2];
+    tmp = bMax[2]! - bMin[2]!;
     if (tmp > spread) {
       discr = 2;
     }

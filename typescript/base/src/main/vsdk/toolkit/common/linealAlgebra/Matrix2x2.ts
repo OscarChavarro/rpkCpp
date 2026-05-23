@@ -1,8 +1,15 @@
 import { Vector2D } from "./Vector2D";
 
+type Matrix2 = [
+  [number, number],
+  [number, number]
+];
+
+type Vector2 = [number, number];
+
 export class Matrix2x2 {
-  public m: number[][];
-  public t: number[];
+  public m: Matrix2;
+  public t: Vector2;
 
   public constructor() {
     this.m = [

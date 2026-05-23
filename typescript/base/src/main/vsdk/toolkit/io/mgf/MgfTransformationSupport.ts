@@ -39,15 +39,16 @@ export class MgfTransformationSupport {
     const view = new DataView(buffer);
     let offset = 0;
     for (let r = 0; r < 4; r++) {
+      const row = xfm.m[r]!;
       for (let c = 0; c < 4; c++) {
-        view.setFloat64(offset, xfm.m[r][c], true);
+        view.setFloat64(offset, row[c]!, true);
         offset += 8;
       }
     }
     const raw = new Uint8Array(buffer);
     for (let i = 0; i + 1 < raw.length; i += 2) {
-      const value = (raw[i] & 0xff) | ((raw[i + 1] & 0xff) << 8);
-      xid ^= (value << shiftTab[(i / 2) & 63]);
+      const value = (raw[i]! & 0xff) | ((raw[i + 1]! & 0xff) << 8);
+      xid ^= (value << shiftTab[(i / 2) & 63]!);
     }
     return xid;
   }
@@ -63,22 +64,23 @@ export class MgfTransformationSupport {
     const format = fl ?? "";
     for (let formatIndex = 0; formatIndex < format.length; formatIndex++) {
       const argumentIndex = formatIndex + 1;
-      if (argumentIndex > ac || av[formatIndex] === undefined) {
+      const token = av[formatIndex];
+      if (argumentIndex > ac || token === undefined) {
         return -1;
       }
       switch (format.charAt(formatIndex)) {
         case "s": // String
-          if (av[formatIndex].length <= 0 || /\s/.test(av[formatIndex].charAt(0))) {
+          if (token.length <= 0 || /\s/.test(token.charAt(0))) {
             return argumentIndex;
           }
           break;
         case "i": // Integer
-          if (!TokenValidationContext.isIntDelimited(av[formatIndex], " \t\r\n")) {
+          if (!TokenValidationContext.isIntDelimited(token, " \t\r\n")) {
             return argumentIndex;
           }
           break;
         case "f": // Float
-          if (!TokenValidationContext.isFloatDelimited(av[formatIndex], " \t\r\n")) {
+          if (!TokenValidationContext.isFloatDelimited(token, " \t\r\n")) {
             return argumentIndex;
           }
           break;
@@ -90,7 +92,7 @@ export class MgfTransformationSupport {
   }
 
   private static checkArgument(a: number, l: string, ac: number, av: string[], i: number): boolean {
-    if (av[i].length !== a) {
+    if (av[i] === undefined || av[i]!.length !== a) {
       return false;
     }
     const tail = av.slice(i + 1, ac);
@@ -104,8 +106,8 @@ export class MgfTransformationSupport {
   Put out name for this instance.
   */
   private static transformName(ap: TransformSequenceContext | null, context: ParseRuntimeContext): number {
-    const oav = [
-      context.entityNames[EntityTypeContext.OBJECT],
+    const oav: string[] = [
+      context.entityNames[EntityTypeContext.OBJECT] ?? "",
       "",
     ];
     if (ap === null) {
@@ -113,7 +115,7 @@ export class MgfTransformationSupport {
     }
     let oName = "a";
     for (let i = 0; i < ap.numberOfDimensions; i++) {
-      oName += `${ap.transformArguments[i].arg}.`;
+      oName += `${ap.transformArguments[i]!.arg}.`;
     }
     oav[1] = oName;
     return MgfEntityControl.mgfHandle(EntityTypeContext.OBJECT, 2, oav, context);
@@ -162,7 +164,7 @@ export class MgfTransformationSupport {
 
       const previousStartIndex = stack.argumentCount - previousArgumentCount;
       for (let i = 0; i < previousArgumentCount; i++) {
-        newArgumentList[ac + i] = (stack.argumentList as Array<string | null>)[previousStartIndex + i];
+        newArgumentList[ac + i] = (stack.argumentList as Array<string | null>)[previousStartIndex + i]!;
       }
       newArgumentList[spec.xac] = null;
     }
@@ -183,11 +185,11 @@ export class MgfTransformationSupport {
         (spec.ownedArgumentCopies as Array<string | null>)[i] = null;
         (stack.argumentList as Array<string | null>)[i] = transformArgument.arg;
         transformArgument.i = 0;
-        transformArgument.n = Number.parseInt(av[i], 10);
+        transformArgument.n = Number.parseInt(av[i]!, 10);
         (spec.transformationArray as TransformSequenceContext).numberOfDimensions++;
       }
       else {
-        const argumentCopy = av[i];
+        const argumentCopy = av[i]!;
         (stack.argumentList as Array<string | null>)[i] = argumentCopy;
         (spec.ownedArgumentCopies as Array<string | null>)[i] = argumentCopy;
       }
@@ -242,36 +244,40 @@ export class MgfTransformationSupport {
 
     let i: number;
     let tmp: number;
-    for (i = 0; i < ac && av[i] !== null && av[i].length > 0 && av[i].charAt(0) === "-"; i++) {
+    for (i = 0; i < ac; i++) {
+      const cmd = av[i];
+      if (cmd === undefined || cmd === null || cmd.length <= 0 || cmd.charAt(0) !== "-") {
+        break;
+      }
       const m4 = new Matrix4x4d();
 
-      if (av[i].length < 2) {
+      if (cmd.length < 2) {
         MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
         return i;
       }
 
-      switch (av[i].charAt(1)) {
+      switch (cmd.charAt(1)) {
         case "t":
           // Translate
           if (!MgfTransformationSupport.checkArgument(2, "fff", ac, av, i)) {
             MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
             return i;
           }
-          m4.m[3][0] = Number.parseFloat(av[++i]);
-          m4.m[3][1] = Number.parseFloat(av[++i]);
-          m4.m[3][2] = Number.parseFloat(av[++i]);
+          m4.m[3]![0] = Number.parseFloat(av[++i]!);
+          m4.m[3]![1] = Number.parseFloat(av[++i]!);
+          m4.m[3]![2] = Number.parseFloat(av[++i]!);
           break;
 
         case "r": {
           // Rotate
-          const suffix = av[i].length > 2 ? av[i].charAt(2) : "\0";
+          const suffix = cmd.length > 2 ? cmd.charAt(2) : "\0";
           switch (suffix) {
             case "x":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]));
+              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
               m4.m[1][1] = m4.m[2][2] = globalThis.Math.cos(tmp);
               m4.m[2][1] = -(m4.m[1][2] = globalThis.Math.sin(tmp));
               break;
@@ -280,7 +286,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]));
+              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
               m4.m[0][0] = m4.m[2][2] = globalThis.Math.cos(tmp);
               m4.m[0][2] = -(m4.m[2][0] = globalThis.Math.sin(tmp));
               break;
@@ -289,7 +295,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]));
+              tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
               m4.m[0][0] = m4.m[1][1] = globalThis.Math.cos(tmp);
               m4.m[1][0] = -(m4.m[0][1] = globalThis.Math.sin(tmp));
               break;
@@ -298,10 +304,10 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              let x = Number.parseFloat(av[++i]);
-              let y = Number.parseFloat(av[++i]);
-              let z = Number.parseFloat(av[++i]);
-              const a = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]));
+              let x = Number.parseFloat(av[++i]!);
+              let y = Number.parseFloat(av[++i]!);
+              let z = Number.parseFloat(av[++i]!);
+              const a = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
               let s = globalThis.Math.sqrt(x * x + y * y + z * z);
               x /= s;
               y /= s;
@@ -331,14 +337,14 @@ export class MgfTransformationSupport {
 
         case "s": {
           // Scale
-          const suffix = av[i].length > 2 ? av[i].charAt(2) : "\0";
+          const suffix = cmd.length > 2 ? cmd.charAt(2) : "\0";
           switch (suffix) {
             case "x":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = Number.parseFloat(av[i + 1]);
+              tmp = Number.parseFloat(av[i + 1]!);
               if (tmp === 0.0) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
@@ -350,7 +356,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = Number.parseFloat(av[i + 1]);
+              tmp = Number.parseFloat(av[i + 1]!);
               if (tmp === 0.0) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
@@ -362,7 +368,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = Number.parseFloat(av[i + 1]);
+              tmp = Number.parseFloat(av[i + 1]!);
               if (tmp === 0.0) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
@@ -374,7 +380,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              tmp = Number.parseFloat(av[i + 1]);
+              tmp = Number.parseFloat(av[i + 1]!);
               if (tmp === 0.0) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
@@ -388,7 +394,7 @@ export class MgfTransformationSupport {
 
         case "m": {
           // Mirror
-          const suffix = av[i].length > 2 ? av[i].charAt(2) : "\0";
+          const suffix = cmd.length > 2 ? cmd.charAt(2) : "\0";
           switch (suffix) {
             case "x":
               if (!MgfTransformationSupport.checkArgument(3, "", ac, av, i)) {
@@ -428,7 +434,7 @@ export class MgfTransformationSupport {
             Matrix4x4d.multiplyMatrix4(ret.transformMatrix, ret.transformMatrix, transformMatrix);
             ret.scaleFactor *= scaTransform;
           }
-          counter = Number.parseInt(av[++i], 10);
+          counter = Number.parseInt(av[++i]!, 10);
           transformMatrix.identity();
           scaTransform = 1.0;
           continue;
@@ -470,25 +476,27 @@ export class MgfTransformationSupport {
         MgfTransformationSupport.transformName(null, context);
         n = ap.numberOfDimensions;
         while (n-- > 0) {
-          if (++ap.transformArguments[n].i < ap.transformArguments[n].n) {
+          const transformArgument = ap.transformArguments[n]!;
+          if (++transformArgument.i < transformArgument.n) {
             break;
           }
-          ap.transformArguments[n].arg = "0";
-          if (ap.transformArguments[n].argumentIndex >= 0
-            && ap.transformArguments[n].argumentIndex < stack.argumentCount) {
-            (stack.argumentList as Array<string | null>)[ap.transformArguments[n].argumentIndex] = ap.transformArguments[n].arg;
+          transformArgument.arg = "0";
+          if (transformArgument.argumentIndex >= 0
+            && transformArgument.argumentIndex < stack.argumentCount) {
+            (stack.argumentList as Array<string | null>)[transformArgument.argumentIndex] = transformArgument.arg;
           }
-          ap.transformArguments[n].i = 0;
+          transformArgument.i = 0;
         }
         if (n >= 0) {
           const rv = MgfEntityControl.mgfGoToFilePosition(ap.startingPosition, context);
           if (rv !== ParseErrorContext.MGF_OK) {
             return rv;
           }
-          ap.transformArguments[n].arg = `${ap.transformArguments[n].i}`;
-          if (ap.transformArguments[n].argumentIndex >= 0
-            && ap.transformArguments[n].argumentIndex < stack.argumentCount) {
-            (stack.argumentList as Array<string | null>)[ap.transformArguments[n].argumentIndex] = ap.transformArguments[n].arg;
+          const transformArgument = ap.transformArguments[n]!;
+          transformArgument.arg = `${transformArgument.i}`;
+          if (transformArgument.argumentIndex >= 0
+            && transformArgument.argumentIndex < stack.argumentCount) {
+            (stack.argumentList as Array<string | null>)[transformArgument.argumentIndex] = transformArgument.arg;
           }
           MgfTransformationSupport.transformName(ap, context);
         }

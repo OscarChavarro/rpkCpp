@@ -64,7 +64,7 @@ export class MgfObjectNameSupport {
     }
     context.geometryStackHeadIndex--;
     context.geometryBuildState.geometryStackHeadIndex = context.geometryStackHeadIndex;
-    context.currentGeometryList = context.geometryStack[context.geometryStackHeadIndex];
+    context.currentGeometryList = context.geometryStack[context.geometryStackHeadIndex] ?? null;
     context.geometryBuildState.currentGeometryList = context.currentGeometryList;
   }
 
@@ -94,10 +94,10 @@ export class MgfObjectNameSupport {
     if (ac !== 2) {
       return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if (!TokenValidationContext.isName(av[1])) {
+    if (!TokenValidationContext.isName(av[1]!)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    return context.objectHierarchyState.pushName(av[1]);
+    return context.objectHierarchyState.pushName(av[1]!);
   }
 
   public static mgfObjectSurfaceDone(context: ParseRuntimeContext): void {

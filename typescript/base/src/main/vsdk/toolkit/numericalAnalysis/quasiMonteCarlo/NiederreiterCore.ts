@@ -50,10 +50,10 @@ export class NiederreiterCore {
 
     while (diff !== 0n) {
       if ((diff & 1n) !== 0n) {
-        this.nied[0] ^= this.cj[0][bitIndex];
-        this.nied[1] ^= this.cj[1][bitIndex];
-        this.nied[2] ^= this.cj[2][bitIndex];
-        this.nied[3] ^= this.cj[3][bitIndex];
+        this.nied[0]! ^= this.cj[0]![bitIndex]!;
+        this.nied[1]! ^= this.cj[1]![bitIndex]!;
+        this.nied[2]! ^= this.cj[2]![bitIndex]!;
+        this.nied[3]! ^= this.cj[3]![bitIndex]!;
       }
       bitIndex++;
       diff >>= 1n;
@@ -76,7 +76,7 @@ export class NiederreiterCore {
     msb1 &= mask;
     rmsb2 &= rmask;
 
-    let i = this.mask(idx[0] + this.skip);
+    let i = this.mask(idx[0]! + this.skip);
     if (dir >= 0) {
       const condition = this.compareUnsigned(i & mask, msb1) <= 0;
       i = this.mask(((condition ? i : this.mask(i + mask)) & this.mask(~mask)) | msb1);
@@ -92,7 +92,7 @@ export class NiederreiterCore {
     let bitIndex = 0;
     while (diff !== 0n) {
       if ((diff & 1n) !== 0n) {
-        this.nied[1] ^= this.cj[1][bitIndex];
+        this.nied[1]! ^= this.cj[1]![bitIndex]!;
       }
       diff >>= 1n;
       bitIndex++;
@@ -103,7 +103,7 @@ export class NiederreiterCore {
       bitIndex = nmsb;
       while (diff !== 0n) {
         if ((diff & 1n) !== 0n) {
-          this.nied[1] ^= this.cj[1][bitIndex];
+          this.nied[1]! ^= this.cj[1]![bitIndex]!;
         }
         diff >>= 1n;
         bitIndex++;
@@ -117,15 +117,15 @@ export class NiederreiterCore {
         return null;
       }
     }
-    while ((this.nied[1] & rmask) !== rmsb2);
+    while ((this.nied[1]! & rmask) !== rmsb2);
 
     diff = this.mask(c ^ this.count);
     bitIndex = 0;
     while (diff !== 0n) {
       if ((diff & 1n) !== 0n) {
-        this.nied[0] ^= this.cj[0][bitIndex];
-        this.nied[2] ^= this.cj[2][bitIndex];
-        this.nied[3] ^= this.cj[3][bitIndex];
+        this.nied[0]! ^= this.cj[0]![bitIndex]!;
+        this.nied[2]! ^= this.cj[2]![bitIndex]!;
+        this.nied[3]! ^= this.cj[3]![bitIndex]!;
       }
       diff >>= 1n;
       bitIndex++;
@@ -168,8 +168,8 @@ export class NiederreiterCore {
   }
 
   public foldSample(xi1: bigint[], xi2: bigint[]): void {
-    let u = this.mask(xi1[0]);
-    let v = this.mask(xi2[0]);
+    let u = this.mask(xi1[0]!);
+    let v = this.mask(xi2[0]!);
 
     u = (u & this.mask(~3n)) | 1n;
     v = (v & this.mask(~3n)) | 1n;

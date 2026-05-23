@@ -33,7 +33,7 @@ export class ObjectScopeContext {
           this.objectMaxName += ObjectScopeContext.OBJECT_NAMES_ALLOC_INCREMENT;
           const newNames = new Array<string | null>(this.objectMaxName).fill(null);
           for (let i = 0; this.objectNamesList !== null && i < this.objectNamesList.length && i < newNames.length; i++) {
-            newNames[i] = this.objectNamesList[i];
+            newNames[i] = this.objectNamesList[i] ?? null;
           }
           this.objectNamesList = newNames;
           if (this.objectNamesList === null) {
@@ -49,7 +49,9 @@ export class ObjectScopeContext {
 
       (this.objectNamesList as Array<string | null>)[this.objectNames] = name;
       this.objectNames++;
-      (this.objectNamesList as Array<string | null>)[this.objectNames] = null;
+      if (this.objectNames < (this.objectNamesList as Array<string | null>).length) {
+        (this.objectNamesList as Array<string | null>)[this.objectNames] = null;
+      }
       return ParseErrorContext.MGF_OK;
     }
     catch (_error) {

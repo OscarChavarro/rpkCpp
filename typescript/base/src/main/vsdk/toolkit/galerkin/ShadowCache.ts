@@ -21,7 +21,7 @@ export class ShadowCache {
       }
       const hit = (this.patchCache[i] as Patch).intersect(
         ray,
-        Numeric.EPSILON_FLOAT * distance[0],
+        Numeric.EPSILON_FLOAT * (distance[0] ?? 0.0),
         distance,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,

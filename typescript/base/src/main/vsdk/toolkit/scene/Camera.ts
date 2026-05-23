@@ -66,15 +66,15 @@ export class Camera {
       vScreen[i] = new Vector3D();
     }
 
-    vScreen[0].combine3(this.lookPosition, x, this.X, -y, this.Y);
-    vScreen[1].combine3(this.lookPosition, x, this.X, y, this.Y);
-    vScreen[2].combine3(this.lookPosition, -x, this.X, y, this.Y);
-    vScreen[3].combine3(this.lookPosition, -x, this.X, -y, this.Y);
+    vScreen[0]!.combine3(this.lookPosition, x, this.X, -y, this.Y);
+    vScreen[1]!.combine3(this.lookPosition, x, this.X, y, this.Y);
+    vScreen[2]!.combine3(this.lookPosition, -x, this.X, y, this.Y);
+    vScreen[3]!.combine3(this.lookPosition, -x, this.X, -y, this.Y);
 
     for (let i = 0; i < 4; i++) {
-      this.viewPlanes[i].normal.tripleCrossProduct(vScreen[(i + 1) % 4], this.eyePosition, vScreen[i]);
-      this.viewPlanes[i].normal.normalize(Numeric.EPSILON_FLOAT);
-      this.viewPlanes[i].d = -this.viewPlanes[i].normal.dotProduct(this.eyePosition);
+      this.viewPlanes[i]!.normal.tripleCrossProduct(vScreen[(i + 1) % 4]!, this.eyePosition, vScreen[i]!);
+      this.viewPlanes[i]!.normal.normalize(Numeric.EPSILON_FLOAT);
+      this.viewPlanes[i]!.d = -this.viewPlanes[i]!.normal.dotProduct(this.eyePosition);
     }
   }
 
@@ -184,8 +184,8 @@ export class Camera {
 
     transformedBoundingBox.copyFrom(new BoundingBox());
     for (let i = 0; i < 8; i++) {
-      transform.transformPoint3D(corners[i], corners[i]);
-      transformedBoundingBox.enlargeToIncludePoint(corners[i]);
+      transform.transformPoint3D(corners[i]!, corners[i]!);
+      transformedBoundingBox.enlargeToIncludePoint(corners[i]!);
     }
 
     const xDelta = transformedBoundingBox.dx() * Numeric.EPSILON_FLOAT;

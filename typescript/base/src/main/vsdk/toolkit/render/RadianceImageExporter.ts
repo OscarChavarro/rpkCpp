@@ -80,25 +80,25 @@ export class RadianceImageExporter {
   }
 
   private static clipUv(numberOfVertices: number, u: number[], v: number[]): void {
-    if (u[0] > 1.0 - Numeric.EPSILON) {
-      u[0] = 1.0 - Numeric.EPSILON;
+    if (u[0]! > 1.0 - Numeric.EPSILON) {
+      u[0]! = 1.0 - Numeric.EPSILON;
     }
-    if (v[0] > 1.0 - Numeric.EPSILON) {
-      v[0] = 1.0 - Numeric.EPSILON;
+    if (v[0]! > 1.0 - Numeric.EPSILON) {
+      v[0]! = 1.0 - Numeric.EPSILON;
     }
-    if (numberOfVertices === 3 && (u[0] + v[0]) > 1.0 - Numeric.EPSILON) {
-      if (u[0] > v[0]) {
-        u[0] = 1.0 - v[0] - Numeric.EPSILON;
+    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - Numeric.EPSILON) {
+      if (u[0]! > v[0]!) {
+        u[0]! = 1.0 - v[0]! - Numeric.EPSILON;
       }
       else {
-        v[0] = 1.0 - u[0] - Numeric.EPSILON;
+        v[0]! = 1.0 - u[0]! - Numeric.EPSILON;
       }
     }
-    if (u[0] < Numeric.EPSILON) {
-      u[0] = Numeric.EPSILON;
+    if (u[0]! < Numeric.EPSILON) {
+      u[0]! = Numeric.EPSILON;
     }
-    if (v[0] < Numeric.EPSILON) {
-      v[0] = Numeric.EPSILON;
+    if (v[0]! < Numeric.EPSILON) {
+      v[0]! = Numeric.EPSILON;
     }
   }
 
@@ -136,6 +136,6 @@ export class RadianceImageExporter {
     RadianceImageExporter.clipUv(patch.numberOfVertices, u, v);
 
     const eyeDirection = new Vector3D(-rayDirection.x, -rayDirection.y, -rayDirection.z);
-    return radianceMethod.getRadiance(camera, patch, u[0], v[0], eyeDirection, renderOptions);
+    return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, eyeDirection, renderOptions);
   }
 }

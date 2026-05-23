@@ -158,7 +158,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
       coord.setFromZAxis(invNormal);
       const outDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosTheta(x1, x2, outDiffPdf);
-      diffPdf = outDiffPdf[0];
+      diffPdf = outDiffPdf[0]!;
 
       const tmpFloat = idealDir.dotProduct(newDir);
       if (tmpFloat > 0.0) {
@@ -173,7 +173,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
       coord.setFromZAxis(idealDir);
       const outNonDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosNTheta(this.Ns, x1, x2, outNonDiffPdf);
-      nonDiffPdf = outNonDiffPdf[0];
+      nonDiffPdf = outNonDiffPdf[0]!;
 
       const cosTheta = normal.dotProduct(newDir);
       if (cosTheta > 0.0) {

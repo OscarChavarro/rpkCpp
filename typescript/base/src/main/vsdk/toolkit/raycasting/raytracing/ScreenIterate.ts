@@ -52,7 +52,7 @@ export class ScreenIterate {
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         const col = callback.call(camera, sceneVoxelGrid, sceneBackground, j, i, data);
-        ToneMap.radianceToRgb(col, rgb[j], toneMapOptions);
+        ToneMap.radianceToRgb(col, rgb[j]!, toneMapOptions);
         Statistics.instance().rayTracer.pixelCount++;
       }
 
@@ -74,7 +74,7 @@ export class ScreenIterate {
     for (let x = x0; x < x1; x++) {
       for (let y = y0; y < y1; y++) {
         const c = rgb[y * camera.xSize + x];
-        c.set(col.r, col.g, col.b);
+        c!.set(col.r, col.g, col.b);
       }
     }
   }
@@ -94,7 +94,7 @@ export class ScreenIterate {
     const srcOffset = yMin * width;
     for (let i = 0; i < segment.length; i++) {
       const src = rgb[srcOffset + i];
-      segment[i] = new ColorRgb(src.r, src.g, src.b);
+      segment[i] = new ColorRgb(src!.r, src!.g, src!.b);
     }
     SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
   }

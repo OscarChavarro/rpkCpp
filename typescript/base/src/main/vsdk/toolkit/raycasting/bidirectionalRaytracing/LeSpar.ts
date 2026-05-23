@@ -13,7 +13,7 @@ export class LeSpar extends Spar {
 
     if (sparConfig.baseConfig !== null && sparConfig.baseConfig.doWeighted !== 0) {
       this.parseAndInit(SparPathGroup.LD_GROUP, sparConfig.baseConfig.wleRegExp);
-      this.m_sparList[SparPathGroup.LD_GROUP].add(sparConfig.ldSpar as Spar);
+      this.m_sparList[SparPathGroup.LD_GROUP]?.add(sparConfig.ldSpar as Spar);
     }
   }
 }

@@ -152,7 +152,7 @@ export class RayMatter extends RayTracer {
           // Generate ray
           const ray = new Ray();
           ray.position = camera.eyePosition;
-          ray.direction = this.screenBuffer.getPixelVector(x, y, dx[0], dy[0]);
+          ray.direction = this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0);
           ray.direction.normalize(Numeric.EPSILON_FLOAT);
 
           // Check if hit

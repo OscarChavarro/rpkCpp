@@ -144,7 +144,7 @@ export class StochasticRadiosityElement extends Element {
     elem.midPoint.copy(patch.midPoint);
     elem.numberOfVertices = patch.numberOfVertices;
     for (let i = 0; i < elem.numberOfVertices; i++) {
-      elem.vertices[i] = patch.vertex[i];
+      elem.vertices[i] = patch.vertex[i]!;
       StochasticRadiosityElement.vertexAttachElement(elem.vertices[i]!, elem);
     }
 
@@ -223,13 +223,13 @@ export class StochasticRadiosityElement extends Element {
     if (geometry.isCompound()) {
       const geometryList = Geometry.primitiveListCopy(geometry);
       for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-        StochasticRadiosityElement.monteCarloRadiosityCreateClusterChild(geometryList[i], parent);
+          StochasticRadiosityElement.monteCarloRadiosityCreateClusterChild(geometryList[i]!, parent);
       }
     }
     else {
       const patchList = Geometry.patchListReference(geometry);
       for (let i = 0; patchList !== null && i < patchList.length; i++) {
-        StochasticRadiosityElement.monteCarloRadiosityCreateSurfaceElementChild(patchList[i], parent);
+        StochasticRadiosityElement.monteCarloRadiosityCreateSurfaceElementChild(patchList[i]!, parent);
       }
     }
 
@@ -299,8 +299,8 @@ The point is transformed to the corresponding point on the sub-element
     v: number[]
   ): StochasticRadiosityElement | null {
     let child: StochasticRadiosityElement | null = null;
-    const _u = u[0];
-    const _v = v[0];
+    const _u = u[0]!;
+    const _v = v[0]!;
 
     if (parent.isCluster() || parent.regularSubElements === null) {
       return null;
@@ -446,7 +446,7 @@ found.
     const to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices]!;
 
     for (let i = 0; to.radianceData !== null && i < to.radianceData.length; i++) {
-      const element = to.radianceData[i];
+      const element = to.radianceData[i]!;
       if (element.className !== ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY) {
         continue;
       }
@@ -619,13 +619,13 @@ Computes average reflectance and emittance of a surface sub-element
     emittance.clear();
     StochasticRadiosityElement.stochasticRadiosityElementRange(elem, nbits, msb1, rMostSignificantBit2);
 
-    for (let i = 0; i < numberOfSamples; i++, n[0]++) {
+    for (let i = 0; i < numberOfSamples; i++, n[0] = n[0]! + 1n) {
       let sample: ColorRgb;
-      const xi = Niederreiter.NextNiedInRange(n, +1, nbits[0], msb1[0], rMostSignificantBit2[0]);
+      const xi = Niederreiter.NextNiedInRange(n, +1, nbits[0]!, msb1[0]!, rMostSignificantBit2[0]!);
       if (xi === null) {
         continue;
       }
-      hit.setUv(Number(xi[0]) * Niederreiter.RECIP, Number(xi[1]) * Niederreiter.RECIP);
+      hit.setUv(Number(xi[0]!) * Niederreiter.RECIP, Number(xi[1]!) * Niederreiter.RECIP);
       const newFlags = hit.getFlags() | RayHitFlag.UV;
       hit.setFlags(newFlags);
       const position = hit.getPoint();
@@ -654,17 +654,17 @@ Initial push operation for surface sub-elements
     const parentImportance = [parent.importance];
     const childImportance = [child.importance];
     StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentImportance, childImportance);
-    child.importance = childImportance[0];
+    child.importance = childImportance[0]!;
 
     const parentSourceImportance = [parent.sourceImportance];
     const childSourceImportance = [child.sourceImportance];
     StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentSourceImportance, childSourceImportance);
-    child.sourceImportance = childSourceImportance[0];
+    child.sourceImportance = childSourceImportance[0]!;
 
     const parentUnShotImportance = [parent.unShotImportance];
     const childUnShotImportance = [child.unShotImportance];
     StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentUnShotImportance, childUnShotImportance);
-    child.unShotImportance = childUnShotImportance[0];
+    child.unShotImportance = childUnShotImportance[0]!;
 
     child.rayIndex = parent.rayIndex;
     child.quality = parent.quality;
@@ -708,8 +708,8 @@ process of triangle subdivision.
     elem.parent = parent;
     elem.childNumber = childNumber;
     elem.transformToParent = elem.numberOfVertices === 3
-      ? basisState.triangleUpTransform[childNumber]
-      : basisState.quadUpTransform[childNumber];
+      ? basisState.triangleUpTransform[childNumber]!
+      : basisState.quadUpTransform[childNumber]!;
 
     Coefficientsmcrad.allocCoefficients(elem);
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.radiance, elem.basis);
@@ -865,12 +865,12 @@ done so before. Returns the list of created sub-elements
     childRadiance: ColorRgb[]
   ): void {
     if (parent.isCluster() || child.basis!.size === 1) {
-      childRadiance[0].add(childRadiance[0], parentRadiance[0]);
+      childRadiance[0]!.add(childRadiance[0]!, parentRadiance[0]!);
     }
     else if (StochasticRadiosityElement.regularChild(child) && child.basis === parent.basis) {
       Basismcrad.filterColorDown(
         parentRadiance,
-        child.basis!.regularFilter![child.childNumber],
+        child.basis!.regularFilter![child.childNumber]!,
         childRadiance,
         child.basis!.size
       );
@@ -885,7 +885,7 @@ done so before. Returns the list of created sub-elements
   }
 
   public static stochasticRadiosityElementPushImportance(parentImportance: number[], childImportance: number[]): void {
-    childImportance[0] += parentImportance[0];
+    childImportance[0]! += parentImportance[0]!;
   }
 
   public static stochasticRadiosityElementPullRadiance(
@@ -896,12 +896,12 @@ done so before. Returns the list of created sub-elements
   ): void {
     const areaFactor = child.area / parent.area;
     if (parent.isCluster() || child.basis!.size === 1) {
-      parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
+      parentRad[0]!.addScaled(parentRad[0]!, areaFactor, childRad[0]!);
     }
     else if (StochasticRadiosityElement.regularChild(child) && child.basis === parent.basis) {
       Basismcrad.filterColorUp(
         childRad,
-        child.basis!.regularFilter![child.childNumber],
+        child.basis!.regularFilter![child.childNumber]!,
         parentRad,
         child.basis!.size,
         areaFactor
@@ -922,7 +922,7 @@ done so before. Returns the list of created sub-elements
     parentImportance: number[],
     childImportance: number[]
   ): void {
-    parentImportance[0] += child.area / parent.area * childImportance[0];
+    parentImportance[0]! += child.area / parent.area * childImportance[0]!;
   }
 
   public static stochasticRadiosityElementColor(element: StochasticRadiosityElement): ColorRgb {
@@ -969,7 +969,7 @@ done so before. Returns the list of created sub-elements
 
     radiance.clear();
     for (let i = 0; v.radianceData !== null && i < v.radianceData.length; i++) {
-      const element = v.radianceData[i];
+      const element = v.radianceData[i]!;
       if (element.className !== ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY) {
         continue;
       }
@@ -996,7 +996,7 @@ Same as above but for importance
     let imp = 0.0;
 
     for (let i = 0; v.radianceData !== null && i < v.radianceData.length; i++) {
-      const genericElement = v.radianceData[i];
+      const genericElement = v.radianceData[i]!;
       if (genericElement.className !== ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY) {
         continue;
       }
@@ -1086,7 +1086,7 @@ Compute new vertex colors
 
   public static stochasticRadiosityElementDisplayRadiance(elem: StochasticRadiosityElement): ColorRgb {
     const radiance = new ColorRgb();
-    radiance.subtract(elem.radiance![0], elem.sourceRad);
+    radiance.subtract(elem.radiance![0]!, elem.sourceRad);
 
     if (StochasticRelaxation.activeState().show !== WhatToShow.SHOW_INDIRECT_RADIANCE) {
       radiance.add(radiance, elem.sourceRad);
@@ -1112,10 +1112,10 @@ Compute new vertex colors
         }
         switch (elem.numberOfVertices) {
           case 3:
-            radiance.interpolateBarycentric(rad[0], rad[1], rad[2], u, v);
+            radiance.interpolateBarycentric(rad[0]!, rad[1]!, rad[2]!, u, v);
             break;
           case 4:
-            radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], u, v);
+            radiance.interpolateBiLinear(rad[0]!, rad[1]!, rad[2]!, rad[3]!, u, v);
             break;
           default:
             VsdkLogger.fatal(

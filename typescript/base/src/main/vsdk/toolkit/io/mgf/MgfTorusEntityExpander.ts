@@ -52,21 +52,21 @@ export class MgfTorusEntityExpander {
     if (argumentCount !== 4) {
       return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1], context);
+    vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1]!, context);
     if (vertexContext === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if (vertexContext.n.isNull(Numeric.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if (!TokenValidationContext.isFloat(argumentValues[2]) || !TokenValidationContext.isFloat(argumentValues[3])) {
+    if (!TokenValidationContext.isFloat(argumentValues[2]!) || !TokenValidationContext.isFloat(argumentValues[3]!)) {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
-    let minRadius = Number.parseFloat(argumentValues[2]);
+    let minRadius = Number.parseFloat(argumentValues[2]!);
     if (minRadius <= Numeric.EPSILON && minRadius >= -Numeric.EPSILON) {
       minRadius = 0.0;
     }
-    const maxRadius = Number.parseFloat(argumentValues[3]);
+    const maxRadius = Number.parseFloat(argumentValues[3]!);
 
     // Check orientation
     let sign: number;
@@ -86,7 +86,7 @@ export class MgfTorusEntityExpander {
     // Initialize
     context.warpConeEnds = true;
     context.geometryBuildState.warpConeEnds = true;
-    v2Entity[3] = argumentValues[1];
+    v2Entity[3] = argumentValues[1]!;
     MgfTessellationMath.formatFloat(
       p2x,
       24,
@@ -102,14 +102,14 @@ export class MgfTorusEntityExpander {
       24,
       vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.z,
     );
-    p2Entity[1] = p2x[0];
-    p2Entity[2] = p2y[0];
-    p2Entity[3] = p2z[0];
-    let errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity, context);
+    p2Entity[1] = p2x[0]!;
+    p2Entity[2] = p2y[0]!;
+    p2Entity[3] = p2z[0]!;
+    let errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
@@ -120,7 +120,7 @@ export class MgfTorusEntityExpander {
     let i = 1;
     for (; i <= 2 * context.numberOfQuarterCircleDivisions; i++) {
       const theta = i * (globalThis.Math.PI / 2) / context.numberOfQuarterCircleDivisions;
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
@@ -139,22 +139,22 @@ export class MgfTorusEntityExpander {
         24,
         vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z,
       );
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      p2Entity[1] = p2x[0];
-      p2Entity[2] = p2y[0];
-      p2Entity[3] = p2z[0];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity, context);
+      p2Entity[1] = p2x[0]!;
+      p2Entity[2] = p2y[0]!;
+      p2Entity[3] = p2z[0]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      radius1[0] = radius2[0];
+      radius1[0] = radius2[0]!;
       MgfTessellationMath.formatFloat(radius2, 24, averageRadius + 0.5 * (maxRadius - minRadius) * globalThis.Math.sin(theta));
-      coneEntity[2] = radius1[0];
-      coneEntity[4] = radius2[0];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.CONE, 5, coneEntity, context);
+      coneEntity[2] = radius1[0]!;
+      coneEntity[4] = radius2[0]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.CONE, 5, coneEntity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
@@ -179,30 +179,30 @@ export class MgfTorusEntityExpander {
         24,
         vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z,
       );
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      p2Entity[1] = p2x[0];
-      p2Entity[2] = p2y[0];
-      p2Entity[3] = p2z[0];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity, context);
+      p2Entity[1] = p2x[0]!;
+      p2Entity[2] = p2y[0]!;
+      p2Entity[3] = p2z[0]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      radius1[0] = radius2[0];
+      radius1[0] = radius2[0]!;
       MgfTessellationMath.formatFloat(
         radius2,
         24,
         -averageRadius - 0.5 * (maxRadius - minRadius) * globalThis.Math.sin(theta),
       );
-      coneEntity[2] = radius1[0];
-      coneEntity[4] = radius2[0];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.CONE, 5, coneEntity, context);
+      coneEntity[2] = radius1[0]!;
+      coneEntity[4] = radius2[0]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.CONE, 5, coneEntity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }

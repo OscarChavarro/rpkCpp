@@ -50,7 +50,7 @@ export class SglContext {
   private static copyMatrix(source: Matrix4x4, destination: Matrix4x4): void {
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
-        destination.m[row][col] = source.m[row][col];
+        destination.m[row]![col] = source.m[row]![col]!;
       }
     }
   }
@@ -92,7 +92,7 @@ export class SglContext {
     this.pixelData = SglPixelContent.PIXEL;
     this.depthBuffer = null;
 
-    this.currentTransform = this.transformStack[0];
+    this.currentTransform = this.transformStack[0]!;
     SglContext.copyMatrix(SglContext.identityMatrix(), this.currentTransform);
 
     this.currentPixel = 0;
@@ -182,10 +182,10 @@ export class SglContext {
 
     for (let i = 0; i < numberOfVertices; i++) {
       const v = new Vector4D();
-      const vertex: PolygonVertex = pol.vertices[i];
-      v.x = vertices[i].x;
-      v.y = vertices[i].y;
-      v.z = vertices[i].z;
+      const vertex: PolygonVertex = pol.vertices[i]!;
+      v.x = vertices[i]!.x;
+      v.y = vertices[i]!.y;
+      v.z = vertices[i]!.z;
       v.w = 1.0;
       this.currentTransform.transformPoint4D(v, v);
       if (v.w > -Numeric.EPSILON && v.w < Numeric.EPSILON) {
@@ -210,7 +210,7 @@ export class SglContext {
     }
 
     for (let i = 0; i < pol.n; i++) {
-      const vertex = pol.vertices[i];
+      const vertex = pol.vertices[i]!;
       vertex.sx = this.vp_x + (vertex.sx / vertex.sw + 1.0) * this.vp_width * 0.5;
       vertex.sy = this.vp_y + (vertex.sy / vertex.sw + 1.0) * this.vp_height * 0.5;
       vertex.sz = (this.near + (vertex.sz / vertex.sw + 1.0) * this.far * 0.5) * SglConstants.SGL_MAXIMUM_Z;

@@ -40,17 +40,16 @@ export class Photon {
     coord.rectangularToSphericalCoord(this.m_dir, phi, theta);
 
     if (flag === BsdfComponent.BRDF_DIFFUSE_COMPONENT) {
-      s[0] = phi[0] / (2.0 * globalThis.Math.PI);
-      const tmp = globalThis.Math.cos(theta[0]);
+      s[0] = phi[0]! / (2.0 * globalThis.Math.PI);
+      const tmp = globalThis.Math.cos(theta[0]!);
       r[0] = -tmp * tmp + 1.0;
     }
     else if (flag === BsdfComponent.BRDF_GLOSSY_COMPONENT) {
-      s[0] = phi[0] / (2.0 * globalThis.Math.PI);
-      r[0] = globalThis.Math.pow(globalThis.Math.cos(theta[0]), n + 1.0);
+      s[0] = phi[0]! / (2.0 * globalThis.Math.PI);
+      r[0] = globalThis.Math.pow(globalThis.Math.cos(theta[0]!), n + 1.0);
     }
     else {
       VsdkLogger.error("Photon::findRS", "Component %d not implemented yet", flag);
     }
   }
 }
-

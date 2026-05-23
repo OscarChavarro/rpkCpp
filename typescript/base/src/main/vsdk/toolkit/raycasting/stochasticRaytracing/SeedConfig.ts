@@ -7,9 +7,9 @@ export class SeedConfig {
   private static randomFromSeed(seed: Seed): () => number {
     const s = seed.GetSeed();
     let state = (
-      ((BigInt(s[0] & 0xFFFF) << 32n)
-      ^ (BigInt(s[1] & 0xFFFF) << 16n)
-      ^ BigInt(s[2] & 0xFFFF))
+      ((BigInt((s[0] ?? 0) & 0xFFFF) << 32n)
+      ^ (BigInt((s[1] ?? 0) & 0xFFFF) << 16n)
+      ^ BigInt((s[2] ?? 0) & 0xFFFF))
       & 0xFFFFFFFFFFFFFFFFn
     );
 
@@ -45,14 +45,14 @@ export class SeedConfig {
     const current = this.m_seeds[depth];
     const tmpSeed = new Seed();
 
-    tmpSeed.SetSeed(current);
+    tmpSeed.SetSeed(current!);
     tmpSeed.XORSeed(SeedConfig.xOrSeed);
 
     const random = SeedConfig.randomFromSeed(tmpSeed);
     const s0 = globalThis.Math.trunc(random() * 0x10000) & 0xFFFF;
     const s1 = globalThis.Math.trunc(random() * 0x10000) & 0xFFFF;
     const s2 = globalThis.Math.trunc(random() * 0x10000) & 0xFFFF;
-    current.SetSeed([s0, s1, s2]);
+    current!.SetSeed([s0, s1, s2]);
 
     random();
   }

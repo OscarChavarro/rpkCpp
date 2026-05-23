@@ -52,8 +52,8 @@ Adds a node to the path. Re-allocates more space for the nodes if necessary
       }
       if (path.nodesAllocated > 0 && path.nodes !== null) {
         for (let i = 0; i < path.numberOfNodes; i++) {
-          const dst = newNodes[i];
-          const src = path.nodes[i];
+          const dst = newNodes[i]!;
+          const src = path.nodes[i]!;
           dst.patch = src.patch;
           dst.probability = src.probability;
           dst.inPoint.copy(src.inPoint);
@@ -64,7 +64,7 @@ Adds a node to the path. Re-allocates more space for the nodes if necessary
       path.nodesAllocated += 20;
     }
 
-    const node = path.nodes![path.numberOfNodes];
+    const node = path.nodes![path.numberOfNodes]!;
     node.patch = patch;
     node.probability = prob;
     node.inPoint.copy(inPoint);
@@ -116,9 +116,9 @@ when no longer needed
       ray = Localline.mcrGenerateLocalLine(P, Sample4d.sample4D((McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex));
       (McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex++;
       if (path.numberOfNodes > 1 && StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-        ray.position.copy(path.nodes![path.numberOfNodes - 1].inPoint);
+        ray.position.copy(path.nodes![path.numberOfNodes - 1]!.inPoint);
       }
-      path.nodes![path.numberOfNodes - 1].outpoint.copy(ray.position);
+      path.nodes![path.numberOfNodes - 1]!.outpoint.copy(ray.position);
 
       hit = Localline.mcrShootRay(sceneWorldVoxelGrid, P, ray, hitStore);
       if (hit === null) {
@@ -159,7 +159,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 
     Tracepath.sumProbabilities = 0.0;
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-      const patch = scenePatches.get(i);
+      const patch = scenePatches.get(i)!;
       Tracepath.sumProbabilities += birthProbabilityCallBack(patch);
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
     }
@@ -173,7 +173,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
     pathCount = 0;
     pCumulative = 0.0;
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-      const patch = scenePatches.get(i);
+      const patch = scenePatches.get(i)!;
       const p = birthProbabilityCallBack(patch) / Tracepath.sumProbabilities;
       const pathsThisPatch =
         globalThis.Math.floor((pCumulative + p) * numberOfPaths + rnd) - pathCount;
@@ -194,17 +194,17 @@ Traces 'numberOfPaths' paths with given birth probabilities
     StochasticRelaxation.activeState().totalYmp = 0.0;
 
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-      const patch = scenePatches.get(i);
+      const patch = scenePatches.get(i)!;
       updateCallBack(patch, numberOfPaths / Tracepath.sumProbabilities);
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchUnShotRad(patch)![0]
+        McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchRad(patch)![0]
+        McradP.getTopLevelPatchRad(patch)![0]!
       );
     }
   }

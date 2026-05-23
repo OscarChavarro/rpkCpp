@@ -33,7 +33,7 @@ export class OptionsGroupBidirectionalRaytracing {
     ) {
       return false;
     }
-    let value = argv[0];
+    let value = argv[0]!;
     let maxTextLength = binding.maxLength - 1;
     if (maxTextLength < 0) {
       maxTextLength = 0;
@@ -54,7 +54,7 @@ export class OptionsGroupBidirectionalRaytracing {
       return false;
     }
     const parsed = new OptionTextUtils.TypedIntValue(value.value);
-    if (!OptionTextUtils.parseBoolInt(argv[0], parsed)) {
+    if (!OptionTextUtils.parseBoolInt(argv[0]!, parsed)) {
       return false;
     }
     value.value = parsed.value;

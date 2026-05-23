@@ -135,7 +135,7 @@ export class MgfEntityControl {
       }
 
       for (let i = EntityTypeContext.TOTAL_NUMBER_OF_ENTITIES - 1; i >= 0; i--) {
-        const entityName = context.entityNames[i];
+        const entityName = context.entityNames[i]!;
         const entity = context.entityLookUpTable.lookUpFind(entityName);
         if (entity !== null) {
           entity.key = entityName;
@@ -160,7 +160,7 @@ export class MgfEntityControl {
   Pass entity to appropriate handler
   */
   public static mgfHandle(entityIndex: number, argc: number, argv: string[], context: ParseRuntimeContext): number {
-    entityIndex = MgfEntityControl.mgfEntity(argv[0], context);
+    entityIndex = MgfEntityControl.mgfEntity(argv[0]!, context);
     if (entityIndex < 0) {
       // Unknown entity
       return MgfEntityControl.mgfDefaultHandlerForUnknownEntities(argc, argv, context);
@@ -168,7 +168,7 @@ export class MgfEntityControl {
     const supportHandler = context.readerStackState.supportCallbacks[entityIndex];
     if (supportHandler !== null) {
       // Support handler
-      const rv = supportHandler.handle(argc, argv, context);
+      const rv = supportHandler!.handle(argc, argv, context);
       if (rv !== ParseErrorContext.MGF_OK) {
         return rv;
       }
@@ -177,7 +177,7 @@ export class MgfEntityControl {
     if (handler === null) {
       return ParseErrorContext.MGF_OK;
     }
-    return handler.handle(argc, argv, context); // Assigned handler
+    return handler!.handle(argc, argv, context); // Assigned handler
   }
 
   /**

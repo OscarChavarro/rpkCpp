@@ -28,7 +28,7 @@ export class GalerkinBasis {
     for (let sigma = 0; sigma < 4; sigma++) {
       this.regularFilter[sigma] = new Array<number[]>(GalerkinBasis.MAX_BASIS_SIZE);
       for (let alpha = 0; alpha < GalerkinBasis.MAX_BASIS_SIZE; alpha++) {
-        this.regularFilter[sigma][alpha] = new Array<number>(GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+        this.regularFilter[sigma]![alpha] = new Array<number>(GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
       }
     }
   }
@@ -51,8 +51,8 @@ export class GalerkinBasis {
 
     const n = Math.min(element.basisUsed, Math.min(basis.size, coefficients.length));
     for (let i = 0; i < n; i++) {
-      const f = basis.function[i](u, v);
-      c.addScaled(c, f, coefficients[i]);
+      const f = basis.function[i]!(u, v);
+      c.addScaled(c, f, coefficients[i]!);
     }
     return c;
   }
@@ -70,14 +70,14 @@ export class GalerkinBasis {
     const sigma = child.childNumber;
     if (element.isCluster()) {
       ColorRgb.arrayClear(childCoefficients, child.basisSize);
-      childCoefficients[0].set(parentCoefficients[0].r, parentCoefficients[0].g, parentCoefficients[0].b);
+      childCoefficients[0]!.set(parentCoefficients[0]!.r, parentCoefficients[0]!.g, parentCoefficients[0]!.b);
       return;
     }
 
     if (sigma < 0 || sigma > 3) {
       VsdkLogger.error("GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
       ColorRgb.arrayClear(childCoefficients, child.basisSize);
-      childCoefficients[0].set(parentCoefficients[0].r, parentCoefficients[0].g, parentCoefficients[0].b);
+      childCoefficients[0]!.set(parentCoefficients[0]!.r, parentCoefficients[0]!.g, parentCoefficients[0]!.b);
       return;
     }
 
@@ -89,10 +89,10 @@ export class GalerkinBasis {
     const a = Math.min(child.basisSize, childCoefficients.length);
     const b = Math.min(element.basisSize, parentCoefficients.length);
     for (let beta = 0; beta < a; beta++) {
-      childCoefficients[beta].clear();
+      childCoefficients[beta]!.clear();
       for (let alpha = 0; alpha < b; alpha++) {
-        const f = basis.regularFilter[sigma][alpha][beta];
-        childCoefficients[beta].addScaled(childCoefficients[beta], f, parentCoefficients[alpha]);
+        const f = basis.regularFilter[sigma]![alpha]![beta]!;
+        childCoefficients[beta]!.addScaled(childCoefficients[beta]!, f, parentCoefficients[alpha]!);
       }
     }
   }
@@ -124,9 +124,9 @@ export class GalerkinBasis {
         basis.size,
         basis,
         basis.size,
-        upTransform[sigma],
+        upTransform[sigma]!,
         cubaRule,
-        basis.regularFilter[sigma],
+        basis.regularFilter[sigma]!,
       );
     }
   }
@@ -155,25 +155,25 @@ export class GalerkinBasis {
     const sigma = child.childNumber;
     if (parent.isCluster()) {
       ColorRgb.arrayClear(parentCoefficients, parent.basisSize);
-      parentCoefficients[0].scaledCopy(parent.area > 0.0 ? child.area / parent.area : 0.0, childCoefficients[0]);
+      parentCoefficients[0]!.scaledCopy(parent.area > 0.0 ? child.area / parent.area : 0.0, childCoefficients[0]!);
       return;
     }
 
     if (sigma < 0 || sigma > 3) {
       VsdkLogger.error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
       ColorRgb.arrayClear(parentCoefficients, parent.basisSize);
-      parentCoefficients[0] = childCoefficients[0];
+      parentCoefficients[0] = childCoefficients[0]!;
       return;
     }
 
     const basis = GalerkinBasis.basisForVertexCount(child.patch !== null ? child.patch.numberOfVertices : 4);
     for (let alpha = 0; alpha < parent.basisSize; alpha++) {
-      parentCoefficients[alpha].clear();
+      parentCoefficients[alpha]!.clear();
       for (let beta = 0; beta < child.basisSize; beta++) {
-        const f = basis.regularFilter[sigma][alpha][beta];
-        parentCoefficients[alpha].addScaled(parentCoefficients[alpha], f, childCoefficients[beta]);
+        const f = basis.regularFilter[sigma]![alpha]![beta]!;
+        parentCoefficients[alpha]!.addScaled(parentCoefficients[alpha]!, f, childCoefficients[beta]!);
       }
-      parentCoefficients[alpha].scale(0.25);
+      parentCoefficients[alpha]!.scale(0.25);
     }
   }
 
@@ -188,15 +188,15 @@ export class GalerkinBasis {
     const unShotRadiance = element.unShotRadiance as ColorRgb[];
     const n = Math.min(element.basisSize, bdown.length);
     for (let i = 0; i < n; i++) {
-      bdown[i].addScaled(bdown[i], element.area > 0.0 ? 1.0 / element.area : 0.0, receivedRadiance[i]);
-      receivedRadiance[i].clear();
-      bup[i].clear();
+      bdown[i]!.addScaled(bdown[i]!, element.area > 0.0 ? 1.0 / element.area : 0.0, receivedRadiance[i]!);
+      receivedRadiance[i]!.clear();
+      bup[i]!.clear();
     }
 
     if (element.regularSubElements === null && element.irregularSubElements === null && element.patch !== null) {
       const rho = element.patch.radianceData!.Rd;
       for (let i = 0; i < n; i++) {
-        bup[i].scalarProduct(rho, bdown[i]);
+        bup[i]!.scalarProduct(rho, bdown[i]!);
       }
 
       if (
@@ -204,7 +204,7 @@ export class GalerkinBasis {
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       ) {
         const Ed = element.patch.radianceData!.Ed;
-        bup[0].add(bup[0], Ed);
+        bup[0]!.add(bup[0]!, Ed);
       }
     }
 
@@ -270,13 +270,13 @@ export class GalerkinBasis {
       for (let beta = 0; beta < childSize; beta++) {
         let x = 0.0;
         for (let k = 0; k < cubatureRule.numberOfNodes; k++) {
-          const up = new Vector2D(cubatureRule.u[k], cubatureRule.v[k]);
+          const up = new Vector2D(cubatureRule.u[k]!, cubatureRule.v[k]!);
           upTransform.transformPoint2D(up, up);
-          x += cubatureRule.w[k]
-            * parentBasis.function[alpha](up.x, up.y)
-            * childBasis.function[beta](cubatureRule.u[k], cubatureRule.v[k]);
+          x += cubatureRule.w[k]!
+            * parentBasis.function[alpha]!(up.x, up.y)
+            * childBasis.function[beta]!(cubatureRule.u[k]!, cubatureRule.v[k]!);
         }
-        filter[alpha][beta] = x;
+        filter[alpha]![beta] = x;
       }
     }
   }

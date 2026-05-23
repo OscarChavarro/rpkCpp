@@ -2,28 +2,41 @@ import { Numeric } from "./Numeric";
 import { Vector3D } from "./Vector3D";
 import { Vector4D } from "./Vector4D";
 
+type Matrix4 = [
+  [number, number, number, number],
+  [number, number, number, number],
+  [number, number, number, number],
+  [number, number, number, number]
+];
+
 export class Matrix4x4 {
-  public m: number[][];
+  public m: Matrix4;
 
   public constructor(...values: number[]) {
     this.m = Matrix4x4.createZeroMatrix();
     if (values.length === 16) {
-      this.m[0][0] = values[0];
-      this.m[0][1] = values[1];
-      this.m[0][2] = values[2];
-      this.m[0][3] = values[3];
-      this.m[1][0] = values[4];
-      this.m[1][1] = values[5];
-      this.m[1][2] = values[6];
-      this.m[1][3] = values[7];
-      this.m[2][0] = values[8];
-      this.m[2][1] = values[9];
-      this.m[2][2] = values[10];
-      this.m[2][3] = values[11];
-      this.m[3][0] = values[12];
-      this.m[3][1] = values[13];
-      this.m[3][2] = values[14];
-      this.m[3][3] = values[15];
+      const v = values as [
+        number, number, number, number,
+        number, number, number, number,
+        number, number, number, number,
+        number, number, number, number
+      ];
+      this.m[0][0] = v[0];
+      this.m[0][1] = v[1];
+      this.m[0][2] = v[2];
+      this.m[0][3] = v[3];
+      this.m[1][0] = v[4];
+      this.m[1][1] = v[5];
+      this.m[1][2] = v[6];
+      this.m[1][3] = v[7];
+      this.m[2][0] = v[8];
+      this.m[2][1] = v[9];
+      this.m[2][2] = v[10];
+      this.m[2][3] = v[11];
+      this.m[3][0] = v[12];
+      this.m[3][1] = v[13];
+      this.m[3][2] = v[14];
+      this.m[3][3] = v[15];
     }
     else {
       this.m[0][0] = 1.0;
@@ -33,7 +46,7 @@ export class Matrix4x4 {
     }
   }
 
-  private static createZeroMatrix(): number[][] {
+  private static createZeroMatrix(): Matrix4 {
     return [
       [0.0, 0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0, 0.0],

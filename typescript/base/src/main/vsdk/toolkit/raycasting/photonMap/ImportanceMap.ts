@@ -33,11 +33,11 @@ export class ImportanceMap extends PhotonMap {
   }
 
   public reconstructImportance(pos: Vector3D, normal: Vector3D): number {
-    const maxDistance = this.m_distances[0];
+    const maxDistance = this.m_distances[0]!;
     let result = 0.0;
 
     for (let i = 0; i < this.m_nrpFound; i++) {
-      const importon = this.m_photons[i] as Importon;
+      const importon = this.m_photons[i]! as Importon;
       const dir = importon.dir();
       const importance = importon.Importance();
 
@@ -83,7 +83,7 @@ export class ImportanceMap extends PhotonMap {
         switch (this.photonMapState.importanceOption) {
           case PhotonMapImportanceOptions.USE_IMPORTANCE:
             density = photon.PImportance();
-            density *= this.m_impScalePtr[0];
+            density *= this.m_impScalePtr[0]!;
             break;
           default:
             VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
@@ -104,7 +104,7 @@ export class ImportanceMap extends PhotonMap {
       switch (this.photonMapState.importanceOption) {
         case PhotonMapImportanceOptions.USE_IMPORTANCE:
           density = this.getImpReqDensity(camera, pos, normal);
-          density *= this.m_impScalePtr[0];
+          density *= this.m_impScalePtr[0]!;
           break;
         default:
           VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
@@ -150,22 +150,22 @@ export class ImportanceMap extends PhotonMap {
 
     this.ComputeAllRequiredDensities(camera, pos, normal, imp, pot, diff);
 
-    pot[0] = this.m_distances[0];
+    pot[0] = this.m_distances[0]!;
     this.m_totalMaxDistance = globalThis.Math.max(pot[0], this.m_totalMaxDistance);
 
-    (photon as Importon).PSetAll(imp[0], pot[0], diff[0]);
-    if (imp[0] > this.m_maxImp) {
-      this.m_maxImp = imp[0];
+    (photon as Importon).PSetAll(imp[0]!, pot[0]!, diff[0]!);
+    if (imp[0]! > this.m_maxImp) {
+      this.m_maxImp = imp[0]!;
     }
 
-    this.m_avgImp += imp[0];
+    this.m_avgImp += imp[0]!;
   }
 
   public override precomputeIrradiance(): void {
     process.stderr.write("ImportanceMap::precomputeIrradiance\n");
     this.m_maxImp = 0.0;
     this.m_avgImp = 0.0;
-    this.m_preReconPhotons = this.m_estimate_nrp[0];
+    this.m_preReconPhotons = this.m_estimate_nrp[0]!;
     this.m_totalMaxDistance = 0.0;
     this.m_irradianceComputed = false;
 
@@ -174,9 +174,8 @@ export class ImportanceMap extends PhotonMap {
     if (this.m_nrPhotons > 0) {
       this.m_avgImp /= this.m_nrPhotons;
     }
-    if (this.m_estimate_nrp[0] > 0) {
-      this.m_totalMaxDistance *= 20.0 / this.m_estimate_nrp[0];
+    if (this.m_estimate_nrp[0]! > 0) {
+      this.m_totalMaxDistance *= 20.0 / this.m_estimate_nrp[0]!;
     }
   }
 }
-

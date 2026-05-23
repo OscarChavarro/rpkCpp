@@ -55,7 +55,7 @@ export class CubatureRule {
     }
     const n = globalThis.Math.min(destination.length, source.length);
     for (let i = 0; i < n; i++) {
-      destination[i] = source[i];
+      destination[i] = source[i] ?? 0.0;
     }
   }
 }

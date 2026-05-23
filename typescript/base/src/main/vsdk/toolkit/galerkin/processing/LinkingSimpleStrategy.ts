@@ -117,12 +117,12 @@ export class LinkingSimpleStrategy {
       shaft.setShaftOmit(topElement.patch);
       shaft.setShaftOmit(patch);
       const arr: Geometry[] = [];
-      shaft.doCulling(oldCandidateList, arr, galerkinState.shaftCullStrategy);
+      shaft.doCulling(oldCandidateList ?? null, arr, galerkinState.shaftCullStrategy);
       candidateList[0] = arr;
 
       if (shaft.isCut()) {
-        Shaft.freeCandidateList(candidateList[0]);
-        candidateList[0] = oldCandidateList;
+        Shaft.freeCandidateList(candidateList[0] ?? null);
+        candidateList[0] = oldCandidateList ?? null;
         return;
       }
     }
@@ -141,7 +141,7 @@ export class LinkingSimpleStrategy {
     const geometryListReferences = candidateList[0];
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
       scene.voxelGrid,
-      geometryListReferences,
+      geometryListReferences ?? null,
       isSceneGeometry,
       isClusteredGeometry,
       link,
@@ -151,9 +151,9 @@ export class LinkingSimpleStrategy {
     if (galerkinState.exactVisibility !== 0
       || galerkinState.shaftCullMode === GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING) {
       if (oldCandidateList !== candidateList[0]) {
-        Shaft.freeCandidateList(candidateList[0]);
+        Shaft.freeCandidateList(candidateList[0] ?? null);
       }
-      candidateList[0] = oldCandidateList;
+      candidateList[0] = oldCandidateList ?? null;
     }
 
     if ((link.visibility & 0xff) > 0) {
@@ -206,7 +206,7 @@ export class LinkingSimpleStrategy {
       shaft.constructFromBoundingBoxes(topLevelBoundingBox, boundingBox);
       shaft.setShaftOmit(topElement.patch);
       const arr: Geometry[] = [];
-      shaft.doCulling(oldCandidateList, arr, galerkinState.shaftCullStrategy);
+      shaft.doCulling(oldCandidateList ?? null, arr, galerkinState.shaftCullStrategy);
       candidateList[0] = arr;
     }
 
@@ -220,7 +220,7 @@ export class LinkingSimpleStrategy {
           candidateList,
           topElement,
           topLevelBoundingBox,
-          geometryList[i],
+          geometryList[i]!,
         );
       }
     }
@@ -234,15 +234,15 @@ export class LinkingSimpleStrategy {
           candidateList,
           topElement,
           topLevelBoundingBox,
-          patchList[i],
+          patchList[i]!,
         );
       }
     }
 
     if (geometry.bounded && oldCandidateList !== null) {
-      Shaft.freeCandidateList(candidateList[0]);
+      Shaft.freeCandidateList(candidateList[0] ?? null);
     }
-    candidateList[0] = oldCandidateList;
+    candidateList[0] = oldCandidateList ?? null;
   }
 
   public static createInitialLinks(
@@ -276,7 +276,7 @@ export class LinkingSimpleStrategy {
         candidateList,
         topElement,
         topLevelBoundingBox,
-        scene.geometryList[i],
+        scene.geometryList[i]!,
       );
     }
   }

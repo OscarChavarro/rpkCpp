@@ -194,7 +194,11 @@ export class Hierarchy {
     let threshold: number;
     let propagatedPower: number;
 
-    rhoSrcRad.scaledCopy(globalThis.Math.PI, src.radiance![0]);
+    const srcRadiance = src.radiance?.[0];
+    if (srcRadiance === undefined) {
+      return true;
+    }
+    rhoSrcRad.scaledCopy(globalThis.Math.PI, srcRadiance);
     if (!rcv.isCluster()) {
       const rd = (McradP.topLevelStochasticRadiosityElement(rcv.patch!) as StochasticRadiosityElement).Rd;
       rhoSrcRad.selfScalarProduct(rd);

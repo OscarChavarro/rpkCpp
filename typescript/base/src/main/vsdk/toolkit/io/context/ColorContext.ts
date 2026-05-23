@@ -166,7 +166,7 @@ export class ColorContext {
     this.clock = source.clock;
     this.flags = source.flags;
     for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-      this.straightSamples[i] = source.straightSamples[i];
+      this.straightSamples[i] = source.straightSamples[i]!;
     }
     this.spectralStraightSum = source.spectralStraightSum;
     this.cx = source.cx;
@@ -229,22 +229,22 @@ export class ColorContext {
       n = 0;
       while (boxPos < i + 0.5 && pos < ac) {
         const value = av[argumentStartIndex + pos];
-        if (!TokenValidationContext.isFloat(value)) {
+        if (!TokenValidationContext.isFloat(value!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        va[i] += Number.parseFloat(value);
+        va[i]! += Number.parseFloat(value!);
         pos++;
         n++;
         boxPos += boxStep;
       }
       if (n > 1) {
-        va[i] /= n;
+        va[i]! /= n;
       }
-      if (va[i] > scale) {
-        scale = va[i];
+      if (va[i]! > scale) {
+        scale = va[i]!;
       }
-      else if (va[i] < -scale) {
-        scale = -va[i];
+      else if (va[i]! < -scale) {
+        scale = -va[i]!;
       }
     }
 
@@ -271,15 +271,15 @@ export class ColorContext {
           pos++;
         }
         if (wl + Numeric.EPSILON >= wl0 && wl - Numeric.EPSILON <= wl0) {
-          this.straightSamples[i] = Math.round(scale * va[pos] + 0.5);
+          this.straightSamples[i] = Math.round(scale * va[pos]! + 0.5);
         }
         else {
           const pos1 = Math.min(pos + 1, va.length - 1);
           this.straightSamples[i] = Math.round(
-            0.5 + scale / wlStep * (va[pos] * (wl0 + wlStep - wl) + va[pos1] * (wl - wl0)),
+            0.5 + scale / wlStep * (va[pos]! * (wl0 + wlStep - wl) + va[pos1]! * (wl - wl0)),
           );
         }
-        this.spectralStraightSum += this.straightSamples[i];
+        this.spectralStraightSum += this.straightSamples[i]!;
       }
     }
     this.flags = ColorContext.COLOR_DEFINED_WITH_SPECTRUM_FLAG | ColorContext.COLOR_SPECTRUM_IS_SET_FLAG;
@@ -309,7 +309,7 @@ export class ColorContext {
     for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
       wl = (ColorContext.COLOR_MINIMUM_WAVE_LENGTH + i * ColorContext.colorWaveLengthDeltaI()) * 1e-9;
       this.straightSamples[i] = Math.round(sf * ColorContext.bBsp(wl, tk) + 0.5);
-      this.spectralStraightSum += this.straightSamples[i];
+      this.spectralStraightSum += this.straightSamples[i]!;
     }
     this.flags = ColorContext.COLOR_DEFINED_WITH_SPECTRUM_FLAG | ColorContext.COLOR_SPECTRUM_IS_SET_FLAG;
     this.clock++;
@@ -337,9 +337,9 @@ export class ColorContext {
       y = 0.0;
       z = 0.0;
       for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-        x += ColorContext.cie_xf.straightSamples[i] * this.straightSamples[i];
-        y += ColorContext.cie_yf.straightSamples[i] * this.straightSamples[i];
-        z += ColorContext.cie_zf.straightSamples[i] * this.straightSamples[i];
+        x += ColorContext.cie_xf.straightSamples[i]! * this.straightSamples[i]!;
+        y += ColorContext.cie_yf.straightSamples[i]! * this.straightSamples[i]!;
+        z += ColorContext.cie_zf.straightSamples[i]! * this.straightSamples[i]!;
       }
       x /= ColorContext.cie_xf.spectralStraightSum;
       y /= ColorContext.cie_yf.spectralStraightSum;
@@ -356,16 +356,16 @@ export class ColorContext {
       this.spectralStraightSum = 0;
       for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
         this.straightSamples[i] = Math.round(
-          x * ColorContext.cie_xp.straightSamples[i]
-            + y * ColorContext.cie_yp.straightSamples[i]
-            + z * ColorContext.cie_zp.straightSamples[i]
+          x * ColorContext.cie_xp.straightSamples[i]!
+            + y * ColorContext.cie_yp.straightSamples[i]!
+            + z * ColorContext.cie_zp.straightSamples[i]!
             + 0.5,
         );
-        if (this.straightSamples[i] < 0) {
-          this.straightSamples[i] = 0;
+        if (this.straightSamples[i]! < 0) {
+          this.straightSamples[i]! = 0;
         }
         else {
-          this.spectralStraightSum += this.straightSamples[i];
+          this.spectralStraightSum += this.straightSamples[i]!;
         }
       }
       this.flags |= ColorContext.COLOR_SPECTRUM_IS_SET_FLAG;
@@ -375,7 +375,7 @@ export class ColorContext {
       if ((this.flags & ColorContext.COLOR_SPECTRUM_IS_SET_FLAG) !== 0) {
         y = 0.0;
         for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-          y += ColorContext.cie_yf.straightSamples[i] * this.straightSamples[i];
+          y += ColorContext.cie_yf.straightSamples[i]! * this.straightSamples[i]!;
         }
         this.eff = ColorContext.colorPeakLumensPerWatt() * y / this.spectralStraightSum;
       }
@@ -402,16 +402,16 @@ export class ColorContext {
       w2 /= c2.eff * c2.spectralStraightSum;
       scale = 0.0;
       for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-        cMix[i] = w1 * c1.straightSamples[i] + w2 * c2.straightSamples[i];
-        if (cMix[i] > scale) {
-          scale = cMix[i];
+        cMix[i] = w1 * c1.straightSamples[i]! + w2 * c2.straightSamples[i]!;
+        if (cMix[i]! > scale) {
+          scale = cMix[i]!;
         }
       }
       scale = ColorContext.COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
       this.spectralStraightSum = 0;
       for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-        this.straightSamples[i] = Math.round(scale * cMix[i] + 0.5);
-        this.spectralStraightSum += this.straightSamples[i];
+        this.straightSamples[i] = Math.round(scale * cMix[i]! + 0.5);
+        this.spectralStraightSum += this.straightSamples[i]!;
       }
       this.flags = ColorContext.COLOR_DEFINED_WITH_SPECTRUM_FLAG | ColorContext.COLOR_SPECTRUM_IS_SET_FLAG;
     }
@@ -442,7 +442,7 @@ export class ColorContext {
     colorContext.clock = inClock;
     colorContext.flags = inFlags;
     for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-      colorContext.straightSamples[i] = samples[i];
+      colorContext.straightSamples[i] = samples[i]!;
     }
     colorContext.spectralStraightSum = sum;
     colorContext.cx = inCx;

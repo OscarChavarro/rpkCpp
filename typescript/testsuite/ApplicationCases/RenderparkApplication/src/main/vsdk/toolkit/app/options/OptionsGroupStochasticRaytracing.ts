@@ -49,9 +49,9 @@ export class OptionsGroupStochasticRaytracing {
     if (argc < 1 || argv === null || argv[0] === null || binding === null || binding.target === null || binding.values === null) {
       return false;
     }
-    for (let i = 0; binding.values[i].name !== null; i++) {
-      if (OptionTextUtils.equalsIgnoreCasePrefix(argv[0], binding.values[i].name, binding.values[i].abbrev)) {
-        const ordinal = binding.values[i].value;
+    for (let i = 0; binding.values[i]!.name !== null; i++) {
+      if (OptionTextUtils.equalsIgnoreCasePrefix(argv[0]!, binding.values[i]!.name, binding.values[i]!.abbrev)) {
+        const ordinal = binding.values[i]!.value;
         if ((binding.enumType as Record<number, string | number>)[ordinal] === undefined) {
           return false;
         }

@@ -52,8 +52,8 @@ export class SampleGrid2D {
       yIndex--;
     }
 
-    this.values[this.valIndex(xIndex, yIndex)] += value;
-    this.ySums[xIndex] += value;
+    this.values[this.valIndex(xIndex, yIndex)]! += value;
+    this.ySums[xIndex]! += value;
     this.totalSum += value;
   }
 
@@ -64,9 +64,9 @@ export class SampleGrid2D {
 
     for (let i = 0; i < this.xSections; i++) {
       for (let j = 0; j < this.ySections; j++) {
-        if (this.values[index] < threshold) {
-          this.values[index] += fraction;
-          this.ySums[i] += fraction;
+        if (this.values[index]! < threshold) {
+          this.values[index]! += fraction;
+          this.ySums[i]! += fraction;
           this.totalSum += fraction;
         }
         index++;
@@ -85,23 +85,22 @@ export class SampleGrid2D {
       return;
     }
 
-    xIndex = DiscreteSampling.sample(this.ySums, this.totalSum, x, xPdf);
+    xIndex = DiscreteSampling.sample(this.ySums, this.totalSum, x, xPdf)!;
 
     const row = new Array<number>(this.ySections).fill(0.0);
     for (let j = 0; j < this.ySections; j++) {
-      row[j] = this.values[this.valIndex(xIndex, j)];
+      row[j] = this.values[this.valIndex(xIndex, j)]!;
     }
-    yIndex = DiscreteSampling.sample(row, this.ySums[xIndex], y, yPdf);
+    yIndex = DiscreteSampling.sample(row, this.ySums[xIndex]!, y, yPdf);
 
-    probabilityDensityFunction[0] = xPdf[0] * yPdf[0];
+    probabilityDensityFunction[0] = xPdf[0]! * yPdf[0]!;
 
     let range = 1.0 / this.xSections;
-    x[0] = (x[0] + xIndex) * range;
+    x[0] = (x[0]! + xIndex) * range;
     probabilityDensityFunction[0] /= range;
 
     range = 1.0 / this.ySections;
-    y[0] = (y[0] + yIndex) * range;
+    y[0] = (y[0]! + yIndex) * range;
     probabilityDensityFunction[0] /= range;
   }
 }
-

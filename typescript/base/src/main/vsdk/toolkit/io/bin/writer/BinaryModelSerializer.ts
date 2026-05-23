@@ -193,9 +193,9 @@ export class BinaryModelSerializer {
       return false;
     }
 
-    BinaryModelSerializer.writeInt32LE(output, size[0]);
-    if (size[0] > 0) {
-      BinaryModelSerializer.writeBytes(output, bytes, size[0]);
+    BinaryModelSerializer.writeInt32LE(output, size[0]!);
+    if (size[0]! > 0) {
+      BinaryModelSerializer.writeBytes(output, bytes, size[0]!);
     }
 
     return true;
@@ -261,13 +261,13 @@ export class BinaryModelSerializer {
       return false;
     }
 
-    BinaryModelSerializer.writeInt32LE(output, size[0]);
-    for (let i = 0; i < size[0]; i++) {
+    BinaryModelSerializer.writeInt32LE(output, size[0]!);
+    for (let i = 0; i < size[0]!; i++) {
       const elementIndex = [0];
       if (!BinaryModelSerializer.indexOfPointer(list[i], indices, what, elementIndex)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, elementIndex[0]);
+      BinaryModelSerializer.writeInt32LE(output, elementIndex[0]!);
     }
 
     return true;
@@ -348,7 +348,7 @@ export class BinaryModelSerializer {
     BinaryModelSerializer.writeInt32LE(output, colorContext.clock);
     BinaryModelSerializer.writeInt16LE(output, colorContext.flags);
     for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-      BinaryModelSerializer.writeInt16LE(output, colorContext.straightSamples[i]);
+      BinaryModelSerializer.writeInt16LE(output, colorContext.straightSamples[i]!);
     }
     BinaryModelSerializer.writeInt64LE(output, colorContext.spectralStraightSum);
     BinaryModelSerializer.writeFloatLE(output, colorContext.cx);
@@ -376,7 +376,7 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(readerContext.prev, context.readerContextIndices, "readerContext.prev", previousIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, previousIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, previousIndex[0]!);
 
     return true;
   }
@@ -388,9 +388,9 @@ export class BinaryModelSerializer {
     BinaryModelSerializer.writeInt32LE(output, transformArray.numberOfDimensions);
 
     for (let i = 0; i < TransformSequenceContext.TRANSFORM_MAXIMUM_DIMENSIONS; i++) {
-      BinaryModelSerializer.writeInt16LE(output, transformArray.transformArguments[i].i);
-      BinaryModelSerializer.writeInt16LE(output, transformArray.transformArguments[i].n);
-      const argument = BinaryModelSerializer.fixedCStringBytes(transformArray.transformArguments[i].arg, 8);
+      BinaryModelSerializer.writeInt16LE(output, transformArray.transformArguments[i]!.i);
+      BinaryModelSerializer.writeInt16LE(output, transformArray.transformArguments[i]!.n);
+      const argument = BinaryModelSerializer.fixedCStringBytes(transformArray.transformArguments[i]!.arg, 8);
       BinaryModelSerializer.writeBytes(output, argument, 8);
     }
   }
@@ -406,7 +406,7 @@ export class BinaryModelSerializer {
 
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        BinaryModelSerializer.writeDoubleLE(output, transformContext.xf.transformMatrix.m[i][j]);
+        BinaryModelSerializer.writeDoubleLE(output, transformContext.xf.transformMatrix.m[i]![j]!);
       }
     }
     BinaryModelSerializer.writeDoubleLE(output, transformContext.xf.scaleFactor);
@@ -420,13 +420,13 @@ export class BinaryModelSerializer {
     )) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, transformArrayIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, transformArrayIndex[0]!);
 
     const previousIndex = [0];
     if (!BinaryModelSerializer.indexOfPointer(transformContext.prev, context.transformContextIndices, "transformContext.prev", previousIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, previousIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, previousIndex[0]!);
 
     return true;
   }
@@ -442,19 +442,19 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(vertex.point, context.vectorIndices, "vertex.point", pointIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, pointIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, pointIndex[0]!);
 
     const normalIndex = [0];
     if (!BinaryModelSerializer.indexOfPointer(vertex.normal, context.vectorIndices, "vertex.normal", normalIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, normalIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, normalIndex[0]!);
 
     const textureIndex = [0];
     if (!BinaryModelSerializer.indexOfPointer(vertex.textureCoordinates, context.vectorIndices, "vertex.textureCoordinates", textureIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, textureIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, textureIndex[0]!);
 
     BinaryModelSerializer.writeColor(output, vertex.color);
 
@@ -462,7 +462,7 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(vertex.back, context.vertexIndices, "vertex.back", backIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, backIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, backIndex[0]!);
 
     BinaryModelSerializer.writeInt32LE(output, vertex.tmp);
     BinaryModelSerializer.writeBool(output, vertex.radianceData !== null);
@@ -480,7 +480,7 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(patch.twin, context.patchIndices, "patch.twin", twinIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, twinIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, twinIndex[0]!);
 
     BinaryModelSerializer.writeInt32LE(output, patch.numberOfVertices);
     for (let i = 0; i < Patch.MAXIMUM_VERTICES_PER_PATCH; i++) {
@@ -488,7 +488,7 @@ export class BinaryModelSerializer {
       if (!BinaryModelSerializer.indexOfPointer(patch.vertex[i], context.vertexIndices, "patch.vertex", vertexIndex)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, vertexIndex[0]);
+      BinaryModelSerializer.writeInt32LE(output, vertexIndex[0]!);
     }
 
     BinaryModelSerializer.writeBool(output, patch.boundingBox !== null);
@@ -520,7 +520,7 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(patch.material, context.materialIndices, "patch.material", materialIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, materialIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, materialIndex[0]!);
 
     BinaryModelSerializer.writeBool(output, patch.radianceData !== null);
     return true;
@@ -553,7 +553,7 @@ export class BinaryModelSerializer {
       if (!BinaryModelSerializer.indexOfPointer(surface.material, context.materialIndices, "surface.material", materialIndex)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, materialIndex[0]);
+      BinaryModelSerializer.writeInt32LE(output, materialIndex[0]!);
 
       if (!BinaryModelSerializer.writeIndexList(output, surface.positions, context.vectorIndices, "surface.positions")) {
         return false;
@@ -597,7 +597,7 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(model.currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, currentColorIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, currentColorIndex[0]!);
 
     if (!BinaryModelSerializer.writeString(output, model.currentMaterialName)) {
       return false;
@@ -621,13 +621,13 @@ export class BinaryModelSerializer {
     if (!BinaryModelSerializer.indexOfPointer(model.readerContext, context.readerContextIndices, "model.readerContext", readerContextIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, readerContextIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, readerContextIndex[0]!);
 
     const transformContextIndex = [0];
     if (!BinaryModelSerializer.indexOfPointer(model.transformContext, context.transformContextIndices, "model.transformContext", transformContextIndex)) {
       return false;
     }
-    BinaryModelSerializer.writeInt32LE(output, transformContextIndex[0]);
+    BinaryModelSerializer.writeInt32LE(output, transformContextIndex[0]!);
 
     if (!BinaryModelSerializer.writeIndexList(output, model.currentFaceList, context.patchIndices, "model.currentFaceList")) {
       return false;
@@ -691,101 +691,101 @@ export class BinaryModelSerializer {
       if (!BinaryModelSerializer.checkedLongToInt32(context.vectors.length, "vectors count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.vertices.length, "vertices count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.patches.length, "patches count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.materials.length, "materials count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.geometries.length, "geometries count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.colorContexts.length, "color contexts count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.readerContexts.length, "reader contexts count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.transformArrays.length, "transform arrays count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       if (!BinaryModelSerializer.checkedLongToInt32(context.transformContexts.length, "transform contexts count", count)) {
         return false;
       }
-      BinaryModelSerializer.writeInt32LE(output, count[0]);
+      BinaryModelSerializer.writeInt32LE(output, count[0]!);
 
       BinaryModelSerializer.writeTag(output, "VEC3");
       for (let i = 0; i < context.vectors.length; i++) {
-        BinaryModelSerializer.writeVector(output, context.vectors[i]);
+        BinaryModelSerializer.writeVector(output, context.vectors[i]!);
       }
 
       BinaryModelSerializer.writeTag(output, "MTLS");
       for (let i = 0; i < context.materials.length; i++) {
-        if (!BinaryModelSerializer.writeMaterialRecord(output, context.materials[i])) {
+        if (!BinaryModelSerializer.writeMaterialRecord(output, context.materials[i]!)) {
           return false;
         }
       }
 
       BinaryModelSerializer.writeTag(output, "COLR");
       for (let i = 0; i < context.colorContexts.length; i++) {
-        BinaryModelSerializer.writeColorContextRecord(output, context.colorContexts[i]);
+        BinaryModelSerializer.writeColorContextRecord(output, context.colorContexts[i]!);
       }
 
       BinaryModelSerializer.writeTag(output, "RCTX");
       for (let i = 0; i < context.readerContexts.length; i++) {
-        if (!BinaryModelSerializer.writeReaderContextRecord(output, context.readerContexts[i], context)) {
+        if (!BinaryModelSerializer.writeReaderContextRecord(output, context.readerContexts[i]!, context)) {
           return false;
         }
       }
 
       BinaryModelSerializer.writeTag(output, "XFAR");
       for (let i = 0; i < context.transformArrays.length; i++) {
-        BinaryModelSerializer.writeTransformArrayRecord(output, context.transformArrays[i]);
+        BinaryModelSerializer.writeTransformArrayRecord(output, context.transformArrays[i]!);
       }
 
       BinaryModelSerializer.writeTag(output, "XFCT");
       for (let i = 0; i < context.transformContexts.length; i++) {
-        if (!BinaryModelSerializer.writeTransformContextRecord(output, context.transformContexts[i], context)) {
+        if (!BinaryModelSerializer.writeTransformContextRecord(output, context.transformContexts[i]!, context)) {
           return false;
         }
       }
 
       BinaryModelSerializer.writeTag(output, "VRTX");
       for (let i = 0; i < context.vertices.length; i++) {
-        if (!BinaryModelSerializer.writeVertexRecord(output, context.vertices[i], context)) {
+        if (!BinaryModelSerializer.writeVertexRecord(output, context.vertices[i]!, context)) {
           return false;
         }
       }
 
       BinaryModelSerializer.writeTag(output, "PTCH");
       for (let i = 0; i < context.patches.length; i++) {
-        if (!BinaryModelSerializer.writePatchRecord(output, context.patches[i], context)) {
+        if (!BinaryModelSerializer.writePatchRecord(output, context.patches[i]!, context)) {
           return false;
         }
       }
 
       BinaryModelSerializer.writeTag(output, "GEOM");
       for (let i = 0; i < context.geometries.length; i++) {
-        if (!BinaryModelSerializer.writeGeometryRecord(output, context.geometries[i], context)) {
+        if (!BinaryModelSerializer.writeGeometryRecord(output, context.geometries[i]!, context)) {
           return false;
         }
       }

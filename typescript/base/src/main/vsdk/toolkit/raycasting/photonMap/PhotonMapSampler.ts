@@ -77,15 +77,15 @@ Returns true a component was chosen, false if absorbed
       totalPower = 1.0;
     }
 
-    if (x[0] < power1) {
+    if (x[0]! < power1) {
       chose1[0] = true;
       probabilityDensityFunction[0] = power1;
-      x[0] = x[0] / power1;
+      x[0] = x[0]! / power1;
     }
-    else if (x[0] < totalPower) {
+    else if (x[0]! < totalPower) {
       chose1[0] = false;
       probabilityDensityFunction[0] = power2;
-      x[0] = (x[0] - power1) / power2;
+      x[0] = (x[0]! - power1) / power2;
     }
     else {
       return false;
@@ -141,15 +141,15 @@ Returns true a component was chosen, false if absorbed
     let ok: boolean;
 
     if (sChosen[0]) {
-      ok = this.fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2a[0], flags);
+      ok = this.fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2a[0]!, flags);
     }
     else {
       flags = gdFLAGS & flags;
-      ok = this.gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0], flags);
+      ok = this.gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0]!, flags);
     }
 
     if (ok) {
-      newNode.m_pdfFromPrev *= pdfChoice[0];
+      newNode.m_pdfFromPrev *= pdfChoice[0]!;
       newNode.m_accUsedComponents = thisNode.m_accUsedComponents | thisNode.m_usedComponents;
     }
 
@@ -358,7 +358,7 @@ The Fresnel sampler works as follows:
 
     PhotonMapSampler.DetermineRayType(thisNode, newNode, dir);
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0])) {
+    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }
@@ -448,14 +448,14 @@ The Fresnel sampler works as follows:
       prevNode,
       thisNode,
       newNode,
-      x1Holder[0],
-      x2Holder[0],
+      x1Holder[0]!,
+      x2Holder[0]!,
       false,
       flags
     );
 
     if (ok) {
-      newNode.m_pdfFromPrev *= pdfChoice[0] * photonMapPdf;
+      newNode.m_pdfFromPrev *= pdfChoice[0]! * photonMapPdf;
       thisNode.m_usedComponents = flags;
     }
 

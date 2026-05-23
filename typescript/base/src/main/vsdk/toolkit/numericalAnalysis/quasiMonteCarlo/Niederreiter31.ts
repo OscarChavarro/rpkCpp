@@ -80,7 +80,7 @@ export class Niederreiter31 {
     msb1: number,
     rmsb2: number
   ): number[] | null {
-    const idxBig = [BigInt(globalThis.Math.trunc(idx[0]))];
+    const idxBig = [BigInt(globalThis.Math.trunc(idx[0]!))];
     const sample = Niederreiter31.core.nextInRange(
       idxBig,
       dir,
@@ -100,8 +100,8 @@ export class Niederreiter31 {
   }
 
   public static foldSample31(xi1: number[], xi2: number[]): void {
-    const x1 = [BigInt(globalThis.Math.trunc(xi1[0]))];
-    const x2 = [BigInt(globalThis.Math.trunc(xi2[0]))];
+    const x1 = [BigInt(globalThis.Math.trunc(xi1[0]!))];
+    const x2 = [BigInt(globalThis.Math.trunc(xi2[0]!))];
     Niederreiter31.core.foldSample(x1, x2);
     xi1[0] = Number(x1[0]);
     xi2[0] = Number(x2[0]);

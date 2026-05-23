@@ -74,7 +74,7 @@ export class Batch {
     processFileCallback(
       fileName,
       outputStream,
-      isPipe[0],
+      isPipe[0]!,
       scene,
       radianceMethod,
       rayTracer,

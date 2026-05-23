@@ -20,8 +20,8 @@ export class NormalFilter extends PixelFilter {
 
   public override sample(xi1: number[], xi2: number[]): void {
     const s = this.dist / this.sigma;
-    const r = xi1[0] * globalThis.Math.exp(s * s * (-0.5));
-    const a = xi2[0];
+    const r = xi1[0]! * globalThis.Math.exp(s * s * (-0.5));
+    const a = xi2[0]!;
 
     xi1[0] = this.sigma * (globalThis.Math.sqrt(-2.0 * globalThis.Math.log(r)) * globalThis.Math.cos(2.0 * globalThis.Math.PI * a)) + 0.5;
     xi2[0] = this.sigma * (globalThis.Math.sqrt(-2.0 * globalThis.Math.log(r)) * globalThis.Math.sin(2.0 * globalThis.Math.PI * a)) + 0.5;

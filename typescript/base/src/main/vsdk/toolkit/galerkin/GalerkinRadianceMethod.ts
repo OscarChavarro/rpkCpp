@@ -68,7 +68,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       radVis.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
-      radVis.add(radVis, (element.radiance as ColorRgb[])[0]);
+      radVis.add(radVis, (element.radiance as ColorRgb[])[0]!);
       ToneMap.radianceToRgb(
         radVis,
         patch.color,
@@ -77,7 +77,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
     else {
       ToneMap.radianceToRgb(
-        (element.radiance as ColorRgb[])[0],
+        (element.radiance as ColorRgb[])[0]!,
         patch.color,
         GalerkinRadianceMethod.galerkinState.toneMapOptions as ToneMappingContext,
       );
@@ -121,22 +121,22 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     const selfEmittanceRadiance = element.Ed;
 
     if (GalerkinRadianceMethod.galerkinState.useConstantRadiance !== 0) {
-      (element.radiance as ColorRgb[])[0].scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.constantRadiance);
-      (element.radiance as ColorRgb[])[0].add((element.radiance as ColorRgb[])[0], selfEmittanceRadiance);
+      (element.radiance as ColorRgb[])[0]!.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.constantRadiance);
+      (element.radiance as ColorRgb[])[0]!.add((element.radiance as ColorRgb[])[0]!, selfEmittanceRadiance);
       if (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-        (element.unShotRadiance as ColorRgb[])[0].subtract(
-          (element.radiance as ColorRgb[])[0],
+        (element.unShotRadiance as ColorRgb[])[0]!.subtract(
+          (element.radiance as ColorRgb[])[0]!,
           GalerkinRadianceMethod.galerkinState.constantRadiance,
         );
       }
     }
     else {
-      (element.radiance as ColorRgb[])[0].set(selfEmittanceRadiance.r, selfEmittanceRadiance.g, selfEmittanceRadiance.b);
+      (element.radiance as ColorRgb[])[0]!.set(selfEmittanceRadiance.r, selfEmittanceRadiance.g, selfEmittanceRadiance.b);
       if (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-        (element.unShotRadiance as ColorRgb[])[0].set(
-          (element.radiance as ColorRgb[])[0].r,
-          (element.radiance as ColorRgb[])[0].g,
-          (element.radiance as ColorRgb[])[0].b,
+        (element.unShotRadiance as ColorRgb[])[0]!.set(
+          (element.radiance as ColorRgb[])[0]!.r,
+          (element.radiance as ColorRgb[])[0]!.g,
+          (element.radiance as ColorRgb[])[0]!.b,
         );
       }
     }
@@ -179,7 +179,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.patchInit(scene.patchList[i]);
+      GalerkinRadianceMethod.patchInit(scene.patchList[i]!);
     }
 
     GalerkinRadianceMethod.galerkinState.topCluster = ClusterCreationStrategy.createClusterHierarchy(
@@ -279,7 +279,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     if (scenePatches !== null) {
       for (let i = 0; i < scenePatches.length; i++) {
-        const patch = scenePatches[i];
+        const patch = scenePatches[i]!;
         if (patch !== null) {
           GalerkinRadianceMethod.recomputePatchColor(patch);
         }
@@ -312,8 +312,8 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       const uu = [u];
       const vv = [v];
       patch.biLinearToUniform(uu, vv);
-      u = uu[0];
-      v = vv[0];
+      u = uu[0]!;
+      v = vv[0]!;
     }
 
     const topLevelElement = GalerkinElement.fromPatch(patch);
@@ -325,7 +325,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     const uu = [u];
     const vv = [v];
     const leaf = topLevelElement.regularLeafAtPoint(uu, vv);
-    const rad = GalerkinBasis.radianceAtPoint(leaf, leaf.radiance, uu[0], vv[0]);
+    const rad = GalerkinBasis.radianceAtPoint(leaf, leaf.radiance, uu[0]!, vv[0]!);
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       const reflectivity = patch.radianceData!.Rd;
@@ -496,7 +496,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     ];
     const numberOfVertices = galerkinElement.vertices(v);
     for (let i = 0; i < numberOfVertices; i++) {
-      GalerkinRadianceMethod.writeVertexCoord(v[i]);
+      GalerkinRadianceMethod.writeVertexCoord(v[i]!);
     }
   }
 
@@ -555,14 +555,14 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       const ambient = new ColorRgb();
       ambient.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       for (let i = 0; i < numberOfVertices; i++) {
-        vertexRadiosity[i].add(vertexRadiosity[i], ambient);
+        vertexRadiosity[i]!.add(vertexRadiosity[i]!, ambient);
       }
     }
 
     for (let i = 0; i < numberOfVertices; i++) {
       const col = new ColorRgb();
       ToneMap.radianceToRgb(
-        vertexRadiosity[i],
+        vertexRadiosity[i]!,
         col,
         GalerkinRadianceMethod.galerkinState.toneMapOptions as ToneMappingContext,
       );

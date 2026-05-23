@@ -19,7 +19,11 @@ export class Numeric {
     if (x === null || x.length === 0) {
       return;
     }
-    if (x[0] <= epsilon && x[0] >= -epsilon) {
+    const value = x[0];
+    if (value === undefined) {
+      return;
+    }
+    if (value <= epsilon && value >= -epsilon) {
       x[0] = 0.0;
     }
   }

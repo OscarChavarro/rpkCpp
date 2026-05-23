@@ -85,10 +85,10 @@ export class ScratchVisibilityStrategy {
           const element = elementBase as GalerkinElement;
           if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
             || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
-            rad.add(rad, (element.radiance as ColorRgb[])[0]);
+            rad.add(rad, (element.radiance as ColorRgb[])[0]!);
           }
           else {
-            rad.add(rad, (element.unShotRadiance as ColorRgb[])[0]);
+            rad.add(rad, (element.unShotRadiance as ColorRgb[])[0]!);
           }
           nonBackGround++;
         }

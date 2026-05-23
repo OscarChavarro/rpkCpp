@@ -46,8 +46,8 @@ by the 4-dimensional sample vector xi
       Localline.previousPatch = patch;
     }
 
-    patch.uniformPoint(xi[0], xi[1], ray.position);
-    ray.direction = Localline.coordSys.sampleHemisphereCosTheta(xi[2], xi[3], pdf);
+    patch.uniformPoint(xi[0]!, xi[1]!, ray.position);
+    ray.direction = Localline.coordSys.sampleHemisphereCosTheta(xi[2]!, xi[3]!, pdf);
 
     return ray;
   }

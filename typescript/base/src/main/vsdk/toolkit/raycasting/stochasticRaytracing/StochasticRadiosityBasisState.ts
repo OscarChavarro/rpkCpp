@@ -54,16 +54,16 @@ export class StochasticRadiosityBasisState {
     this.quadUpTransform = new Array<Matrix2x2>(4);
     this.triangleUpTransform = new Array<Matrix2x2>(4);
 
-    this.approxDesc[0].name = "constant";
-    this.approxDesc[0].basis_size = 1;
-    this.approxDesc[1].name = "linear";
-    this.approxDesc[1].basis_size = 3;
-    this.approxDesc[2].name = "bilinear";
-    this.approxDesc[2].basis_size = 4;
-    this.approxDesc[3].name = "quadratic";
-    this.approxDesc[3].basis_size = 6;
-    this.approxDesc[4].name = "cubic";
-    this.approxDesc[4].basis_size = 10;
+    this.approxDesc[0]!.name = "constant";
+    this.approxDesc[0]!.basis_size = 1;
+    this.approxDesc[1]!.name = "linear";
+    this.approxDesc[1]!.basis_size = 3;
+    this.approxDesc[2]!.name = "bilinear";
+    this.approxDesc[2]!.basis_size = 4;
+    this.approxDesc[3]!.name = "quadratic";
+    this.approxDesc[3]!.basis_size = 6;
+    this.approxDesc[4]!.name = "cubic";
+    this.approxDesc[4]!.basis_size = 10;
 
     this.quadUpTransform[0] = StochasticRadiosityBasisState.createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
     this.quadUpTransform[1] = StochasticRadiosityBasisState.createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);

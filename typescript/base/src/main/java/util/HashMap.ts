@@ -85,7 +85,7 @@ export class HashMap<K, V> {
     }
 
     const index = this.bucketIndexFor(key);
-    let current = this.buckets[index];
+    let current = this.buckets[index] ?? null;
     while (current !== null) {
       if (current.key === key) {
         if (valueOut !== undefined) {
@@ -120,7 +120,7 @@ export class HashMap<K, V> {
       while (current !== null) {
         const next = current.next;
         const index = this.bucketIndexFor(current.key);
-        current.next = this.buckets[index];
+        current.next = this.buckets[index] ?? null;
         this.buckets[index] = current;
         current = next;
       }
@@ -133,7 +133,7 @@ export class HashMap<K, V> {
     }
 
     const index = this.bucketIndexFor(key);
-    let current = this.buckets[index];
+    let current = this.buckets[index] ?? null;
     while (current !== null) {
       if (current.key === key) {
         current.value = value;
@@ -142,7 +142,7 @@ export class HashMap<K, V> {
       current = current.next;
     }
 
-    const entry = new HashMapEntry(key, value, this.buckets[index]);
+    const entry = new HashMapEntry(key, value, this.buckets[index] ?? null);
     this.buckets[index] = entry;
     this.elementCount++;
 
@@ -159,7 +159,7 @@ export class HashMap<K, V> {
     }
 
     const index = this.bucketIndexFor(key);
-    let current = this.buckets[index];
+    let current = this.buckets[index] ?? null;
     let previous: HashMapEntry<K, V> | null = null;
 
     while (current !== null) {

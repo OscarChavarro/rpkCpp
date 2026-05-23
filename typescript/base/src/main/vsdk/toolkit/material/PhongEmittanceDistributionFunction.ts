@@ -134,7 +134,7 @@ export class PhongEmittanceDistributionFunction {
       coord.setFromZAxis(normal);
       const sampledPdf = [0.0];
       dir = coord.sampleHemisphereCosTheta(xi1, xi2, sampledPdf);
-      PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, sampledPdf[0]);
+      PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, sampledPdf[0] ?? 0.0);
 
       if (selfEmittedRadiance !== null) {
         selfEmittedRadiance.scaledCopy(1.0 / globalThis.Math.PI, this.Kd);

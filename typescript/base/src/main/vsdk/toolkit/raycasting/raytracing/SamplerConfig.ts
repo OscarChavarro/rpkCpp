@@ -91,9 +91,9 @@ export class SamplerConfig {
         x2[0] = globalThis.Math.random();
       }
       else if (depth === 1) {
-        const nrs = Niederreiter31.niederreiter31(this.m_qmcSeed[1]++);
-        x1[0] = nrs[0] * Niederreiter31.RECIP;
-        x2[0] = nrs[1] * Niederreiter31.RECIP;
+        const nrs = Niederreiter31.niederreiter31(this.m_qmcSeed[1]!++);
+        x1[0] = nrs[0]! * Niederreiter31.RECIP;
+        x2[0] = nrs[1]! * Niederreiter31.RECIP;
       }
       else {
         process.stdout.write(`Hmmmm MD ${this.m_qmcDepth} D${depth}\n`);
@@ -198,7 +198,7 @@ export class SamplerConfig {
       this.getRand(nextNode.previous()!.m_depth + 1, x1, x2);
     }
 
-    const sampledNode = this.traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1[0], x2[0], flags);
+    const sampledNode = this.traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1[0]!, x2[0]!, flags);
 
     let continueTrace = sampledNode !== null;
     if (continueTrace && sceneBackground !== null && sampledNode!.ends()) {
@@ -310,8 +310,8 @@ export class SamplerConfig {
         pdfRR[0] = 0.0;
       }
 
-      nodeY.m_pdfFromNext = pdf[0];
-      nodeY.m_rrPdfFromNext = pdfRR[0];
+      nodeY.m_pdfFromNext = pdf[0]!;
+      nodeY.m_rrPdfFromNext = pdfRR[0]!;
 
       if ((flags & SampleConnectionFlags.FILL_OTHER_PDF) !== 0 && nodeLP !== null) {
         if (nodeX.m_depth < eyeConfig.maxDepth - 2 && lightConfig.surfaceSampler !== null) {
@@ -322,8 +322,8 @@ export class SamplerConfig {
           pdfRR[0] = 0.0;
         }
 
-        nodeLP.m_pdfFromNext = pdf[0];
-        nodeLP.m_rrPdfFromNext = pdfRR[0];
+        nodeLP.m_pdfFromNext = pdf[0]!;
+        nodeLP.m_rrPdfFromNext = pdfRR[0]!;
       }
     }
 
@@ -351,8 +351,8 @@ export class SamplerConfig {
         pdfRR[0] = 0.0;
       }
 
-      nodeX.m_pdfFromNext = pdf[0];
-      nodeX.m_rrPdfFromNext = pdfRR[0];
+      nodeX.m_pdfFromNext = pdf[0]!;
+      nodeX.m_rrPdfFromNext = pdfRR[0]!;
 
       if ((flags & SampleConnectionFlags.FILL_OTHER_PDF) !== 0 && nodeEP !== null) {
         if (nodeY.m_depth < lightConfig.maxDepth - 2 && lightConfig.surfaceSampler !== null) {
@@ -363,8 +363,8 @@ export class SamplerConfig {
           pdfRR[0] = 0.0;
         }
 
-        nodeEP.m_pdfFromNext = pdf[0];
-        nodeEP.m_rrPdfFromNext = pdfRR[0];
+        nodeEP.m_pdfFromNext = pdf[0]!;
+        nodeEP.m_rrPdfFromNext = pdfRR[0]!;
       }
     }
 

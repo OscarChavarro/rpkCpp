@@ -41,7 +41,7 @@ import { StorageReadout } from "./StorageReadout";
 export class StochasticRaytracer extends RayTracer {
   private static readonly PHOTON_MAP_MIN_DIST = 0.02;
   private static readonly PHOTON_MAP_MIN_DIST2 = StochasticRaytracer.PHOTON_MAP_MIN_DIST * StochasticRaytracer.PHOTON_MAP_MIN_DIST;
-  private static name = "Stochastic Raytracing & Final Gathers";
+  private static override name = "Stochastic Raytracing & Final Gathers";
   private lightList: LightList | null;
   private rayTracingState: StochasticRayTracingState;
   private static random48: Random = new Random();
@@ -67,7 +67,7 @@ export class StochasticRaytracer extends RayTracer {
   private static toArrayList(scenePatches: Patch[] | null): ArrayList<Patch> {
     const out = new ArrayList<Patch>();
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      out.add(scenePatches[i]);
+      out.add(scenePatches[i]!);
     }
     return out;
   }
@@ -182,7 +182,7 @@ Raytrace the current scene as seen with the current camera.
       siCurrent = -1;
     }
     else {
-      si = config.siOthers[0];
+      si = config.siOthers[0]!;
       siCurrent = 0;
     }
 
@@ -226,8 +226,8 @@ Raytrace the current scene as seen with the current camera.
               thisNode.previous(),
               thisNode,
               newNode,
-              x1[0],
-              x2[0],
+              x1[0]!,
+              x2[0]!,
               doRR,
               si.flags
             )
@@ -282,7 +282,7 @@ Raytrace the current scene as seen with the current camera.
 
       siCurrent++;
       if (siCurrent < config.siOthersCount) {
-        si = config.siOthers[siCurrent];
+        si = config.siOthers[siCurrent]!;
       }
     }
 
@@ -348,8 +348,8 @@ Raytrace the current scene as seen with the current camera.
               prevNode.previous(),
               prevNode,
               lightNode,
-              x1[0],
-              x2[0],
+              x1[0]!,
+              x2[0]!,
               true,
               bsdfAll
             )
@@ -363,7 +363,7 @@ Raytrace the current scene as seen with the current camera.
               siCurrent = -1;
             }
             else {
-              si = config.siOthers[0];
+              si = config.siOthers[0]!;
               siCurrent = 0;
             }
 
@@ -419,7 +419,7 @@ Raytrace the current scene as seen with the current camera.
 
               siCurrent++;
               if (siCurrent < config.siOthersCount) {
-                si = config.siOthers[siCurrent];
+                si = config.siOthers[siCurrent]!;
               }
             }
           }
@@ -518,8 +518,8 @@ Raytrace the current scene as seen with the current camera.
           radiance = radianceMethod.getRadiance(
             camera,
             thisNode.m_hit.getPatch() as Patch,
-            u[0],
-            v[0],
+            u[0]!,
+            v[0]!,
             thisNode.m_inDirF,
             renderOptions
           );
@@ -671,8 +671,8 @@ Raytrace the current scene as seen with the current camera.
         null,
         eyeNode,
         pixelNode,
-        x1[0],
-        x2[0]
+        x1[0]!,
+        x2[0]!
       )
         && ((pixelNode.m_rayType !== PathRayType.ENVIRONMENT) || (config.backgroundDirect))) {
         pixelNode.assignBsdfAndNormal();

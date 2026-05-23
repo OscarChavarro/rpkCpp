@@ -17,7 +17,7 @@ export class Coefficientsmcrad {
       if (c[i] === undefined || c[i] === null) {
         c[i] = new ColorRgb();
       }
-      c[i].clear();
+      c[i]!.clear();
     }
   }
 
@@ -32,7 +32,7 @@ export class Coefficientsmcrad {
       if (src[i] === undefined || src[i] === null) {
         src[i] = new ColorRgb();
       }
-      dst[i].set(src[i].r, src[i].g, src[i].b);
+      dst[i]!.set(src[i]!.r, src[i]!.g, src[i]!.b);
     }
   }
 
@@ -47,7 +47,7 @@ export class Coefficientsmcrad {
       if (extra[i] === undefined || extra[i] === null) {
         extra[i] = new ColorRgb();
       }
-      dst[i].add(dst[i], extra[i]);
+      dst[i]!.add(dst[i]!, extra[i]!);
     }
   }
 
@@ -59,7 +59,7 @@ export class Coefficientsmcrad {
       if (color[i] === undefined || color[i] === null) {
         color[i] = new ColorRgb();
       }
-      color[i].scale(scale);
+      color[i]!.scale(scale);
     }
   }
 
@@ -73,7 +73,7 @@ export class Coefficientsmcrad {
       if (coefficients[i] === undefined || coefficients[i] === null) {
         coefficients[i] = new ColorRgb();
       }
-      coefficients[i].selfScalarProduct(c);
+      coefficients[i]!.selfScalarProduct(c);
     }
   }
 
@@ -105,7 +105,7 @@ Determines basis based on element type and currently desired approximation
       ? StochasticRadiosityElementType.ET_TRIANGLE
       : StochasticRadiosityElementType.ET_QUAD;
     const at = StochasticRelaxation.activeState().approximationOrderType!;
-    return StochasticRadiosityBasisState.activeState().basis[et][at];
+    return StochasticRadiosityBasisState.activeState().basis[et]![at]!;
   }
 
   /**

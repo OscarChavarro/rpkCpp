@@ -55,9 +55,9 @@ export class ImageOutputHandle {
   }
 
   protected static gammaCorrect(rgb: ColorRgb, gamma: number[]): void {
-    rgb.r = gamma[0] === 1.0 ? rgb.r : globalThis.Math.pow(rgb.r, 1.0 / gamma[0]);
-    rgb.g = gamma[1] === 1.0 ? rgb.g : globalThis.Math.pow(rgb.g, 1.0 / gamma[1]);
-    rgb.b = gamma[2] === 1.0 ? rgb.b : globalThis.Math.pow(rgb.b, 1.0 / gamma[2]);
+    rgb.r = gamma[0]! === 1.0 ? rgb.r : globalThis.Math.pow(rgb.r, 1.0 / gamma[0]!);
+    rgb.g = gamma[1]! === 1.0 ? rgb.g : globalThis.Math.pow(rgb.g, 1.0 / gamma[1]!);
+    rgb.b = gamma[2]! === 1.0 ? rgb.b : globalThis.Math.pow(rgb.b, 1.0 / gamma[2]!);
   }
 
   public writeDisplayRGB(x: Uint8Array): number;
@@ -94,7 +94,7 @@ export class ImageOutputHandle {
     const rgb = new Uint8Array(3 * this.width);
     for (let i = 0; i < this.width; i++) {
       const displayRgb = new ColorRgb();
-      ToneMap.radianceToRgb(rgbRadiance[i], displayRgb, this.toneMapOptions as ToneMappingContext);
+      ToneMap.radianceToRgb(rgbRadiance[i]!, displayRgb, this.toneMapOptions as ToneMappingContext);
       ImageOutputHandle.gammaCorrect(displayRgb, this.gamma);
       rgb[3 * i] = ImageOutputHandle.javaByte(ImageOutputHandle.javaIntCast(displayRgb.r * 255.0));
       rgb[3 * i + 1] = ImageOutputHandle.javaByte(ImageOutputHandle.javaIntCast(displayRgb.g * 255.0));

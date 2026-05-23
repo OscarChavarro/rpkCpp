@@ -23,11 +23,11 @@ export class FormFactorClusteredStrategy {
     for (let k = 0; k < cubatureRuleRcv.numberOfNodes; k++) {
       let Gx = 0.0;
       for (let l = 0; l < cubatureRuleSrc.numberOfNodes; l++) {
-        Gx += cubatureRuleSrc.w[l] * Gxy[k][l];
+        Gx += cubatureRuleSrc.w[l]! * Gxy[k]![l]!;
       }
       Gx *= sourceElement.area;
 
-      G += cubatureRuleRcv.w[k] * Gx;
+      G += cubatureRuleRcv.w[k]! * Gx;
 
       if (Gx > gMax) {
         gMax = Gx;

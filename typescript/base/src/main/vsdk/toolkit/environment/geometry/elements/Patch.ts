@@ -203,7 +203,7 @@ export class Patch {
 
   private connectVertices(): void {
     for (let i = 0; i < this.numberOfVertices; i++) {
-      this.connectVertex(this.vertex[i]);
+      this.connectVertex(this.vertex[i]!);
     }
   }
 
@@ -632,7 +632,7 @@ export class Patch {
     const localPatches = [p0, p1, p2, p3];
     let i = 0;
     for (; i < n; i++) {
-      Patch.excludedPatches[i] = localPatches[i];
+      Patch.excludedPatches[i] = localPatches[i] ?? null;
     }
     for (; i < Patch.MAX_EXCLUDED_PATCHES; i++) {
       Patch.excludedPatches[i] = null;
@@ -745,7 +745,7 @@ export class Patch {
 
     distance = -(this.normal.dotProduct(ray.position) + this.planeConstant) / distance;
 
-    if (distance > maximumDistance[0] || distance < minimumDistance) {
+    if (distance > maximumDistance[0]! || distance < minimumDistance) {
       return null;
     }
 
@@ -770,7 +770,7 @@ export class Patch {
         const u = [0.0];
         const v = [0.0];
         hit.getPatch()!.uv(localPosition, u, v);
-        hit.setUv(u[0], v[0]);
+        hit.setUv(u[0]!, v[0]!);
         hit.setPoint(localPosition);
         newFlags = hit.getFlags() & RayHitFlag.UV;
         hit.setFlags(newFlags);
@@ -792,8 +792,8 @@ export class Patch {
     const a = this.jacobian!.A;
     const b = this.jacobian!.B;
     const c = this.jacobian!.C;
-    u[0] = ((a + 0.5 * c) + 0.5 * b * u[0]) * u[0] / this.area;
-    v[0] = ((a + 0.5 * b) + 0.5 * c * v[0]) * v[0] / this.area;
+    u[0]! = ((a + 0.5 * c) + 0.5 * b * u[0]!) * u[0]! / this.area;
+    v[0]! = ((a + 0.5 * b) + 0.5 * c * v[0]!) * v[0]! / this.area;
   }
 
   private uniformToBiLinear(u: number[], v: number[]): void {
@@ -803,12 +803,12 @@ export class Patch {
 
     let A = 0.5 * b / this.area;
     let B = (a + 0.5 * c) / this.area;
-    let C = -u[0];
+    let C = -u[0]!;
     Patch.solveQuadraticUnitInterval(A, B, C, u);
 
     A = 0.5 * c / this.area;
     B = (a + 0.5 * b) / this.area;
-    C = -v[0];
+    C = -v[0]!;
     Patch.solveQuadraticUnitInterval(A, B, C, v);
   }
 
@@ -844,8 +844,8 @@ export class Patch {
       const uu = [u];
       const vv = [v];
       this.uniformToBiLinear(uu, vv);
-      u = uu[0];
-      v = vv[0];
+      u = uu[0]!;
+      v = vv[0]!;
     }
     return this.pointBarycentricMapping(u, v, point);
   }

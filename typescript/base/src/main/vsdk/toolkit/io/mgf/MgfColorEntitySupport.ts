@@ -18,7 +18,7 @@ export class MgfColorEntitySupport {
     let wSum: number;
     let lp: LookUpEntity<ColorContext> | null;
 
-    switch (MgfEntityControl.mgfEntity(av[0], context)) {
+    switch (MgfEntityControl.mgfEntity(av[0]!, context)) {
       case EntityTypeContext.COLOR:
         // Get/set color context
         if (ac > 4) {
@@ -31,10 +31,10 @@ export class MgfColorEntitySupport {
           context.colorRepository.currentColor = context.currentColor;
           return ParseErrorContext.MGF_OK;
         }
-        if (!TokenValidationContext.isName(av[1])) {
+        if (!TokenValidationContext.isName(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
-        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[1]); // Lookup context
+        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[1]!); // Lookup context
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
         }
@@ -47,12 +47,12 @@ export class MgfColorEntitySupport {
           }
           return ParseErrorContext.MGF_OK;
         }
-        if (av[2].length !== 1 || av[2].charAt(0) !== "=") {
+        if (av[2]!.length !== 1 || av[2]!.charAt(0) !== "=") {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (context.currentColor === null) {
           // Create new color context
-          lp.key = av[1];
+          lp.key = av[1]!;
           lp.data = new ColorContext();
           context.currentColor = lp.data;
           context.colorRepository.currentColor = context.currentColor;
@@ -65,7 +65,7 @@ export class MgfColorEntitySupport {
           context.currentColor.clock = i + 1;
           return ParseErrorContext.MGF_OK;
         }
-        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[3]);
+        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[3]!);
         // Lookup template
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
@@ -81,14 +81,14 @@ export class MgfColorEntitySupport {
         if (ac !== 3) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
+        if (!TokenValidationContext.isFloat(av[1]!) || !TokenValidationContext.isFloat(av[2]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (context.currentColor === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        context.currentColor.cx = Number.parseFloat(av[1]);
-        context.currentColor.cy = Number.parseFloat(av[2]);
+        context.currentColor.cx = Number.parseFloat(av[1]!);
+        context.currentColor.cy = Number.parseFloat(av[2]!);
         context.currentColor.flags = (ColorContext.COLOR_DEFINED_WITH_XY_FLAG | ColorContext.COLOR_XY_IS_SET_FLAG);
         if (
           context.currentColor.cx < 0.0
@@ -104,15 +104,15 @@ export class MgfColorEntitySupport {
         if (ac < 5) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
+        if (!TokenValidationContext.isFloat(av[1]!) || !TokenValidationContext.isFloat(av[2]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (context.currentColor === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
         return context.currentColor.setSpectrum(
-          Number.parseFloat(av[1]),
-          Number.parseFloat(av[2]),
+          Number.parseFloat(av[1]!),
+          Number.parseFloat(av[2]!),
           ac - 3,
           av.slice(3, ac),
         );
@@ -121,23 +121,23 @@ export class MgfColorEntitySupport {
         if (ac !== 2) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1])) {
+        if (!TokenValidationContext.isFloat(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (context.currentColor === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        return context.currentColor.setBlackBodyTemperature(Number.parseFloat(av[1]));
+        return context.currentColor.setBlackBodyTemperature(Number.parseFloat(av[1]!));
       case EntityTypeContext.C_MIX:
         // Mix colors
         if (ac < 5 || ((ac - 1) % 2) !== 0) {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        if (!TokenValidationContext.isFloat(av[1])) {
+        if (!TokenValidationContext.isFloat(av[1]!)) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
-        wSum = Number.parseFloat(av[1]);
-        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[2]);
+        wSum = Number.parseFloat(av[1]!);
+        lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[2]!);
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
         }
@@ -146,11 +146,11 @@ export class MgfColorEntitySupport {
         }
         context.currentColor.copy(lp.data);
         for (i = 3; i < ac; i += 2) {
-          if (!TokenValidationContext.isFloat(av[i])) {
+          if (!TokenValidationContext.isFloat(av[i]!)) {
             return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
           }
-          const w = Number.parseFloat(av[i]);
-          lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[i + 1]);
+          const w = Number.parseFloat(av[i]!);
+          lp = (context.colorRepository.colorLookUpTable as any).lookUpFind(av[i + 1]!);
           if (lp === null) {
             return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
           }

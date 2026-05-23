@@ -62,10 +62,10 @@ export class OptionsGroupCore {
       glutDebugEnabledOut
     );
 
-    parseSession.singleSided = oneSidedSurfaces[0];
-    parseSession.parserConfig.singleSided = oneSidedSurfaces[0];
-    parseSession.numberOfQuarterCircleDivisions = conicSubDivisions[0];
-    parseSession.parserConfig.numberOfQuarterCircleDivisions = conicSubDivisions[0];
+    parseSession.singleSided = oneSidedSurfaces[0]!;
+    parseSession.parserConfig.singleSided = oneSidedSurfaces[0]!;
+    parseSession.numberOfQuarterCircleDivisions = conicSubDivisions[0]!;
+    parseSession.parserConfig.numberOfQuarterCircleDivisions = conicSubDivisions[0]!;
 
     OptionsGroupRender.renderParseOptions(argc, argv, renderOptions);
     OptionsGroupToneMapping.toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions);
@@ -77,8 +77,8 @@ export class OptionsGroupCore {
       argc,
       argv,
       scene.camera,
-      imageOutputWidth[0],
-      imageOutputHeight[0]
+      imageOutputWidth[0]!,
+      imageOutputHeight[0]!
     );
   }
 
@@ -120,14 +120,14 @@ export class OptionsGroupCore {
     }
 
     if (
-      red[0] < 0.0 || red[0] > 1.0
-      || green[0] < 0.0 || green[0] > 1.0
-      || blue[0] < 0.0 || blue[0] > 1.0
+      red[0]! < 0.0 || red[0]! > 1.0
+      || green[0]! < 0.0 || green[0]! > 1.0
+      || blue[0]! < 0.0 || blue[0]! > 1.0
     ) {
       return false;
     }
 
-    color.set(red[0], green[0], blue[0]);
+    color.set(red[0]!, green[0]!, blue[0]!);
     return true;
   }
 
@@ -139,20 +139,20 @@ export class OptionsGroupCore {
     const args = argv as Array<string | null>;
     let writeIndex = 0;
     let readIndex = 0;
-    while (readIndex < argc[0]) {
-      const argument = args[readIndex];
+    while (readIndex < argc[0]!) {
+      const argument = args[readIndex]!;
       if (argument === null || argument !== "-background") {
-        args[writeIndex++] = args[readIndex++];
+        args[writeIndex++] = args[readIndex++]!;
         continue;
       }
 
-      if (readIndex + 1 >= argc[0]) {
+      if (readIndex + 1 >= argc[0]!) {
         process.stderr.write("Option '-background' requires a mode. Supported mode: solid.\n");
         readIndex += 1;
         continue;
       }
 
-      const mode = args[readIndex + 1];
+      const mode = args[readIndex + 1]!;
       if (!OptionTextUtils.equalsIgnoreCase(mode, "solid")) {
         process.stderr.write(
           `Invalid background mode '${mode}'. Expected '-background solid <r> <g> <b>'.\n`
@@ -161,7 +161,7 @@ export class OptionsGroupCore {
         continue;
       }
 
-      if (readIndex + 4 >= argc[0]) {
+      if (readIndex + 4 >= argc[0]!) {
         process.stderr.write(
           "Option '-background solid' requires three values in range [0.0, 1.0].\n"
         );
@@ -172,9 +172,9 @@ export class OptionsGroupCore {
       const parsedColor = new ColorRgb();
       if (
         !OptionsGroupCore.commandLineParseBackgroundColor(
-          args[readIndex + 2],
-          args[readIndex + 3],
-          args[readIndex + 4],
+          args[readIndex + 2]!,
+          args[readIndex + 3]!,
+          args[readIndex + 4]!,
           parsedColor
         )
       ) {
@@ -189,7 +189,7 @@ export class OptionsGroupCore {
       readIndex += 5;
     }
 
-    while (writeIndex < argc[0]) {
+    while (writeIndex < argc[0]!) {
       args[writeIndex++] = null;
     }
     argc[0] = writeIndex;

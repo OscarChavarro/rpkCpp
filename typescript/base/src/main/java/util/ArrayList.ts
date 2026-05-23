@@ -14,7 +14,11 @@ export class ArrayList<T> {
   }
 
   public get(i: number): T {
-    return this.dataArray[i];
+    const value = this.dataArray[i];
+    if (value === undefined) {
+      throw new RangeError(`ArrayList index out of bounds: ${i}`);
+    }
+    return value;
   }
 
   public add(elem: T): boolean;

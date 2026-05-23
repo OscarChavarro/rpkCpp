@@ -52,7 +52,7 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
       && (galerkinState.iterationNumber <= 1 || (scene.camera as NonNullable<Scene["camera"]>).changed !== 0)) {
       Potential.updateDirectPotential(scene, renderOptions);
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        const patch = scene.patchList[i];
+        const patch = scene.patchList[i]!;
         const top = patch.radianceData as GalerkinElement;
         const potentialIncrement = patch.directPotential - top.directPotential;
         GatheringClusteredStrategy.updateClusterDirectPotential(top, potentialIncrement);
@@ -84,7 +84,7 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
     galerkinState.ambientRadiance.clear();
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]);
+      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!);
     }
     return false;
   }

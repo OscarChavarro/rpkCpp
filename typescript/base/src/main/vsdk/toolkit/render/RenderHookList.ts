@@ -8,7 +8,7 @@ export class RenderHookList {
 
   public static renderHooks(): void {
     for (let i = 0; RenderHookList.renderHookList !== null && i < RenderHookList.renderHookList.length; i++) {
-      const h = RenderHookList.renderHookList[i];
+      const h = RenderHookList.renderHookList[i]!;
       if (h.function !== null) {
         h.function.apply(h.data);
       }

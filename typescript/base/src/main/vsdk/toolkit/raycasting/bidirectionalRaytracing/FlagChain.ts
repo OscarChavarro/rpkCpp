@@ -23,7 +23,7 @@ export class FlagChain {
         const dst = this.chain as number[];
         const src = c.chain as number[];
         for (let i = 0; i < this.length; i++) {
-          dst[i] = src[i];
+          dst[i] = src[i]!;
         }
       }
     }
@@ -99,7 +99,7 @@ export class FlagChain {
 
     if (nrDifferent === 1) {
       const newFlagChain = new FlagChain(c1);
-      (newFlagChain.chain as number[])[diffIndex] = (c1.chain as number[])[diffIndex] | (c2.chain as number[])[diffIndex];
+      (newFlagChain.chain as number[])[diffIndex] = ((c1.chain as number[])[diffIndex]!) | ((c2.chain as number[])[diffIndex]!);
       return newFlagChain;
     }
 

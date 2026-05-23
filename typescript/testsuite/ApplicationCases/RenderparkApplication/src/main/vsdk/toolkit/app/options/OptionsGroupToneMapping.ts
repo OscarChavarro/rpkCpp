@@ -320,9 +320,9 @@ export class OptionsGroupToneMapping {
     if (argc < 3 || argv === null || argv[0] === null || argv[1] === null || argv[2] === null) {
       return false;
     }
-    const r = Number.parseFloat(argv[0]);
-    const g = Number.parseFloat(argv[1]);
-    const b = Number.parseFloat(argv[2]);
+    const r = Number.parseFloat(argv[0]!);
+    const g = Number.parseFloat(argv[1]!);
+    const b = Number.parseFloat(argv[2]!);
     if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
       return false;
     }
@@ -340,8 +340,8 @@ export class OptionsGroupToneMapping {
     if (argc < 2 || argv === null || argv[0] === null || argv[1] === null) {
       return false;
     }
-    const x = Number.parseFloat(argv[0]);
-    const y = Number.parseFloat(argv[1]);
+    const x = Number.parseFloat(argv[0]!);
+    const y = Number.parseFloat(argv[1]!);
     if (Number.isNaN(x) || Number.isNaN(y)) {
       return false;
     }

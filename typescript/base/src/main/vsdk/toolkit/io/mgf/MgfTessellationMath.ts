@@ -38,7 +38,7 @@ export class MgfTessellationMath {
 
     let i = 0;
     for (; i < 3; i++) {
-      if (wArr[i] > -0.6 && wArr[i] < 0.6) {
+      if (wArr[i]! > -0.6 && wArr[i]! < 0.6) {
         break;
       }
     }
@@ -47,9 +47,9 @@ export class MgfTessellationMath {
       vArr[i] = 1.0;
     }
 
-    v.x = vArr[0];
-    v.y = vArr[1];
-    v.z = vArr[2];
+    v.x = vArr[0]!;
+    v.y = vArr[1]!;
+    v.z = vArr[2]!;
 
     u.crossProduct(v, w);
     u.normalizeAndGivePreviousNorm(epsilon);

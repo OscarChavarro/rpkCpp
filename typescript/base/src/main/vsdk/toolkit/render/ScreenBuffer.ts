@@ -50,8 +50,8 @@ export class ScreenBuffer {
     target.pixelWidthTangent = source.pixelWidthTangent;
     target.pixelHeightTangent = source.pixelHeightTangent;
     for (let i = 0; i < Camera.NUMBER_OF_VIEW_PLANES; i++) {
-      target.viewPlanes[i].normal.copy(source.viewPlanes[i].normal);
-      target.viewPlanes[i].d = source.viewPlanes[i].d;
+      target.viewPlanes[i]!.normal.copy(source.viewPlanes[i]!.normal);
+      target.viewPlanes[i]!.d = source.viewPlanes[i]!.d;
     }
 
     return target;
@@ -80,15 +80,15 @@ export class ScreenBuffer {
       for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
         this.radiance[i] = new ColorRgb();
         this.rgbColor[i] = new ColorRgb();
-        this.radiance[i].clear();
-        this.rgbColor[i].clear();
+        this.radiance[i]!.clear();
+        this.rgbColor[i]!.clear();
       }
     }
 
     const black = new ColorRgb(0.0, 0.0, 0.0);
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i].setMonochrome(0.0);
-      (this.rgbColor as ColorRgb[])[i].set(black.r, black.g, black.b);
+      (this.radiance as ColorRgb[])[i]!.setMonochrome(0.0);
+      (this.rgbColor as ColorRgb[])[i]!.set(black.r, black.g, black.b);
     }
 
     this.factor = 1.0;
@@ -120,7 +120,7 @@ export class ScreenBuffer {
     this.rgbImage = source.isRgbImage();
 
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i].set((source.radiance as ColorRgb[])[i].r, (source.radiance as ColorRgb[])[i].g, (source.radiance as ColorRgb[])[i].b);
+      (this.radiance as ColorRgb[])[i]!.set((source.radiance as ColorRgb[])[i]!.r, (source.radiance as ColorRgb[])[i]!.g, (source.radiance as ColorRgb[])[i]!.b);
     }
     this.synced = false;
   }
@@ -136,25 +136,25 @@ export class ScreenBuffer {
 
     const n = this.getVRes() * this.getHRes();
     for (let i = 0; i < n; i++) {
-      (this.radiance as ColorRgb[])[i].add((src1.radiance as ColorRgb[])[i], (src2.radiance as ColorRgb[])[i]);
+      (this.radiance as ColorRgb[])[i]!.add((src1.radiance as ColorRgb[])[i]!, (src2.radiance as ColorRgb[])[i]!);
     }
   }
 
   public add(x: number, y: number, inRadiance: ColorRgb): void {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    (this.radiance as ColorRgb[])[index].addScaled((this.radiance as ColorRgb[])[index], this.addFactor, inRadiance);
+    (this.radiance as ColorRgb[])[index]!.addScaled((this.radiance as ColorRgb[])[index]!, this.addFactor, inRadiance);
     this.synced = false;
   }
 
   public set(x: number, y: number, inRadiance: ColorRgb): void {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    (this.radiance as ColorRgb[])[index].scaledCopy(this.addFactor, inRadiance);
+    (this.radiance as ColorRgb[])[index]!.scaledCopy(this.addFactor, inRadiance);
     this.synced = false;
   }
 
   public get(x: number, y: number): ColorRgb {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    return (this.radiance as ColorRgb[])[index];
+    return (this.radiance as ColorRgb[])[index]!;
   }
 
   public render(): void {
@@ -201,7 +201,7 @@ export class ScreenBuffer {
           const scanline = new Array<ColorRgb>(this.camera.xSize);
           const rowStart = i * this.camera.xSize;
           for (let j = 0; j < this.camera.xSize; j++) {
-            scanline[j] = (this.radiance as ColorRgb[])[rowStart + j];
+            scanline[j] = (this.radiance as ColorRgb[])[rowStart + j]!;
           }
           ip.writeRadianceRGB(scanline);
         }
@@ -209,7 +209,7 @@ export class ScreenBuffer {
           const rgbFloatArray = new Array<number>(3 * this.camera.xSize);
           const rowStart = i * this.camera.xSize;
           for (let j = 0; j < this.camera.xSize; j++) {
-            const color = (this.radiance as ColorRgb[])[rowStart + j];
+            const color = (this.radiance as ColorRgb[])[rowStart + j]!;
             const base = 3 * j;
             rgbFloatArray[base] = color.r;
             rgbFloatArray[base + 1] = color.g;
@@ -250,7 +250,7 @@ export class ScreenBuffer {
       return;
     }
 
-    this.writeFile(fileName, localOutputStream, isPipeArray[0]);
+    this.writeFile(fileName, localOutputStream, isPipeArray[0]!);
     FileUncompressWrapper.closeOutputStream(localOutputStream);
   }
 
@@ -264,7 +264,7 @@ export class ScreenBuffer {
     const scanline = new Array<ColorRgb>(this.camera.xSize);
     const rowStart = y * this.camera.xSize;
     for (let i = 0; i < this.camera.xSize; i++) {
-      scanline[i] = (this.rgbColor as ColorRgb[])[rowStart + i];
+      scanline[i] = (this.rgbColor as ColorRgb[])[rowStart + i]!;
     }
     SoftIds.softRenderPixels(this.camera.xSize, 1, scanline, this.requireToneMappingContext());
   }
@@ -274,12 +274,12 @@ export class ScreenBuffer {
     const activeToneMapOptions = this.requireToneMappingContext();
 
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[i]);
+      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[i]!);
       if (!this.isRgbImage()) {
-        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[i], activeToneMapOptions);
+        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[i]!, activeToneMapOptions);
       }
       else {
-        tmpRad.set((this.rgbColor as ColorRgb[])[i].r, (this.rgbColor as ColorRgb[])[i].g, (this.rgbColor as ColorRgb[])[i].b);
+        tmpRad.set((this.rgbColor as ColorRgb[])[i]!.r, (this.rgbColor as ColorRgb[])[i]!.g, (this.rgbColor as ColorRgb[])[i]!.b);
       }
     }
 
@@ -292,12 +292,12 @@ export class ScreenBuffer {
 
     for (let i = 0; i < this.camera.xSize; i++) {
       const idx = lineNumber * this.camera.xSize + i;
-      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[idx]);
+      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[idx]!);
       if (!this.isRgbImage()) {
-        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[idx], activeToneMapOptions);
+        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[idx]!, activeToneMapOptions);
       }
       else {
-        tmpRad = (this.rgbColor as ColorRgb[])[idx];
+        tmpRad = (this.rgbColor as ColorRgb[])[idx]!;
       }
     }
   }
@@ -416,8 +416,8 @@ export class ScreenBuffer {
     const color = new ColorRgb();
 
     this.getPixel(x, y, nx0v, ny0v);
-    const nx0 = nx0v[0];
-    const ny0 = ny0v[0];
+    const nx0 = nx0v[0]!;
+    const ny0 = ny0v[0]!;
     center = this.getPixelCenter(nx0, ny0);
 
     x = (x - center.x) / this.getPixXSize();
@@ -450,7 +450,7 @@ export class ScreenBuffer {
 
   public scaleRadiance(inFactor: number): void {
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i].scale(inFactor);
+      (this.radiance as ColorRgb[])[i]!.scale(inFactor);
     }
     this.synced = false;
   }

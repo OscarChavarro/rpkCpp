@@ -18,9 +18,9 @@ export class Seed {
   public SetSeed(a: Seed | number[] | number, b?: number, c?: number): void {
     if (a instanceof Seed) {
       const s = a.GetSeed();
-      this.m_seed[0] = s[0] | 0;
-      this.m_seed[1] = s[1] | 0;
-      this.m_seed[2] = s[2] | 0;
+      this.m_seed[0] = s[0]! | 0;
+      this.m_seed[1] = s[1]! | 0;
+      this.m_seed[2] = s[2]! | 0;
       return;
     }
 
@@ -38,8 +38,8 @@ export class Seed {
 
   public XORSeed(xOrSeed: Seed): void {
     const s = xOrSeed.GetSeed();
-    this.m_seed[0] ^= s[0];
-    this.m_seed[1] ^= s[1];
-    this.m_seed[2] ^= s[2];
+    this.m_seed[0] = (this.m_seed[0] ?? 0) ^ s[0]!;
+    this.m_seed[1] = (this.m_seed[1] ?? 0) ^ s[1]!;
+    this.m_seed[2] = (this.m_seed[2] ?? 0) ^ s[2]!;
   }
 }

@@ -5,7 +5,7 @@ export class ScrambledHalton {
 
   public static scrambledHalton(nextN: number, dim: number): number[] {
     for (let i = 0; i < dim; i++) {
-      const b = ScrambledHalton.prime[i];
+      const b = ScrambledHalton.prime[i]!;
       const bi = 1.0 / b;
       let fi = 0.0;
       let bp = 1.0;

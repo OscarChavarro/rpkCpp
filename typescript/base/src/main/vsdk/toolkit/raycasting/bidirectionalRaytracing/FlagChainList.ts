@@ -15,7 +15,7 @@ export class FlagChainList extends CircularList<FlagChain> {
     this.length = 0;
   }
 
-  public add(list: FlagChainList): void;
+  public override add(list: FlagChainList): void;
   public override add(chain: FlagChain): void;
   public override add(listOrChain: FlagChainList | FlagChain): void {
     if (listOrChain instanceof FlagChainList) {

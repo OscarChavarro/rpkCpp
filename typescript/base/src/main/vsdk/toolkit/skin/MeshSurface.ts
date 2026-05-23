@@ -52,13 +52,13 @@ export class MeshSurface extends Geometry {
 
     if (MeshSurface.colorFlags === MaterialColorFlags.VERTEX_COLORS) {
       for (let i = 0; this.vertices !== null && i < this.vertices.length; i++) {
-        MeshSurface.normalizeVertexColor(this.vertices[i]);
+        MeshSurface.normalizeVertexColor(this.vertices[i]!);
       }
     }
 
     if (MeshSurface.colorFlags !== MaterialColorFlags.VERTEX_COLORS) {
       for (let i = 0; this.vertices !== null && i < this.vertices.length; i++) {
-        this.vertices[i].computeColor();
+        this.vertices[i]!.computeColor();
       }
     }
 
@@ -90,7 +90,7 @@ export class MeshSurface extends Geometry {
 
     if (this.vertices !== null) {
       for (let i = 0; i < this.vertices.length; i++) {
-        this.vertices[i].destroy();
+        this.vertices[i]!.destroy();
       }
       this.vertices.length = 0;
       this.vertices = null;
@@ -98,7 +98,7 @@ export class MeshSurface extends Geometry {
 
     if (this.faces !== null) {
       for (let i = 0; i < this.faces.length; i++) {
-        this.faces[i].destroy();
+        this.faces[i]!.destroy();
       }
       this.faces.length = 0;
       this.faces = null;

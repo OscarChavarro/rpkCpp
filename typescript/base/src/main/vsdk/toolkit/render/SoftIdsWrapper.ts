@@ -33,6 +33,6 @@ export class SoftIdsWrapper {
 
   public getPatchAtPixel(x: number, y: number): Patch | null {
     const index = (this.sgl.height - 1 - y) * this.sgl.width + x;
-    return this.sgl.patchBuffer[index];
+    return this.sgl.patchBuffer[index] ?? null;
   }
 }

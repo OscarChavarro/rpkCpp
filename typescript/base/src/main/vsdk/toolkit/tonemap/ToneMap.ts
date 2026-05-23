@@ -15,7 +15,7 @@ export abstract class ToneMap {
       gamma = 1.0;
     }
     for (let i = 0; i <= (1 << ToneMappingContext.GAMMA_TABLE_BITS); i++) {
-      toneMapOptions.gammaTab[index][i] = globalThis.Math.pow(
+      toneMapOptions.gammaTab[index]![i] = globalThis.Math.pow(
         i / (1 << ToneMappingContext.GAMMA_TABLE_BITS),
         1.0 / gamma
       );
@@ -59,9 +59,9 @@ export abstract class ToneMap {
   }
 
   public static toneMappingGammaCorrection(rgb: ColorRgb, toneMapOptions: ToneMappingContext): void {
-    rgb.r = toneMapOptions.gammaTab[0][ToneMap.gammaTableEntry(rgb.r)];
-    rgb.g = toneMapOptions.gammaTab[1][ToneMap.gammaTableEntry(rgb.g)];
-    rgb.b = toneMapOptions.gammaTab[2][ToneMap.gammaTableEntry(rgb.b)];
+    rgb.r = toneMapOptions.gammaTab[0]![ToneMap.gammaTableEntry(rgb.r)]!;
+    rgb.g = toneMapOptions.gammaTab[1]![ToneMap.gammaTableEntry(rgb.g)]!;
+    rgb.b = toneMapOptions.gammaTab[2]![ToneMap.gammaTableEntry(rgb.b)]!;
   }
 
   public static recomputeGammaTables(toneMapOptions: ToneMappingContext, gamma: ColorRgb): void {

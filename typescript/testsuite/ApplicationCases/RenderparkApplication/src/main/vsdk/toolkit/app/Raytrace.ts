@@ -26,7 +26,7 @@ export class Raytrace {
   private static toArrayList(input: Patch[] | null): ArrayList<Patch> {
     const out = new ArrayList<Patch>();
     for (let i = 0; input !== null && i < input.length; i++) {
-      out.add(input[i]);
+      out.add(input[i]!);
     }
     return out;
   }
@@ -64,10 +64,10 @@ export class Raytrace {
       newRaytracer = new RayCaster(null, scene.camera, toneMapOptions);
     }
     else if (rayTracerName === "BidirectionalPathTracing") {
-      newRaytracer = new BidirectionalPathRaytracer(bidirectionalPathState, lightList === null ? null : lightList[0]);
+      newRaytracer = new BidirectionalPathRaytracer(bidirectionalPathState, lightList === null ? null : lightList[0]!);
     }
     else if (rayTracerName === "StochasticRaytracing") {
-      newRaytracer = new StochasticRaytracer(lightList === null ? null : lightList[0], stochasticRayTracingState);
+      newRaytracer = new StochasticRaytracer(lightList === null ? null : lightList[0]!, stochasticRayTracingState);
     }
     else {
       newRaytracer = null;

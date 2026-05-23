@@ -20,9 +20,9 @@ export class MeshSurfaceVisitor {
           if (vertex === null) {
             continue;
           }
-          face.color.r += vertex.color.r;
-          face.color.g += vertex.color.g;
-          face.color.b += vertex.color.b;
+          face.color.r += vertex!.color.r;
+          face.color.g += vertex!.color.g;
+          face.color.b += vertex!.color.b;
         }
         if (i > 0) {
           face.color.r /= i;
@@ -46,7 +46,7 @@ export class MeshSurfaceVisitor {
       return;
     }
     for (let i = 0; mesh.faces !== null && i < mesh.faces.length; i++) {
-      const face = mesh.faces[i];
+      const face = mesh.faces[i]!;
       if (face === null) {
         continue;
       }
@@ -59,7 +59,7 @@ export class MeshSurfaceVisitor {
     for (let i = 0; mesh.faces !== null && i < mesh.faces.length; i++) {
       const face = mesh.faces[i];
       if (face !== null) {
-        MeshSurfaceVisitor.surfaceConnectFace(mesh, face);
+        MeshSurfaceVisitor.surfaceConnectFace(mesh, face!);
       }
     }
   }

@@ -67,7 +67,7 @@ export class Interaction {
     this.K = new Array<number>(n).fill(0.0);
     if (inK != null) {
       for (let i = 0; i < Math.min(inK.length, this.K.length); i++) {
-        this.K[i] = inK[i];
+        this.K[i] = inK[i] ?? 0.0;
       }
     }
 
@@ -77,7 +77,7 @@ export class Interaction {
 
     this.deltaK = new Array<number>(1).fill(0.0);
     if (inDeltaK != null && inDeltaK.length > 0) {
-      this.deltaK[0] = inDeltaK[0];
+      this.deltaK[0] = inDeltaK[0] ?? 0.0;
     }
 
     Interaction.totalInteractions++;

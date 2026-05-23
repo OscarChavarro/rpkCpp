@@ -86,24 +86,24 @@ export class RayCaster extends RayTracer {
   }
 
   private static clipUv(numberOfVertices: number, u: number[], v: number[]): void {
-    if (u[0] > 1.0 - Numeric.EPSILON) {
+    if (u[0]! > 1.0 - Numeric.EPSILON) {
       u[0] = 1.0 - Numeric.EPSILON;
     }
-    if (v[0] > 1.0 - Numeric.EPSILON) {
+    if (v[0]! > 1.0 - Numeric.EPSILON) {
       v[0] = 1.0 - Numeric.EPSILON;
     }
-    if (numberOfVertices === 3 && (u[0] + v[0]) > 1.0 - Numeric.EPSILON) {
-      if (u[0] > v[0]) {
-        u[0] = 1.0 - v[0] - Numeric.EPSILON;
+    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - Numeric.EPSILON) {
+      if (u[0]! > v[0]!) {
+        u[0] = 1.0 - v[0]! - Numeric.EPSILON;
       }
       else {
-        v[0] = 1.0 - u[0] - Numeric.EPSILON;
+        v[0] = 1.0 - u[0]! - Numeric.EPSILON;
       }
     }
-    if (u[0] < Numeric.EPSILON) {
+    if (u[0]! < Numeric.EPSILON) {
       u[0] = Numeric.EPSILON;
     }
-    if (v[0] < Numeric.EPSILON) {
+    if (v[0]! < Numeric.EPSILON) {
       v[0] = Numeric.EPSILON;
     }
   }
@@ -147,7 +147,7 @@ export class RayCaster extends RayTracer {
 
       // Reverse ray direction and get radiance emitted at hit point towards the eye
       const dir = new Vector3D(-ray.direction.x, -ray.direction.y, -ray.direction.z);
-      return radianceMethod.getRadiance(camera, patch, u[0], v[0], dir, renderOptions);
+      return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, dir, renderOptions);
     }
     return radiance;
   }
@@ -171,13 +171,13 @@ export class RayCaster extends RayTracer {
     const width = [0];
     const height = [0];
     idRenderer.getSize(width, height);
-    if (width[0] !== this.screenBuffer.getHRes() || height[0] !== this.screenBuffer.getVRes()) {
+    if (width[0]! !== this.screenBuffer.getHRes() || height[0]! !== this.screenBuffer.getVRes()) {
       VsdkLogger.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // This is the main loop for ray-casting
-    for (let y = 0; y < height[0]; y++) {
-      for (let x = 0; x < width[0]; x++) {
+    for (let y = 0; y < height[0]!; y++) {
+      for (let x = 0; x < width[0]!; x++) {
         const patch = idRenderer.getPatchAtPixel(x, y);
         if (patch !== null) {
           const rad = this.getRadianceAtPixel(scene.camera, x, y, patch, radianceMethod, renderOptions);

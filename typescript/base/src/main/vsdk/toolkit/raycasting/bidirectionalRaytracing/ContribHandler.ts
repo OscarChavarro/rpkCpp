@@ -42,7 +42,7 @@ export class ContribHandler {
       return result;
     }
 
-    return (this.array as FlagChainList[])[length].compute(path);
+    return (this.array as FlagChainList[])[length]!.compute(path);
   }
 
   public addRegExp(regExp: string | null): void {
@@ -68,7 +68,7 @@ export class ContribHandler {
   }
 
   protected getFlags(regExp: string, pos: number[], flags: number[]): boolean {
-    let p = pos[0];
+    let p = pos[0]!;
 
     flags[0] = 0;
 
@@ -170,20 +170,20 @@ export class ContribHandler {
   }
 
   protected getToken(regExp: string, pos: number[], token: string[], flags: number[]): boolean {
-    if (pos[0] >= regExp.length) {
+    if (pos[0]! >= regExp.length) {
       return false;
     }
 
-    switch (regExp.charAt(pos[0])) {
+    switch (regExp.charAt(pos[0]!)) {
       case "\0":
         return false;
       case "+":
         token[0] = "+";
-        pos[0]++;
+        pos[0]!++;
         break;
       case "*":
         token[0] = "*";
-        pos[0]++;
+        pos[0]!++;
         break;
       case "(":
         token[0] = "F";
@@ -218,7 +218,7 @@ export class ContribHandler {
         }
 
         tokenCount++;
-        flagArray[tokenCount] = data[0];
+        flagArray[tokenCount] = data[0]!;
         typeArray[tokenCount] = " ";
         countArray[tokenCount] = 0;
       }
@@ -234,12 +234,12 @@ export class ContribHandler {
             return;
           }
 
-          flagArray[tokenCount + 1] = flagArray[tokenCount];
+          flagArray[tokenCount + 1] = flagArray[tokenCount]!;
           tokenCount++;
           token[0] = "*";
         }
 
-        typeArray[tokenCount] = token[0];
+        typeArray[tokenCount] = token[0]!;
         countArray[tokenCount] = 0;
 
         if (token[0] === "*" || token[0] === "+") {
@@ -282,9 +282,9 @@ export class ContribHandler {
         for (let i = 0; i < tokenCount; i++) {
           if (typeArray[i] === " ") {
             if (c.chain !== null) {
-              c.chain[pos[0]] = flagArray[i];
+              c.chain[pos[0]!] = flagArray[i]!;
             }
-            pos[0]++;
+            pos[0]!++;
           }
           else {
             iteratorsFound++;
@@ -296,12 +296,12 @@ export class ContribHandler {
               }
             }
             else {
-              num = countArray[i];
+              num = countArray[i]!;
               if (iteratorsFound === 1) {
-                countArray[i]++;
+                countArray[i]!++;
                 nextIterationsDone++;
                 if (nextIterationsDone > maxIteration) {
-                  nextIterationsDone -= countArray[i];
+                  nextIterationsDone -= countArray[i]!;
                   countArray[i] = 0;
                   remember = 1;
                 }
@@ -310,10 +310,10 @@ export class ContribHandler {
                 }
               }
               else if (remember !== 0) {
-                countArray[i]++;
+                countArray[i]!++;
                 nextIterationsDone++;
                 if (nextIterationsDone > maxIteration) {
-                  nextIterationsDone -= countArray[i];
+                  nextIterationsDone -= countArray[i]!;
                   countArray[i] = 0;
                   remember = 1;
                 }
@@ -325,9 +325,9 @@ export class ContribHandler {
 
             for (let j = 0; j < num; j++) {
               if (c.chain !== null) {
-                c.chain[pos[0]] = flagArray[i];
+                c.chain[pos[0]!] = flagArray[i]!;
               }
-              pos[0]++;
+              pos[0]!++;
             }
           }
         }
@@ -340,7 +340,7 @@ export class ContribHandler {
         }
       }
 
-      (this.array as FlagChainList[])[length].add(tmpList.simplify());
+      (this.array as FlagChainList[])[length]!.add(tmpList.simplify());
     }
   }
 }

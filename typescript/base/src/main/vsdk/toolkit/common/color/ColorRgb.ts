@@ -185,27 +185,34 @@ export class ColorRgb {
 
   public static arrayCopy(result: ColorRgb[], source: ColorRgb[], n: number): void {
     for (let i = 0; i < n; i++) {
-      if (result[i] === undefined || result[i] === null) {
+      let dst = result[i];
+      if (dst === undefined || dst === null) {
         result[i] = new ColorRgb();
+        dst = result[i];
       }
-      if (source[i] === undefined || source[i] === null) {
-        result[i].clear();
+      const src = source[i];
+      if (src === undefined || src === null || dst === undefined) {
+        dst?.clear();
       }
       else {
-        result[i].set(source[i].r, source[i].g, source[i].b);
+        dst.set(src.r, src.g, src.b);
       }
     }
   }
 
   public static arrayAdd(result: ColorRgb[], source: ColorRgb[], n: number): void {
     for (let i = 0; i < n; i++) {
-      result[i].add(result[i], source[i]);
+      const dst = result[i];
+      const src = source[i];
+      if (dst !== undefined && src !== undefined) {
+        dst.add(dst, src);
+      }
     }
   }
 
   public static arrayClear(color: ColorRgb[], n: number): void {
     for (let i = 0; i < n; i++) {
-      color[i].clear();
+      color[i]?.clear();
     }
   }
 

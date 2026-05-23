@@ -31,7 +31,7 @@ export class LightList extends CircularList<LightInfo> {
     this.lastNormal = new Vector3D();
 
     for (let i = 0; list !== null && i < list.size(); i++) {
-      const light = list.get(i);
+      const light = list.get(i)!;
       const hasEdf = light.material !== null && light.material.getEdf() !== null;
       if ((!light.hasZeroVertices() || this.includeVirtual) && hasEdf) {
         const info = new LightInfo();
@@ -67,7 +67,7 @@ export class LightList extends CircularList<LightInfo> {
     let lastInfo: LightInfo | null = null;
     const iterator = new CircularListIterator<LightInfo>(this);
 
-    const rnd = x1[0] * this.totalFlux;
+      const rnd = x1[0]! * this.totalFlux;
 
     let info = iterator.nextOnSequence();
     while (info !== null && info.light !== null && info.light.hasZeroVertices() && !this.includeVirtual) {
@@ -98,7 +98,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info !== null) {
-      x1[0] = (x1[0] - ((currentSum - info.emittedFlux) / this.totalFlux))
+      x1[0] = (x1[0]! - ((currentSum - info.emittedFlux) / this.totalFlux))
         / (info.emittedFlux / this.totalFlux);
       if (pdf !== null && pdf.length > 0) {
         pdf[0] = info.emittedFlux / this.totalFlux;
@@ -268,7 +268,7 @@ export class LightList extends CircularList<LightInfo> {
       return this.sample(x1, pdf);
     }
 
-    const rnd = x1[0] * this.totalImp;
+    const rnd = x1[0]! * this.totalImp;
 
     let info = iterator.nextOnSequence();
     while (info !== null && info.light !== null && info.light.hasZeroVertices() && !this.includeVirtual) {
@@ -300,7 +300,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info !== null) {
-      x1[0] = (x1[0] - ((currentSum - info.importance) / this.totalImp))
+      x1[0] = (x1[0]! - ((currentSum - info.importance) / this.totalImp))
         / (info.importance / this.totalImp);
       if (pdf !== null && pdf.length > 0) {
         pdf[0] = info.importance / this.totalImp;

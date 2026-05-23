@@ -23,8 +23,8 @@ export class Spar {
   public init(config: SparConfig, radianceMethod: RadianceMethod | null): void {
     void radianceMethod;
     for (let i = 0; i < SparPathGroupInfo.MAX_PATH_GROUPS; i++) {
-      this.m_contrib[i].init(config.baseConfig!.maximumPathDepth);
-      this.m_sparList[i].removeAll();
+      this.m_contrib[i]!.init(config.baseConfig!.maximumPathDepth);
+      this.m_sparList[i]!.removeAll();
     }
   }
 
@@ -38,7 +38,7 @@ export class Spar {
 
     while (endPos < regExp.length) {
       if (regExp.charAt(endPos) === ",") {
-        this.m_contrib[group].addRegExp(regExp.substring(beginPos, endPos));
+        this.m_contrib[group]!.addRegExp(regExp.substring(beginPos, endPos));
         beginPos = endPos + 1;
       }
 
@@ -46,7 +46,7 @@ export class Spar {
     }
 
     if (beginPos !== endPos) {
-      this.m_contrib[group].addRegExp(regExp.substring(beginPos, endPos));
+      this.m_contrib[group]!.addRegExp(regExp.substring(beginPos, endPos));
     }
   }
 

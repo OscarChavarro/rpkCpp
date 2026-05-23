@@ -115,7 +115,7 @@ export class MgfParserLoader {
       if (argc >= ReaderContext.MGF_MAXIMUM_ARGUMENT_COUNT - 1) {
         return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
       }
-      argv[argc] = tokens[i];
+      argv[argc] = tokens[i]!;
       argc++;
     }
     if (argc === 0) {
@@ -174,18 +174,18 @@ export class MgfParserLoader {
     const newAv = new Array<string>(ColorContext.NUMBER_OF_SPECTRAL_SAMPLES + 4);
 
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC],
+      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC]!,
       HandlerRoleContext.HANDLE_COLOR,
     ) === false) {
       wl[0] = `${ColorContext.COLOR_MINIMUM_WAVE_LENGTH}`;
       wl[1] = `${ColorContext.COLOR_MAXIMUM_WAVE_LENGTH}`;
-      newAv[0] = context.entityNames[EntityTypeContext.C_SPEC];
+      newAv[0] = context.entityNames[EntityTypeContext.C_SPEC]!;
       newAv[1] = wl[0];
       newAv[2] = wl[1];
       const sf = ColorContext.NUMBER_OF_SPECTRAL_SAMPLES / (context.currentColor as ColorContext).spectralStraightSum;
       for (let i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-        buffer[i] = `${(sf * (context.currentColor as ColorContext).straightSamples[i]).toFixed(4)}`;
-        newAv[i + 3] = buffer[i];
+        buffer[i] = `${(sf * (context.currentColor as ColorContext).straightSamples[i]!).toFixed(4)}`;
+        newAv[i + 3] = buffer[i]!;
       }
       const status = MgfEntityControl.mgfHandle(
         EntityTypeContext.C_SPEC,
@@ -209,7 +209,7 @@ export class MgfParserLoader {
       `${(context.currentColor as ColorContext).cx.toFixed(4)}`,
       `${(context.currentColor as ColorContext).cy.toFixed(4)}`,
     ];
-    return MgfEntityControl.mgfHandle(EntityTypeContext.CXY, 3, cCom, context);
+    return MgfEntityControl.mgfHandle(EntityTypeContext.CXY, 3, cCom as string[], context);
   }
 
   /**
@@ -221,7 +221,7 @@ export class MgfParserLoader {
     // Convert to xy chromaticity
     (context.currentColor as ColorContext).fixColorRepresentation(ColorContext.COLOR_XY_IS_SET_FLAG);
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.CXY],
+      context.readerStackState.handleCallbacks[EntityTypeContext.CXY]!,
       HandlerRoleContext.HANDLE_COLOR,
     ) === false) {
       return MgfParserLoader.mgfPutCxy(context);
@@ -236,7 +236,7 @@ export class MgfParserLoader {
     void ac;
     void av;
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC],
+      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC]!,
       HandlerRoleContext.COLOR_SPEC_HELPER,
     )) {
       (context.currentColor as ColorContext).fixColorRepresentation(ColorContext.COLOR_XY_IS_SET_FLAG);
@@ -245,7 +245,7 @@ export class MgfParserLoader {
       return MgfParserLoader.mgfPutCSpec(context);
     }
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.CXY],
+      context.readerStackState.handleCallbacks[EntityTypeContext.CXY]!,
       HandlerRoleContext.HANDLE_COLOR,
     ) === false) {
       return MgfParserLoader.mgfPutCxy(context);
@@ -260,14 +260,14 @@ export class MgfParserLoader {
     void ac;
     void av;
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC],
+      context.readerStackState.handleCallbacks[EntityTypeContext.C_SPEC]!,
       HandlerRoleContext.COLOR_SPEC_HELPER,
     ) === false) {
       return MgfParserLoader.mgfPutCSpec(context);
     }
     (context.currentColor as ColorContext).fixColorRepresentation(ColorContext.COLOR_XY_IS_SET_FLAG);
     if (MgfParserLoader.mgfHandlerMatches(
-      context.readerStackState.handleCallbacks[EntityTypeContext.CXY],
+      context.readerStackState.handleCallbacks[EntityTypeContext.CXY]!,
       HandlerRoleContext.HANDLE_COLOR,
     ) === false) {
       return MgfParserLoader.mgfPutCxy(context);
@@ -284,14 +284,14 @@ export class MgfParserLoader {
       return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
-    let rv = MgfEntityControl.mgfOpen(readerContext, av[1], context);
+    let rv = MgfEntityControl.mgfOpen(readerContext, av[1]!, context);
     if (rv !== ParseErrorContext.MGF_OK) {
       return rv;
     }
     if (ac > 2) {
-      transformArgument[0] = context.entityNames[EntityTypeContext.TRANSFORM];
+      transformArgument[0] = context.entityNames[EntityTypeContext.TRANSFORM]!;
       for (let i = 1; i < ac - 1; i++) {
-        transformArgument[i] = av[i + 1];
+        transformArgument[i] = av[i + 1]!;
       }
       rv = MgfEntityControl.mgfHandle(
         EntityTypeContext.TRANSFORM,
@@ -467,7 +467,7 @@ export class MgfParserLoader {
         | (1 << EntityTypeContext.TRANSFORM);
     }
     if (handleCallbacks[EntityTypeContext.FACE] === null) {
-      handleCallbacks[EntityTypeContext.FACE] = handleCallbacks[EntityTypeContext.FACE_WITH_HOLES];
+      handleCallbacks[EntityTypeContext.FACE] = handleCallbacks[EntityTypeContext.FACE_WITH_HOLES]!;
     }
     else if (handleCallbacks[EntityTypeContext.FACE_WITH_HOLES] === null) {
       handleCallbacks[EntityTypeContext.FACE_WITH_HOLES] =
@@ -494,42 +494,42 @@ export class MgfParserLoader {
 
     // Add support as needed
     if ((iNeed & (1 << EntityTypeContext.VERTEX)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.VERTEX], HandlerRoleContext.HANDLE_VERTEX) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.VERTEX]!, HandlerRoleContext.HANDLE_VERTEX) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.VERTEX] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_VERTEX);
     }
     if ((iNeed & (1 << EntityTypeContext.MGF_POINT)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.MGF_POINT], HandlerRoleContext.HANDLE_VERTEX) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.MGF_POINT]!, HandlerRoleContext.HANDLE_VERTEX) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.MGF_POINT] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_VERTEX);
     }
     if ((iNeed & (1 << EntityTypeContext.MGF_NORMAL)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.MGF_NORMAL], HandlerRoleContext.HANDLE_VERTEX) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.MGF_NORMAL]!, HandlerRoleContext.HANDLE_VERTEX) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.MGF_NORMAL] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_VERTEX);
     }
     if ((iNeed & (1 << EntityTypeContext.COLOR)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.COLOR], HandlerRoleContext.HANDLE_COLOR) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.COLOR]!, HandlerRoleContext.HANDLE_COLOR) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.COLOR] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_COLOR);
     }
     if ((iNeed & (1 << EntityTypeContext.CXY)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.CXY], HandlerRoleContext.HANDLE_COLOR) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.CXY]!, HandlerRoleContext.HANDLE_COLOR) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.CXY] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_COLOR);
     }
     if ((iNeed & (1 << EntityTypeContext.C_SPEC)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.C_SPEC], HandlerRoleContext.HANDLE_COLOR) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.C_SPEC]!, HandlerRoleContext.HANDLE_COLOR) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.C_SPEC] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_COLOR);
     }
     if ((iNeed & (1 << EntityTypeContext.C_MIX)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.C_MIX], HandlerRoleContext.HANDLE_COLOR) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.C_MIX]!, HandlerRoleContext.HANDLE_COLOR) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.C_MIX] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_COLOR);
     }
     if ((iNeed & (1 << EntityTypeContext.CCT)) !== 0
-      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.CCT], HandlerRoleContext.HANDLE_COLOR) === false) {
+      && MgfParserLoader.mgfHandlerMatches(handleCallbacks[EntityTypeContext.CCT]!, HandlerRoleContext.HANDLE_COLOR) === false) {
       context.readerStackState.supportCallbacks[EntityTypeContext.CCT] =
         MgfParserLoader.mgfHandlerFromType(context, HandlerRoleContext.HANDLE_COLOR);
     }
@@ -671,13 +671,13 @@ export class MgfParserLoader {
       status = MgfEntityControl.mgfOpen(mgfReaderContext, filename, context);
     }
     if (status !== 0) {
-      MgfEntityControl.doError(context.errorCodeMessages[status], context);
+      MgfEntityControl.doError(context.errorCodeMessages[status]!, context);
     }
     else {
       while (MgfParserLoader.mgfReadNextLine(context) > 0 && status === 0) {
         status = MgfParserLoader.mgfParseCurrentLine(context);
         if (status !== 0) {
-          MgfEntityControl.doError(context.errorCodeMessages[status], context);
+          MgfEntityControl.doError(context.errorCodeMessages[status]!, context);
         }
       }
       MgfEntityControl.mgfClose(context);
@@ -702,7 +702,7 @@ export class MgfParserLoader {
       let innerCompoundChildren = 0;
       let unknowns = 0;
       for (let i = 0; i < context.currentGeometryList.length; i++) {
-        const geometry = context.currentGeometryList[i];
+        const geometry = context.currentGeometryList[i]!;
         if (geometry.className === GeometryClassId.SURFACE_MESH) {
           surfaces++;
         }

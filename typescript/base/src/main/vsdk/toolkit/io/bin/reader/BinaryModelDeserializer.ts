@@ -129,23 +129,23 @@ export class BinaryModelDeserializer {
       const countOut = [0];
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "vectors", countOut));
-      vectorCount = countOut[0];
+      vectorCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "vertices", countOut));
-      vertexCount = countOut[0];
+      vertexCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "patches", countOut));
-      patchCount = countOut[0];
+      patchCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "materials", countOut));
-      materialCount = countOut[0];
+      materialCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "geometries", countOut));
-      geometryCount = countOut[0];
+      geometryCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "color contexts", countOut));
-      colorContextCount = countOut[0];
+      colorContextCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "reader contexts", countOut));
-      readerContextCount = countOut[0];
+      readerContextCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "transform arrays", countOut));
-      transformArrayCount = countOut[0];
+      transformArrayCount = countOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNonNegativeCount(input, "transform contexts", countOut));
-      transformContextCount = countOut[0];
+      transformContextCount = countOut[0]!;
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.initializeArrayList(vectors, vectorCount, null, "vectors"));
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.initializeArrayList(vertices, vertexCount, null, "vertices"));
@@ -308,7 +308,7 @@ export class BinaryModelDeserializer {
         ));
         const readerContext = readerContexts[i];
         if (readerContext !== null) {
-          readerContext.prev = prevOut.value;
+          readerContext!.prev = prevOut.value;
         }
       }
 
@@ -320,9 +320,9 @@ export class BinaryModelDeserializer {
         transformArray.startingPosition.offset = BinaryModelReadPrimitives.readInt64LE(input);
         transformArray.numberOfDimensions = BinaryModelReadPrimitives.readInt32LE(input);
         for (let j = 0; j < TransformSequenceContext.TRANSFORM_MAXIMUM_DIMENSIONS; j++) {
-          transformArray.transformArguments[j].i = BinaryModelReadPrimitives.readInt16LE(input);
-          transformArray.transformArguments[j].n = BinaryModelReadPrimitives.readInt16LE(input);
-          transformArray.transformArguments[j].arg = BinaryModelDeserializer.readFixedCString(input, 8, 7);
+          transformArray.transformArguments[j]!.i = BinaryModelReadPrimitives.readInt16LE(input);
+          transformArray.transformArguments[j]!.n = BinaryModelReadPrimitives.readInt16LE(input);
+          transformArray.transformArguments[j]!.arg = BinaryModelDeserializer.readFixedCString(input, 8, 7);
         }
         transformArrays[i] = transformArray;
       }
@@ -340,7 +340,7 @@ export class BinaryModelDeserializer {
 
         for (let row = 0; row < 4; row++) {
           for (let col = 0; col < 4; col++) {
-            transformContext.xf.transformMatrix.m[row][col] = BinaryModelReadPrimitives.readDoubleLE(input);
+            transformContext.xf.transformMatrix.m[row]![col] = BinaryModelReadPrimitives.readDoubleLE(input);
           }
         }
         transformContext.xf.scaleFactor = BinaryModelReadPrimitives.readDoubleLE(input);
@@ -364,7 +364,7 @@ export class BinaryModelDeserializer {
           "transformContext.transformationArray",
           transformArrayOut
         ));
-        transformContext.transformationArray = transformArrayOut.value;
+        transformContext!.transformationArray = transformArrayOut.value;
 
         const prevOut = new BinaryModelReadPrimitives.Out<TransformStackContext | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(
@@ -373,7 +373,7 @@ export class BinaryModelDeserializer {
           "transformContext.prev",
           prevOut
         ));
-        transformContext.prev = prevOut.value;
+        transformContext!.prev = prevOut.value;
       }
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.expectTag(input, "VRTX"));
@@ -421,7 +421,7 @@ export class BinaryModelDeserializer {
         const record = vertexRecords[i] as BinaryModelVertexRecordData;
         const backOut = new BinaryModelReadPrimitives.Out<Vertex | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.backIndex, "vertex.back", backOut));
-        vertex.back = backOut.value;
+        vertex!.back = backOut.value;
       }
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.expectTag(input, "PTCH"));
@@ -476,11 +476,11 @@ export class BinaryModelDeserializer {
         const v2Out = new BinaryModelReadPrimitives.Out<Vertex | null>();
         const v3Out = new BinaryModelReadPrimitives.Out<Vertex | null>();
         const v4Out = new BinaryModelReadPrimitives.Out<Vertex | null>();
-        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[0], "patch.vertex[0]", v1Out));
-        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[1], "patch.vertex[1]", v2Out));
-        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[2], "patch.vertex[2]", v3Out));
+        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[0]!, "patch.vertex[0]", v1Out));
+        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[1]!, "patch.vertex[1]", v2Out));
+        BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[2]!, "patch.vertex[2]", v3Out));
         if (record.numberOfVertices === 4) {
-          BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[3], "patch.vertex[3]", v4Out));
+          BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[3]!, "patch.vertex[3]", v4Out));
         }
 
         const patch = new Patch(record.numberOfVertices, v1Out.value, v2Out.value, v3Out.value, v4Out.value);
@@ -518,7 +518,7 @@ export class BinaryModelDeserializer {
       }
 
       for (let i = 0; i < patchCount; i++) {
-        const patch = patches[i];
+        const patch = patches[i]!;
         if (patch === null) {
           continue;
         }
@@ -526,7 +526,7 @@ export class BinaryModelDeserializer {
         const record = patchRecords[i] as BinaryModelPatchRecordData;
         const twinOut = new BinaryModelReadPrimitives.Out<Patch | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(patches, record.twinIndex, "patch.twin", twinOut));
-        patch.twin = twinOut.value;
+        patch!.twin = twinOut.value;
       }
 
       for (let i = 0; i < vertexCount; i++) {
@@ -542,7 +542,7 @@ export class BinaryModelDeserializer {
           "vertex.patches",
           patchListOut
         ));
-        vertex.patches = patchListOut.value as Array<Patch> | null;
+        vertex!.patches = patchListOut.value as Array<Patch> | null;
       }
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.expectTag(input, "GEOM"));
@@ -572,8 +572,8 @@ export class BinaryModelDeserializer {
           const objectName: Array<string | null> = [null];
           const hasObjectName = [false];
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNullableString(input, objectName, hasObjectName));
-          record.objectName = objectName[0];
-          record.hasObjectName = hasObjectName[0];
+          record.objectName = objectName[0]!;
+          record.hasObjectName = hasObjectName[0]!;
           record.meshId = BinaryModelReadPrimitives.readInt32LE(input);
           record.materialIndex = BinaryModelReadPrimitives.readInt32LE(input);
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "surface.positions", record.positions));
@@ -678,14 +678,14 @@ export class BinaryModelDeserializer {
       const textOut: Array<string | null> = [null];
       const hasTextOut = [false];
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNullableString(input, textOut, hasTextOut));
-      modelRecord.currentMaterialName = textOut[0];
-      modelRecord.hasCurrentMaterialName = hasTextOut[0];
+      modelRecord.currentMaterialName = textOut[0]!;
+      modelRecord.hasCurrentMaterialName = hasTextOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNullableString(input, textOut, hasTextOut));
-      modelRecord.currentObjectName = textOut[0];
-      modelRecord.hasCurrentObjectName = hasTextOut[0];
+      modelRecord.currentObjectName = textOut[0]!;
+      modelRecord.hasCurrentObjectName = hasTextOut[0]!;
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.readNullableString(input, textOut, hasTextOut));
-      modelRecord.currentVertexName = textOut[0];
-      modelRecord.hasCurrentVertexName = hasTextOut[0];
+      modelRecord.currentVertexName = textOut[0]!;
+      modelRecord.hasCurrentVertexName = hasTextOut[0]!;
       modelRecord.geometryStackHeadIndex = BinaryModelReadPrimitives.readInt32LE(input);
       modelRecord.inComplex = BinaryModelReadPrimitives.readBool(input);
       modelRecord.inSurface = BinaryModelReadPrimitives.readBool(input);
@@ -751,7 +751,7 @@ export class BinaryModelDeserializer {
 
       let maxPatchId = 0;
       for (let i = 0; i < patches.length; i++) {
-        const patch = patches[i];
+        const patch = patches[i]!;
         if (patch !== null && patch.id > maxPatchId) {
           maxPatchId = patch.id;
         }
@@ -760,7 +760,7 @@ export class BinaryModelDeserializer {
 
       let maxGeometryId = -1;
       for (let i = 0; i < geometries.length; i++) {
-        const geometry = geometries[i];
+        const geometry = geometries[i]!;
         if (geometry !== null && geometry.id > maxGeometryId) {
           maxGeometryId = geometry.id;
         }

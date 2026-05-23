@@ -80,7 +80,7 @@ export class Basistrimcrad {
     for (let i = 0; i < a; i++) {
       out[i] = new Array<number[]>(b);
       for (let j = 0; j < b; j++) {
-        out[i][j] = new Array<number>(c).fill(0.0);
+        out[i]![j] = new Array<number>(c).fill(0.0);
       }
     }
     return out;

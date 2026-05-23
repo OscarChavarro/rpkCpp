@@ -74,8 +74,9 @@ export class OptionParser<TOptionBase extends OptionBase> {
     }
 
     const mutableArgv = argv as Array<string | null>;
+    const argCount = argc[0] ?? 0;
 
-    for (let i = 0; i < argc[0]; i++) {
+    for (let i = 0; i < argCount; i++) {
       if (mutableArgv[i] === null) {
         continue;
       }
@@ -83,12 +84,18 @@ export class OptionParser<TOptionBase extends OptionBase> {
       let matched = false;
       for (let g = 0; g < groupCount && !matched; g++) {
         const group = groups[g];
+        if (group === undefined) {
+          continue;
+        }
         if (group.options === null || group.count <= 0) {
           continue;
         }
 
         for (let j = 0; j < group.count; j++) {
           const option = group.options[j];
+          if (option === undefined) {
+            continue;
+          }
 
           if (!option.isConfigured()) {
             continue;
@@ -96,7 +103,7 @@ export class OptionParser<TOptionBase extends OptionBase> {
 
           if (
             !TypedOption.matchOption(
-              mutableArgv[i],
+              mutableArgv[i] ?? null,
               option.getName(),
               option.getAbbreviationLength()
             )
@@ -106,7 +113,7 @@ export class OptionParser<TOptionBase extends OptionBase> {
 
           const consumesValue = option.consumesValue();
           if (consumesValue !== 0) {
-            if (i + consumesValue >= argc[0]) {
+            if (i + consumesValue >= argCount) {
               return false;
             }
 
@@ -151,12 +158,13 @@ export class OptionParser<TOptionBase extends OptionBase> {
     }
 
     let writeIndex = 0;
-    for (let readIndex = 0; readIndex < argc[0]; readIndex++) {
-      if (mutableArgv[readIndex] !== null) {
-        mutableArgv[writeIndex++] = mutableArgv[readIndex];
+    for (let readIndex = 0; readIndex < argCount; readIndex++) {
+      const arg = mutableArgv[readIndex];
+      if (arg !== null && arg !== undefined) {
+        mutableArgv[writeIndex++] = arg;
       }
     }
-    for (let i = writeIndex; i < argc[0]; i++) {
+    for (let i = writeIndex; i < argCount; i++) {
       mutableArgv[i] = null;
     }
 

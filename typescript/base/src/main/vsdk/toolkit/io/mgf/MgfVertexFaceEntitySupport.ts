@@ -43,7 +43,7 @@ export class MgfVertexFaceEntitySupport {
   duplicating the code.
   */
   private static doDiscreteConic(argc: number, argv: string[], context: ParseRuntimeContext): number {
-    const en = MgfEntityControl.mgfEntity(argv[0], context);
+    const en = MgfEntityControl.mgfEntity(argv[0]!, context);
 
     switch (en) {
       case EntityTypeContext.SPHERE:
@@ -181,10 +181,10 @@ export class MgfVertexFaceEntitySupport {
     const n = new Vector3D();
 
     n.set(0, 0, 0);
-    cur.subtraction(v[numberOfVertices - 1].point, v[0].point);
+    cur.subtraction(v[numberOfVertices - 1]!.point, v[0]!.point);
     for (let i = 0; i < numberOfVertices; i++) {
       const prev = new Vector3D(cur.x, cur.y, cur.z);
-      cur.subtraction(v[i].point, v[0].point);
+      cur.subtraction(v[i]!.point, v[0]!.point);
       n.x += (prev.y - cur.y) * (prev.z + cur.z);
       n.y += (prev.z - cur.z) * (prev.x + cur.x);
       n.z += (prev.x - cur.x) * (prev.y + cur.y);
@@ -236,20 +236,20 @@ export class MgfVertexFaceEntitySupport {
 
     const index = normal.dominantCoordinate();
     for (let i = 0; i < numberOfVertices; i++) {
-      MgfVertexFaceEntitySupport.vectorProject(v2d[i], v[i].point, index);
+      MgfVertexFaceEntitySupport.vectorProject(v2d[i]!, v[i]!.point, index);
     }
 
-    p.x = v2d[3].x - v2d[2].x;
-    p.y = v2d[3].y - v2d[2].y;
-    c.x = v2d[0].x - v2d[3].x;
-    c.y = v2d[0].y - v2d[3].y;
+    p.x = v2d[3]!.x - v2d[2]!.x;
+    p.y = v2d[3]!.y - v2d[2]!.y;
+    c.x = v2d[0]!.x - v2d[3]!.x;
+    c.y = v2d[0]!.y - v2d[3]!.y;
     const sign = (p.x * c.y > c.x * p.y) ? 1 : -1;
 
     for (let i = 1; i < numberOfVertices; i++) {
       p.x = c.x;
       p.y = c.y;
-      c.x = v2d[i].x - v2d[i - 1].x;
-      c.y = v2d[i].y - v2d[i - 1].y;
+      c.x = v2d[i]!.x - v2d[i - 1]!.x;
+      c.y = v2d[i]!.y - v2d[i - 1]!.y;
       if (((p.x * c.y > c.x * p.y) ? 1 : -1) !== sign) {
         return false;
       }
@@ -382,14 +382,14 @@ export class MgfVertexFaceEntitySupport {
     const center = new Vector3D();
     center.set(0.0, 0.0, 0.0);
     for (let i = 0; i < n; i++) {
-      center.addition(center, v[i].point);
+      center.addition(center, v[i]!.point);
     }
     center.inverseScaledCopy(n, center, Numeric.EPSILON_FLOAT);
 
-    let maxD = center.distance(v[0].point);
+    let maxD = center.distance(v[0]!.point);
     let max = 0;
     for (let i = 1; i < n; i++) {
-      const d = center.distance(v[i].point);
+      const d = center.distance(v[i]!.point);
       if (d > maxD) {
         maxD = d;
         max = i;
@@ -407,14 +407,14 @@ export class MgfVertexFaceEntitySupport {
       p0 = n - 1;
     }
     let p2 = (p1 + 1) % n;
-    normal.tripleCrossProduct(v[p0].point, v[p1].point, v[p2].point);
+    normal.tripleCrossProduct(v[p0]!.point, v[p1]!.point, v[p2]!.point);
     normal.normalize(Numeric.EPSILON_FLOAT);
     const index = normal.dominantCoordinate();
 
     const q = new Array<Vector2D>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
     for (let i = 0; i < n; i++) {
       q[i] = new Vector2D();
-      MgfVertexFaceEntitySupport.vectorProject(q[i], v[i].point, index);
+      MgfVertexFaceEntitySupport.vectorProject(q[i]!, v[i]!.point, index);
     }
 
     let corners = n;
@@ -447,7 +447,7 @@ export class MgfVertexFaceEntitySupport {
           break;
         }
 
-        nn.tripleCrossProduct(v[p0].point, v[p1].point, v[p2].point);
+        nn.tripleCrossProduct(v[p0]!.point, v[p1]!.point, v[p2]!.point);
         a = nn.norm();
         nn.inverseScaledCopy(a, nn, Numeric.EPSILON_FLOAT);
         d = nn.distance(normal);
@@ -459,7 +459,7 @@ export class MgfVertexFaceEntitySupport {
               continue;
             }
 
-            if (MgfVertexFaceEntitySupport.pointInsideTriangle2D(q[i], q[p0], q[p1], q[p2])) {
+            if (MgfVertexFaceEntitySupport.pointInsideTriangle2D(q[i]!, q[p0]!, q[p1]!, q[p2]!)) {
               good = false;
             }
 
@@ -468,7 +468,7 @@ export class MgfVertexFaceEntitySupport {
               continue;
             }
 
-            if (MgfVertexFaceEntitySupport.segmentsIntersect2D(q[p2], q[p0], q[i], q[j])) {
+            if (MgfVertexFaceEntitySupport.segmentsIntersect2D(q[p2]!, q[p0]!, q[i]!, q[j]!)) {
               good = false;
             }
           }
@@ -482,9 +482,9 @@ export class MgfVertexFaceEntitySupport {
 
       if (globalThis.Math.abs(a) > Numeric.EPSILON) {
         // Avoid degenerate faces
-        const face = MgfVertexFaceEntitySupport.newFace(v[p0], v[p1], v[p2], null, context);
+        const face = MgfVertexFaceEntitySupport.newFace(v[p0]!, v[p1]!, v[p2]!, null, context);
         if (context.currentMaterial !== null && context.currentMaterial.isSided() === false && face !== null) {
-          const twin = MgfVertexFaceEntitySupport.newFace(backVertex[p2], backVertex[p1], backVertex[p0], null, context);
+          const twin = MgfVertexFaceEntitySupport.newFace(backVertex[p2]!, backVertex[p1]!, backVertex[p0]!, null, context);
           face.twin = twin;
           if (twin !== null) {
             twin.twin = face;
@@ -518,22 +518,22 @@ export class MgfVertexFaceEntitySupport {
       MgfObjectNameSupport.mgfObjectNewSurface(context);
       const holder = [context.currentMaterial as Material];
       MgfMaterialEntitySupport.mgfGetCurrentMaterial(holder, context.singleSided, context);
-      context.currentMaterial = holder[0];
-      context.materialState.currentMaterial = holder[0];
+      context.currentMaterial = holder[0] ?? null;
+      context.materialState.currentMaterial = holder[0] ?? null;
     }
 
     const v = new Array<Vertex>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
     const backV = new Array<Vertex | null>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1).fill(null);
 
     for (let i = 0; i < argc - 1; i++) {
-      const vertex = MgfVertexFaceEntitySupport.getVertex(argv[i + 1], context);
+      const vertex = MgfVertexFaceEntitySupport.getVertex(argv[i + 1]!, context);
       if (vertex === null) {
         return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
       }
       v[i] = vertex;
       backV[i] = null;
       if (context.currentMaterial !== null && context.currentMaterial.isSided() === false) {
-        backV[i] = MgfVertexFaceEntitySupport.getBackFaceVertex(v[i], context);
+        backV[i] = MgfVertexFaceEntitySupport.getBackFaceVertex(v[i]!, context);
       }
     }
 
@@ -549,9 +549,9 @@ export class MgfVertexFaceEntitySupport {
 
     if (argc === 4) {
       // Triangles
-      face = MgfVertexFaceEntitySupport.newFace(v[0], v[1], v[2], null, context);
+      face = MgfVertexFaceEntitySupport.newFace(v[0]!, v[1]!, v[2]!, null, context);
       if (context.currentMaterial !== null && context.currentMaterial.isSided() === false && face !== null) {
-        twin = MgfVertexFaceEntitySupport.newFace(backV[2], backV[1], backV[0], null, context);
+        twin = MgfVertexFaceEntitySupport.newFace(backV[2]!, backV[1]!, backV[0]!, null, context);
         face.twin = twin;
         if (twin !== null) {
           twin.twin = face;
@@ -561,9 +561,9 @@ export class MgfVertexFaceEntitySupport {
     else if (argc === 5) {
       // Quadrilaterals
       if (context.inComplex || MgfVertexFaceEntitySupport.faceIsConvex(argc - 1, v, normal)) {
-        face = MgfVertexFaceEntitySupport.newFace(v[0], v[1], v[2], v[3], context);
+        face = MgfVertexFaceEntitySupport.newFace(v[0]!, v[1]!, v[2]!, v[3]!, context);
         if (context.currentMaterial !== null && context.currentMaterial.isSided() === false && face !== null) {
-          twin = MgfVertexFaceEntitySupport.newFace(backV[3], backV[2], backV[1], backV[0], context);
+          twin = MgfVertexFaceEntitySupport.newFace(backV[3]!, backV[2]!, backV[1]!, backV[0]!, context);
           face.twin = twin;
           if (twin !== null) {
             twin.twin = face;
@@ -597,8 +597,8 @@ export class MgfVertexFaceEntitySupport {
     MgfObjectNameSupport.mgfObjectNewSurface(context);
     const holder = [context.currentMaterial as Material];
     MgfMaterialEntitySupport.mgfGetCurrentMaterial(holder, context.singleSided, context);
-    context.currentMaterial = holder[0];
-    context.materialState.currentMaterial = holder[0];
+    context.currentMaterial = holder[0] ?? null;
+    context.materialState.currentMaterial = holder[0] ?? null;
 
     const errcode = MgfVertexFaceEntitySupport.doDiscreteConic(argc, argv, context);
 
@@ -623,7 +623,7 @@ export class MgfVertexFaceEntitySupport {
     let lp: LookUpEntity<VertexContext> | null;
     let currentVertexContext = context.vertexRepository.currentVertex;
 
-    switch (MgfEntityControl.mgfEntity(av[0], context)) {
+    switch (MgfEntityControl.mgfEntity(av[0]!, context)) {
       case EntityTypeContext.VERTEX:
         // Get/set vertex context
         if (ac > 4) {
@@ -638,10 +638,10 @@ export class MgfVertexFaceEntitySupport {
           context.geometryBuildState.currentVertexName = null;
           return ParseErrorContext.MGF_OK;
         }
-        if (TokenValidationContext.isName(av[1]) === false) {
+        if (TokenValidationContext.isName(av[1]!) === false) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
-        lp = (context.vertexRepository.vertexLookUpTable as any).lookUpFind(av[1]);
+        lp = (context.vertexRepository.vertexLookUpTable as any).lookUpFind(av[1]!);
         // Lookup context
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
@@ -657,12 +657,12 @@ export class MgfVertexFaceEntitySupport {
           }
           return ParseErrorContext.MGF_OK;
         }
-        if (av[2].length !== 1 || av[2].charAt(0) !== "=") {
+        if (av[2]!.length !== 1 || av[2]!.charAt(0) !== "=") {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (currentVertexContext === null) {
           // Create new vertex context
-          context.currentVertexName = av[1];
+          context.currentVertexName = av[1]!;
           context.geometryBuildState.currentVertexName = context.currentVertexName;
           lp.key = context.currentVertexName;
           currentVertexContext = new VertexContext();
@@ -674,7 +674,7 @@ export class MgfVertexFaceEntitySupport {
           currentVertexContext.copy(context.vertexRepository.defaultVertexContext);
           return ParseErrorContext.MGF_OK;
         }
-        lp = (context.vertexRepository.vertexLookUpTable as any).lookUpFind(av[3]);
+        lp = (context.vertexRepository.vertexLookUpTable as any).lookUpFind(av[3]!);
         // Lookup template
         if (lp === null) {
           return ParseErrorContext.MGF_ERROR_OUT_OF_MEMORY;
@@ -691,18 +691,18 @@ export class MgfVertexFaceEntitySupport {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         if (
-          TokenValidationContext.isFloat(av[1]) === false
-          || TokenValidationContext.isFloat(av[2]) === false
-          || TokenValidationContext.isFloat(av[3]) === false
+          TokenValidationContext.isFloat(av[1]!) === false
+          || TokenValidationContext.isFloat(av[2]!) === false
+          || TokenValidationContext.isFloat(av[3]!) === false
         ) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (currentVertexContext === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        currentVertexContext.p.x = Number.parseFloat(av[1]);
-        currentVertexContext.p.y = Number.parseFloat(av[2]);
-        currentVertexContext.p.z = Number.parseFloat(av[3]);
+        currentVertexContext.p.x = Number.parseFloat(av[1]!);
+        currentVertexContext.p.y = Number.parseFloat(av[2]!);
+        currentVertexContext.p.z = Number.parseFloat(av[3]!);
         currentVertexContext.clock++;
         return ParseErrorContext.MGF_OK;
       case EntityTypeContext.MGF_NORMAL:
@@ -711,18 +711,18 @@ export class MgfVertexFaceEntitySupport {
           return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         if (
-          TokenValidationContext.isFloat(av[1]) === false
-          || TokenValidationContext.isFloat(av[2]) === false
-          || TokenValidationContext.isFloat(av[3]) === false
+          TokenValidationContext.isFloat(av[1]!) === false
+          || TokenValidationContext.isFloat(av[2]!) === false
+          || TokenValidationContext.isFloat(av[3]!) === false
         ) {
           return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
         }
         if (currentVertexContext === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        currentVertexContext.n.x = Number.parseFloat(av[1]);
-        currentVertexContext.n.y = Number.parseFloat(av[2]);
-        currentVertexContext.n.z = Number.parseFloat(av[3]);
+        currentVertexContext.n.x = Number.parseFloat(av[1]!);
+        currentVertexContext.n.y = Number.parseFloat(av[2]!);
+        currentVertexContext.n.z = Number.parseFloat(av[3]!);
         currentVertexContext.n.normalizeAndGivePreviousNorm(Numeric.EPSILON);
         currentVertexContext.clock++;
         return ParseErrorContext.MGF_OK;

@@ -18,7 +18,7 @@ export class OptionsGroupPhotonMap {
       return false;
     }
     const parsed = new OptionTextUtils.TypedIntValue(value.value);
-    if (!OptionTextUtils.parseBoolInt(argv[0], parsed)) {
+    if (!OptionTextUtils.parseBoolInt(argv[0]!, parsed)) {
       return false;
     }
     value.value = parsed.value;

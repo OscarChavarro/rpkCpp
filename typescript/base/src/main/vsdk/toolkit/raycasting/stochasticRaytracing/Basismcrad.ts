@@ -45,8 +45,8 @@ export class Basismcrad {
     }
 
     const out = Basismcrad.cloneBasis(basis);
-    out.size = basisState.approxDesc[at].basis_size;
-    out.description = `${basisState.approxDesc[at].name} orthonormal basis for ${elem}`;
+    out.size = basisState.approxDesc[at]!.basis_size;
+    out.description = `${basisState.approxDesc[at]!.name} orthonormal basis for ${elem}`;
 
     return out;
   }
@@ -80,9 +80,9 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
         for (let k = 0; k < cr.numberOfNodes; k++) {
           const up = new Vector2D(cr.u[k], cr.v[k]);
           upxfm.transformPoint2D(up, up);
-          x += cr.w[k] * parentBasis.function![a](up.x, up.y) * childBasis.function![b](cr.u[k], cr.v[k]);
+          x += cr.w[k]! * parentBasis.function![a]!(up.x, up.y) * childBasis.function![b]!(cr.u[k]!, cr.v[k]!);
         }
-        filter[a][b] = x;
+        filter[a]![b] = x;
       }
     }
   }
@@ -104,9 +104,9 @@ basis->regular_filter table
         basis.size,
         basis,
         basis.size,
-        upxfm[s],
+        upxfm[s]!,
         cr,
-        basis.regularFilter![s]
+        basis.regularFilter![s]!
       );
     }
   }
@@ -133,7 +133,7 @@ Initialises table of bases
 
     for (let et = 0; et < StochasticRadiosityElementTypeInfo.NUMBER_OF_ELEMENT_TYPES; et++) {
       for (let at = 0; at < StochasticRadiosityBasisState.NUMBER_OF_APPROXIMATION_TYPES; at++) {
-        basisState.basis[et][at] = Basismcrad.makeBasis(et as StochasticRadiosityElementType, at as StochasticRaytracingApproximation);
+        basisState.basis[et]![at] = Basismcrad.makeBasis(et as StochasticRadiosityElementType, at as StochasticRaytracingApproximation);
       }
     }
     basisState.inited = true;
@@ -146,8 +146,8 @@ Returns color at a given point, with parameters (u,v)
     const res = new ColorRgb();
     res.clear();
     for (let i = 0; i < basis.size; i++) {
-      const s = basis.function![i](u, v);
-      res.addScaled(res, s, rad[i]);
+      const s = basis.function![i]!(u, v);
+      res.addScaled(res, s, rad[i]!);
     }
     return res;
   }
@@ -159,7 +159,7 @@ the result to the destination coefficients
   public static filterColorDown(parent: ColorRgb[], h: number[][], child: ColorRgb[], n: number): void {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        child[i].addScaled(child[i], h[j][i], parent[j]);
+        child[i]!.addScaled(child[i]!, h[j]![i]!, parent[j]!);
       }
     }
   }
@@ -167,8 +167,8 @@ the result to the destination coefficients
   public static filterColorUp(child: ColorRgb[], h: number[][], parent: ColorRgb[], n: number, areaFactor: number): void {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        const H = h[i][j] * areaFactor;
-        parent[i].addScaled(parent[i], H, child[j]);
+        const H = h[i]![j]! * areaFactor;
+        parent[i]!.addScaled(parent[i]!, H, child[j]!);
       }
     }
   }
@@ -240,9 +240,9 @@ the result to the destination coefficients
   private static create3DArray(a: number, b: number, c: number): number[][][] {
     const out = new Array<number[][]>(a);
     for (let i = 0; i < a; i++) {
-      out[i] = new Array<number[]>(b);
+      out[i]! = new Array<number[]>(b);
       for (let j = 0; j < b; j++) {
-        out[i][j] = new Array<number>(c).fill(0.0);
+        out[i]![j] = new Array<number>(c).fill(0.0);
       }
     }
     return out;

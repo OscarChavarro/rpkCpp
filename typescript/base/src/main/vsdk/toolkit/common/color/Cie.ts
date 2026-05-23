@@ -97,21 +97,39 @@ export class Cie {
     h: number,
     i: number
   ): void {
-    mat[0][0] = a;
-    mat[0][1] = b;
-    mat[0][2] = c;
-    mat[1][0] = d;
-    mat[1][1] = e;
-    mat[1][2] = f;
-    mat[2][0] = g;
-    mat[2][1] = h;
-    mat[2][2] = i;
+    const row0 = mat[0];
+    const row1 = mat[1];
+    const row2 = mat[2];
+    if (row0 === undefined || row1 === undefined || row2 === undefined) {
+      return;
+    }
+    row0[0] = a;
+    row0[1] = b;
+    row0[2] = c;
+    row1[0] = d;
+    row1[1] = e;
+    row1[2] = f;
+    row2[0] = g;
+    row2[1] = h;
+    row2[2] = i;
   }
 
   private static colorTransform(col: number[], mat: number[][], res: number[]): void {
-    res[0] = mat[0][0] * col[0] + mat[0][1] * col[1] + mat[0][2] * col[2];
-    res[1] = mat[1][0] * col[0] + mat[1][1] * col[1] + mat[1][2] * col[2];
-    res[2] = mat[2][0] * col[0] + mat[2][1] * col[1] + mat[2][2] * col[2];
+    const row0 = mat[0];
+    const row1 = mat[1];
+    const row2 = mat[2];
+    const c0 = col[0];
+    const c1 = col[1];
+    const c2 = col[2];
+    if (
+      row0 === undefined || row1 === undefined || row2 === undefined ||
+      c0 === undefined || c1 === undefined || c2 === undefined
+    ) {
+      return;
+    }
+    res[0] = row0[0]! * c0 + row0[1]! * c1 + row0[2]! * c2;
+    res[1] = row1[0]! * c0 + row1[1]! * c1 + row1[2]! * c2;
+    res[2] = row2[0]! * c0 + row2[1]! * c1 + row2[2]! * c2;
   }
 
   public static transformColorFromXYZ2RGB(xyz: number[], rgb: number[]): void {
@@ -121,7 +139,8 @@ export class Cie {
   public static clipGamut(rgb: number[]): boolean {
     let desaturated = false;
     for (let i = 0; i < 3; i++) {
-      if (rgb[i] < 0.0) {
+      const value = rgb[i];
+      if (value !== undefined && value < 0.0) {
         rgb[i] = 0.0;
         desaturated = true;
       }

@@ -41,19 +41,25 @@ export class VSDK {
   }
 
   public static acumulatePrimitiveCount(type: number, count: number): void {
-    VSDK.primitiveCount[type] += count;
+    const current = VSDK.primitiveCount[type];
+    if (current !== undefined) {
+      VSDK.primitiveCount[type] = current + count;
+    }
   }
 
   public static acumulateIntersectionCount(type: number, count: number): void {
-    VSDK.intersectionCount[type] += count;
+    const current = VSDK.intersectionCount[type];
+    if (current !== undefined) {
+      VSDK.intersectionCount[type] = current + count;
+    }
   }
 
   public static getPrimitiveCount(type: number): number {
-    return VSDK.primitiveCount[type];
+    return VSDK.primitiveCount[type] ?? 0;
   }
 
   public static getIntersectionCount(type: number): number {
-    return VSDK.intersectionCount[type];
+    return VSDK.intersectionCount[type] ?? 0;
   }
 
   public static equals(a: number, b: number): boolean {

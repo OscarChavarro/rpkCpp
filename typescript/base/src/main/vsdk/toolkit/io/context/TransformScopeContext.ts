@@ -41,7 +41,7 @@ export class TransformScopeContext {
 
     const copy = new Array<string | null>(this.argumentList.length - startIndex);
     for (let i = 0; i < copy.length; i++) {
-      copy[i] = this.argumentList[startIndex + i];
+      copy[i] = this.argumentList[startIndex + i] ?? null;
     }
     return copy;
   }
@@ -54,7 +54,7 @@ export class TransformScopeContext {
       newArgumentList = new Array<string | null>(contextArgumentCount + 1).fill(null);
       const sourceStartIndex = this.argumentCount - contextArgumentCount;
       for (let i = 0; i < contextArgumentCount; i++) {
-        newArgumentList[i] = (this.argumentList as Array<string | null>)[sourceStartIndex + i];
+        newArgumentList[i] = (this.argumentList as Array<string | null>)[sourceStartIndex + i] ?? null;
       }
       newArgumentList[contextArgumentCount] = null;
     }

@@ -49,16 +49,16 @@ export class MgfPrismEntityTessellator {
     if (argumentCount < 5) {
       return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if (!TokenValidationContext.isFloat(argumentValues[argumentCount - 1])) {
+    if (!TokenValidationContext.isFloat(argumentValues[argumentCount - 1]!)) {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
-    const length = Number.parseFloat(argumentValues[argumentCount - 1]);
+    const length = Number.parseFloat(argumentValues[argumentCount - 1]!);
     if (length <= Numeric.EPSILON && length >= -Numeric.EPSILON) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Compute face normal
-    const v0Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1], context);
+    const v0Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1]!, context);
     if (v0Context === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -68,7 +68,7 @@ export class MgfPrismEntityTessellator {
     const v1 = new Vector3Dd(0.0, 0.0, 0.0);
 
     for (i = 2; i < argumentCount - 1; i++) {
-      vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[i], context);
+      vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[i]!, context);
       if (vertexContext === null) {
         return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
       }
@@ -97,37 +97,37 @@ export class MgfPrismEntityTessellator {
     for (i = 1; i < argumentCount - 1; i++) {
       newVertexNames[i - 1] = `_pv${i}`;
       vertexEntity[1] = newVertexNames[i - 1];
-      vertexEntity[3] = argumentValues[i];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, vertexEntity, context);
+      vertexEntity[3] = argumentValues[i]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, vertexEntity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[i], context); // Checked above
+      vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[i]!, context); // Checked above
       if (vertexContext === null) {
         return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
       }
       MgfTessellationMath.formatFloat(px, 24, vertexContext.p.x - length * normal.x);
       MgfTessellationMath.formatFloat(py, 24, vertexContext.p.y - length * normal.y);
       MgfTessellationMath.formatFloat(pz, 24, vertexContext.p.z - length * normal.z);
-      pointEntity[1] = px[0];
-      pointEntity[2] = py[0];
-      pointEntity[3] = pz[0];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, pointEntity, context);
+      pointEntity[1] = px[0]!;
+      pointEntity[2] = py[0]!;
+      pointEntity[3] = pz[0]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, pointEntity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
     }
 
     // Make faces
-    newArgumentValues[0] = context.entityNames[EntityTypeContext.FACE];
+    newArgumentValues[0] = context.entityNames[EntityTypeContext.FACE]!;
     // Do the side faces
     newArgumentValues[5] = "";
-    newArgumentValues[3] = argumentValues[argumentCount - 2];
-    newArgumentValues[4] = newVertexNames[argumentCount - 3];
+    newArgumentValues[3] = argumentValues[argumentCount - 2]!;
+    newArgumentValues[4] = newVertexNames[argumentCount - 3]!;
     for (i = 1; i < argumentCount - 1; i++) {
-      newArgumentValues[1] = newVertexNames[i - 1];
-      newArgumentValues[2] = argumentValues[i];
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 5, newArgumentValues, context);
+      newArgumentValues[1] = newVertexNames[i - 1]!;
+      newArgumentValues[2] = argumentValues[i]!;
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 5, newArgumentValues as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
@@ -139,20 +139,20 @@ export class MgfPrismEntityTessellator {
     for (i = 1; i < argumentCount - 1; i++) {
       if (hasNormal !== 0) {
         // Zero normals
-        vertexEntity[1] = newVertexNames[i - 1];
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, vertexEntity, context);
+        vertexEntity[1] = newVertexNames[i - 1]!;
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, vertexEntity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, zeroNormal, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, zeroNormal as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
       }
       // Reverse
-      newArgumentValues[argumentCount - 1 - i] = newVertexNames[i - 1];
+      newArgumentValues[argumentCount - 1 - i] = newVertexNames[i - 1]!;
     }
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, argumentCount - 1, newArgumentValues, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, argumentCount - 1, newArgumentValues as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
@@ -160,26 +160,26 @@ export class MgfPrismEntityTessellator {
     // Do bottom face
     if (hasNormal !== 0) {
       for (i = 1; i < argumentCount - 1; i++) {
-        vertexEntity[1] = newVertexNames[i - 1];
-        vertexEntity[3] = argumentValues[i];
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, vertexEntity, context);
+        vertexEntity[1] = newVertexNames[i - 1]!;
+        vertexEntity[3] = argumentValues[i]!;
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, vertexEntity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, zeroNormal, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, zeroNormal as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        newArgumentValues[i] = newVertexNames[i - 1];
+        newArgumentValues[i] = newVertexNames[i - 1]!;
       }
     }
     else {
       for (i = 1; i < argumentCount - 1; i++) {
-        newArgumentValues[i] = argumentValues[i];
+        newArgumentValues[i] = argumentValues[i]!;
       }
     }
     newArgumentValues[i] = "";
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, i, newArgumentValues, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, i, newArgumentValues as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }

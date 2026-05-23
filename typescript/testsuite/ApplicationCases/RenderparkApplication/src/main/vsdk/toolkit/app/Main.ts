@@ -6,7 +6,7 @@ export class Main {
     argv[0] = "rpk";
     if (args !== null) {
       for (let i = 0; i < args.length; i++) {
-        argv[i + 1] = args[i];
+        argv[i + 1] = args[i]!;
       }
     }
 

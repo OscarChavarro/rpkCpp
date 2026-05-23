@@ -87,32 +87,32 @@ current sequence is 'random', the index is not used
         break;
       case Sampler4DSequence.SCRAMBLED_HALTON:
         xx = ScrambledHalton.scrambledHalton(seed, 4);
-        xi[0] = xx[0];
-        xi[1] = xx[1];
-        xi[2] = xx[2];
-        xi[3] = xx[3];
+        xi[0] = xx[0]!;
+        xi[1] = xx[1]!;
+        xi[2] = xx[2]!;
+        xi[3] = xx[3]!;
         break;
       case Sampler4DSequence.SOBOL:
         xx = Sobol.sobol(seed);
-        xi[0] = xx[0];
-        xi[1] = xx[1];
-        xi[2] = xx[2];
-        xi[3] = xx[3];
+        xi[0] = xx[0]!;
+        xi[1] = xx[1]!;
+        xi[2] = xx[2]!;
+        xi[3] = xx[3]!;
         break;
       case Sampler4DSequence.ORIGINAL_FAURE:
       case Sampler4DSequence.GENERALIZED_FAURE:
         xx = Faure.faure(seed);
-        xi[0] = xx[0];
-        xi[1] = xx[1];
-        xi[2] = xx[2];
-        xi[3] = xx[3];
+        xi[0] = xx[0]!;
+        xi[1] = xx[1]!;
+        xi[2] = xx[2]!;
+        xi[3] = xx[3]!;
         break;
       case Sampler4DSequence.NIEDERREITER:
         zeta = Niederreiter31.niederreiter31(seed);
-        xi[0] = zeta[0] * Niederreiter31.RECIP;
-        xi[1] = zeta[1] * Niederreiter31.RECIP;
-        xi[2] = zeta[2] * Niederreiter31.RECIP;
-        xi[3] = zeta[3] * Niederreiter31.RECIP;
+        xi[0] = zeta[0]! * Niederreiter31.RECIP;
+        xi[1] = zeta[1]! * Niederreiter31.RECIP;
+        xi[2] = zeta[2]! * Niederreiter31.RECIP;
+        xi[3] = zeta[3]! * Niederreiter31.RECIP;
         break;
       default:
         VsdkLogger.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", Sample4d.sequenceName(Sample4d.seq));
@@ -136,8 +136,8 @@ Niederreiter::Nied() and Niederreiter::NextNiedInRange() are 63-bit unless compi
   }
 
   public static foldSampleF(xi1: number[], xi2: number[]): void {
-    const zeta1 = globalThis.Math.trunc(xi1[0] * Niederreiter31.RECIP1);
-    const zeta2 = globalThis.Math.trunc(xi2[0] * Niederreiter31.RECIP1);
+    const zeta1 = globalThis.Math.trunc(xi1[0]! * Niederreiter31.RECIP1);
+    const zeta2 = globalThis.Math.trunc(xi2[0]! * Niederreiter31.RECIP1);
     Sample4d.foldSampleU([zeta1], [zeta2]);
     xi1[0] = zeta1 * Niederreiter31.RECIP;
     xi2[0] = zeta2 * Niederreiter31.RECIP;

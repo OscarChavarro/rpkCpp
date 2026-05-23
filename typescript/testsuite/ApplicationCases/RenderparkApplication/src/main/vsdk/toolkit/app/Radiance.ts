@@ -34,14 +34,14 @@ export class Radiance {
       // allocate new data for the new method
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i];
-        if (patch !== null) {
-          radianceMethod.destroyPatchData(patch);
+        if (patch !== null && patch !== undefined) {
+          radianceMethod.destroyPatchData(patch!);
         }
       }
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i];
-        if (patch !== null) {
-          patch.radianceData = radianceMethod.createPatchData(patch);
+        if (patch !== null && patch !== undefined) {
+          patch.radianceData = radianceMethod.createPatchData(patch!);
         }
       }
       radianceMethod.initialize(scene, toneMapOptions);

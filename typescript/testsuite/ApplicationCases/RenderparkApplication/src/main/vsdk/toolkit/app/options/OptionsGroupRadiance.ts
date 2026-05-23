@@ -78,14 +78,14 @@ export class OptionsGroupRadiance {
     stochasticRayTracingState: StochasticRayTracingState
   ): void {
     const radianceMethodsString = [""];
-    if (radianceMethodsString[0].length > OptionsGroupRadiance.RADIANCE_METHODS_STRING_LENGTH) {
-      radianceMethodsString[0] = radianceMethodsString[0].substring(0, OptionsGroupRadiance.RADIANCE_METHODS_STRING_LENGTH);
+    if (radianceMethodsString[0]!.length > OptionsGroupRadiance.RADIANCE_METHODS_STRING_LENGTH) {
+      radianceMethodsString[0] = radianceMethodsString[0]!.substring(0, OptionsGroupRadiance.RADIANCE_METHODS_STRING_LENGTH);
     }
 
     OptionsGroupRadianceMethod.radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
     OptionsGroupRadiance.selectRadianceMethod(
-      radianceMethodsString[0],
+      radianceMethodsString[0]!,
       newRadianceMethod,
       stochasticRelaxationState,
       elementHierarchyState,

@@ -73,7 +73,7 @@ export class PhotonMap {
 
     return this.m_kdtree.query(
       [positionOrPos.x, positionOrPos.y, positionOrPos.z],
-      this.m_estimate_nrp[0],
+      this.m_estimate_nrp[0]!,
       this.m_photons as unknown[],
       this.m_distances,
       this.GetMaxR2(),
@@ -92,9 +92,9 @@ export class PhotonMap {
       this.m_nrpCosinePos = 0;
 
       for (let i = 0; i < this.m_nrpFound; i++) {
-        const dir = this.m_photons[i].dir();
+        const dir = this.m_photons[i]!.dir();
         this.m_cosines[i] = dir.dotProduct(normal);
-        if (this.m_cosines[i] > 0) {
+        if (this.m_cosines[i]! > 0) {
           this.m_nrpCosinePos++;
         }
       }
@@ -304,8 +304,8 @@ Adding photons, returns if photon was added
     deltaPower.scaledCopy(factor, pow);
 
     for (let i = 0; i < this.m_nrpFound; i++) {
-      if (this.m_cosines[i] > 0.0) {
-        this.m_photons[i].addPower(deltaPower);
+      if (this.m_cosines[i]! > 0.0) {
+        this.m_photons[i]!.addPower(deltaPower);
       }
     }
   }
@@ -345,7 +345,7 @@ Get a maximum radius^2 to be used when locating photons
     }
 
     return (
-      (this.m_estimate_nrp[0] * Statistics.instance().radiance.totalArea)
+      (this.m_estimate_nrp[0]! * Statistics.instance().radiance.totalArea)
       / (globalThis.Math.PI * this.m_totalPaths * radFraction)
     );
   }
@@ -360,11 +360,11 @@ Get a maximum radius^2 to be used when locating photons
     this.m_nrpFound = this.doQuery(pos);
 
     if (this.m_nrpFound > 3) {
-      const maxDistance = this.m_distances[0];
+      const maxDistance = this.m_distances[0]!;
 
       for (let i = 0; i < this.m_nrpFound; i++) {
-        if (photon.Normal().dotProduct(this.m_photons[i].dir()) > 0) {
-          const power = this.m_photons[i].power();
+        if (photon.Normal().dotProduct(this.m_photons[i]!.dir()) > 0) {
+          const power = this.m_photons[i]!.power();
           irradiance.add(irradiance, power);
         }
       }
@@ -464,10 +464,10 @@ Get a maximum radius^2 to be used when locating photons
       return result;
     }
 
-    const maxDistance = this.m_distances[0];
+      const maxDistance = this.m_distances[0]!;
 
     for (let i = 0; i < this.m_nrpFound; i++) {
-      const dir = this.m_photons[i].dir();
+      const dir = this.m_photons[i]!.dir();
 
       if (bsdf === null || !shctxOk[0]) {
         evalColor.clear();
@@ -486,7 +486,7 @@ Get a maximum radius^2 to be used when locating photons
         );
         evalColor.set(evaluated.r, evaluated.g, evaluated.b);
       }
-      const power = this.m_photons[i].power();
+      const power = this.m_photons[i]!.power();
 
       col.scalarProduct(evalColor, power);
       result.add(result, col);
@@ -501,7 +501,7 @@ Get a maximum radius^2 to be used when locating photons
   public getCurrentDensity(hit: RayHit, nrPhotons: number): number {
     let localNrPhotons = nrPhotons;
     if (localNrPhotons === 0) {
-      localNrPhotons = this.m_estimate_nrp[0];
+      localNrPhotons = this.m_estimate_nrp[0]!;
     }
 
     if (localNrPhotons === 0) {
@@ -515,7 +515,7 @@ Get a maximum radius^2 to be used when locating photons
       return 0.0;
     }
 
-    const maxDistance = this.m_distances[0];
+    const maxDistance = this.m_distances[0]!;
 
     this.computeCosines(hit.getGeometricNormal());
 
@@ -550,10 +550,10 @@ Return a color coded density of the photon map
       const ps = [0.0];
 
       for (let i = 0; i < this.m_nrpFound; i++) {
-        this.m_photons[i].findRS(pr, ps, coord, flag, n);
+        this.m_photons[i]!.findRS(pr, ps, coord, flag, n);
 
-        const color = this.m_photons[i].power();
-        this.m_grid.add(pr[0], ps[0], color.average() / this.m_nrPhotons);
+        const color = this.m_photons[i]!.power();
+        this.m_grid.add(pr[0]!, ps[0]!, color.average() / this.m_nrPhotons);
       }
 
       this.m_grid.EnsureNonZeroEntries();
@@ -563,7 +563,7 @@ Return a color coded density of the photon map
     const probabilityDensityFunction = [0.0];
     this.m_grid.sample(r, s, probabilityDensityFunction);
 
-    return probabilityDensityFunction[0];
+    return probabilityDensityFunction[0]!;
   }
 
   public Balance(): void {

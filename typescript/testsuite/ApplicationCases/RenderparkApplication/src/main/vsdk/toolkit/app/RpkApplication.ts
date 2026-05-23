@@ -134,9 +134,9 @@ export class RpkApplication {
       glutDebugRef,
       toneMapName
     );
-    this.imageOutputWidth = widthRef[0];
-    this.imageOutputHeight = heightRef[0];
-    this.glutDebugEnabled = glutDebugRef[0];
+    this.imageOutputWidth = widthRef[0]!;
+    this.imageOutputHeight = heightRef[0]!;
+    this.glutDebugEnabled = glutDebugRef[0]!;
 
     const selectedMethodRef = [this.selectedRadianceMethod] as Array<RadianceMethod | null>;
     Radiance.radianceParseOptions(
@@ -152,7 +152,7 @@ export class RpkApplication {
       bidirectionalPathState,
       stochasticRayTracingState
     );
-    this.selectedRadianceMethod = selectedMethodRef[0];
+    this.selectedRadianceMethod = selectedMethodRef[0]!;
 
     Raytrace.rayTraceParseOptions(argc, argv, rayTracerName);
 
@@ -247,13 +247,13 @@ export class RpkApplication {
     this.mgfContext.parserConfig.monochrome = RpkApplication.DEFAULT_MONOCHROME;
     this.mgfContext.currentMaterial = RpkApplication.defaultMaterial;
     this.mgfContext.materialState.currentMaterial = RpkApplication.defaultMaterial;
-    this.selectToneMapByName(initializationToneMapName[0]); // Note this is used for basic Galerkin model initialization
+    this.selectToneMapByName(initializationToneMapName[0]!); // Note this is used for basic Galerkin model initialization
     SceneBuilder.sceneBuilderCreateModel(argcRef, argv, this.mgfContext, this.scene, this.toneMapOptions);
-    this.selectToneMapByName(renderToneMapName[0]);
+    this.selectToneMapByName(renderToneMapName[0]!);
 
     // 4. Run main radiosity simulation and export result
     this.executeRendering(
-      rayTracerName[0],
+      rayTracerName[0]!,
       rayMatterState,
       bidirectionalPathState,
       stochasticRayTracingState,

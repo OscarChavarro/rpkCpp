@@ -2,19 +2,22 @@ import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { BoundingBoxCoordinateIndex } from "./BoundingBoxCoordinateIndex";
 
-export class BoundingBox {
-  private readonly coordinates: number[];
+type BoundingCoords = [number, number, number, number, number, number];
+type CoordIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
-  private static setIfLess(a: number[], idx: number, b: number): void {
+export class BoundingBox {
+  private readonly coordinates: BoundingCoords;
+
+  private static setIfLess(a: BoundingCoords, idx: CoordIndex, b: number): void {
     a[idx] = a[idx] < b ? a[idx] : b;
   }
 
-  private static setIfGreater(a: number[], idx: number, b: number): void {
+  private static setIfGreater(a: BoundingCoords, idx: CoordIndex, b: number): void {
     a[idx] = a[idx] > b ? a[idx] : b;
   }
 
   public constructor() {
-    this.coordinates = new Array<number>(6);
+    this.coordinates = [0, 0, 0, 0, 0, 0];
     this.coordinates[BoundingBoxCoordinateIndex.MIN_X] = Numeric.HUGE_FLOAT_VALUE;
     this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] = Numeric.HUGE_FLOAT_VALUE;
     this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] = Numeric.HUGE_FLOAT_VALUE;
@@ -45,22 +48,27 @@ export class BoundingBox {
   }
 
   public setAsUnion(a: BoundingBox, b: BoundingBox): void {
+    const aCoords = a.rawCoordinates();
+    const bCoords = b.rawCoordinates();
     for (let i = BoundingBoxCoordinateIndex.MIN_X; i <= BoundingBoxCoordinateIndex.MIN_Z; i++) {
-      this.coordinates[i] = a.rawCoordinates()[i] < b.rawCoordinates()[i] ? a.rawCoordinates()[i] : b.rawCoordinates()[i];
+      const idx = i as CoordIndex;
+      this.coordinates[idx] = aCoords[idx] < bCoords[idx] ? aCoords[idx] : bCoords[idx];
     }
 
     for (let i = BoundingBoxCoordinateIndex.MAX_X; i <= BoundingBoxCoordinateIndex.MAX_Z; i++) {
-      this.coordinates[i] = a.rawCoordinates()[i] > b.rawCoordinates()[i] ? a.rawCoordinates()[i] : b.rawCoordinates()[i];
+      const idx = i as CoordIndex;
+      this.coordinates[idx] = aCoords[idx] > bCoords[idx] ? aCoords[idx] : bCoords[idx];
     }
   }
 
   public disjointToOtherBoundingBox(other: BoundingBox): boolean {
-    return (this.coordinates[BoundingBoxCoordinateIndex.MIN_X] > other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_X])
-      || (other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_X] > this.coordinates[BoundingBoxCoordinateIndex.MAX_X])
-      || (this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] > other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Y])
-      || (other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Y] > this.coordinates[BoundingBoxCoordinateIndex.MAX_Y])
-      || (this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] > other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Z])
-      || (other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Z] > this.coordinates[BoundingBoxCoordinateIndex.MAX_Z]);
+    const otherCoords = other.rawCoordinates();
+    return (this.coordinates[BoundingBoxCoordinateIndex.MIN_X] > otherCoords[BoundingBoxCoordinateIndex.MAX_X])
+      || (otherCoords[BoundingBoxCoordinateIndex.MIN_X] > this.coordinates[BoundingBoxCoordinateIndex.MAX_X])
+      || (this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] > otherCoords[BoundingBoxCoordinateIndex.MAX_Y])
+      || (otherCoords[BoundingBoxCoordinateIndex.MIN_Y] > this.coordinates[BoundingBoxCoordinateIndex.MAX_Y])
+      || (this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] > otherCoords[BoundingBoxCoordinateIndex.MAX_Z])
+      || (otherCoords[BoundingBoxCoordinateIndex.MIN_Z] > this.coordinates[BoundingBoxCoordinateIndex.MAX_Z]);
   }
 
   public behindPlane(normal: Vector3D, distance: number): boolean {
@@ -74,21 +82,23 @@ export class BoundingBox {
   }
 
   public copyFrom(other: BoundingBox): void {
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_X] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_X];
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Y];
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Z];
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_X] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_X];
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Y];
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] = other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Z];
+    const otherCoords = other.rawCoordinates();
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_X] = otherCoords[BoundingBoxCoordinateIndex.MIN_X];
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] = otherCoords[BoundingBoxCoordinateIndex.MIN_Y];
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] = otherCoords[BoundingBoxCoordinateIndex.MIN_Z];
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_X] = otherCoords[BoundingBoxCoordinateIndex.MAX_X];
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] = otherCoords[BoundingBoxCoordinateIndex.MAX_Y];
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] = otherCoords[BoundingBoxCoordinateIndex.MAX_Z];
   }
 
   public enlarge(other: BoundingBox): void {
-    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_X, other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_X]);
-    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Y, other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Y]);
-    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Z, other.rawCoordinates()[BoundingBoxCoordinateIndex.MIN_Z]);
-    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_X, other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_X]);
-    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_Y, other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Y]);
-    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_Z, other.rawCoordinates()[BoundingBoxCoordinateIndex.MAX_Z]);
+    const otherCoords = other.rawCoordinates();
+    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_X, otherCoords[BoundingBoxCoordinateIndex.MIN_X]);
+    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Y, otherCoords[BoundingBoxCoordinateIndex.MIN_Y]);
+    BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Z, otherCoords[BoundingBoxCoordinateIndex.MIN_Z]);
+    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_X, otherCoords[BoundingBoxCoordinateIndex.MAX_X]);
+    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_Y, otherCoords[BoundingBoxCoordinateIndex.MAX_Y]);
+    BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_Z, otherCoords[BoundingBoxCoordinateIndex.MAX_Z]);
   }
 
   public enlargeToIncludePoint(point: Vector3D): void {
@@ -124,21 +134,24 @@ export class BoundingBox {
   }
 
   public computeContributionFlags(other: BoundingBox, hasMinMax1: boolean[], hasMinMax2: boolean[]): void {
+    const otherCoords = other.rawCoordinates();
     for (let i = BoundingBoxCoordinateIndex.MIN_X; i <= BoundingBoxCoordinateIndex.MIN_Z; i++) {
-      if (this.coordinates[i] < other.rawCoordinates()[i]) {
-        hasMinMax1[i] = true;
+      const idx = i as CoordIndex;
+      if (this.coordinates[idx] < otherCoords[idx]) {
+        hasMinMax1[idx] = true;
       }
-      else if (!Numeric.doubleEqual(this.coordinates[i], other.rawCoordinates()[i], Numeric.EPSILON)) {
-        hasMinMax2[i] = true;
+      else if (!Numeric.doubleEqual(this.coordinates[idx], otherCoords[idx], Numeric.EPSILON)) {
+        hasMinMax2[idx] = true;
       }
     }
 
     for (let i = BoundingBoxCoordinateIndex.MAX_X; i <= BoundingBoxCoordinateIndex.MAX_Z; i++) {
-      if (this.coordinates[i] > other.rawCoordinates()[i]) {
-        hasMinMax1[i] = true;
+      const idx = i as CoordIndex;
+      if (this.coordinates[idx] > otherCoords[idx]) {
+        hasMinMax1[idx] = true;
       }
-      else if (!Numeric.doubleEqual(this.coordinates[i], other.rawCoordinates()[i], Numeric.EPSILON)) {
-        hasMinMax2[i] = true;
+      else if (!Numeric.doubleEqual(this.coordinates[idx], otherCoords[idx], Numeric.EPSILON)) {
+        hasMinMax2[idx] = true;
       }
     }
   }
@@ -226,7 +239,7 @@ export class BoundingBox {
     return this.coordinates[BoundingBoxCoordinateIndex.MAX_Z];
   }
 
-  public rawCoordinates(): number[] {
+  public rawCoordinates(): BoundingCoords {
     return this.coordinates;
   }
 
@@ -250,13 +263,13 @@ export class BoundingBox {
     const maxY = this.coordinates[BoundingBoxCoordinateIndex.MAX_Y];
     const maxZ = this.coordinates[BoundingBoxCoordinateIndex.MAX_Z];
 
-    out[0].set(minX, minY, minZ);
-    out[1].set(maxX, minY, minZ);
-    out[2].set(minX, maxY, minZ);
-    out[3].set(maxX, maxY, minZ);
-    out[4].set(minX, minY, maxZ);
-    out[5].set(maxX, minY, maxZ);
-    out[6].set(minX, maxY, maxZ);
-    out[7].set(maxX, maxY, maxZ);
+    out[0]?.set(minX, minY, minZ);
+    out[1]?.set(maxX, minY, minZ);
+    out[2]?.set(minX, maxY, minZ);
+    out[3]?.set(maxX, maxY, minZ);
+    out[4]?.set(minX, minY, maxZ);
+    out[5]?.set(maxX, minY, maxZ);
+    out[6]?.set(minX, maxY, maxZ);
+    out[7]?.set(maxX, maxY, maxZ);
   }
 }

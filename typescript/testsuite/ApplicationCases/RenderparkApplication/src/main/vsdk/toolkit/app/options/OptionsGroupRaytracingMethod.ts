@@ -37,7 +37,7 @@ export class OptionsGroupRaytracingMethod {
     OptionsGroupRaytracingMethod.rayTracerName = rayTracerNameOut;
     OptionsGroupRaytracingMethod.raytracingMethodsString =
       raytracingMethodsStringOut !== null && raytracingMethodsStringOut.length > 0
-        ? raytracingMethodsStringOut[0]
+        ? raytracingMethodsStringOut[0]!
         : null;
     const raytracingGroups = [
       new OptionGroup("raytracing", raytracingOptions, 1),

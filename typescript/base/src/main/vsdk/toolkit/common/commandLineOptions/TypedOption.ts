@@ -142,7 +142,11 @@ export class TypedOption<T> {
       parsed = this.parseArgs_(this.consumesValue_, argv, value);
     }
     else if (this.consumesValue_ === 1 && argv !== null && argv.length > 0) {
-      parsed = DefaultParser.parse(argv[0], value);
+      const firstArg = argv[0];
+      if (firstArg === undefined) {
+        return false;
+      }
+      parsed = DefaultParser.parse(firstArg, value);
     }
 
     if (!parsed) {

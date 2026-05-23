@@ -13,7 +13,10 @@ export class PatchSet extends Geometry {
     this.memoryPoolManaged = false;
     this.patchList = [];
     for (let i = 0; input !== null && i < input.length; i++) {
-      this.patchList.push(input[i]);
+      const patch = input[i];
+      if (patch !== undefined) {
+        this.patchList.push(patch);
+      }
     }
 
     Geometry.patchListBounds(this.getPatchList(), this.boundingBox);

@@ -61,7 +61,7 @@ export class LookUpTable<T> {
 
     for (let i = 0; i < text.length; i++) {
       const b = text.charCodeAt(i) & 0xFF;
-      hash ^= (LookUpTable.SHUFFLE[b] << ((bitShift += 11) & 0xF));
+      hash ^= ((LookUpTable.SHUFFLE[b] ?? 0) << ((bitShift += 11) & 0xF));
     }
 
     return hash;
@@ -77,9 +77,13 @@ export class LookUpTable<T> {
     let chosenTableSize = 0;
 
     nel += nel >> 1;
-    for (let i = 0; hSizeTab[i] !== 0; i++) {
-      if (hSizeTab[i] > nel) {
-        chosenTableSize = hSizeTab[i];
+    for (let i = 0; ; i++) {
+      const bucketSize = hSizeTab[i];
+      if (bucketSize === undefined || bucketSize === 0) {
+        break;
+      }
+      if (bucketSize > nel) {
+        chosenTableSize = bucketSize;
         break;
       }
     }
@@ -96,10 +100,11 @@ export class LookUpTable<T> {
     }
 
     for (let i = 0; i < this.currentTableSize; i++) {
-      this.table[i] = new LookUpEntity<T>();
-      this.table[i].key = null;
-      this.table[i].data = null;
-      this.table[i].value = 0;
+      const entry = new LookUpEntity<T>();
+      entry.key = null;
+      entry.data = null;
+      entry.value = 0;
+      this.table[i] = entry;
     }
     this.numberOfDeletedEntries = 0;
 
@@ -124,6 +129,9 @@ export class LookUpTable<T> {
       let n = -1;
       do {
         const entry = (this.table as Array<LookUpEntity<T>>)[index];
+        if (entry === undefined) {
+          return null;
+        }
         if (entry.key === null) {
           entry.value = hashValue;
           return entry;
@@ -153,6 +161,9 @@ export class LookUpTable<T> {
 
     for (let i = this.currentTableSize - 1; i >= 0; i--) {
       const entry = this.table[i];
+      if (entry === undefined) {
+        continue;
+      }
       if (entry.key !== null) {
         this.freeKey(entry.key);
         if (entry.data !== null) {
@@ -180,6 +191,9 @@ export class LookUpTable<T> {
 
     for (let i = 0; i < oldTableSize; i++) {
       const entry = (oldTable as Array<LookUpEntity<T>>)[i];
+      if (entry === undefined) {
+        continue;
+      }
       if (entry.key === null) {
         continue;
       }

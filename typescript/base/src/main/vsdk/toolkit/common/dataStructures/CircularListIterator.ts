@@ -12,7 +12,7 @@ export class CircularListIterator<T> extends CircularListBaseIterator {
     return link !== null ? link.data : null;
   }
 
-  public init(list: CircularList<T>): void {
+  public override init(list: CircularList<T>): void {
     super.init(list.baseList());
   }
 }

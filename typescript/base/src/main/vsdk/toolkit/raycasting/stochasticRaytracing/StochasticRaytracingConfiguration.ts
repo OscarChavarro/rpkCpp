@@ -263,9 +263,9 @@ export class StochasticRaytracingConfiguration {
       }
 
       if (flags !== 0) {
-        this.siOthers[siIndex].flags = flags;
-        this.siOthers[siIndex].nrSamplesBefore = this.scatterSamples;
-        this.siOthers[siIndex].nrSamplesAfter = this.scatterSamples;
+        this.siOthers[siIndex]!.flags = flags;
+        this.siOthers[siIndex]!.nrSamplesBefore = this.scatterSamples;
+        this.siOthers[siIndex]!.nrSamplesAfter = this.scatterSamples;
         siIndex++;
         remainingFlags = remainingFlags & ~flags;
       }
@@ -278,9 +278,9 @@ export class StochasticRaytracingConfiguration {
       }
 
       if (flags !== 0) {
-        this.siOthers[siIndex].flags = flags;
-        this.siOthers[siIndex].nrSamplesBefore = this.scatterSamples;
-        this.siOthers[siIndex].nrSamplesAfter = this.scatterSamples;
+        this.siOthers[siIndex]!.flags = flags;
+        this.siOthers[siIndex]!.nrSamplesBefore = this.scatterSamples;
+        this.siOthers[siIndex]!.nrSamplesAfter = this.scatterSamples;
         siIndex++;
         remainingFlags = remainingFlags & ~flags;
       }
@@ -292,9 +292,9 @@ export class StochasticRaytracingConfiguration {
     ) {
       const gdFlags = remainingFlags & (bsdfDiffuse | bsdfGlossy);
       if (gdFlags !== 0) {
-        this.siOthers[siIndex].flags = gdFlags;
-        this.siOthers[siIndex].nrSamplesBefore = this.firstDGSamples;
-        this.siOthers[siIndex].nrSamplesAfter = this.scatterSamples;
+        this.siOthers[siIndex]!.flags = gdFlags;
+        this.siOthers[siIndex]!.nrSamplesBefore = this.firstDGSamples;
+        this.siOthers[siIndex]!.nrSamplesAfter = this.scatterSamples;
         siIndex++;
         remainingFlags = remainingFlags & ~gdFlags;
       }
@@ -304,18 +304,18 @@ export class StochasticRaytracingConfiguration {
       const dFlags = remainingFlags & bsdfDiffuse;
 
       if (dFlags !== 0) {
-        this.siOthers[siIndex].flags = dFlags;
-        this.siOthers[siIndex].nrSamplesBefore = 0;
-        this.siOthers[siIndex].nrSamplesAfter = 0;
+        this.siOthers[siIndex]!.flags = dFlags;
+        this.siOthers[siIndex]!.nrSamplesBefore = 0;
+        this.siOthers[siIndex]!.nrSamplesAfter = 0;
         siIndex++;
         remainingFlags = remainingFlags & ~dFlags;
       }
     }
 
     if (remainingFlags !== 0) {
-      this.siOthers[siIndex].flags = remainingFlags;
-      this.siOthers[siIndex].nrSamplesBefore = this.scatterSamples;
-      this.siOthers[siIndex].nrSamplesAfter = this.scatterSamples;
+      this.siOthers[siIndex]!.flags = remainingFlags;
+      this.siOthers[siIndex]!.nrSamplesBefore = this.scatterSamples;
+      this.siOthers[siIndex]!.nrSamplesAfter = this.scatterSamples;
       siIndex++;
     }
 

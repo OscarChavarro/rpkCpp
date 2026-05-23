@@ -60,13 +60,13 @@ export class ClusterCreationStrategy {
     for (let i = 0;
       galerkinElement.irregularSubElements !== null && i < galerkinElement.irregularSubElements.length;
       i++) {
-      const subCluster = galerkinElement.irregularSubElements[i] as GalerkinElement;
+      const subCluster = galerkinElement.irregularSubElements[i]! as GalerkinElement;
       if (subCluster === null) {
         continue;
       }
       galerkinElement.area += subCluster.area;
       galerkinElement.numberOfPatches += subCluster.numberOfPatches;
-      (galerkinElement.radiance as ColorRgb[])[0].addScaled((galerkinElement.radiance as ColorRgb[])[0], subCluster.area, (subCluster.radiance as ColorRgb[])[0]);
+      (galerkinElement.radiance as ColorRgb[])[0]!.addScaled((galerkinElement.radiance as ColorRgb[])[0]!, subCluster.area, (subCluster.radiance as ColorRgb[])[0]!);
       if (subCluster.minimumArea < galerkinElement.minimumArea) {
         galerkinElement.minimumArea = subCluster.minimumArea;
       }
@@ -75,7 +75,7 @@ export class ClusterCreationStrategy {
     }
 
     if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
-      (galerkinElement.radiance as ColorRgb[])[0].scale(1.0 / galerkinElement.area);
+      (galerkinElement.radiance as ColorRgb[])[0]!.scale(1.0 / galerkinElement.area);
       galerkinElement.Ed.scale(1.0 / galerkinElement.area);
     }
 
@@ -84,18 +84,18 @@ export class ClusterCreationStrategy {
       for (let i = 0;
         galerkinElement.irregularSubElements !== null && i < galerkinElement.irregularSubElements.length;
         i++) {
-        const subCluster = galerkinElement.irregularSubElements[i] as GalerkinElement;
+        const subCluster = galerkinElement.irregularSubElements[i]! as GalerkinElement;
         if (subCluster === null) {
           continue;
         }
-        (galerkinElement.unShotRadiance as ColorRgb[])[0].addScaled(
-          (galerkinElement.unShotRadiance as ColorRgb[])[0],
+        (galerkinElement.unShotRadiance as ColorRgb[])[0]!.addScaled(
+          (galerkinElement.unShotRadiance as ColorRgb[])[0]!,
           subCluster.area,
-          (subCluster.unShotRadiance as ColorRgb[])[0],
+          (subCluster.unShotRadiance as ColorRgb[])[0]!,
         );
       }
       if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
-        (galerkinElement.unShotRadiance as ColorRgb[])[0].scale(1.0 / galerkinElement.area);
+        (galerkinElement.unShotRadiance as ColorRgb[])[0]!.scale(1.0 / galerkinElement.area);
       }
     }
 
@@ -117,13 +117,13 @@ export class ClusterCreationStrategy {
     if (geometry.isCompound()) {
       const geometryList = Geometry.primitiveListCopy(geometry);
       for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-        ClusterCreationStrategy.geomAddClusterChild(geometryList[i], newGalerkinElement, galerkinState);
+        ClusterCreationStrategy.geomAddClusterChild(geometryList[i]!, newGalerkinElement, galerkinState);
       }
     }
     else {
       const patchList = Geometry.patchListReference(geometry);
       for (let i = 0; patchList !== null && i < patchList.length; i++) {
-        ClusterCreationStrategy.patchAddClusterChild(patchList[i], newGalerkinElement);
+        ClusterCreationStrategy.patchAddClusterChild(patchList[i]!, newGalerkinElement);
       }
     }
 
@@ -135,7 +135,7 @@ export class ClusterCreationStrategy {
   public static freeClusterElements(): void {
     if (ClusterCreationStrategy.irregularElementsToDelete !== null) {
       for (let i = 0; i < ClusterCreationStrategy.irregularElementsToDelete.length; i++) {
-        const element = ClusterCreationStrategy.irregularElementsToDelete[i];
+        const element = ClusterCreationStrategy.irregularElementsToDelete[i]!;
         if (element !== null) {
           element.irregularSubElements = null;
         }

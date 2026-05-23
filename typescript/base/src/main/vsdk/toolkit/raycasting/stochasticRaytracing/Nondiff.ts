@@ -39,7 +39,7 @@ export class Nondiff {
     }
 
     for (let i = 0; lightPatches !== null && i < lightPatches.size(); i++) {
-      const light = lightPatches.get(i);
+      const light = lightPatches.get(i)!;
       const emittedRadiance = PatchVisitor.averageEmittance(light, 0x01 | 0x02 | 0x04);
       const flux = globalThis.Math.PI * light.area * emittedRadiance.sumAbsComponents();
       Nondiff.totalFlux += flux;
@@ -47,7 +47,7 @@ export class Nondiff {
     }
 
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-      const patch = scenePatches.get(i);
+      const patch = scenePatches.get(i)!;
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchBasis(patch));
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchBasis(patch));
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
@@ -59,18 +59,18 @@ export class Nondiff {
     const xi = Sample4d.sample4D(McradP.topLevelStochasticRadiosityElement(patch).rayIndex | 0);
     McradP.topLevelStochasticRadiosityElement(patch).rayIndex++;
     if (patch.numberOfVertices === 3) {
-      const u = [xi[0]];
-      const v = [xi[1]];
+      const u = [xi[0]!];
+      const v = [xi[1]!];
       Sample4d.foldSampleF(u, v);
-      zeta[0] = u[0];
-      zeta[1] = v[0];
+      zeta[0] = u[0]!;
+      zeta[1] = v[0]!;
     }
     else {
-      zeta[0] = xi[0];
-      zeta[1] = xi[1];
+      zeta[0] = xi[0]!;
+      zeta[1] = xi[1]!;
     }
-    zeta[2] = xi[2];
-    zeta[3] = xi[3];
+    zeta[2] = xi[2]!;
+    zeta[3] = xi[3]!;
   }
 
   public static sampleLightRay(
@@ -85,7 +85,7 @@ export class Nondiff {
       const hit = new RayHit();
       Nondiff.nextLightSample(patch, zeta);
 
-      patch.uniformPoint(zeta[0], zeta[1], ray.position);
+      patch.uniformPoint(zeta[0]!, zeta[1]!, ray.position);
 
       hit.init(patch, ray.position, patch.normal, patch.material);
       dirSelectionPdf[0] = 0.0;
@@ -99,8 +99,8 @@ export class Nondiff {
         ray.direction = patch.material.getEdf()!.phongEdfSample(
           shctx,
           0x01 | 0x02 | 0x04,
-          zeta[2],
-          zeta[3],
+          zeta[2]!,
+          zeta[3]!,
           emittedRad,
           dirSelectionPdf
         );
@@ -125,14 +125,14 @@ export class Nondiff {
       const hitPatch = hit.getPatch() as Patch;
       const topPatchRad = McradP.getTopLevelPatchRad(hitPatch)!;
       const topPatchUnShot = McradP.getTopLevelPatchUnShotRad(hitPatch)!;
-      const pdf = lightSelectionPdf * pointSelectionPdf[0] * dirSelectionPdf[0];
+      const pdf = lightSelectionPdf * pointSelectionPdf[0]! * dirSelectionPdf[0]!;
       const outCos = ray.direction.dotProduct(lightPatch.normal);
       const receivedRadiosity = new ColorRgb();
       const rd = McradP.topLevelStochasticRadiosityElement(hitPatch).Rd;
       receivedRadiosity.scaledCopy(outCos / (globalThis.Math.PI * hitPatch.area * pdf * Nondiff.numberOfSamples), rad);
       receivedRadiosity.selfScalarProduct(rd);
-      topPatchRad[0].add(topPatchRad[0], receivedRadiosity);
-      topPatchUnShot[0].add(topPatchUnShot[0], receivedRadiosity);
+      topPatchRad[0]!.add(topPatchRad[0]!, receivedRadiosity);
+      topPatchUnShot[0]!.add(topPatchUnShot[0]!, receivedRadiosity);
       McradP.topLevelStochasticRadiosityElement(hitPatch).sourceRad.add(
         McradP.topLevelStochasticRadiosityElement(hitPatch).sourceRad,
         receivedRadiosity
@@ -148,12 +148,12 @@ export class Nondiff {
     process.stderr.write(`Shooting ${Nondiff.numberOfSamples} light rays `);
     const lights = Nondiff.lights as LightSourceTable[];
     for (let i = 0; i < Nondiff.numberOfLights; i++) {
-      const p = lights[i].flux / Nondiff.totalFlux;
+      const p = lights[i]!.flux / Nondiff.totalFlux;
       const samplesThisLight =
         globalThis.Math.floor((pCumulative + p) * Nondiff.numberOfSamples + rnd) - count;
 
       for (let j = 0; j < samplesThisLight; j++) {
-        Nondiff.sampleLight(sceneWorldVoxelGrid, lights[i], p);
+        Nondiff.sampleLight(sceneWorldVoxelGrid, lights[i]!, p);
       }
 
       pCumulative += p;
@@ -170,22 +170,22 @@ export class Nondiff {
     StochasticRelaxation.activeState().totalYmp = 0.0;
     StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.clear();
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-      const patch = scenePatches.get(i);
+      const patch = scenePatches.get(i)!;
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchUnShotRad(patch)![0]
+        McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
         globalThis.Math.PI * patch.area,
-        McradP.getTopLevelPatchRad(patch)![0]
+        McradP.getTopLevelPatchRad(patch)![0]!
       );
       StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
         StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
         globalThis.Math.PI * patch.area * (McradP.topLevelStochasticRadiosityElement(patch).importance -
           McradP.topLevelStochasticRadiosityElement(patch).sourceImportance),
-        McradP.getTopLevelPatchUnShotRad(patch)![0]
+        McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().unShotYmp += patch.area * globalThis.Math.abs(
         McradP.topLevelStochasticRadiosityElement(patch).unShotImportance
@@ -209,12 +209,12 @@ Initial shooting pass handling non-diffuse light sources
 
     const scenePatches = new ArrayList<Patch>();
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      scenePatches.add(scene.patchList[i]);
+      scenePatches.add(scene.patchList[i]!);
     }
 
     const lightPatches = new ArrayList<Patch>();
     for (let i = 0; scene.lightSourcePatchList !== null && i < scene.lightSourcePatchList.length; i++) {
-      lightPatches.add(scene.lightSourcePatchList[i]);
+      lightPatches.add(scene.lightSourcePatchList[i]!);
     }
 
     Nondiff.makeLightSourceTable(scenePatches, lightPatches);

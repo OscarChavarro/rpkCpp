@@ -129,7 +129,7 @@ export class Texture {
     if (this.data === null) {
       return 0.0;
     }
-    const value = this.data[pixelIndex + channel] & 0xFF;
+    const value = (this.data[pixelIndex + channel] ?? 0) & 0xFF;
     return value / 255.0;
   }
 }

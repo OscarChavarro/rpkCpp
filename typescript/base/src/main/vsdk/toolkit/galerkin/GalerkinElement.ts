@@ -22,6 +22,10 @@ import { GalerkinElementRenderMode } from "./GalerkinElementRenderMode";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 
+type Matrix2x2Quad = [Matrix2x2, Matrix2x2, Matrix2x2, Matrix2x2];
+type QuadPoints = [Vector3D, Vector3D, Vector3D, Vector3D];
+type OctPoints = [Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D];
+
 export class GalerkinElement extends Element {
   private static numberOfElements = 0;
   private static numberOfClusters = 0;
@@ -45,14 +49,13 @@ export class GalerkinElement extends Element {
   private static readonly quadToParentTransformMatrix = GalerkinElement.buildQuadTransforms();
   private static readonly triangleToParentTransformMatrix = GalerkinElement.buildTriangleTransforms();
 
-  private static buildQuadTransforms(): Matrix2x2[] {
-    const t = new Array<Matrix2x2>(4);
+  private static buildQuadTransforms(): Matrix2x2Quad {
+    const t: Matrix2x2Quad = [new Matrix2x2(), new Matrix2x2(), new Matrix2x2(), new Matrix2x2()];
     for (let i = 0; i < 4; i++) {
-      t[i] = new Matrix2x2();
-      t[i].m[0][0] = 0.5;
-      t[i].m[0][1] = 0.0;
-      t[i].m[1][0] = 0.0;
-      t[i].m[1][1] = 0.5;
+      t[i]!.m[0][0] = 0.5;
+      t[i]!.m[0][1] = 0.0;
+      t[i]!.m[1][0] = 0.0;
+      t[i]!.m[1][1] = 0.5;
     }
     t[0].t[0] = 0.0;
     t[0].t[1] = 0.0;
@@ -65,11 +68,8 @@ export class GalerkinElement extends Element {
     return t;
   }
 
-  private static buildTriangleTransforms(): Matrix2x2[] {
-    const t = new Array<Matrix2x2>(4);
-    for (let i = 0; i < 4; i++) {
-      t[i] = new Matrix2x2();
-    }
+  private static buildTriangleTransforms(): Matrix2x2Quad {
+    const t: Matrix2x2Quad = [new Matrix2x2(), new Matrix2x2(), new Matrix2x2(), new Matrix2x2()];
 
     t[0].m[0][0] = 0.5;
     t[0].m[0][1] = 0.0;
@@ -231,8 +231,8 @@ export class GalerkinElement extends Element {
       child.patch = this.patch;
       child.parent = this;
       child.transformToParent = (this.patch.numberOfVertices === 3)
-        ? GalerkinElement.triangleToParentTransformMatrix[i]
-        : GalerkinElement.quadToParentTransformMatrix[i];
+        ? GalerkinElement.triangleToParentTransformMatrix[i]!
+        : GalerkinElement.quadToParentTransformMatrix[i]!;
       child.area = 0.25 * this.area;
       child.blockerSize = 2.0 * Math.sqrt(child.area / Math.PI);
       child.childNumber = i;
@@ -258,27 +258,27 @@ export class GalerkinElement extends Element {
     }
 
     let childElement: Element | null;
-    const uu = u[0];
-    const vv = v[0];
+    const uu = u[0] ?? 0.0;
+    const vv = v[0] ?? 0.0;
     switch (this.patch.numberOfVertices) {
       case 3:
         if (uu + vv <= 0.5) {
-          childElement = this.regularSubElements[0];
+          childElement = this.regularSubElements[0] ?? null;
           u[0] = uu * 2.0;
           v[0] = vv * 2.0;
         }
         else if (uu > 0.5) {
-          childElement = this.regularSubElements[1];
+          childElement = this.regularSubElements[1] ?? null;
           u[0] = (uu - 0.5) * 2.0;
           v[0] = vv * 2.0;
         }
         else if (vv > 0.5) {
-          childElement = this.regularSubElements[2];
+          childElement = this.regularSubElements[2] ?? null;
           u[0] = uu * 2.0;
           v[0] = (vv - 0.5) * 2.0;
         }
         else {
-          childElement = this.regularSubElements[3];
+          childElement = this.regularSubElements[3] ?? null;
           u[0] = (0.5 - uu) * 2.0;
           v[0] = (0.5 - vv) * 2.0;
         }
@@ -286,22 +286,22 @@ export class GalerkinElement extends Element {
       case 4:
         if (vv <= 0.5) {
           if (uu < 0.5) {
-            childElement = this.regularSubElements[0];
+            childElement = this.regularSubElements[0] ?? null;
             u[0] = uu * 2.0;
           }
           else {
-            childElement = this.regularSubElements[1];
+            childElement = this.regularSubElements[1] ?? null;
             u[0] = (uu - 0.5) * 2.0;
           }
           v[0] = vv * 2.0;
         }
         else {
           if (uu < 0.5) {
-            childElement = this.regularSubElements[2];
+            childElement = this.regularSubElements[2] ?? null;
             u[0] = uu * 2.0;
           }
           else {
-            childElement = this.regularSubElements[3];
+            childElement = this.regularSubElements[3] ?? null;
             u[0] = (uu - 0.5) * 2.0;
           }
           v[0] = (vv - 0.5) * 2.0;
@@ -352,14 +352,20 @@ export class GalerkinElement extends Element {
     if (this.transformToParent !== null) {
       topTrans.transformPoint2D(uv, uv);
     }
-    this.patch.uniformPoint(uv.x, uv.y, p[0]);
+    const p0 = p[0];
+    if (p0 !== undefined) {
+      this.patch.uniformPoint(uv.x, uv.y, p0);
+    }
 
     uv.x = 1.0;
     uv.y = 0.0;
     if (this.transformToParent !== null) {
       topTrans.transformPoint2D(uv, uv);
     }
-    this.patch.uniformPoint(uv.x, uv.y, p[1]);
+    const p1 = p[1];
+    if (p1 !== undefined) {
+      this.patch.uniformPoint(uv.x, uv.y, p1);
+    }
 
     if (this.patch.numberOfVertices === 4) {
       uv.x = 1.0;
@@ -367,14 +373,20 @@ export class GalerkinElement extends Element {
       if (this.transformToParent !== null) {
         topTrans.transformPoint2D(uv, uv);
       }
-      this.patch.uniformPoint(uv.x, uv.y, p[2]);
+      const p2 = p[2];
+      if (p2 !== undefined) {
+        this.patch.uniformPoint(uv.x, uv.y, p2);
+      }
 
       uv.x = 0.0;
       uv.y = 1.0;
       if (this.transformToParent !== null) {
         topTrans.transformPoint2D(uv, uv);
       }
-      this.patch.uniformPoint(uv.x, uv.y, p[3]);
+      const p3 = p[3];
+      if (p3 !== undefined) {
+        this.patch.uniformPoint(uv.x, uv.y, p3);
+      }
     }
     else {
       uv.x = 0.0;
@@ -382,8 +394,11 @@ export class GalerkinElement extends Element {
       if (this.transformToParent !== null) {
         topTrans.transformPoint2D(uv, uv);
       }
-      this.patch.uniformPoint(uv.x, uv.y, p[2]);
-      if (p.length > 3 && p[3] !== null) {
+      const p2 = p[2];
+      if (p2 !== undefined) {
+        this.patch.uniformPoint(uv.x, uv.y, p2);
+      }
+      if (p.length > 3 && p[3] !== undefined && p[3] !== null) {
         p[3].set(0.0, 0.0, 0.0);
       }
     }
@@ -401,10 +416,13 @@ export class GalerkinElement extends Element {
       return boundingBox;
     }
 
-    const p = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
+    const p: QuadPoints = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
     const numberOfVertices = this.vertices(p);
     for (let i = 0; i < numberOfVertices; i++) {
-      boundingBox.enlargeToIncludePoint(p[i]);
+      const point = p[i];
+      if (point !== undefined) {
+        boundingBox.enlargeToIncludePoint(point);
+      }
     }
     return boundingBox;
   }
@@ -414,11 +432,14 @@ export class GalerkinElement extends Element {
       return this.geometry !== null ? this.geometry.boundingBox.center() : new Vector3D();
     }
 
-    const p = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
+    const p: OctPoints = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
     const numberOfVertices = this.vertices(p);
     const c = new Vector3D();
     for (let i = 0; i < numberOfVertices; i++) {
-      c.addition(c, p[i]);
+      const point = p[i];
+      if (point !== undefined) {
+        c.addition(c, point);
+      }
     }
     if (numberOfVertices > 0) {
       c.scaledCopy(1.0 / numberOfVertices, c);
@@ -443,7 +464,10 @@ export class GalerkinElement extends Element {
     polygon.numberOfVertices = this.vertices(polygon.vertex);
     polygon.bounds = new BoundingBox();
     for (let i = 0; i < polygon.numberOfVertices; i++) {
-      polygon.bounds.enlargeToIncludePoint(polygon.vertex[i]);
+      const vertex = polygon.vertex[i];
+      if (vertex !== undefined) {
+        polygon.bounds.enlargeToIncludePoint(vertex);
+      }
     }
   }
 

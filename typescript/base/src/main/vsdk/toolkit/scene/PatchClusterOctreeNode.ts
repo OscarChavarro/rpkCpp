@@ -28,7 +28,7 @@ export class PatchClusterOctreeNode {
     }
 
     for (let i = 0; inPatches !== undefined && inPatches !== null && i < inPatches.length; i++) {
-      this.clusterAddPatch(inPatches[i]);
+      this.clusterAddPatch(inPatches[i]!);
     }
 
     if (inPatches !== undefined) {
@@ -58,7 +58,7 @@ export class PatchClusterOctreeNode {
       return;
     }
     for (let i = 0; i < PatchClusterOctreeNode.clusterNodeGeometriesToDelete.length; i++) {
-      const geometry = PatchClusterOctreeNode.clusterNodeGeometriesToDelete[i];
+      const geometry = PatchClusterOctreeNode.clusterNodeGeometriesToDelete[i]!;
       if (geometry !== null) {
         geometry.isDuplicate = false;
         geometry.radianceData = null;
@@ -101,7 +101,7 @@ export class PatchClusterOctreeNode {
   }
 
   private movePatchToSubOctantCluster(patchIndexOnParent: number): boolean {
-    const patch = (this.patches as Patch[])[patchIndexOnParent];
+    const patch = (this.patches as Patch[])[patchIndexOnParent]!;
     const patchBoundingBox = patch.boundingBox as BoundingBox;
 
     const smallestBoxDimension = 10.0 * Numeric.EPSILON_FLOAT;
@@ -204,7 +204,7 @@ export class PatchClusterOctreeNode {
 
     process.stdout.write(`${(this.patches as Patch[]).length} patches: `);
     for (let i = 0; i < (this.patches as Patch[]).length; i++) {
-      process.stdout.write(`[${(this.patches as Patch[])[i].id}]`);
+      process.stdout.write(`[${(this.patches as Patch[])[i]!.id}]`);
     }
     process.stdout.write("\n");
 

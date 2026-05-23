@@ -54,7 +54,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     format: string,
     ...args: unknown[]
   ): void {
-    if (offset[0] >= RandomWalkRadianceMethod.STRING_LENGTH - 1) {
+    if (offset[0]! >= RandomWalkRadianceMethod.STRING_LENGTH - 1) {
       return;
     }
 
@@ -66,7 +66,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
       text = format;
     }
 
-    const available = RandomWalkRadianceMethod.STRING_LENGTH - offset[0];
+    const available = RandomWalkRadianceMethod.STRING_LENGTH - offset[0]!;
     if (available <= 0) {
       return;
     }
@@ -77,7 +77,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     }
     else {
       buffer.append(text);
-      offset[0] += text.length;
+      offset[0]! += text.length;
     }
   }
 
@@ -160,7 +160,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
   private static toArrayList(scenePatches: Patch[] | null): ArrayList<Patch> {
     const out = new ArrayList<Patch>();
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      out.add(scenePatches[i]);
+      out.add(scenePatches[i]!);
     }
     return out;
   }
@@ -214,7 +214,7 @@ a survival stochasticJacobiProbability function
   private static randomWalkRadiosityGetSelfEmittedRadiance(elem: StochasticRadiosityElement): ColorRgb[] {
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(RandomWalkRadianceMethod.selfEmittedRadiance, elem.basis);
     const ed = McradP.topLevelStochasticRadiosityElement(elem.patch as Patch).Ed;
-    RandomWalkRadianceMethod.selfEmittedRadiance[0].set(ed.r, ed.g, ed.b);
+    RandomWalkRadianceMethod.selfEmittedRadiance[0]!.set(ed.r, ed.g, ed.b);
     return RandomWalkRadianceMethod.selfEmittedRadiance;
   }
 
@@ -250,26 +250,26 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
         break;
       case RandomWalkEstimatorKind.RW_ABSORPTION:
         if (nodeIndex === path.numberOfNodes - 1) {
-          w = 1.0 / (1.0 - path.nodes![nodeIndex].probability);
+          w = 1.0 / (1.0 - path.nodes![nodeIndex]!.probability);
         }
         break;
       case RandomWalkEstimatorKind.RW_SURVIVAL:
         if (nodeIndex < path.numberOfNodes - 1) {
-          w = 1.0 / path.nodes![nodeIndex].probability;
+          w = 1.0 / path.nodes![nodeIndex]!.probability;
         }
         break;
       case RandomWalkEstimatorKind.RW_LAST_BUT_NTH:
         if (nodeIndex === t - 1) {
           const lastNodeIndex = path.numberOfNodes - 1;
-          w = 1.0 / (1.0 - path.nodes![lastNodeIndex].probability);
+          w = 1.0 / (1.0 - path.nodes![lastNodeIndex]!.probability);
           for (let n = lastNodeIndex - 1; n >= nodeIndex; n--) {
-            w /= path.nodes![n].probability;
+            w /= path.nodes![n]!.probability;
           }
         }
         break;
       case RandomWalkEstimatorKind.RW_N_LAST:
         if (nodeIndex === t) {
-          w = 1.0 / (1.0 - path.nodes![path.numberOfNodes - 1].probability);
+          w = 1.0 / (1.0 - path.nodes![path.numberOfNodes - 1]!.probability);
         }
         else if (nodeIndex > t) {
           w = 1.0;
@@ -296,14 +296,14 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
       // Keep C++ signature.
     }
     const accumPow = new ColorRgb();
-    const firstNode = path.nodes![0];
+    const firstNode = path.nodes![0]!;
 
     accumPow.scaledCopy(
       firstNode.patch!.area / firstNode.probability,
       McradP.topLevelStochasticRadiosityElement(firstNode.patch as Patch).sourceRad
     );
     for (let n = 1; n < path.numberOfNodes; n++) {
-      const node = path.nodes![n];
+      const node = path.nodes![n]!;
       const uin = [0.0];
       const vin = [0.0];
       const uOut = [0.0];
@@ -324,15 +324,15 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
       const w = RandomWalkRadianceMethod.randomWalkRadiosityScoreWeight(path, n);
       const basis = McradP.getTopLevelPatchBasis(patch) as GalerkinBasis;
       for (let i = 0; i < basis.size; i++) {
-        const dual = basis.dualFunction![i](uin[0], vin[0]) / patch.area;
-        McradP.getTopLevelPatchReceivedRad(patch)![i].addScaled(
-          McradP.getTopLevelPatchReceivedRad(patch)![i],
-          w * dual / numberOfPaths,
-          accumPow
-        );
+          const dual = basis.dualFunction![i]!(uin[0]!, vin[0]!) / patch.area;
+          McradP.getTopLevelPatchReceivedRad(patch)![i]!.addScaled(
+            McradP.getTopLevelPatchReceivedRad(patch)![i]!,
+            w * dual / numberOfPaths,
+            accumPow
+          );
 
         if (StochasticRelaxation.activeState().continuousRandomWalk === 0) {
-          const basf = basis.function![i](uOut[0], vOut[0]);
+          const basf = basis.function![i]!(uOut[0]!, vOut[0]!);
           r += dual * patch.area * basf;
         }
       }
@@ -349,8 +349,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
     }
     const k = oldQuality / McradP.topLevelStochasticRadiosityElement(patch).quality;
 
-    McradP.getTopLevelPatchRad(patch)![0].subtract(
-      McradP.getTopLevelPatchRad(patch)![0],
+    McradP.getTopLevelPatchRad(patch)![0]!.subtract(
+      McradP.getTopLevelPatchRad(patch)![0]!,
       McradP.topLevelStochasticRadiosityElement(patch).sourceRad
     );
 
@@ -366,8 +366,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
       McradP.getTopLevelPatchBasis(patch)
     );
 
-    McradP.getTopLevelPatchRad(patch)![0].add(
-      McradP.getTopLevelPatchRad(patch)![0],
+    McradP.getTopLevelPatchRad(patch)![0]!.add(
+      McradP.getTopLevelPatchRad(patch)![0]!,
       McradP.topLevelStochasticRadiosityElement(patch).sourceRad
     );
 
@@ -383,11 +383,11 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
     const approx = (StochasticRelaxation.activeState().approximationOrderType
       ?? StochasticRaytracingApproximation.CONSTANT) as number;
     if (StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-      numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size;
+      numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
     }
     else {
       numberOfWalks *= globalThis.Math.pow(
-        StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size,
+        StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size,
         1.0 / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())
       );
     }
@@ -459,9 +459,9 @@ Determines control radiosity value for collision gathering estimator
     }
     const lastNodeIndex = path.numberOfNodes - 1;
     let accumRad = new ColorRgb(
-      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex].patch as Patch).sourceRad.r,
-      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex].patch as Patch).sourceRad.g,
-      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex].patch as Patch).sourceRad.b
+      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.r,
+      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.g,
+      McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.b
     );
     for (let n = lastNodeIndex - 1; n >= 0; n--) {
       const node = path.nodes![n] as StochasticRaytracingPathNode;
@@ -484,15 +484,15 @@ Determines control radiosity value for collision gathering estimator
 
       const basis = McradP.getTopLevelPatchBasis(patch) as GalerkinBasis;
       for (let i = 0; i < basis.size; i++) {
-        const dual = basis.dualFunction![i](uOut[0], vOut[0]);
-        McradP.getTopLevelPatchReceivedRad(patch)![i].addScaled(
-          McradP.getTopLevelPatchReceivedRad(patch)![i],
+        const dual = basis.dualFunction![i]!(uOut[0]!, vOut[0]!);
+        McradP.getTopLevelPatchReceivedRad(patch)![i]!.addScaled(
+          McradP.getTopLevelPatchReceivedRad(patch)![i]!,
           dual,
           accumRad
         );
 
         if (StochasticRelaxation.activeState().continuousRandomWalk === 0) {
-          const basf = basis.function![i](uin[0], vin[0]);
+          const basf = basis.function![i]!(uin[0]!, vin[0]!);
           r += basf * dual;
         }
       }
@@ -526,8 +526,8 @@ Determines control radiosity value for collision gathering estimator
       );
     }
 
-    McradP.getTopLevelPatchRad(patch)![0].add(
-      McradP.getTopLevelPatchRad(patch)![0],
+    McradP.getTopLevelPatchRad(patch)![0]!.add(
+      McradP.getTopLevelPatchRad(patch)![0]!,
       McradP.topLevelStochasticRadiosityElement(patch).sourceRad
     );
 
@@ -541,7 +541,7 @@ Determines control radiosity value for collision gathering estimator
         const Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
         cr.scalarProduct(Rd, StochasticRelaxation.activeState().controlRadiance);
       }
-      McradP.getTopLevelPatchRad(patch)![0].add(McradP.getTopLevelPatchRad(patch)![0], cr);
+      McradP.getTopLevelPatchRad(patch)![0]!.add(McradP.getTopLevelPatchRad(patch)![0]!, cr);
     }
 
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(
@@ -558,11 +558,11 @@ Determines control radiosity value for collision gathering estimator
     const approx = (StochasticRelaxation.activeState().approximationOrderType
       ?? StochasticRaytracingApproximation.CONSTANT) as number;
     if (StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-      numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size;
+      numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
     }
     else {
       numberOfWalks *= globalThis.Math.pow(
-        StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size,
+        StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size,
         1.0 / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())
       );
     }
@@ -599,7 +599,7 @@ Determines control radiosity value for collision gathering estimator
       // Keep C++ signature.
     }
     Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
-    elem.sourceRad.set(elem.receivedRadiance![0].r, elem.receivedRadiance![0].g, elem.receivedRadiance![0].b);
+    elem.sourceRad.set(elem.receivedRadiance![0]!.r, elem.receivedRadiance![0]!.g, elem.receivedRadiance![0]!.b);
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
   }
@@ -612,7 +612,7 @@ Determines control radiosity value for collision gathering estimator
     const approx = (StochasticRelaxation.activeState().approximationOrderType
       ?? StochasticRaytracingApproximation.CONSTANT) as number;
     const numberOfRays = StochasticRelaxation.activeState().initialNumberOfRays *
-      StochasticRadiosityBasisState.activeState().approxDesc[approx].basis_size;
+      StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
 
     process.stderr.write(util.format("First shot (%d rays):\n", numberOfRays));
     StochasticJacobi.doStochasticJacobiIteration(
@@ -665,7 +665,7 @@ Determines control radiosity value for collision gathering estimator
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      Mcrad.monteCarloRadiosityPatchComputeNewColor(scene.patchList[i]);
+      Mcrad.monteCarloRadiosityPatchComputeNewColor(scene.patchList[i]!);
     }
 
     return false;

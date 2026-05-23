@@ -83,22 +83,22 @@ export class MgfConeEntityTessellator {
     if (argumentCount !== 5) {
       return ParseErrorContext.MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    v1Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1], context);
-    v2Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[3], context);
+    v1Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1]!, context);
+    v2Context = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[3]!, context);
     if (v1Context === null || v2Context === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    v1Name = argumentValues[1];
-    if (!TokenValidationContext.isFloat(argumentValues[2]) || !TokenValidationContext.isFloat(argumentValues[4])) {
+    v1Name = argumentValues[1]!;
+    if (!TokenValidationContext.isFloat(argumentValues[2]!) || !TokenValidationContext.isFloat(argumentValues[4]!)) {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
 
     // Set up (radius1, radius2)
-    let radius1 = Number.parseFloat(argumentValues[2]);
+    let radius1 = Number.parseFloat(argumentValues[2]!);
     if (radius1 <= Numeric.EPSILON && radius1 >= -Numeric.EPSILON) {
       radius1 = 0.0;
     }
-    let radius2 = Number.parseFloat(argumentValues[4]);
+    let radius2 = Number.parseFloat(argumentValues[4]!);
     if (radius2 <= Numeric.EPSILON && radius2 >= -Numeric.EPSILON) {
       radius2 = 0.0;
     }
@@ -121,7 +121,7 @@ export class MgfConeEntityTessellator {
       const swappedVertexContext = v1Context;
       v1Context = v2Context;
       v2Context = swappedVertexContext;
-      v1Name = argumentValues[3];
+      v1Name = argumentValues[3]!;
       d = radius1;
       radius1 = radius2;
       radius2 = d;
@@ -178,29 +178,29 @@ export class MgfConeEntityTessellator {
       MgfTessellationMath.formatFloat(n3z, 24, u.z + w.z * normalOffset2);
     }
 
-    p3Entity[1] = p3x[0];
-    p3Entity[2] = p3y[0];
-    p3Entity[3] = p3z[0];
-    n3Entity[1] = n3x[0];
-    n3Entity[2] = n3y[0];
-    n3Entity[3] = n3z[0];
+    p3Entity[1] = p3x[0]!;
+    p3Entity[2] = p3y[0]!;
+    p3Entity[3] = p3z[0]!;
+    n3Entity[1] = n3x[0]!;
+    n3Entity[2] = n3y[0]!;
+    n3Entity[3] = n3z[0]!;
 
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 3, v3Entity, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 3, v3Entity as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
-    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity, context);
+    errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity as string[], context);
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
     if (radius1 === 0.0) {
       // Triangles
       v1Entity[3] = v1Name;
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
@@ -208,17 +208,17 @@ export class MgfConeEntityTessellator {
       MgfTessellationMath.formatFloat(n4x, 24, w.x);
       MgfTessellationMath.formatFloat(n4y, 24, w.y);
       MgfTessellationMath.formatFloat(n4z, 24, w.z);
-      n4Entity[1] = n4x[0];
-      n4Entity[2] = n4y[0];
-      n4Entity[3] = n4z[0];
+      n4Entity[1] = n4x[0]!;
+      n4Entity[2] = n4y[0]!;
+      n4Entity[3] = n4z[0]!;
 
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
       for (let i = 1; i <= 4 * context.numberOfQuarterCircleDivisions; i++) {
         const theta = sign * i * (globalThis.Math.PI / 2) / context.numberOfQuarterCircleDivisions;
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
@@ -240,26 +240,26 @@ export class MgfConeEntityTessellator {
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
           MgfTessellationMath.formatFloat(n3z, 24, d + w.z * normalOffset2);
         }
-        p3Entity[1] = p3x[0];
-        p3Entity[2] = p3y[0];
-        p3Entity[3] = p3z[0];
-        n3Entity[1] = n3x[0];
-        n3Entity[2] = n3y[0];
-        n3Entity[3] = n3z[0];
+        p3Entity[1] = p3x[0]!;
+        p3Entity[2] = p3y[0]!;
+        p3Entity[3] = p3z[0]!;
+        n3Entity[1] = n3x[0]!;
+        n3Entity[2] = n3y[0]!;
+        n3Entity[3] = n3z[0]!;
 
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity as string[], context);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 4, faceEntity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 4, faceEntity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
@@ -304,32 +304,32 @@ export class MgfConeEntityTessellator {
       else {
         MgfTessellationMath.formatFloat(n4z, 24, u.z + w.z * normalOffset1);
       }
-      p4Entity[1] = p4x[0];
-      p4Entity[2] = p4y[0];
-      p4Entity[3] = p4z[0];
-      n4Entity[1] = n4x[0];
-      n4Entity[2] = n4y[0];
-      n4Entity[3] = n4z[0];
+      p4Entity[1] = p4x[0]!;
+      p4Entity[2] = p4y[0]!;
+      p4Entity[3] = p4z[0]!;
+      n4Entity[1] = n4x[0]!;
+      n4Entity[2] = n4y[0]!;
+      n4Entity[3] = n4z[0]!;
 
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 3, v4Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 3, v4Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p4Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p4Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity, context);
+      errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
       for (let i = 1; i <= 4 * context.numberOfQuarterCircleDivisions; i++) {
         const theta = sign * i * (globalThis.Math.PI / 2) / context.numberOfQuarterCircleDivisions;
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v2Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
@@ -364,44 +364,44 @@ export class MgfConeEntityTessellator {
           MgfTessellationMath.formatFloat(n4z, 24, d + w.z * normalOffset1);
         }
 
-        p3Entity[1] = p3x[0];
-        p3Entity[2] = p3y[0];
-        p3Entity[3] = p3z[0];
-        n3Entity[1] = n3x[0];
-        n3Entity[2] = n3y[0];
-        n3Entity[3] = n3z[0];
-        p4Entity[1] = p4x[0];
-        p4Entity[2] = p4y[0];
-        p4Entity[3] = p4z[0];
-        n4Entity[1] = n4x[0];
-        n4Entity[2] = n4y[0];
-        n4Entity[3] = n4z[0];
+        p3Entity[1] = p3x[0]!;
+        p3Entity[2] = p3y[0]!;
+        p3Entity[3] = p3z[0]!;
+        n3Entity[1] = n3x[0]!;
+        n3Entity[2] = n3y[0]!;
+        n3Entity[3] = n3z[0]!;
+        p4Entity[1] = p4x[0]!;
+        p4Entity[2] = p4y[0]!;
+        p4Entity[3] = p4z[0]!;
+        n4Entity[1] = n4x[0]!;
+        n4Entity[2] = n4y[0]!;
+        n4Entity[3] = n4z[0]!;
 
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p3Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity as string[], context);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v4Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v4Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p4Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_POINT, 4, p4Entity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity as string[], context);
         if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
-        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 5, faceEntity, context);
+        errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 5, faceEntity as string[], context);
         if (errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }

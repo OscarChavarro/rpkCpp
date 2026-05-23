@@ -77,8 +77,8 @@ export class ImportantLightSampler extends NextEventSampler {
       light = null;
     }
 
-    x1 = localX1[0];
-    pdfLight = outPdfLight[0];
+    x1 = localX1[0]!;
+    pdfLight = outPdfLight[0]!;
 
     if (light === null) {
       return false;
@@ -100,7 +100,7 @@ export class ImportantLightSampler extends NextEventSampler {
       newNode.m_inDirF.copy(dir);
       newNode.m_normal.copy(dir);
 
-      pdfPoint = pdf[0];
+      pdfPoint = pdf[0]!;
     }
     else {
       light.uniformPoint(x1, x2, point);
@@ -156,7 +156,7 @@ export class ImportantLightSampler extends NextEventSampler {
           XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
           outPdfDir
         );
-        pdfDir = outPdfDir[0];
+        pdfDir = outPdfDir[0]!;
       }
 
       localPdf *= pdfDir;

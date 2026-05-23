@@ -33,13 +33,13 @@ export class ShootingStrategy {
     let maximumPowerImportance = 0.0;
 
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      const patch = scenePatches[i];
+      const patch = scenePatches[i]!;
       if (patch === null || patch.radianceData === null || patch.radianceData.unShotRadiance === null
         || patch.radianceData.unShotRadiance.length === 0 || patch.radianceData.unShotRadiance[0] === null) {
         continue;
       }
 
-      const power = globalThis.Math.PI * patch.area * patch.radianceData.unShotRadiance[0].sumAbsComponents();
+      const power = globalThis.Math.PI * patch.area * patch.radianceData.unShotRadiance[0]!.sumAbsComponents();
       if (power > maximumPower) {
         shootingPatch = patch;
         maximumPower = power;
@@ -67,7 +67,7 @@ export class ShootingStrategy {
 
     if (elem.regularSubElements !== null) {
       for (let i = 0; i < 4; i++) {
-        const child = elem.regularSubElements[i];
+        const child = elem.regularSubElements[i]!;
         if (child instanceof GalerkinElement) {
           ShootingStrategy.clearUnShotRadianceAndPotential(child as GalerkinElement);
         }
@@ -75,7 +75,7 @@ export class ShootingStrategy {
     }
 
     for (let i = 0; elem.irregularSubElements !== null && i < elem.irregularSubElements.length; i++) {
-      const child = elem.irregularSubElements[i];
+      const child = elem.irregularSubElements[i]!;
       if (child instanceof GalerkinElement) {
         ShootingStrategy.clearUnShotRadianceAndPotential(child as GalerkinElement);
       }
@@ -140,7 +140,7 @@ export class ShootingStrategy {
 
     if (element.regularSubElements !== null) {
       for (let i = 0; i < 4; i++) {
-        const child = element.regularSubElements[i];
+        const child = element.regularSubElements[i]!;
         if (child instanceof GalerkinElement) {
           up += 0.25 * ShootingStrategy.shootingPushPullPotential(child as GalerkinElement, down);
         }
@@ -149,7 +149,7 @@ export class ShootingStrategy {
 
     if (element.irregularSubElements !== null) {
       for (let j = 0; j < element.irregularSubElements.length; j++) {
-        const child = element.irregularSubElements[j];
+        const child = element.irregularSubElements[j]!;
         if (!(child instanceof GalerkinElement)) {
           continue;
         }
@@ -188,7 +188,7 @@ export class ShootingStrategy {
       galerkinState.ambientRadiance.addScaled(
         galerkinState.ambientRadiance,
         patch.area,
-        patch.radianceData.unShotRadiance[0],
+        patch.radianceData.unShotRadiance[0]!,
       );
     }
   }
@@ -209,20 +209,20 @@ export class ShootingStrategy {
         && galerkinState.topCluster.unShotRadiance !== null
         && galerkinState.topCluster.unShotRadiance.length > 0
         && galerkinState.topCluster.unShotRadiance[0] !== null) {
-        const ambient = galerkinState.topCluster.unShotRadiance[0];
+        const ambient = galerkinState.topCluster.unShotRadiance[0]!;
         galerkinState.ambientRadiance.set(ambient.r, ambient.g, ambient.b);
       }
     }
     else {
       galerkinState.ambientRadiance.clear();
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        ShootingStrategy.patchUpdateRadianceAndPotential(scene.patchList[i], galerkinState);
+        ShootingStrategy.patchUpdateRadianceAndPotential(scene.patchList[i]!, galerkinState);
       }
       galerkinState.ambientRadiance.scale(1.0 / Statistics.instance().radiance.totalArea);
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]);
+      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!);
     }
   }
 
@@ -245,7 +245,7 @@ export class ShootingStrategy {
     clusterElement.unShotPotential = 0.0;
     for (let i = 0; clusterElement.irregularSubElements !== null
       && i < clusterElement.irregularSubElements.length; i++) {
-      const child = clusterElement.irregularSubElements[i];
+      const child = clusterElement.irregularSubElements[i]!;
       if (!(child instanceof GalerkinElement)) {
         continue;
       }
@@ -265,7 +265,7 @@ export class ShootingStrategy {
     let shootingPatch: Patch | null = null;
 
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      const patch = scenePatches[i];
+      const patch = scenePatches[i]!;
       if (patch === null) {
         continue;
       }
@@ -296,7 +296,7 @@ export class ShootingStrategy {
 
     if (galerkinElement.regularSubElements !== null) {
       for (let i = 0; i < 4; i++) {
-        const child = galerkinElement.regularSubElements[i];
+        const child = galerkinElement.regularSubElements[i]!;
         if (child instanceof GalerkinElement) {
           ShootingStrategy.shootingUpdateDirectPotential(child as GalerkinElement, potentialIncrement);
         }
@@ -312,7 +312,7 @@ export class ShootingStrategy {
       if (galerkinState.iterationNumber <= 1 || (scene.camera as NonNullable<Scene["camera"]>).changed !== 0) {
         Potential.updateDirectPotential(scene, renderOptions);
         for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-          const patch = scene.patchList[i];
+          const patch = scene.patchList[i]!;
           const topLevelElement = GalerkinElement.fromPatch(patch);
           if (topLevelElement === null) {
             continue;

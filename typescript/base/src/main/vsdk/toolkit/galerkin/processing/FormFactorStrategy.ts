@@ -48,7 +48,7 @@ export class FormFactorStrategy {
       hit = Geometry.listDiscretizationIntersect(
         geometrySceneList,
         ray,
-        Numeric.EPSILON_FLOAT * dist[0],
+        Numeric.EPSILON_FLOAT * dist[0]!,
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
@@ -57,7 +57,7 @@ export class FormFactorStrategy {
     else if (voxelGrid !== null) {
       hit = voxelGrid.gridIntersect(
         ray,
-        Numeric.EPSILON_FLOAT * dist[0],
+        Numeric.EPSILON_FLOAT * dist[0]!,
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
@@ -95,10 +95,10 @@ export class FormFactorStrategy {
         if (x[k] === null) {
           x[k] = new Vector3D();
         }
-        x[k].set(
-          minX + (cr[0] as CubatureRule).u[k] * dx,
-          minY + (cr[0] as CubatureRule).v[k] * dy,
-          minZ + (cr[0] as CubatureRule).t[k] * dz,
+        x[k]!.set(
+          minX + (cr[0] as CubatureRule).u[k]! * dx,
+          minY + (cr[0] as CubatureRule).v[k]! * dy,
+          minZ + (cr[0] as CubatureRule).t[k]! * dz,
         );
       }
       return;
@@ -131,7 +131,7 @@ export class FormFactorStrategy {
       if (hasTopTransform) {
         topTransform.transformPoint2D(node, node);
       }
-      (element.patch as Patch).uniformPoint(node.x, node.y, x[k]);
+      (element.patch as Patch).uniformPoint(node.x, node.y, x[k]!);
     }
   }
 
@@ -275,8 +275,8 @@ export class FormFactorStrategy {
     FormFactorStrategy.determineNodes(receiverElement, GalerkinRole.RECEIVER, galerkinState, receiverCubatureRuleRef, x);
     FormFactorStrategy.determineNodes(sourceElement, GalerkinRole.SOURCE, galerkinState, sourceCubatureRuleRef, y);
 
-    const receiverCubatureRule = receiverCubatureRuleRef[0];
-    const sourceCubatureRule = sourceCubatureRuleRef[0];
+    const receiverCubatureRule = receiverCubatureRuleRef[0]!;
+    const sourceCubatureRule = sourceCubatureRuleRef[0]!;
     if (receiverCubatureRule === null || sourceCubatureRule === null) {
       link.deltaK = [0.0];
       link.numberOfReceiverCubaturePositions = 1;
@@ -305,11 +305,11 @@ export class FormFactorStrategy {
     let visibilityCount = 0;
     for (let r = 0; r < receiverCubatureRule.numberOfNodes; r++) {
       for (let s = 0; s < sourceCubatureRule.numberOfNodes; s++) {
-        Gxy[r][s] = FormFactorStrategy.evaluatePointsPairKernel(
+        Gxy[r]![s] = FormFactorStrategy.evaluatePointsPairKernel(
           shadowCache,
           sceneWorldVoxelGrid,
-          x[r],
-          y[s],
+          x[r]!,
+          y[s]!,
           receiverElement,
           sourceElement,
           geometryShadowList,
@@ -317,10 +317,10 @@ export class FormFactorStrategy {
           isClusteredGeometry,
           galerkinState,
         );
-        if (Gxy[r][s] > maximumKernelValue) {
-          maximumKernelValue = Gxy[r][s];
+        if (Gxy[r]![s]! > maximumKernelValue) {
+          maximumKernelValue = Gxy[r]![s]!;
         }
-        if (globalThis.Math.abs(Gxy[r][s]) > Numeric.EPSILON) {
+        if (globalThis.Math.abs(Gxy[r]![s]!) > Numeric.EPSILON) {
           visibilityCount++;
         }
       }
@@ -349,7 +349,7 @@ export class FormFactorStrategy {
       }
     }
     else {
-      link.K[0] = 0.0;
+      link.K[0]! = 0.0;
       link.deltaK = [0.0];
       link.numberOfReceiverCubaturePositions = 1;
     }
@@ -415,8 +415,8 @@ export class FormFactorStrategy {
     FormFactorStrategy.computeInteractionError(
       receiverCubatureRule,
       receiverElement,
-      gMin[0],
-      gMax[0],
+      gMin[0]!,
+      gMax[0]!,
       sourceRadiance,
       deltaRadiance,
       twoPatchesInteraction,
@@ -433,20 +433,20 @@ export class FormFactorStrategy {
     link: Interaction,
   ): void {
     link.deltaK = new Array<number>(1);
-    if (sourceRadiance[0].isBlack()) {
-      const gAverage = link.K[0] / receiverElement.area;
-      link.deltaK[0] = gMax - gAverage;
-      if (gAverage - gMin > link.deltaK[0]) {
-        link.deltaK[0] = gAverage - gMin;
+    if (sourceRadiance[0]!.isBlack()) {
+      const gAverage = link.K[0]! / receiverElement.area;
+      link.deltaK[0]! = gMax - gAverage;
+      if (gAverage - gMin > link.deltaK[0]!) {
+        link.deltaK[0]! = gAverage - gMin;
       }
     }
     else {
-      link.deltaK[0] = 0.0;
+      link.deltaK[0]! = 0.0;
       for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-        deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
-        const delta = globalThis.Math.abs(deltaRadiance[k].maximumComponent());
-        if (delta > link.deltaK[0]) {
-          link.deltaK[0] = delta;
+        deltaRadiance[k]!.divide(deltaRadiance[k]!, sourceRadiance[0]!);
+        const delta = globalThis.Math.abs(deltaRadiance[k]!.maximumComponent());
+        if (delta > link.deltaK[0]!) {
+          link.deltaK[0]! = delta;
         }
       }
     }
@@ -474,18 +474,18 @@ export class FormFactorStrategy {
 
     for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
       if (receiverElement.isCluster()) {
-        receiverPhi[0][k] = 1.0;
+        receiverPhi[0]![k] = 1.0;
       }
       else {
         for (let alpha = 0; alpha < twoPatchesInteraction.numberOfBasisFunctionsOnReceiver && receiverBasis !== null; alpha++) {
-          receiverPhi[alpha][k] = receiverBasis.function[alpha](receiverCubatureRule.u[k], receiverCubatureRule.v[k]);
+          receiverPhi[alpha]![k] = receiverBasis.function[alpha]!(receiverCubatureRule.u[k]!, receiverCubatureRule.v[k]!);
         }
       }
     }
 
     const sourcePhi = new Array<number>(CubatureRule.MAXIMUM_NODES).fill(0.0);
     for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-      deltaRadiance[k].clear();
+      deltaRadiance[k]!.clear();
     }
 
     for (let beta = 0; beta < twoPatchesInteraction.numberOfBasisFunctionsOnSource; beta++) {
@@ -496,7 +496,7 @@ export class FormFactorStrategy {
       }
       else {
         for (let l = 0; l < sourceCubatureRule.numberOfNodes && sourceBasis !== null; l++) {
-          sourcePhi[l] = sourceBasis.function[beta](sourceCubatureRule.u[l], sourceCubatureRule.v[l]);
+          sourcePhi[l] = sourceBasis.function[beta]!(sourceCubatureRule.u[l]!, sourceCubatureRule.v[l]!);
         }
       }
 
@@ -506,35 +506,35 @@ export class FormFactorStrategy {
       for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
         gBeta[k] = 0.0;
         for (let l = 0; l < sourceCubatureRule.numberOfNodes; l++) {
-          gBeta[k] += sourceCubatureRule.w[l] * Gxy[k][l] * sourcePhi[l];
+          gBeta[k]! += sourceCubatureRule.w[l]! * Gxy[k]![l]! * sourcePhi[l]!;
         }
-        gBeta[k] *= sourceElement.area;
-        deltaBeta[k] = -gBeta[k];
+        gBeta[k]! *= sourceElement.area;
+        deltaBeta[k] = -gBeta[k]!;
       }
 
       for (let alpha = 0; alpha < twoPatchesInteraction.numberOfBasisFunctionsOnReceiver; alpha++) {
         let gAlphaBeta = 0.0;
         for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-          gAlphaBeta += receiverCubatureRule.w[k] * receiverPhi[alpha][k] * gBeta[k];
+          gAlphaBeta += receiverCubatureRule.w[k]! * receiverPhi[alpha]![k]! * gBeta[k]!;
         }
         twoPatchesInteraction.K[alpha * twoPatchesInteraction.numberOfBasisFunctionsOnSource + beta] =
           receiverElement.area * gAlphaBeta;
         for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-          deltaBeta[k] += gAlphaBeta * receiverPhi[alpha][k];
+          deltaBeta[k]! += gAlphaBeta * receiverPhi[alpha]![k]!;
         }
       }
 
       for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-        deltaRadiance[k].addScaled(deltaRadiance[k], deltaBeta[k], sourceRadiance[beta]);
+        deltaRadiance[k]!.addScaled(deltaRadiance[k]!, deltaBeta[k]!, sourceRadiance[beta]!);
       }
 
       if (beta === 0) {
         for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
-          if (gBeta[k] < gMin[0]) {
-            gMin[0] = gBeta[k];
+          if (gBeta[k]! < gMin[0]!) {
+            gMin[0] = gBeta[k]!;
           }
-          if (gBeta[k] > gMax[0]) {
-            gMax[0] = gBeta[k];
+          if (gBeta[k]! > gMax[0]!) {
+            gMax[0] = gBeta[k]!;
           }
         }
       }

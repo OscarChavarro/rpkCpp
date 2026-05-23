@@ -93,7 +93,7 @@ export class PipeInputStream extends InputStream {
       if (readCount <= 0) {
         return -1;
       }
-      return localBuffer[0];
+      return localBuffer[0] ?? -1;
     }
 
     const safeOffset = offset ?? 0;

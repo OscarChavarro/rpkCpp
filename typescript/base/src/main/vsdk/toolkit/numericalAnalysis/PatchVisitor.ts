@@ -39,7 +39,7 @@ export class PatchVisitor {
     for (let i = 0; i < numberOfSamples; i++) {
       let sample: ColorRgb;
       const xi = Niederreiter31.niederreiter31(i);
-      hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
+      hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
       const newFlags = hit.getFlags() | RayHitFlag.UV;
       hit.setFlags(newFlags);
       const position: Vector3D = hit.getPoint();
@@ -66,7 +66,7 @@ export class PatchVisitor {
     for (let i = 0; i < numberOfSamples; i++) {
       let sample = new ColorRgb();
       const xi = Niederreiter31.niederreiter31(i);
-      hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
+      hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
       const newFlags = hit.getFlags() | RayHitFlag.UV;
       hit.setFlags(newFlags);
       const position: Vector3D = hit.getPoint();

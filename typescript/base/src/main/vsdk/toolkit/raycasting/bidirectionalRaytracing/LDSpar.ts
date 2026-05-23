@@ -22,7 +22,7 @@ export class LDSpar extends Spar {
 
     if (sparConfig.baseConfig.doWeighted !== 0) {
       this.parseAndInit(SparPathGroup.LD_GROUP, sparConfig.baseConfig.wldRegExp);
-      this.m_sparList[SparPathGroup.LD_GROUP].add(sparConfig.leSpar as Spar);
+      this.m_sparList[SparPathGroup.LD_GROUP]?.add(sparConfig.leSpar as Spar);
     }
   }
 }

@@ -120,13 +120,13 @@ export class GalerkinState {
     const quadRuleRef: Array<CubatureRule | null> = [null];
 
     TriangleCubatureRule.setTriangleCubatureRules(triRuleRef, this.receiverDegree);
-    this.receiverTriangleCubatureRule = triRuleRef[0];
+    this.receiverTriangleCubatureRule = triRuleRef[0] ?? null;
     TriangleCubatureRule.setTriangleCubatureRules(triRuleRef, this.sourceDegree);
-    this.sourceTriangleCubatureRule = triRuleRef[0];
+    this.sourceTriangleCubatureRule = triRuleRef[0] ?? null;
     QuadCubatureRule.setQuadCubatureRules(quadRuleRef, this.receiverDegree);
-    this.receiverQuadCubatureRule = quadRuleRef[0];
+    this.receiverQuadCubatureRule = quadRuleRef[0] ?? null;
     QuadCubatureRule.setQuadCubatureRules(quadRuleRef, this.sourceDegree);
-    this.sourceQuadCubatureRule = quadRuleRef[0];
+    this.sourceQuadCubatureRule = quadRuleRef[0] ?? null;
     this.clusterRule = QuadCubatureRule.degree1BoxRule();
   }
 }

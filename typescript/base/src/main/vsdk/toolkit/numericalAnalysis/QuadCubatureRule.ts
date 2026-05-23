@@ -339,9 +339,9 @@ export class QuadCubatureRule {
       return;
     }
     for (let k = 0; k < rule.numberOfNodes; k++) {
-      rule.u[k] = (rule.u[k] + 1.0) / 2.0;
-      rule.v[k] = (rule.v[k] + 1.0) / 2.0;
-      rule.w[k] /= 4.0;
+      rule.u[k] = (rule.u[k]! + 1.0) / 2.0;
+      rule.v[k] = (rule.v[k]! + 1.0) / 2.0;
+      rule.w[k]! /= 4.0;
     }
   }
 
@@ -350,10 +350,10 @@ export class QuadCubatureRule {
       return;
     }
     for (let k = 0; k < rule.numberOfNodes; k++) {
-      rule.u[k] = (rule.u[k] + 1.0) / 2.0;
-      rule.v[k] = (rule.v[k] + 1.0) / 2.0;
-      rule.t[k] = (rule.t[k] + 1.0) / 2.0;
-      rule.w[k] /= 8.0;
+      rule.u[k] = (rule.u[k]! + 1.0) / 2.0;
+      rule.v[k] = (rule.v[k]! + 1.0) / 2.0;
+      rule.t[k] = (rule.t[k]! + 1.0) / 2.0;
+      rule.w[k]! /= 8.0;
     }
   }
 

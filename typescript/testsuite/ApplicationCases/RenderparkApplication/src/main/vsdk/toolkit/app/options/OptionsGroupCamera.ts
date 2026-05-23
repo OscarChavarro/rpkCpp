@@ -74,9 +74,9 @@ export class OptionsGroupCamera {
     if (argc < 3 || argv === null || argv[0] === null || argv[1] === null || argv[2] === null) {
       return false;
     }
-    const x = Number.parseFloat(argv[0]);
-    const y = Number.parseFloat(argv[1]);
-    const z = Number.parseFloat(argv[2]);
+    const x = Number.parseFloat(argv[0]!);
+    const y = Number.parseFloat(argv[1]!);
+    const z = Number.parseFloat(argv[2]!);
     if (Number.isNaN(x) || Number.isNaN(y) || Number.isNaN(z)) {
       return false;
     }

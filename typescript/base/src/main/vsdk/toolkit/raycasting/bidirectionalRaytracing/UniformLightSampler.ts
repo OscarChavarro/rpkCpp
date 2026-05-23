@@ -99,8 +99,8 @@ export class UniformLightSampler extends NextEventSampler {
       const localX1 = [x1];
       const outPdfLight = [0.0];
       light = this.lightList.sample(localX1, outPdfLight);
-      x1 = localX1[0];
-      pdfLight = outPdfLight[0];
+      x1 = localX1[0]!;
+      pdfLight = outPdfLight[0]!;
 
       if (light === null) {
         VsdkLogger.warning("FillLightNode", "No light found");
@@ -129,7 +129,7 @@ export class UniformLightSampler extends NextEventSampler {
       newNode.m_inDirF.copy(dir);
       newNode.m_normal.copy(dir);
 
-      pdfPoint = pdf[0];
+      pdfPoint = pdf[0]!;
     }
     else {
       light.uniformPoint(x1, x2, point);
@@ -188,7 +188,7 @@ export class UniformLightSampler extends NextEventSampler {
           XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
           outPdfDir
         );
-        pdfDir = outPdfDir[0];
+        pdfDir = outPdfDir[0]!;
       }
 
       localPdf *= pdfDir;

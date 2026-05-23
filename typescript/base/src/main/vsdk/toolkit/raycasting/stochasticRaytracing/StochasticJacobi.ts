@@ -103,7 +103,7 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
     if (StochasticJacobi.getRadianceCallback !== null) {
       const callbackRadiance = StochasticJacobi.getRadianceCallback(elem)!;
       const radiance = new ColorRgb();
-      radiance.set(callbackRadiance[0].r, callbackRadiance[0].g, callbackRadiance[0].b);
+      radiance.set(callbackRadiance[0]!.r, callbackRadiance[0]!.g, callbackRadiance[0]!.b);
       if (StochasticRelaxation.activeState().constantControlVariate !== 0) {
         radiance.subtract(radiance, StochasticRelaxation.activeState().controlRadiance);
       }
@@ -120,14 +120,14 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
       if (StochasticRelaxation.activeState().radianceDriven !== 0) {
         const receivedRadiance = new ColorRgb();
-        receivedRadiance.subtract(elem.radiance![0], elem.sourceRad);
+        receivedRadiance.subtract(elem.radiance![0]!, elem.sourceRad);
         prob2 *= receivedRadiance.sumAbsComponents();
       }
 
       const approximation =
         (StochasticRelaxation.activeState().approximationOrderType
           ?? StochasticRaytracingApproximation.CONSTANT) as number;
-      prob = prob * StochasticRadiosityBasisState.activeState().approxDesc[approximation].basis_size + prob2;
+      prob = prob * StochasticRadiosityBasisState.activeState().approxDesc[approximation]!.basis_size + prob2;
     }
 
     return prob;
@@ -214,9 +214,9 @@ Returns radiance to be propagated from the given location of the element
       // Keep parameters used in C++ signature.
     }
     for (let i = 0; i < rcv.basis!.size; i++) {
-      const dual = rcv.basis!.dualFunction![i](ur, vr) / rcv.area;
+      const dual = rcv.basis!.dualFunction![i]!(ur, vr) / rcv.area;
       const w = dual * fraction / StochasticJacobi.numberOfRaysToShoot;
-      rcv.receivedRadiance![i].addScaled(rcv.receivedRadiance![i], w, rayPower);
+      rcv.receivedRadiance![i]!.addScaled(rcv.receivedRadiance![i]!, w, rayPower);
     }
   }
 
@@ -231,7 +231,7 @@ Returns radiance to be propagated from the given location of the element
       // Keep parameters used in C++ signature.
     }
     const w = fraction / cluster.area / StochasticJacobi.numberOfRaysToShoot;
-    cluster.receivedRadiance![0].addScaled(cluster.receivedRadiance![0], w, rayPower);
+    cluster.receivedRadiance![0]!.addScaled(cluster.receivedRadiance![0]!, w, rayPower);
   }
 
   /**
@@ -250,7 +250,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
       if (c > 0.0) {
         const aFraction = fraction * (c * currentElement.area / projectedArea);
         const w = aFraction / currentElement.area / StochasticJacobi.numberOfRaysToShoot;
-        currentElement.receivedRadiance![0].addScaled(currentElement.receivedRadiance![0], w, rayPower);
+        currentElement.receivedRadiance![0]!.addScaled(currentElement.receivedRadiance![0]!, w, rayPower);
       }
     }
     else {
@@ -299,7 +299,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
     if (currentElement !== null && !currentElement.isCluster()) {
       const c = -dir * currentElement.patch!.normal.dotProduct(ray.direction);
       if (c > 0.0) {
-        area[0] += c * currentElement.area;
+        area[0]! += c * currentElement.area;
       }
     }
     else {
@@ -321,7 +321,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
   private static stochasticJacobiReceiverProjectedArea(cluster: StochasticRadiosityElement, ray: Ray, dir: number): number {
     const area = [0.0];
     StochasticJacobi.stochasticJacobiReceiverProjectedAreaRecursive(cluster, ray, dir, area);
-    return area[0];
+    return area[0]!;
   }
 
   /**
@@ -466,7 +466,7 @@ Src is the leaf element containing the point from which to propagate
     );
 
     StochasticJacobi.stochasticJacobiPropagateRadiance(src, us, vs, link.rcv as StochasticRadiosityElement,
-      rcvU[0], rcvV[0], srcProb, rcvProb, ray, dir);
+      rcvU[0]!, rcvV[0]!, srcProb, rcvProb, ray, dir);
   }
 
   private static stochasticJacobiRefineAndPropagateImportance(
@@ -512,10 +512,10 @@ Ray is a ray connecting the positions with given (u,v) parameters
 
       if (StochasticJacobi.getRadianceCallback !== null) {
         StochasticJacobi.stochasticJacobiRefineAndPropagateRadiance(
-          src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0, renderOptions
+          src, us[0]!, vs[0]!, P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0, renderOptions
         );
         StochasticJacobi.stochasticJacobiRefineAndPropagateRadiance(
-          rcv, ur[0], vr[0], Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0, renderOptions
+          rcv, ur[0]!, vr[0]!, Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0, renderOptions
         );
       }
       if (StochasticJacobi.getImportanceCallback !== null) {
@@ -526,7 +526,7 @@ Ray is a ray connecting the positions with given (u,v) parameters
     else {
       if (StochasticJacobi.getRadianceCallback !== null) {
         StochasticJacobi.stochasticJacobiRefineAndPropagateRadiance(
-          src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0, renderOptions
+          src, us[0]!, vs[0]!, P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0, renderOptions
         );
       }
       if (StochasticJacobi.getImportanceCallback !== null) {
@@ -551,7 +551,7 @@ Ray is a ray connecting the positions with given (u,v) parameters
       rMostSignificantBit2
     ) ?? [0n, 0n, 0n, 0n];
 
-    rayIndex[0] += 1n;
+    rayIndex[0] = rayIndex[0]! + 1n;
     if (StochasticJacobi.getRadianceCallback !== null) {
       elem.rayIndex = Number(rayIndex[0]);
     }
@@ -559,14 +559,14 @@ Ray is a ray connecting the positions with given (u,v) parameters
       elem.importanceRayIndex = Number(rayIndex[0]);
     }
 
-    let u = (xi[0] & ~3n) | 1n;
-    let v = (xi[1] & ~3n) | 1n;
+    let u = (xi[0]! & ~3n) | 1n;
+    let v = (xi[1]! & ~3n) | 1n;
     if (elem.numberOfVertices === 3) {
       const uu = [u];
       const vv = [v];
       Niederreiter.foldSample(uu, vv);
-      u = uu[0];
-      v = vv[0];
+      u = uu[0]!;
+      v = vv[0]!;
     }
     zeta[0] = Number(u) * Niederreiter.RECIP;
     zeta[1] = Number(v) * Niederreiter.RECIP;
@@ -591,17 +591,17 @@ Determines uniform (u,v) parameters of hit point on hit patch
       hit.getPatch()!.uniformUv(position, uHit, vHit);
     }
 
-    if (uHit[0] < Numeric.EPSILON) {
-      uHit[0] = Numeric.EPSILON;
+    if (uHit[0]! < Numeric.EPSILON) {
+      uHit[0]! = Numeric.EPSILON;
     }
-    if (vHit[0] < Numeric.EPSILON) {
-      vHit[0] = Numeric.EPSILON;
+    if (vHit[0]! < Numeric.EPSILON) {
+      vHit[0]! = Numeric.EPSILON;
     }
-    if (uHit[0] > 1.0 - Numeric.EPSILON) {
-      uHit[0] = 1.0 - Numeric.EPSILON;
+    if (uHit[0]! > 1.0 - Numeric.EPSILON) {
+      uHit[0]! = 1.0 - Numeric.EPSILON;
     }
-    if (vHit[0] > 1.0 - Numeric.EPSILON) {
-      vHit[0] = 1.0 - Numeric.EPSILON;
+    if (vHit[0]! > 1.0 - Numeric.EPSILON) {
+      vHit[0]! = 1.0 - Numeric.EPSILON;
     }
   }
 
@@ -639,11 +639,11 @@ hit patch (and back for bidirectional transfers)
       StochasticJacobi.stochasticJacobiUniformHitCoordinates(hit, uHit, vHit);
       StochasticJacobi.stochasticJacobiRefineAndPropagate(
         McradP.topLevelStochasticRadiosityElement(src.patch as Patch),
-        zeta[0],
-        zeta[1],
+        zeta[0]!,
+        zeta[1]!,
         McradP.topLevelStochasticRadiosityElement(hit.getPatch() as Patch),
-        uHit[0],
-        vHit[0],
+        uHit[0]!,
+        vHit[0]!,
         ray,
         renderOptions
       );
@@ -690,9 +690,9 @@ Determines nr of rays to shoot from element and shoots this number of rays
       StochasticJacobi.stochasticJacobiElementShootRay(
         sceneWorldVoxelGrid,
         element,
-        sampleRange[0],
-        mostSignificantBit1[0],
-        rMostSignificantBit2[0],
+        sampleRange[0]!,
+        mostSignificantBit1[0]!,
+        rMostSignificantBit2[0]!,
         renderOptions
       );
     }
@@ -713,14 +713,14 @@ Determines nr of rays to shoot from element and shoots this number of rays
     if (element.regularSubElements === null) {
       const p = element.samplingProbability / StochasticJacobi.sumOfProbabilities;
       const raysThisLeaf =
-        globalThis.Math.floor((cumulative[0] + p) * StochasticJacobi.numberOfRaysToShoot + rnd) - rayCount[0];
+        globalThis.Math.floor((cumulative[0]! + p) * StochasticJacobi.numberOfRaysToShoot + rnd) - rayCount[0]!;
 
       if (raysThisLeaf > 0) {
         StochasticJacobi.stochasticJacobiElementShootRays(sceneWorldVoxelGrid, element, raysThisLeaf, renderOptions);
       }
 
-      cumulative[0] += p;
-      rayCount[0] += raysThisLeaf;
+      cumulative[0]! += p;
+      rayCount[0]! += raysThisLeaf;
     }
     else {
       for (let i = 0; i < 4; i++) {
@@ -769,7 +769,7 @@ approximation of total and un-shot radiance and importance
   private static stochasticJacobiUpdateElement(elem: StochasticRadiosityElement): void {
     if (StochasticJacobi.getRadianceCallback !== null) {
       if (StochasticJacobi.useControlVariate !== 0) {
-        elem.receivedRadiance![0].add(elem.receivedRadiance![0], StochasticRelaxation.activeState().controlRadiance);
+        elem.receivedRadiance![0]!.add(elem.receivedRadiance![0]!, StochasticRelaxation.activeState().controlRadiance);
       }
       Coefficientsmcrad.stochasticRadiosityMultiplyCoefficients(elem.Rd, elem.receivedRadiance, elem.basis);
     }
@@ -779,17 +779,17 @@ approximation of total and un-shot radiance and importance
     StochasticRelaxation.activeState().unShotFlux.addScaled(
       StochasticRelaxation.activeState().unShotFlux,
       globalThis.Math.PI * elem.area,
-      elem.unShotRadiance![0]
+      elem.unShotRadiance![0]!
     );
     StochasticRelaxation.activeState().totalFlux.addScaled(
       StochasticRelaxation.activeState().totalFlux,
       globalThis.Math.PI * elem.area,
-      elem.radiance![0]
+      elem.radiance![0]!
     );
     StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
       StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
       globalThis.Math.PI * elem.area * (elem.importance - elem.sourceImportance),
-      elem.unShotRadiance![0]
+      elem.unShotRadiance![0]!
     );
     StochasticRelaxation.activeState().unShotYmp += elem.area * globalThis.Math.abs(elem.unShotImportance);
     StochasticRelaxation.activeState().totalYmp += elem.area * elem.importance;
@@ -798,7 +798,7 @@ approximation of total and un-shot radiance and importance
   private static stochasticJacobiPush(parent: StochasticRadiosityElement, child: StochasticRadiosityElement): void {
     if (StochasticJacobi.getRadianceCallback !== null) {
       if (parent.isCluster() && !child.isCluster()) {
-        const rad = new ColorRgb(parent.receivedRadiance![0].r, parent.receivedRadiance![0].g, parent.receivedRadiance![0].b);
+        const rad = new ColorRgb(parent.receivedRadiance![0]!.r, parent.receivedRadiance![0]!.g, parent.receivedRadiance![0]!.b);
         const Rd = child.Rd;
         rad.selfScalarProduct(Rd);
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, [rad], child.receivedRadiance!);
@@ -817,7 +817,7 @@ approximation of total and un-shot radiance and importance
       const parentImportance = [parent.receivedImportance];
       const childImportance = [child.receivedImportance];
       StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentImportance, childImportance);
-      child.receivedImportance = childImportance[0];
+      child.receivedImportance = childImportance[0]!;
     }
   }
 
@@ -830,7 +830,7 @@ approximation of total and un-shot radiance and importance
       const parentImportance = [parent.importance];
       const childImportance = [child.importance];
       StochasticRadiosityElement.stochasticRadiosityElementPullImportance(parent, child, parentImportance, childImportance);
-      parent.importance = parentImportance[0];
+      parent.importance = parentImportance[0]!;
 
       const parentUnShotImportance = [parent.unShotImportance];
       const childUnShotImportance = [child.unShotImportance];
@@ -840,7 +840,7 @@ approximation of total and un-shot radiance and importance
         parentUnShotImportance,
         childUnShotImportance
       );
-      parent.unShotImportance = parentUnShotImportance[0];
+      parent.unShotImportance = parentUnShotImportance[0]!;
     }
   }
 

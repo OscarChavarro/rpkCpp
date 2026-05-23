@@ -31,7 +31,7 @@ export class BinaryModelReadCleanup {
     let hasSurfaceGeometry = false;
 
     for (let i = 0; geometries !== null && i < geometries.length; i++) {
-      const geometry = geometries[i];
+      const geometry = geometries[i]!;
       if (geometry !== null && geometry.className === GeometryClassId.SURFACE_MESH) {
         hasSurfaceGeometry = true;
         break;
@@ -39,7 +39,7 @@ export class BinaryModelReadCleanup {
     }
 
     for (let i = 0; geometries !== null && i < geometries.length; i++) {
-      const geometry = geometries[i];
+      const geometry = geometries[i]!;
       if (geometry !== null) {
         geometry.destroy();
       }
@@ -47,13 +47,13 @@ export class BinaryModelReadCleanup {
 
     if (!hasGeometry || !hasSurfaceGeometry) {
       for (let i = 0; patches !== null && i < patches.length; i++) {
-        const patch = patches[i];
+        const patch = patches[i]!;
         if (patch !== null) {
           patch.destroy();
         }
       }
       for (let i = 0; vertices !== null && i < vertices.length; i++) {
-        const vertex = vertices[i];
+        const vertex = vertices[i]!;
         if (vertex !== null) {
           vertex.destroy();
         }
@@ -97,13 +97,13 @@ export class BinaryModelReadCleanup {
 
   public static releaseVertexRecordIndexLists(vertexRecords: BinaryModelVertexRecordData[] | null): void {
     for (let i = 0; vertexRecords !== null && i < vertexRecords.length; i++) {
-      BinaryModelReadPrimitives.releaseIndexListRecord(vertexRecords[i].patchIndices);
+      BinaryModelReadPrimitives.releaseIndexListRecord(vertexRecords[i]!.patchIndices);
     }
   }
 
   public static releaseGeometryRecordIndexLists(geometryRecords: BinaryModelGeometryRecordData[] | null): void {
     for (let i = 0; geometryRecords !== null && i < geometryRecords.length; i++) {
-      const record = geometryRecords[i];
+      const record = geometryRecords[i]!;
       record.objectName = null;
       record.hasObjectName = false;
       BinaryModelReadPrimitives.releaseIndexListRecord(record.positions);

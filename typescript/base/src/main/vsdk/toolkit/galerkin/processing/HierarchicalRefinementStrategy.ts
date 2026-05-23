@@ -92,7 +92,7 @@ export class HierarchicalRefinementStrategy {
         shaft.cullGeometry(scene.clusteredRootGeometry, arr, galerkinState.shaftCullStrategy);
       }
       else {
-        shaft.doCulling(candidatesList[0], arr, galerkinState.shaftCullStrategy);
+        shaft.doCulling(candidatesList[0] ?? null, arr, galerkinState.shaftCullStrategy);
       }
       candidatesList[0] = arr;
     }
@@ -104,7 +104,7 @@ export class HierarchicalRefinementStrategy {
   ): void {
     if (galerkinState.shaftCullMode === GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT
       || galerkinState.shaftCullMode === GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING) {
-      Shaft.freeCandidateList(candidatesList[0]);
+      Shaft.freeCandidateList(candidatesList[0] ?? null);
     }
   }
 
@@ -161,7 +161,7 @@ export class HierarchicalRefinementStrategy {
         srcRad = ClusterTraversalStrategy.maxRadiance(interaction.sourceElement, galerkinState);
       }
       else {
-        srcRad = (interaction.sourceElement.radiance as ColorRgb[])[0];
+        srcRad = (interaction.sourceElement.radiance as ColorRgb[])[0]!;
       }
     }
     else {
@@ -170,11 +170,11 @@ export class HierarchicalRefinementStrategy {
         srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
       }
       else {
-        srcRad = (interaction.sourceElement.unShotRadiance as ColorRgb[])[0];
+        srcRad = (interaction.sourceElement.unShotRadiance as ColorRgb[])[0]!;
       }
     }
 
-    error.scalarProductScaled(rcvRho, interaction.deltaK[0], srcRad);
+    error.scalarProductScaled(rcvRho, interaction.deltaK[0]!, srcRad);
     error.abs();
     return HierarchicalRefinementStrategy.hierarchicRefinementColorToError(error);
   }
@@ -185,8 +185,8 @@ export class HierarchicalRefinementStrategy {
     receiverArea: number,
     galerkinState: GalerkinState,
   ): number {
-    const K = interaction.K[0];
-    if (K === 0.0 || rcvRho.isBlack() || (interaction.sourceElement.radiance as ColorRgb[])[0].isBlack()) {
+    const K = interaction.K[0]!;
+    if (K === 0.0 || rcvRho.isBlack() || (interaction.sourceElement.radiance as ColorRgb[])[0]!.isBlack()) {
       return 0.0;
     }
 
@@ -205,7 +205,7 @@ export class HierarchicalRefinementStrategy {
     for (let i = 0; i < numberOfReceiverVertices; i++) {
       const radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
         interaction.sourceElement,
-        rcVertices[i],
+        rcVertices[i]!,
         galerkinState,
       );
       minimumSourceRadiance.minimum(minimumSourceRadiance, radiance);
@@ -336,15 +336,15 @@ export class HierarchicalRefinementStrategy {
       const rcvRad = interaction.receiverElement.receivedRadiance as ColorRgb[];
       if (interaction.numberOfBasisFunctionsOnReceiver === 1
         && interaction.numberOfBasisFunctionsOnSource === 1) {
-        rcvRad[0].addScaled(rcvRad[0], interaction.K[0], srcRad[0]);
+        rcvRad[0]!.addScaled(rcvRad[0]!, interaction.K[0]!, srcRad[0]!);
       }
       else {
         for (let alpha = 0; alpha < a; alpha++) {
           for (let beta = 0; beta < b; beta++) {
-            rcvRad[alpha].addScaled(
-              rcvRad[alpha],
-              interaction.K[alpha * interaction.numberOfBasisFunctionsOnSource + beta],
-              srcRad[beta],
+            rcvRad[alpha]!.addScaled(
+              rcvRad[alpha]!,
+              interaction.K[alpha * interaction.numberOfBasisFunctionsOnSource + beta]!,
+              srcRad[beta]!,
             );
           }
         }
@@ -352,7 +352,7 @@ export class HierarchicalRefinementStrategy {
     }
 
     if (galerkinState.importanceDriven !== 0) {
-      const K = interaction.K[0];
+      const K = interaction.K[0]!;
       const rcvRho = new ColorRgb();
       const srcRho = new ColorRgb();
 
@@ -476,7 +476,7 @@ export class HierarchicalRefinementStrategy {
       subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
-        candidatesList[0],
+        candidatesList[0] ?? null,
         receiverElement,
         child,
         subInteraction,
@@ -490,7 +490,7 @@ export class HierarchicalRefinementStrategy {
       HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
-    candidatesList[0] = backup;
+    candidatesList[0] = backup ?? null;
   }
 
   private static hierarchicRefinementRegularSubdivideReceiver(
@@ -521,7 +521,7 @@ export class HierarchicalRefinementStrategy {
       subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
-        candidatesList[0],
+        candidatesList[0] ?? null,
         child,
         sourceElement,
         subInteraction,
@@ -535,7 +535,7 @@ export class HierarchicalRefinementStrategy {
       HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
-    candidatesList[0] = backup;
+    candidatesList[0] = backup ?? null;
   }
 
   private static hierarchicRefinementSubdivideSourceCluster(
@@ -574,7 +574,7 @@ export class HierarchicalRefinementStrategy {
 
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
-        candidatesList[0],
+        candidatesList[0] ?? null,
         receiverElement,
         childElement,
         subInteraction,
@@ -588,7 +588,7 @@ export class HierarchicalRefinementStrategy {
       HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
-    candidatesList[0] = backup;
+    candidatesList[0] = backup ?? null;
   }
 
   private static hierarchicRefinementSubdivideReceiverCluster(
@@ -626,7 +626,7 @@ export class HierarchicalRefinementStrategy {
       subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
-        candidatesList[0],
+        candidatesList[0] ?? null,
         child,
         sourceElement,
         subInteraction,
@@ -640,7 +640,7 @@ export class HierarchicalRefinementStrategy {
       HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
-    candidatesList[0] = backup;
+    candidatesList[0] = backup ?? null;
   }
 
   private static refineRecursive(
@@ -709,7 +709,7 @@ export class HierarchicalRefinementStrategy {
     interactionsToRemove: Interaction[],
   ): void {
     for (let i = 0; i < interactionsToRemove.length; i++) {
-      const interaction = interactionsToRemove[i];
+      const interaction = interactionsToRemove[i]!;
       if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
         if (interaction.sourceElement.interactions !== null) {
           const idx = interaction.sourceElement.interactions.indexOf(interaction);

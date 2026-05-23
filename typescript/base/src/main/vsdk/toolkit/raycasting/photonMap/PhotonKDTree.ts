@@ -36,13 +36,19 @@ export class PhotonKDTree extends KDTree {
   private readonly nodes: NodeData[];
 
   private static sqrDistance3DPhoton(a: number[], b: number[]): number {
-    let tmp = a[0] - b[0];
+    const a0 = a[0] ?? 0.0;
+    const b0 = b[0] ?? 0.0;
+    let tmp = a0 - b0;
     let result = tmp * tmp;
 
-    tmp = a[1] - b[1];
+    const a1 = a[1] ?? 0.0;
+    const b1 = b[1] ?? 0.0;
+    tmp = a1 - b1;
     result += tmp * tmp;
 
-    tmp = a[2] - b[2];
+    const a2 = a[2] ?? 0.0;
+    const b2 = b[2] ?? 0.0;
+    tmp = a2 - b2;
     result += tmp * tmp;
 
     return result;
@@ -81,6 +87,9 @@ export class PhotonKDTree extends KDTree {
 
     for (let i = 0; i < this.nodes.length; i++) {
       const node = this.nodes[i];
+      if (node === undefined) {
+        continue;
+      }
       if ((node.flags & excludeFlags) !== 0) {
         continue;
       }
@@ -100,13 +109,20 @@ export class PhotonKDTree extends KDTree {
     const usedDistances = inDistances === null ? new Array<number>(globalThis.Math.max(1, found)).fill(0.0) : inDistances;
 
     const farthest = candidates[found - 1];
+    if (farthest === undefined) {
+      return 0;
+    }
     results[0] = farthest.photon;
     usedDistances[0] = farthest.distance;
 
     let outIndex = 1;
     for (let i = 0; i < found - 1; i++) {
-      results[outIndex] = candidates[i].photon;
-      usedDistances[outIndex] = candidates[i].distance;
+      const candidate = candidates[i];
+      if (candidate === undefined) {
+        continue;
+      }
+      results[outIndex] = candidate.photon;
+      usedDistances[outIndex] = candidate.distance;
       outIndex++;
     }
 
@@ -115,7 +131,10 @@ export class PhotonKDTree extends KDTree {
 
   public override iterateNodes(callback: NodeCallback, data: unknown): void {
     for (let i = 0; i < this.nodes.length; i++) {
-      callback.call(data, this.nodes[i].photon);
+      const node = this.nodes[i];
+      if (node !== undefined) {
+        callback.call(data, node.photon);
+      }
     }
   }
 
@@ -137,6 +156,9 @@ export class PhotonKDTree extends KDTree {
 
     for (let i = 0; i < this.nodes.length; i++) {
       const node = this.nodes[i];
+      if (node === undefined) {
+        continue;
+      }
       if (!(node.photon instanceof IrrPhoton)) {
         continue;
       }

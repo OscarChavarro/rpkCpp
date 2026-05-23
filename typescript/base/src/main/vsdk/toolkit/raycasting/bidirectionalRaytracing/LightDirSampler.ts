@@ -48,14 +48,14 @@ export class LightDirSampler extends Sampler {
       pdfDir
     );
 
-    if (pdfDir[0] < Numeric.EPSILON) {
+    if (pdfDir[0]! < Numeric.EPSILON) {
       return false;
     }
 
     thisNode.m_rayType = PathRayType.STARTS;
     newNode.m_inBsdf = thisNode.m_outBsdf;
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0])) {
+    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }
@@ -102,7 +102,7 @@ export class LightDirSampler extends Sampler {
       XxdfComponentFlag.DIFFUSE_COMPONENT,
       outPdf
     );
-    pdfDir = outPdf[0];
+    pdfDir = outPdf[0]!;
 
     if (pdfDir < 0.0) {
       return 0.0;

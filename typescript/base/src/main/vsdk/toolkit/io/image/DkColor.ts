@@ -130,7 +130,7 @@ export class DkColor {
             c2++;
             if (c2 === beg) {
               DkColor.writeByte(outputStream, 128 + beg - j);
-              DkColor.writeByte(outputStream, scanline[j * 4 + i]);
+              DkColor.writeByte(outputStream, scanline[j * 4 + i]!);
               j = beg;
               break;
             }
@@ -144,14 +144,14 @@ export class DkColor {
           }
           DkColor.writeByte(outputStream, c2);
           while (c2-- > 0) {
-            DkColor.writeByte(outputStream, scanline[j * 4 + i]);
+            DkColor.writeByte(outputStream, scanline[j * 4 + i]!);
             j++;
           }
         }
 
         if (cnt >= DkColor.MINIMUM_RUN_LENGTH) {
           DkColor.writeByte(outputStream, 128 + cnt);
-          DkColor.writeByte(outputStream, scanline[beg * 4 + i]);
+          DkColor.writeByte(outputStream, scanline[beg * 4 + i]!);
         }
         else {
           cnt = 0;
@@ -202,7 +202,7 @@ export class DkColor {
       const colorArray = scanline as ColorRgb[];
       for (let n = 0; n < len; n++) {
         const base = n * 4;
-        DkColor.setByteColors(colorScan, base, colorArray[n].r, colorArray[n].g, colorArray[n].b);
+        DkColor.setByteColors(colorScan, base, colorArray[n]!.r, colorArray[n]!.g, colorArray[n]!.b);
       }
     }
     else {
@@ -212,9 +212,9 @@ export class DkColor {
         DkColor.setByteColors(
           colorScan,
           base,
-          floatArray[n][DkColor.RED],
-          floatArray[n][DkColor.GREEN],
-          floatArray[n][DkColor.BLUE]
+          floatArray[n]![DkColor.RED]!,
+          floatArray[n]![DkColor.GREEN]!,
+          floatArray[n]![DkColor.BLUE]!
         );
       }
     }

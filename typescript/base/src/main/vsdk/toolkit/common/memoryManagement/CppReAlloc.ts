@@ -30,7 +30,7 @@ export class CppReAlloc {
     if (ptr !== null && oldElementCount > 0) {
       const copyElementCount = globalThis.Math.min(oldElementCount, newElementCount);
       for (let i = 0; i < copyElementCount; i++) {
-        newPtr[i] = ptr[i];
+        newPtr[i] = ptr[i] ?? [];
       }
     }
     return newPtr;

@@ -38,7 +38,7 @@ export class Ccr {
     void fMax;
 
     if (element.regularSubElements === null) {
-      const rad = Ccr.getRadianceCallback!(element)![0];
+      const rad = Ccr.getRadianceCallback!(element)![0]!;
       let weightedArea = element.area;
       if (
         StochasticRelaxation.activeState().importanceDriven !== 0
@@ -47,7 +47,7 @@ export class Ccr {
         weightedArea *= (element.importance - element.sourceImportance);
       }
       totalFluxColor.addScaled(totalFluxColor, weightedArea, rad);
-      area[0] += weightedArea;
+      area[0]! += weightedArea;
       maxRadColor.maximum(maxRadColor, rad);
     }
     else {
@@ -99,7 +99,7 @@ Initial guess for constant control radiance value
     fMin.set(totalFluxColor.r, totalFluxColor.g, totalFluxColor.b);
 
     maxRad.set(maxRadColor.r, maxRadColor.g, maxRadColor.b);
-    fMax.scaledCopy(area[0], maxRadColor);
+    fMax.scaledCopy(area[0]!, maxRadColor);
     fMax.subtract(fMax, totalFluxColor);
   }
 
@@ -113,35 +113,35 @@ Initial guess for constant control radiance value
   ): void {
     let iMin: number;
 
-    fMax[0] = f[0];
-    fMin[0] = f[0];
+    fMax[0] = f[0]!;
+    fMin[0] = f[0]!;
     iMin = 0;
     for (let i = 1; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
-      if (f[i] < fMin[0]) {
-        fMin[0] = f[i];
+      if (f[i]! < fMin[0]!) {
+        fMin[0] = f[i]!;
         iMin = i;
       }
-      if (f[i] > fMax[0]) {
-        fMax[0] = f[i];
+      if (f[i]! > fMax[0]!) {
+        fMax[0] = f[i]!;
       }
     }
 
     if (iMin === 0) {
-      minRad[0] = rad[0];
-      maxRad[0] = rad[1];
+      minRad[0] = rad[0]!;
+      maxRad[0] = rad[1]!;
     }
     else if (iMin === Ccr.NUMBER_OF_INTERVALS) {
-      minRad[0] = rad[Ccr.NUMBER_OF_INTERVALS - 1];
-      maxRad[0] = rad[Ccr.NUMBER_OF_INTERVALS];
+      minRad[0] = rad[Ccr.NUMBER_OF_INTERVALS - 1]!;
+      maxRad[0] = rad[Ccr.NUMBER_OF_INTERVALS]!;
     }
     else {
-      if (f[iMin - 1] < f[iMin + 1]) {
-        minRad[0] = rad[iMin - 1];
-        maxRad[0] = rad[iMin];
+      if (f[iMin - 1]! < f[iMin + 1]!) {
+        minRad[0] = rad[iMin - 1]!;
+        maxRad[0] = rad[iMin]!;
       }
       else {
-        minRad[0] = rad[iMin];
-        maxRad[0] = rad[iMin + 1];
+        minRad[0] = rad[iMin]!;
+        maxRad[0] = rad[iMin + 1]!;
       }
     }
   }
@@ -153,7 +153,7 @@ Initial guess for constant control radiance value
     f: ColorRgb[]
   ): void {
     if (element.regularSubElements === null) {
-      const B = Ccr.getRadianceCallback!(element)![0];
+      const B = Ccr.getRadianceCallback!(element)![0]!;
       const s = Ccr.getScalingCallback !== null ? Ccr.getScalingCallback(element)! : colorOne;
       let weightedArea = element.area;
       if (
@@ -164,10 +164,10 @@ Initial guess for constant control radiance value
       }
       for (let i = 0; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
         const t = new ColorRgb();
-        t.scalarProduct(s, rad[i]);
+        t.scalarProduct(s, rad[i]!);
         t.subtract(B, t);
         t.abs();
-        f[i].addScaled(f[i], weightedArea, t);
+        f[i]!.addScaled(f[i]!, weightedArea, t);
       }
     }
     else {
@@ -199,9 +199,9 @@ method). Does so component wise
     d.subtract(maxRad, minRad);
     for (let i = 0; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
       f[i] = new ColorRgb();
-      f[i].clear();
+      f[i]!.clear();
       rad[i] = new ColorRgb();
-      rad[i].addScaled(minRad, i / Ccr.NUMBER_OF_INTERVALS, d);
+      rad[i]!.addScaled(minRad, i / Ccr.NUMBER_OF_INTERVALS, d);
     }
 
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
@@ -219,16 +219,16 @@ method). Does so component wise
       for (let i = 0; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
         switch (s) {
           case 0:
-            fc[i] = f[i].r;
-            radC[i] = rad[i].r;
+            fc[i] = f[i]!.r;
+            radC[i] = rad[i]!.r;
             break;
           case 1:
-            fc[i] = f[i].g;
-            radC[i] = rad[i].g;
+            fc[i] = f[i]!.g;
+            radC[i] = rad[i]!.g;
             break;
           case 2:
-            fc[i] = f[i].b;
-            radC[i] = rad[i].b;
+            fc[i] = f[i]!.b;
+            radC[i] = rad[i]!.b;
             break;
           default:
             break;
@@ -241,10 +241,10 @@ method). Does so component wise
           const fMinC = [fMin.r];
           const fMaxC = [fMax.r];
           Ccr.refineComponent(min, max, fMinC, fMaxC, fc, radC);
-          minRad.r = min[0];
-          maxRad.r = max[0];
-          fMin.r = fMinC[0];
-          fMax.r = fMaxC[0];
+          minRad.r = min[0]!;
+          maxRad.r = max[0]!;
+          fMin.r = fMinC[0]!;
+          fMax.r = fMaxC[0]!;
           break;
         }
         case 1: {
@@ -253,10 +253,10 @@ method). Does so component wise
           const fMinC = [fMin.g];
           const fMaxC = [fMax.g];
           Ccr.refineComponent(min, max, fMinC, fMaxC, fc, radC);
-          minRad.g = min[0];
-          maxRad.g = max[0];
-          fMin.g = fMinC[0];
-          fMax.g = fMaxC[0];
+          minRad.g = min[0]!;
+          maxRad.g = max[0]!;
+          fMin.g = fMinC[0]!;
+          fMax.g = fMaxC[0]!;
           break;
         }
         case 2: {
@@ -265,10 +265,10 @@ method). Does so component wise
           const fMinC = [fMin.b];
           const fMaxC = [fMax.b];
           Ccr.refineComponent(min, max, fMinC, fMaxC, fc, radC);
-          minRad.b = min[0];
-          maxRad.b = max[0];
-          fMin.b = fMinC[0];
-          fMax.b = fMaxC[0];
+          minRad.b = min[0]!;
+          maxRad.b = max[0]!;
+          fMin.b = fMinC[0]!;
+          fMax.b = fMaxC[0]!;
           break;
         }
         default:

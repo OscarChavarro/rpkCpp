@@ -67,7 +67,7 @@ export class Adaptation {
   private static patchFillLumArea(patch: Patch): void {
     const brightness = Adaptation.patchBrightnessEstimate(patch);
 
-    const entry = (Adaptation.lumArea as LuminanceArea[])[Adaptation.lumAreaIndex];
+    const entry = (Adaptation.lumArea as LuminanceArea[])[Adaptation.lumAreaIndex]!;
     entry.luminance = brightness;
     entry.area = patch.area;
 
@@ -100,14 +100,14 @@ export class Adaptation {
       });
 
     while (pairIndex < numPairs && areaCnt < areaMax) {
-      areaCnt += pairs[pairIndex].area;
+      areaCnt += pairs[pairIndex]!.area;
       pairIndex++;
     }
 
     if (pairIndex === 0) {
-      return pairs[0].luminance;
+      return pairs[0]!.luminance;
     }
-    return pairs[pairIndex - 1].luminance;
+    return pairs[pairIndex - 1]!.luminance;
   }
 
   /**
@@ -130,7 +130,7 @@ export class Adaptation {
         // Gibson's static adaptation after [TUMB1999b]
         Adaptation.logAreaLum = 0.0;
         for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-          Adaptation.patchComputeLogAreaLum(scenePatches[i]);
+          Adaptation.patchComputeLogAreaLum(scenePatches[i]!);
         }
         // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
         toneMapOptions.realWorldAdaptionLuminance =
@@ -156,7 +156,7 @@ export class Adaptation {
           scenePatches !== null && i < scenePatches.length && Adaptation.lumAreaIndex < pairCount;
           i++
         ) {
-          Adaptation.patchFillLumArea(scenePatches[i]);
+          Adaptation.patchFillLumArea(scenePatches[i]!);
         }
         toneMapOptions.realWorldAdaptionLuminance = Adaptation.meanAreaWeightedLuminance(la, Adaptation.numEntries);
         break;
