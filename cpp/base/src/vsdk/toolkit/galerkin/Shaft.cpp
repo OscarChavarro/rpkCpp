@@ -713,7 +713,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
-        const PatchSet *oldPatchSet = dynamic_cast<const PatchSet *>(geometry);
+        const PatchSet *oldPatchSet = static_cast<const PatchSet *>(geometry);
         Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
         newGeometry->shaftCullGeometry = true;
         newGeometry->isDuplicate = true;
@@ -733,7 +733,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
     }
 
     if ( geometry->isCompound() ) {
-        const Compound *compound = dynamic_cast<const Compound *>(geometry);
+        const Compound *compound = static_cast<const Compound *>(geometry);
         doCulling(compound->children, candidateList, strategy);
     } else {
         const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
@@ -830,8 +830,8 @@ Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
         Geometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {
             if ( geometry->className == GeometryClassId::PATCH_SET ) {
-                PatchSet *patchSet = dynamic_cast<PatchSet *>(geometry);
-                if ( patchSet != nullptr && patchSet->isMemoryPoolManaged() ) {
+                PatchSet *patchSet = static_cast<PatchSet *>(geometry);
+                if ( patchSet->isMemoryPoolManaged() ) {
                     patchSet->~PatchSet();
                     patchSetPool.free(1);
                     Statistics::instance().reader.numberOfGeometries--;

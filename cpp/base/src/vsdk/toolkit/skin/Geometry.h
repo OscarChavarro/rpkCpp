@@ -7,7 +7,6 @@
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
 #include "vsdk/toolkit/skin/GeometryClassId.h"
-#include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 /**
@@ -44,7 +43,6 @@ class Geometry {
   //public:
     int id; // Unique ID number
     AxisAlignedBoundingBox boundingBox;
-    mutable MinMaxBox *rayIntersectionBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
     int itemCount;
     char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
@@ -80,7 +78,6 @@ class Geometry {
 
     bool isExcluded() const;
     AxisAlignedBoundingBox getBoundingBox() const;
-    MinMaxBox *getRayIntersectionBox() const;
     Geometry *clone() const;
 
     static void destroy(Geometry *geometry);

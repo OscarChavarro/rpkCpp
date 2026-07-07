@@ -204,7 +204,7 @@ VoxelGrid::insertSubGrid(Geometry *geometry) const {
 
 void
 VoxelGrid::processCompoundGeometry(Geometry *geometry) {
-    const java::ArrayList<Geometry *> *geometryList = dynamic_cast<const Compound *>(geometry)->children;
+    const java::ArrayList<Geometry *> *geometryList = static_cast<const Compound *>(geometry)->children;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         putSubGeometryInsideVoxelGrid(geometryList->get(i));

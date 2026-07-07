@@ -18,6 +18,8 @@ class HierarchicalRefinementStrategy {
 
     static void ensureHierarchicalCoefficientsPool();
 
+    static void prepareRefinementIterationState(GalerkinState *galerkinState);
+
     static void
     hierarchicRefinementCull(
         const Scene *scene,
@@ -118,7 +120,10 @@ class HierarchicalRefinementStrategy {
     static bool refineInteraction(const Scene *scene, Interaction *interaction, GalerkinState *galerkinState);
 
     static void
-    removeRefinedInteractions(const GalerkinState *galerkinState, const java::ArrayList<Interaction *> *interactionsToRemove);
+    refineInteractionsRecursive(
+        const Scene *scene,
+        const GalerkinElement *parentElement,
+        GalerkinState *galerkinState);
 
   public:
     static void

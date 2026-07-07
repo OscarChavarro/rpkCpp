@@ -32,6 +32,7 @@ namespace java {
         void remove(T data);
         void set(long int pos, T elem);
         void clear();
+        void truncate(long int size);
     };
 }
 

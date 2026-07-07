@@ -36,22 +36,24 @@ ArrayList<T>::dispose() {
 
 template <class T> void
 ArrayList<T>::init() {
-    if ( maxSize > 0 ) {
-        Data = new T[maxSize];
-        if ( !Data ) {
-            maxSize = 0;
-        }
-    } else {
-        Data = nullptr;
-    }
+    Data = nullptr;
     currentSize = 0;
 }
 
 template <class T> bool
 ArrayList<T>::add(T voxelData)
 {
-    if ( currentSize >= maxSize ) {
-        long int newMaxSize = maxSize + increaseChunk;
+    if ( Data == nullptr ) {
+        if ( maxSize <= 0 ) {
+            maxSize = 1;
+        }
+        Data = new T[maxSize];
+        if ( !Data ) {
+            maxSize = 0;
+            return false;
+        }
+    } else if ( currentSize >= maxSize ) {
+        long int newMaxSize = maxSize * 2;
         if ( newMaxSize <= maxSize ) {
             newMaxSize = maxSize + 1;
         }
@@ -97,10 +99,12 @@ ArrayList<T>::data() {
 template <class T> void
 ArrayList<T>::add(long int pos, T elem)
 {
-    int lastPosition = size() - 1;
-    if ( lastPosition < 0 ) {
-        lastPosition = 0;
+    if ( currentSize == 0 ) {
+        add(elem);
+        return;
     }
+
+    int lastPosition = size() - 1;
     T last = get(lastPosition);
     add(last);
     int i;
@@ -150,6 +154,15 @@ ArrayList<T>::set(long int pos, T elem) {
 template <class T> void
 ArrayList<T>::clear() {
     currentSize = 0;
+}
+
+template <class T> void
+ArrayList<T>::truncate(long int size) {
+    if ( size < 0 ) {
+        currentSize = 0;
+    } else if ( size < currentSize ) {
+        currentSize = size;
+    }
 }
 
 }

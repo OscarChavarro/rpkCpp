@@ -6,7 +6,6 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"

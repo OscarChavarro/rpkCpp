@@ -98,7 +98,7 @@ LinkingClusteredStrategy::createInitialLinks(
         receiverElement,
         sourceElement,
         K,
-        deltaK,
+        deltaK[0],
         receiverElement->basisSize,
         sourceElement->basisSize,
         1,

@@ -17,7 +17,6 @@
 #include "vsdk/toolkit/skin/Geometry.h"
 #include "vsdk/toolkit/material/MaterialColorFlags.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
-#include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 #include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
@@ -555,16 +554,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             geometry->isDuplicate = record.isDuplicate;
             if ( !BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(&geometry->boundingBox, record.boundingBoxCoordinates) ) goto fail;
 
-            if ( record.hasRayIntersectionBox ) {
-                if ( geometry->rayIntersectionBox == nullptr ) {
-                    geometry->rayIntersectionBox = new MinMaxBox(&geometry->boundingBox);
-                } else {
-                    geometry->rayIntersectionBox->updateFromBoundingBox(&geometry->boundingBox);
-                }
-            } else if ( geometry->rayIntersectionBox != nullptr ) {
-                delete geometry->rayIntersectionBox;
-                geometry->rayIntersectionBox = nullptr;
-            }
+            (void)record.hasRayIntersectionBox;
 
             geometry->radianceData = nullptr;
             geometries.set(static_cast<long int>(i), geometry);

@@ -11,28 +11,27 @@ Interaction::Interaction():
     receiverElement(),
     sourceElement(),
     K(),
+    k0(),
     deltaK(),
     ownsK(),
-    ownsDeltaK(),
     numberOfBasisFunctionsOnReceiver(),
     numberOfBasisFunctionsOnSource(),
     numberOfReceiverCubaturePositions(),
     visibility()
 {
     ownsK = true;
-    ownsDeltaK = true;
 }
 
 Interaction::Interaction(
     GalerkinElement *inReceiverElement,
     GalerkinElement *inSourceElement,
     const float *inK,
-    const float *inDeltaK,
+    float inDeltaK,
     unsigned char inNumberOfBasisFunctionsOnReceiver,
     unsigned char inNumberOfBasisFunctionsOnSource,
     unsigned char inNumberOfReceiverCubaturePositions,
     unsigned char inVisibility
-): K(), deltaK() {
+): K(), k0(), deltaK() {
     this->receiverElement = inReceiverElement;
     this->sourceElement = inSourceElement;
     this->numberOfBasisFunctionsOnReceiver = inNumberOfBasisFunctionsOnReceiver;
@@ -41,20 +40,21 @@ Interaction::Interaction(
     this->visibility = inVisibility;
 
     if ( inNumberOfBasisFunctionsOnReceiver == 1 && inNumberOfBasisFunctionsOnSource == 1 ) {
-        this->K = new float[1];
-        *K = *inK;
+        this->k0 = *inK;
+        this->K = &this->k0;
+        this->ownsK = false;
     } else {
         this->K = new float[inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource];
         for ( int i = 0; i < inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource; i++ ) {
             K[i] = inK[i];
         }
+        this->ownsK = true;
     }
 
     if ( inNumberOfReceiverCubaturePositions > 1 ) {
         Logger::fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
-    deltaK = new float[1];
-    *deltaK = *inDeltaK;
+    deltaK = inDeltaK;
 
     totalInteractions++;
     if ( inReceiverElement->isCluster() ) {
@@ -76,10 +76,6 @@ Interaction::~Interaction() {
     if ( ownsK && K != nullptr ) {
         delete[] K;
         K = nullptr;
-    }
-    if ( ownsDeltaK && deltaK != nullptr ) {
-        delete[] deltaK;
-        deltaK = nullptr;
     }
 }
 

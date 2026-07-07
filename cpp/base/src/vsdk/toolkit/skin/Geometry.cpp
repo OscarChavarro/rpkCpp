@@ -3,7 +3,6 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/skin/Geometry.h"
-#include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/skin/Compound.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
@@ -15,7 +14,6 @@ int Geometry::nextGeometryId = 0;
 Geometry::Geometry():
     id(),
     boundingBox(),
-    rayIntersectionBox(),
     radianceData(),
     itemCount(),
     bounded(),
@@ -41,17 +39,12 @@ Geometry::Geometry(
     isDuplicate = false;
     bounded = false;
     shaftCullGeometry = false;
-    rayIntersectionBox = nullptr;
     radianceData = nullptr;
     itemCount = 0;
     omit = false;
 }
 
 Geometry::~Geometry() {
-    if ( rayIntersectionBox != nullptr ) {
-        delete rayIntersectionBox;
-        rayIntersectionBox = nullptr;
-    }
     if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
         radianceData = nullptr;
@@ -64,16 +57,6 @@ This function returns a bounding box for the geometry
 AxisAlignedBoundingBox
 Geometry::getBoundingBox() const {
     return boundingBox;
-}
-
-MinMaxBox *
-Geometry::getRayIntersectionBox() const {
-    if ( rayIntersectionBox == nullptr ) {
-        rayIntersectionBox = new MinMaxBox(&boundingBox);
-    } else {
-        rayIntersectionBox->updateFromBoundingBox(&boundingBox);
-    }
-    return rayIntersectionBox;
 }
 
 /**
@@ -118,7 +101,7 @@ A nullptr pointer is returned if the geometry is a primitive
 java::ArrayList<Geometry *> *
 Geometry::primitiveListCopy(const Geometry *geometry) {
     if ( geometry->isCompound() ) {
-        return Geometry::cloneGeometryList(dynamic_cast<const Compound *>(geometry)->children);
+        return Geometry::cloneGeometryList(static_cast<const Compound *>(geometry)->children);
     } else {
         return nullptr;
     }
@@ -127,9 +110,9 @@ Geometry::primitiveListCopy(const Geometry *geometry) {
 java::ArrayList<Patch *> *
 Geometry::patchListReference(const Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
-        return dynamic_cast<const MeshSurface *>(geometry)->faces;
+        return static_cast<const MeshSurface *>(geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return dynamic_cast<const PatchSet *>(geometry)->getPatchList();
+        return static_cast<const PatchSet *>(geometry)->getPatchList();
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
@@ -189,8 +172,7 @@ Geometry::discretizationIntersectPreTest(
         vTmp.sumScaled(ray->position, minimumDistance, ray->direction);
         if ( boundingBox.outOfBounds(&vTmp) ) {
             float nMaximumDistance = *maximumDistance;
-            MinMaxBox *minMaxBox = getRayIntersectionBox();
-            if ( !minMaxBox->intersect(ray, minimumDistance, &nMaximumDistance) ) {
+            if ( !boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
                 return false;
             }
         }
@@ -223,11 +205,11 @@ Geometry::discretizationIntersect(
     }
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        return dynamic_cast<const MeshSurface *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return static_cast<const MeshSurface *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        return dynamic_cast<const Compound *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return static_cast<const Compound *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
-        return dynamic_cast<const PatchSet *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return static_cast<const PatchSet *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }

@@ -60,13 +60,12 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
             ColorRgbMutable sourceRadiance(0.0, 0.0, 0.0);
             sourceRadiance.clear();
 
-            PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
+            PowerAccumulatorVisitor leafVisitor(sourceRadiance, samplePoint);
             ClusterTraversalStrategy::traverseAllLeafElements(
-                leafVisitor,
+                &leafVisitor,
                 sourceElement,
                 galerkinState);
-            sourceRadiance = leafVisitor->getAccumulatedRadiance();
-            delete leafVisitor;
+            sourceRadiance = leafVisitor.getAccumulatedRadiance();
 
             // Divide by the source area used for computing the form factor:
             // sourceElement->area / 4.0 (average projected area)
@@ -167,13 +166,12 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
 
         case GalerkinClusteringStrategy::ORIENTED: {
             samplePoint = sourceElement->midPoint();
-            ProjectedAreaAccumulatorVisitor *leafVisitor = new ProjectedAreaAccumulatorVisitor();
+            ProjectedAreaAccumulatorVisitor leafVisitor;
             ClusterTraversalStrategy::traverseAllLeafElements(
-                leafVisitor,
+                &leafVisitor,
                 receiverElement,
                 galerkinState);
-            projectedArea = leafVisitor->getTotalProjectedArea();
-            delete leafVisitor;
+            projectedArea = leafVisitor.getTotalProjectedArea();
             return projectedArea;
         }
 
@@ -244,23 +242,24 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
         Logger::fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
-    Vector3D samplePoint = sourceElement->midPoint();
-    OrientedGathererVisitor *leafVisitor = new OrientedGathererVisitor(link, srcRad);
-
     switch ( galerkinState->clusteringStrategy ) {
         case GalerkinClusteringStrategy::ISOTROPIC:
             ClusterTraversalStrategy::isotropicGatherRadiance(receiverElement, 1.0, link, srcRad);
             break;
-        case GalerkinClusteringStrategy::ORIENTED:
+        case GalerkinClusteringStrategy::ORIENTED: {
+            OrientedGathererVisitor leafVisitor(link, srcRad);
             ClusterTraversalStrategy::traverseAllLeafElements(
-                    leafVisitor,
+                    &leafVisitor,
                     receiverElement,
                     galerkinState);
             break;
-        case GalerkinClusteringStrategy::Z_VISIBILITY:
+        }
+        case GalerkinClusteringStrategy::Z_VISIBILITY: {
+            Vector3D samplePoint = sourceElement->midPoint();
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
+                OrientedGathererVisitor leafVisitor(link, srcRad);
                 ClusterTraversalStrategy::traverseAllLeafElements(
-                        leafVisitor,
+                        &leafVisitor,
                         receiverElement,
                         galerkinState);
             } else {
@@ -277,28 +276,25 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero
                 // for those elements
-                DepthVisibilityGathererVisitor *depthVisibilityLeafVisitor =
-                    new DepthVisibilityGathererVisitor(link, srcRad, pixelArea);
+                DepthVisibilityGathererVisitor depthVisibilityLeafVisitor(link, srcRad, pixelArea);
                 ClusterTraversalStrategy::traverseAllLeafElements(
-                    depthVisibilityLeafVisitor,
+                    &depthVisibilityLeafVisitor,
                     receiverElement,
                     galerkinState);
-                delete depthVisibilityLeafVisitor;
             }
             break;
+        }
         default:
             Logger::fatal(-1, "gatherRadiance", "Invalid clustering strategy %d",
                      galerkinState->clusteringStrategy);
     }
-    delete leafVisitor;
 }
 
 ColorRgbMutable
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
     ColorRgbMutable radiance(0.0, 0.0, 0.0);
-    MaximumRadianceVisitor *leafVisitor = new MaximumRadianceVisitor();
-    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState);
-    radiance = leafVisitor->getAccumulatedRadiance();
-    delete leafVisitor;
+    MaximumRadianceVisitor leafVisitor;
+    ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
+    radiance = leafVisitor.getAccumulatedRadiance();
     return radiance;
 }

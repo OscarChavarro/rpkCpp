@@ -1,7 +1,6 @@
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorClusteredStrategy.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
@@ -42,10 +41,9 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
     }
     link->K[0] = static_cast<float>(receiverElement->area * G);
 
-    link->deltaK = new float[1];
-    link->deltaK[0] = static_cast<float>(G - gMin);
-    if ( gMax - G > link->deltaK[0] ) {
-        link->deltaK[0] = static_cast<float>(gMax - G);
+    link->deltaK = static_cast<float>(G - gMin);
+    if ( gMax - G > link->deltaK ) {
+        link->deltaK = static_cast<float>(gMax - G);
     }
 
     link->numberOfReceiverCubaturePositions = 1;
@@ -112,7 +110,6 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
     const AxisAlignedBoundingBox *boundingBox = &geometry->boundingBox;
-    MinMaxBox *minMaxBox = geometry->getRayIntersectionBox();
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
@@ -120,7 +117,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
     vectorTmp.sumScaled(ray->position, tMinimum, ray->direction);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
-        if ( !minMaxBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
+        if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
             // distance interval tMinimum ... tMaximum
             return 1.0;

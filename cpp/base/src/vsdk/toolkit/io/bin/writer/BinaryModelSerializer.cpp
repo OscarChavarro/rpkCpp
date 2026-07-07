@@ -434,7 +434,7 @@ BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Geo
     vsdk::PersistenceElement::writeBool(output, geometry->omit != 0);
     vsdk::PersistenceElement::writeBool(output, geometry->isDuplicate);
     writeBoundingBox(output, geometry->boundingBox);
-    vsdk::PersistenceElement::writeBool(output, geometry->rayIntersectionBox != nullptr);
+    vsdk::PersistenceElement::writeBool(output, false);
     vsdk::PersistenceElement::writeBool(output, geometry->radianceData != nullptr);
 
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
