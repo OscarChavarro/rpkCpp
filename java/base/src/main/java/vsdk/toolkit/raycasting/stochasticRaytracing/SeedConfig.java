@@ -1,18 +1,10 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import java.util.Random;
+import vsdk.toolkit.common.Random;
 
 public class SeedConfig {
     private Seed[] m_seeds;
     private static final Seed xOrSeed = new Seed();
-
-    private static Random randomFromSeed(Seed seed) {
-        short[] s = seed.GetSeed();
-        long merged = (((long)s[0] & 0xFFFFL) << 32)
-            ^ (((long)s[1] & 0xFFFFL) << 16)
-            ^ ((long)s[2] & 0xFFFFL);
-        return new Random(merged);
-    }
 
     public SeedConfig() {
         xOrSeed.SetSeed(0xF0, 0x65, 0xDE);
@@ -43,6 +35,7 @@ public class SeedConfig {
 
         // Save the seed (supply dummy seed to seed48())
         Seed current = m_seeds[depth];
+        current.SetSeed(Random.seed48(current.GetSeed()));
 
         //Generate a new seed, dependent on the current seed
         Seed tmpSeed = new Seed();
@@ -53,17 +46,16 @@ public class SeedConfig {
         // because the supplied random numbers *are* the (truncated) seeds
         tmpSeed.XORSeed(xOrSeed);
 
-        Random random = randomFromSeed(tmpSeed);
-        short s0 = (short)random.nextInt(0x10000);
-        short s1 = (short)random.nextInt(0x10000);
-        short s2 = (short)random.nextInt(0x10000);
-        current.SetSeed(new short[] {s0, s1, s2});
-
-        random.nextDouble();
+        // Set the new seed and drand48 once, to be sure
+        Random.seed48(tmpSeed.GetSeed());
+        Random.drand48();
     }
 
     // Restores seed for a certain depth
     public void Restore(int depth) {
-        // Java port keeps seeds only; explicit global RNG restore is not required.
+        if (m_seeds == null || depth < 0 || depth >= m_seeds.length) {
+            return;
+        }
+        Random.seed48(m_seeds[depth].GetSeed());
     }
 }

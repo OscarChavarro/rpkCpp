@@ -7,4 +7,5 @@ public class EnumAppOptions {
     public int yesValue;
     public int noValue;
     public int debug;
+    public boolean nativeRNG;
 }

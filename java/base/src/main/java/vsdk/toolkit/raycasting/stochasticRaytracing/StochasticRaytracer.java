@@ -1,8 +1,8 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
-import java.util.Random;
 
+import vsdk.toolkit.common.Random;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
@@ -38,7 +38,6 @@ public final class StochasticRaytracer extends RayTracer {
     private static String name = "Stochastic Raytracing & Final Gathers";
     private LightList lightList;
     private StochasticRayTracingState rayTracingState;
-    private static Random random48 = new Random();
 
     public StochasticRaytracer(
         LightList inLightList,
@@ -93,7 +92,7 @@ pointed to by 'fp'
 
         // Frame Coherent sampling : init fixed seed
         if ( rayTracingState.doFrameCoherent != 0 ) {
-            srand48(rayTracingState.baseSeed);
+            Random.srand48(rayTracingState.baseSeed);
         }
 
         if ( rayTracingState.progressiveTracing == 0 ) {
@@ -655,9 +654,9 @@ pointed to by 'fp'
         if ( config.doFrameCoherent != 0 || config.doCorrelatedSampling != 0 ) {
             if ( config.doCorrelatedSampling != 0 ) {
                 // Correlated : start each pixel with same seed
-                srand48(config.baseSeed);
+                Random.srand48(config.baseSeed);
             }
-            drand48(); // (randomize seed, gives new seed for uncorrelated sampling)
+            Random.drand48(); // (randomize seed, gives new seed for uncorrelated sampling)
             config.seedConfig.save(0);
         }
 
@@ -719,13 +718,5 @@ pointed to by 'fp'
         }
 
         return result;
-    }
-
-    private static void srand48(long seed) {
-        random48 = new Random(seed);
-    }
-
-    private static double drand48() {
-        return random48.nextDouble();
     }
 }

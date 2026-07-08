@@ -15,6 +15,7 @@ import vsdk.toolkit.tonemap.ToneMappingContext;
 public final class OptionsGroupCore {
     private static final int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
     private static final boolean DEFAULT_FORCE_ONE_SIDED = true;
+    private static final boolean DEFAULT_NATIVE_RNG_ENABLED = true;
     private static final ColorRgb DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
 
     private static int numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
@@ -22,6 +23,7 @@ public final class OptionsGroupCore {
     private static int outputImageWidth = 1920;
     private static int outputImageHeight = 1080;
     private static int glutDebugEnabled = 0;
+    private static boolean nativeRandomNumberGeneratorEnabled = DEFAULT_NATIVE_RNG_ENABLED;
     private static EnumBackgroundMode backgroundMode = EnumBackgroundMode.NONE;
     private static ColorRgb backgroundColor = new ColorRgb(
         DEFAULT_BACKGROUND_COLOR.getR(),
@@ -68,6 +70,10 @@ public final class OptionsGroupCore {
             scene.camera,
             imageOutputWidth[0],
             imageOutputHeight[0]);
+    }
+
+    public static boolean isNativeRandomNumberGeneratorEnabled() {
+        return nativeRandomNumberGeneratorEnabled;
     }
 
     public static Background createBackground() {
@@ -186,6 +192,10 @@ public final class OptionsGroupCore {
         value.value = 1;
     }
 
+    private static void mainNativeRNGOption(TypedOption.MutableValue<Boolean> value) {
+        nativeRandomNumberGeneratorEnabled = value.value;
+    }
+
     public static void commandLineGeneralProgramParseOptions(
         int[] argc,
         String[] argv,
@@ -202,6 +212,7 @@ public final class OptionsGroupCore {
         appOptions.yesValue = 1;
         appOptions.noValue = 0;
         appOptions.debug = 0;
+        appOptions.nativeRNG = DEFAULT_NATIVE_RNG_ENABLED;
 
         TypedOption<Integer> widthOpt = new TypedOption<>(
             "-width",
@@ -245,6 +256,12 @@ public final class OptionsGroupCore {
             0,
             OptionsGroupCore::setIntTrue,
             null);
+        TypedOption<Boolean> nativeRNGOpt = new TypedOption<>(
+            "-nativeRNG",
+            TypedOption.reference(() -> appOptions.nativeRNG, v -> appOptions.nativeRNG = v),
+            1,
+            OptionsGroupCore::mainNativeRNGOption,
+            null);
         OptionBase[] registry = new OptionBase[] {
             TypedOption.REGISTER_OPTION(widthOpt, 5),
             TypedOption.REGISTER_OPTION(heightOpt, 6),
@@ -252,7 +269,8 @@ public final class OptionsGroupCore {
             TypedOption.REGISTER_OPTION(forceOneSidedOpt, 10),
             TypedOption.REGISTER_OPTION(dontForceOneSidedOpt, 14),
             TypedOption.REGISTER_OPTION(monochromaticOpt, 5),
-            TypedOption.REGISTER_OPTION(glutDebugOpt, 6)
+            TypedOption.REGISTER_OPTION(glutDebugOpt, 6),
+            TypedOption.REGISTER_OPTION(nativeRNGOpt, 9)
         };
 
         fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
@@ -263,11 +281,12 @@ public final class OptionsGroupCore {
             DEFAULT_BACKGROUND_COLOR.getG(),
             DEFAULT_BACKGROUND_COLOR.getB());
         glutDebugEnabled = appOptions.debug;
+        nativeRandomNumberGeneratorEnabled = appOptions.nativeRNG;
 
         OptionsGroupCore.commandLineParseBackgroundOption(argc, argv);
 
         OptionGroup[] generalGroups = new OptionGroup[] {
-            new OptionGroup("global", registry, 7)
+            new OptionGroup("global", registry, 8)
         };
         OptionParser.parse(argc, argv, generalGroups, 1);
 
@@ -275,6 +294,7 @@ public final class OptionsGroupCore {
         outputImageHeight = appOptions.height;
         numberOfQuarterCircleDivisions = appOptions.nqcdivs;
         glutDebugEnabled = appOptions.debug;
+        nativeRandomNumberGeneratorEnabled = appOptions.nativeRNG;
 
         if ( oneSidedSurfaces != null && oneSidedSurfaces.length > 0 ) {
             oneSidedSurfaces[0] = fileOptionsForceOneSidedSurfaces != 0;

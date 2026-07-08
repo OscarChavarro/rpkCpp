@@ -47,10 +47,12 @@ tasks.register("runHelloWorldJOGL", JavaExec) {
 
 tasks.named("compileJava", JavaCompile) {
     destinationDirectory = layout.buildDirectory.dir("classes/java/main")
+    options.compilerArgs += ["--add-modules", "jdk.incubator.foreign"]
 }
 
 tasks.named("compileTestJava", JavaCompile) {
     destinationDirectory = layout.buildDirectory.dir("classes/java/test")
+    options.compilerArgs += ["--add-modules", "jdk.incubator.foreign"]
 }
 
 tasks.named("compileJoglDemoJava", JavaCompile) {
@@ -59,4 +61,35 @@ tasks.named("compileJoglDemoJava", JavaCompile) {
 
 tasks.named("test", Test) {
     failOnNoDiscoveredTests = false
+    dependsOn "buildNativeRandomLibrary"
+    jvmArgs "--add-modules", "jdk.incubator.foreign", "--enable-native-access=ALL-UNNAMED"
+}
+
+def nativeRandomProjectDir = "${projectDir}/../pkgs/nativeRandomNumberGenerator"
+def nativeRandomBuildDir = "${nativeRandomProjectDir}/build"
+def nativeLibsDir = layout.buildDirectory.dir("nativeLibs")
+
+tasks.register("configureNativeRandomLibrary", Exec) {
+    inputs.file("${nativeRandomProjectDir}/CMakeLists.txt")
+    outputs.dir(nativeRandomBuildDir)
+    workingDir nativeRandomProjectDir
+    commandLine "cmake", "-S", ".", "-B", "build", "-DCMAKE_BUILD_TYPE=Release"
+}
+
+tasks.register("compileNativeRandomLibrary", Exec) {
+    dependsOn "configureNativeRandomLibrary"
+    inputs.dir("${nativeRandomProjectDir}/src")
+    outputs.file("${nativeRandomBuildDir}/librpkNativeRandom.so")
+    workingDir nativeRandomBuildDir
+    commandLine "cmake", "--build", "."
+}
+
+tasks.register("buildNativeRandomLibrary", Copy) {
+    dependsOn "compileNativeRandomLibrary"
+    from("${nativeRandomBuildDir}/librpkNativeRandom.so")
+    into nativeLibsDir
+}
+
+tasks.named("jar") {
+    dependsOn "buildNativeRandomLibrary"
 }

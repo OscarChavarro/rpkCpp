@@ -31,4 +31,6 @@ tasks.named("compileJava", JavaCompile) {
 tasks.named("run", JavaExec) {
     // Keep script behavior stable: relative output/* paths resolve under java/
     workingDir = rootProject.projectDir
+    dependsOn ":base:buildNativeRandomLibrary"
+    jvmArgs "--add-modules", "jdk.incubator.foreign", "--enable-native-access=ALL-UNNAMED"
 }

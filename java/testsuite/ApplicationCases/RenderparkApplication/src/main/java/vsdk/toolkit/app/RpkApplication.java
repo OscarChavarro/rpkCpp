@@ -1,6 +1,7 @@
 package vsdk.toolkit.app;
 
 import vsdk.toolkit.app.options.OptionsGroupCore;
+import vsdk.toolkit.common.Random;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.galerkin.processing.ClusterCreationStrategy;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
@@ -229,6 +230,9 @@ Processes command line arguments
             rayMatterState,
             bidirectionalPathState,
             stochasticRayTracingState);
+
+        Random.setNativeMode(OptionsGroupCore.isNativeRandomNumberGeneratorEnabled());
+        Random.startup();
 
         // 3. Load scene elements from MGF file
         mgfContext.radianceMethod = selectedRadianceMethod;
