@@ -495,7 +495,7 @@ public class BinaryModelSerializer {
         writeBool(output, geometry.omit);
         writeBool(output, geometry.isDuplicate);
         writeBoundingBox(output, geometry.boundingBox);
-        writeBool(output, geometry.rayIntersectionBox != null);
+        writeBool(output, false);
         writeBool(output, geometry.radianceData != null);
 
         if (geometry.className == GeometryClassId.SURFACE_MESH) {

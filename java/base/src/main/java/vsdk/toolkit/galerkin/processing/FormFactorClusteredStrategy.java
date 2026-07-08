@@ -41,10 +41,9 @@ public class FormFactorClusteredStrategy {
         }
         link.K[0] = (float)(receiverElement.area * G);
 
-        link.deltaK = new float[1];
-        link.deltaK[0] = (float)(G - gMin);
-        if ( gMax - G > link.deltaK[0] ) {
-            link.deltaK[0] = (float)(gMax - G);
+        link.deltaK = (float)(G - gMin);
+        if ( gMax - G > link.deltaK ) {
+            link.deltaK = (float)(gMax - G);
         }
         link.numberOfReceiverCubaturePositions = 1;
     }

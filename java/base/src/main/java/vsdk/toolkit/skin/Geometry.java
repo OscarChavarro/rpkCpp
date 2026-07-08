@@ -30,7 +30,6 @@ public class Geometry {
 
     public int id; // Unique ID number
     public BoundingBox boundingBox;
-    public MinMaxBox rayIntersectionBox;
     public Element radianceData; // Data specific to the radiance algorithm being used
     public int itemCount;
     public boolean bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
@@ -43,7 +42,6 @@ public class Geometry {
     public Geometry() {
         id = 0;
         boundingBox = new BoundingBox();
-        rayIntersectionBox = null;
         radianceData = null;
         itemCount = 0;
         bounded = false;
@@ -65,7 +63,6 @@ public class Geometry {
         isDuplicate = false;
         bounded = false;
         shaftCullGeometry = false;
-        rayIntersectionBox = null;
         radianceData = null;
         itemCount = 0;
         omit = false;
@@ -73,7 +70,6 @@ public class Geometry {
     }
 
     public void destroy() {
-        rayIntersectionBox = null;
         if (radianceData != null && !isDuplicate) {
             radianceData = null;
         }
@@ -84,16 +80,6 @@ public class Geometry {
     */
     public BoundingBox getBoundingBox() {
         return boundingBox;
-    }
-
-    public MinMaxBox getRayIntersectionBox() {
-        if (rayIntersectionBox == null) {
-            rayIntersectionBox = new MinMaxBox(boundingBox);
-        }
-        else {
-            rayIntersectionBox.updateFromBoundingBox(boundingBox);
-        }
-        return rayIntersectionBox;
     }
 
     /**
@@ -198,8 +184,7 @@ public class Geometry {
             vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
             if (boundingBox.outOfBounds(vTmp)) {
                 float[] nMaximumDistance = new float[] {maximumDistance[0]};
-                MinMaxBox minMaxBox = getRayIntersectionBox();
-                if (!minMaxBox.intersect(ray, minimumDistance, nMaximumDistance)) {
+                if (!boundingBox.intersect(ray, minimumDistance, nMaximumDistance)) {
                     return false;
                 }
             }

@@ -199,16 +199,17 @@ receiver cluster
             Logger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
 
-        Vector3D samplePoint = sourceElement.midPoint();
-        OrientedGathererVisitor leafVisitor = new OrientedGathererVisitor(link, srcRad);
         switch ( galerkinState.clusteringStrategy ) {
             case ISOTROPIC:
                 isotropicGatherRadiance(receiverElement, 1.0, link, srcRad);
                 break;
-            case ORIENTED:
+            case ORIENTED: {
+                OrientedGathererVisitor leafVisitor = new OrientedGathererVisitor(link, srcRad);
                 traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
                 break;
+            }
             case Z_VISIBILITY:
+                Vector3D samplePoint = sourceElement.midPoint();
                 BoundingBox bb = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
                 ScratchVisibilityStrategy.scratchPixelsPerElement(galerkinState);
                 double pixelArea = (bb.dx() * bb.dy()) / (double)(galerkinState.scratch.vp_width * galerkinState.scratch.vp_height);

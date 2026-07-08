@@ -44,6 +44,13 @@ public class GalerkinState {
                                          // when controlling the radiance error and to the maximum
                                          // self-emitted power when controlling the power error
 
+    // Cached once per refineInteractions() call so hierarchic refinement does not
+    // repeat the same Statistics lookups and error-threshold arithmetic for every interaction
+    public double refinementMinimumArea;
+    public double refinementRadianceErrorThreshold;
+    public double refinementPowerErrorThresholdNumerator;
+    public double refinementMaxDirectPotential;
+
     public GalerkinBasisType basisType; // Determines max. approximation order
 
     // Clustering strategy
@@ -100,6 +107,10 @@ public class GalerkinState {
         galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
         relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
         relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
+        refinementMinimumArea = 0.0;
+        refinementRadianceErrorThreshold = 0.0;
+        refinementPowerErrorThresholdNumerator = 0.0;
+        refinementMaxDirectPotential = 0.0;
         importanceDriven = DEFAULT_GAL_IMPORTANCE_DRIVEN ? 1 : 0;
         clustered = DEFAULT_GAL_CLUSTERED ? 1 : 0;
         lazyLinking = DEFAULT_GAL_LAZY_LINKING ? 1 : 0;

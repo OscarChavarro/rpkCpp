@@ -39,6 +39,20 @@ public class HierarchicalRefinementStrategy {
         }
     }
 
+    private static void prepareRefinementIterationState(GalerkinState galerkinState) {
+        Statistics statistics = Statistics.instance();
+        galerkinState.refinementMinimumArea =
+            statistics.radiance.totalArea * galerkinState.relMinElemArea;
+        galerkinState.refinementRadianceErrorThreshold =
+            hierarchicRefinementColorToError(statistics.radiance.maxSelfEmittedRadiance)
+            * galerkinState.relLinkErrorThreshold;
+        galerkinState.refinementPowerErrorThresholdNumerator =
+            hierarchicRefinementColorToError(statistics.radiance.maxSelfEmittedPower)
+            * galerkinState.relLinkErrorThreshold;
+        galerkinState.refinementMaxDirectPotential =
+            statistics.potential.maxDirectPotential;
+    }
+
     private static final ThreadLocal<Integer> refineTreeDepth = ThreadLocal.withInitial(() -> 0);
     private static void hierarchicRefinementCull(
         Scene scene,
@@ -119,13 +133,10 @@ public class HierarchicalRefinementStrategy {
         double threshold;
         switch ( galerkinState.errorNorm ) {
             case RADIANCE_ERROR:
-                threshold = hierarchicRefinementColorToError(
-                    Statistics.instance().radiance.maxSelfEmittedRadiance) * galerkinState.relLinkErrorThreshold;
+                threshold = galerkinState.refinementRadianceErrorThreshold;
                 break;
             case POWER_ERROR:
-                threshold = hierarchicRefinementColorToError(
-                    Statistics.instance().radiance.maxSelfEmittedPower) * galerkinState.relLinkErrorThreshold
-                    / (Math.PI * receiverArea);
+                threshold = galerkinState.refinementPowerErrorThresholdNumerator / (Math.PI * receiverArea);
                 break;
             default:
                 threshold = galerkinState.relLinkErrorThreshold;
@@ -135,7 +146,7 @@ public class HierarchicalRefinementStrategy {
         if ( galerkinState.importanceDriven != 0
             && (galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI
                 || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL) ) {
-            double maxDirect = Statistics.instance().potential.maxDirectPotential;
+            double maxDirect = galerkinState.refinementMaxDirectPotential;
             if ( maxDirect > Numeric.EPSILON ) {
                 threshold /= 2.0 * interaction.receiverElement.potential / maxDirect;
             }
@@ -172,7 +183,7 @@ public class HierarchicalRefinementStrategy {
             }
         }
 
-        error.scalarProductScaled(rcvRho, interaction.deltaK[0], srcRad);
+        error.scalarProductScaled(rcvRho, interaction.deltaK, srcRad);
         error.abs();
         return hierarchicRefinementColorToError(error);
     }
@@ -247,8 +258,7 @@ public class HierarchicalRefinementStrategy {
             error += sourceClusterRadianceVariationError(interaction, rcvRho, receiveArea, galerkinState);
         }
 
-        double minimumArea = vsdk.toolkit.common.statistics.Statistics.instance().radiance.totalArea
-            * galerkinState.relMinElemArea;
+        double minimumArea = galerkinState.refinementMinimumArea;
 
         if ( error <= threshold ) {
             return InteractionEvaluationCode.ACCURATE_ENOUGH;
@@ -694,27 +704,12 @@ public class HierarchicalRefinementStrategy {
         return refineRecursive(scene, arr, interaction, galerkinState);
     }
 
-    private static void removeRefinedInteractions(GalerkinState galerkinState, ArrayList<Interaction> interactionsToRemove) {
-        for ( int i = 0; i < interactionsToRemove.size(); i++ ) {
-            Interaction interaction = interactionsToRemove.get(i);
-            if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-                if ( interaction.sourceElement.interactions != null ) {
-                    interaction.sourceElement.interactions.remove(interaction);
-                }
-            } else {
-                if ( interaction.receiverElement.interactions != null ) {
-                    interaction.receiverElement.interactions.remove(interaction);
-                }
-            }
-            Interaction.interactionDestroy(interaction);
-        }
-    }
-
     public static void refineInteractions(
         Scene scene,
         GalerkinElement parentElement,
         GalerkinState galerkinState)
     {
+        prepareRefinementIterationState(galerkinState);
         HashSet<Integer> activePath = new HashSet<>();
         refineInteractionsInternal(scene, parentElement, galerkinState, activePath);
     }
@@ -762,18 +757,34 @@ public class HierarchicalRefinementStrategy {
                 }
             }
 
-            ArrayList<Interaction> interactionsToRemove = new ArrayList<>();
-            for ( int i = 0; parentElement.interactions != null && i < parentElement.interactions.size(); i++ ) {
-                Object o = parentElement.interactions.get(i);
-                if ( !(o instanceof Interaction) ) {
-                    continue;
+            // Refined interactions are removed with order-preserving in-place compaction
+            // to avoid one temporary list plus O(n) remove(Object) scans per element
+            ArrayList<Object> interactions = parentElement.interactions;
+            if ( interactions != null ) {
+                int writeIndex = 0;
+                for ( int readIndex = 0; readIndex < interactions.size(); readIndex++ ) {
+                    Object o = interactions.get(readIndex);
+                    if ( !(o instanceof Interaction) ) {
+                        if ( writeIndex != readIndex ) {
+                            interactions.set(writeIndex, o);
+                        }
+                        writeIndex++;
+                        continue;
+                    }
+                    Interaction interaction = (Interaction)o;
+                    if ( refineInteraction(scene, interaction, galerkinState) ) {
+                        Interaction.interactionDestroy(interaction);
+                    } else {
+                        if ( writeIndex != readIndex ) {
+                            interactions.set(writeIndex, interaction);
+                        }
+                        writeIndex++;
+                    }
                 }
-                Interaction interaction = (Interaction)o;
-                if ( refineInteraction(scene, interaction, galerkinState) ) {
-                    interactionsToRemove.add(interaction);
+                if ( writeIndex < interactions.size() ) {
+                    interactions.subList(writeIndex, interactions.size()).clear();
                 }
             }
-            removeRefinedInteractions(galerkinState, interactionsToRemove);
         }
         finally {
             activePath.remove(parentElement.id);

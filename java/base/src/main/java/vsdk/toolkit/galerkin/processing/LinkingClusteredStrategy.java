@@ -57,7 +57,6 @@ public class LinkingClusteredStrategy {
         int n = receiverElement.basisSize * sourceElement.basisSize;
         float[] K;
         boolean kFromPool = false;
-        boolean deltaFromPool = false;
         if ( n == 1 ) {
             K = scalarPool.allocate(1);
             if (K == null) {
@@ -92,25 +91,11 @@ public class LinkingClusteredStrategy {
                 K[i] = 0.0f;
             }
         }
-        float[] deltaK = scalarPool.allocate(1);
-        if (deltaK == null) {
-            if (scalarPool.expand(1024)) {
-                deltaK = scalarPool.allocate(1);
-            }
-        }
-        if (deltaK != null) {
-            deltaFromPool = true;
-        }
-        else {
-            deltaK = new float[1];
-        }
-        deltaK[0] = Numeric.HUGE_FLOAT_VALUE; // Huge value error on the form factor
-
         Interaction newLink = new Interaction(
             receiverElement,
             sourceElement,
             K,
-            deltaK,
+            Numeric.HUGE_FLOAT_VALUE, // Huge value error on the form factor
             (byte)receiverElement.basisSize,
             (byte)sourceElement.basisSize,
             (byte)1,
@@ -138,9 +123,6 @@ public class LinkingClusteredStrategy {
             else {
                 matrixPool.free(K_SIZE);
             }
-        }
-        if (deltaFromPool) {
-            scalarPool.free(1);
         }
     }
 }

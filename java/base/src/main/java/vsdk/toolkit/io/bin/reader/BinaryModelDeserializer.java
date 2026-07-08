@@ -28,7 +28,6 @@ import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.MinMaxBox;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
 import vsdk.toolkit.environment.geometry.elements.Vertex;
@@ -586,18 +585,6 @@ public class BinaryModelDeserializer {
                 geometry.omit = record.omit;
                 geometry.isDuplicate = record.isDuplicate;
                 require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(geometry.boundingBox, record.boundingBoxCoordinates));
-
-                if (record.hasRayIntersectionBox) {
-                    if (geometry.rayIntersectionBox == null) {
-                        geometry.rayIntersectionBox = new MinMaxBox(geometry.boundingBox);
-                    }
-                    else {
-                        geometry.rayIntersectionBox.updateFromBoundingBox(geometry.boundingBox);
-                    }
-                }
-                else {
-                    geometry.rayIntersectionBox = null;
-                }
 
                 geometry.radianceData = null;
                 geometries.set(i, geometry);

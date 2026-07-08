@@ -12,9 +12,8 @@ public class Interaction {
     public GalerkinElement receiverElement;
     public GalerkinElement sourceElement;
     public float[] K; // Coupling coefficient(s), stored top to bottom, left to right
-    public float[] deltaK; // Used for approximation error estimation over the link
+    public float deltaK; // Used for approximation error estimation over the link (always a single coefficient)
     public boolean ownsK;
-    public boolean ownsDeltaK;
     public byte numberOfBasisFunctionsOnReceiver;
     public byte numberOfBasisFunctionsOnSource;
     public byte numberOfReceiverCubaturePositions;
@@ -22,14 +21,13 @@ public class Interaction {
 
     public Interaction() {
         ownsK = true;
-        ownsDeltaK = true;
     }
 
     public Interaction(
         GalerkinElement inReceiverElement,
         GalerkinElement inSourceElement,
         float[] inK,
-        float[] inDeltaK,
+        float inDeltaK,
         byte inNumberOfBasisFunctionsOnReceiver,
         byte inNumberOfBasisFunctionsOnSource,
         byte inNumberOfReceiverCubaturePositions,
@@ -55,10 +53,7 @@ public class Interaction {
             Logger.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
         }
 
-        deltaK = new float[1];
-        if ( inDeltaK != null && inDeltaK.length > 0 ) {
-            deltaK[0] = inDeltaK[0];
-        }
+        deltaK = inDeltaK;
 
         totalInteractions++;
         if ( inReceiverElement != null && inReceiverElement.isCluster() ) {
@@ -126,9 +121,6 @@ public class Interaction {
              && ((interaction.numberOfBasisFunctionsOnReceiver & 0xFF) > 1
                  || (interaction.numberOfBasisFunctionsOnSource & 0xFF) > 1) ) {
             interaction.K = null;
-        }
-        if ( interaction.ownsDeltaK && interaction.deltaK != null ) {
-            interaction.deltaK = null;
         }
     }
 

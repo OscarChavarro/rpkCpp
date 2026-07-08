@@ -1,6 +1,7 @@
 package vsdk.toolkit.skin;
 
 import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 
 /**
@@ -269,5 +270,105 @@ public class BoundingBox {
         out[5].set(maxX, minY, maxZ);
         out[6].set(minX, maxY, maxZ);
         out[7].set(maxX, maxY, maxZ);
+    }
+
+    private static boolean clipAxisSlab(
+        float minimumBound,
+        float maximumBound,
+        float origin,
+        float direction,
+        float toleranceScale,
+        float[] nearDistance,
+        float[] farDistance) {
+        if (direction == 0.0f) {
+            return !(origin < minimumBound || origin > maximumBound);
+        }
+
+        float invDirection = 1.0f / direction;
+        float entryDistance = (minimumBound - origin) * invDirection;
+        float exitDistance = (maximumBound - origin) * invDirection;
+        if (entryDistance > exitDistance) {
+            float swapValue = entryDistance;
+            entryDistance = exitDistance;
+            exitDistance = swapValue;
+        }
+
+        if (exitDistance < nearDistance[0]) {
+            return false;
+        }
+        if (entryDistance > nearDistance[0]) {
+            nearDistance[0] = entryDistance;
+        }
+        if (exitDistance < farDistance[0]) {
+            farDistance[0] = exitDistance;
+        }
+        return nearDistance[0] <= (farDistance[0] * toleranceScale);
+    }
+
+    /**
+    Intersects the ray with this bounding box directly (no separate ray-intersection
+    box object needed), narrowing [tMin, tMax] to the overlap with the ray segment.
+    */
+    public boolean intersectingSegment(Ray ray, float[] tMin, float[] tMax) {
+        if (ray == null || tMin == null || tMin.length == 0 || tMax == null || tMax.length == 0) {
+            return false;
+        }
+
+        float minimumDistance = tMin[0];
+        float maximumDistance = tMax[0];
+        float[] nearDistance = new float[] {minimumDistance};
+        float[] farDistance = new float[] {maximumDistance};
+        float toleranceScale = 1.0f + Numeric.EPSILON_FLOAT;
+
+        if (!clipAxisSlab(
+            coordinates[BoundingBoxCoordinateIndex.MIN_X], coordinates[BoundingBoxCoordinateIndex.MAX_X],
+            ray.position.x, ray.direction.x,
+            toleranceScale,
+            nearDistance, farDistance)) {
+            return false;
+        }
+        if (!clipAxisSlab(
+            coordinates[BoundingBoxCoordinateIndex.MIN_Y], coordinates[BoundingBoxCoordinateIndex.MAX_Y],
+            ray.position.y, ray.direction.y,
+            toleranceScale,
+            nearDistance, farDistance)) {
+            return false;
+        }
+        if (!clipAxisSlab(
+            coordinates[BoundingBoxCoordinateIndex.MIN_Z], coordinates[BoundingBoxCoordinateIndex.MAX_Z],
+            ray.position.z, ray.direction.z,
+            toleranceScale,
+            nearDistance, farDistance)) {
+            return false;
+        }
+
+        tMin[0] = nearDistance[0];
+        tMax[0] = farDistance[0];
+
+        if (nearDistance[0] == minimumDistance) {
+            return farDistance[0] < maximumDistance;
+        }
+        return nearDistance[0] < maximumDistance;
+    }
+
+    public boolean intersect(Ray ray, float minimumDistance, float[] maximumDistance) {
+        if (maximumDistance == null || maximumDistance.length == 0) {
+            return false;
+        }
+
+        float[] tMin = new float[] {minimumDistance};
+        float[] tMax = new float[] {maximumDistance[0]};
+        boolean hit = intersectingSegment(ray, tMin, tMax);
+        if (hit) {
+            if (tMin[0] == minimumDistance) {
+                if (tMax[0] < maximumDistance[0]) {
+                    maximumDistance[0] = tMax[0];
+                }
+            }
+            else if (tMin[0] < maximumDistance[0]) {
+                maximumDistance[0] = tMin[0];
+            }
+        }
+        return hit;
     }
 }
