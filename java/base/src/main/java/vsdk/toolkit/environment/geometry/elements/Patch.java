@@ -384,14 +384,22 @@ public class Patch {
     Returns (u, v) coordinates of the point in the triangle.
     Didier Badouel, Graphics Gems I, p390.
     */
+    // Scratch storage reused across calls on the hot ray intersection paths.
+    // The C++ port keeps the equivalent variables on the stack; the rendering
+    // core is single threaded, so sharing them here is safe and avoids
+    // billions of short-lived heap allocations per scene.
+    private static final Vector2Dd triangleUvScratchP0 = new Vector2Dd();
+    private static final Vector2Dd triangleUvScratchP1 = new Vector2Dd();
+    private static final Vector2Dd triangleUvScratchP2 = new Vector2Dd();
+
     private boolean triangleUv(Vector3D point, Vector2Dd uv) {
         double u0;
         double v0;
         double alpha;
         double beta;
-        Vector2Dd p0 = new Vector2Dd();
-        Vector2Dd p1 = new Vector2Dd();
-        Vector2Dd p2 = new Vector2Dd();
+        Vector2Dd p0 = triangleUvScratchP0;
+        Vector2Dd p1 = triangleUvScratchP1;
+        Vector2Dd p2 = triangleUvScratchP2;
 
         // Project to 2D
         int vertexIndex = 0;
@@ -460,21 +468,34 @@ public class Patch {
     Ray Intersection of Tessellated Surfaces: Quadrangles versus Triangles
     in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241.
     */
+    private static final Vector2Dd quadUvScratchA = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchB = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchC = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchD = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchM = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchAB = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchBC = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchCD = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchAD = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchAM = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchAE = new Vector2Dd();
+    private static final Vector2Dd quadUvScratchVector = new Vector2Dd();
+
     private static boolean quadUv(Patch patch, Vector3D point, Vector2Dd uv) {
-        Vector2Dd A = new Vector2Dd(); // Projected vertices
-        Vector2Dd B = new Vector2Dd();
-        Vector2Dd C = new Vector2Dd();
-        Vector2Dd D = new Vector2Dd();
-        Vector2Dd M = new Vector2Dd(); // Projected intersection point
-        Vector2Dd AB = new Vector2Dd(); // AE = DC - AB = DA - CB
-        Vector2Dd BC = new Vector2Dd();
-        Vector2Dd CD = new Vector2Dd();
-        Vector2Dd AD = new Vector2Dd();
-        Vector2Dd AM = new Vector2Dd();
-        Vector2Dd AE = new Vector2Dd();
+        Vector2Dd A = quadUvScratchA; // Projected vertices
+        Vector2Dd B = quadUvScratchB;
+        Vector2Dd C = quadUvScratchC;
+        Vector2Dd D = quadUvScratchD;
+        Vector2Dd M = quadUvScratchM; // Projected intersection point
+        Vector2Dd AB = quadUvScratchAB; // AE = DC - AB = DA - CB
+        Vector2Dd BC = quadUvScratchBC;
+        Vector2Dd CD = quadUvScratchCD;
+        Vector2Dd AD = quadUvScratchAD;
+        Vector2Dd AM = quadUvScratchAM;
+        Vector2Dd AE = quadUvScratchAE;
         double u = -1.0; // Parametric coordinates
         double v = -1.0;
-        Vector2Dd vector = new Vector2Dd(); // Temporary 2D-vector
+        Vector2Dd vector = quadUvScratchVector; // Temporary 2D-vector
         boolean isInside = false;
 
         // Projection on the plane that is most parallel to the facet
@@ -593,11 +614,13 @@ public class Patch {
     Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
     (u,v) parameters as a side result.
     */
+    private static final Vector2Dd hitInPatchScratchUv = new Vector2Dd();
+
     private boolean hitInPatch(RayHit hit, Patch patch) {
         int newFlags = hit.getFlags() | RayHitFlag.UV;
         hit.setFlags(newFlags); // uv parameters computed as a side result
         Vector3D position = hit.getPoint();
-        Vector2Dd uv = new Vector2Dd();
+        Vector2Dd uv = hitInPatchScratchUv;
         boolean result = (patch.numberOfVertices == 3)
             ? triangleUv(position, uv)
             : quadUv(patch, position, uv);
@@ -871,13 +894,23 @@ public class Patch {
     intersection and whether front/back facing patches are to be
     considered and are described in ray.h.
     */
+    // Reused hit record, mirroring the local stack variable of the C++ port.
+    // Results are copied into the caller's hitStore before returning, so the
+    // scratch object never escapes this method.
+    private static final RayHit intersectScratchHit = new RayHit();
+    private static final double[] intersectScratchU = new double[1];
+    private static final double[] intersectScratchV = new double[1];
+
     public RayHit intersect(
         Ray ray,
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
         RayHit hitStore) {
-        RayHit hit = new RayHit();
+        RayHit hit = intersectScratchHit;
+        hit.setFlags(0);
+        hit.setPatch(null);
+        hit.setMaterial(null);
 
         if (isExcluded()) {
             return null;
@@ -913,9 +946,8 @@ public class Patch {
         }
 
         // Intersection point of ray with plane of patch
-        Vector3D position = new Vector3D();
+        Vector3D position = hit.getPoint();
         position.sumScaled(ray.position, distance, ray.direction);
-        hit.setPoint(position);
 
         // Test whether it lies inside or outside the patch
         if (hitInPatch(hit, this)) {
@@ -932,8 +964,10 @@ public class Patch {
 
             if ((hitFlags & RayHitFlag.UV) != 0 && (hit.getFlags() & RayHitFlag.UV) == 0) {
                 position = hit.getPoint();
-                double[] u = new double[] {0.0};
-                double[] v = new double[] {0.0};
+                double[] u = intersectScratchU;
+                double[] v = intersectScratchV;
+                u[0] = 0.0;
+                v[0] = 0.0;
                 hit.getPatch().uv(position, u, v);
                 hit.setUv(u[0], v[0]);
                 hit.setPoint(position);

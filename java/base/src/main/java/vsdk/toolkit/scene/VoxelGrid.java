@@ -439,20 +439,36 @@ public class VoxelGrid {
     /**
     Traces a ray through a voxel grid. Returns nearest intersection or nullptr
     */
+    // Per-instance scratch storage for gridIntersect. The rendering core is
+    // single threaded and recursion only descends into nested sub-grids,
+    // which are distinct VoxelGrid instances, so per-instance reuse is safe.
+    // The C++ port keeps these variables on the stack.
+    private final Vector3D gridIntersectScratchTNext = new Vector3D();
+    private final Vector3D gridIntersectScratchTDelta = new Vector3D();
+    private final Vector3D gridIntersectScratchP = new Vector3D();
+    private final int[] gridIntersectScratchStep = new int[3];
+    private final int[] gridIntersectScratchOut = new int[3];
+    private final int[] gridIntersectScratchG = new int[3];
+    private final float[] gridIntersectScratchT0 = new float[1];
+
     public RayHit gridIntersect(
         Ray ray,
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
         RayHit hitStore) {
-        Vector3D tNext = new Vector3D();
-        Vector3D tDelta = new Vector3D();
-        Vector3D p = new Vector3D();
-        int[] step = new int[] {0, 0, 0};
-        int[] out = new int[3];
-        int[] g = new int[] {0, 0, 0};
+        Vector3D tNext = gridIntersectScratchTNext;
+        Vector3D tDelta = gridIntersectScratchTDelta;
+        Vector3D p = gridIntersectScratchP;
+        int[] step = gridIntersectScratchStep;
+        int[] out = gridIntersectScratchOut;
+        int[] g = gridIntersectScratchG;
         RayHit hit = null;
-        float[] t0 = new float[1];
+        float[] t0 = gridIntersectScratchT0;
+        step[0] = 0;
+        step[1] = 0;
+        step[2] = 0;
+        t0[0] = 0.0f;
 
         if (!gridBoundsIntersect(ray, minimumDistance, maximumDistance[0], t0, p)) {
             return null;

@@ -52,6 +52,20 @@ public class FormFactorStrategy {
         }
     }
 
+    // Scratch storage reused across shadow ray evaluations (single threaded
+    // rendering core; the C++ port keeps the equivalents on the stack). The
+    // hit records never escape: callers only test the returned value against
+    // null and read the hit patch before the next shadow ray is traced.
+    private static final float[] shadowTestScratchDistance = new float[1];
+    private static final Ray kernelScratchRay = new Ray();
+    private static final RayHit kernelScratchHitStore = new RayHit();
+    private static final float[] kernelScratchDistance = new float[1];
+
+    private static boolean cachedShadowTest(ShadowCache shadowCache, Ray ray, float shortenedDistance) {
+        kernelScratchDistance[0] = shortenedDistance;
+        return shadowCache.cacheHit(ray, kernelScratchDistance, kernelScratchHitStore) != null;
+    }
+
     private static RayHit shadowTestDiscretization(
         Ray ray,
         ArrayList<Geometry> geometrySceneList,
@@ -63,7 +77,8 @@ public class FormFactorStrategy {
         boolean isClusteredGeometry)
     {
         Statistics.instance().shadow.numberOfShadowRays++;
-        float[] dist = new float[] {minimumDistance};
+        float[] dist = shadowTestScratchDistance;
+        dist[0] = minimumDistance;
         RayHit hit = shadowCache.cacheHit(ray, dist, hitStore);
         if ( hit != null ) {
             Statistics.instance().shadow.numberOfShadowCacheHits++;
@@ -177,7 +192,7 @@ relevant for surface elements
         boolean isClusteredGeometry,
         GalerkinState galerkinState)
     {
-        Ray ray = new Ray();
+        Ray ray = kernelScratchRay;
         ray.position.copy(y);
         ray.direction.subtraction(x, y);
         double distance = ray.direction.norm();
@@ -216,7 +231,7 @@ relevant for surface elements
             visibilityFactor = 1.0;
         }
         else if ( galerkinState.multiResolutionVisibility == 0 ) {
-            RayHit hitStore = new RayHit();
+            RayHit hitStore = kernelScratchHitStore;
             RayHit h = shadowTestDiscretization(
                 ray,
                 shadowGeometryList,
@@ -228,7 +243,7 @@ relevant for surface elements
                 isClusteredGeometry);
             visibilityFactor = (h == null) ? 1.0 : 0.0;
         }
-        else if ( shadowCache.cacheHit(ray, new float[] {shortenedDistance}, new RayHit()) != null ) {
+        else if ( cachedShadowTest(shadowCache, ray, shortenedDistance) ) {
             visibilityFactor = 0.0;
         }
         else {

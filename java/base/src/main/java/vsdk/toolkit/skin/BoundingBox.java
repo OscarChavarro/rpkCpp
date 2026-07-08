@@ -309,6 +309,14 @@ public class BoundingBox {
     Intersects the ray with this bounding box directly (no separate ray-intersection
     box object needed), narrowing [tMin, tMax] to the overlap with the ray segment.
     */
+    // Scratch storage reused across bounding box tests on the hot ray
+    // intersection paths (single threaded rendering core; the C++ port keeps
+    // the equivalents on the stack)
+    private static final float[] intersectingSegmentScratchNear = new float[1];
+    private static final float[] intersectingSegmentScratchFar = new float[1];
+    private static final float[] intersectScratchTMin = new float[1];
+    private static final float[] intersectScratchTMax = new float[1];
+
     public boolean intersectingSegment(Ray ray, float[] tMin, float[] tMax) {
         if (ray == null || tMin == null || tMin.length == 0 || tMax == null || tMax.length == 0) {
             return false;
@@ -316,8 +324,10 @@ public class BoundingBox {
 
         float minimumDistance = tMin[0];
         float maximumDistance = tMax[0];
-        float[] nearDistance = new float[] {minimumDistance};
-        float[] farDistance = new float[] {maximumDistance};
+        float[] nearDistance = intersectingSegmentScratchNear;
+        float[] farDistance = intersectingSegmentScratchFar;
+        nearDistance[0] = minimumDistance;
+        farDistance[0] = maximumDistance;
         float toleranceScale = 1.0f + Numeric.EPSILON_FLOAT;
 
         if (!clipAxisSlab(
@@ -356,8 +366,10 @@ public class BoundingBox {
             return false;
         }
 
-        float[] tMin = new float[] {minimumDistance};
-        float[] tMax = new float[] {maximumDistance[0]};
+        float[] tMin = intersectScratchTMin;
+        float[] tMax = intersectScratchTMax;
+        tMin[0] = minimumDistance;
+        tMax[0] = maximumDistance[0];
         boolean hit = intersectingSegment(ray, tMin, tMax);
         if (hit) {
             if (tMin[0] == minimumDistance) {

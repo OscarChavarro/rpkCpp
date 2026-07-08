@@ -172,18 +172,25 @@ public class Geometry {
         excludedGeometry2 = geometry2;
     }
 
+    // Scratch storage reused across pre-test calls (this method runs billions
+    // of times per scene on the single threaded rendering core; the C++ port
+    // keeps these on the stack)
+    private static final Vector3D preTestScratchPoint = new Vector3D();
+    private static final float[] preTestScratchDistance = new float[1];
+
     public boolean discretizationIntersectPreTest(Ray ray, float minimumDistance, float[] maximumDistance) {
         if (this == excludedGeometry1 || this == excludedGeometry2) {
             return false;
         }
 
         if (bounded) {
-            Vector3D vTmp = new Vector3D();
+            Vector3D vTmp = preTestScratchPoint;
 
             // Check ray/bounding volume intersection
             vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
             if (boundingBox.outOfBounds(vTmp)) {
-                float[] nMaximumDistance = new float[] {maximumDistance[0]};
+                float[] nMaximumDistance = preTestScratchDistance;
+                nMaximumDistance[0] = maximumDistance[0];
                 if (!boundingBox.intersect(ray, minimumDistance, nMaximumDistance)) {
                     return false;
                 }

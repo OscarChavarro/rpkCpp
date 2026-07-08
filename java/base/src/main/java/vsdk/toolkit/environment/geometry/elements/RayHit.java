@@ -317,24 +317,29 @@ public class RayHit {
         shadingFrame.setZ(inZ);
     }
 
+    /**
+    Plain member-wise copy, equivalent to the C++ port's structure assignment
+    (*hitStore = hit). Fields not marked as filled in by the flags are copied
+    as-is and remain meaningless, just as in the C++ version; readers must
+    check the flags (or use the getTexCoord/shadingNormal accessors, which
+    compute missing data on demand).
+    */
     public void copyFrom(RayHit other) {
         if (other == null) {
             return;
         }
 
-        setPoint(other.getPoint());
-        setPatch(other.getPatch());
-        setGeometricNormal(other.getGeometricNormal());
-        setMaterial(other.getMaterial());
-        setUv(other.getUv());
-        setFlags(other.getFlags());
-
-        CoordinateSystem frame = other.getShadingFrame();
-        setShadingFrame(frame.getX(), frame.getY(), frame.getZ());
-        Vector3D localTex = new Vector3D();
-        if (other.getTexCoord(localTex)) {
-            texCoord = localTex;
-        }
+        point.copy(other.point);
+        patch = other.patch;
+        texCoord.copy(other.texCoord);
+        geometricNormal.copy(other.geometricNormal);
+        material = other.material;
+        shadingFrame.setX(other.shadingFrame.getX());
+        shadingFrame.setY(other.shadingFrame.getY());
+        shadingFrame.setZ(other.shadingFrame.getZ());
+        uv.u = other.uv.u;
+        uv.v = other.uv.v;
+        flags = other.flags;
     }
 
     public ShadingContext shadingContext() {

@@ -593,13 +593,26 @@ public class Shaft {
     Tests a patch against shaft: INSIDE, OVERLAP or OUTSIDE.
     Sets cut=true if full occlusion is detected.
     */
+    // Scratch storage reused across shaftPatchTest calls (single threaded
+    // rendering core, no recursion; the C++ port keeps these on the stack).
+    // Every slot that is read is written first on each call.
+    private static final int[] shaftPatchTestScratchInAll = new int[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final double[] shaftPatchTestScratchTMin = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final double[] shaftPatchTestScratchTMax = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final double[] shaftPatchTestScratchPTol = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final double[] shaftPatchTestScratchE = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final ShaftPlanePosition[] shaftPatchTestScratchSide = new ShaftPlanePosition[Patch.MAXIMUM_VERTICES_PER_PATCH];
+    private static final Ray shaftPatchTestScratchRay = new Ray();
+    private static final RayHit shaftPatchTestScratchHitStore = new RayHit();
+    private static final float[] shaftPatchTestScratchDistance = new float[1];
+
     private ShaftPlanePosition shaftPatchTest(Patch patch) {
-        int[] inAll = new int[Patch.MAXIMUM_VERTICES_PER_PATCH];
-        double[] tMin = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
-        double[] tMax = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
-        double[] pTol = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
-        Ray ray = new Ray();
-        RayHit hitStore = new RayHit();
+        int[] inAll = shaftPatchTestScratchInAll;
+        double[] tMin = shaftPatchTestScratchTMin;
+        double[] tMax = shaftPatchTestScratchTMax;
+        double[] pTol = shaftPatchTestScratchPTol;
+        Ray ray = shaftPatchTestScratchRay;
+        RayHit hitStore = shaftPatchTestScratchHitStore;
 
         // Start by assuming all vertices are inside all shaft planes
         boolean someOut = false;
@@ -613,8 +626,8 @@ public class Shaft {
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             // Test patch against i-th shaft plane
             ShaftPlane localPlane = planeSet[i];
-            double[] e = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
-            ShaftPlanePosition[] side = new ShaftPlanePosition[Patch.MAXIMUM_VERTICES_PER_PATCH];
+            double[] e = shaftPatchTestScratchE;
+            ShaftPlanePosition[] side = shaftPatchTestScratchSide;
             boolean in = false;
             boolean out = false;
 
@@ -716,7 +729,8 @@ public class Shaft {
         // or it cuts the shaft.
         ray.position.copy(center1);
         ray.direction.subtraction(center2, center1);
-        float[] dist = new float[] {1.0f - Numeric.EPSILON_FLOAT};
+        float[] dist = shaftPatchTestScratchDistance;
+        dist[0] = 1.0f - Numeric.EPSILON_FLOAT;
         if (patch.intersect(
             ray,
             Numeric.EPSILON_FLOAT,

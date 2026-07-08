@@ -53,6 +53,13 @@ public class MinMaxBox {
         return nearDistance[0] <= (farDistance[0] * toleranceScale);
     }
 
+    // Scratch storage reused across bounding box tests (single threaded
+    // rendering core; the C++ port keeps the equivalents on the stack)
+    private static final float[] intersectingSegmentScratchNear = new float[1];
+    private static final float[] intersectingSegmentScratchFar = new float[1];
+    private static final float[] intersectScratchTMin = new float[1];
+    private static final float[] intersectScratchTMax = new float[1];
+
     public boolean intersectingSegment(Ray ray, float[] tMin, float[] tMax) {
         if (ray == null || tMin == null || tMin.length == 0 || tMax == null || tMax.length == 0) {
             return false;
@@ -61,8 +68,10 @@ public class MinMaxBox {
         float minimumDistance = tMin[0];
         float maximumDistance = tMax[0];
         float[] box = boundingBox.rawCoordinates();
-        float[] nearDistance = new float[] {minimumDistance};
-        float[] farDistance = new float[] {maximumDistance};
+        float[] nearDistance = intersectingSegmentScratchNear;
+        float[] farDistance = intersectingSegmentScratchFar;
+        nearDistance[0] = minimumDistance;
+        farDistance[0] = maximumDistance;
         float toleranceScale = 1.0f + Numeric.EPSILON_FLOAT;
 
         if (!clipAxisSlab(
@@ -101,8 +110,10 @@ public class MinMaxBox {
             return false;
         }
 
-        float[] tMin = new float[] {minimumDistance};
-        float[] tMax = new float[] {maximumDistance[0]};
+        float[] tMin = intersectScratchTMin;
+        float[] tMax = intersectScratchTMax;
+        tMin[0] = minimumDistance;
+        tMax[0] = maximumDistance[0];
         boolean hit = intersectingSegment(ray, tMin, tMax);
         if (hit) {
             if (tMin[0] == minimumDistance) {
