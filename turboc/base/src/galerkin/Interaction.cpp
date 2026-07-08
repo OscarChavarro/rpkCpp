@@ -11,28 +11,27 @@ Interaction::Interaction():
     receiverElement(),
     sourceElement(),
     K(),
+    k0(),
     deltaK(),
     ownsK(),
-    ownsDeltaK(),
     nmbrOBasisFnctnORecv(),
     numberOfBasisFunctionsOnSource(),
     nmbrORecvCbtrPstns(),
     visibility()
 {
     ownsK = true;
-    ownsDeltaK = true;
 }
 
 Interaction::Interaction(
     GalerkinElement *inReceiverElement,
     GalerkinElement *inSourceElement,
     const float *inK,
-    const float *inDeltaK,
+    float inDeltaK,
     unsigned char iNumOBasisFnctnORecv,
     unsigned char iNumOBasisFnctnOSrc,
     unsigned char iNumORecvCbtrPstns,
     unsigned char inVisibility
-): K(), deltaK() {
+): K(), k0(), deltaK() {
     this->receiverElement = inReceiverElement;
     this->sourceElement = inSourceElement;
     this->nmbrOBasisFnctnORecv = iNumOBasisFnctnORecv;
@@ -41,20 +40,21 @@ Interaction::Interaction(
     this->visibility = inVisibility;
 
     if ( iNumOBasisFnctnORecv == 1 && iNumOBasisFnctnOSrc == 1 ) {
-        this->K = new float[1];
-        *K = *inK;
+        this->k0 = *inK;
+        this->K = &this->k0;
+        this->ownsK = false;
     } else {
         this->K = new float[iNumOBasisFnctnORecv * iNumOBasisFnctnOSrc];
         for ( int i = 0; i < iNumOBasisFnctnORecv * iNumOBasisFnctnOSrc; i++ ) {
             K[i] = inK[i];
         }
+        this->ownsK = true;
     }
 
     if ( iNumORecvCbtrPstns > 1 ) {
         Logger::fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
-    deltaK = new float[1];
-    *deltaK = *inDeltaK;
+    deltaK = inDeltaK;
 
     totalInteractions++;
     if ( inReceiverElement->isCluster() ) {
@@ -76,10 +76,6 @@ Interaction::~Interaction() {
     if ( ownsK && K != NULL ) {
         delete[] K;
         K = NULL;
-    }
-    if ( ownsDeltaK && deltaK != NULL ) {
-        delete[] deltaK;
-        deltaK = NULL;
     }
 }
 

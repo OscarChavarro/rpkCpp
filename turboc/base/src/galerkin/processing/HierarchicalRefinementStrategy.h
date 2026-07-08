@@ -13,6 +13,9 @@ Shaft culling stuff for hierarchical refinement
 class HierarchicalRefinementStrategy {
   private:
     static void
+    prepareRefinementIterationState(GalerkinState *galerkinState);
+
+    static void
     hierarchicRefinementCull(
         const Scene *scene,
         ArrayList<Geometry *> **candidatesList,
@@ -112,7 +115,10 @@ class HierarchicalRefinementStrategy {
     static bool refineInteraction(const Scene *scene, Interaction *interaction, GalerkinState *galerkinState);
 
     static void
-    removeRefinedInteractions(const GalerkinState *galerkinState, const ArrayList<Interaction *> *interactionsToRemove);
+    refineInteractionsRecursive(
+        const Scene *scene,
+        const GalerkinElement *parentElement,
+        GalerkinState *galerkinState);
 
   public:
     static void

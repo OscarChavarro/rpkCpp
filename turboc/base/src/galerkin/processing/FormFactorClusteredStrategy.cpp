@@ -1,6 +1,5 @@
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
-#include "skin/MinMaxBox.h"
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/processing/FormFactorClusteredStrategy.h"
 #include "galerkin/ShadowCache.h"
@@ -41,10 +40,9 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
     }
     link->K[0] = ((float)(receiverElement->area * G));
 
-    link->deltaK = new float[1];
-    link->deltaK[0] = ((float)(G - gMin));
-    if ( gMax - G > link->deltaK[0] ) {
-        link->deltaK[0] = ((float)(gMax - G));
+    link->deltaK = ((float)(G - gMin));
+    if ( gMax - G > link->deltaK ) {
+        link->deltaK = ((float)(gMax - G));
     }
 
     link->nmbrORecvCbtrPstns = 1;
@@ -111,7 +109,6 @@ FormFactorClusteredStrategy::geomMultiResVis(
     float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
     const BoundingBox *boundingBox = &geometry->boundingBox;
-    MinMaxBox *minMaxBox = geometry->getRayIntersectionBox();
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
@@ -119,7 +116,7 @@ FormFactorClusteredStrategy::geomMultiResVis(
 
     vectorTmp.sumScaled(ray->position, tMinimum, ray->direction);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
-        if ( !minMaxBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
+        if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
             // distance interval tMinimum ... tMaximum
             return 1.0;

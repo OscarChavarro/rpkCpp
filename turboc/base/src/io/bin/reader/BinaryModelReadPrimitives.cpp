@@ -7,7 +7,6 @@
 #include "common/color/ColorRgb.h"
 #include "common/logging/Logger.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "skin/MinMaxBox.h"
 #include "io/context/ParseSnapshotContext.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/bin/reader/BinaryModelIndexListRef.h"

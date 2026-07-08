@@ -13,8 +13,8 @@ References:
   with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3, September 1995
 */
 
-GalerkinElement *FormFactorStrategy::formFactorLastReceived;
-GalerkinElement *FormFactorStrategy::formFactorLastSource;
+GalerkinElement *FormFactorStrategy::formFactorLastReceived = NULL;
+GalerkinElement *FormFactorStrategy::formFactorLastSource = NULL;
 
 /**
 Tests whether the ray intersects a geometry in the geometrySceneList. Returns
@@ -353,24 +353,20 @@ FormFactorStrategy::computeInteractionError(
     Interaction *link)
 {
     // Compute error and write it to interaction deltaK
-    if ( link->deltaK != NULL ) {
-        delete[] link->deltaK;
-    }
-    link->deltaK = new float[1];
     if ( sourceRadiance[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
         double gav = link->K[0] / receiverElement->area;
-        link->deltaK[0] = ((float)(gMax - gav));
-        if ( gav - gMin > link->deltaK[0] ) {
-            link->deltaK[0] = ((float)(gav - gMin));
+        link->deltaK = ((float)(gMax - gav));
+        if ( gav - gMin > link->deltaK ) {
+            link->deltaK = ((float)(gav - gMin));
         }
     } else {
-        link->deltaK[0] = 0.0;
+        link->deltaK = 0.0;
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
             deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
             double delta = Math::abs(deltaRadiance[k].maximumComponent());
-            if ( delta > link->deltaK[0] ) {
-                link->deltaK[0] = ((float)(delta));
+            if ( delta > link->deltaK ) {
+                link->deltaK = ((float)(delta));
             }
         }
     }
@@ -491,9 +487,7 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
     static Vector3D y[CUBATURE_MAXIMUM_NODES];
 
     // TODO: To make this re-entrant, should use the class as instanced objects,
-    // one per thread, and move static global variables to usual class attributes
-    formFactorLastReceived = NULL;
-    formFactorLastSource = NULL;
+    // one per thread, and move static global variables to usual class attributes.
 
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
@@ -518,8 +512,7 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
             }
 
             // And a large error on the form factor
-            link->deltaK = new float[1];
-            link->deltaK[0] = 1.0f;
+            link->deltaK = 1.0f;
             link->nmbrORecvCbtrPstns = 1;
 
             // And half visibility
@@ -542,8 +535,7 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
             }
 
             // And a 0 error on the form factor
-            link->deltaK = new float[1];
-            link->deltaK[0] = 0.0f;
+            link->deltaK = 0.0f;
             link->nmbrORecvCbtrPstns = 1;
 
             // And full occlusion
@@ -566,11 +558,11 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    double maximumKernelValue = 0.0;
-    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
-    unsigned visibilityCount = 0; // Number of rays that "pass" occluders
+    static double maximumKernelValue = 0.0;
+    static double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
+    static unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
-        if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {
+    if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {
         // Use shadow caching for accelerating occlusion detection
         ShadowCache shadowCache;
 
@@ -631,11 +623,7 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
 
     if ( galerkinState->clusteringStrategy == ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
-        if ( link-> deltaK != NULL ) {
-            delete[] link->deltaK;
-        }
-        link->deltaK = new float[1];
-        link->deltaK[0] = ((float)(maximumKernelValue * sourceElement->area));
+        link->deltaK = ((float)(maximumKernelValue * sourceElement->area));
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder

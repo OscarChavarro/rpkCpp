@@ -17,9 +17,10 @@ class Interaction {
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
     float *K; // Coupling coefficient(s), stored top to bottom, left to right
-    float *deltaK; // Used for approximation error estimation over the link
+    float k0; // Inline storage for K when there is a single basis function on both ends,
+        // avoiding a heap allocation for the common case; K then points here
+    float deltaK; // Used for approximation error estimation over the link (always a single coefficient)
     bool ownsK;
-    bool ownsDeltaK;
     unsigned char nmbrOBasisFnctnORecv;
     unsigned char numberOfBasisFunctionsOnSource;
     unsigned char nmbrORecvCbtrPstns;
@@ -30,7 +31,7 @@ class Interaction {
         GalerkinElement *inReceiverElement,
         GalerkinElement *inSourceElement,
         const float *inK,
-        const float *inDeltaK,
+        float inDeltaK,
         unsigned char iNumOBasisFnctnORecv,
         unsigned char iNumOBasisFnctnOSrc,
         unsigned char iNumORecvCbtrPstns,

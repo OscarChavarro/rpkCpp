@@ -21,6 +21,21 @@ static void ensureHierarchicalCoefficientsPool() {
     }
 }
 
+void
+HierarchicalRefinementStrategy::prepareRefinementIterationState(GalerkinState *galerkinState) {
+    const Statistics &statistics = Statistics::instance();
+    galerkinState->refinementMinimumArea =
+        statistics.radiance.totalArea * galerkinState->relMinElemArea;
+    galerkinState->refinementRadianceErrorThreshold =
+        hierRefClrTErrr(statistics.radiance.maxSelfEmittedRadiance)
+        * galerkinState->relLinkErrorThreshold;
+    galerkinState->refinementPowerErrorThresholdNumerator =
+        hierRefClrTErrr(statistics.radiance.maxSelfEmittedPower)
+        * galerkinState->relLinkErrorThreshold;
+    galerkinState->refinementMaxDirectPotential =
+        statistics.potential.maxDirectPotential;
+}
+
 /**
 Does shaft-culling between elements in a interaction (if the user asked for it).
 Updates the *candidatesList. Returns the old candidate list, so it can be restored
@@ -125,12 +140,10 @@ HierarchicalRefinementStrategy::hierRefLinkErrrThrsh(
 
     switch ( galerkinState->errorNorm ) {
         case RADIANCE_ERROR:
-            threshold = hierRefClrTErrr(
-                Statistics::instance().radiance.maxSelfEmittedRadiance) * galerkinState->relLinkErrorThreshold;
+            threshold = galerkinState->refinementRadianceErrorThreshold;
             break;
         case POWER_ERROR:
-            threshold = hierRefClrTErrr(
-                Statistics::instance().radiance.maxSelfEmittedPower) * galerkinState->relLinkErrorThreshold / (M_PI * receiverArea);
+            threshold = galerkinState->refinementPowerErrorThresholdNumerator / (M_PI * receiverArea);
             break;
         default:
             Logger::fatal(2, "hierRefEvalInter", "Invalid error norm");
@@ -145,7 +158,7 @@ HierarchicalRefinementStrategy::hierRefLinkErrrThrsh(
     if ( galerkinState->importanceDriven &&
          (galerkinState->galerkinIterationMethod == JACOBI ||
           galerkinState->galerkinIterationMethod == GAUSS_SEIDEL) ) {
-        threshold /= 2.0 * interaction->receiverElement->potential / Statistics::instance().potential.maxDirectPotential;
+        threshold /= 2.0 * interaction->receiverElement->potential / galerkinState->refinementMaxDirectPotential;
     }
 
     return threshold;
@@ -178,7 +191,7 @@ HierarchicalRefinementStrategy::hierRefApprxErrr(
                 srcRad = interaction->sourceElement->radiance[0];
             }
 
-            error.scalarProductScaled(rcvRho, interaction->deltaK[0], srcRad);
+            error.scalarProductScaled(rcvRho, interaction->deltaK, srcRad);
             error.abs();
             approxError = hierRefClrTErrr(error);
             break;
@@ -192,7 +205,7 @@ HierarchicalRefinementStrategy::hierRefApprxErrr(
                 srcRad = interaction->sourceElement->unShotRadiance[0];
             }
 
-            error.scalarProductScaled(rcvRho, interaction->deltaK[0], srcRad);
+            error.scalarProductScaled(rcvRho, interaction->deltaK, srcRad);
             error.abs();
             approxError = hierRefClrTErrr(error);
 
@@ -202,7 +215,7 @@ HierarchicalRefinementStrategy::hierRefApprxErrr(
                 // subdivide receiver patches (potential is only used to help
                 // choosing a radiance shooting patch
                 approxError2 = (hierRefClrTErrr(srcRho)
-                                * interaction->deltaK[0] * interaction->sourceElement->unShotPotential);
+                                * interaction->deltaK * interaction->sourceElement->unShotPotential);
 
                 // Compare potential error w.r.t. maximum direct potential or importance
                 // instead of self-emitted radiance or power
@@ -318,7 +331,7 @@ HierarchicalRefinementStrategy::hierRefEvalInter(
     }
 
     // Minimal element area for which subdivision is allowed
-    minimumArea = Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea;
+    minimumArea = galerkinState->refinementMinimumArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {
@@ -822,28 +835,12 @@ HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteractio
     return refineRecursive(scene, &candidateOccluderList, interaction, galerkinState);
 }
 
-void
-HierarchicalRefinementStrategy::removeRefinedInteractions(
-    const GalerkinState *galerkinState,
-    const ArrayList<Interaction *> *interactionsToRemove)
-{
-    for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
-        Interaction *interaction = interactionsToRemove->get(i);
-        if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-            interaction->sourceElement->interactions->remove(interaction);
-        } else {
-            interaction->receiverElement->interactions->remove(interaction);
-        }
-        Interaction::interactionDestroy(interaction);
-    }
-}
-
 /**
 Refines and computes light transport over all interactions of the given
 toplevel element
 */
 void
-HierarchicalRefinementStrategy::refineInteractions(
+HierarchicalRefinementStrategy::refineInteractionsRecursive(
     const Scene *scene,
     const GalerkinElement *parentElement,
     GalerkinState *galerkinState)
@@ -855,7 +852,7 @@ HierarchicalRefinementStrategy::refineInteractions(
     for ( int i = 0;
           parentElement->irregularSubElements != NULL && i < parentElement->irregularSubElements->size();
           i++ ) {
-        refineInteractions(
+        refineInteractionsRecursive(
             scene,
             ((GalerkinElement *)(parentElement->irregularSubElements->get(i))),
             galerkinState);
@@ -863,22 +860,39 @@ HierarchicalRefinementStrategy::refineInteractions(
 
     if ( parentElement->regularSubElements != NULL ) {
         for ( int i = 0; i < 4; i++ ) {
-            refineInteractions(
+            refineInteractionsRecursive(
                 scene,
                 ((GalerkinElement *)(parentElement->regularSubElements[i])),
                 galerkinState);
         }
     }
 
-    // Iterate over the interactions. Interactions that are refined are removed from the list
-    ArrayList<Interaction *> *interactionsToRemove = new ArrayList<Interaction *>();
-
-    for ( int i = 0; parentElement->interactions != NULL && i < parentElement->interactions->size(); i++ ) {
-        Interaction *interaction = parentElement->interactions->get(i);
+    // Iterate over the interactions. Refined interactions are removed with
+    // order-preserving in-place compaction to avoid one temporary list per element.
+    ArrayList<Interaction *> *interactions = parentElement->interactions;
+    long int writeIndex = 0;
+    for ( long int readIndex = 0; interactions != NULL && readIndex < interactions->size(); readIndex++ ) {
+        Interaction *interaction = interactions->get(readIndex);
         if ( refineInteraction(scene, interaction, galerkinState) ) {
-            interactionsToRemove->add(interaction);
+            Interaction::interactionDestroy(interaction);
+        } else {
+            if ( writeIndex != readIndex ) {
+                interactions->set(writeIndex, interaction);
+            }
+            writeIndex++;
         }
     }
-    removeRefinedInteractions(galerkinState, interactionsToRemove);
-    delete interactionsToRemove;
+    if ( interactions != NULL ) {
+        interactions->truncate(writeIndex);
+    }
+}
+
+void
+HierarchicalRefinementStrategy::refineInteractions(
+    const Scene *scene,
+    const GalerkinElement *parentElement,
+    GalerkinState *galerkinState)
+{
+    prepareRefinementIterationState(galerkinState);
+    refineInteractionsRecursive(scene, parentElement, galerkinState);
 }

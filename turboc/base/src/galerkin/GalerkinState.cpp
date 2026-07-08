@@ -20,6 +20,10 @@ GalerkinState::GalerkinState():
     galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
     relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
     relLinkErrorThreshold = DF_GAL_REL_LINK_ERRR_THRSH;
+    refinementMinimumArea = 0.0;
+    refinementRadianceErrorThreshold = 0.0;
+    refinementPowerErrorThresholdNumerator = 0.0;
+    refinementMaxDirectPotential = 0.0;
     importanceDriven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
     clustered = DEFAULT_GAL_CLUSTERED;
     lazyLinking = DEFAULT_GAL_LAZY_LINKING;

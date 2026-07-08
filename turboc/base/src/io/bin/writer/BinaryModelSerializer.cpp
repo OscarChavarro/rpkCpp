@@ -461,7 +461,7 @@ BinaryModelSerializer::writeGeometryRecord(OutputStream &output, const Geometry 
     PersistenceElement::writeBool(output, geometry->omit != 0);
     PersistenceElement::writeBool(output, geometry->isDuplicate);
     writeBoundingBox(output, geometry->boundingBox);
-    PersistenceElement::writeBool(output, geometry->rayIntersectionBox != NULL);
+    PersistenceElement::writeBool(output, false);
     PersistenceElement::writeBool(output, geometry->radianceData != NULL);
 
     if ( geometry->className == SURFACE_MESH ) {

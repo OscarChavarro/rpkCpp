@@ -45,9 +45,8 @@ LinkingClusteredStrategy::createInitialLinks(
 
     // Assume no light transport (overlapping receiver and source)
     float *K;
-    float *deltaK;
+    const float deltaK = Numeric::HUGE_FLOAT_VALUE; // Huge value error on the form factor
     bool kFromPool = false;
-    bool deltaFromPool = false;
     ensureLinkingClusteredPool();
 
     if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
@@ -80,19 +79,6 @@ LinkingClusteredStrategy::createInitialLinks(
             K[i] = 0.0;
         }
     }
-    deltaK = gLinkingClusteredPool.allocate(1);
-    if ( deltaK == NULL ) {
-        if ( gLinkingClusteredPool.expand(1024) ) {
-            deltaK = gLinkingClusteredPool.allocate(1);
-        }
-    }
-    if ( deltaK != NULL ) {
-        deltaFromPool = true;
-    } else {
-        deltaK = new float[1];
-    }
-    deltaK[0] = Numeric::HUGE_FLOAT_VALUE; // Huge value error on the form factor
-
     Interaction *newLink = new Interaction(
         receiverElement,
         sourceElement,
@@ -112,11 +98,6 @@ LinkingClusteredStrategy::createInitialLinks(
         }
     } else {
         delete[] K;
-    }
-    if ( deltaFromPool ) {
-        gLinkingClusteredPool.free(1);
-    } else {
-        delete[] deltaK;
     }
 
     // Store interactions with the source patch for the progressive radiosity method

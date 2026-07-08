@@ -54,6 +54,10 @@ class GalerkinState {
     float relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
         // when controlling the radiance error and to the maximum
         // self-emitted power when controlling the power error
+    double refinementMinimumArea;
+    double refinementRadianceErrorThreshold;
+    double refinementPowerErrorThresholdNumerator;
+    double refinementMaxDirectPotential;
 
     GalerkinBasisType basisType; // Determines max. approximation order
 
