@@ -158,16 +158,17 @@ export class ClusterTraversalStrategy {
       VsdkLogger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
-    const samplePoint = sourceElement.midPoint();
-    const leafVisitor = new OrientedGathererVisitor(link, srcRad);
     switch (galerkinState.clusteringStrategy) {
       case GalerkinClusteringStrategy.ISOTROPIC:
         ClusterTraversalStrategy.isotropicGatherRadiance(receiverElement, 1.0, link, srcRad);
         break;
-      case GalerkinClusteringStrategy.ORIENTED:
+      case GalerkinClusteringStrategy.ORIENTED: {
+        const leafVisitor = new OrientedGathererVisitor(link, srcRad);
         ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
         break;
+      }
       case GalerkinClusteringStrategy.Z_VISIBILITY: {
+        const samplePoint = sourceElement.midPoint();
         const bb: BoundingBox = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
         ScratchVisibilityStrategy.scratchPixelsPerElement(galerkinState);
         const pixelArea = (bb.dx() * bb.dy()) / ((galerkinState.scratch as NonNullable<GalerkinState["scratch"]>).vp_width

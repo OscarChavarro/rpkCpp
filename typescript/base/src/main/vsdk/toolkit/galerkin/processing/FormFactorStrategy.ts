@@ -26,6 +26,33 @@ export class FormFactorStrategy {
   private static formFactorLastReceived: GalerkinElement | null;
   private static formFactorLastSource: GalerkinElement | null;
 
+  // Very often, the source or receiver element is the same as in the previous call.
+  // These buffers are cached and only recomputed when the receiver or source actually
+  // changed, instead of being reallocated and recomputed on every call
+  private static cachedReceiverCubatureRule: CubatureRule | null = null;
+  private static cachedSourceCubatureRule: CubatureRule | null = null;
+  private static readonly cachedX: Vector3D[] = FormFactorStrategy.createVectorArray();
+  private static readonly cachedY: Vector3D[] = FormFactorStrategy.createVectorArray();
+  private static readonly cachedGxy: number[][] = FormFactorStrategy.createGxyArray();
+  private static cachedMaximumKernelValue = 0.0;
+  private static cachedVisibilityCount = 0;
+
+  private static createVectorArray(): Vector3D[] {
+    const arr = new Array<Vector3D>(CubatureRule.MAXIMUM_NODES);
+    for (let i = 0; i < CubatureRule.MAXIMUM_NODES; i++) {
+      arr[i] = new Vector3D();
+    }
+    return arr;
+  }
+
+  private static createGxyArray(): number[][] {
+    const arr = new Array<number[]>(CubatureRule.MAXIMUM_NODES);
+    for (let i = 0; i < CubatureRule.MAXIMUM_NODES; i++) {
+      arr[i] = new Array<number>(CubatureRule.MAXIMUM_NODES).fill(0.0);
+    }
+    return arr;
+  }
+
   private static shadowTestDiscretization(
     ray: Ray,
     geometrySceneList: Geometry[] | null,
@@ -250,84 +277,88 @@ export class FormFactorStrategy {
       receiverElement.bounds(receiverBoundingBox);
       sourceElement.bounds(sourceBoundingBox);
       if (!receiverBoundingBox.disjointToOtherBoundingBox(sourceBoundingBox)) {
-        link.deltaK = [1.0];
+        link.deltaK = 1.0;
         link.numberOfReceiverCubaturePositions = 1;
         link.visibility = 128;
         return;
       }
     }
     else if (receiverElement === sourceElement) {
-      link.deltaK = [0.0];
+      link.deltaK = 0.0;
       link.numberOfReceiverCubaturePositions = 1;
       link.visibility = 0;
       return;
     }
 
-    const receiverCubatureRuleRef: Array<CubatureRule | null> = [null];
-    const sourceCubatureRuleRef: Array<CubatureRule | null> = [null];
-    const x = new Array<Vector3D>(CubatureRule.MAXIMUM_NODES);
-    const y = new Array<Vector3D>(CubatureRule.MAXIMUM_NODES);
-    for (let i = 0; i < CubatureRule.MAXIMUM_NODES; i++) {
-      x[i] = new Vector3D();
-      y[i] = new Vector3D();
+    // If the receiver is another one than before, determine the cubature rule to be
+    // used on it and the nodes (positions on the patch); same for the source element
+    if (receiverElement !== FormFactorStrategy.formFactorLastReceived) {
+      const receiverCubatureRuleRef: Array<CubatureRule | null> = [FormFactorStrategy.cachedReceiverCubatureRule];
+      FormFactorStrategy.determineNodes(receiverElement, GalerkinRole.RECEIVER, galerkinState, receiverCubatureRuleRef, FormFactorStrategy.cachedX);
+      FormFactorStrategy.cachedReceiverCubatureRule = receiverCubatureRuleRef[0] ?? null;
+    }
+    if (sourceElement !== FormFactorStrategy.formFactorLastSource) {
+      const sourceCubatureRuleRef: Array<CubatureRule | null> = [FormFactorStrategy.cachedSourceCubatureRule];
+      FormFactorStrategy.determineNodes(sourceElement, GalerkinRole.SOURCE, galerkinState, sourceCubatureRuleRef, FormFactorStrategy.cachedY);
+      FormFactorStrategy.cachedSourceCubatureRule = sourceCubatureRuleRef[0] ?? null;
     }
 
-    FormFactorStrategy.determineNodes(receiverElement, GalerkinRole.RECEIVER, galerkinState, receiverCubatureRuleRef, x);
-    FormFactorStrategy.determineNodes(sourceElement, GalerkinRole.SOURCE, galerkinState, sourceCubatureRuleRef, y);
-
-    const receiverCubatureRule = receiverCubatureRuleRef[0]!;
-    const sourceCubatureRule = sourceCubatureRuleRef[0]!;
+    const receiverCubatureRule = FormFactorStrategy.cachedReceiverCubatureRule;
+    const sourceCubatureRule = FormFactorStrategy.cachedSourceCubatureRule;
     if (receiverCubatureRule === null || sourceCubatureRule === null) {
-      link.deltaK = [0.0];
+      link.deltaK = 0.0;
       link.numberOfReceiverCubaturePositions = 1;
       link.visibility = 0;
       return;
     }
 
-    const shadowCache = new ShadowCache();
-    Patch.dontIntersect4(
-      receiverElement.isCluster() ? null : receiverElement.patch,
-      (receiverElement.isCluster() || receiverElement.patch === null) ? null : receiverElement.patch.twin,
-      sourceElement.isCluster() ? null : sourceElement.patch,
-      (sourceElement.isCluster() || sourceElement.patch === null) ? null : sourceElement.patch.twin,
-    );
-    Geometry.dontIntersect(
-      receiverElement.isCluster() ? receiverElement.geometry : null,
-      sourceElement.isCluster() ? sourceElement.geometry : null,
-    );
+    // Evaluate the radiosity kernel between each pair of nodes on the source and the
+    // receiver element only if at least the receiver or the source changed since last time
+    if (receiverElement !== FormFactorStrategy.formFactorLastReceived || sourceElement !== FormFactorStrategy.formFactorLastSource) {
+      const shadowCache = new ShadowCache();
+      Patch.dontIntersect4(
+        receiverElement.isCluster() ? null : receiverElement.patch,
+        (receiverElement.isCluster() || receiverElement.patch === null) ? null : receiverElement.patch.twin,
+        sourceElement.isCluster() ? null : sourceElement.patch,
+        (sourceElement.isCluster() || sourceElement.patch === null) ? null : sourceElement.patch.twin,
+      );
+      Geometry.dontIntersect(
+        receiverElement.isCluster() ? receiverElement.geometry : null,
+        sourceElement.isCluster() ? sourceElement.geometry : null,
+      );
 
-    let maximumKernelValue = 0.0;
-    const Gxy = new Array<number[]>(CubatureRule.MAXIMUM_NODES);
-    for (let i = 0; i < CubatureRule.MAXIMUM_NODES; i++) {
-      Gxy[i] = new Array<number>(CubatureRule.MAXIMUM_NODES).fill(0.0);
-    }
-
-    let visibilityCount = 0;
-    for (let r = 0; r < receiverCubatureRule.numberOfNodes; r++) {
-      for (let s = 0; s < sourceCubatureRule.numberOfNodes; s++) {
-        Gxy[r]![s] = FormFactorStrategy.evaluatePointsPairKernel(
-          shadowCache,
-          sceneWorldVoxelGrid,
-          x[r]!,
-          y[s]!,
-          receiverElement,
-          sourceElement,
-          geometryShadowList,
-          isSceneGeometry,
-          isClusteredGeometry,
-          galerkinState,
-        );
-        if (Gxy[r]![s]! > maximumKernelValue) {
-          maximumKernelValue = Gxy[r]![s]!;
-        }
-        if (globalThis.Math.abs(Gxy[r]![s]!) > Numeric.EPSILON) {
-          visibilityCount++;
+      FormFactorStrategy.cachedMaximumKernelValue = 0.0;
+      FormFactorStrategy.cachedVisibilityCount = 0;
+      for (let r = 0; r < receiverCubatureRule.numberOfNodes; r++) {
+        for (let s = 0; s < sourceCubatureRule.numberOfNodes; s++) {
+          FormFactorStrategy.cachedGxy[r]![s] = FormFactorStrategy.evaluatePointsPairKernel(
+            shadowCache,
+            sceneWorldVoxelGrid,
+            FormFactorStrategy.cachedX[r]!,
+            FormFactorStrategy.cachedY[s]!,
+            receiverElement,
+            sourceElement,
+            geometryShadowList,
+            isSceneGeometry,
+            isClusteredGeometry,
+            galerkinState,
+          );
+          if (FormFactorStrategy.cachedGxy[r]![s]! > FormFactorStrategy.cachedMaximumKernelValue) {
+            FormFactorStrategy.cachedMaximumKernelValue = FormFactorStrategy.cachedGxy[r]![s]!;
+          }
+          if (globalThis.Math.abs(FormFactorStrategy.cachedGxy[r]![s]!) > Numeric.EPSILON) {
+            FormFactorStrategy.cachedVisibilityCount++;
+          }
         }
       }
+
+      Patch.dontIntersect0();
+      Geometry.dontIntersect(null, null);
     }
 
-    Patch.dontIntersect0();
-    Geometry.dontIntersect(null, null);
+    const maximumKernelValue = FormFactorStrategy.cachedMaximumKernelValue;
+    const Gxy = FormFactorStrategy.cachedGxy;
+    const visibilityCount = FormFactorStrategy.cachedVisibilityCount;
 
     if (visibilityCount !== 0) {
       if (link.numberOfBasisFunctionsOnReceiver === 1 && link.numberOfBasisFunctionsOnSource === 1) {
@@ -350,7 +381,7 @@ export class FormFactorStrategy {
     }
     else {
       link.K[0]! = 0.0;
-      link.deltaK = [0.0];
+      link.deltaK = 0.0;
       link.numberOfReceiverCubaturePositions = 1;
     }
 
@@ -362,7 +393,7 @@ export class FormFactorStrategy {
 
     if (galerkinState.clusteringStrategy === GalerkinClusteringStrategy.ISOTROPIC
       && (receiverElement.isCluster() || sourceElement.isCluster())) {
-      link.deltaK = [maximumKernelValue * sourceElement.area];
+      link.deltaK = maximumKernelValue * sourceElement.area;
       link.numberOfReceiverCubaturePositions = 1;
     }
     FormFactorStrategy.formFactorLastReceived = receiverElement;
@@ -432,21 +463,20 @@ export class FormFactorStrategy {
     deltaRadiance: ColorRgb[],
     link: Interaction,
   ): void {
-    link.deltaK = new Array<number>(1);
     if (sourceRadiance[0]!.isBlack()) {
       const gAverage = link.K[0]! / receiverElement.area;
-      link.deltaK[0]! = gMax - gAverage;
-      if (gAverage - gMin > link.deltaK[0]!) {
-        link.deltaK[0]! = gAverage - gMin;
+      link.deltaK = gMax - gAverage;
+      if (gAverage - gMin > link.deltaK) {
+        link.deltaK = gAverage - gMin;
       }
     }
     else {
-      link.deltaK[0]! = 0.0;
+      link.deltaK = 0.0;
       for (let k = 0; k < receiverCubatureRule.numberOfNodes; k++) {
         deltaRadiance[k]!.divide(deltaRadiance[k]!, sourceRadiance[0]!);
         const delta = globalThis.Math.abs(deltaRadiance[k]!.maximumComponent());
-        if (delta > link.deltaK[0]!) {
-          link.deltaK[0]! = delta;
+        if (delta > link.deltaK) {
+          link.deltaK = delta;
         }
       }
     }

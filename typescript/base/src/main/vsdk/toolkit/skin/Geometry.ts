@@ -5,7 +5,6 @@ import { Statistics } from "../common/statistics/Statistics";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { BoundingBox } from "./AxisAlignedBoundingBox";
 import { GeometryClassId } from "./GeometryClassId";
-import { MinMaxBox } from "./MinMaxBox";
 import type { Element } from "../environment/geometry/elements/Element";
 import type { Patch } from "../environment/geometry/elements/Patch";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
@@ -20,7 +19,6 @@ export class Geometry {
 
   public id: number;
   public boundingBox: BoundingBox;
-  public rayIntersectionBox: MinMaxBox | null;
   public radianceData: Element | null;
   public itemCount: number;
   public bounded: boolean;
@@ -35,7 +33,6 @@ export class Geometry {
     if (inClassName === undefined) {
       this.id = 0;
       this.boundingBox = new BoundingBox();
-      this.rayIntersectionBox = null;
       this.radianceData = null;
       this.itemCount = 0;
       this.bounded = false;
@@ -53,7 +50,6 @@ export class Geometry {
     this.isDuplicate = false;
     this.bounded = false;
     this.shaftCullGeometry = false;
-    this.rayIntersectionBox = null;
     this.radianceData = null;
     this.itemCount = 0;
     this.omit = false;
@@ -61,7 +57,6 @@ export class Geometry {
   }
 
   public destroy(): void {
-    this.rayIntersectionBox = null;
     if (this.radianceData !== null && !this.isDuplicate) {
       this.radianceData = null;
     }
@@ -69,16 +64,6 @@ export class Geometry {
 
   public getBoundingBox(): BoundingBox {
     return this.boundingBox;
-  }
-
-  public getRayIntersectionBox(): MinMaxBox {
-    if (this.rayIntersectionBox === null) {
-      this.rayIntersectionBox = new MinMaxBox(this.boundingBox);
-    }
-    else {
-      this.rayIntersectionBox.updateFromBoundingBox(this.boundingBox);
-    }
-    return this.rayIntersectionBox;
   }
 
   public static destroy(geometry: Geometry | null): void {
@@ -156,8 +141,7 @@ export class Geometry {
       vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
       if (this.boundingBox.outOfBounds(vTmp)) {
         const nMaximumDistance = [maximumDistance[0]!];
-        const minMaxBox = this.getRayIntersectionBox();
-        if (!minMaxBox.intersect(ray, minimumDistance, nMaximumDistance)) {
+        if (!this.boundingBox.intersect(ray, minimumDistance, nMaximumDistance)) {
           return false;
         }
       }

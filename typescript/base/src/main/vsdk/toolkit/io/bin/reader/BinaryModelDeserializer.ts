@@ -22,7 +22,6 @@ import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
 import { MaterialColorFlags } from "../../../material/MaterialColorFlags";
 import { MeshSurface } from "../../../skin/MeshSurface";
-import { MinMaxBox } from "../../../skin/MinMaxBox";
 import { Patch } from "../../../environment/geometry/elements/Patch";
 import { PatchSet } from "../../../environment/geometry/elements/PatchSet";
 import { Vertex } from "../../../environment/geometry/elements/Vertex";
@@ -646,18 +645,6 @@ export class BinaryModelDeserializer {
         geometry.omit = record.omit;
         geometry.isDuplicate = record.isDuplicate;
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(geometry.boundingBox, record.boundingBoxCoordinates));
-
-        if (record.hasRayIntersectionBox) {
-          if (geometry.rayIntersectionBox === null) {
-            geometry.rayIntersectionBox = new MinMaxBox(geometry.boundingBox);
-          }
-          else {
-            geometry.rayIntersectionBox.updateFromBoundingBox(geometry.boundingBox);
-          }
-        }
-        else {
-          geometry.rayIntersectionBox = null;
-        }
 
         geometry.radianceData = null;
         geometries[i] = geometry;

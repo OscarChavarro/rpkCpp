@@ -43,6 +43,13 @@ export class GalerkinState {
   public relMinElemArea: number;
   public relLinkErrorThreshold: number;
 
+  // Cached once per refineInteractions() call so hierarchic refinement does not
+  // repeat the same Statistics lookups and error-threshold arithmetic for every interaction
+  public refinementMinimumArea: number;
+  public refinementRadianceErrorThreshold: number;
+  public refinementPowerErrorThresholdNumerator: number;
+  public refinementMaxDirectPotential: number;
+
   public basisType: GalerkinBasisType;
   public clusteringStrategy: GalerkinClusteringStrategy;
 
@@ -96,6 +103,10 @@ export class GalerkinState {
     this.galerkinIterationMethod = GalerkinState.DEFAULT_GAL_ITERATION_METHOD;
     this.relMinElemArea = GalerkinState.DEFAULT_GAL_REL_MIN_ELEM_AREA;
     this.relLinkErrorThreshold = GalerkinState.DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
+    this.refinementMinimumArea = 0.0;
+    this.refinementRadianceErrorThreshold = 0.0;
+    this.refinementPowerErrorThresholdNumerator = 0.0;
+    this.refinementMaxDirectPotential = 0.0;
     this.importanceDriven = GalerkinState.DEFAULT_GAL_IMPORTANCE_DRIVEN ? 1 : 0;
     this.clustered = GalerkinState.DEFAULT_GAL_CLUSTERED ? 1 : 0;
     this.lazyLinking = GalerkinState.DEFAULT_GAL_LAZY_LINKING ? 1 : 0;

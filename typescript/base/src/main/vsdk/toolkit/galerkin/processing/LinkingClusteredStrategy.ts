@@ -80,14 +80,12 @@ export class LinkingClusteredStrategy {
     for (let i = 0; i < n; i++) {
       K[i] = 0.0;
     }
-    const deltaK = LinkingClusteredStrategy.borrowBuffer();
-    deltaK[0] = Numeric.HUGE_FLOAT_VALUE;
 
     const newLink = new Interaction(
       receiverElement,
       sourceElement,
       K,
-      deltaK,
+      Numeric.HUGE_FLOAT_VALUE, // Huge value error on the form factor
       receiverElement.basisSize,
       sourceElement.basisSize,
       1,
@@ -108,7 +106,6 @@ export class LinkingClusteredStrategy {
     }
 
     LinkingClusteredStrategy.returnBuffer(K);
-    LinkingClusteredStrategy.returnBuffer(deltaK);
   }
 }
 

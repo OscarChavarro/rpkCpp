@@ -39,10 +39,9 @@ export class FormFactorClusteredStrategy {
 
     link.K[0] = receiverElement.area * G;
 
-    link.deltaK = new Array<number>(1);
-    link.deltaK[0] = G - gMin;
-    if (gMax - G > link.deltaK[0]) {
-      link.deltaK[0] = gMax - G;
+    link.deltaK = G - gMin;
+    if (gMax - G > link.deltaK) {
+      link.deltaK = gMax - G;
     }
     link.numberOfReceiverCubaturePositions = 1;
   }
