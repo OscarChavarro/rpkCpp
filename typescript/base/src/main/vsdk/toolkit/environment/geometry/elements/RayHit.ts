@@ -340,23 +340,28 @@ export class RayHit {
     return this.geometricNormal;
   }
 
+  /**
+  Plain member-wise copy, equivalent to the C++ port's structure assignment
+  (*hitStore = hit). Fields not marked as filled in by the flags are copied
+  as-is and remain meaningless, just as in the C++ version; readers must
+  check the flags (or use the getTexCoord/shadingNormal accessors, which
+  compute missing data on demand).
+  */
   public copyFrom(other: RayHit | null): void {
     if (other === null) {
       return;
     }
 
-    this.setPoint(other.getPoint());
-    this.setPatch(other.getPatch());
-    this.setGeometricNormal(other.getGeometricNormal());
-    this.setMaterial(other.getMaterial());
-    this.setUv(other.getUv());
-    this.setFlags(other.getFlags());
-
-    const frame = other.getShadingFrame();
-    this.setShadingFrame(frame.getX(), frame.getY(), frame.getZ());
-    const localTex = new Vector3D();
-    if (other.getTexCoord(localTex)) {
-      this.texCoord = localTex;
-    }
+    this.point.copy(other.point);
+    this.patch = other.patch;
+    this.texCoord.copy(other.texCoord);
+    this.geometricNormal.copy(other.geometricNormal);
+    this.material = other.material;
+    this.shadingFrame.setX(other.shadingFrame.getX());
+    this.shadingFrame.setY(other.shadingFrame.getY());
+    this.shadingFrame.setZ(other.shadingFrame.getZ());
+    this.uv.u = other.uv.u;
+    this.uv.v = other.uv.v;
+    this.flags = other.flags;
   }
 }

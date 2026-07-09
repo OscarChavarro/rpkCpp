@@ -131,16 +131,23 @@ export class Geometry {
     Geometry.excludedGeometry2 = geometry2;
   }
 
+  // Scratch storage reused across pre-test calls (this method runs billions
+  // of times per scene on the single threaded rendering core; the C++ port
+  // keeps these on the stack)
+  private static readonly preTestScratchPoint = new Vector3D();
+  private static readonly preTestScratchDistance = [0.0];
+
   public discretizationIntersectPreTest(ray: Ray, minimumDistance: number, maximumDistance: number[]): boolean {
     if (this === Geometry.excludedGeometry1 || this === Geometry.excludedGeometry2) {
       return false;
     }
 
     if (this.bounded) {
-      const vTmp = new Vector3D();
+      const vTmp = Geometry.preTestScratchPoint;
       vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
       if (this.boundingBox.outOfBounds(vTmp)) {
-        const nMaximumDistance = [maximumDistance[0]!];
+        const nMaximumDistance = Geometry.preTestScratchDistance;
+        nMaximumDistance[0] = maximumDistance[0]!;
         if (!this.boundingBox.intersect(ray, minimumDistance, nMaximumDistance)) {
           return false;
         }

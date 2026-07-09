@@ -53,6 +53,20 @@ export class FormFactorStrategy {
     return arr;
   }
 
+  // Scratch storage reused across shadow ray evaluations (single threaded
+  // rendering core; the C++ port keeps the equivalents on the stack). The
+  // hit records never escape: callers only test the returned value against
+  // null and read the hit patch before the next shadow ray is traced.
+  private static readonly shadowTestScratchDistance = [0.0];
+  private static readonly kernelScratchRay = new Ray();
+  private static readonly kernelScratchHitStore = new RayHit();
+  private static readonly kernelScratchDistance = [0.0];
+
+  private static cachedShadowTest(shadowCache: ShadowCache, ray: Ray, shortenedDistance: number): boolean {
+    FormFactorStrategy.kernelScratchDistance[0] = shortenedDistance;
+    return shadowCache.cacheHit(ray, FormFactorStrategy.kernelScratchDistance, FormFactorStrategy.kernelScratchHitStore) !== null;
+  }
+
   private static shadowTestDiscretization(
     ray: Ray,
     geometrySceneList: Geometry[] | null,
@@ -64,7 +78,8 @@ export class FormFactorStrategy {
     isClusteredGeometry: boolean,
   ): RayHit | null {
     Statistics.instance().shadow.numberOfShadowRays++;
-    const dist = [minimumDistance];
+    const dist = FormFactorStrategy.shadowTestScratchDistance;
+    dist[0] = minimumDistance;
     let hit = shadowCache.cacheHit(ray, dist, hitStore);
     if (hit !== null) {
       Statistics.instance().shadow.numberOfShadowCacheHits++;
@@ -174,7 +189,7 @@ export class FormFactorStrategy {
     isClusteredGeometry: boolean,
     galerkinState: GalerkinState,
   ): number {
-    const ray = new Ray();
+    const ray = FormFactorStrategy.kernelScratchRay;
     ray.position.copy(y);
     ray.direction.subtraction(x, y);
     const distance = ray.direction.norm();
@@ -213,7 +228,7 @@ export class FormFactorStrategy {
       visibilityFactor = 1.0;
     }
     else if (galerkinState.multiResolutionVisibility === 0) {
-      const hitStore = new RayHit();
+      const hitStore = FormFactorStrategy.kernelScratchHitStore;
       const h = FormFactorStrategy.shadowTestDiscretization(
         ray,
         shadowGeometryList,
@@ -226,7 +241,7 @@ export class FormFactorStrategy {
       );
       visibilityFactor = (h === null) ? 1.0 : 0.0;
     }
-    else if (shadowCache.cacheHit(ray, [shortenedDistance], new RayHit()) !== null) {
+    else if (FormFactorStrategy.cachedShadowTest(shadowCache, ray, shortenedDistance)) {
       visibilityFactor = 0.0;
     }
     else {

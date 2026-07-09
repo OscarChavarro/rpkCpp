@@ -29,6 +29,18 @@ export class VoxelGrid {
   private boundingBox: BoundingBox;
   private rayIntersectionBox: MinMaxBox | null;
 
+  // Per-instance scratch storage for gridIntersect. The rendering core is
+  // single threaded and recursion only descends into nested sub-grids,
+  // which are distinct VoxelGrid instances, so per-instance reuse is safe.
+  // The C++ port keeps these variables on the stack.
+  private readonly gridIntersectScratchTNext = new Vector3D();
+  private readonly gridIntersectScratchTDelta = new Vector3D();
+  private readonly gridIntersectScratchP = new Vector3D();
+  private readonly gridIntersectScratchStep = [0, 0, 0];
+  private readonly gridIntersectScratchOut = [0, 0, 0];
+  private readonly gridIntersectScratchG = [0, 0, 0];
+  private readonly gridIntersectScratchT0 = [0.0];
+
   private static addToSubGridsDeletionCache(voxelGrid: VoxelGrid): void {
     if (VoxelGrid.subGridsToDelete === null) {
       VoxelGrid.subGridsToDelete = [];
@@ -405,14 +417,18 @@ export class VoxelGrid {
     hitFlags: number,
     hitStore: RayHit | null
   ): RayHit | null {
-    const tNext = new Vector3D();
-    const tDelta = new Vector3D();
-    const p = new Vector3D();
-    const step = [0, 0, 0];
-    const out = [0, 0, 0];
-    const g = [0, 0, 0];
+    const tNext = this.gridIntersectScratchTNext;
+    const tDelta = this.gridIntersectScratchTDelta;
+    const p = this.gridIntersectScratchP;
+    const step = this.gridIntersectScratchStep;
+    const out = this.gridIntersectScratchOut;
+    const g = this.gridIntersectScratchG;
     let hit: RayHit | null = null;
-    const t0 = [0.0];
+    const t0 = this.gridIntersectScratchT0;
+    step[0] = 0;
+    step[1] = 0;
+    step[2] = 0;
+    t0[0] = 0.0;
 
     if (!this.gridBoundsIntersect(ray, minimumDistance, maximumDistance[0]!, t0, p)) {
       return null;

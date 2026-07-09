@@ -299,14 +299,22 @@ export class Patch {
     return localTolerance;
   }
 
+  // Scratch storage reused across calls on the hot ray intersection paths.
+  // The C++ port keeps the equivalent variables on the stack; the rendering
+  // core is single threaded, so sharing them here is safe and avoids
+  // billions of short-lived heap allocations per scene.
+  private static readonly triangleUvScratchP0 = new Vector2Dd();
+  private static readonly triangleUvScratchP1 = new Vector2Dd();
+  private static readonly triangleUvScratchP2 = new Vector2Dd();
+
   private triangleUv(point: Vector3D, uv: Vector2Dd): boolean {
     let u0 = 0.0;
     let v0 = 0.0;
     let alpha = 0.0;
     let beta = 0.0;
-    const p0 = new Vector2Dd();
-    const p1 = new Vector2Dd();
-    const p2 = new Vector2Dd();
+    const p0 = Patch.triangleUvScratchP0;
+    const p1 = Patch.triangleUvScratchP1;
+    const p2 = Patch.triangleUvScratchP2;
 
     let vertexIndex = 0;
     switch (this.index) {
@@ -365,21 +373,34 @@ export class Patch {
     return !(alpha < 0.0 || (alpha + beta) > 1.0);
   }
 
+  private static readonly quadUvScratchA = new Vector2Dd();
+  private static readonly quadUvScratchB = new Vector2Dd();
+  private static readonly quadUvScratchC = new Vector2Dd();
+  private static readonly quadUvScratchD = new Vector2Dd();
+  private static readonly quadUvScratchM = new Vector2Dd();
+  private static readonly quadUvScratchAB = new Vector2Dd();
+  private static readonly quadUvScratchBC = new Vector2Dd();
+  private static readonly quadUvScratchCD = new Vector2Dd();
+  private static readonly quadUvScratchAD = new Vector2Dd();
+  private static readonly quadUvScratchAM = new Vector2Dd();
+  private static readonly quadUvScratchAE = new Vector2Dd();
+  private static readonly quadUvScratchVector = new Vector2Dd();
+
   private static quadUv(patch: Patch, point: Vector3D, uv: Vector2Dd): boolean {
-    const A = new Vector2Dd();
-    const B = new Vector2Dd();
-    const C = new Vector2Dd();
-    const D = new Vector2Dd();
-    const M = new Vector2Dd();
-    const AB = new Vector2Dd();
-    const BC = new Vector2Dd();
-    const CD = new Vector2Dd();
-    const AD = new Vector2Dd();
-    const AM = new Vector2Dd();
-    const AE = new Vector2Dd();
+    const A = Patch.quadUvScratchA;
+    const B = Patch.quadUvScratchB;
+    const C = Patch.quadUvScratchC;
+    const D = Patch.quadUvScratchD;
+    const M = Patch.quadUvScratchM;
+    const AB = Patch.quadUvScratchAB;
+    const BC = Patch.quadUvScratchBC;
+    const CD = Patch.quadUvScratchCD;
+    const AD = Patch.quadUvScratchAD;
+    const AM = Patch.quadUvScratchAM;
+    const AE = Patch.quadUvScratchAE;
     let u = -1.0;
     let v = -1.0;
-    const vector = new Vector2Dd();
+    const vector = Patch.quadUvScratchVector;
     let isInside = false;
 
     let vertexIndex = 0;
@@ -486,11 +507,13 @@ export class Patch {
     return isInside;
   }
 
+  private static readonly hitInPatchScratchUv = new Vector2Dd();
+
   private hitInPatch(hit: RayHit, patch: Patch): boolean {
     const newFlags = hit.getFlags() | RayHitFlag.UV;
     hit.setFlags(newFlags);
     const position = hit.getPoint();
-    const uv = new Vector2Dd();
+    const uv = Patch.hitInPatchScratchUv;
     const result = (patch.numberOfVertices === 3)
       ? this.triangleUv(position, uv)
       : Patch.quadUv(patch, position, uv);
@@ -711,6 +734,13 @@ export class Patch {
     return texCoord;
   }
 
+  // Reused hit record, mirroring the local stack variable of the C++ port.
+  // Results are copied into the caller's hitStore before returning, so the
+  // scratch object never escapes this method.
+  private static readonly intersectScratchHit = new RayHit();
+  private static readonly intersectScratchU = [0.0];
+  private static readonly intersectScratchV = [0.0];
+
   public intersect(
     ray: Ray,
     minimumDistance: number,
@@ -718,7 +748,10 @@ export class Patch {
     hitFlags: number,
     hitStore: RayHit | null
   ): RayHit | null {
-    const hit = new RayHit();
+    const hit = Patch.intersectScratchHit;
+    hit.setFlags(0);
+    hit.setPatch(null);
+    hit.setMaterial(null);
 
     if (this.isExcluded()) {
       return null;
@@ -749,9 +782,8 @@ export class Patch {
       return null;
     }
 
-    const position = new Vector3D();
+    const position = hit.getPoint();
     position.sumScaled(ray.position, distance, ray.direction);
-    hit.setPoint(position);
 
     if (this.hitInPatch(hit, this)) {
       hit.setPatch(this);
@@ -767,8 +799,10 @@ export class Patch {
 
       if ((hitFlags & RayHitFlag.UV) !== 0 && (hit.getFlags() & RayHitFlag.UV) === 0) {
         const localPosition = hit.getPoint();
-        const u = [0.0];
-        const v = [0.0];
+        const u = Patch.intersectScratchU;
+        const v = Patch.intersectScratchV;
+        u[0] = 0.0;
+        v[0] = 0.0;
         hit.getPatch()!.uv(localPosition, u, v);
         hit.setUv(u[0]!, v[0]!);
         hit.setPoint(localPosition);

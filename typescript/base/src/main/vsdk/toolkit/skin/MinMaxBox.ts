@@ -54,6 +54,13 @@ export class MinMaxBox {
     return nearDistance[0]! <= (farDistance[0]! * toleranceScale);
   }
 
+  // Scratch storage reused across bounding box tests (single threaded
+  // rendering core; the C++ port keeps the equivalents on the stack)
+  private static readonly intersectingSegmentScratchNear = [0.0];
+  private static readonly intersectingSegmentScratchFar = [0.0];
+  private static readonly intersectScratchTMin = [0.0];
+  private static readonly intersectScratchTMax = [0.0];
+
   public intersectingSegment(ray: Ray | null, tMin: number[] | null, tMax: number[] | null): boolean {
     if (ray === null || tMin === null || tMin.length === 0 || tMax === null || tMax.length === 0) {
       return false;
@@ -62,8 +69,10 @@ export class MinMaxBox {
     const minimumDistance = tMin[0]!;
     const maximumDistance = tMax[0]!;
     const box = this.boundingBox.rawCoordinates();
-    const nearDistance = [minimumDistance];
-    const farDistance = [maximumDistance];
+    const nearDistance = MinMaxBox.intersectingSegmentScratchNear;
+    const farDistance = MinMaxBox.intersectingSegmentScratchFar;
+    nearDistance[0] = minimumDistance;
+    farDistance[0] = maximumDistance;
     const toleranceScale = 1.0 + Numeric.EPSILON_FLOAT;
 
     if (!MinMaxBox.clipAxisSlab(
@@ -105,8 +114,10 @@ export class MinMaxBox {
       return false;
     }
 
-    const tMin = [minimumDistance];
-    const tMax = [maximumDistance[0]!];
+    const tMin = MinMaxBox.intersectScratchTMin;
+    const tMax = MinMaxBox.intersectScratchTMax;
+    tMin[0] = minimumDistance;
+    tMax[0] = maximumDistance[0]!;
     const hit = this.intersectingSegment(ray, tMin, tMax);
     if (hit) {
       if (tMin[0]! === minimumDistance) {

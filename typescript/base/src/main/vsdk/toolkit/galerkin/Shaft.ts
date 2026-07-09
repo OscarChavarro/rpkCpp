@@ -490,13 +490,27 @@ export class Shaft {
     return ShaftPlanePosition.INSIDE;
   }
 
+  // Scratch storage reused across shaftPatchTest calls (single threaded
+  // rendering core, no recursion; the C++ port keeps these on the stack).
+  // Every slot that is read is written first on each call.
+  private static readonly shaftPatchTestScratchInAll = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0);
+  private static readonly shaftPatchTestScratchTMin = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
+  private static readonly shaftPatchTestScratchTMax = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
+  private static readonly shaftPatchTestScratchPTol = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
+  private static readonly shaftPatchTestScratchE = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
+  private static readonly shaftPatchTestScratchSide =
+    new Array<ShaftPlanePosition>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(ShaftPlanePosition.COPLANAR);
+  private static readonly shaftPatchTestScratchRay = new Ray();
+  private static readonly shaftPatchTestScratchHitStore = new RayHit();
+  private static readonly shaftPatchTestScratchDistance = [0.0];
+
   private shaftPatchTest(patch: Patch): ShaftPlanePosition {
-    const inAll = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0);
-    const tMin = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
-    const tMax = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
-    const pTol = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
-    const ray = new Ray();
-    const hitStore = new RayHit();
+    const inAll = Shaft.shaftPatchTestScratchInAll;
+    const tMin = Shaft.shaftPatchTestScratchTMin;
+    const tMax = Shaft.shaftPatchTestScratchTMax;
+    const pTol = Shaft.shaftPatchTestScratchPTol;
+    const ray = Shaft.shaftPatchTestScratchRay;
+    const hitStore = Shaft.shaftPatchTestScratchHitStore;
 
     let someOut = false;
     for (let j = 0; j < patch.numberOfVertices; j++) {
@@ -508,8 +522,8 @@ export class Shaft {
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
       const localPlane = this.planeSet[i]!;
-      const e = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
-      const side = new Array<ShaftPlanePosition>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(ShaftPlanePosition.COPLANAR);
+      const e = Shaft.shaftPatchTestScratchE;
+      const side = Shaft.shaftPatchTestScratchSide;
       let inside = false;
       let out = false;
 
@@ -597,7 +611,8 @@ export class Shaft {
 
     ray.position.copy(this.center1);
     ray.direction.subtraction(this.center2, this.center1);
-    const dist = [1.0 - Numeric.EPSILON_FLOAT];
+    const dist = Shaft.shaftPatchTestScratchDistance;
+    dist[0] = 1.0 - Numeric.EPSILON_FLOAT;
     if (
       patch.intersect(
         ray,

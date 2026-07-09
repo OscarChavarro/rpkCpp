@@ -308,6 +308,14 @@ export class BoundingBox {
     return nearDistance[0]! <= (farDistance[0]! * toleranceScale);
   }
 
+  // Scratch storage reused across bounding box tests on the hot ray
+  // intersection paths (single threaded rendering core; the C++ port keeps
+  // the equivalents on the stack)
+  private static readonly intersectingSegmentScratchNear = [0.0];
+  private static readonly intersectingSegmentScratchFar = [0.0];
+  private static readonly intersectScratchTMin = [0.0];
+  private static readonly intersectScratchTMax = [0.0];
+
   /**
   Intersects the ray with this bounding box directly (no separate ray-intersection
   box object needed), narrowing [tMin, tMax] to the overlap with the ray segment.
@@ -319,8 +327,10 @@ export class BoundingBox {
 
     const minimumDistance = tMin[0]!;
     const maximumDistance = tMax[0]!;
-    const nearDistance = [minimumDistance];
-    const farDistance = [maximumDistance];
+    const nearDistance = BoundingBox.intersectingSegmentScratchNear;
+    const farDistance = BoundingBox.intersectingSegmentScratchFar;
+    nearDistance[0] = minimumDistance;
+    farDistance[0] = maximumDistance;
     const toleranceScale = 1.0 + Numeric.EPSILON_FLOAT;
 
     if (!BoundingBox.clipAxisSlab(
@@ -362,8 +372,10 @@ export class BoundingBox {
       return false;
     }
 
-    const tMin = [minimumDistance];
-    const tMax = [maximumDistance[0]!];
+    const tMin = BoundingBox.intersectScratchTMin;
+    const tMax = BoundingBox.intersectScratchTMax;
+    tMin[0] = minimumDistance;
+    tMax[0] = maximumDistance[0]!;
     const hit = this.intersectingSegment(ray, tMin, tMax);
     if (hit) {
       if (tMin[0]! === minimumDistance) {
