@@ -140,6 +140,11 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
         q.n = 0;
         q.mask = p.mask;
 
+        if (p.n == 0) {
+            // Nothing to clip; avoids reading vertices[-1] below
+            return;
+        }
+
         // Start with u=vert[n-1], v=vert[0]
         int previousVertexIndex = p.n - 1;
         double tu = sign * p.vertices[previousVertexIndex].getCoord(index) - p.vertices[previousVertexIndex].sw * k;

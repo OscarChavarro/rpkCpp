@@ -851,9 +851,13 @@ public class Shaft {
         }
 
         if (geometry.className == GeometryClassId.PATCH_SET) {
-            // Keep parity with C++ behavior where this path effectively probes omit set with id 1.
-            int patchId = 1;
-            if (geometry.omit || patchIsOnOmitSet(patchId)) {
+            // The C++ port probes the omit set here through an invalid reinterpret_cast of the
+            // Geometry as a Patch, reading an arbitrary value that in practice never matches an
+            // omitted patch id, so PatchSet geometries are effectively never culled by that test.
+            // Probing with a real patch id (e.g. a hardcoded 1) wrongly discards every PatchSet
+            // occluder for interactions whose receiver or source is that patch, causing light
+            // leaks (see corridor scene, floor patch 1). Only the omit flag is honored.
+            if (geometry.omit) {
                 return;
             }
         }

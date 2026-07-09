@@ -78,6 +78,12 @@ Poly::clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) 
     q->n = 0;
     q->mask = p->mask;
 
+    if ( p->n == 0 ) {
+        // A previous clipping stage may have emptied the polygon; without
+        // this guard, vertices[-1] below is undefined behavior
+        return;
+    }
+
     // Start with u=vert[n-1], v=vert[0]
     int previousVertexIndex = p->n - 1;
     double tu = sign * p->vertices[previousVertexIndex].getCoord(index) - p->vertices[previousVertexIndex].sw * k;
