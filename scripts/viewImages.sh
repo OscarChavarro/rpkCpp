@@ -105,7 +105,7 @@ process_scene() {
   local reference_size
   reference_size="$("${CONVERTER_BIN}" "${reference_file}" -format '%wx%h' info:)"
 
-  local panels=("${reference_file}")
+  local port_sections=()
   local port_labels=()
   local port
 
@@ -144,7 +144,12 @@ process_scene() {
     fi
     printf '%s' "${metric}" > "${work_dir}/${scene_label}.${port}.metric"
 
-    panels+=("${output_file}" "${diff_file}")
+    local port_panel="${work_dir}/${scene_label}.${port}.panel.png"
+    "${CONVERTER_BIN}" "${output_file}" "${diff_file}" +append \
+      -gravity NorthWest -pointsize 64 -fill red -stroke black -strokewidth 2 \
+      -annotate +10+10 "${port}" \
+      "${port_panel}"
+    port_sections+=("${port_panel}")
     if [[ "${metric}" == "0" ]]; then
       port_labels+=("${port}=match")
     else
@@ -152,8 +157,23 @@ process_scene() {
     fi
   done
 
+  # Lay out port sections two per row (2 up, 2 down for the default 4
+  # ports) instead of one long horizontal strip, so wide port sets stay
+  # a reasonable image size. Reference image gets its own row on top.
+  local rows=()
+  local i
+  for ((i = 0; i < ${#port_sections[@]}; i += 2)); do
+    if (( i + 1 < ${#port_sections[@]} )); then
+      local row_file="${work_dir}/${scene_label}.row$((i / 2)).png"
+      "${CONVERTER_BIN}" "${port_sections[i]}" "${port_sections[i + 1]}" +append "${row_file}"
+      rows+=("${row_file}")
+    else
+      rows+=("${port_sections[i]}")
+    fi
+  done
+
   local comparison_file="${TARGET_DIR}/${scene_label}.png"
-  "${CONVERTER_BIN}" "${panels[@]}" +append "${comparison_file}"
+  "${CONVERTER_BIN}" "${reference_file}" "${rows[@]}" -append "${comparison_file}"
 
   local labels_joined
   labels_joined="$(IFS=' '; echo "${port_labels[*]}")"
