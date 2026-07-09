@@ -100,6 +100,11 @@ const nodeArgs = [];
 if (inspect) {
   nodeArgs.push("--inspect");
 }
+if (!nodeOptions.some((option) => option.startsWith("--max-old-space-size"))) {
+  // Large scenes (e.g. 08_soda) exceed Node's default ~4GB old-space limit;
+  // the JVM sizes its heap from system RAM, so match that behavior here.
+  nodeArgs.push("--max-old-space-size=16384");
+}
 nodeArgs.push(...nodeOptions, resolvedEntry, ...appArgs);
 
 const result = spawnSync("node", nodeArgs, {

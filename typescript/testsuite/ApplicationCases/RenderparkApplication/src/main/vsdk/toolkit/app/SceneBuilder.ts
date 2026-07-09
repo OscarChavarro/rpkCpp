@@ -1,5 +1,6 @@
 import { File } from "vitral/dist/java/io/File";
 import { FileInputStream } from "vitral/dist/java/io/FileInputStream";
+import { System } from "vitral/dist/java/lang/System";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
 import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
@@ -575,7 +576,7 @@ export class SceneBuilder {
     SceneBuilder.sceneBuilderFillFacesBackPointers(scene.geometryList);
 
     let t = process.hrtime.bigint();
-    process.stderr.write(`Reading took ${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("Reading took %g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Check for errors
@@ -592,7 +593,7 @@ export class SceneBuilder {
     SceneBuilder.sceneBuilderPatchList(scene.geometryList, scene.patchList);
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Build the list of patches on light sources from the patch list
@@ -601,7 +602,7 @@ export class SceneBuilder {
     SceneBuilder.sceneBuilderFillLightSourcePatchList(scene);
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Build a cluster hierarchy for the new scene
@@ -614,14 +615,14 @@ export class SceneBuilder {
     }
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Create the scene level voxel grid
     scene.voxelGrid = new VoxelGrid(scene.clusteredRootGeometry);
 
     t = process.hrtime.bigint();
-    process.stderr.write(`Voxel grid creation took ${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("Voxel grid creation took %g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -645,7 +646,7 @@ export class SceneBuilder {
       );
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Initialize tone mapping
@@ -654,18 +655,25 @@ export class SceneBuilder {
     Adaptation.initSceneAdaptation(scene.patchList, toneMapOptions);
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Print statistics report
-    process.stdout.write(
-      `\nStats: radiance.totalEmittedPower ................: ${Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b)} W\n`
-      + `         radiance.estimatedAverageRadiance .........: ${Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b)} W / sr\n`
-      + `         averageReflectivity ..............: ${Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b)}\n`
-      + `         radiance.maxSelfEmittedRadiance ...........: ${Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b)} W / sr\n`
-      + `         radiance.maxSelfEmittedPower ..............: ${Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b)} W\n`
-      + `         toneMapOptions.realWorldAdaptionLuminance .........: ${toneMapOptions.realWorldAdaptionLuminance} cd / m2\n`
-      + `         totalArea ........................: ${Statistics.instance().radiance.totalArea} m2\n`
+    System.out.printf(
+      "\nStats: radiance.totalEmittedPower ................: %f W\n"
+      + "         radiance.estimatedAverageRadiance .........: %f W / sr\n"
+      + "         averageReflectivity ..............: %f\n"
+      + "         radiance.maxSelfEmittedRadiance ...........: %f W / sr\n"
+      + "         radiance.maxSelfEmittedPower ..............: %f W\n"
+      + "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
+      + "         totalArea ........................: %f m2\n",
+      Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b),
+      Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b),
+      Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b),
+      Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b),
+      Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b),
+      toneMapOptions.realWorldAdaptionLuminance,
+      Statistics.instance().radiance.totalArea
     );
 
     // Initialize radiance for the freshly loaded scene
@@ -674,7 +682,7 @@ export class SceneBuilder {
     Radiance.setRadianceMethod(mgfContext.radianceMethod, scene, toneMapOptions);
 
     t = process.hrtime.bigint();
-    process.stderr.write(`${Number(t - last) / 1_000_000_000.0} secs.\n`);
+    System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
 
     // Remove possible render hooks
     RenderHookList.removeAllRenderHooks();

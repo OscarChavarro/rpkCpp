@@ -1,5 +1,7 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
+import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
@@ -44,8 +46,6 @@ import { PhotonMapState } from "./PhotonMapState";
 import { RadiosityReturnOption } from "./RadiosityReturnOption";
 import { ScreenSampler } from "./ScreenSampler";
 
-const util = require("node:util");
-
 // To adjust photonMapGetRadiance returns
 export class PhotonMapRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 1000;
@@ -61,7 +61,7 @@ export class PhotonMapRadianceMethod extends RadianceMethod {
 
     let text: string;
     try {
-      text = util.format(format, ...args);
+      text = JavaString.vformat(format, args);
     }
     catch (_e) {
       text = format;
@@ -575,12 +575,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
         radianceMethod
       );
 
-      process.stderr.write("Global map: ");
-      this.photonMapConfig.map?.printStats({
-        printf(format: string, ...args: unknown[]): void {
-          process.stderr.write(util.format(format, ...args));
-        }
-      });
+      System.err.print("Global map: ");
+      this.photonMapConfig.map?.printStats(System.err);
     }
 
     if (this.photonMapState.doCausticMap !== 0) {
@@ -601,12 +597,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
         radianceMethod
       );
 
-      process.stderr.write("Caustic map: ");
-      this.photonMapConfig.causticMap?.printStats({
-        printf(format: string, ...args: unknown[]): void {
-          process.stderr.write(util.format(format, ...args));
-        }
-      });
+      System.err.print("Caustic map: ");
+      this.photonMapConfig.causticMap?.printStats(System.err);
     }
   }
 

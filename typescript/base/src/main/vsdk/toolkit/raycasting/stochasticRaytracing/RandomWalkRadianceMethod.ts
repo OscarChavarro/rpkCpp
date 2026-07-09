@@ -1,5 +1,7 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
+import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgb } from "../../common/color/ColorRgb";
@@ -33,8 +35,6 @@ import { StochasticRaytracingMethod } from "./StochasticRaytracingMethod";
 import { StochasticJacobi } from "./StochasticJacobi";
 import { Tracepath } from "./Tracepath";
 
-const util = require("node:util");
-
 export class RandomWalkRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 2000;
   private readonly stochasticRelaxationState: StochasticRelaxation;
@@ -60,7 +60,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
 
     let text: string;
     try {
-      text = util.format(format, ...args);
+      text = JavaString.vformat(format, args);
     }
     catch (_e) {
       text = format;
@@ -166,26 +166,22 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
   }
 
   private static randomWalkRadiosityPrintStats(): void {
-    process.stderr.write(
-      util.format(
-        "%g secs., total radiance rays = %d",
-        StochasticRelaxation.activeState().cpuSeconds,
-        StochasticRelaxation.activeState().tracedRays
-      )
+    System.err.printf(
+      "%g secs., total radiance rays = %d",
+      StochasticRelaxation.activeState().cpuSeconds,
+      StochasticRelaxation.activeState().tracedRays
     );
-    process.stderr.write(", total flux = ");
-    StochasticRelaxation.activeState().totalFlux.print(process.stderr);
+    System.err.printf(", total flux = ");
+    StochasticRelaxation.activeState().totalFlux.print(System.err);
     if (StochasticRelaxation.activeState().importanceDriven !== 0) {
-      process.stderr.write(
-        util.format(
-          "\ntotal importance rays = %d, total importance = %g, total area = %g",
-          StochasticRelaxation.activeState().importanceTracedRays,
-          StochasticRelaxation.activeState().totalYmp,
-          Statistics.instance().radiance.totalArea
-        )
+      System.err.printf(
+        "\ntotal importance rays = %d, total importance = %g, total area = %g",
+        StochasticRelaxation.activeState().importanceTracedRays,
+        StochasticRelaxation.activeState().totalYmp,
+        Statistics.instance().radiance.totalArea
       );
     }
-    process.stderr.write("\n");
+    System.err.printf("\n");
   }
 
   /**
@@ -386,19 +382,17 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
       numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
     }
     else {
-      numberOfWalks *= globalThis.Math.pow(
+      numberOfWalks *= globalThis.Math.trunc(globalThis.Math.pow(
         StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size,
         1.0 / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())
-      );
+      ));
     }
 
-    process.stderr.write(
-      util.format(
-        "Shooting iteration %d (%d paths, approximately %d rays)\n",
-        StochasticRelaxation.activeState().currentIteration,
-        numberOfWalks,
-        globalThis.Math.floor(numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent()))
-      )
+    System.err.printf(
+      "Shooting iteration %d (%d paths, approximately %d rays)\n",
+      StochasticRelaxation.activeState().currentIteration,
+      numberOfWalks,
+      globalThis.Math.floor(numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent()))
     );
 
     Tracepath.tracePaths(
@@ -442,9 +436,9 @@ Determines control radiosity value for collision gathering estimator
     }
 
     cr.divide(c1, c2);
-    process.stderr.write("Control radiosity value = ");
-    cr.print(process.stderr);
-    process.stderr.write(util.format(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b)));
+    System.err.printf("Control radiosity value = ");
+    cr.print(System.err);
+    System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b));
 
     return cr;
   }
@@ -561,10 +555,10 @@ Determines control radiosity value for collision gathering estimator
       numberOfWalks *= StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
     }
     else {
-      numberOfWalks *= globalThis.Math.pow(
+      numberOfWalks *= globalThis.Math.trunc(globalThis.Math.pow(
         StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size,
         1.0 / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())
-      );
+      ));
     }
 
     if (StochasticRelaxation.activeState().constantControlVariate !== 0
@@ -574,13 +568,11 @@ Determines control radiosity value for collision gathering estimator
       RandomWalkRadianceMethod.randomWalkRadiosityReduceSource(scenePatches);
     }
 
-    process.stderr.write(
-      util.format(
-        "Collision gathering iteration %d (%d paths, approximately %d rays)\n",
-        StochasticRelaxation.activeState().currentIteration,
-        numberOfWalks,
-        globalThis.Math.floor(numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent()))
-      )
+    System.err.printf(
+      "Collision gathering iteration %d (%d paths, approximately %d rays)\n",
+      StochasticRelaxation.activeState().currentIteration,
+      numberOfWalks,
+      globalThis.Math.floor(numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent()))
     );
 
     Tracepath.tracePaths(
@@ -614,7 +606,7 @@ Determines control radiosity value for collision gathering estimator
     const numberOfRays = StochasticRelaxation.activeState().initialNumberOfRays *
       StochasticRadiosityBasisState.activeState().approxDesc[approx]!.basis_size;
 
-    process.stderr.write(util.format("First shot (%d rays):\n", numberOfRays));
+    System.err.printf("First shot (%d rays):\n", numberOfRays);
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,
       numberOfRays,

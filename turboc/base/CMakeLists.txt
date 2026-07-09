@@ -16,7 +16,9 @@ endif()
 add_compile_options(-ffast-math -O3)
 
 if((UNIX OR APPLE) AND FORCE_32BIT_UNIX_APPLE)
-    add_compile_options(-m32)
+    # -mfpmath=sse keeps 32-bit float results consistent with the 64-bit cpp
+    # reference build (the x87 default computes intermediates at 80 bits)
+    add_compile_options(-m32 -msse2 -mfpmath=sse)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
 endif()
 

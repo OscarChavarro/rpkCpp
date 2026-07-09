@@ -4,9 +4,7 @@ import { BalancedKDTreeNode } from "./BalancedKDTreeNode";
 import { KDQuery } from "./KDQuery";
 import { KDTreeNode } from "./KDTreeNode";
 
-export interface NodeCallback {
-  call(userData: unknown, nodeData: unknown): void;
-}
+export type NodeCallback = (userData: unknown, nodeData: unknown) => void;
 
 type Point3 = [number, number, number];
 
@@ -122,7 +120,7 @@ export class KDTree {
     for (let i = 0; i < this.numBalanced; i++) {
       const node = (this.balancedRootNode as BalancedKDTreeNode[])[i];
       if (node !== undefined) {
-        callback.call(data, node.mData);
+        callback(data, node.mData);
       }
     }
   }

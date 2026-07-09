@@ -279,7 +279,7 @@ Determines elementary ray power for the initial incremental iterations
   ): void {
     const areaFrac = Mcrad.monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
     StochasticRelaxation.activeState().initialNumberOfRays =
-      StochasticRelaxation.activeState().rayUnitsPerIt * areaFrac;
+      globalThis.Math.trunc(StochasticRelaxation.activeState().rayUnitsPerIt * areaFrac);
   }
 
   /**

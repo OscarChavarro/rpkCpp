@@ -2,6 +2,7 @@
 Constant Control Radiosity
 */
 
+import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgb } from "../../common/color/ColorRgb";
@@ -11,8 +12,6 @@ import { McradP } from "./McradP";
 import { StochasticRadiosityElement } from "./StochasticRadiosityElement";
 import { StochasticRelaxation } from "./StochasticRelaxation";
 import { StochasticRaytracingMethod } from "./StochasticRaytracingMethod";
-
-const util = require("node:util");
 
 export class Ccr {
   private constructor() {
@@ -325,9 +324,9 @@ random walk radiosity
 
     beta.add(minRad, maxRad);
     beta.scale(0.5);
-    process.stderr.write(`${beta.r} ${beta.g} ${beta.b}`);
-    process.stderr.write(util.format(" (%g lux)", globalThis.Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b)));
-    process.stderr.write("\n");
+    beta.print(System.err);
+    System.err.printf(" (%g lux)", globalThis.Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b));
+    System.err.printf("\n");
     return beta;
   }
 }

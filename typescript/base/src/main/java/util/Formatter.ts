@@ -1,8 +1,6 @@
 import { OutputStream } from "../io/OutputStream";
 import { String as JavaString } from "../lang/String";
 
-const util = require("node:util");
-
 export class Formatter {
   private outputStream: OutputStream | null;
   private content: JavaString;
@@ -76,6 +74,6 @@ export class Formatter {
   }
 
   private static vformatString(formatText: string, args: unknown[]): string {
-    return util.format(formatText, ...args);
+    return JavaString.vformat(formatText, args);
   }
 }

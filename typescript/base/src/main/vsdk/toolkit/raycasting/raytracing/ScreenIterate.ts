@@ -51,7 +51,7 @@ export class ScreenIterate {
 
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        const col = callback.call(camera, sceneVoxelGrid, sceneBackground, j, i, data);
+        const col = callback(camera, sceneVoxelGrid, sceneBackground, j, i, data);
         ToneMap.radianceToRgb(col, rgb[j]!, toneMapOptions);
         Statistics.instance().rayTracer.pixelCount++;
       }
@@ -166,7 +166,7 @@ export class ScreenIterate {
           }
 
           if (!skip || ((ySteps & 1) !== 0) || ((xSteps & 1) !== 0)) {
-            const col = callback.call(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
+            const col = callback(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
             ToneMap.radianceToRgb(col, pixelRGB, toneMapOptions);
             ScreenIterate.fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
@@ -197,7 +197,7 @@ export class ScreenIterate {
       }
 
       skip = true;
-      stepSize /= 2;
+      stepSize = globalThis.Math.trunc(stepSize / 2);
     }
 
     ScreenIterate.finish();

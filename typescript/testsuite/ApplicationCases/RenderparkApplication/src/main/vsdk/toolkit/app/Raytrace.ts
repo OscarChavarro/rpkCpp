@@ -1,4 +1,5 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { System } from "vitral/dist/java/lang/System";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { OptionsGroupRaytracing } from "./options/OptionsGroupRaytracing";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
@@ -143,8 +144,9 @@ export class Raytrace {
 
     ImageOutputHandle.deleteImageOutputHandle(img);
 
-    process.stdout.write(
-      `Raytrace save image: ${Number(process.hrtime.bigint() - t) / 1_000_000_000.0} secs.\n`
+    System.out.printf(
+      "Raytrace save image: %g secs.\n",
+      Number(process.hrtime.bigint() - t) / 1_000_000_000.0
     );
   }
 

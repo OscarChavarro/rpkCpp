@@ -1,4 +1,5 @@
 import { OutputStream } from "../../../java/io/OutputStream";
+import { String as JavaString } from "../../../java/lang/String";
 import { ColorRgb } from "../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
@@ -399,50 +400,11 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     VrmlWriter.writeTrailer(outputStream);
   }
 
-  private static formatArgument(conversion: string, argument: unknown): string {
-    if (conversion === "s") {
-      return `${argument ?? ""}`;
-    }
-
-    const numericValue = Number(argument);
-    if (!Number.isFinite(numericValue)) {
-      if (conversion === "d") {
-        return "0";
-      }
-      return `${numericValue}`;
-    }
-
-    switch (conversion) {
-      case "d":
-        return `${numericValue < 0 ? globalThis.Math.ceil(numericValue) : globalThis.Math.floor(numericValue)}`;
-      case "f":
-        return numericValue.toFixed(6);
-      case "g":
-      default:
-        return `${numericValue}`;
-    }
-  }
-
   private static formatToString(format: string | null, ...argumentsList: unknown[]): string {
     if (format === null) {
       return "";
     }
-
-    let argumentIndex = 0;
-    return format.replace(/%(?:%|[gsfd])/g, (token: string): string => {
-      if (token === "%%") {
-        return "%";
-      }
-
-      const conversion = token.charAt(1);
-      if (argumentIndex >= argumentsList.length) {
-        return token;
-      }
-
-      const replacement = GalerkinRadianceMethod.formatArgument(conversion, argumentsList[argumentIndex]);
-      argumentIndex++;
-      return replacement;
-    });
+    return JavaString.vformat(format, argumentsList);
   }
 
   private static writeFormatted(format: string | null, ...argumentsList: unknown[]): void {

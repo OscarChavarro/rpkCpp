@@ -1,6 +1,5 @@
 import { OutputStream } from "./OutputStream";
-
-const util = require("node:util");
+import { String as JavaString } from "../lang/String";
 
 export class PrintStream {
   private readonly stream: OutputStream | null;
@@ -22,7 +21,7 @@ export class PrintStream {
     if (this.stream === null || formatText === undefined || formatText === null) {
       return this;
     }
-    PrintStream.writeText(this.stream, util.format(formatText, ...args));
+    PrintStream.writeText(this.stream, JavaString.vformat(formatText, args));
     return this;
   }
 

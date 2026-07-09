@@ -1,4 +1,4 @@
-const util = require("node:util");
+import { String as JavaString } from "../../../../java/lang/String";
 
 export class Logger {
   private constructor() {
@@ -34,7 +34,7 @@ export class Logger {
       return "";
     }
     try {
-      return util.format(text, ...args);
+      return JavaString.vformat(text, args);
     }
     catch (_e) {
       return text;

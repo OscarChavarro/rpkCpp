@@ -88,6 +88,13 @@ export class Poly {
     q.n = 0;
     q.mask = p.mask;
 
+    if (p.n === 0) {
+      // A previous clipping stage may have emptied the polygon. The original C
+      // code read a stale vertex pointer here without consequences (the loop
+      // below never runs); an explicit guard is needed to avoid vertices[-1].
+      return;
+    }
+
     let previousVertexIndex = p.n - 1;
     let tu = sign * p.vertices[previousVertexIndex]!.getCoord(index) - p.vertices[previousVertexIndex]!.sw * k;
     for (let currentVertexIndex = 0; currentVertexIndex < p.n; currentVertexIndex++) {

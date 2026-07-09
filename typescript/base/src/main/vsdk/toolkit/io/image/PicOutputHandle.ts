@@ -4,8 +4,7 @@ import { OutputStream } from "../../../../java/io/OutputStream";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { DkColor } from "./DkColor";
 import { ImageOutputHandle } from "./ImageOutputHandle";
-
-const util = require("node:util");
+import { String as JavaString } from "../../../../java/lang/String";
 
 export class PicOutputHandle extends ImageOutputHandle {
   private outputStream: OutputStream | null;
@@ -15,7 +14,7 @@ export class PicOutputHandle extends ImageOutputHandle {
       return "";
     }
     try {
-      return util.format(format, ...argumentsList);
+      return JavaString.vformat(format, argumentsList);
     }
     catch (_ignored) {
       return "";

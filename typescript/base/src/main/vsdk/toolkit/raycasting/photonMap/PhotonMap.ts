@@ -1,3 +1,4 @@
+import { PrintStream } from "../../../../java/io/PrintStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
@@ -239,7 +240,7 @@ export class PhotonMap {
     this.m_totalPaths = totalPaths;
   }
 
-  public printStats(stream: { printf: (format: string, ...args: unknown[]) => unknown } | null): void {
+  public printStats(stream: PrintStream | null): void {
     if (stream === null) {
       return;
     }

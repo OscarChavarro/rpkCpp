@@ -1,5 +1,7 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
+import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
@@ -27,8 +29,6 @@ import { StochasticRaytracingApproximation } from "./StochasticRaytracingApproxi
 import { StochasticRaytracingMethod } from "./StochasticRaytracingMethod";
 import { StochasticRelaxation } from "./StochasticRelaxation";
 
-const util = require("node:util");
-
 /**
 Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 */
@@ -50,7 +50,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
 
     let text: string;
     try {
-      text = util.format(format, ...args);
+      text = JavaString.vformat(format, args);
     }
     catch (_e) {
       text = format;
@@ -249,20 +249,18 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityPrintIncrementalRadianceStats(): void {
-    process.stderr.write(
-      util.format(
-        "%g secs., radiance rays = %d (%d not to background), un-shot flux = ",
-        StochasticRelaxation.activeState().cpuSeconds,
-        StochasticRelaxation.activeState().tracedRays,
-        StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses
-      )
+    System.err.printf(
+      "%g secs., radiance rays = %d (%d not to background), un-shot flux = ",
+      StochasticRelaxation.activeState().cpuSeconds,
+      StochasticRelaxation.activeState().tracedRays,
+      StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses
     );
-    StochasticRelaxation.activeState().unShotFlux.print(process.stderr);
-    process.stderr.write(", total flux = ");
-    StochasticRelaxation.activeState().totalFlux.print(process.stderr);
-    process.stderr.write(", indirect importance weighted un-shot flux = ");
-    StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.print(process.stderr);
-    process.stderr.write("\n");
+    StochasticRelaxation.activeState().unShotFlux.print(System.err);
+    System.err.printf(", total flux = ");
+    StochasticRelaxation.activeState().totalFlux.print(System.err);
+    System.err.printf(", indirect importance weighted un-shot flux = ");
+    StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.print(System.err);
+    System.err.printf("\n");
   }
 
   private static stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
@@ -303,12 +301,10 @@ Computes quality factor on given leaf element.
       );
 
       stepNumber++;
-      process.stderr.write(
-        util.format(
-          "Incremental radiance propagation step %d: %.3f%% un-shot power left.\n",
-          stepNumber,
-          100.0 * unShotFraction
-        )
+      System.err.printf(
+        "Incremental radiance propagation step %d: %.3f%% un-shot power left.\n",
+        stepNumber,
+        100.0 * unShotFraction
       );
 
       StochasticJacobi.doStochasticJacobiIteration(
@@ -354,15 +350,13 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityPrintIncrementalImportanceStats(): void {
-    process.stderr.write(
-      util.format(
-        "%g secs., importance rays = %d, un-shot importance = %g, total importance = %g, total area = %g\n",
-        StochasticRelaxation.activeState().cpuSeconds,
-        StochasticRelaxation.activeState().importanceTracedRays,
-        StochasticRelaxation.activeState().unShotYmp,
-        StochasticRelaxation.activeState().totalYmp,
-        Statistics.instance().radiance.totalArea
-      )
+    System.err.printf(
+      "%g secs., importance rays = %d, un-shot importance = %g, total importance = %g, total area = %g\n",
+      StochasticRelaxation.activeState().cpuSeconds,
+      StochasticRelaxation.activeState().importanceTracedRays,
+      StochasticRelaxation.activeState().unShotYmp,
+      StochasticRelaxation.activeState().totalYmp,
+      Statistics.instance().radiance.totalArea
     );
   }
 
@@ -398,12 +392,10 @@ Computes quality factor on given leaf element.
       }
 
       stepNumber++;
-      process.stderr.write(
-        util.format(
-          "Incremental importance propagation step %d: %.3f%% un-shot importance left.\n",
-          stepNumber,
-          100.0 * unShotFraction
-        )
+      System.err.printf(
+        "Incremental importance propagation step %d: %.3f%% un-shot importance left.\n",
+        stepNumber,
+        100.0 * unShotFraction
       );
 
       StochasticJacobi.doStochasticJacobiIteration(
@@ -464,27 +456,23 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityPrintRegularStats(): void {
-    process.stderr.write(
-      util.format(
-        "%g secs., radiance rays = %d (%d not to background), un-shot flux = ",
-        StochasticRelaxation.activeState().cpuSeconds,
-        StochasticRelaxation.activeState().tracedRays,
-        StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses
-      )
+    System.err.printf(
+      "%g secs., radiance rays = %d (%d not to background), un-shot flux = ",
+      StochasticRelaxation.activeState().cpuSeconds,
+      StochasticRelaxation.activeState().tracedRays,
+      StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses
     );
-    process.stderr.write(", total flux = ");
-    StochasticRelaxation.activeState().totalFlux.print(process.stderr);
+    System.err.printf(", total flux = ");
+    StochasticRelaxation.activeState().totalFlux.print(System.err);
     if (StochasticRelaxation.activeState().importanceDriven !== 0) {
-      process.stderr.write(
-        util.format(
-          "\ntotal importance rays = %d, total importance = %g, total area = %g",
-          StochasticRelaxation.activeState().importanceTracedRays,
-          StochasticRelaxation.activeState().totalYmp,
-          Statistics.instance().radiance.totalArea
-        )
+      System.err.printf(
+        "\ntotal importance rays = %d, total importance = %g, total area = %g",
+        StochasticRelaxation.activeState().importanceTracedRays,
+        StochasticRelaxation.activeState().totalYmp,
+        Statistics.instance().radiance.totalArea
       );
     }
-    process.stderr.write("\n");
+    System.err.printf("\n");
   }
 
   private static stochasticRelaxationRadiosityDoRegularRadianceIteration(
@@ -492,9 +480,7 @@ Computes quality factor on given leaf element.
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
-    process.stderr.write(
-      util.format("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration)
-    );
+    System.err.printf("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,
       StochasticRelaxation.activeState().raysPerIteration,
@@ -540,9 +526,7 @@ Computes quality factor on given leaf element.
     StochasticRelaxation.activeState().weightedSampling = 0;
 
     numberOfRays = StochasticRelaxation.activeState().importanceRaysPerIteration;
-    process.stderr.write(
-      util.format("Regular importance iteration %d:\n", StochasticRelaxation.activeState().currentIteration)
-    );
+    System.err.printf("Regular importance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
 
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,

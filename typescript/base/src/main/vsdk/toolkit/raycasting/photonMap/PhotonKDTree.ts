@@ -133,7 +133,7 @@ export class PhotonKDTree extends KDTree {
     for (let i = 0; i < this.nodes.length; i++) {
       const node = this.nodes[i];
       if (node !== undefined) {
-        callback.call(data, node.photon);
+        callback(data, node.photon);
       }
     }
   }
