@@ -179,8 +179,10 @@ public class PhongEmittanceDistributionFunction {
         double xi2,
         ColorRgb selfEmittedRadiance,
         double[] probabilityDensityFunction) {
+        // selfEmittedRadiance is an out-parameter (the C++ port fills it in
+        // place), so it must be mutated, never re-assigned.
         if (selfEmittedRadiance != null) {
-            selfEmittedRadiance = new ColorRgb(0.0, 0.0, 0.0);
+            selfEmittedRadiance.clear();
         }
         setOut(probabilityDensityFunction, 0.0);
 
@@ -201,7 +203,7 @@ public class PhongEmittanceDistributionFunction {
             if (selfEmittedRadiance != null) {
                 ColorRgbMutable radianceMutable = new ColorRgbMutable();
                 radianceMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
-                selfEmittedRadiance = radianceMutable.toImmutable();
+                selfEmittedRadiance.set(radianceMutable.getR(), radianceMutable.getG(), radianceMutable.getB());
             }
         }
 

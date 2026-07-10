@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { PrintStream } from "../../../../java/io/PrintStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ColorRgb } from "../../common/color/ColorRgb";
@@ -269,7 +270,7 @@ export class PhotonMap {
 Adding photons, returns if photon was added
 */
   public addPhoton(photon: Photon, normal: Vector3D, flags: number): boolean {
-    globalThis.Math.random();
+    Random48.drand48();
 
     this.doAddPhoton(photon, normal, flags);
     this.m_nrPhotons++;
@@ -318,7 +319,7 @@ Adding photons, returns if photon was added
 
     const acceptProb = PhotonMap.computeAcceptProb(currentD, requiredD, this.photonMapState);
 
-    if (globalThis.Math.random() < acceptProb) {
+    if (Random48.drand48() < acceptProb) {
       this.doAddPhoton(photon, hit.getNormal(), flags);
       this.m_nrPhotons++;
       this.m_balanced = false;

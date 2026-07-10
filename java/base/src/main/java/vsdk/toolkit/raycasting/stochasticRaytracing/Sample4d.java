@@ -4,6 +4,8 @@
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Faure;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Halton;
@@ -77,10 +79,10 @@ current sequence is 'random', the index is not used
 
         switch ( seq ) {
             case RANDOM:
-                xi[0] = Math.random();
-                xi[1] = Math.random();
-                xi[2] = Math.random();
-                xi[3] = Math.random();
+                xi[0] = Random.drand48();
+                xi[1] = Random.drand48();
+                xi[2] = Random.drand48();
+                xi[3] = Random.drand48();
                 break;
             case HALTON:
                 xi[0] = Halton.Halton2((int)seed);

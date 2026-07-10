@@ -2,6 +2,7 @@
 Non diffuse first shot
 */
 
+import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
@@ -141,7 +142,7 @@ export class Nondiff {
   }
 
   public static sampleLightSources(sceneWorldVoxelGrid: VoxelGrid, samplesCount: number): void {
-    let rnd = globalThis.Math.random();
+    let rnd = Random48.drand48();
     let count = 0;
     let pCumulative = 0.0;
     Nondiff.numberOfSamples = samplesCount;

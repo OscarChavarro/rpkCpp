@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -169,7 +171,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 */
     private static long stochasticRelaxationRadiosityRandomRound(float x) {
         long l = (long)Math.floor(x);
-        if ( Math.random() < (x - (float)l) ) {
+        if ( Random.drand48() < (x - (float)l) ) {
             l++;
         }
         return l;

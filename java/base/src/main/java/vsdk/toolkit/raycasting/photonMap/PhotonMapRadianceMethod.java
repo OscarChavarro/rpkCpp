@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.photonMap;
 
+import vsdk.toolkit.common.Random;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -499,8 +501,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
         SimpleRaytracingPathNode path = config.biPath.m_lightPath;
 
         // First node
-        double x1 = Math.random(); // nrs[0] * RECIP
-        double x2 = Math.random(); // nrs[1] * RECIP
+        double x1 = Random.drand48(); // nrs[0] * RECIP
+        double x2 = Random.drand48(); // nrs[1] * RECIP
 
         path = config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
         if ( path == null ) {
@@ -513,8 +515,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
 
         // Second node
         SimpleRaytracingPathNode node = path.next();
-        x1 = Math.random(); // nrs[2] * RECIP
-        x2 = Math.random(); // nrs[3] * RECIP // 4D Niederreiter...
+        x1 = Random.drand48(); // nrs[2] * RECIP
+        x2 = Random.drand48(); // nrs[3] * RECIP // 4D Niederreiter...
 
         if ( config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) != null ) {
             // Successful trace

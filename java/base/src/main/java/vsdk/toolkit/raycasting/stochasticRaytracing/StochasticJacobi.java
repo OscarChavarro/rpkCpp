@@ -10,6 +10,8 @@ TODO: lines and line bundles.
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
@@ -719,7 +721,7 @@ Fire off rays from the leaf elements, propagate radiance/importance
         ArrayList<Patch> scenePatches,
         RenderOptions renderOptions)
     {
-        double rnd = Math.random();
+        double rnd = Random.drand48();
         long[] rayCount = new long[] {0};
         double[] cumulative = new double[] {0.0};
 

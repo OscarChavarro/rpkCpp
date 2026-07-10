@@ -2,6 +2,7 @@
 4D vector sampling
 */
 
+import { Random48 } from "../../common/Random48";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Faure } from "../../numericalAnalysis/quasiMonteCarlo/Faure";
 import { Halton } from "../../numericalAnalysis/quasiMonteCarlo/Halton";
@@ -74,10 +75,10 @@ current sequence is 'random', the index is not used
 
     switch (Sample4d.seq) {
       case Sampler4DSequence.RANDOM:
-        xi[0] = globalThis.Math.random();
-        xi[1] = globalThis.Math.random();
-        xi[2] = globalThis.Math.random();
-        xi[3] = globalThis.Math.random();
+        xi[0] = Random48.drand48();
+        xi[1] = Random48.drand48();
+        xi[2] = Random48.drand48();
+        xi[3] = Random48.drand48();
         break;
       case Sampler4DSequence.HALTON:
         xi[0] = Halton.Halton2(seed);

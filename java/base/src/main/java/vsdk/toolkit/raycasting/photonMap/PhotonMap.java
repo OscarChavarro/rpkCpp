@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.photonMap;
 
+import vsdk.toolkit.common.Random;
+
 import java.io.PrintStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
@@ -261,7 +263,7 @@ public class PhotonMap {
 Adding photons, returns if photon was added
 */
     public boolean addPhoton(Photon photon, Vector3D normal, short flags) {
-        Math.random(); // Just to keep in sync with density controlled storage
+        Random.drand48(); // Just to keep in sync with density controlled storage
 
         doAddPhoton(photon, normal, flags);
         m_nrPhotons++;
@@ -338,7 +340,7 @@ Adding photons, returns if photon was added
         // Debug trace for acceptance probability and density values.
 
         // Roulette
-        if ( Math.random() < acceptProb ) {
+        if ( Random.drand48() < acceptProb ) {
             // Store
             doAddPhoton(photon, hit.getNormal(), flags);
             m_nrPhotons++;

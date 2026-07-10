@@ -4,6 +4,8 @@ Random walk generation
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.logging.Logger;
@@ -141,7 +143,7 @@ when no longer needed
             P = hit.getPatch();
             survivalProb = survivalProbabilityCallBack.apply(P);
             pathAddNode(path, P, survivalProb, hit.getPoint(), outpoint);
-        } while ( Math.random() < survivalProb ); // Repeat until absorption
+        } while ( Random.drand48() < survivalProb ); // Repeat until absorption
 
         return path;
     }
@@ -184,7 +186,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 
         // Fire off paths from the patches, propagate radiance
         initPath(path);
-        rnd = Math.random();
+        rnd = Random.drand48();
         pathCount = 0;
         pCumulative = 0.0;
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {

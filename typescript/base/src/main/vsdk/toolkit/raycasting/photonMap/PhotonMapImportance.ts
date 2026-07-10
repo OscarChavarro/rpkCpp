@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -67,7 +68,11 @@ Store a importon/poton. Some acceptance tests are performed first
     let path = photonMapConfig.biPath.m_eyePath;
     const scfg: SamplerConfig = photonMapConfig.eyeConfig;
 
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, globalThis.Math.random(), globalThis.Math.random(), Sampler.BSDF_ALL_COMPONENTS);
+    // The C++ port passes drand48() twice as arguments and gcc evaluates
+    // function arguments right to left: first draw is x2, second is x1.
+    const eyeX2 = Random48.drand48();
+    const eyeX1 = Random48.drand48();
+    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
     if (path === null) {
       return false;
     }
@@ -84,8 +89,8 @@ Store a importon/poton. Some acceptance tests are performed first
     path.ensureNext();
     let node = path.next() as SimpleRaytracingPathNode;
 
-    let x1 = globalThis.Math.random();
-    let x2 = globalThis.Math.random();
+    let x1 = Random48.drand48();
+    let x2 = Random48.drand48();
 
     const specFlags = BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
@@ -120,8 +125,8 @@ Store a importon/poton. Some acceptance tests are performed first
 
       node.ensureNext();
       node = node.next() as SimpleRaytracingPathNode;
-      x1 = globalThis.Math.random();
-      x2 = globalThis.Math.random();
+      x1 = Random48.drand48();
+      x2 = Random48.drand48();
     }
 
     return true;

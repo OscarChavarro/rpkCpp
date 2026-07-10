@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -67,7 +68,7 @@ export class SamplerConfig {
       this.m_qmcSeed = new Array<number>(this.m_qmcDepth);
 
       for (let i = 0; i < this.m_qmcDepth; i++) {
-        this.m_qmcSeed[i] = globalThis.Math.floor(globalThis.Math.random() * 2147483647.0);
+        this.m_qmcSeed[i] = globalThis.Math.floor(Random48.drand48() * 2147483647.0);
         process.stdout.write(`Seed ${this.m_qmcSeed[i]}\n`);
       }
     }
@@ -82,13 +83,13 @@ export class SamplerConfig {
     }
 
     if (!this.m_useQMC || depth >= this.m_qmcDepth || this.m_qmcSeed === null) {
-      x1[0] = globalThis.Math.random();
-      x2[0] = globalThis.Math.random();
+      x1[0] = Random48.drand48();
+      x2[0] = Random48.drand48();
     }
     else {
       if (depth === 0 || depth === 2) {
-        x1[0] = globalThis.Math.random();
-        x2[0] = globalThis.Math.random();
+        x1[0] = Random48.drand48();
+        x2[0] = Random48.drand48();
       }
       else if (depth === 1) {
         const nrs = Niederreiter31.niederreiter31(this.m_qmcSeed[1]!++);
@@ -97,8 +98,8 @@ export class SamplerConfig {
       }
       else {
         process.stdout.write(`Hmmmm MD ${this.m_qmcDepth} D${depth}\n`);
-        x1[0] = globalThis.Math.random();
-        x2[0] = globalThis.Math.random();
+        x1[0] = Random48.drand48();
+        x2[0] = Random48.drand48();
       }
     }
   }

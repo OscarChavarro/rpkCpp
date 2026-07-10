@@ -5,6 +5,8 @@ procedure of a monte carlo ray tracing like algorithm
 
 package vsdk.toolkit.raycasting.raytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import vsdk.toolkit.common.color.ColorRgb;
@@ -82,21 +84,21 @@ public class SamplerConfig {
         }
 
         if ( !m_useQMC || depth >= m_qmcDepth ) {
-            x1[0] = Math.random();
-            x2[0] = Math.random();
+            x1[0] = Random.drand48();
+            x2[0] = Random.drand48();
         } else {
             // Niederreiter
             if ( depth == 0 || depth == 2 ) {
-                x1[0] = Math.random();
-                x2[0] = Math.random();
+                x1[0] = Random.drand48();
+                x2[0] = Random.drand48();
             } else if ( depth == 1 ) {
                 long[] nrs = Niederreiter31.niederreiter31(m_qmcSeed[1]++);
                 x1[0] = nrs[0] * Niederreiter31.RECIP;
                 x2[0] = nrs[1] * Niederreiter31.RECIP;
             } else {
                 System.out.printf("Hmmmm MD %d D%d\n", m_qmcDepth, depth);
-                x1[0] = Math.random();
-                x2[0] = Math.random();
+                x1[0] = Random.drand48();
+                x2[0] = Random.drand48();
             }
         }
     }

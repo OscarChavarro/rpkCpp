@@ -4,6 +4,8 @@ Non diffuse first shot
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
@@ -117,7 +119,7 @@ public final class Nondiff {
     }
 
     static void sampleLightSources(VoxelGrid sceneWorldVoxelGrid, int samplesCount) {
-        double rnd = Math.random();
+        double rnd = Random.drand48();
         int count = 0;
         double pCumulative = 0.0;
         Nondiff.numberOfSamples = samplesCount;

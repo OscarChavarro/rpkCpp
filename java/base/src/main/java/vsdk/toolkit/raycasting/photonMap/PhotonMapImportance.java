@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.photonMap;
 
+import vsdk.toolkit.common.Random;
+
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
@@ -67,7 +69,11 @@ Store a importon/poton. Some acceptance tests are performed first
         SamplerConfig scfg = photonMapConfig.eyeConfig;
 
         // Eye node
-        path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, Math.random(), Math.random(), Sampler.BSDF_ALL_COMPONENTS);
+        // The C++ port passes drand48() twice as arguments and gcc evaluates
+        // function arguments right to left: first draw is x2, second is x1.
+        double eyeX2 = Random.drand48();
+        double eyeX1 = Random.drand48();
+        path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
         if ( path == null ) {
             return false;
         }
@@ -91,8 +97,8 @@ Store a importon/poton. Some acceptance tests are performed first
         double x1;
         double x2;
 
-        x1 = Math.random();
-        x2 = Math.random();
+        x1 = Random.drand48();
+        x2 = Random.drand48();
 
         byte specFlags = (byte)(BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT);
 
@@ -131,8 +137,8 @@ Store a importon/poton. Some acceptance tests are performed first
             // New node
             node.ensureNext();
             node = node.next();
-            x1 = Math.random();
-            x2 = Math.random();
+            x1 = Random.drand48();
+            x2 = Random.drand48();
         }
 
         return true;

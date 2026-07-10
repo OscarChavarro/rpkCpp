@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.common;
 
+import vsdk.toolkit.common.Random;
+
 /**
 A simple 2D stratified sampling class. Only one sample per stratum. If the number
 of samples does not fit a 2D grid, some samples are taken randomly over the
@@ -34,8 +36,8 @@ public class StratifiedSampling2D {
         }
 
         if (yStratum < yMaxStratum && xMaxStratum > 0 && yMaxStratum > 0) {
-            x1[0] = (xStratum + Math.random()) / (double)xMaxStratum;
-            x2[0] = (yStratum + Math.random()) / (double)yMaxStratum;
+            x1[0] = (xStratum + Random.drand48()) / (double)xMaxStratum;
+            x2[0] = (yStratum + Random.drand48()) / (double)yMaxStratum;
 
             if ((++xStratum) == xMaxStratum) {
                 xStratum = 0;
@@ -43,8 +45,8 @@ public class StratifiedSampling2D {
             }
         }
         else {
-            x1[0] = Math.random();
-            x2[0] = Math.random();
+            x1[0] = Random.drand48();
+            x2[0] = Random.drand48();
         }
     }
 

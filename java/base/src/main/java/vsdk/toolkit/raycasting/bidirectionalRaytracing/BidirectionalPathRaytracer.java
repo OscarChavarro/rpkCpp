@@ -1,5 +1,7 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
+import vsdk.toolkit.common.Random;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -653,6 +655,12 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             newLightNode.m_pdfFromPrev = 0.0;
             newLightNode.m_pdfFromNext = 0.0;
 
+            // The C++ port passes drand48() twice as arguments and gcc
+            // evaluates function arguments right to left, so the first
+            // draw is the x2 parameter and the second one is x1.
+            double lneX2 = Random.drand48();
+            double lneX1 = Random.drand48();
+
             if ( !config.eyeConfig.neSampler.sample(
                 camera,
                 sceneWorldVoxelGrid,
@@ -660,8 +668,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                 null,
                 path.m_eyeEndNode,
                 newLightNode,
-                Math.random(),
-                Math.random()) ) {
+                lneX1,
+                lneX2) ) {
                 // No light point sampled, no contribution possible
 
                 path.m_lightPath = oldLightPath;

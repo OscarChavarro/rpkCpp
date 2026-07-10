@@ -8,6 +8,7 @@ sampling positions on shooters with higher order radiosity approximation
 TODO: lines and line bundles.
 */
 
+import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
@@ -744,7 +745,7 @@ Fire off rays from the leaf elements, propagate radiance/importance
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
-    const rnd = globalThis.Math.random();
+    const rnd = Random48.drand48();
     const rayCount = [0];
     const cumulative = [0.0];
 

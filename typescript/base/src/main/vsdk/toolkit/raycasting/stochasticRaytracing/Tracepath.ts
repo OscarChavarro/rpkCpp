@@ -2,6 +2,7 @@
 Random walk generation
 */
 
+import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -128,7 +129,7 @@ when no longer needed
       P = hit.getPatch()!;
       survivalProb = survivalProbabilityCallBack(P);
       Tracepath.pathAddNode(path, P, survivalProb, hit.getPoint(), outpoint);
-    } while (globalThis.Math.random() < survivalProb);
+    } while (Random48.drand48() < survivalProb);
 
     return path;
   }
@@ -169,7 +170,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
     }
 
     Tracepath.initPath(path);
-    rnd = globalThis.Math.random();
+    rnd = Random48.drand48();
     pathCount = 0;
     pCumulative = 0.0;
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {

@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
@@ -191,7 +192,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 */
   private static stochasticRelaxationRadiosityRandomRound(x: number): number {
     let l = globalThis.Math.floor(x);
-    if (globalThis.Math.random() < (x - l)) {
+    if (Random48.drand48() < (x - l)) {
       l++;
     }
     return l;

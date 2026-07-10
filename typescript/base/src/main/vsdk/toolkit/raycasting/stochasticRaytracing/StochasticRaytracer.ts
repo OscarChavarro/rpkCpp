@@ -1,5 +1,5 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { Random } from "../../../../java/util/Random";
+import { Random48 } from "../../common/Random48";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
@@ -44,7 +44,6 @@ export class StochasticRaytracer extends RayTracer {
   private static override name = "Stochastic Raytracing & Final Gathers";
   private lightList: LightList | null;
   private rayTracingState: StochasticRayTracingState;
-  private static random48: Random = new Random();
 
   public constructor(inLightList: LightList | null, inRayTracingState: StochasticRayTracingState) {
     super();
@@ -715,10 +714,10 @@ Raytrace the current scene as seen with the current camera.
   }
 
   private static srand48(seed: number): void {
-    StochasticRaytracer.random48 = new Random(seed);
+    Random48.srand48(seed);
   }
 
   private static drand48(): number {
-    return StochasticRaytracer.random48.nextDouble();
+    return Random48.drand48();
   }
 }

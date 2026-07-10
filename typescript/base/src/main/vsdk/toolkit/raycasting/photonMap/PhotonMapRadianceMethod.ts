@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
@@ -482,8 +483,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
 
     let path = config.biPath.m_lightPath;
 
-    let x1 = globalThis.Math.random();
-    let x2 = globalThis.Math.random();
+    let x1 = Random48.drand48();
+    let x2 = Random48.drand48();
 
     path = config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
     if (path === null) {
@@ -495,8 +496,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
     path.ensureNext();
 
     const node = path.next() as SimpleRaytracingPathNode;
-    x1 = globalThis.Math.random();
-    x2 = globalThis.Math.random();
+    x1 = Random48.drand48();
+    x2 = Random48.drand48();
 
     if (config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) !== null) {
       node.ensureNext();

@@ -1,3 +1,4 @@
+import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
@@ -686,6 +687,12 @@ export class BidirectionalPathRaytracer extends RayTracer {
       newLightNode.m_pdfFromPrev = 0.0;
       newLightNode.m_pdfFromNext = 0.0;
 
+      // The C++ port passes drand48() twice as arguments and gcc evaluates
+      // function arguments right to left, so the first draw is the x2
+      // parameter and the second one is x1.
+      const lneX2 = Random48.drand48();
+      const lneX1 = Random48.drand48();
+
       if (!(config.eyeConfig.neSampler as Sampler).sample(
         camera,
         sceneWorldVoxelGrid,
@@ -693,8 +700,8 @@ export class BidirectionalPathRaytracer extends RayTracer {
         null,
         path.m_eyeEndNode,
         newLightNode,
-        globalThis.Math.random(),
-        globalThis.Math.random()
+        lneX1,
+        lneX2
       )) {
         path.m_lightPath = oldLightPath;
         return;

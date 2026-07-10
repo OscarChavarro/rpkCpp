@@ -43,8 +43,11 @@ public final class Random {
     private static boolean nativeMode = true;
     private static boolean started = false;
 
-    // Pure Java fallback state (mirrors the C library's global 48-bit state)
-    private static long javaState = 0x1234ABCDL;
+    // Pure Java fallback state (mirrors the C library's global 48-bit state).
+    // glibc leaves the 48-bit state zero-initialized until srand48/seed48 is
+    // called (it does not apply the POSIX default seed 0x1234ABCD330E), and
+    // the C++ port renders without seeding, so start from zero to match.
+    private static long javaState = 0L;
 
     // Native bindings, resolved lazily on startup() when nativeMode is active
     private static ResourceScope nativeScope;
@@ -80,7 +83,9 @@ public final class Random {
             try {
                 bindNativeLibrary();
                 nativeScope = ResourceScope.globalScope();
-                nativeSrand48.invoke(0L);
+                // Do NOT seed here: the C++ port never seeds at startup, and
+                // glibc's unseeded drand48 runs from a zero 48-bit state, so
+                // leaving libc untouched reproduces the same sequence.
             } catch ( Throwable error ) {
                 Logger.warning("Random.startup", "could not load native RNG library, falling back to Java implementation: %s", error);
                 nativeMode = false;
@@ -159,18 +164,20 @@ public final class Random {
             }
         }
         short[] previous = javaStateToSeed();
-        long merged = (((long)newSeed[0] & 0xFFFFL) << 32)
+        // libc's seed48 takes the low 16-bit word first (seed16v[0] is the
+        // least significant word of the 48-bit state)
+        long merged = (((long)newSeed[2] & 0xFFFFL) << 32)
             | (((long)newSeed[1] & 0xFFFFL) << 16)
-            | ((long)newSeed[2] & 0xFFFFL);
+            | ((long)newSeed[0] & 0xFFFFL);
         javaState = merged & MASK_48;
         return previous;
     }
 
     private static short[] javaStateToSeed() {
         return new short[] {
-            (short)((javaState >>> 32) & 0xFFFFL),
+            (short)(javaState & 0xFFFFL),
             (short)((javaState >>> 16) & 0xFFFFL),
-            (short)(javaState & 0xFFFFL)
+            (short)((javaState >>> 32) & 0xFFFFL)
         };
     }
 
