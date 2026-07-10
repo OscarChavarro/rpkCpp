@@ -38,6 +38,17 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
             gMin = Gx;
         }
     }
+    // The constant cluster kernel (0.25 cosine terms, cubature nodes on bounding box
+    // corners) can produce a form factor G = K / receiverArea far above 1 for nearly
+    // touching clusters (e.g. the office3 bookshelf boards, ~1 cm apart): sample node
+    // pairs almost coincide and 1/(PI*d^2) explodes. Reciprocal links with G > 1 form a
+    // feedback loop with gain above 1 that makes the radiosity solution diverge (red
+    // glow on the shelf). Energy conservation bounds any real form factor by 1, so the
+    // estimate is clamped here; legitimate links always satisfy G < 1 and are unaffected.
+    if ( G > 1.0 ) {
+        G = 1.0;
+    }
+
     link->K[0] = ((float)(receiverElement->area * G));
 
     link->deltaK = ((float)(G - gMin));
