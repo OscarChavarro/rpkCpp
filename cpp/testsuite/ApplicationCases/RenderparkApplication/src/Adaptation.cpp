@@ -4,8 +4,8 @@ Estimate static adaptation for tone mapping
 
 #include <cstdlib>
 
-#include "vsdk/toolkit/java/lang/Float.h"
-#include "vsdk/toolkit/java/util/ArrayList.txx"
+#include "java/lang/Float.h"
+#include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"

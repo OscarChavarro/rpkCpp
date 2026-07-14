@@ -1,8 +1,8 @@
 #ifndef RAYTRACE__
 #define RAYTRACE__
 
-#include "vsdk/toolkit/java/io/OutputStream.h"
-#include "vsdk/toolkit/java/util/ArrayList.h"
+#include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Scene.h"
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"

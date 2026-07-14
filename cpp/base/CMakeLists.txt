@@ -18,7 +18,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB_RECURSE VITRAL_SRC CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vsdk/toolkit/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/vsdk/toolkit/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/*.cpp
 )
 
 list(FILTER VITRAL_SRC EXCLUDE REGEX "/render/opengl/")
@@ -35,7 +36,7 @@ add_library(vitral SHARED ${VITRAL_SRC})
 
 target_include_directories(vitral
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main
 )
 
 set_target_properties(vitral PROPERTIES

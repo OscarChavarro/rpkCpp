@@ -2,7 +2,7 @@
 Stuff common to all radiance methods
 */
 
-#include "vsdk/toolkit/java/util/ArrayList.txx"
+#include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "options/OptionsGroupRadiance.h"
 #include "Radiance.h"

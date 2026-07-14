@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cstring>
 
-#include "vsdk/toolkit/java/lang/System.h"
+#include "java/lang/System.h"
 #include "options/OptionsGroupGalerkin.h"
 #include "options/OptionsGroupRadianceMethod.h"
 #include "options/OptionsGroupRadiance.h"

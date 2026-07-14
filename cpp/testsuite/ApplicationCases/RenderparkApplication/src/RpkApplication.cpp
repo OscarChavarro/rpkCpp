@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "vsdk/toolkit/java/lang/System.h"
+#include "java/lang/System.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
 #include "vsdk/toolkit/tonemap/FerwerdaToneMap.h"

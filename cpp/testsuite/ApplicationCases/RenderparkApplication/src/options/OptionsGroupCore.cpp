@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "vsdk/toolkit/java/lang/System.h"
+#include "java/lang/System.h"
 #include "vsdk/toolkit/scene/ConstantColorBackground.h"
 #include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
 #include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"

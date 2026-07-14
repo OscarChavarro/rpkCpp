@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "vsdk/toolkit/java/util/Formatter.h"
+#include "java/util/Formatter.h"
 
 #include "options/OptionsGroupRaytracingMethod.h"
 #include "options/OptionsGroupRaytracing.h"

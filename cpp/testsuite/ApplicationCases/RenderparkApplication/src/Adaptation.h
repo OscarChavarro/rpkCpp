@@ -5,7 +5,7 @@ Estimate static adaptation luminance in the current scene
 #ifndef ADAPTATION__
 #define ADAPTATION__
 
-#include "vsdk/toolkit/java/util/ArrayList.h"
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "LuminanceArea.h"

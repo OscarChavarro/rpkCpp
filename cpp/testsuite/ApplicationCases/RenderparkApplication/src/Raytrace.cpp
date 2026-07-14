@@ -2,7 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include "vsdk/toolkit/java/lang/System.h"
+#include "java/lang/System.h"
 #include <cstring>
 
 #include "vsdk/toolkit/common/logging/Logger.h"

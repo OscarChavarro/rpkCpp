@@ -24,15 +24,15 @@ else()
 endif()
 
 file(GLOB_RECURSE VITRAL_OPENGL_SRC CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vsdk/toolkit/render/opengl/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/vsdk/toolkit/render/opengl/*.cpp
 )
 
 add_library(vitral-opengl SHARED ${VITRAL_OPENGL_SRC})
 
 target_include_directories(vitral-opengl
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/../base/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main
+        ${CMAKE_CURRENT_SOURCE_DIR}/../base/src/main
 )
 
 target_link_libraries(vitral-opengl

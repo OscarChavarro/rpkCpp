@@ -20,9 +20,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 get_filename_component(VITRAL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../base REALPATH)
 get_filename_component(VITRAL_OPENGL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../opengl REALPATH)
-set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src" CACHE PATH "Include directory for the vitral library")
+set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src/main" CACHE PATH "Include directory for the vitral library")
 set(VITRAL_LIBRARY_PATH "${VITRAL_BASE_DIR}/build/libvitral.so" CACHE FILEPATH "Shared library path for vitral when building standalone")
-set(VITRAL_OPENGL_INCLUDE_DIR "${VITRAL_OPENGL_BASE_DIR}/src" CACHE PATH "Include directory for the vitral-opengl library")
+set(VITRAL_OPENGL_INCLUDE_DIR "${VITRAL_OPENGL_BASE_DIR}/src/main" CACHE PATH "Include directory for the vitral-opengl library")
 set(VITRAL_OPENGL_LIBRARY_PATH "${VITRAL_OPENGL_BASE_DIR}/build/libvitral-opengl.so" CACHE FILEPATH "Shared library path for vitral-opengl when building standalone")
 
 file(GLOB_RECURSE RPK_SRC CONFIGURE_DEPENDS

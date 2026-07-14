@@ -1,9 +1,9 @@
 #include <cstring>
 
-#include "vsdk/toolkit/java/io/FileInputStream.h"
-#include "vsdk/toolkit/java/lang/System.h"
-#include "vsdk/toolkit/java/util/ArrayList.txx"
-#include "vsdk/toolkit/java/util/Formatter.h"
+#include "java/io/FileInputStream.h"
+#include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"

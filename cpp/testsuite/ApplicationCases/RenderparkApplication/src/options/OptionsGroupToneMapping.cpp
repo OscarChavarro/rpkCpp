@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "vsdk/toolkit/java/lang/Math.h"
+#include "java/lang/Math.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"

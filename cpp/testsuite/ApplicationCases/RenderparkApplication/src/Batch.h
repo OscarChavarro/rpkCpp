@@ -1,8 +1,8 @@
 #ifndef BATCH__
 #define BATCH__
 
-#include "vsdk/toolkit/java/io/OutputStream.h"
-#include "vsdk/toolkit/java/util/ArrayList.h"
+#include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"

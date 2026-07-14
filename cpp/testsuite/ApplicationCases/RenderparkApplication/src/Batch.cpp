@@ -1,8 +1,8 @@
 #include <cstring>
 
-#include "vsdk/toolkit/java/lang/System.h"
-#include "vsdk/toolkit/java/util/ArrayList.txx"
-#include "vsdk/toolkit/java/util/Formatter.h"
+#include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/io/image/ImageOutputHandle.h"
 #include "vsdk/toolkit/io/wrapper/FileUncompressWrapper.h"

@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "vsdk/toolkit/java/util/ArrayList.txx"
+#include "java/util/ArrayList.txx"
 
 namespace {
 
