@@ -1,9 +1,8 @@
-#ifndef JAVA_IO_BUFFERED_INPUT_STREAM__
-#define JAVA_IO_BUFFERED_INPUT_STREAM__
+#ifndef __BUFFERED_INPUT_STREAM__
+#define __BUFFERED_INPUT_STREAM__
 
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
-
 namespace java {
 
 class BufferedInputStream : public InputStream {

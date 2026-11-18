@@ -92,7 +92,7 @@ SimpleRaytracingPathNode::GetMatchingNode() const {
             case PathRayType::REFLECTS:
                 break;
             default:
-                Logger::error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+                Logger::reportMessage("SimpleRaytracingPathNode", Logger::ERROR, "CPathNode::GetMatchingNode", "Wrong ray type in path");
         }
 
         matchedNode = tmpNode;
@@ -109,19 +109,19 @@ SimpleRaytracingPathNode::GetMatchingNode() const {
 PhongBidirectionalScatteringDistributionFunction *
 SimpleRaytracingPathNode::getPreviousBsdf() const {
     if ( !(m_hit.getFlags() & RayHitFlag::BACK) ) {
-        Logger::error("CPathNode::getPreviousBsdf", "Last node not a back hit");
+        Logger::reportMessage("SimpleRaytracingPathNode", Logger::ERROR, "CPathNode::getPreviousBsdf", "Last node not a back hit");
         return m_inBsdf;  // Should not happen
     }
 
     if ( m_hit.getPatch()->getMaterial()->getBsdf() != m_inBsdf ) {
-        Logger::warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+        Logger::reportMessage("SimpleRaytracingPathNode", Logger::WARNING, "CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     // Find the corresponding ray that enters the material
     SimpleRaytracingPathNode *const matchedNode = GetMatchingNode();
 
     if ( matchedNode == nullptr ) {
-        Logger::warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+        Logger::reportMessage("SimpleRaytracingPathNode", Logger::WARNING, "CPathNode::GetPreviousBtdf", "No corresponding entering ray");
         return m_inBsdf;  // Should not happen
     }
 

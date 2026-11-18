@@ -177,7 +177,7 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     PolygonBox clip_box = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
 
     if ( numberOfVertices > (clipping ? (PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - 6) : PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON) ) {
-        Logger::error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON);
+        Logger::reportMessage("SglContext", Logger::ERROR, "sglPolygon", java::String::format("Too many vertices (max. %d)", PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON));
         return;
     }
 

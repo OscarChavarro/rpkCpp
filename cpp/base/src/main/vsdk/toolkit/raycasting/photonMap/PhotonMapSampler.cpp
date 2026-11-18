@@ -214,8 +214,7 @@ PhotonMapSampler::chooseFresnelDirection(
     bool trans = (transmittance.average() > Numeric::EPSILON);
 
     if ( reflective && trans ) {
-        Logger::error("FresnelFactor",
-                 "Cannot deal with simultaneous reflective & transit materials");
+        Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
         return false;
     }
 
@@ -235,7 +234,7 @@ PhotonMapSampler::chooseFresnelDirection(
                                                    &thisNode->m_normal);
             cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
             if ( cosI < 0 ) {
-                Logger::error("fresnelSample", "cosI < 0");
+                Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "fresnelSample", "cosI < 0");
             }
         } else {
             F = 0;
@@ -254,14 +253,14 @@ PhotonMapSampler::chooseFresnelDirection(
         cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
 
         if ( cosI < 0 ) {
-            Logger::error("fresnelSample", "cosI < 0");
+            Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "fresnelSample", "cosI < 0");
         }
 
         if ( !tir ) {
             cost = -thisNode->m_normal.dotProduct(refractedDir);
 
             if ( cost < 0 ) {
-                Logger::error("fresnelSample", "cost < 0");
+                Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "fresnelSample", "cost < 0");
             }
 
             float rParallel;
@@ -370,7 +369,7 @@ PhotonMapSampler::fresnelSample(
 
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
-        Logger::warning("FresnelSampler", "FromNextPdf not supported");
+        Logger::reportMessage("PhotonMapSampler", Logger::WARNING, "FresnelSampler", "FromNextPdf not supported");
     }
 
     // Component propagation
@@ -439,7 +438,7 @@ PhotonMapSampler::gdSample(
     } else {
         flags = BRDF_GLOSSY_COMPONENT;
 
-        Logger::error("PhotonMapSampler::gdSample", "Not done yet");
+        Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "PhotonMapSampler::gdSample", "Not done yet");
         return false;
     }
 

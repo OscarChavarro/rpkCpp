@@ -86,7 +86,7 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
     }
 
     if ( lostPixels > 0 ) {
-        Logger::warning(nullptr, "%d lost pixels", lostPixels);
+        Logger::reportMessage("Potential", Logger::WARNING, "", java::String::format("%d lost pixels", lostPixels));
     }
 
     Statistics::instance().potential.averageDirectPotential = Statistics::instance().potential.totalDirectPotential =

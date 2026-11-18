@@ -66,8 +66,8 @@ RayHit::init(
     shadingFrame.setX(localNormal);
     shadingFrame.setY(localNormal);
     shadingFrame.setZ(localNormal);
-    uv.u = 0.0;
-    uv.v = 0.0;
+    uv.x = 0.0;
+    uv.y = 0.0;
     return hitInitialised();
 }
 
@@ -83,7 +83,7 @@ RayHit::computeUv(Vector2Dd *inUv) {
     }
 
     if ((flags & RayHitFlag::PATCH) && (flags & RayHitFlag::POINT) ) {
-        patch->uv(&point, &uv.u, &uv.v);
+        patch->uv(&point, &uv.x, &uv.y);
         *inUv = uv;
         flags |= RayHitFlag::UV;
         return true;
@@ -107,7 +107,7 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
     }
 
     if ( flags & RayHitFlag::PATCH ) {
-        texCoord = patch->textureCoordAtUv(uv.u, uv.v);
+        texCoord = patch->textureCoordAtUv(uv.x, uv.y);
         *outTexCoord = texCoord;
         flags |= RayHitFlag::TEXTURE_COORDINATE;
         return true;
@@ -184,7 +184,7 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     bool success = false;
 
     if ( !hitInitialised() ) {
-        Logger::warning("pointShadingFrame", "uninitialised hit structure");
+        Logger::reportMessage("RayHit", Logger::WARNING, "pointShadingFrame", "uninitialised hit structure");
         return false;
     }
 
@@ -216,7 +216,7 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
 
     if ( !success && computeUv(&uv) ) {
         // Make default shading frame
-        patch->interpolatedFrameAtUv(uv.u, uv.v, inX, inY, inZ);
+        patch->interpolatedFrameAtUv(uv.x, uv.y, inX, inY, inZ);
         success = true;
     }
 

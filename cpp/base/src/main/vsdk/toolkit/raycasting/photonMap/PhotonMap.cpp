@@ -200,11 +200,11 @@ PhotonMap::computeAcceptProb(
         }
     } else if ( photonMapState.acceptPdfType == PhotonMapDCAcceptPDFType::TRANS_COSINE ) {
         // Translated cosine
-        double ratio = java::Math::min(1.0, currentD / requiredD); // in [0,1]
+        double ratio = java::Math::min(1.0, static_cast<double>(currentD / requiredD)); // in [0,1]
 
         return (0.5 * (1.0 + java::Math::cos(ratio * M_PI)));
     } else {
-        Logger::error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+        Logger::reportMessage("PhotonMap", Logger::ERROR, "PhotonMap::computeAcceptProb", "Unknown accept pdf type");
         return 0.0;
     }
 }

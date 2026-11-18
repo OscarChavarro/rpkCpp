@@ -93,7 +93,7 @@ LightList::sample(double *x1, double *pdf) {
     }
 
     if ( info == nullptr ) {
-        Logger::warning("CLightList::sample", "No lights available");
+        Logger::reportMessage("LightList", Logger::WARNING, "CLightList::sample", "No lights available");
         return nullptr;
     }
 
@@ -328,7 +328,7 @@ LightList::sampleImportant(const Vector3D *point, const Vector3D *normal, double
     }
 
     if ( info == nullptr ) {
-        Logger::warning("CLightList::sample", "No lights available");
+        Logger::reportMessage("LightList", Logger::WARNING, "CLightList::sample", "No lights available");
         return nullptr;
     }
 
@@ -379,7 +379,7 @@ LightList::evalPdfImportant(
     while ( (info = iterator.nextOnSequence()) && info->light != light );
 
     if ( info == nullptr ) {
-        Logger::warning("CLightList::evalPdfImportant", "Could not find light");
+        Logger::reportMessage("LightList", Logger::WARNING, "CLightList::evalPdfImportant", "Could not find light");
         return 0.0;
     }
 

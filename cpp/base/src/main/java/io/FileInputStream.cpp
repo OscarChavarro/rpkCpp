@@ -1,7 +1,6 @@
 #include <cstdio>
 
 #include "java/io/FileInputStream.h"
-
 namespace java {
 
 FILE *

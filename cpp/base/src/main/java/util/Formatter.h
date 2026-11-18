@@ -1,11 +1,10 @@
-#ifndef JAVA_UTIL_FORMATTER__
-#define JAVA_UTIL_FORMATTER__
+#ifndef __FORMATTER__
+#define __FORMATTER__
 
 #include <cstdarg>
 
 #include "java/io/OutputStream.h"
 #include "java/lang/String.h"
-
 namespace java {
 class Formatter {
   public:

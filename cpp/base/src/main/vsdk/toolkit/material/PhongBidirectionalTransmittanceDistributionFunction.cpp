@@ -1,4 +1,5 @@
 #include "java/lang/Float.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
@@ -26,8 +27,8 @@ PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmitt
     const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
     Kd(*inKd),
     Ks(*inKs),
-    avgKd(Kd.average()),
-    avgKs(Ks.average()),
+    avgKd(ColorRgbMutable(Kd).average()),
+    avgKs(ColorRgbMutable(Ks).average()),
     Ns(inNs),
     refractionIndex()
 {
@@ -67,8 +68,8 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
     }
 
     const ColorRgb result(r, g, b);
-    if ( !java::Float::isFinite(static_cast<float>(result.average())) ) {
-        Logger::fatal(-1, "transmittance", "Oops - result is not finite!");
+    if ( !java::Float::isFinite(static_cast<float>(ColorRgbMutable(result).average())) ) {
+        Logger::reportMessage("PhongBidirectionalTransmittanceDistributionFunction", Logger::FATAL_ERROR, "transmittance", "Oops - result is not finite!");
     }
 
     return result;

@@ -95,8 +95,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
             }
 
         default:
-            Logger::fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
-                 galerkinState->clusteringStrategy);
+            Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "clusterRadianceToSamplePoint", java::String::format("Invalid clustering strategy %d\n", galerkinState->clusteringStrategy));
     }
 }
 
@@ -111,7 +110,7 @@ ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState
     const GalerkinElement *receiverElement = link->receiverElement;
 
     if ( !sourceElement->isCluster() || sourceElement == receiverElement ) {
-        Logger::fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+        Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     // Take a sample point on the receiver
@@ -193,7 +192,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             }
 
         default:
-            Logger::fatal(-1, "receiverArea", "Invalid clustering strategy %d", galerkinState->clusteringStrategy);
+            Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "receiverArea", java::String::format("Invalid clustering strategy %d", galerkinState->clusteringStrategy));
     }
 }
 
@@ -239,7 +238,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
     GalerkinElement *receiverElement = link->receiverElement;
 
     if ( !receiverElement->isCluster() || sourceElement == receiverElement ) {
-        Logger::fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+        Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     switch ( galerkinState->clusteringStrategy ) {
@@ -285,8 +284,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
             break;
         }
         default:
-            Logger::fatal(-1, "gatherRadiance", "Invalid clustering strategy %d",
-                     galerkinState->clusteringStrategy);
+            Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "gatherRadiance", java::String::format("Invalid clustering strategy %d", galerkinState->clusteringStrategy));
     }
 }
 

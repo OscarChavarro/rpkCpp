@@ -69,7 +69,7 @@ MgfRingEntityTessellator::handleEntity(int argumentCount, const char **argumentV
     if ( vertexContext == nullptr) {
         return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( vertexContext->n.isNull(Numeric::EPSILON) ) {
+    if ( MgfTessellationMath::isNull(vertexContext->n, Numeric::EPSILON) ) {
         return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !TokenValidationContext::isFloat(argumentValues[2]) || !TokenValidationContext::isFloat(argumentValues[3]) ) {
@@ -87,9 +87,9 @@ MgfRingEntityTessellator::handleEntity(int argumentCount, const char **argumentV
     Vector3Dd v;
 
     MgfTessellationMath::mgfMakeAxes(&u, &v, &vertexContext->n, Numeric::EPSILON);
-    MgfTessellationMath::formatFloat(p3[0], 24, vertexContext->p.x + maxRadius * u.x);
-    MgfTessellationMath::formatFloat(p3[1], 24, vertexContext->p.y + maxRadius * u.y);
-    MgfTessellationMath::formatFloat(p3[2], 24, vertexContext->p.z + maxRadius * u.z);
+    MgfTessellationMath::formatFloat(p3[0], 24, vertexContext->p.x() + maxRadius * u.x());
+    MgfTessellationMath::formatFloat(p3[1], 24, vertexContext->p.y() + maxRadius * u.y());
+    MgfTessellationMath::formatFloat(p3[2], 24, vertexContext->p.z() + maxRadius * u.z());
     int errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 3, v3Entity, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
@@ -119,13 +119,13 @@ MgfRingEntityTessellator::handleEntity(int argumentCount, const char **argumentV
 
             MgfTessellationMath::formatFloat(
                 p3[0], 24,
-                vertexContext->p.x + maxRadius * u.x * java::Math::cos(theta) + maxRadius * v.x * java::Math::sin(theta));
+                vertexContext->p.x() + maxRadius * u.x() * java::Math::cos(theta) + maxRadius * v.x() * java::Math::sin(theta));
             MgfTessellationMath::formatFloat(
                 p3[1], 24,
-                vertexContext->p.y + maxRadius * u.y * java::Math::cos(theta) + maxRadius * v.y * java::Math::sin(theta));
+                vertexContext->p.y() + maxRadius * u.y() * java::Math::cos(theta) + maxRadius * v.y() * java::Math::sin(theta));
             MgfTessellationMath::formatFloat(
                 p3[2], 24,
-                vertexContext->p.z + maxRadius * u.z * java::Math::cos(theta) + maxRadius * v.z * java::Math::sin(theta));
+                vertexContext->p.z() + maxRadius * u.z() * java::Math::cos(theta) + maxRadius * v.z() * java::Math::sin(theta));
 
             errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v3Entity, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {
@@ -147,9 +147,9 @@ MgfRingEntityTessellator::handleEntity(int argumentCount, const char **argumentV
             return errorCode;
         }
 
-        MgfTessellationMath::formatFloat(p4[0], 24, vertexContext->p.x + minRadius * u.x);
-        MgfTessellationMath::formatFloat(p4[1], 24, vertexContext->p.y + minRadius * u.y);
-        MgfTessellationMath::formatFloat(p4[2], 24, vertexContext->p.z + minRadius * u.z);
+        MgfTessellationMath::formatFloat(p4[0], 24, vertexContext->p.x() + minRadius * u.x());
+        MgfTessellationMath::formatFloat(p4[1], 24, vertexContext->p.y() + minRadius * u.y());
+        MgfTessellationMath::formatFloat(p4[2], 24, vertexContext->p.z() + minRadius * u.z());
 
         errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, p4Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
@@ -167,17 +167,17 @@ MgfRingEntityTessellator::handleEntity(int argumentCount, const char **argumentV
                 return errorCode;
             }
 
-            double delta = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[0], 24, vertexContext->p.x + maxRadius * delta);
-            MgfTessellationMath::formatFloat(p4[0], 24, vertexContext->p.x + minRadius * delta);
+            double delta = u.x() * java::Math::cos(theta) + v.x() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[0], 24, vertexContext->p.x() + maxRadius * delta);
+            MgfTessellationMath::formatFloat(p4[0], 24, vertexContext->p.x() + minRadius * delta);
 
-            delta = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[1], 24, vertexContext->p.y + maxRadius * delta);
-            MgfTessellationMath::formatFloat(p4[1], 24, vertexContext->p.y + minRadius * delta);
+            delta = u.y() * java::Math::cos(theta) + v.y() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[1], 24, vertexContext->p.y() + maxRadius * delta);
+            MgfTessellationMath::formatFloat(p4[1], 24, vertexContext->p.y() + minRadius * delta);
 
-            delta = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[2], 24, vertexContext->p.z + maxRadius * delta);
-            MgfTessellationMath::formatFloat(p4[2], 24, vertexContext->p.z + minRadius * delta);
+            delta = u.z() * java::Math::cos(theta) + v.z() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[2], 24, vertexContext->p.z() + maxRadius * delta);
+            MgfTessellationMath::formatFloat(p4[2], 24, vertexContext->p.z() + minRadius * delta);
 
             errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v3Entity, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {

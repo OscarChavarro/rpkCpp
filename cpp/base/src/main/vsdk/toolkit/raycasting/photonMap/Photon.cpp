@@ -23,6 +23,6 @@ Photon::findRS(
         *s = phi / (2 * M_PI);
         *r = java::Math::pow(java::Math::cos(theta), static_cast<double>(n) + 1.0);
     } else {
-        Logger::error("Photon::findRS", "Component %i not implemented yet", flag);
+        Logger::reportMessage("Photon", Logger::ERROR, "Photon::findRS", java::String::format("Component %i not implemented yet", flag));
     }
 }

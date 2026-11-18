@@ -95,7 +95,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
                     density *= *m_impScalePtr;
                     break;
                 default:
-                    Logger::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                    Logger::reportMessage("ImportanceMap", Logger::ERROR, "ImportanceMap::getRequiredDensity", "Unsupported importance option");
                     return 0;
             }
         } else
@@ -115,7 +115,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
                 density *= *m_impScalePtr;
                 break;
             default:
-                Logger::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                Logger::reportMessage("ImportanceMap", Logger::ERROR, "ImportanceMap::getRequiredDensity", "Unsupported importance option");
                 return 0;
         }
     }

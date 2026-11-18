@@ -1,7 +1,7 @@
 #include <cstring>
 
+#include "java/lang/Double.h"
 #include "java/lang/StringBuilder.h"
-
 namespace java {
 
 void
@@ -116,7 +116,9 @@ StringBuilder::append(const char *text) {
         return *this;
     }
     ensureCapacity(lengthValue + textLength);
-    std::strcat(value, text);
+    // Copied at the known end (`strcat` would scan the whole text on each
+    // append, making long builders quadratic)
+    std::memcpy(value + lengthValue, text, static_cast<std::size_t>(textLength) + 1);
     lengthValue += textLength;
     return *this;
 }
@@ -127,7 +129,7 @@ StringBuilder::append(const char *text, int textLength) {
         return *this;
     }
     ensureCapacity(lengthValue + textLength);
-    std::strncat(value, text, static_cast<std::size_t>(textLength));
+    std::memcpy(value + lengthValue, text, static_cast<std::size_t>(textLength));
     lengthValue += textLength;
     value[lengthValue] = '\0';
     return *this;
@@ -140,6 +142,46 @@ StringBuilder::append(char ch) {
     lengthValue++;
     value[lengthValue] = '\0';
     return *this;
+}
+
+StringBuilder &
+StringBuilder::append(int value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(long value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(long long value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(unsigned int value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(unsigned long value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(unsigned long long value) {
+    return append(String::valueOf(value));
+}
+
+StringBuilder &
+StringBuilder::append(double value) {
+    return append(Double::toString(value));
+}
+
+StringBuilder &
+StringBuilder::append(bool value) {
+    return append(value ? "true" : "false");
 }
 
 String

@@ -115,8 +115,8 @@ RayHit::setUv(const Vector2Dd *inUv) {
 
 inline void
 RayHit::setUv(const double inU, const double inV) {
-    uv.u = inU;
-    uv.v = inV;
+    uv.x = inU;
+    uv.y = inV;
 }
 
 inline unsigned int

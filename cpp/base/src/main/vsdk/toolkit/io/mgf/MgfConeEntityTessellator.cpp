@@ -114,11 +114,9 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
     // Initialize
     Vector3Dd w;
 
-    w.x = v1Context->p.x - v2Context->p.x;
-    w.y = v1Context->p.y - v2Context->p.y;
-    w.z = v1Context->p.z - v2Context->p.z;
+    w = Vector3Dd(v1Context->p.x() - v2Context->p.x(), v1Context->p.y() - v2Context->p.y(), v1Context->p.z() - v2Context->p.z());
 
-    d = w.normalizeAndGivePreviousNorm(Numeric::EPSILON);
+    d = MgfTessellationMath::normalizeAndGivePreviousNorm(&w, Numeric::EPSILON);
     if ( Numeric::doubleEqual(d, 0.0, Numeric::EPSILON) ) {
         return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
@@ -137,25 +135,25 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
     Vector3Dd v;
     MgfTessellationMath::mgfMakeAxes(&u, &v, &w, Numeric::EPSILON);
 
-    MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x + radius2 * u.x);
+    MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x() + radius2 * u.x());
     if ( normalOffset2 <= -Numeric::HUGE_FLOAT_VALUE) {
-        MgfTessellationMath::formatFloat(n3[0], 24, -w.x);
+        MgfTessellationMath::formatFloat(n3[0], 24, -w.x());
     } else {
-        MgfTessellationMath::formatFloat(n3[0], 24, u.x + w.x * normalOffset2);
+        MgfTessellationMath::formatFloat(n3[0], 24, u.x() + w.x() * normalOffset2);
     }
 
-    MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y + radius2 * u.y);
+    MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y() + radius2 * u.y());
     if ( normalOffset2 <= -Numeric::HUGE_FLOAT_VALUE) {
-        MgfTessellationMath::formatFloat(n3[1], 24, -w.y);
+        MgfTessellationMath::formatFloat(n3[1], 24, -w.y());
     } else {
-        MgfTessellationMath::formatFloat(n3[1], 24, u.y + w.y * normalOffset2);
+        MgfTessellationMath::formatFloat(n3[1], 24, u.y() + w.y() * normalOffset2);
     }
 
-    MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z + radius2 * u.z);
+    MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z() + radius2 * u.z());
     if ( normalOffset2 <= -Numeric::HUGE_FLOAT_VALUE) {
-        MgfTessellationMath::formatFloat(n3[2], 24, -w.z);
+        MgfTessellationMath::formatFloat(n3[2], 24, -w.z());
     } else {
-        MgfTessellationMath::formatFloat(n3[2], 24, u.z + w.z * normalOffset2);
+        MgfTessellationMath::formatFloat(n3[2], 24, u.z() + w.z() * normalOffset2);
     }
 
     errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 3, v3Entity, context);
@@ -179,9 +177,9 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
             return errorCode;
         }
 
-        MgfTessellationMath::formatFloat(n4[0], 24, w.x);
-        MgfTessellationMath::formatFloat(n4[1], 24, w.y);
-        MgfTessellationMath::formatFloat(n4[2], 24, w.z);
+        MgfTessellationMath::formatFloat(n4[0], 24, w.x());
+        MgfTessellationMath::formatFloat(n4[1], 24, w.y());
+        MgfTessellationMath::formatFloat(n4[2], 24, w.z());
 
         errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_NORMAL, 4, n4Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
@@ -194,22 +192,22 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
                 return errorCode;
             }
 
-            d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x + radius2 * d);
+            d = u.x() * java::Math::cos(theta) + v.x() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[0], 24, d + w.x * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[0], 24, d + w.x() * normalOffset2);
             }
 
-            d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y + radius2 * d);
+            d = u.y() * java::Math::cos(theta) + v.y() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[1], 24, d + w.y * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[1], 24, d + w.y() * normalOffset2);
             }
 
-            d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z + radius2 * d);
+            d = u.z() * java::Math::cos(theta) + v.z() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[2], 24, d + w.z * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[2], 24, d + w.z() * normalOffset2);
             }
 
             errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v3Entity, context);
@@ -242,25 +240,25 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
             }
         }
 
-        MgfTessellationMath::formatFloat(p4[0], 24, v1Context->p.x + radius1 * u.x);
+        MgfTessellationMath::formatFloat(p4[0], 24, v1Context->p.x() + radius1 * u.x());
         if ( normalOffset1 >= Numeric::HUGE_FLOAT_VALUE) {
-            MgfTessellationMath::formatFloat(n4[0], 24, w.x);
+            MgfTessellationMath::formatFloat(n4[0], 24, w.x());
         } else {
-            MgfTessellationMath::formatFloat(n4[0], 24, u.x + w.x * normalOffset1);
+            MgfTessellationMath::formatFloat(n4[0], 24, u.x() + w.x() * normalOffset1);
         }
 
-        MgfTessellationMath::formatFloat(p4[1], 24, v1Context->p.y + radius1 * u.y);
+        MgfTessellationMath::formatFloat(p4[1], 24, v1Context->p.y() + radius1 * u.y());
         if ( normalOffset1 >= Numeric::HUGE_FLOAT_VALUE) {
-            MgfTessellationMath::formatFloat(n4[1], 24, w.y);
+            MgfTessellationMath::formatFloat(n4[1], 24, w.y());
         } else {
-            MgfTessellationMath::formatFloat(n4[1], 24, u.y + w.y * normalOffset1);
+            MgfTessellationMath::formatFloat(n4[1], 24, u.y() + w.y() * normalOffset1);
         }
 
-        MgfTessellationMath::formatFloat(p4[2], 24, v1Context->p.z + radius1 * u.z);
+        MgfTessellationMath::formatFloat(p4[2], 24, v1Context->p.z() + radius1 * u.z());
         if ( normalOffset1 >= Numeric::HUGE_FLOAT_VALUE) {
-            MgfTessellationMath::formatFloat(n4[2], 24, w.z);
+            MgfTessellationMath::formatFloat(n4[2], 24, w.z());
         } else {
-            MgfTessellationMath::formatFloat(n4[2], 24, u.z + w.z * normalOffset1);
+            MgfTessellationMath::formatFloat(n4[2], 24, u.z() + w.z() * normalOffset1);
         }
 
         errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 3, v4Entity, context);
@@ -286,34 +284,34 @@ MgfConeEntityTessellator::handleEntity(int argumentCount, const char **argumentV
                 return errorCode;
             }
 
-            d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x + radius2 * d);
+            d = u.x() * java::Math::cos(theta) + v.x() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[0], 24, v2Context->p.x() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[0], 24, d + w.x * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[0], 24, d + w.x() * normalOffset2);
             }
-            MgfTessellationMath::formatFloat(p4[0], 24, v1Context->p.x + radius1 * d);
+            MgfTessellationMath::formatFloat(p4[0], 24, v1Context->p.x() + radius1 * d);
             if ( normalOffset1 < Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n4[0], 24, d + w.x * normalOffset1);
+                MgfTessellationMath::formatFloat(n4[0], 24, d + w.x() * normalOffset1);
             }
 
-            d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y + radius2 * d);
+            d = u.y() * java::Math::cos(theta) + v.y() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[1], 24, v2Context->p.y() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[1], 24, d + w.y * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[1], 24, d + w.y() * normalOffset2);
             }
-            MgfTessellationMath::formatFloat(p4[1], 24, v1Context->p.y + radius1 * d);
+            MgfTessellationMath::formatFloat(p4[1], 24, v1Context->p.y() + radius1 * d);
             if ( normalOffset1 < Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n4[1], 24, d + w.y * normalOffset1);
+                MgfTessellationMath::formatFloat(n4[1], 24, d + w.y() * normalOffset1);
             }
 
-            d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z + radius2 * d);
+            d = u.z() * java::Math::cos(theta) + v.z() * java::Math::sin(theta);
+            MgfTessellationMath::formatFloat(p3[2], 24, v2Context->p.z() + radius2 * d);
             if ( normalOffset2 > -Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n3[2], 24, d + w.z * normalOffset2);
+                MgfTessellationMath::formatFloat(n3[2], 24, d + w.z() * normalOffset2);
             }
-            MgfTessellationMath::formatFloat(p4[2], 24, v1Context->p.z + radius1 * d);
+            MgfTessellationMath::formatFloat(p4[2], 24, v1Context->p.z() + radius1 * d);
             if ( normalOffset1 < Numeric::HUGE_FLOAT_VALUE) {
-                MgfTessellationMath::formatFloat(n4[2], 24, d + w.z * normalOffset1);
+                MgfTessellationMath::formatFloat(n4[2], 24, d + w.z() * normalOffset1);
             }
 
             errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v3Entity, context);

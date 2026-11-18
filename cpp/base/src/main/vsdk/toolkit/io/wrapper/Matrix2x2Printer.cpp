@@ -1,5 +1,4 @@
 #include "vsdk/toolkit/io/wrapper/Matrix2x2Printer.h"
-
 void
 Matrix2x2Printer::print(const Matrix2x2 &matrix, java::PrintStream *stream) {
     if ( stream == nullptr ) {

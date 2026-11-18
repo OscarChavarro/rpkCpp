@@ -85,18 +85,18 @@ UniformLightSampler::sample(
             light = currentPatch;
             pdfLight = 1.0;
         } else {
-            Logger::warning("sample Unit Light Node", "No valid light selected");
+            Logger::reportMessage("LightSampler", Logger::WARNING, "sample Unit Light Node", "No valid light selected");
             return false;
         }
     } else {
         if ( lightList == nullptr ) {
-            Logger::warning("FillLightNode", "No light list available");
+            Logger::reportMessage("LightSampler", Logger::WARNING, "FillLightNode", "No light list available");
             return false;
         }
         light = lightList->sample(&x1, &pdfLight);
 
         if ( light == nullptr ) {
-            Logger::warning("FillLightNode", "No light found");
+            Logger::reportMessage("LightSampler", Logger::WARNING, "FillLightNode", "No light found");
             return false;
         }
     }

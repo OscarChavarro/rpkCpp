@@ -55,9 +55,9 @@ MgfSphereEntityExpander::handleEntity(int argumentCount, const char **argumentVa
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
     }
-    MgfTessellationMath::formatFloat(p2x, 24, vertexContext->p.x);
-    MgfTessellationMath::formatFloat(p2y, 24, vertexContext->p.y);
-    MgfTessellationMath::formatFloat(p2z, 24, vertexContext->p.z + radius);
+    MgfTessellationMath::formatFloat(p2x, 24, vertexContext->p.x());
+    MgfTessellationMath::formatFloat(p2y, 24, vertexContext->p.y());
+    MgfTessellationMath::formatFloat(p2z, 24, vertexContext->p.z() + radius);
     errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
@@ -70,7 +70,7 @@ MgfSphereEntityExpander::handleEntity(int argumentCount, const char **argumentVa
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        MgfTessellationMath::formatFloat(p2z, 24, vertexContext->p.z + radius * java::Math::cos(theta));
+        MgfTessellationMath::formatFloat(p2z, 24, vertexContext->p.z() + radius * java::Math::cos(theta));
         errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v2Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;

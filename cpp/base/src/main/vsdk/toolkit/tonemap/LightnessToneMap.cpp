@@ -15,7 +15,7 @@ LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 
 ColorRgbMutable
 LightnessToneMap::scaleForComputations(ColorRgbMutable radiance) const {
-    Logger::warning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    Logger::reportMessage("LightnessToneMap", Logger::WARNING, "ScaleForComputations", java::String::format("%s %d not yet implemented", __FILE__, __LINE__));
     return radiance;
 }
 

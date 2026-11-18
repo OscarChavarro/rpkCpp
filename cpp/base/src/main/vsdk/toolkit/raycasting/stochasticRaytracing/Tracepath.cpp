@@ -166,7 +166,7 @@ Tracepath::tracePaths(
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
     }
     if ( sumProbabilities < Numeric::EPSILON ) {
-        Logger::warning("tracePaths", "No sources");
+        Logger::reportMessage("Tracepath", Logger::WARNING, "tracePaths", "No sources");
         return;
     }
 

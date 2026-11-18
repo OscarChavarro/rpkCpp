@@ -33,7 +33,7 @@ ElementHierarchyState &
 ElementHierarchyState::activeState() {
     ElementHierarchyState *state = activeStatePtr();
     if ( state == nullptr ) {
-        Logger::fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+        Logger::reportMessage("Hierarchy", Logger::FATAL_ERROR, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
     }
     return *state;
 }

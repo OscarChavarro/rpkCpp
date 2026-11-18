@@ -20,7 +20,7 @@ EyeSampler::sample(
     char /*flags*/)
 {
     if ( prevNode != nullptr || thisNode != nullptr ) {
-        Logger::warning("EyeSampler::sample", "Not first node in path ?!");
+        Logger::reportMessage("EyeSampler", Logger::WARNING, "EyeSampler::sample", "Not first node in path ?!");
     }
 
     // Just fill in newNode with camera data. Appropriate pdf fields are set to 1

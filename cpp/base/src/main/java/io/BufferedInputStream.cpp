@@ -1,5 +1,4 @@
 #include "java/io/BufferedInputStream.h"
-
 namespace java {
 
 BufferedInputStream::BufferedInputStream(InputStream *inputStream):

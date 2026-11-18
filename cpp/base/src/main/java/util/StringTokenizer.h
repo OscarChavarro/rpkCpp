@@ -1,8 +1,7 @@
-#ifndef JAVA_STRING_TOKENIZER__
-#define JAVA_STRING_TOKENIZER__
+#ifndef __STRING_TOKENIZER__
+#define __STRING_TOKENIZER__
 
 #include "java/lang/String.h"
-
 namespace java {
 
 class StringTokenizer {

@@ -1,53 +1,60 @@
-#ifndef VECTOR_2DD__
-#define VECTOR_2DD__
+#ifndef __VECTOR_2_DD__
+#define __VECTOR_2_DD__
 
+
+#include <cmath>
+#include <cstring>
+
+#include "java/lang/String.h"
+#include "vsdk/toolkit/common/VSDKFatalException.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
 class Vector2Dd {
-  public:
-    double u;
-    double v;
+public:
+    double x;
+    double y;
 
-    Vector2Dd();
+private:
+    static unsigned int hashDouble(double val) {
+        unsigned char bytes[sizeof(double)];
+        memcpy(bytes, &val, sizeof(double));
+        unsigned int h = 0u;
+        for (int i = 0; i < (int)sizeof(double); ++i)
+            h = h * 31u + static_cast<unsigned int>(bytes[i]);
+        return h;
+    }
 
-    static void set(Vector2Dd &v, double a, double b);
-    static void subtract(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r);
-    static void add(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r);
-    static void negate(Vector2Dd &p);
-    static double determinant(const Vector2Dd &A, const Vector2Dd &B);
+public:
+    Vector2Dd() : x(0.0), y(0.0) {}
+    Vector2Dd(double x, double y) : x(x), y(y) {}
+    Vector2Dd(const Vector2Dd& other) : x(other.x), y(other.y) {}
+
+    static Vector2Dd copyOf(const Vector2Dd& other) { return Vector2Dd(other); }
+
+    Vector2Dd multiply(double a) const { return Vector2Dd(a * x, a * y); }
+    double length() const { return std::sqrt(x * x + y * y); }
+    Vector2Dd add(const Vector2Dd& b) const { return Vector2Dd(x + b.x, y + b.y); }
+
+    Vector2Dd withX(double nx) const { return Vector2Dd(nx, y); }
+    Vector2Dd withY(double ny) const { return Vector2Dd(x, ny); }
+
+    bool epsilonEquals(const Vector2Dd& other) const { return epsilonEquals(other, 1e-6); }
+    bool epsilonEquals(const Vector2Dd& other, double epsilon) const {
+        if ( epsilon < 0.0 ) {
+            Logger::reportMessage("Vector2Dd", Logger::ERROR, "epsilonEquals", "epsilon must be >= 0");
+            throw VSDKFatalException("epsilon must be >= 0");
+        }
+        return std::abs(x - other.x) <= epsilon && std::abs(y - other.y) <= epsilon;
+    }
+
+    bool operator==(const Vector2Dd& other) const { return x == other.x && y == other.y; }
+    bool equals(const Vector2Dd& other) const { return (*this) == other; }
+    int hashCode() const {
+        unsigned int result = hashDouble(x);
+        result = 31u * result + hashDouble(y);
+        return (int)result;
+    }
+    java::String* toString() const;
 };
 
-inline
-Vector2Dd::Vector2Dd() {
-    u = 0.0;
-    v = 0.0;
-}
-
-inline
-void Vector2Dd::set(Vector2Dd &v, double a, double b) {
-    v.u = a;
-    v.v = b;
-}
-
-inline void
-Vector2Dd::subtract(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
-    r.u = p.u - q.u;
-    r.v = p.v - q.v;
-}
-
-inline void
-Vector2Dd::add(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
-    r.u = p.u + q.u;
-    r.v = p.v + q.v;
-}
-
-inline void
-Vector2Dd::negate(Vector2Dd &p) {
-    p.u = -p.u;
-    p.v = -p.v;
-}
-
-inline double
-Vector2Dd::determinant(const Vector2Dd &A, const Vector2Dd &B) {
-    return (A.u * B.v - A.v * B.u);
-}
 
 #endif

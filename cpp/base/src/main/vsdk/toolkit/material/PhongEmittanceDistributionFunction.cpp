@@ -47,7 +47,7 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
     Ns(static_cast<float>(NsParameter))
 {
     if ( !isBlack(Ks) ) {
-        Logger::warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+        Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
 }
 
@@ -106,7 +106,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     }
 
     if ( context == nullptr || !context->hasFlag(SHCTX_NORMAL) ) {
-        Logger::warning("phongEdfEval", "Couldn't determine shading normal");
+        Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
     normal = context->getShadingNormal();
@@ -158,7 +158,7 @@ PhongEmittanceDistributionFunction::phongEdfSample(
         CoordinateSystem coord;
 
         if ( context == nullptr || !context->hasFlag(SHCTX_NORMAL) ) {
-            Logger::warning("phongEdfEval", "Couldn't determine shading normal");
+            Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
         Vector3D normal = context->getShadingNormal();

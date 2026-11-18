@@ -166,7 +166,7 @@ RayCaster::render(
     long height;
     idRenderer->getSize(&width, &height);
     if ( width != screenBuffer->getHRes() || height != screenBuffer->getVRes() ) {
-        Logger::fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+        Logger::reportMessage("RayCaster", Logger::FATAL_ERROR, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // This is the main loop for ray-casting

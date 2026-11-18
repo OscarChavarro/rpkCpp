@@ -65,7 +65,7 @@ Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *r
     if ( Opengl::activeToneMapOptions != nullptr ) {
         ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
     } else if ( !openGlMissingToneMapWarningShown ) {
-        Logger::warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
+        Logger::reportMessage("Opengl", Logger::WARNING, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
         openGlMissingToneMapWarningShown = true;
     }
 #ifdef OPEN_GL_ENABLED
@@ -351,7 +351,7 @@ Opengl::openGlRenderOctreeNonLeaf(
         Geometry *child = children->get(j);
         if ( child->isCompound() ) {
             if ( i >= 8 ) {
-                Logger::error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                Logger::reportMessage("Opengl", Logger::ERROR, "openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                 delete children;
                 return;
             }
@@ -585,11 +585,11 @@ Opengl::openGlRenderScene(
 {
 #ifdef OPEN_GL_ENABLED
     if ( scene == nullptr ) {
-        Logger::fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
+        Logger::reportMessage("Opengl", Logger::FATAL_ERROR, "Opengl::openGlRenderScene", "Scene not provided");
     }
     Opengl::activeToneMapOptions = toneMapOptions;
     if ( toneMapOptions == nullptr && !openGlMissingToneMapWarningShown ) {
-        Logger::warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
+        Logger::reportMessage("Opengl", Logger::WARNING, "Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
         openGlMissingToneMapWarningShown = true;
     }
 

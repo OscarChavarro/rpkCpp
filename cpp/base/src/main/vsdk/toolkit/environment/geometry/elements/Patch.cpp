@@ -6,6 +6,11 @@
 #include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 
+static inline double
+vector2DdDeterminant(const Vector2Dd &a, const Vector2Dd &b) {
+    return a.x * b.y - a.y * b.x;
+}
+
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
@@ -104,7 +109,7 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
             pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), localNormal);
             break;
         default:
-            Logger::fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
+            Logger::reportMessage("Patch", Logger::FATAL_ERROR, "PatchNormalAtUV", java::String::format("Invalid number of vertices %d", numberOfVertices));
     }
 
     localNormal.normalize(Numeric::Numeric::EPSILON_FLOAT);
@@ -132,9 +137,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
     } else {
         if ( D < -TOLERANCE * TOLERANCE ) {
             *x = -B / (2. * A);
-            Logger::error(nullptr,
-                     "Bi-linear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
-                     D, *x);
+            Logger::reportMessage("Patch", Logger::ERROR, "", java::String::format("Bi-linear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.", D, *x));
             return false;
         }
 
@@ -286,7 +289,7 @@ Patch::computeRandomWalkRadiosityArea() {
             }
             break;
         default:
-            Logger::fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.\n");
+            Logger::reportMessage("Patch", Logger::FATAL_ERROR, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.\n");
             this->jacobian = nullptr;
             this->area = 0.0;
     }
@@ -349,55 +352,55 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
         case CoordinateAxis::X:
             u0 = vertex[vertexIndex]->point->y;
             v0 = vertex[vertexIndex]->point->z;
-            Vector2Dd::set(p0, point->y - u0, point->z - v0);
+            p0 = Vector2Dd(point->y - u0, point->z - v0);
             vertexIndex++;
-            Vector2Dd::set(p1, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
+            p1 = Vector2Dd(vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             vertexIndex++;
-            Vector2Dd::set(p2, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
+            p2 = Vector2Dd(vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case CoordinateAxis::Y:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->z;
-            Vector2Dd::set(p0, point->x - u0, point->z - v0);
+            p0 = Vector2Dd(point->x - u0, point->z - v0);
             vertexIndex++;
-            Vector2Dd::set(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
+            p1 = Vector2Dd(vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             vertexIndex++;
-            Vector2Dd::set(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
+            p2 = Vector2Dd(vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case CoordinateAxis::Z:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->y;
-            Vector2Dd::set(p0, point->x - u0, point->y - v0);
+            p0 = Vector2Dd(point->x - u0, point->y - v0);
             vertexIndex++;
-            Vector2Dd::set(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
+            p1 = Vector2Dd(vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
             vertexIndex++;
-            Vector2Dd::set(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
+            p2 = Vector2Dd(vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
             break;
 
         default:
             break;
     }
 
-    if ( p1.u < -Numeric::EPSILON || p1.u > Numeric::EPSILON ) {
+    if ( p1.x < -Numeric::EPSILON || p1.x > Numeric::EPSILON ) {
         // p1.u non zero
-        beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
+        beta = (p0.y * p1.x - p0.x * p1.y) / (p2.y * p1.x - p2.x * p1.y);
         if ( beta >= 0.0 && beta <= 1.0 ) {
-            alpha = (p0.u - beta * p2.u) / p1.u;
+            alpha = (p0.x - beta * p2.x) / p1.x;
         } else {
             return false;
         }
     } else {
-        beta = p0.u / p2.u;
+        beta = p0.x / p2.x;
         if ( beta >= 0.0 && beta <= 1.0 ) {
-            alpha = (p0.v - beta * p2.v) / p1.v;
+            alpha = (p0.y - beta * p2.y) / p1.y;
         } else {
             return false;
         }
     }
-    uv->u = alpha;
-    uv->v = beta;
+    uv->x = alpha;
+    uv->y = beta;
     if ( alpha < 0.0 || (alpha + beta) > 1.0 ) {
         return false;
     }
@@ -431,79 +434,79 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     int vertexIndex = 0;
     switch ( patch->getDominantAxisIndex() ) {
         case X:
-            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
+            A = Vector2Dd(patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
+            B = Vector2Dd(patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
+            C = Vector2Dd(patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
-            Vector2Dd::set(M, point->y, point->z);
+            D = Vector2Dd(patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
+            M = Vector2Dd(point->y, point->z);
             break;
 
         case Y:
-            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
+            A = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
+            B = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
+            C = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
-            Vector2Dd::set(M, point->x, point->z);
+            D = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
+            M = Vector2Dd(point->x, point->z);
             break;
 
         case Z:
-            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
+            A = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
+            B = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
+            C = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
-            Vector2Dd::set(M, point->x, point->y);
+            D = Vector2Dd(patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
+            M = Vector2Dd(point->x, point->y);
             break;
 
         default:
             break;
     }
 
-    Vector2Dd::subtract(B, A, AB);
-    Vector2Dd::subtract(C, B, BC);
-    Vector2Dd::subtract(D, C, CD);
-    Vector2Dd::subtract(D, A, AD);
-    Vector2Dd::add(CD, AB, AE);
-    Vector2Dd::negate(AE);
-    Vector2Dd::subtract(M, A, AM);
+    AB = Vector2Dd(B.x - A.x, B.y - A.y);
+    BC = Vector2Dd(C.x - B.x, C.y - B.y);
+    CD = Vector2Dd(D.x - C.x, D.y - C.y);
+    AD = Vector2Dd(D.x - A.x, D.y - A.y);
+    AE = Vector2Dd(CD.x + AB.x, CD.y + AB.y);
+    AE = Vector2Dd(-AE.x, -AE.y);
+    AM = Vector2Dd(M.x - A.x, M.y - A.y);
 
     double a; // Quadratic equation
     double b;
     double c;
 
-    if ( java::Math::abs(Vector2Dd::determinant(AB, CD)) < Numeric::EPSILON ) {
+    if ( java::Math::abs(vector2DdDeterminant(AB, CD)) < Numeric::EPSILON ) {
         // Case AB // CD
-        Vector2Dd::subtract(AB, CD, Vector);
-        v = Vector2Dd::determinant(AM, Vector) / Vector2Dd::determinant(AD, Vector);
+        Vector = Vector2Dd(AB.x - CD.x, AB.y - CD.y);
+        v = vector2DdDeterminant(AM, Vector) / vector2DdDeterminant(AD, Vector);
         if ( (v >= 0.0) && (v <= 1.0) ) {
-            b = Vector2Dd::determinant(AB, AD) - Vector2Dd::determinant(AM, AE);
-            c = Vector2Dd::determinant(AM, AD);
+            b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
+            c = vector2DdDeterminant(AM, AD);
             u = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
-    } else if ( java::Math::abs(Vector2Dd::determinant(BC, AD)) < Numeric::EPSILON ) {
+    } else if ( java::Math::abs(vector2DdDeterminant(BC, AD)) < Numeric::EPSILON ) {
         // Case AD // BC
-        Vector2Dd::add(AD, BC, Vector);
-        u = Vector2Dd::determinant(AM, Vector) / Vector2Dd::determinant(AB, Vector);
+        Vector = Vector2Dd(AD.x + BC.x, AD.y + BC.y);
+        u = vector2DdDeterminant(AM, Vector) / vector2DdDeterminant(AB, Vector);
         if ( (u >= 0.0) && (u <= 1.0) ) {
-            b = Vector2Dd::determinant(AD, AB) - Vector2Dd::determinant(AM, AE);
-            c = Vector2Dd::determinant(AM, AB);
+            b = vector2DdDeterminant(AD, AB) - vector2DdDeterminant(AM, AE);
+            c = vector2DdDeterminant(AM, AB);
             v = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((v >= 0.0) && (v <= 1.0));
         }
     } else {
         // General case
-        a = Vector2Dd::determinant(AB, AE);
-        c = -Vector2Dd::determinant(AM, AD);
-        b = Vector2Dd::determinant(AB, AD) - Vector2Dd::determinant(AM, AE);
+        a = vector2DdDeterminant(AB, AE);
+        c = -vector2DdDeterminant(AM, AD);
+        b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
         a = -0.5 / a;
         b *= a;
         c *= (a + a);
@@ -516,11 +519,11 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
                 u = b + SqrtDelta;
             }
             if ( (u >= 0.0) && (u <= 1.0) ) {
-                v = AD.u + u * AE.u;
+                v = AD.x + u * AE.x;
                 if ( java::Math::abs(v) < Numeric::EPSILON ) {
-                    v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
+                    v = (AM.y - u * AB.y) / (AD.y + u * AE.y);
                 } else {
-                    v = (AM.u - u * AB.u) / v;
+                    v = (AM.x - u * AB.x) / v;
                 }
                 isInside = ((v >= 0.0) && (v <= 1.0));
             }
@@ -529,10 +532,10 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
         }
     }
 
-    uv->u = u;
-    uv->v = v;
-    uv->u = clipToUnitInterval(uv->u);
-    uv->v = clipToUnitInterval(uv->v);
+    uv->x = u;
+    uv->y = v;
+    uv->x = clipToUnitInterval(uv->x);
+    uv->y = clipToUnitInterval(uv->y);
 
     return isInside;
 }
@@ -573,7 +576,7 @@ Patch::patchNormal(const Patch *patch, Vector3D *normal) {
 
     const float localNorm = normal->norm();
     if ( localNorm < Numeric::EPSILON ) {
-        Logger::warning("patchNormal", "degenerate patch (id %d)", patch->getId());
+        Logger::reportMessage("Patch", Logger::WARNING, "patchNormal", java::String::format("degenerate patch (id %d)", patch->getId()));
         return nullptr;
     }
     normal->inverseScaledCopy(localNorm, *normal, Numeric::EPSILON_FLOAT);
@@ -618,13 +621,13 @@ Patch::Patch(
     color()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
-        Logger::error("Patch::Patch", "Null vertex!");
+        Logger::reportMessage("Patch", Logger::ERROR, "Patch::Patch", "Null vertex!");
         java::System::exit(1);
     }
 
     // It's sad but it's true
     if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
-        Logger::error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
+        Logger::reportMessage("Patch", Logger::ERROR, "Patch::Patch", "Can only handle quadrilateral or triangular patches");
         java::System::exit(2);
     }
 
@@ -643,7 +646,7 @@ Patch::Patch(
     // Compute normal
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
         Statistics::instance().reader.numberOfElements--;
-        Logger::error("Patch::Patch", "Error computing patch normal");
+        Logger::reportMessage("Patch", Logger::ERROR, "Patch::Patch", "Error computing patch normal");
         java::System::exit(3);
     }
 
@@ -712,12 +715,7 @@ Patch::dontIntersectBase(
     Patch *p3)
 {
     if ( n < 0 || n > MAX_EXCLUDED_PATCHES ) {
-        Logger::fatal(
-            -1,
-            "Patch::dontIntersectBase",
-            "Invalid number of excluded patches %d (maximum is %d)",
-            n,
-            MAX_EXCLUDED_PATCHES);
+        Logger::reportMessage("Patch", Logger::FATAL_ERROR, "Patch::dontIntersectBase", java::String::format("Invalid number of excluded patches %d (maximum is %d)", n, MAX_EXCLUDED_PATCHES));
         return;
     }
 
@@ -819,7 +817,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
             }
             break;
         default:
-            Logger::fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
+            Logger::reportMessage("Patch", Logger::FATAL_ERROR, "textureCoordAtUv", java::String::format("Invalid nr of vertices %d", numberOfVertices));
     }
     return texCoord;
 }
@@ -941,7 +939,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     double B = (a + 0.5 * c) / area;
     double C = -(*u);
     if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
-        //Logger::error(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d", A, B, -C, id);
+        //Logger::reportMessage("Patch", Logger::ERROR, "", java::String::format("Tried to solve %g*u^2 + %g*u = %g for patch %d", A, B, -C, id));
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 
@@ -949,7 +947,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     B = (a + 0.5 * b) / area;
     C = -(*v);
     if ( !solveQuadraticUnitInterval(A, B, C, v) ) {
-        //Logger::error(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d", A, B, -C, id);
+        //Logger::reportMessage("Patch", Logger::ERROR, "", java::String::format("Tried to solve %g*v^2 + %g*v = %g for patch %d", A, B, -C, id));
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 }
@@ -981,7 +979,7 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
         const Vector3D *v4 = vertex[3]->point;
         pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), *point);
     } else {
-        Logger::fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
+        Logger::reportMessage("Patch", Logger::FATAL_ERROR, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }
 
     return point;
@@ -1022,11 +1020,11 @@ Patch::uv(const Vector3D *point, double *u, double *v) const {
             inside = quadUv(this, point, &uv);
             break;
         default:
-            Logger::fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
+            Logger::reportMessage("Patch", Logger::FATAL_ERROR, "uv", "Can only handle triangular or quadrilateral patches");
     }
 
-    *u = uv.u;
-    *v = uv.v;
+    *u = uv.x;
+    *v = uv.y;
 
     return inside;
 }

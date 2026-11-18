@@ -24,7 +24,7 @@ LightDirSampler::sample(
     double pdfDir = 0.0;
 
     if ( !thisNode->m_hit.getMaterial()->getEdf() ) {
-        Logger::error("CLightDirSampler::sample", "No EDF");
+        Logger::reportMessage("LightDirSampler", Logger::ERROR, "CLightDirSampler::sample", "No EDF");
         return false;
     }
 
@@ -86,7 +86,7 @@ LightDirSampler::evalPDF(
     Vector3D outDir;
 
     if ( !thisNode->m_hit.getMaterial()->getEdf() ) {
-        Logger::error("CLightDirSampler::evalPdf", "No EDF");
+        Logger::reportMessage("LightDirSampler", Logger::ERROR, "CLightDirSampler::evalPdf", "No EDF");
         return false;
     }
     // More efficient with extra params?

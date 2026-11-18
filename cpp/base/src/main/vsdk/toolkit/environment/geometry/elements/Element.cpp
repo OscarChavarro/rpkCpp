@@ -126,7 +126,7 @@ Element::childContainingElement(Element *descendant) {
         descendant = descendant->parent;
     }
     if ( descendant == nullptr ) {
-        Logger::fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+        Logger::reportMessage("Element", Logger::FATAL_ERROR, "Element::childContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
 }

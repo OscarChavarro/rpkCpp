@@ -60,7 +60,7 @@ StochasticRelaxation &
 StochasticRelaxation::activeState() {
     StochasticRelaxation *state = activeStatePtr();
     if ( state == nullptr ) {
-        Logger::fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+        Logger::reportMessage("StochasticRaytracingState", Logger::FATAL_ERROR, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
     }
     return *state;
 }

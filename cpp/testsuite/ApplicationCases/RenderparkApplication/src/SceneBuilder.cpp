@@ -356,27 +356,15 @@ SceneBuilder::sceneBuilderValidateReadableFile(
 {
     java::File file(fileName);
     if ( !file.exists() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' does not exist",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Requested %s file '%s' does not exist", fileRole, fileName));
         return false;
     }
     if ( !file.isFile() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is not a regular file",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Requested %s file '%s' is not a regular file", fileRole, fileName));
         return false;
     }
     if ( !file.canRead() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is not readable",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Requested %s file '%s' is not readable", fileRole, fileName));
         return false;
     }
 
@@ -385,11 +373,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
     input.close();
 
     if ( firstByte < 0 ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is empty",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Requested %s file '%s' is empty", fileRole, fileName));
         return false;
     }
 
@@ -445,11 +429,7 @@ SceneBuilder::sceneBuilderReadFile(
                 java::System::err.printf(
                     "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
                 java::System::err.flush();
-                Logger::error(
-                    "SceneBuilder::sceneBuilderReadFile",
-                    "Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
-                    requestedInputName,
-                    fallbackBinaryInputName != nullptr ? fallbackBinaryInputName : "(not derivable)");
+                Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.", requestedInputName, fallbackBinaryInputName != nullptr ? fallbackBinaryInputName : "(not derivable)"));
                 delete[] fallbackBinaryInputName;
                 return false;
             }
@@ -457,9 +437,7 @@ SceneBuilder::sceneBuilderReadFile(
             java::System::err.printf(
                 "ERROR: Non-binary scene input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
             java::System::err.flush();
-            Logger::error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "Only '.bin' input files are supported in this build.");
+            Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", "Only '.bin' input files are supported in this build.");
             return false;
         }
     }
@@ -528,19 +506,14 @@ SceneBuilder::sceneBuilderReadFile(
                 java::System::err.printf("done.\n");
             } else {
                 java::System::err.printf("failed.\n");
-                Logger::error(
-                    "SceneBuilder::sceneBuilderReadFile",
-                    "Could not export ParseSnapshotContext binary to '%s'",
-                    batchOptions->binaryOutputFilename);
+                Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", java::String::format("Could not export ParseSnapshotContext binary to '%s'", batchOptions->binaryOutputFilename));
             }
         }
 #else
         java::System::err.printf(
             "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
         java::System::err.flush();
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Only '.bin' input files are supported in this build.");
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", "Only '.bin' input files are supported in this build.");
 #endif
     }
 
@@ -595,7 +568,7 @@ SceneBuilder::sceneBuilderReadFile(
     scene->clusteredRootGeometry = SceneBuilder::sceneBuilderCreateClusterHierarchy(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className != GeometryClassId::COMPOUND ) {
-        Logger::warning(nullptr, "Strange clusters for this world ...");
+        Logger::reportMessage("SceneBuilder", Logger::WARNING, "", "Strange clusters for this world ...");
     }
 
     t = java::System::nanoTime();
@@ -700,7 +673,7 @@ SceneBuilder::sceneBuilderCreateModel(
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
-            Logger::error(nullptr, "Unrecognized option '%s'", argv[1]);
+            Logger::reportMessage("SceneBuilder", Logger::ERROR, "", java::String::format("Unrecognized option '%s'", argv[1]));
         } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
             java::System::exit(1);
         }

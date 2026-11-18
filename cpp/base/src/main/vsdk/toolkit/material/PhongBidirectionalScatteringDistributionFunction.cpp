@@ -4,6 +4,7 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
 */
 #include "java/lang/Float.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -85,7 +86,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
     }
 
     if ( !context.hasFlag(SHCTX_TEXTURE_COORDINATE) ) {
-        Logger::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+        Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
@@ -109,8 +110,8 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const 
 
     if ( brdf ) {
         ColorRgb reflectance = brdf->reflectance(flags);
-        if ( !java::Float::isFinite(reflectance.average()) ) {
-            Logger::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+        if ( !java::Float::isFinite(ColorRgbMutable(reflectance).average()) ) {
+            Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::FATAL_ERROR, "brdfReflectance", "Oops - test Rd is not finite!");
         }
         albedo = addColor(albedo, reflectance);
     }
@@ -175,7 +176,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     *inTexture = 0.0;
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
         ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
-        *inTexture = textureColor.average();
+        *inTexture = ColorRgbMutable(textureColor).average();
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -186,13 +187,13 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     if ( brdf != nullptr ) {
         reflectance = brdf->reflectance(*brdfFlags);
     }
-    *reflection = reflectance.average();
+    *reflection = ColorRgbMutable(reflectance).average();
 
     ColorRgb transmittance = black();
     if ( btdf != nullptr ) {
         transmittance = btdf->transmittance(*btdfFlags);
     }
-    *transmission = transmittance.average();
+    *transmission = ColorRgbMutable(transmittance).average();
 }
 
 SplitBSDFSamplingMode
@@ -252,7 +253,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
 
     *probabilityDensityFunction = 0; // So we can return safely
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
-        Logger::warning("sample", "Couldn't determine shading normal");
+        Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "sample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
         return out;
     }
@@ -401,7 +402,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     ColorRgb result = black();
     Vector3D normal;
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
-        Logger::warning("evaluate", "Couldn't determine shading normal");
+        Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "evaluate", "Couldn't determine shading normal");
         return result;
     }
     normal = context.getShadingNormal();
@@ -475,7 +476,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
-        Logger::warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
+        Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
         return;
     }
     normal = context.getShadingNormal();

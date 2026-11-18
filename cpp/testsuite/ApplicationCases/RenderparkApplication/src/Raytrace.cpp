@@ -55,7 +55,7 @@ Raytrace::rayTraceCreateRayTracerFromName(
     Raytrace::rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList, lightList);
 
     if ( newRaytracer == nullptr && strncasecmp(rayTracerName, "none", 4) != 0 ) {
-        Logger::error(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
+        Logger::reportMessage("Raytrace", Logger::ERROR, "", java::String::format("Invalid raytracing method name '%s'", rayTracerName));
     }
 
     return newRaytracer;
@@ -113,9 +113,9 @@ Raytrace::rayTraceSaveImage(
     }
 
     if ( rayTracer == nullptr ) {
-        Logger::warning(nullptr, "No ray tracing method active");
+        Logger::reportMessage("Raytrace", Logger::WARNING, "", "No ray tracing method active");
     } else if ( !rayTracer->saveImage(img) ) {
-        Logger::warning(nullptr, "No previous %s image available", rayTracer->getName());
+        Logger::reportMessage("Raytrace", Logger::WARNING, "", java::String::format("No previous %s image available", rayTracer->getName()));
     }
 
     ImageOutputHandle::deleteImageOutputHandle(img);

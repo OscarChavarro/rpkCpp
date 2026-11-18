@@ -19,7 +19,7 @@ const unsigned char BinaryModelReadPrimitives::BINARY_MODEL_MAGIC[16] = {
 
 bool
 BinaryModelReadPrimitives::reportReadError(const char *routine, const char *message) {
-    Logger::error(routine, "%s", message);
+    Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, routine, java::String::format("%s", message));
     return false;
 }
 
@@ -122,7 +122,7 @@ BinaryModelReadPrimitives::readNonNegativeCount(java::InputStream &input, const 
     }
     *count = readInt32LE(input);
     if ( *count < 0 ) {
-        Logger::error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
+        Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::readNonNegativeCount", java::String::format("Negative count while reading binary model (%s)", what));
         return false;
     }
     return true;
@@ -239,7 +239,7 @@ BinaryModelReadPrimitives::readIndexList(java::InputStream &input, const char *w
         return true;
     }
     if ( count < -1 ) {
-        Logger::error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
+        Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::readIndexList", java::String::format("Negative index list count while reading binary model (%s)", what));
         return false;
     }
 
@@ -248,7 +248,7 @@ BinaryModelReadPrimitives::readIndexList(java::InputStream &input, const char *w
         if ( !record->indices->add(readInt32LE(input)) ) {
             delete record->indices;
             record->indices = nullptr;
-            Logger::error("BinaryModelReadPrimitives::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
+            Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::readIndexList", java::String::format("Failed to allocate index list while reading binary model (%s)", what));
             return false;
         }
     }

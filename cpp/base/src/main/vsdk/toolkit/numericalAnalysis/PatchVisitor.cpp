@@ -41,7 +41,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
-        patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
+        patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
         sample.clear();
         if ( patch->getMaterial()->getBsdf() != nullptr ) {
             Vector3D normal;
@@ -86,7 +86,7 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
-        patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
+        patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
 
         if ( patch->getMaterial()->getEdf() == nullptr ) {
             sample.clear();

@@ -110,7 +110,7 @@ Sample4d::sample4D(unsigned seed) {
             xi[3] = zeta[3] * Niederreiter31::RECIP;
             break;
         default:
-            Logger::fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
+            Logger::reportMessage("Sample4d", Logger::FATAL_ERROR, "Sample4d::sample4D", java::String::format("QMC Sequence %s not yet implemented", sequenceName(seq)));
     }
 
     return xi;

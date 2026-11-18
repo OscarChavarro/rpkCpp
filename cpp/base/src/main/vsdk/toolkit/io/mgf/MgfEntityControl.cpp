@@ -46,12 +46,12 @@ MgfEntityControl::mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** 
 
 void
 MgfEntityControl::doError(const char *errmsg, ParseRuntimeContext *context) {
-    Logger::error(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Logger::reportMessage("MgfEntityControl", Logger::ERROR, "", java::String::format("%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg));
 }
 
 void
 MgfEntityControl::doWarning(const char *errmsg, ParseRuntimeContext *context) {
-    Logger::warning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Logger::reportMessage("MgfEntityControl", Logger::WARNING, "", java::String::format("%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg));
 }
 
 /**

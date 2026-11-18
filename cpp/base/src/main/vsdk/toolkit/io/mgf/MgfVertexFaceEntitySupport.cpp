@@ -16,6 +16,7 @@
 #include "vsdk/toolkit/io/mgf/MgfObjectNameSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfTransformationSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfTorusEntityExpander.h"
+#include "vsdk/toolkit/io/mgf/MgfTessellationMath.h"
 
 long
 MgfVertexFaceEntitySupport::transformXid(const TransformStackContext *xf) {
@@ -47,7 +48,7 @@ MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRu
         case EntityTypeContext::PRISM:
             return MgfPrismEntityTessellator::handleEntity(argc, argv, context);
         default:
-            Logger::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+            Logger::reportMessage("MgfVertexFaceEntitySupport", Logger::FATAL_ERROR, "mgf.c: doDiscreteConic", java::String::format("Unsupported geometry entity number %d", en));
     }
 }
 
@@ -84,7 +85,7 @@ MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *con
     if ( !theVertex
          || vp->clock >= 1
          || vp->xid != MgfVertexFaceEntitySupport::transformXid(context->transformContext)
-         || vp->n.isNull(Numeric::EPSILON) ) {
+         || MgfTessellationMath::isNull(vp->n, Numeric::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         Vector3Dd vert;
@@ -92,12 +93,12 @@ MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *con
         Vector3D *theNormal;
 
         MgfTransformationSupport::mgfTransformPoint(&vert, &vp->p, context);
-        Vector3D *thePoint = installPoint(static_cast<float>(vert.x), static_cast<float>(vert.y), static_cast<float>(vert.z), context);
-        if ( vp->n.isNull(Numeric::EPSILON) ) {
+        Vector3D *thePoint = installPoint(static_cast<float>(vert.x()), static_cast<float>(vert.y()), static_cast<float>(vert.z()), context);
+        if ( MgfTessellationMath::isNull(vp->n, Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
             MgfTransformationSupport::mgfTransformVector(&norm, &vp->n, context);
-            theNormal = installNormal(static_cast<float>(norm.x), static_cast<float>(norm.y), static_cast<float>(norm.z), context);
+            theNormal = installNormal(static_cast<float>(norm.x()), static_cast<float>(norm.y()), static_cast<float>(norm.z()), context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->vertex = theVertex;
@@ -666,7 +667,7 @@ MgfVertexFaceEntitySupport::handleFaceWithHolesEntity(int argc, const char **arg
 
             for ( k = 0; k < numberOfVerticesInNewContour; k++ ) {
                 int index = newContour[k];
-                double d = v[j].distanceSquared(&v[index]);
+                double d = MgfTessellationMath::distanceSquared(v[j], v[index]);
                 if ( d < minimumDistance ) {
                     minimumDistance = d;
                     nearestCopied = k;
@@ -816,9 +817,7 @@ MgfVertexFaceEntitySupport::handleVertexEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentVertexContext->p.x = strtod(av[1], nullptr);
-            currentVertexContext->p.y = strtod(av[2], nullptr);
-            currentVertexContext->p.z = strtod(av[3], nullptr);
+            currentVertexContext->p = Vector3Dd(strtod(av[1], nullptr), strtod(av[2], nullptr), strtod(av[3], nullptr));
             currentVertexContext->clock++;
             return ParseErrorContext::MGF_OK;
         case EntityTypeContext::MGF_NORMAL:
@@ -829,10 +828,8 @@ MgfVertexFaceEntitySupport::handleVertexEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentVertexContext->n.x = strtod(av[1], nullptr);
-            currentVertexContext->n.y = strtod(av[2], nullptr);
-            currentVertexContext->n.z = strtod(av[3], nullptr);
-            currentVertexContext->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
+            currentVertexContext->n = Vector3Dd(strtod(av[1], nullptr), strtod(av[2], nullptr), strtod(av[3], nullptr));
+            MgfTessellationMath::normalizeAndGivePreviousNorm(&currentVertexContext->n, Numeric::EPSILON);
             currentVertexContext->clock++;
             return ParseErrorContext::MGF_OK;
         default:

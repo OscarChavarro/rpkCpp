@@ -4,7 +4,6 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/Formatter.h"
-
 namespace java {
 
 java::String

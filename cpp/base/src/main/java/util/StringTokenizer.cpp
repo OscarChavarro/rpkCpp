@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "java/util/StringTokenizer.h"
-
 namespace java {
 
 StringTokenizer::StringTokenizer(const java::String &text, const char *delimiters):

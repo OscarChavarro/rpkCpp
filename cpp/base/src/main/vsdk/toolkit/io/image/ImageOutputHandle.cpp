@@ -63,7 +63,7 @@ returns the number of pixels written
 int
 ImageOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     if ( toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+        Logger::reportMessage("ImageOutputHandle", Logger::FATAL_ERROR, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
 
     unsigned char *rgb = new unsigned char[3 * width];
@@ -144,16 +144,13 @@ ImageOutputHandle::createRadianceImageOutputHandle(
         // Olaf: HDR PIC output
         else if ( strncasecmp(fileExtension, "pic", 3) == 0 ) {
             if ( isPipe ) {
-                Logger::error("createRadianceImageOutputHandle",
-                         "Can't write PIC output to a pipe.\n");
+                Logger::reportMessage("ImageOutputHandle", Logger::ERROR, "createRadianceImageOutputHandle", "Can't write PIC output to a pipe.\n");
                 return nullptr;
             }
 
             return new PicOutputHandle(fileName, width, height);
         } else {
-            Logger::error("createRadianceImageOutputHandle",
-                     "Can't save high dynamic range image to a '%s' file, format not supported.",
-                     fileExtension);
+            Logger::reportMessage("ImageOutputHandle", Logger::ERROR, "createRadianceImageOutputHandle", java::String::format("Can't save high dynamic range image to a '%s' file, format not supported.", fileExtension));
             return nullptr;
         }
     }
@@ -177,9 +174,7 @@ ImageOutputHandle::createImageOutputHandle(
         if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(outputStream, width, height);
         } else {
-            Logger::error("createImageOutputHandle",
-                     "Can't save display-RGB images to a '%s' file, format not supported.\n",
-                     fileExtension);
+            Logger::reportMessage("ImageOutputHandle", Logger::ERROR, "createImageOutputHandle", java::String::format("Can't save display-RGB images to a '%s' file, format not supported.\n", fileExtension));
             return nullptr;
         }
     }

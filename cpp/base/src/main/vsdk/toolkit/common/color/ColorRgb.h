@@ -1,44 +1,29 @@
-#ifndef COLOR_RGB__
-#define COLOR_RGB__
-
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#ifndef __COLOR_RGB__
+#define __COLOR_RGB__
 
 class ColorRgb {
-  private:
-    double r;
-    double g;
-    double b;
+private:
+    double r_;
+    double g_;
+    double b_;
 
-  public:
-    ColorRgb():
-        r(0.0),
-        g(0.0),
-        b(0.0)
-    {
-    }
+public:
+    ColorRgb();
+    ColorRgb(const ColorRgb& c);
+    ColorRgb(double r, double g, double b);
+    ~ColorRgb();
 
-    ColorRgb(double inR, double inG, double inB):
-        r(inR),
-        g(inG),
-        b(inB)
-    {
-    }
+    double r() const;
+    double g() const;
+    double b() const;
 
-    explicit ColorRgb(const ColorRgbMutable &c):
-        r(c.getR()),
-        g(c.getG()),
-        b(c.getB())
-    {
-    }
+    double getR() const;
+    double getG() const;
+    double getB() const;
 
-    operator ColorRgbMutable() const {
-        return {r, g, b};
-    }
-
-    inline double getR() const { return r; }
-    inline double getG() const { return g; }
-    inline double getB() const { return b; }
-    inline double average() const { return (r + g + b) / 3.0; }
+    double distance(const ColorRgb& other) const;
+    ColorRgb add(const ColorRgb& other) const;
+    ColorRgb multiply(double scalar) const;
 };
 
 #endif

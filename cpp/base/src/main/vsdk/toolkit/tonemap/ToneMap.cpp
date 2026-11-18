@@ -27,7 +27,7 @@ ToneMap::toneMappingGammaCorrection(ColorRgbMutable &rgb, const ToneMappingConte
 ColorRgbMutable
 ToneMap::toneMapScaleForDisplay(const ColorRgbMutable &radiance) {
     if ( activeToneMap == nullptr ) {
-        Logger::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+        Logger::reportMessage("ToneMap", Logger::FATAL_ERROR, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
     return activeToneMap->scaleForDisplay(radiance);
 }

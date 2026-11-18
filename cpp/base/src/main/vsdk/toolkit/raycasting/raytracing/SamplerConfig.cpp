@@ -79,7 +79,7 @@ SamplerConfig::traceNode(
     if ( lastNode == nullptr ) {
         // Fill in first node
         if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
-            Logger::warning("SamplerConfig::traceNode", "Point sampler failed");
+            Logger::reportMessage("SamplerConfig", Logger::WARNING, "SamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {

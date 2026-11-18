@@ -126,7 +126,7 @@ shaft culling.
 Geometry *
 Geometry::clone() const {
     if ( className != GeometryClassId::PATCH_SET ) {
-        Logger::fatal(666, "duplicateIfPatchSet", "this should not happen");
+        Logger::reportMessage("Geometry", Logger::FATAL_ERROR, "duplicateIfPatchSet", "this should not happen");
     }
 
     PatchSet *newPatchSet = new PatchSet(Geometry::patchListReference(this));

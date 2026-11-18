@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/io/mgf/MgfTessellationMath.h"
 
@@ -12,11 +13,8 @@ Compute u and v given w (normalized)
 void
 MgfTessellationMath::mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon)
 {
-    v->x = 0.0;
-    v->y = 0.0;
-    v->z = 0.0;
-    double vArr[3] = {v->x, v->y, v->z};
-    double wArr[3] = {w->x, w->y, w->z};
+    double vArr[3] = {0.0, 0.0, 0.0};
+    double wArr[3] = {w->x(), w->y(), w->z()};
 
     int i;
     for ( i = 0; i < 3; i++ ) {
@@ -29,11 +27,49 @@ MgfTessellationMath::mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w,
         vArr[i] = 1.0;
     }
 
-    v->x = vArr[0];
-    v->y = vArr[1];
-    v->z = vArr[2];
+    *v = Vector3Dd(vArr[0], vArr[1], vArr[2]);
 
-    u->crossProduct(v, w);
-    u->normalizeAndGivePreviousNorm(epsilon);
-    v->crossProduct(w, u);
+    *u = v->crossProduct(*w);
+    normalizeAndGivePreviousNorm(u, epsilon);
+    *v = w->crossProduct(*u);
+}
+
+/**
+Normalize a vector, return old magnitude
+*/
+double
+MgfTessellationMath::normalizeAndGivePreviousNorm(Vector3Dd *vector, double epsilon)
+{
+    double len = vector->dotProduct(*vector); // Note: this starts being length ^ 2
+
+    if ( len <= 0.0 ) {
+        return 0.0;
+    }
+
+    if ( len <= 1.0 + epsilon && len >= 1.0 - epsilon) {
+        // First order approximation
+        len = 0.5 + 0.5 * len;
+    } else {
+        len = java::Math::sqrt(len);
+    }
+
+    *vector = Vector3Dd(vector->x() / len, vector->y() / len, vector->z() / len);
+
+    return len;
+}
+
+bool
+MgfTessellationMath::isNull(const Vector3Dd &vector, double epsilon) {
+    return vector.dotProduct(vector) <= epsilon * epsilon;
+}
+
+/**
+Returns squared distance between the two vectors
+*/
+double
+MgfTessellationMath::distanceSquared(const Vector3Dd &a, const Vector3Dd &b) {
+    const double dx = b.x() - a.x();
+    const double dy = b.y() - a.y();
+    const double dz = b.z() - a.z();
+    return dx * dx + dy * dy + dz * dz;
 }

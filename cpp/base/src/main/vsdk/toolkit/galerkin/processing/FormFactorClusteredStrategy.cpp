@@ -114,7 +114,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     }
 
     if ( !geometry->bounded ) {
-        Logger::fatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
+        Logger::reportMessage("FormFactorClusteredStrategy", Logger::FATAL_ERROR, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     float fSize = Numeric::HUGE_FLOAT_VALUE;

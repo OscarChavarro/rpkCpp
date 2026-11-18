@@ -310,7 +310,7 @@ GalerkinElement::reAllocCoefficients() {
                 localBasisSize = 10;
                 break;
             default:
-                Logger::fatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", galerkinState->basisType);
+                Logger::reportMessage("GalerkinElement", Logger::FATAL_ERROR, "galerkinElementReAllocCoefficients", java::String::format("Invalid basis type %d", galerkinState->basisType));
         }
     }
 
@@ -363,7 +363,7 @@ Only applicable to surface elements.
 void
 GalerkinElement::regularSubDivide() {
     if ( isCluster() ) {
-        Logger::fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+        Logger::reportMessage("GalerkinElement", Logger::FATAL_ERROR, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
     }
 
     if ( regularSubElements != nullptr ) {
@@ -463,7 +463,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
             }
             break;
         default:
-            Logger::fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+            Logger::reportMessage("GalerkinElement", Logger::FATAL_ERROR, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return dynamic_cast<GalerkinElement *>(childElement);
@@ -597,7 +597,7 @@ element. Cannot be used for clusters
 void
 GalerkinElement::initPolygon(Polygon *polygon) const {
     if ( isCluster() ) {
-        Logger::fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+        Logger::reportMessage("GalerkinElement", Logger::FATAL_ERROR, "galerkinElementPolygon", "Cannot use this function for cluster elements");
     }
 
     polygon->normal = patch->getNormal();

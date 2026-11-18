@@ -1,6 +1,7 @@
 #ifndef COMMAND_LINE_RENDER_OPTIONS_GROUP__
 #define COMMAND_LINE_RENDER_OPTIONS_GROUP__
 
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 class OptionsGroupRender final {

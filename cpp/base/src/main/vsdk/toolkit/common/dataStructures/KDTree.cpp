@@ -164,7 +164,7 @@ Iterate nodes : iterate all nodes (only for balanced trees!)
 void
 KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
     if ( numUnbalanced > 0 ) {
-        Logger::error(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+        Logger::reportMessage("KDTree", Logger::ERROR, " KDTree::iterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
 
@@ -192,7 +192,7 @@ KDTree::query(
 
     if ( inDistances == nullptr ) {
         if ( N > 1000 ) {
-            Logger::error("KDTree::query", "Too many nodes requested");
+            Logger::reportMessage("KDTree", Logger::ERROR, "KDTree::query", "Too many nodes requested");
             return 0;
         }
         usedDistances = inDistances;

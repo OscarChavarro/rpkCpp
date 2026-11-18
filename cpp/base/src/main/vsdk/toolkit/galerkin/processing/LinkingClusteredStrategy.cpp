@@ -37,7 +37,7 @@ LinkingClusteredStrategy::createInitialLinks(
             receiverElement = galerkinState->topCluster;
             break;
         default:
-            Logger::fatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
+            Logger::reportMessage("LinkingClusteredStrategy", Logger::FATAL_ERROR, "createInitialLinkWithTopCluster", "Invalid role");
     }
 
     if ( receiverElement == nullptr || sourceElement == nullptr ) {

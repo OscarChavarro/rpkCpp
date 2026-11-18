@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/Xxdf.h"
@@ -47,8 +48,8 @@ PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectance
     const ColorRgb *inKd, const ColorRgb *inKs, double inNs):
     Kd(*inKd),
     Ks(*inKs),
-    avgKd(Kd.average()),
-    avgKs(Ks.average()),
+    avgKd(ColorRgbMutable(Kd).average()),
+    avgKs(ColorRgbMutable(Ks).average()),
     Ns(static_cast<float>(inNs))
 {
 }

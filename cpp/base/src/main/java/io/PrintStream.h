@@ -1,15 +1,15 @@
-#ifndef JAVA_IO_PRINT_STREAM__
-#define JAVA_IO_PRINT_STREAM__
+#ifndef __PRINT_STREAM__
+#define __PRINT_STREAM__
 
 #include <cstdarg>
 
 #include "java/io/OutputStream.h"
-
 namespace java {
 
 class PrintStream {
   private:
     OutputStream *stream;
+    bool autoFlush;
 
     static void
     writeText(OutputStream *stream, const char *text);
@@ -19,6 +19,12 @@ class PrintStream {
 
   public:
     explicit PrintStream(OutputStream *stream);
+
+    /**
+    @param autoFlush as Java: when true, the stream is flushed after each
+    `println` and each `printf`
+    */
+    PrintStream(OutputStream *stream, bool autoFlush);
 
     PrintStream &
     printf(const char *format, ...);

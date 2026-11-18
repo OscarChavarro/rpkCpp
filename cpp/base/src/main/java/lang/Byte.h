@@ -1,5 +1,5 @@
-#ifndef JAVA_BYTE__
-#define JAVA_BYTE__
+#ifndef __BYTE__
+#define __BYTE__
 
 namespace java {
 

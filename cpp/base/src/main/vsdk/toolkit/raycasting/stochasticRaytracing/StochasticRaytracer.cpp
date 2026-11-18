@@ -53,7 +53,7 @@ StochasticRaytracer::execute(
     const RendererConfiguration *renderOptions) const
 {
     if ( toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+        Logger::reportMessage("StochasticRaytracer", Logger::FATAL_ERROR, "StochasticRaytracer::execute", "Tone mapping context not provided");
     }
 
     StochasticRaytracingConfiguration config(

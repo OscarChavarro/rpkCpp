@@ -8,7 +8,6 @@
 #include "vsdk/toolkit/io/wrapper/PipeInputStream.h"
 #include "vsdk/toolkit/io/wrapper/PipeOutputStream.h"
 #include "vsdk/toolkit/io/wrapper/StreamOpenMode.h"
-
 const char *
 FileUncompressWrapper::modeToLogAction(StreamOpenMode mode) {
     return mode == StreamOpenMode::READ ? "reading" : "writing";
@@ -109,7 +108,7 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
     delete[] command;
 
     if ( stream == nullptr ) {
-        Logger::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::READ));
+        Logger::reportMessage("FileUncompressWrapper", Logger::ERROR, "", java::String::format("Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::READ)));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }
@@ -147,7 +146,7 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
     delete[] command;
 
     if ( stream == nullptr ) {
-        Logger::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::WRITE));
+        Logger::reportMessage("FileUncompressWrapper", Logger::ERROR, "", java::String::format("Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::WRITE)));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }

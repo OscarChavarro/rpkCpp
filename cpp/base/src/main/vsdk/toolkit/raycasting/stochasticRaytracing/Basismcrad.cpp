@@ -74,7 +74,7 @@ StochasticRadiosityBasisState &
 StochasticRadiosityBasisState::activeState() {
     StochasticRadiosityBasisState *state = activeStatePtr();
     if ( state == nullptr ) {
-        Logger::fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+        Logger::reportMessage("Basismcrad", Logger::FATAL_ERROR, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
     }
     return *state;
 }
@@ -114,7 +114,7 @@ Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApp
             elem = "quadrilaterals";
             break;
         default:
-            Logger::fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
+            Logger::reportMessage("Basismcrad", Logger::FATAL_ERROR, "Basismcrad::makeBasis", java::String::format("Invalid element type %d", et));
     }
 
     basis.size = basisState.approxDesc[at].basis_size;

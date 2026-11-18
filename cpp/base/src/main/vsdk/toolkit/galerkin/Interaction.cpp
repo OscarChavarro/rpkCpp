@@ -52,7 +52,7 @@ Interaction::Interaction(
     }
 
     if ( inNumberOfReceiverCubaturePositions > 1 ) {
-        Logger::fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+        Logger::reportMessage("Interaction", Logger::FATAL_ERROR, "interactionCreate", "Not yet implemented for higher order approximations");
     }
     deltaK = inDeltaK;
 

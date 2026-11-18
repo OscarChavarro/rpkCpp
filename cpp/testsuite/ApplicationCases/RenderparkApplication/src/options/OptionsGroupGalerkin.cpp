@@ -18,7 +18,7 @@ OptionsGroupGalerkin::iterationMethodOption(char *&name) {
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
     } else {
-        Logger::error(nullptr, "Invalid iteration method '%s'", name);
+        Logger::reportMessage("OptionsGroupGalerkin", Logger::ERROR, "", java::String::format("Invalid iteration method '%s'", name));
     }
 }
 

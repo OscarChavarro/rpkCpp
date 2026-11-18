@@ -57,7 +57,7 @@ Camera::complete() {
     // Distance from virtual camera position to focus point
     viewDistance = Z.norm();
     if ( viewDistance < Numeric::EPSILON ) {
-        Logger::error("SetCamera", "eye point and look-point coincide");
+        Logger::reportMessage("Camera", Logger::ERROR, "SetCamera", "eye point and look-point coincide");
         return nullptr;
     }
     Z.inverseScaledCopy(viewDistance, Z, Numeric::EPSILON_FLOAT);
@@ -66,7 +66,7 @@ Camera::complete() {
     X.crossProduct(Z, upDirection);
     const float n = X.norm();
     if ( n < Numeric::EPSILON ) {
-        Logger::error("SetCamera", "up-direction and viewing direction coincide");
+        Logger::reportMessage("Camera", Logger::ERROR, "SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
     X.inverseScaledCopy(n, X, Numeric::EPSILON_FLOAT);

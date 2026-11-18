@@ -1,7 +1,6 @@
 #include <cstdio>
 
 #include "java/lang/ProcessBuilder.h"
-
 namespace java {
 
 ProcessBuilder::ProcessBuilder(const char *commandLine):

@@ -9,6 +9,9 @@ class MgfTessellationMath {
 
     static void formatFloat(char *target, int targetLength, double value);
     static void mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon);
+    static double normalizeAndGivePreviousNorm(Vector3Dd *vector, double epsilon);
+    static bool isNull(const Vector3Dd &vector, double epsilon);
+    static double distanceSquared(const Vector3Dd &a, const Vector3Dd &b);
 };
 
 #endif

@@ -147,7 +147,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
             threshold = galerkinState->refinementPowerErrorThresholdNumerator / (M_PI * receiverArea);
             break;
         default:
-            Logger::fatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
+            Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
     }
 
     // Weight the error with the potential of the receiver in case of view-potential
@@ -237,7 +237,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
             break;
 
         default:
-            Logger::fatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
+            Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "hierarchicRefinementApproximationError", "Invalid iteration method");
     }
 
     return approxError;
@@ -437,8 +437,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             interaction->receiverElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
         } else {
-            Logger::fatal(
-                -1, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
+            Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
         }
     }
 }
@@ -815,7 +814,7 @@ HierarchicalRefinementStrategy::refineRecursive(
             refined = true;
             break;
         default:
-            Logger::fatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
+            Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
     }
 
     return refined;
@@ -888,7 +887,9 @@ HierarchicalRefinementStrategy::refineInteractionsRecursive(
         }
     }
     if ( interactions != nullptr ) {
-        interactions->truncate(writeIndex);
+        while ( interactions->size() > writeIndex ) {
+            interactions->remove(interactions->size() - 1);
+        }
     }
 }
 

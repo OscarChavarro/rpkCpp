@@ -61,12 +61,12 @@ BinaryModelReadPrimitives::initializeArrayList(java::ArrayList<T> *list, int cou
         return reportReadError("BinaryModelReadPrimitives::initializeArrayList", "Null list pointer");
     }
     if ( count < 0 ) {
-        Logger::error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
+        Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::initializeArrayList", java::String::format("Negative count while reading binary model (%s)", what));
         return false;
     }
     for ( int i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
-            Logger::error("BinaryModelReadPrimitives::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
+            Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::initializeArrayList", java::String::format("Failed to allocate entries while reading binary model (%s)", what));
             return false;
         }
     }
@@ -84,7 +84,7 @@ BinaryModelReadPrimitives::pointerFromIndex(const java::ArrayList<T *> &values, 
         return true;
     }
     if ( index < 0 || static_cast<long int>(index) >= values.size() ) {
-        Logger::error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+        Logger::reportMessage("BinaryModelReadPrimitives", Logger::ERROR, "BinaryModelReadPrimitives::pointerFromIndex", java::String::format("Out of range index while reading binary model (%s)", what));
         return false;
     }
     *result = values.get(static_cast<long int>(index));

@@ -2,6 +2,7 @@
 #define COLOR__
 
 #include "java/io/PrintStream.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 /**
 Representation of radiance, radiosity, power, spectra
@@ -15,6 +16,11 @@ class ColorRgbMutable {
   public:
     ColorRgbMutable();
     ColorRgbMutable(double inR, double inG, double inB);
+    ColorRgbMutable(const ColorRgb &c): r(c.getR()), g(c.getG()), b(c.getB()) {}
+
+    explicit operator ColorRgb() const {
+        return {r, g, b};
+    }
 
     inline double getR() const { return r; }
     inline double getG() const { return g; }

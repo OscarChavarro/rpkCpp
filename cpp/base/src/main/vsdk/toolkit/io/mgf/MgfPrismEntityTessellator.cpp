@@ -64,23 +64,19 @@ MgfPrismEntityTessellator::handleEntity(int argumentCount, const char **argument
             return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
         }
 
-        if ( !vertexContext->n.isNull(Numeric::EPSILON) ) {
+        if ( !MgfTessellationMath::isNull(vertexContext->n, Numeric::EPSILON) ) {
             hasNormal++;
         }
 
         Vector3Dd v2;
         Vector3Dd v3;
 
-        v2.x = vertexContext->p.x - v0Context->p.x;
-        v2.y = vertexContext->p.y - v0Context->p.y;
-        v2.z = vertexContext->p.z - v0Context->p.z;
-        v3.crossProduct(&v1, &v2);
-        normal.x += v3.x;
-        normal.y += v3.y;
-        normal.z += v3.z;
-        v1.copy(&v2);
+        v2 = Vector3Dd(vertexContext->p.x() - v0Context->p.x(), vertexContext->p.y() - v0Context->p.y(), vertexContext->p.z() - v0Context->p.z());
+        v3 = v1.crossProduct(v2);
+        normal = Vector3Dd(normal.x() + v3.x(), normal.y() + v3.y(), normal.z() + v3.z());
+        v1 = v2;
     }
-    if ( normal.normalizeAndGivePreviousNorm(Numeric::EPSILON) == 0.0 ) {
+    if ( MgfTessellationMath::normalizeAndGivePreviousNorm(&normal, Numeric::EPSILON) == 0.0 ) {
         return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
@@ -94,9 +90,9 @@ MgfPrismEntityTessellator::handleEntity(int argumentCount, const char **argument
             return errorCode;
         }
         vertexContext = MgfVertexFaceEntitySupport::getNamedVertex(argumentValues[i], context); // Checked above
-        MgfTessellationMath::formatFloat(p[0], 24, vertexContext->p.x - length * normal.x);
-        MgfTessellationMath::formatFloat(p[1], 24, vertexContext->p.y - length * normal.y);
-        MgfTessellationMath::formatFloat(p[2], 24, vertexContext->p.z - length * normal.z);
+        MgfTessellationMath::formatFloat(p[0], 24, vertexContext->p.x() - length * normal.x());
+        MgfTessellationMath::formatFloat(p[1], 24, vertexContext->p.y() - length * normal.y());
+        MgfTessellationMath::formatFloat(p[2], 24, vertexContext->p.z() - length * normal.z());
         errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, pointEntity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;

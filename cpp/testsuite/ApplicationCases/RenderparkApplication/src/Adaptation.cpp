@@ -151,7 +151,7 @@ Adaptation::estimateSceneAdaptation(
             break;
         }
         default:
-            Logger::error("sceneBuilderComputeStats", "unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod);
+            Logger::reportMessage("Adaptation", Logger::ERROR, "sceneBuilderComputeStats", java::String::format("unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod));
     }
 }
 

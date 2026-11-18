@@ -1,11 +1,10 @@
-#ifndef JAVA_IO_FILE_INPUT_STREAM__
-#define JAVA_IO_FILE_INPUT_STREAM__
+#ifndef __FILE_INPUT_STREAM__
+#define __FILE_INPUT_STREAM__
 
 #include <cstdio>
 
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
-
 namespace java {
 
 class FileInputStream : public InputStream {

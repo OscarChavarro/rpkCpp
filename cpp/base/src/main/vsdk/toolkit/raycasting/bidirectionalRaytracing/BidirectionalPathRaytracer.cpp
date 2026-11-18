@@ -67,7 +67,7 @@ BidirectionalPathRaytracer::execute(
     BidirectionalPathTracingConfiguration config;
     config.toneMapOptions = toneMapOptions;
     if ( config.toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+        Logger::reportMessage("BidirectionalPathRaytracer", Logger::FATAL_ERROR, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
     }
 
     // Copy base config (so that rendering is independent of GUI)

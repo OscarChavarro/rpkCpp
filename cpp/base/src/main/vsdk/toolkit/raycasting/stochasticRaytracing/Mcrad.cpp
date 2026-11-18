@@ -442,8 +442,7 @@ Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosi
                 rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], static_cast<float>(u), static_cast<float>(v));
                 break;
             default:
-                Logger::fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
-                         leaf->numberOfVertices);
+                Logger::reportMessage("Mcrad", Logger::FATAL_ERROR, "monteCarloRadiosityInterpolatedReflectanceAtPoint", java::String::format("Invalid nr of vertices %d", leaf->numberOfVertices));
         }
     }
     return rd;

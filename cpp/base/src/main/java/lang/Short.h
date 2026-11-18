@@ -1,5 +1,5 @@
-#ifndef JAVA_SHORT__
-#define JAVA_SHORT__
+#ifndef __SHORT__
+#define __SHORT__
 
 namespace java {
 

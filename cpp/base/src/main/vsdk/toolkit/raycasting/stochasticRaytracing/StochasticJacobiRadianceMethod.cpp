@@ -110,7 +110,7 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene, ToneMappingContext *ton
     (void) scene;
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::reportMessage("StochasticJacobiRadianceMethod", Logger::FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation::activeState().method = StochasticRaytracingMethod::STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
@@ -192,8 +192,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementRad
         elem->quality = 0.0;
         static bool repeated = false;
         if ( !repeated ) {
-            Logger::warning("stochasticRelaxationRadiosityElementIncrementRadiance",
-                       "Solution of incremental Jacobi steps receives zero quality");
+            Logger::reportMessage("StochasticJacobiRadianceMethod", Logger::WARNING, "stochasticRelaxationRadiosityElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
         }
         repeated = true;
     } else {
@@ -528,7 +527,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RendererConfiguration *rend
 
         if ( StochasticRelaxation::activeState().importanceDriven ) {
             if ( !StochasticRelaxation::activeState().incrementalUsesImportance ) {
-                Logger::warning(nullptr, "Importance is only used from the second iteration on ...");
+                Logger::reportMessage("StochasticJacobiRadianceMethod", Logger::WARNING, "", "Importance is only used from the second iteration on ...");
             } else if ( StochasticRelaxation::activeState().importanceUpdated ) {
                     StochasticRelaxation::activeState().importanceUpdated = false;
 

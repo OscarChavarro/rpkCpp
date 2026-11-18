@@ -37,11 +37,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
             break;
         }
         default:
-            Logger::fatal(
-                -1,
-                "stochasticRadiosityElementColor",
-                "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
-                StochasticRelaxation::activeState().show);
+            Logger::reportMessage("StochasticRadiosityElementRender", Logger::FATAL_ERROR, "stochasticRadiosityElementColor", java::String::format("Don't know what to display (StochasticRelaxation::activeState().show = %d)", StochasticRelaxation::activeState().show));
     }
 
     return color;
@@ -122,9 +118,7 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
             break;
         }
         default:
-            Logger::fatal(-1, "vertexColor",
-                     "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
-                     StochasticRelaxation::activeState().show);
+            Logger::reportMessage("StochasticRadiosityElementRender", Logger::FATAL_ERROR, "vertexColor", java::String::format("Don't know what to display (StochasticRelaxation::activeState().show = %d)", StochasticRelaxation::activeState().show));
     }
 
     return v->color;
@@ -205,8 +199,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(con
                     radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], static_cast<float>(u), static_cast<float>(v));
                     break;
                 default:
-                    Logger::fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
-                             "can only handle triangular or quadrilateral elements");
+                    Logger::reportMessage("StochasticRadiosityElementRender", Logger::FATAL_ERROR, "stochasticRadiosityElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
             }
         } else {
             // Flat shading

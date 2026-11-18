@@ -207,7 +207,7 @@ Sets the number of quarter circle divisions for discrete approximation of cylind
 void
 MgfParserLoader::mgfSetNrQuartCircDivs(int divs) {
     if ( divs <= 0 ) {
-        Logger::error(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
+        Logger::reportMessage("MgfParserLoader", Logger::ERROR, "", java::String::format("Number of quarter circle divisions (%d) should be positive", divs));
         return;
     }
 }
@@ -425,12 +425,12 @@ MgfParserLoader::mgfHandlerFromType(ParseRuntimeContext *context, HandlerRoleCon
 
     const int handlerIndex = static_cast<int>(handlerType);
     if ( handlerIndex < 0 || handlerIndex >= ReaderDispatchContext::handlerTypeCount() ) {
-        Logger::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
+        Logger::reportMessage("MgfParserLoader", Logger::FATAL_ERROR, "mgfHandlerFromType", java::String::format("Unknown MGF handler type %d", handlerIndex));
     }
 
     EntityDispatchContext *handler = context->readerStackState.handlerByType[handlerIndex];
     if ( handler == nullptr ) {
-        Logger::fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+        Logger::reportMessage("MgfParserLoader", Logger::FATAL_ERROR, "mgfHandlerFromType", java::String::format("Missing MGF handler for type %d", handlerIndex));
     }
     return handler;
 }

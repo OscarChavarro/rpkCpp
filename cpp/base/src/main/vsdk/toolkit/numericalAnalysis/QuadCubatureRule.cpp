@@ -342,6 +342,6 @@ QuadCubatureRule::setQuadCubatureRules(CubatureRule **quadRule, const CubatureDe
             *quadRule = &crq7Pg;
             break;
         default:
-            Logger::fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree);
+            Logger::reportMessage("QuadCubatureRule", Logger::FATAL_ERROR, "setQuadCubatureRules", java::String::format("Invalid degree %d", degree));
     }
 }

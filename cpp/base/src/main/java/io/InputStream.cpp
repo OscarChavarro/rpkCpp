@@ -1,5 +1,4 @@
 #include "java/io/InputStream.h"
-
 namespace java {
 
 void

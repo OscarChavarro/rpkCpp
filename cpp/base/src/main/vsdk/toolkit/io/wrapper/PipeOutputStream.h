@@ -1,10 +1,9 @@
-#ifndef PIPE_OUTPUT_STREAM__
-#define PIPE_OUTPUT_STREAM__
+#ifndef __PIPE_OUTPUT_STREAM__
+#define __PIPE_OUTPUT_STREAM__
 
 #include <cstdio>
 
 #include "java/io/OutputStream.h"
-
 class PipeOutputStream : public java::OutputStream {
   private:
     void *pipeHandle;

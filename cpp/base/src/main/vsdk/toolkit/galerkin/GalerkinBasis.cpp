@@ -39,7 +39,7 @@ GalerkinBasis::pull(
         parentCoefficients[0].scaledCopy(child->area / parent->area, childCoefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            Logger::error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
+            Logger::reportMessage("GalerkinBasis", Logger::ERROR, "stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
             ColorRgbMutable::arrayClear(parentCoefficients, parent->basisSize);
             parentCoefficients[0] = childCoefficients[0];
             return;
@@ -263,7 +263,7 @@ GalerkinBasis::push(
         childCoefficients[0] = parentCoefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            Logger::error("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
+            Logger::reportMessage("GalerkinBasis", Logger::ERROR, "stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
             ColorRgbMutable::arrayClear(childCoefficients, child->basisSize);
             childCoefficients[0] = parentCoefficients[0];
             return;

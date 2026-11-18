@@ -242,7 +242,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
 void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
-        Logger::error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+        Logger::reportMessage("VoxelGrid", Logger::ERROR, "VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         java::System::exit(1);
     }
 

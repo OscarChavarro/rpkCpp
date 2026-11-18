@@ -118,7 +118,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpt
     java::System::err.printf("Photon map activated\n");
 
     if ( toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::reportMessage("PhotonMapRadianceMethod", Logger::FATAL_ERROR, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     photonMapState.lastClock = java::System::nanoTime();
@@ -763,7 +763,7 @@ PhotonMapRadianceMethod::getRadiance(
             break;
         default:
             radiance.clear();
-            Logger::error("photonMapGetRadiance", "Unknown radiance return");
+            Logger::reportMessage("PhotonMapRadianceMethod", Logger::ERROR, "photonMapGetRadiance", "Unknown radiance return");
     }
 
     return radiance;

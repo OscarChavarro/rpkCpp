@@ -105,7 +105,7 @@ RandomWalkRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOp
     (void) scene;
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation::activeState().method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
@@ -218,8 +218,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n
             }
             break;
         default:
-            Logger::fatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
-                     StochasticRelaxation::activeState().randomWalkEstimatorKind);
+            Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "randomWalkRadiosityScoreWeight", java::String::format("Unknown random walk estimator kind %d", StochasticRelaxation::activeState().randomWalkEstimatorKind));
     }
     return w;
 }
@@ -527,8 +526,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOpti
             randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->patchList);
             break;
         default:
-            Logger::fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
-                     StochasticRelaxation::activeState().randomWalkEstimatorType);
+            Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "randomWalkRadiosityDoStep", java::String::format("Unknown random walk estimator type %d", StochasticRelaxation::activeState().randomWalkEstimatorType));
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

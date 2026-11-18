@@ -43,7 +43,7 @@ LinkingSimpleStrategy::createInitialLink(
             src = topLevelElement;
             break;
         default:
-            Logger::fatal(2, "createInitialLink", "Impossible element role");
+            Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLink", "Impossible element role");
     }
 
     java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
@@ -227,7 +227,7 @@ LinkingSimpleStrategy::createInitialLinks(
     GalerkinElement *topElement)
 {
     if ( topElement->flags & ElementFlags::IS_CLUSTER_MASK ) {
-        Logger::fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+        Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
     AxisAlignedBoundingBox topLevelBoundingBox;

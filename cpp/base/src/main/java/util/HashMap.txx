@@ -1,5 +1,4 @@
 #include "java/util/HashMap.h"
-
 namespace java {
 
 template <class K, class V>
@@ -37,6 +36,15 @@ HashMap<K, V>::hashKeyValue(const T *const &value) {
 }
 
 template <class K, class V>
+inline size_t
+HashMap<K, V>::hashKeyValue(const java::String &value) {
+    const char *text = value.c_str();
+    return hashFNV1a(
+        reinterpret_cast<const unsigned char *>(text),
+        std::strlen(text));
+}
+
+template <class K, class V>
 HashMap<K, V>::HashMap():
     buckets(nullptr),
     bucketCount(0),
@@ -57,8 +65,44 @@ HashMap<K, V>::HashMap(long initialCapacity):
 }
 
 template <class K, class V>
+HashMap<K, V>::HashMap(const HashMap &other):
+    buckets(nullptr),
+    bucketCount(0),
+    elementCount(0),
+    maxLoadFactor(other.maxLoadFactor)
+{
+    initialize(other.bucketCount <= 0 ? 16 : other.bucketCount);
+    for ( long i = 0; i < other.bucketCount; i++ ) {
+        Entry *current = other.buckets[i];
+        while ( current != nullptr ) {
+            put(current->key, current->value);
+            current = current->next;
+        }
+    }
+}
+
+template <class K, class V>
 HashMap<K, V>::~HashMap() {
     clear();
+}
+
+template <class K, class V>
+HashMap<K, V> &
+HashMap<K, V>::operator=(const HashMap &other) {
+    if ( this == &other ) {
+        return *this;
+    }
+    clear();
+    maxLoadFactor = other.maxLoadFactor;
+    initialize(other.bucketCount <= 0 ? 16 : other.bucketCount);
+    for ( long i = 0; i < other.bucketCount; i++ ) {
+        Entry *current = other.buckets[i];
+        while ( current != nullptr ) {
+            put(current->key, current->value);
+            current = current->next;
+        }
+    }
+    return *this;
 }
 
 template <class K, class V>
@@ -127,6 +171,44 @@ template <class K, class V>
 bool
 HashMap<K, V>::containsKey(const K &key) const {
     return tryGet(key, nullptr);
+}
+
+template <class K, class V>
+V *
+HashMap<K, V>::get(const K &key) {
+    if ( buckets == nullptr || bucketCount <= 0 ) {
+        return nullptr;
+    }
+
+    const long index = bucketIndexFor(key);
+    Entry *current = buckets[index];
+    while ( current != nullptr ) {
+        if ( current->key == key ) {
+            return &current->value;
+        }
+        current = current->next;
+    }
+
+    return nullptr;
+}
+
+template <class K, class V>
+const V *
+HashMap<K, V>::get(const K &key) const {
+    if ( buckets == nullptr || bucketCount <= 0 ) {
+        return nullptr;
+    }
+
+    const long index = bucketIndexFor(key);
+    Entry *current = buckets[index];
+    while ( current != nullptr ) {
+        if ( current->key == key ) {
+            return &current->value;
+        }
+        current = current->next;
+    }
+
+    return nullptr;
 }
 
 template <class K, class V>

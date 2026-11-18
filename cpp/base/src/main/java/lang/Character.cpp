@@ -1,5 +1,4 @@
 #include "java/lang/Character.h"
-
 namespace java {
 
 bool

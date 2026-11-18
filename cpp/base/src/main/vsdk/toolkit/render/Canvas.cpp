@@ -10,7 +10,7 @@ void
 Canvas::canvasPushMode() {
     modeStackIndex++;
     if ( modeStackIndex >= CANVAS_MODE_STACK_SIZE ) {
-        Logger::fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE);
+        Logger::reportMessage("Canvas", Logger::FATAL_ERROR, "canvasPushMode", java::String::format("Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE));
     }
 }
 
@@ -21,6 +21,6 @@ void
 Canvas::canvasPullMode() {
     modeStackIndex--;
     if ( modeStackIndex < 0 ) {
-        Logger::fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
+        Logger::reportMessage("Canvas", Logger::FATAL_ERROR, "canvasPullMode", "Canvas mode stack underflow.\n");
     }
 }

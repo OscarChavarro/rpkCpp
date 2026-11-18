@@ -352,7 +352,7 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubElementAtPoint(
             }
             break;
         default:
-            Logger::fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+            Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -513,7 +513,7 @@ StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(const S
                         v = static_cast<StochasticRadiosityElement *>(neighbour->regularSubElements[2])->vertices[0];
                         break;
                     default:
-                        Logger::error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        Logger::reportMessage("StochasticRadiosityElement", Logger::ERROR, "EdgeMidpointVertex", java::String::format("Invalid vertex index %d", index));
                 }
                 break;
             case 4:
@@ -531,11 +531,11 @@ StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(const S
                         v = static_cast<StochasticRadiosityElement *>(neighbour->regularSubElements[2])->vertices[0];
                         break;
                     default:
-                        Logger::error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        Logger::reportMessage("StochasticRadiosityElement", Logger::ERROR, "EdgeMidpointVertex", java::String::format("Invalid vertex index %d", index));
                 }
                 break;
             default:
-                Logger::fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+                Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
         }
     }
 
@@ -571,7 +571,7 @@ Only for surface elements
 bool
 StochasticRadiosityElement::stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
-        Logger::fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
+        Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
     const Material *mat = elem->patch->getMaterial();
@@ -629,7 +629,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
         unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
-        patch->uniformPoint(hit.getUv().u, hit.getUv().v, &position);
+        patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
         if ( patch->getMaterial()->getBsdf() ) {
             sample.clear();
             if ( patch->getMaterial()->getBsdf() != nullptr ) {
@@ -781,15 +781,14 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
     }
 
     if ( element->isCluster() ) {
-        Logger::fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+        Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return nullptr;
     }
 
     if ( element->patch->getJacobian() != nullptr ) {
         static bool flag = false;
         if ( !flag ) {
-            Logger::warning("galerkinElementRegularSubDivide",
-                       "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
+            Logger::reportMessage("StochasticRadiosityElement", Logger::WARNING, "galerkinElementRegularSubDivide", "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
         flag = true;
     }
@@ -804,7 +803,7 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
             monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
             break;
         default:
-            Logger::fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
+            Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
     }
     return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
@@ -888,8 +887,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(
         Basismcrad::filterColorDown(parentRadiance, &(*child->basis->regularFilter)[child->childNumber], childRadiance,
                         child->basis->size);
     } else {
-        Logger::fatal(-1, "stochasticRadiosityElementPushRadiance",
-                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+        Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "stochasticRadiosityElementPushRadiance", "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }
 
@@ -912,8 +910,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
         Basismcrad::filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
                       parentRad, child->basis->size, areaFactor);
     } else {
-        Logger::fatal(-1, "stochasticRadiosityElementPullRadiance",
-                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+        Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "stochasticRadiosityElementPullRadiance", "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }
 

@@ -3,7 +3,6 @@
 #include "java/io/FileOutputStream.h"
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
-#include "java/util/HashMap.txx"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -46,7 +45,7 @@ BinaryModelSerializer::safeLabel(const char *text) {
 bool
 BinaryModelSerializer::writeBytesChunked(java::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
-        Logger::error("BinaryModelSerializer::writeBytesChunked", "Negative block length");
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::writeBytesChunked", "Negative block length");
         return false;
     }
     long long offset = 0;
@@ -72,7 +71,7 @@ bool
 BinaryModelSerializer::checkedLongToInt32(long value, const char *what, int &result) {
     if ( value > static_cast<long>(java::Integer::MAX_VALUE)
          || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
-        Logger::error("BinaryModelSerializer::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::checkedLongToInt32", java::String::format("Overflow converting to int32 for %s", safeLabel(what)));
         return false;
     }
     result = static_cast<int>(value);
@@ -135,7 +134,7 @@ BinaryModelSerializer::indexOfPointer(
     }
     int index = 0;
     if ( !indices.tryGet(ptr, &index) ) {
-        Logger::error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::indexOfPointer", java::String::format("Missing pointer index for %s", safeLabel(what)));
         return false;
     }
     result = static_cast<int>(index);
@@ -217,7 +216,7 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Mat
         const int height = texture->getHeight();
         const int channels = texture->getChannels();
         if ( width < 0 || height < 0 || channels < 0 ) {
-            Logger::error("BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
+            Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
             return false;
         }
 
@@ -233,7 +232,7 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Mat
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
             if ( data == nullptr ) {
-                Logger::error("BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
+                Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
                 return false;
             }
             if ( !writeBytesChunked(output, data, dataBytes) ) {
@@ -312,7 +311,7 @@ BinaryModelSerializer::writeTransformContextRecord(
 
     for ( int i = 0; i < 4; i++ ) {
         for ( int j = 0; j < 4; j++ ) {
-            vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.transformMatrix.m[i][j]);
+            vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.transformMatrix.get(i, j));
         }
     }
     vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.scaleFactor);
@@ -473,7 +472,7 @@ BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Geo
             return false;
         }
     } else {
-        Logger::error("BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
         return false;
     }
     return true;
@@ -541,12 +540,12 @@ BinaryModelSerializer::writeModelRecord(java::OutputStream &output, const ParseS
 bool
 BinaryModelSerializer::write(const ParseSnapshotContext *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
-        Logger::error("BinaryModelSerializer::write", "Invalid model or fileName");
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::write", "Invalid model or fileName");
         return false;
     }
     java::File file(fileName);
     if ( !file.canWrite() || file.isDirectory() ) {
-        Logger::error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
+        Logger::reportMessage("BinaryModelSerializer", Logger::ERROR, "BinaryModelSerializer::write", java::String::format("Could not open output file '%s'", fileName));
         return false;
     }
 

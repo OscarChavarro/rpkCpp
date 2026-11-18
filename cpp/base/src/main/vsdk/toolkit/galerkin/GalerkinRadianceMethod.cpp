@@ -195,7 +195,7 @@ GalerkinRadianceMethod::writeVertexColorsTopCluster() {
 void
 GalerkinRadianceMethod::writeColors(const RendererConfiguration *renderOptions) {
     if ( !renderOptions->isSmoothShading() ) {
-        Logger::warning(nullptr, "I assume you want a smooth shaded model ...");
+        Logger::reportMessage("GalerkinRadianceMethod", Logger::WARNING, "", "I assume you want a smooth shaded model ...");
     }
     writeFormatted("\tcolorPerVertex %s\n", "TRUE");
     writeVertexColorsTopCluster();
@@ -292,7 +292,7 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
                 galerkinSetUnShotPotential(patch, patch->getDirectPotential());
                 break;
             default:
-                Logger::fatal(-1, "patchInit", "Invalid iteration method");
+                Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "patchInit", "Invalid iteration method");
         }
     }
 
@@ -344,7 +344,7 @@ void
 GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOptions) {
     galerkinState.toneMapOptions = toneMapOptions;
     if ( galerkinState.toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     galerkinState.iterationNumber = 0;
@@ -379,7 +379,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 bool
 GalerkinRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOptions) {
     if ( galerkinState.iterationNumber < 0 ) {
-        Logger::error("doGalerkinOneStep", "method not initialized");
+        Logger::reportMessage("GalerkinRadianceMethod", Logger::ERROR, "doGalerkinOneStep", "method not initialized");
         return true; // Done, don't continue!
     }
 
@@ -398,7 +398,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOption
             done = ShootingStrategy::doShootingStep(scene, &galerkinState, renderOptions);
             break;
         default:
-            Logger::fatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
+            Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "doGalerkinOneStep", java::String::format("Invalid iteration method %d\n", galerkinState.galerkinIterationMethod));
     }
 
     updateCpuSecs();

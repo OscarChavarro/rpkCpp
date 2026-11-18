@@ -1,8 +1,8 @@
-#ifndef JAVA_MATH__
-#define JAVA_MATH__
+#ifndef __VITRAL_JAVA_LANG_MATH__
+#define __VITRAL_JAVA_LANG_MATH__
 
 #include <cmath>
-
+#include <stdlib.h>
 namespace java {
 class Math {
   public:
@@ -24,6 +24,8 @@ class Math {
     static float tan(float a);
     static double acos(double a);
     static float acos(float a);
+    static double asin(double a);
+    static float asin(float a);
     static double atan(double a);
     static double exp(double a);
     static float exp(float a);
@@ -31,17 +33,39 @@ class Math {
     static float pow(float a, float e);
     static double abs(double a);
     static float abs(float a);
+    static int abs(int a);
+    static long abs(long a);
     static int min(int a, int b);
     static int max(int a, int b);
     static float min(float a, float b);
     static float max(float a, float b);
+    static double min(double a, double b);
+    static double max(double a, double b);
+    static long min(long a, long b);
+    static long max(long a, long b);
     static float sqrt(float a);
     static double sqrt(double a);
+    static double nextAfter(double start, double direction);
     static int getExponent(double a);
     static int getExponent(float a);
+    static double toRadians(double angdeg);
+    static double toDegrees(double angrad);
     static double scalb(double a, int scaleFactor);
     static float scalb(float a, int scaleFactor);
 };
+
+// As Java 9+ (the reference JDK): a single multiplication by the rounded
+// conversion constant, not `angdeg / 180.0 * PI` (Java 8)
+inline double
+Math::toRadians(double angdeg) {
+    return angdeg * 0.017453292519943295;
+}
+
+inline double
+Math::toDegrees(double angrad) {
+    // As Java 9+: multiplication by the rounded conversion constant
+    return angrad * 57.29577951308232;
+}
 
 inline double
 Math::ceil(double a) {
@@ -118,6 +142,16 @@ Math::acos(double a) {
     return std::acos(a);
 }
 
+inline float
+Math::asin(float a) {
+    return std::asin(a);
+}
+
+inline double
+Math::asin(double a) {
+    return std::asin(a);
+}
+
 inline double
 Math::atan(double a) {
     return std::atan(a);
@@ -154,6 +188,16 @@ Math::abs(float a) {
 }
 
 inline int
+Math::abs(int a) {
+    return ::abs(a);
+}
+
+inline long
+Math::abs(long a) {
+    return ::labs(a);
+}
+
+inline int
 Math::min(int a, int b) {
     return a < b ? a : b;
 }
@@ -173,6 +217,26 @@ Math::max(float a, float b) {
     return a > b ? a : b;
 }
 
+inline double
+Math::min(double a, double b) {
+    return a < b ? a : b;
+}
+
+inline double
+Math::max(double a, double b) {
+    return a > b ? a : b;
+}
+
+inline long
+Math::min(long a, long b) {
+    return a < b ? a : b;
+}
+
+inline long
+Math::max(long a, long b) {
+    return a > b ? a : b;
+}
+
 inline float
 Math::sqrt(float a) {
     return std::sqrt(a);
@@ -181,6 +245,11 @@ Math::sqrt(float a) {
 inline double
 Math::sqrt(double a) {
     return std::sqrt(a);
+}
+
+inline double
+Math::nextAfter(double start, double direction) {
+    return std::nextafter(start, direction);
 }
 
 inline int

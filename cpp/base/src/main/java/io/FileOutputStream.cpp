@@ -1,7 +1,6 @@
 #include <cstdio>
 
 #include "java/io/FileOutputStream.h"
-
 namespace java {
 
 FILE *
@@ -10,11 +9,16 @@ FileOutputStream::toFileHandle(void *handle) {
 }
 
 FileOutputStream::FileOutputStream(const char *fileName):
-    stream(nullptr)
+    stream(nullptr), ownsStream(true)
 {
     if ( fileName != nullptr && fileName[0] != '\0' ) {
         stream = static_cast<void *>(std::fopen(fileName, "wb"));
     }
+}
+
+FileOutputStream::FileOutputStream(FILE *openStream):
+    stream(static_cast<void *>(openStream)), ownsStream(false)
+{
 }
 
 FileOutputStream::~FileOutputStream() {
@@ -57,7 +61,12 @@ FileOutputStream::close() {
     if ( fileHandle == nullptr ) {
         return;
     }
-    std::fclose(fileHandle);
+    if ( ownsStream ) {
+        std::fclose(fileHandle);
+    }
+    else {
+        fflush(fileHandle);
+    }
     stream = nullptr;
 }
 

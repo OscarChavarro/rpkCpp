@@ -23,7 +23,7 @@ DensityHitList::~DensityHitList() {
 DensityHit
 DensityHitList::operator[](int i) {
     if ( i >= numHits ) {
-        Logger::fatal(-1, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+        Logger::reportMessage("DensityHitList", Logger::FATAL_ERROR, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if ( !cacheCurrent || (i < cacheLowerLimit) ) {

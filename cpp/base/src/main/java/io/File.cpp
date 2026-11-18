@@ -3,7 +3,10 @@
 #include <cstring>
 
 #include "java/io/File.h"
-
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include "java/util/ArrayList.txx"
 namespace java {
 
 bool
@@ -89,6 +92,27 @@ File::dispose() {
 }
 
 java::String
+File::getPath() const {
+    return path;
+}
+
+java::String
+File::getAbsolutePath() const {
+    if ( path.length() > 0 && path.charAt(0) == '/' ) {
+        return path;
+    }
+    char buffer[4096];
+    if ( getcwd(buffer, sizeof(buffer)) == nullptr ) {
+        return path;
+    }
+    java::String cwd(buffer);
+    if ( path.length() == 0 ) {
+        return cwd;
+    }
+    return cwd + "/" + path;
+}
+
+java::String
 File::getName() const {
     const int separator = path.indexOf('/');
     if ( separator < 0 ) {
@@ -159,6 +183,74 @@ File::canWrite() const {
     }
 
     return canOpenWithMode(rawPath, "ab");
+}
+
+bool
+File::mkdirs() const {
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
+        return false;
+    }
+
+    if ( isDirectoryByReadProbe(rawPath) ) {
+        return true;
+    }
+
+    const std::size_t len = std::strlen(rawPath);
+    char *tmp = new char[len + 1];
+    std::memcpy(tmp, rawPath, len + 1);
+
+    for ( std::size_t i = 1; i < len; i++ ) {
+        if ( tmp[i] == '/' ) {
+            tmp[i] = '\0';
+            mkdir(tmp, 0775);
+            tmp[i] = '/';
+        }
+    }
+
+    errno = 0;
+    const bool created = (mkdir(tmp, 0775) == 0);
+    delete[] tmp;
+
+    return created || isDirectoryByReadProbe(rawPath);
+}
+
+java::ArrayList<java::String>
+File::list() const {
+    java::ArrayList<java::String> names;
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
+        return names;
+    }
+    DIR *dir = opendir(rawPath);
+    if ( dir == nullptr ) {
+        return names;
+    }
+    struct dirent *entry;
+    while ( (entry = readdir(dir)) != nullptr ) {
+        if ( std::strcmp(entry->d_name, ".") == 0 || std::strcmp(entry->d_name, "..") == 0 ) {
+            continue;
+        }
+        names.add(java::String(entry->d_name));
+    }
+    closedir(dir);
+    return names;
+}
+
+java::ArrayList<java::File*>
+File::listFiles() const {
+    java::ArrayList<java::File*> files;
+    java::ArrayList<java::String> names = list();
+    const java::String base = path;
+    const bool needsSlash = base.length() > 0 && base.charAt(base.length() - 1) != '/';
+    for ( long int i = 0; i < names.size(); i++ ) {
+        std::size_t total = std::strlen(base.c_str()) + std::strlen(names[i].c_str()) + 2;
+        char *full = new char[total];
+        std::snprintf(full, total, "%s%s%s", base.c_str(), needsSlash ? "/" : "", names[i].c_str());
+        files.add(new File(full));
+        delete[] full;
+    }
+    return files;
 }
 
 }

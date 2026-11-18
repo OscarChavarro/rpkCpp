@@ -2,7 +2,6 @@
 
 #include "java/lang/ProcessBuilder.h"
 #include "vsdk/toolkit/io/wrapper/PipeOutputStream.h"
-
 FILE *
 PipeOutputStream::toFileHandle(void *handle) {
     return static_cast<FILE *>(handle);

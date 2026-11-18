@@ -176,7 +176,7 @@ StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePat
     stochasticJacobiElementSetup(ElementHierarchyState::activeState().topCluster);
 
     if ( sumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
-        Logger::warning("Iteration", "No sources");
+        Logger::reportMessage("Stochjacobi", Logger::WARNING, "Iteration", "No sources");
         return false;
     }
     return true;
@@ -350,7 +350,7 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
     } else {
         switch ( ElementHierarchyState::activeState().clustering ) {
             case HierarchyClusteringMode::NO_CLUSTERING:
-                Logger::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
+                Logger::reportMessage("Stochjacobi", Logger::FATAL_ERROR, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
 
             case HierarchyClusteringMode::ISOTROPIC_CLUSTERING:
                 stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
@@ -363,7 +363,7 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
                 }
                 break;
             default:
-                Logger::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(ElementHierarchyState::activeState().clustering));
+                Logger::reportMessage("Stochjacobi", Logger::FATAL_ERROR, "Propagate", java::String::format("Invalid clustering mode %d\n", static_cast<int>(ElementHierarchyState::activeState().clustering)));
         }
     }
 }
@@ -389,7 +389,7 @@ StochasticJacobi::stochasticJacobiPropagateImportance(
 
     if ( ElementHierarchyState::activeState().do_h_meshing ||
          ElementHierarchyState::activeState().clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
-        Logger::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
+        Logger::reportMessage("Stochjacobi", Logger::FATAL_ERROR, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
 
@@ -523,8 +523,8 @@ void
 StochasticJacobi::stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
     if ( hit->getFlags() & RayHitFlag::UV ) {
         // (u,v) coordinates obtained as side result of intersection test
-        *uHit = hit->getUv().u;
-        *vHit = hit->getUv().v;
+        *uHit = hit->getUv().x;
+        *vHit = hit->getUv().y;
         if ( hit->getPatch()->getJacobian() != nullptr ) {
             hit->getPatch()->biLinearToUniform(uHit, vHit);
         }

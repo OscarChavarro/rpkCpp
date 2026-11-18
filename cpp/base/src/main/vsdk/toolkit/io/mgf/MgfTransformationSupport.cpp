@@ -28,10 +28,20 @@ MgfTransformationSupport::computeUniqueId(const Matrix4x4d *xfm) {
         15, 8, 9, 2, 6, 11, 9, 11
     };
     long xid = 0;
+    double values[4][4];
+
+    for ( int row = 0; row < 4; row++ ) {
+        for ( int col = 0; col < 4; col++ ) {
+            values[row][col] = xfm->get(row, col);
+        }
+    }
+
+    unsigned short words[sizeof(values) / sizeof(unsigned short)];
+    memcpy(words, values, sizeof(values));
 
     // Compute unique transform id
-    for ( long unsigned int i = 0; i < sizeof(Matrix4x4d) / sizeof(unsigned short); i++ ) {
-        xid ^= static_cast<long>((reinterpret_cast<const unsigned short *>(xfm->m))[i] << shiftTab[i & 63]);
+    for ( long unsigned int i = 0; i < sizeof(words) / sizeof(unsigned short); i++ ) {
+        xid ^= static_cast<long>(words[i] << shiftTab[i & 63]);
     }
     return xid;
 }
@@ -215,10 +225,10 @@ Transform a point by the current matrix
 void
 MgfTransformationSupport::mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context) {
     if ( context->transformContext == nullptr) {
-        v1->copy(v2);
+        *v1 = *v2;
         return;
     }
-    context->transformContext->xf.transformMatrix.multiplyWithTranslation(v1, v2);
+    *v1 = context->transformContext->xf.transformMatrix.transformPoint(*v2);
 }
 
 /**
@@ -227,16 +237,16 @@ Transform a vector using current matrix
 void
 MgfTransformationSupport::mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context) {
     if ( context->transformContext == nullptr) {
-        v1->copy(v2);
+        *v1 = *v2;
         return;
     }
-    context->transformContext->xf.transformMatrix.multiply(v1, v2);
+    *v1 = context->transformContext->xf.transformMatrix.transformDirection(*v2);
 }
 
 void
 MgfTransformationSupport::finish(int count, TransformContext *ret, const Matrix4x4d *transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
-        Matrix4x4d::multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, transformMatrix);
+        ret->transformMatrix = ret->transformMatrix.multiply(*transformMatrix);
         ret->scaleFactor *= scaTransform;
     }
 }
@@ -246,18 +256,23 @@ Get transform specification
 */
 int
 MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
-    ret->transformMatrix.identity();
+    ret->transformMatrix = Matrix4x4d::identityMatrix();
     ret->scaleFactor = 1.0;
 
     int counter = 1;
     Matrix4x4d transformMatrix;
-    transformMatrix.identity();
+    transformMatrix = Matrix4x4d::identityMatrix();
     double scaTransform = 1.0;
 
     int i;
     double tmp;
     for ( i = 0; i < ac && av[i][0] == '-'; i++ ) {
-        Matrix4x4d m4;
+        double m4[4][4] = {
+            {1.0, 0.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0, 0.0},
+            {0.0, 0.0, 1.0, 0.0},
+            {0.0, 0.0, 0.0, 1.0}
+        };
 
         switch ( av[i][1] ) {
 
@@ -267,9 +282,9 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                     finish(counter, ret, &transformMatrix, scaTransform);
                     return i;
                 }
-                m4.m[3][0] = strtod(av[++i], nullptr);
-                m4.m[3][1] = strtod(av[++i], nullptr);
-                m4.m[3][2] = strtod(av[++i], nullptr);
+                m4[3][0] = strtod(av[++i], nullptr);
+                m4[3][1] = strtod(av[++i], nullptr);
+                m4[3][2] = strtod(av[++i], nullptr);
                 break;
 
             case 'r':
@@ -281,8 +296,8 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4.m[1][1] = m4.m[2][2] = java::Math::cos(tmp);
-                        m4.m[2][1] = -(m4.m[1][2] = java::Math::sin(tmp));
+                        m4[1][1] = m4[2][2] = java::Math::cos(tmp);
+                        m4[2][1] = -(m4[1][2] = java::Math::sin(tmp));
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -290,8 +305,8 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4.m[0][0] = m4.m[2][2] = java::Math::cos(tmp);
-                        m4.m[0][2] = -(m4.m[2][0] = java::Math::sin(tmp));
+                        m4[0][0] = m4[2][2] = java::Math::cos(tmp);
+                        m4[0][2] = -(m4[2][0] = java::Math::sin(tmp));
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -299,8 +314,8 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4.m[0][0] = m4.m[1][1] = java::Math::cos(tmp);
-                        m4.m[1][0] = -(m4.m[0][1] = java::Math::sin(tmp));
+                        m4[0][0] = m4[1][1] = java::Math::cos(tmp);
+                        m4[1][0] = -(m4[0][1] = java::Math::sin(tmp));
                         break;
                     default: {
                         if ( !checkArgument(2, "ffff", ac, av, i) ) {
@@ -318,21 +333,21 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                         float c = java::Math::cos(a);
                         s = java::Math::sin(a);
                         float t = 1 - c;
-                        m4.m[0][0] = t * x * x + c;
-                        m4.m[1][1] = t * y * y + c;
-                        m4.m[2][2] = t * z * z + c;
+                        m4[0][0] = t * x * x + c;
+                        m4[1][1] = t * y * y + c;
+                        m4[2][2] = t * z * z + c;
                         float A = t * x * y;
                         float B = s * z;
-                        m4.m[0][1] = A + B;
-                        m4.m[1][0] = A - B;
+                        m4[0][1] = A + B;
+                        m4[1][0] = A - B;
                         A = t * x * z;
                         B = s * y;
-                        m4.m[0][2] = A - B;
-                        m4.m[2][0] = A + B;
+                        m4[0][2] = A - B;
+                        m4[2][0] = A + B;
                         A = t * y * z;
                         B = s * x;
-                        m4.m[1][2] = A + B;
-                        m4.m[2][1] = A - B;
+                        m4[1][2] = A + B;
+                        m4[2][1] = A - B;
                     }
                 }
                 break;
@@ -350,7 +365,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
-                        m4.m[0][0] = tmp;
+                        m4[0][0] = tmp;
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -362,7 +377,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
-                        m4.m[1][1] = tmp;
+                        m4[1][1] = tmp;
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -374,7 +389,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
-                        m4.m[2][2] = tmp;
+                        m4[2][2] = tmp;
                         break;
                     default:
                         if ( !checkArgument(2, "f", ac, av, i) ) {
@@ -387,9 +402,9 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4.m[0][0] =
-                        m4.m[1][1] =
-                        m4.m[2][2] = tmp;
+                        m4[0][0] =
+                        m4[1][1] =
+                        m4[2][2] = tmp;
                         break;
                 }
                 i++;
@@ -404,7 +419,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4.m[0][0] = -1.0;
+                        m4[0][0] = -1.0;
                         break;
                     case 'y':
                         if ( !checkArgument(3, "", ac, av, i) ) {
@@ -412,7 +427,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4.m[1][1] = -1.0;
+                        m4[1][1] = -1.0;
                         break;
                     case 'z':
                         if ( !checkArgument(3, "", ac, av, i) ) {
@@ -420,7 +435,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4.m[2][2] = -1.0;
+                        m4[2][2] = -1.0;
                         break;
                     default:
                         finish(counter, ret, &transformMatrix, scaTransform);
@@ -435,11 +450,11 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                     return i;
                 }
                 while ( counter-- > 0 ) {
-                    Matrix4x4d::multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, &transformMatrix);
+                    ret->transformMatrix = ret->transformMatrix.multiply(transformMatrix);
                     ret->scaleFactor *= scaTransform;
                 }
                 counter = static_cast<int>(strtol(av[++i], nullptr, 10));
-                transformMatrix.identity();
+                transformMatrix = Matrix4x4d::identityMatrix();
                 scaTransform = 1.0;
                 continue;
 
@@ -448,7 +463,7 @@ MgfTransformationSupport::xf(TransformContext *ret, int ac, char **av) {
                 return i;
 
         }
-        Matrix4x4d::multiplyMatrix4(&transformMatrix, &transformMatrix, &m4);
+        transformMatrix = transformMatrix.multiply(Matrix4x4d(m4));
     }
 
     finish(counter, ret, &transformMatrix, scaTransform);
@@ -534,7 +549,7 @@ MgfTransformationSupport::handleTransformationEntity(int ac, const char **av, Pa
 
     // Compute total transformation
     if ( spec->prev != nullptr) {
-        Matrix4x4d::multiplyMatrix4(&spec->xf.transformMatrix, &spec->xf.transformMatrix, &spec->prev->xf.transformMatrix);
+        spec->xf.transformMatrix = spec->xf.transformMatrix.multiply(spec->prev->xf.transformMatrix);
         spec->xf.scaleFactor *= spec->prev->xf.scaleFactor;
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }

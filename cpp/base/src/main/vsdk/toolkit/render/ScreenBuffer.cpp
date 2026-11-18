@@ -100,7 +100,7 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
     rgbImage = src1->isRgbImage();
 
     if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {
-        Logger::error("ScreenBuffer::merge", "Incompatible screen buffer sources");
+        Logger::reportMessage("ScreenBuffer", Logger::ERROR, "ScreenBuffer::merge", "Incompatible screen buffer sources");
         return;
     }
 
@@ -229,7 +229,7 @@ ScreenBuffer::syncLine(int lineNumber) {
 const ToneMappingContext &
 ScreenBuffer::requireToneMappingContext() const {
     if ( toneMapOptions == nullptr ) {
-        Logger::fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+        Logger::reportMessage("ScreenBuffer", Logger::FATAL_ERROR, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
     }
     return *toneMapOptions;
 }

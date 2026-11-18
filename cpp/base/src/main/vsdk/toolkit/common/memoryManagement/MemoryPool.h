@@ -1,8 +1,7 @@
-#ifndef MEMORY_POOL__
-#define MEMORY_POOL__
+#ifndef __MEMORY_POOL__
+#define __MEMORY_POOL__
 
 #include "java/lang/Object.h"
-
 template <class T>
 class MemoryPool final : public java::Object {
   private:

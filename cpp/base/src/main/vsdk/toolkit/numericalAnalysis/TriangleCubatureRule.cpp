@@ -197,6 +197,6 @@ TriangleCubatureRule::setTriangleCubatureRules(CubatureRule **triRule, const Cub
             *triRule = &crt9;
             break;
         default:
-            Logger::fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
+            Logger::reportMessage("TriangleCubatureRule", Logger::FATAL_ERROR, "setTriangleCubatureRules", java::String::format("Invalid degree %d", degree));
     }
 }
