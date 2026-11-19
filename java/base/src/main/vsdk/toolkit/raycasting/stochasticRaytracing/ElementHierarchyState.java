@@ -65,7 +65,7 @@ public class ElementHierarchyState {
 
     public static ElementHierarchyState activeState() {
         if ( activeStatePtr == null ) {
-            Logger.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
         }
         return activeStatePtr;
     }

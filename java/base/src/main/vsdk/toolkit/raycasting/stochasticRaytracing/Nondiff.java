@@ -8,7 +8,7 @@ import vsdk.toolkit.common.Random;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
@@ -38,7 +38,7 @@ public final class Nondiff {
 
         for ( int i = 0; lightPatches != null && i < lightPatches.size(); i++ ) {
             Patch light = lightPatches.get(i);
-            ColorRgb emittedRadiance = PatchVisitor.averageEmittance(light, 0x01 | 0x02 | 0x04);
+            ColorRgbMutable emittedRadiance = PatchVisitor.averageEmittance(light, 0x01 | 0x02 | 0x04);
             double flux = Math.PI * light.area * emittedRadiance.sumAbsComponents();
             totalFlux += flux;
             lights[i] = new LightSourceTable(light, flux);
@@ -70,7 +70,7 @@ public final class Nondiff {
         zeta[3] = xi[3];
     }
 
-    static Ray sampleLightRay(Patch patch, ColorRgb emittedRad, double[] pointSelectionPdf, double[] dirSelectionPdf) {
+    static Ray sampleLightRay(Patch patch, ColorRgbMutable emittedRad, double[] pointSelectionPdf, double[] dirSelectionPdf) {
         Ray ray = new Ray();
         do {
             double[] zeta = new double[4];
@@ -96,7 +96,7 @@ public final class Nondiff {
     }
 
     static void sampleLight(VoxelGrid sceneWorldVoxelGrid, LightSourceTable light, double lightSelectionPdf) {
-        ColorRgb rad = new ColorRgb();
+        ColorRgbMutable rad = new ColorRgbMutable();
         double[] pointSelectionPdf = new double[1];
         double[] dirSelectionPdf = new double[1];
         Ray ray = sampleLightRay(light.patch, rad, pointSelectionPdf, dirSelectionPdf);
@@ -107,8 +107,8 @@ public final class Nondiff {
         if ( hit != null ) {
             double pdf = lightSelectionPdf * pointSelectionPdf[0] * dirSelectionPdf[0];
             double outCos = ray.direction.dotProduct(light.patch.normal);
-            ColorRgb receivedRadiosity = new ColorRgb();
-            ColorRgb rd = McradP.topLevelStochasticRadiosityElement(hit.getPatch()).Rd;
+            ColorRgbMutable receivedRadiosity = new ColorRgbMutable();
+            ColorRgbMutable rd = McradP.topLevelStochasticRadiosityElement(hit.getPatch()).Rd;
             receivedRadiosity.scaledCopy((float)(outCos / (Math.PI * hit.getPatch().area * pdf * numberOfSamples)), rad);
             receivedRadiosity.selfScalarProduct(rd);
             McradP.getTopLevelPatchRad(hit.getPatch())[0].add(McradP.getTopLevelPatchRad(hit.getPatch())[0], receivedRadiosity);

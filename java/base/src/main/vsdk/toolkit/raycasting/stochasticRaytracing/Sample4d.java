@@ -120,7 +120,7 @@ current sequence is 'random', the index is not used
                 xi[3] = zeta[3] * Niederreiter31.RECIP;
                 break;
             default:
-                Logger.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "Sample4d::sample4D", String.format("QMC Sequence %s not yet implemented", sequenceName(seq)));
         }
 
         return xi;

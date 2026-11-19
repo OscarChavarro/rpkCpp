@@ -1,6 +1,6 @@
 package vsdk.toolkit.app.options;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
@@ -16,7 +16,7 @@ public final class OptionsGroupCore {
     private static final int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
     private static final boolean DEFAULT_FORCE_ONE_SIDED = true;
     private static final boolean DEFAULT_NATIVE_RNG_ENABLED = true;
-    private static final ColorRgb DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
+    private static final ColorRgbMutable DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
 
     private static int numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     private static int fileOptionsForceOneSidedSurfaces = 0;
@@ -25,7 +25,7 @@ public final class OptionsGroupCore {
     private static int glutDebugEnabled = 0;
     private static boolean nativeRandomNumberGeneratorEnabled = DEFAULT_NATIVE_RNG_ENABLED;
     private static EnumBackgroundMode backgroundMode = EnumBackgroundMode.NONE;
-    private static ColorRgb backgroundColor = new ColorRgb(
+    private static ColorRgbMutable backgroundColor = new ColorRgbMutable(
         DEFAULT_BACKGROUND_COLOR.getR(),
         DEFAULT_BACKGROUND_COLOR.getG(),
         DEFAULT_BACKGROUND_COLOR.getB());
@@ -101,7 +101,7 @@ public final class OptionsGroupCore {
         }
     }
 
-    private static boolean commandLineParseBackgroundColor(String rArg, String gArg, String bArg, ColorRgb color) {
+    private static boolean commandLineParseBackgroundColor(String rArg, String gArg, String bArg, ColorRgbMutable color) {
         float[] red = new float[1];
         float[] green = new float[1];
         float[] blue = new float[1];
@@ -158,7 +158,7 @@ public final class OptionsGroupCore {
                 continue;
             }
 
-            ColorRgb parsedColor = new ColorRgb();
+            ColorRgbMutable parsedColor = new ColorRgbMutable();
             if ( !OptionsGroupCore.commandLineParseBackgroundColor(
                      argv[readIndex + 2],
                      argv[readIndex + 3],
@@ -276,7 +276,7 @@ public final class OptionsGroupCore {
         fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
         numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
         backgroundMode = EnumBackgroundMode.NONE;
-        backgroundColor = new ColorRgb(
+        backgroundColor = new ColorRgbMutable(
             DEFAULT_BACKGROUND_COLOR.getR(),
             DEFAULT_BACKGROUND_COLOR.getG(),
             DEFAULT_BACKGROUND_COLOR.getB());

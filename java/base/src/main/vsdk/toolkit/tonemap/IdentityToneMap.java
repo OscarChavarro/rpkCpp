@@ -1,6 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 public final class IdentityToneMap extends ToneMap {
     public IdentityToneMap() {
@@ -12,12 +12,12 @@ public final class IdentityToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForComputations(ColorRgb radiance) {
+    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
         return radiance;
     }
 
     @Override
-    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
         return radiance;
     }
 }

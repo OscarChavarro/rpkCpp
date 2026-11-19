@@ -63,7 +63,7 @@ public class LinkingSimpleStrategy {
                 sourceElement = topLevelElement;
                 break;
             default:
-                Logger.fatal(2, "createInitialLink", "Impossible element role");
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "createInitialLink", "Impossible element role");
                 return;
         }
 
@@ -255,7 +255,7 @@ public class LinkingSimpleStrategy {
         }
 
         if ( (topElement.flags & ElementFlags.IS_CLUSTER_MASK) != 0 ) {
-            Logger.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
             return;
         }
         if ( topElement.patch == null ) {

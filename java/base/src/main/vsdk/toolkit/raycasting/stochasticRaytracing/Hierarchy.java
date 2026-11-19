@@ -6,7 +6,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -188,7 +188,7 @@ as in Hanrahan SIGGRAPH'91
     static boolean lowPowerLink(Link link, Statistics statistics) {
         StochasticRadiosityElement rcv = link.rcv;
         StochasticRadiosityElement src = link.src;
-        ColorRgb rhoSrcRad = new ColorRgb();
+        ColorRgbMutable rhoSrcRad = new ColorRgbMutable();
         float ff = formFactorEstimate(rcv, src);
         float threshold;
         float propagatedPower;
@@ -196,7 +196,7 @@ as in Hanrahan SIGGRAPH'91
         // Compute receiver reflectance times source radiosity
         rhoSrcRad.scaledCopy((float)Math.PI, src.radiance[0]);
         if ( !rcv.isCluster() ) {
-            ColorRgb rd = McradP.topLevelStochasticRadiosityElement(rcv.patch).Rd;
+            ColorRgbMutable rd = McradP.topLevelStochasticRadiosityElement(rcv.patch).Rd;
             rhoSrcRad.selfScalarProduct(rd);
         }
 

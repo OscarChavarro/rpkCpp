@@ -21,6 +21,10 @@ public class ColorRgbMutable {
         this.b = inB;
     }
 
+    public ColorRgbMutable(ColorRgbMutable c) {
+        this(c.r, c.g, c.b);
+    }
+
     public ColorRgbMutable(ColorRgb c) {
         this(c.getR(), c.getG(), c.getB());
     }

@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
@@ -20,8 +20,8 @@ public class GalerkinState {
     public int multiResolutionVisibility; // For multi-resolution visibility determination
     public int useConstantRadiance; // Set true for constant radiance initialization
     public int useAmbientRadiance; // Ambient radiance (for visualisation only)
-    public ColorRgb constantRadiance;
-    public ColorRgb ambientRadiance;
+    public ColorRgbMutable constantRadiance;
+    public ColorRgbMutable ambientRadiance;
     public GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors
@@ -90,8 +90,8 @@ public class GalerkinState {
     private static final int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 
     public GalerkinState() {
-        constantRadiance = new ColorRgb();
-        ambientRadiance = new ColorRgb();
+        constantRadiance = new ColorRgbMutable();
+        ambientRadiance = new ColorRgbMutable();
         receiverTriangleCubatureRule = null;
         receiverQuadCubatureRule = null;
         sourceTriangleCubatureRule = null;

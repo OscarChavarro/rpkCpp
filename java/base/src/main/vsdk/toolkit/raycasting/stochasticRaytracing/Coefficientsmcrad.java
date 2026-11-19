@@ -1,22 +1,9 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 
 public final class Coefficientsmcrad {
     private Coefficientsmcrad() {
-    }
-
-    public static void stochasticRadiosityClearCoefficients(ColorRgb[] c, GalerkinBasis galerkinBasis) {
-        if ( c == null || galerkinBasis == null ) {
-            return;
-        }
-        for ( int i = 0; i < galerkinBasis.size; i++ ) {
-            if ( c[i] == null ) {
-                c[i] = new ColorRgb();
-            }
-            c[i].clear();
-        }
     }
 
     public static void stochasticRadiosityClearCoefficients(ColorRgbMutable[] c, GalerkinBasis galerkinBasis) {
@@ -28,21 +15,6 @@ public final class Coefficientsmcrad {
                 c[i] = new ColorRgbMutable();
             }
             c[i].clear();
-        }
-    }
-
-    public static void stochasticRadiosityCopyCoefficients(ColorRgb[] dst, ColorRgb[] src, GalerkinBasis galerkinBasis) {
-        if ( dst == null || src == null || galerkinBasis == null ) {
-            return;
-        }
-        for ( int i = 0; i < galerkinBasis.size; i++ ) {
-            if ( dst[i] == null ) {
-                dst[i] = new ColorRgb();
-            }
-            if ( src[i] == null ) {
-                src[i] = new ColorRgb();
-            }
-            dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
         }
     }
 
@@ -61,21 +33,6 @@ public final class Coefficientsmcrad {
         }
     }
 
-    public static void stochasticRadiosityAddCoefficients(ColorRgb[] dst, ColorRgb[] extra, GalerkinBasis galerkinBasis) {
-        if ( dst == null || extra == null || galerkinBasis == null ) {
-            return;
-        }
-        for ( int i = 0; i < galerkinBasis.size; i++ ) {
-            if ( dst[i] == null ) {
-                dst[i] = new ColorRgb();
-            }
-            if ( extra[i] == null ) {
-                extra[i] = new ColorRgb();
-            }
-            dst[i].add(dst[i], extra[i]);
-        }
-    }
-
     public static void stochasticRadiosityAddCoefficients(ColorRgbMutable[] dst, ColorRgbMutable[] extra, GalerkinBasis galerkinBasis) {
         if ( dst == null || extra == null || galerkinBasis == null ) {
             return;
@@ -91,18 +48,6 @@ public final class Coefficientsmcrad {
         }
     }
 
-    public static void stochasticRadiosityScaleCoefficients(float scale, ColorRgb[] color, GalerkinBasis galerkinBasis) {
-        if ( color == null || galerkinBasis == null ) {
-            return;
-        }
-        for ( int i = 0; i < galerkinBasis.size; i++ ) {
-            if ( color[i] == null ) {
-                color[i] = new ColorRgb();
-            }
-            color[i].scale(scale);
-        }
-    }
-
     public static void stochasticRadiosityScaleCoefficients(float scale, ColorRgbMutable[] color, GalerkinBasis galerkinBasis) {
         if ( color == null || galerkinBasis == null ) {
             return;
@@ -115,21 +60,7 @@ public final class Coefficientsmcrad {
         }
     }
 
-    public static void stochasticRadiosityMultiplyCoefficients(ColorRgb color, ColorRgb[] coefficients, GalerkinBasis galerkinBasis) {
-        if ( coefficients == null || galerkinBasis == null || color == null ) {
-            return;
-        }
-        ColorRgb c = new ColorRgb(color.getR(), color.getG(), color.getB());
-
-        for ( int i = 0; i < galerkinBasis.size; i++ ) {
-            if ( coefficients[i] == null ) {
-                coefficients[i] = new ColorRgb();
-            }
-            coefficients[i].selfScalarProduct(c);
-        }
-    }
-
-    public static void stochasticRadiosityMultiplyCoefficients(ColorRgb color, ColorRgbMutable[] coefficients, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityMultiplyCoefficients(ColorRgbMutable color, ColorRgbMutable[] coefficients, GalerkinBasis galerkinBasis) {
         if ( coefficients == null || galerkinBasis == null || color == null ) {
             return;
         }
@@ -206,10 +137,10 @@ Basically sets rad to nullptr
         elem.basis = StochasticRadiosityBasisState.activeState().dummyBasis;
     }
 
-    private static ColorRgb[] createColors(int n) {
-        ColorRgb[] data = new ColorRgb[n];
+    private static ColorRgbMutable[] createColors(int n) {
+        ColorRgbMutable[] data = new ColorRgbMutable[n];
         for ( int i = 0; i < n; i++ ) {
-            data[i] = new ColorRgb();
+            data[i] = new ColorRgbMutable();
         }
         return data;
     }

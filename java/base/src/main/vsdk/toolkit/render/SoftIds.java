@@ -10,7 +10,7 @@ Software ID rendering: because hardware ID rendering is tricky due to frame buff
 formats, etc.
 */
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -112,7 +112,7 @@ the pixel. x is normally the width and y the height of the canvas window
 Renders in memory an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
-    public static void softRenderPixels(int width, int height, ColorRgb[] rgb, ToneMappingContext toneMapOptions) {
+    public static void softRenderPixels(int width, int height, ColorRgbMutable[] rgb, ToneMappingContext toneMapOptions) {
         // Length of one row of RGBA image data rounded up to a multiple of 8
         int rowLength = (4 * width * Byte.BYTES + 7) & ~7;
         byte[] c = new byte[height * rowLength + 8];
@@ -121,7 +121,7 @@ left corner of image, relative to the lower left corner of the window)
             int rowRgbStart = j * width;
             int rowStart = j * rowLength;
             for (int i = 0; i < width; i++) {
-                ColorRgb corrected_rgb = new ColorRgb(
+                ColorRgbMutable corrected_rgb = new ColorRgbMutable(
                     rgb[rowRgbStart + i].getR(),
                     rgb[rowRgbStart + i].getG(),
                     rgb[rowRgbStart + i].getB());

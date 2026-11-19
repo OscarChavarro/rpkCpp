@@ -1,7 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
@@ -72,7 +72,7 @@ lowest level clusters and so up
         galerkinElement.area = 0.0f;
         galerkinElement.numberOfPatches = 0;
         galerkinElement.minimumArea = Numeric.HUGE_FLOAT_VALUE;
-        ColorRgb.arrayClear(galerkinElement.radiance, galerkinElement.basisSize);
+        ColorRgbMutable.arrayClear(galerkinElement.radiance, galerkinElement.basisSize);
         for ( int i = 0;
               galerkinElement.irregularSubElements != null && i < galerkinElement.irregularSubElements.size();
               i++ ) {
@@ -97,7 +97,7 @@ lowest level clusters and so up
 
         // Also pull un-shot radiance for the "shooting" methods
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-            ColorRgb.arrayClear(galerkinElement.unShotRadiance, galerkinElement.basisSize);
+            ColorRgbMutable.arrayClear(galerkinElement.unShotRadiance, galerkinElement.basisSize);
             for ( int i = 0;
                   galerkinElement.irregularSubElements != null && i < galerkinElement.irregularSubElements.size();
                   i++ ) {

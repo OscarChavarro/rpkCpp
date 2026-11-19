@@ -27,7 +27,7 @@ public final class OptionsGroupGalerkin {
             GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.SOUTH_WELL;
         }
         else {
-            Logger.error(null, "Invalid iteration method '%s'", name);
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid iteration method '%s'", name));
         }
     }
 

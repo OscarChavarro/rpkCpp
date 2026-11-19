@@ -10,7 +10,7 @@ import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.io.PersistenceElement;
+import vsdk.toolkit.io.wrapper.PersistenceElement;
 import vsdk.toolkit.scene.Camera;
 
 public class VrmlWriter {

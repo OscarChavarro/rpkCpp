@@ -100,7 +100,7 @@ public class VoxelGrid {
 
     private void putGeometryInsideVoxelGrid(Geometry geometry, short na, short nb, short nc) {
         if (na <= 0 || nb <= 0 || nc <= 0) {
-            Logger.error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+            Logger.reportMessage(this, Logger.ERROR, "VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
             System.exit(1);
         }
 

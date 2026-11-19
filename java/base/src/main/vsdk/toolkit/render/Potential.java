@@ -91,7 +91,7 @@ Updates directly received potential for all patches
         }
 
         if (lostPixels > 0) {
-            Logger.warning(null, "%d lost pixels", lostPixels);
+            Logger.reportMessage(null, Logger.WARNING, "", String.format("%d lost pixels", lostPixels));
         }
 
         Statistics.instance().potential.averageDirectPotential = Statistics.instance().potential.totalDirectPotential =

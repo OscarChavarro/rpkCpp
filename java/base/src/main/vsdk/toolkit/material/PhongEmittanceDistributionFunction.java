@@ -97,8 +97,8 @@ public class PhongEmittanceDistributionFunction {
         kdMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
         kd = kdMutable.toImmutable();
         Ks = new ColorRgb(KsParameter.getR(), KsParameter.getG(), KsParameter.getB());
-        if (!Ks.isBlack()) {
-            Logger.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+        if (!new ColorRgbMutable(Ks).isBlack()) {
+            Logger.reportMessage(this, Logger.WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
         }
         Ns = (float)NsParameter;
     }
@@ -150,7 +150,7 @@ public class PhongEmittanceDistributionFunction {
         setOut(probabilityDensityFunction, 0.0);
 
         if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.warning("phongEdfEval", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
             return result.toImmutable();
         }
         normal.copy(context.getShadingNormal());
@@ -177,10 +177,10 @@ public class PhongEmittanceDistributionFunction {
         int flags,
         double xi1,
         double xi2,
-        ColorRgb selfEmittedRadiance,
+        ColorRgbMutable selfEmittedRadiance,
         double[] probabilityDensityFunction) {
-        // selfEmittedRadiance is an out-parameter (the C++ port fills it in
-        // place), so it must be mutated, never re-assigned.
+        // selfEmittedRadiance is an out-parameter (the C++ port assigns it
+        // through a pointer), so it must be mutated, never re-assigned.
         if (selfEmittedRadiance != null) {
             selfEmittedRadiance.clear();
         }
@@ -190,7 +190,7 @@ public class PhongEmittanceDistributionFunction {
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
             CoordinateSystem coord = new CoordinateSystem();
             if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-                Logger.warning("phongEdfEval", "Couldn't determine shading normal");
+                Logger.reportMessage(this, Logger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
                 return dir;
             }
             Vector3D normal = context.getShadingNormal();

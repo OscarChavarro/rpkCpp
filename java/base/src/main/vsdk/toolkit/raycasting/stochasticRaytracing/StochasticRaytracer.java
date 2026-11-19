@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.Random;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -75,7 +75,7 @@ pointed to by 'fp'
         vsdk.toolkit.material.RenderOptions renderOptions)
     {
         if ( toneMapOptions == null ) {
-            Logger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticRaytracer::execute", "Tone mapping context not provided");
         }
 
         StochasticRaytracingConfiguration config = new StochasticRaytracingConfiguration(
@@ -142,7 +142,7 @@ pointed to by 'fp'
         lightList = null;
     }
 
-    private static ColorRgb stochasticRaytracerGetScatteredRadiance(
+    private static ColorRgbMutable stochasticRaytracerGetScatteredRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
         Background sceneBackground,
@@ -158,7 +158,7 @@ pointed to by 'fp'
         SimpleRaytracingPathNode newNode = new SimpleRaytracingPathNode();
         thisNode.attach(newNode);
 
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
 
         if ( (config.samplerConfig.surfaceSampler == null) ||
@@ -192,10 +192,10 @@ pointed to by 'fp'
 
             if ( numberOfSamples > 2 ) {
                 // Some bigger value may be more efficient
-                ColorRgb albedo = new ColorRgb();
+                ColorRgbMutable albedo = new ColorRgbMutable();
                 albedo.clear();
                 if ( thisNode.m_useBsdf != null ) {
-                    albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags);
+                    albedo = new ColorRgbMutable(thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags));
                 }
                 if ( albedo.average() < Numeric.EPSILON ) {
                     // Skip, no contribution anyway
@@ -209,7 +209,7 @@ pointed to by 'fp'
                 double[] x2 = new double[1];
                 double factor;
                 StratifiedSampling2D stratified = new StratifiedSampling2D(numberOfSamples);
-                ColorRgb radiance;
+                ColorRgbMutable radiance;
                 boolean doRR = thisNode.m_depth >= config.samplerConfig.minDepth;
 
                 for ( int i = 0; i < numberOfSamples; i++ ) {
@@ -286,7 +286,7 @@ pointed to by 'fp'
         return result;
     }
 
-    private static ColorRgb srGetDirectRadiance(
+    private static ColorRgbMutable srGetDirectRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
         Background sceneBackground,
@@ -294,8 +294,8 @@ pointed to by 'fp'
         StochasticRaytracingConfiguration config,
         StorageReadout readout)
     {
-        ColorRgb result = new ColorRgb();
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
+        ColorRgbMutable radiance = new ColorRgbMutable();
         result.clear();
         Vector3D dirEL = new Vector3D();
 
@@ -441,7 +441,7 @@ pointed to by 'fp'
         return result;
     }
 
-    private static ColorRgb stochasticRaytracerGetRadiance(
+    private static ColorRgbMutable stochasticRaytracerGetRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
         Background sceneBackground,
@@ -452,8 +452,8 @@ pointed to by 'fp'
         RadianceMethod radianceMethod,
         vsdk.toolkit.material.RenderOptions renderOptions)
     {
-        ColorRgb result = new ColorRgb();
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
+        ColorRgbMutable radiance = new ColorRgbMutable();
         int edfFlags = 0x01 | 0x02 | 0x04;
         int bsdfSpec = BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
@@ -530,14 +530,14 @@ pointed to by 'fp'
                         camera, thisNode.m_hit.getPatch(), u[0], v[0], thisNode.m_inDirF, renderOptions);
 
                     // This includes Le diffuse, subtraction first and handle total emitted later (possibly weighted)
-                    ColorRgb diffEmit;
+                    ColorRgbMutable diffEmit;
 
                     if ( thisEdf == null ) {
-                        diffEmit = new ColorRgb();
+                        diffEmit = new ColorRgbMutable();
                         diffEmit.clear();
                     } else {
-                        diffEmit = thisEdf.phongEdfEval(
-                            thisNode.m_hit.shadingContext(), thisNode.m_inDirF, BsdfComponent.BRDF_DIFFUSE_COMPONENT, null);
+                        diffEmit = new ColorRgbMutable(thisEdf.phongEdfEval(
+                            thisNode.m_hit.shadingContext(), thisNode.m_inDirF, BsdfComponent.BRDF_DIFFUSE_COMPONENT, null));
                     }
 
                     radiance.subtract(radiance, diffEmit);
@@ -583,7 +583,7 @@ pointed to by 'fp'
                 double weight;
                 double cr;
                 double cl;
-                ColorRgb col;
+                ColorRgbMutable col;
                 boolean doWeight = true;
 
                 if ( thisNode.m_depth <= 1 ) {
@@ -615,10 +615,10 @@ pointed to by 'fp'
                 }
 
                 if ( thisEdf == null ) {
-                    col = new ColorRgb();
+                    col = new ColorRgbMutable();
                     col.clear();
                 } else {
-                    col = thisEdf.phongEdfEval(thisNode.m_hit.shadingContext(), thisNode.m_inDirF, edfFlags, null);
+                    col = new ColorRgbMutable(thisEdf.phongEdfEval(thisNode.m_hit.shadingContext(), thisNode.m_inDirF, edfFlags, null));
                 }
 
                 result.addScaled(result, (float)weight, col);
@@ -628,7 +628,7 @@ pointed to by 'fp'
         return result;
     }
 
-    private static ColorRgb calcPixel(
+    private static ColorRgbMutable calcPixel(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
         Background sceneBackground,
@@ -644,8 +644,8 @@ pointed to by 'fp'
         SimpleRaytracingPathNode pixelNode = new SimpleRaytracingPathNode();
         double[] x1 = new double[1];
         double[] x2 = new double[1];
-        ColorRgb col;
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable col;
+        ColorRgbMutable result = new ColorRgbMutable();
         StratifiedSampling2D stratified = new StratifiedSampling2D(config.samplesPerPixel);
 
         result.clear();

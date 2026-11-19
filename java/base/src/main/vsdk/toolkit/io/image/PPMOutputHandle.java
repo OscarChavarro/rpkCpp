@@ -3,7 +3,7 @@ package vsdk.toolkit.io.image;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import vsdk.toolkit.io.PersistenceElement;
+import vsdk.toolkit.io.wrapper.PersistenceElement;
 
 public final class PPMOutputHandle extends ImageOutputHandle {
     private OutputStream outputStream;

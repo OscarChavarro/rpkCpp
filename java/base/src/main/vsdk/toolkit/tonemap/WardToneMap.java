@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 /**
 References:
@@ -34,13 +34,13 @@ public final class WardToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForComputations(ColorRgb radiance) {
+    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
         radiance.scale(comp);
         return radiance;
     }
 
     @Override
-    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
         float eff = Cie.getLuminousEfficacy();
 
         radiance.scale(eff * display);

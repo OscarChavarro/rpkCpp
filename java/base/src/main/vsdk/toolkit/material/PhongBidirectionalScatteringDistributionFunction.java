@@ -194,7 +194,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
             return col.toImmutable();
         }
         if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE)) {
-            Logger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+            Logger.reportMessage(null, Logger.WARNING, "splitBsdfEvalTexture", "Couldn't get texture coordinates");
             return col.toImmutable();
         }
         Vector3D texCoord = context.getTexCoord();
@@ -214,8 +214,8 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         if (brdf != null) {
             ColorRgb reflectance = brdf.reflectance(flags);
-            if (!Float.isFinite(reflectance.average())) {
-                Logger.fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+            if (!Float.isFinite(new ColorRgbMutable(reflectance).average())) {
+                Logger.reportMessage(this, Logger.FATAL_ERROR, "brdfReflectance", "Oops - test Rd is not finite!");
             }
             albedo.add(albedo, new ColorRgbMutable(reflectance));
         }
@@ -263,7 +263,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
             ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
-            setOut(inTexture, textureColor.average());
+            setOut(inTexture, new ColorRgbMutable(textureColor).average());
             flags &= ~TEXTURED_COMPONENT;
         }
 
@@ -277,7 +277,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         else {
             reflectance = brdf.reflectance(brdfFlags[0]);
         }
-        setOut(reflection, reflectance.average());
+        setOut(reflection, new ColorRgbMutable(reflectance).average());
 
         ColorRgb transmittance;
         if (btdf == null) {
@@ -286,7 +286,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         else {
             transmittance = btdf.transmittance(btdfFlags[0]);
         }
-        setOut(transmission, transmittance.average());
+        setOut(transmission, new ColorRgbMutable(transmittance).average());
     }
 
     private static SplitBSDFSamplingMode splitBsdfSamplingMode(
@@ -342,7 +342,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         setOut(probabilityDensityFunction, 0.0);
         if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.warning("sample", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "sample", "Couldn't determine shading normal");
             out.set(0.0f, 0.0f, 1.0f);
             return out;
         }
@@ -475,7 +475,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         result.clear();
         if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.warning("evaluate", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "evaluate", "Couldn't determine shading normal");
             return result.toImmutable();
         }
         normal.copy(context.getShadingNormal());
@@ -529,7 +529,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         Vector3D normal = new Vector3D();
         if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
             return;
         }
         normal.copy(context.getShadingNormal());

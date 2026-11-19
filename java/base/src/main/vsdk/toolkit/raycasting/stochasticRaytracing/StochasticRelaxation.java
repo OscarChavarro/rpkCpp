@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -12,16 +12,16 @@ public class StochasticRelaxation {
     public WhatToShow show; // What to show and how to display the result
     public int inited; // Flag indicating whether initialised or not
     public int currentIteration;
-    public ColorRgb unShotFlux;
-    public ColorRgb totalFlux;
-    public ColorRgb indirectImportanceWeightedUnShotFlux;
+    public ColorRgbMutable unShotFlux;
+    public ColorRgbMutable totalFlux;
+    public ColorRgbMutable indirectImportanceWeightedUnShotFlux;
     public float unShotYmp;
     public float totalYmp; // Sum over all patches of area * importance
     public float sourceYmp;
     public int rayUnitsPerIt; // To increase or decrease initial nr of rays
     public int bidirectionalTransfers; // For bidirectional energy transfers
     public int constantControlVariate; // For constant control variate variance reduction
-    public ColorRgb controlRadiance; // Constant control radiance value
+    public ColorRgbMutable controlRadiance; // Constant control radiance value
     public int indirectOnly; // If to compute indirect illumination only
     public int weightedSampling; // If to do weighted sampling ala Powell and Swann / Spanier
     public int setSource; // For copying direct illumination to SOURCE_RAD(..) if computing only indirect illumination
@@ -58,16 +58,16 @@ public class StochasticRelaxation {
         show = null;
         inited = 0;
         currentIteration = 0;
-        unShotFlux = new ColorRgb();
-        totalFlux = new ColorRgb();
-        indirectImportanceWeightedUnShotFlux = new ColorRgb();
+        unShotFlux = new ColorRgbMutable();
+        totalFlux = new ColorRgbMutable();
+        indirectImportanceWeightedUnShotFlux = new ColorRgbMutable();
         unShotYmp = 0.0f;
         totalYmp = 0.0f;
         sourceYmp = 0.0f;
         rayUnitsPerIt = 0;
         bidirectionalTransfers = 0;
         constantControlVariate = 0;
-        controlRadiance = new ColorRgb();
+        controlRadiance = new ColorRgbMutable();
         indirectOnly = 0;
         weightedSampling = 0;
         setSource = 0;
@@ -106,7 +106,7 @@ public class StochasticRelaxation {
 
     public static StochasticRelaxation activeState() {
         if ( activeStatePtr == null ) {
-            Logger.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
         }
         return activeStatePtr;
     }

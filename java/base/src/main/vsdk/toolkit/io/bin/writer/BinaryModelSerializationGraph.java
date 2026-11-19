@@ -81,7 +81,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Logger.error("BinaryModelSerializationGraph::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+            Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -122,7 +122,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Logger.error("BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+            Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -154,7 +154,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Logger.error("BinaryModelSerializationGraph::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+            Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -193,7 +193,7 @@ public class BinaryModelSerializationGraph {
             }
         }
         else {
-            Logger.error("BinaryModelSerializationGraph::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+            Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
             return false;
         }
 

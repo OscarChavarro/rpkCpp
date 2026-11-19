@@ -9,7 +9,7 @@ import java.util.IdentityHashMap;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.io.PersistenceElement;
+import vsdk.toolkit.io.wrapper.PersistenceElement;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
@@ -113,18 +113,18 @@ public class BinaryModelSerializer {
 
     private static boolean writeBytesChunked(OutputStream output, byte[] data, long length) {
         if (length < 0) {
-            Logger.error("BinaryModelSerializer::writeBytesChunked", "Negative block length");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeBytesChunked", "Negative block length");
             return false;
         }
         if (length == 0) {
             return true;
         }
         if (data == null) {
-            Logger.error("BinaryModelSerializer::writeBytesChunked", "Null block data");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeBytesChunked", "Null block data");
             return false;
         }
         if (length > data.length) {
-            Logger.error("BinaryModelSerializer::writeBytesChunked", "Requested length exceeds source buffer");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeBytesChunked", "Requested length exceeds source buffer");
             return false;
         }
 
@@ -148,11 +148,11 @@ public class BinaryModelSerializer {
 
     private static boolean checkedLongToInt32(long value, String what, int[] result) {
         if (result == null || result.length == 0) {
-            Logger.error("BinaryModelSerializer::checkedLongToInt32", "Null output pointer for %s", safeLabel(what));
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::checkedLongToInt32", String.format("Null output pointer for %s", safeLabel(what)));
             return false;
         }
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
-            Logger.error("BinaryModelSerializer::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::checkedLongToInt32", String.format("Overflow converting to int32 for %s", safeLabel(what)));
             return false;
         }
         result[0] = (int)value;
@@ -202,7 +202,7 @@ public class BinaryModelSerializer {
         String what,
         int[] result) {
         if (result == null || result.length == 0) {
-            Logger.error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::indexOfPointer", String.format("Missing pointer index for %s", safeLabel(what)));
             return false;
         }
 
@@ -213,7 +213,7 @@ public class BinaryModelSerializer {
 
         Integer index = indices.get(ptr);
         if (index == null) {
-            Logger.error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::indexOfPointer", String.format("Missing pointer index for %s", safeLabel(what)));
             return false;
         }
 
@@ -292,7 +292,7 @@ public class BinaryModelSerializer {
             int height = texture.getHeight();
             int channels = texture.getChannels();
             if (width < 0 || height < 0 || channels < 0) {
-                Logger.error("BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
+                Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
                 return false;
             }
 
@@ -306,7 +306,7 @@ public class BinaryModelSerializer {
             if (dataBytes > 0) {
                 byte[] data = texture.getData();
                 if (data == null) {
-                    Logger.error("BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
+                    Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
                     return false;
                 }
                 if (!writeBytesChunked(output, data, dataBytes)) {
@@ -376,7 +376,7 @@ public class BinaryModelSerializer {
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                writeDoubleLE(output, transformContext.xf.transformMatrix.m[i][j]);
+                writeDoubleLE(output, transformContext.xf.transformMatrix.get(i, j));
             }
         }
         writeDoubleLE(output, transformContext.xf.scaleFactor);
@@ -537,7 +537,7 @@ public class BinaryModelSerializer {
             }
         }
         else {
-            Logger.error("BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
             return false;
         }
 
@@ -608,13 +608,13 @@ public class BinaryModelSerializer {
 
     public static boolean write(ParseSnapshotContext model, String fileName) {
         if (model == null || fileName == null || fileName.isEmpty()) {
-            Logger.error("BinaryModelSerializer::write", "Invalid model or fileName");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::write", "Invalid model or fileName");
             return false;
         }
 
         File file = new File(fileName);
         if (file.isDirectory()) {
-            Logger.error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::write", String.format("Could not open output file '%s'", fileName));
             return false;
         }
 
@@ -742,7 +742,7 @@ public class BinaryModelSerializer {
             return true;
         }
         catch (Throwable ignored) {
-            Logger.error("BinaryModelSerializer::write", "%s", "Unexpected failure while writing binary model");
+            Logger.reportMessage(null, Logger.ERROR, "BinaryModelSerializer::write", String.format("%s", "Unexpected failure while writing binary model"));
             return false;
         }
     }

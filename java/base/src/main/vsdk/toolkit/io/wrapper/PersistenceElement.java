@@ -1,4 +1,4 @@
-package vsdk.toolkit.io;
+package vsdk.toolkit.io.wrapper;
 
 import java.io.File;
 import java.io.InputStream;
@@ -125,7 +125,7 @@ public abstract class PersistenceElement {
     readBytes(InputStream is, byte[] bytesBuffer, int length)
     {
         if ( bytesBuffer == null || length < 0 ) {
-            Logger.error("PersistenceElement::readBytes", "%s", "invalid buffer");
+            Logger.reportMessage(null, Logger.ERROR, "PersistenceElement::readBytes", String.format("%s", "invalid buffer"));
             return;
         }
 
@@ -148,7 +148,7 @@ public abstract class PersistenceElement {
             for ( int i = offset; i < length; i++ ) {
                 bytesBuffer[i] = 0;
             }
-            Logger.error("PersistenceElement::readBytes", "could not read requested length (%d/%d)", offset, length);
+            Logger.reportMessage(null, Logger.ERROR, "PersistenceElement::readBytes", String.format("could not read requested length (%d/%d)", offset, length));
         }
     }
     
@@ -177,7 +177,7 @@ public abstract class PersistenceElement {
     writeBytes(OutputStream os, byte[] bytesBuffer, int length)
     {
         if ( bytesBuffer == null || length < 0 ) {
-            Logger.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
+            Logger.reportMessage(null, Logger.ERROR, "PersistenceElement::writeBytes", String.format("%s", "invalid arguments"));
             return;
         }
         if ( length == 0 ) {

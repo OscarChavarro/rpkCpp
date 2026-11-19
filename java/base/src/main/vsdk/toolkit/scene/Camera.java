@@ -1,6 +1,6 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -24,7 +24,7 @@ public class Camera {
     public Vector3D X; // Eye coordinate system: X = right
     public Vector3D Y; // Eye coordinate system: Y = down
     public Vector3D Z; // Eye coordinate system: Z = viewing direction
-    public ColorRgb background; // Window background color
+    public ColorRgbMutable background; // Window background color
     public int changed; // True when camera position has been updated
     public float pixelWidth;
     public float pixelHeight;
@@ -47,7 +47,7 @@ public class Camera {
         X = new Vector3D();
         Y = new Vector3D();
         Z = new Vector3D();
-        background = new ColorRgb();
+        background = new ColorRgbMutable();
         changed = 0;
         pixelWidth = 0.0f;
         pixelHeight = 0.0f;
@@ -91,7 +91,7 @@ public class Camera {
         // Distance from virtual camera position to focus point
         viewDistance = Z.norm();
         if (viewDistance < Numeric.EPSILON) {
-            Logger.error("SetCamera", "eye point and look-point coincide");
+            Logger.reportMessage(this, Logger.ERROR, "SetCamera", "eye point and look-point coincide");
             return null;
         }
         Z.inverseScaledCopy(viewDistance, Z, Numeric.EPSILON_FLOAT);
@@ -100,7 +100,7 @@ public class Camera {
         X.crossProduct(Z, upDirection);
         final float n = X.norm();
         if (n < Numeric.EPSILON) {
-            Logger.error("SetCamera", "up-direction and viewing direction coincide");
+            Logger.reportMessage(this, Logger.ERROR, "SetCamera", "up-direction and viewing direction coincide");
             return null;
         }
         X.inverseScaledCopy(n, X, Numeric.EPSILON_FLOAT);
@@ -153,14 +153,14 @@ public class Camera {
         float inFieldOfVision,
         int inXSize,
         int inYSize,
-        ColorRgb inBackground) {
+        ColorRgbMutable inBackground) {
         eyePosition = new Vector3D(inEyePosition.x, inEyePosition.y, inEyePosition.z);
         lookPosition = new Vector3D(inLoopPosition.x, inLoopPosition.y, inLoopPosition.z);
         upDirection = new Vector3D(inUpDirection.x, inUpDirection.y, inUpDirection.z);
         fieldOfVision = inFieldOfVision;
         xSize = inXSize;
         ySize = inYSize;
-        background = new ColorRgb(inBackground.getR(), inBackground.getG(), inBackground.getB());
+        background = new ColorRgbMutable(inBackground.getR(), inBackground.getG(), inBackground.getB());
         changed = 1;
         complete();
     }

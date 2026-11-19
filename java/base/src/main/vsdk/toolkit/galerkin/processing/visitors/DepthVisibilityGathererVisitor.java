@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
@@ -8,12 +8,12 @@ import vsdk.toolkit.galerkin.processing.ClusterTraversalStrategy;
 
 public final class DepthVisibilityGathererVisitor implements ClusterLeafVisitor {
     private Interaction link;
-    private ColorRgb[] sourceRadiance;
+    private ColorRgbMutable[] sourceRadiance;
     private double pixelArea;
 
     public DepthVisibilityGathererVisitor(
         Interaction inLink,
-        ColorRgb[] inSourceRadiance,
+        ColorRgbMutable[] inSourceRadiance,
         double inPixelArea)
     {
         link = inLink;

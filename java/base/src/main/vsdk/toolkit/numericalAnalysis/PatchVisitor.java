@@ -1,6 +1,5 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
@@ -35,7 +34,7 @@ public class PatchVisitor {
     Use next function (with PatchListIterate) to close any open files of the patch use for recording
     Computes average scattered power and emittance of the Patch
     */
-    public static ColorRgb averageNormalAlbedo(Patch patch, int components) {
+    public static ColorRgbMutable averageNormalAlbedo(Patch patch, int components) {
         ColorRgbMutable albedo = new ColorRgbMutable();
         RayHit hit = new RayHit();
 
@@ -44,25 +43,25 @@ public class PatchVisitor {
         final int numberOfSamples = getNumberOfSamples(patch);
         albedo.clear();
         for (int i = 0; i < numberOfSamples; i++) {
-            ColorRgb sample;
+            ColorRgbMutable sample;
             long[] xi = Niederreiter31.niederreiter31(i);
             hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
             int newFlags = hit.getFlags() | RayHitFlag.UV;
             hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
-            patch.pointBarycentricMapping(hit.getUv().u, hit.getUv().v, position);
-            sample = new ColorRgb();
+            patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
+            sample = new ColorRgbMutable();
             if (patch.material.getBsdf() != null) {
-                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), components);
+                sample = new ColorRgbMutable(patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), components));
             }
             albedo.add(albedo, new ColorRgbMutable(sample));
         }
         albedo.scaleInverse(numberOfSamples, albedo);
 
-        return albedo.toImmutable();
+        return new ColorRgbMutable(albedo);
     }
 
-    public static ColorRgb averageEmittance(Patch patch, int components) {
+    public static ColorRgbMutable averageEmittance(Patch patch, int components) {
         ColorRgbMutable emittance = new ColorRgbMutable();
         RayHit hit = new RayHit();
         hit.init(patch, patch.midPoint, patch.normal, patch.material);
@@ -70,24 +69,24 @@ public class PatchVisitor {
         final int numberOfSamples = getNumberOfSamples(patch);
         emittance.clear();
         for (int i = 0; i < numberOfSamples; i++) {
-            ColorRgb sample = new ColorRgb();
+            ColorRgbMutable sample = new ColorRgbMutable();
             long[] xi = Niederreiter31.niederreiter31(i);
             hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
             int newFlags = hit.getFlags() | RayHitFlag.UV;
             hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
-            patch.pointBarycentricMapping(hit.getUv().u, hit.getUv().v, position);
+            patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
 
             if (patch.material.getEdf() == null) {
-                sample = new ColorRgb();
+                sample = new ColorRgbMutable();
             }
             else {
-                sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), components);
+                sample = new ColorRgbMutable(patch.material.getEdf().phongEmittance(hit.shadingContext(), components));
             }
             emittance.add(emittance, new ColorRgbMutable(sample));
         }
         emittance.scaleInverse(numberOfSamples, emittance);
 
-        return emittance.toImmutable();
+        return new ColorRgbMutable(emittance);
     }
 }

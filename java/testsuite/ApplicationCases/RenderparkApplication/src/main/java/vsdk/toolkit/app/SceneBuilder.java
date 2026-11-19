@@ -7,7 +7,7 @@ import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupCore;
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.bin.reader.BinaryModelDeserializer;
@@ -51,9 +51,9 @@ public final class SceneBuilder {
     }
 
     private static void sceneBuilderPatchAccumulateStats(Patch patch) {
-        ColorRgb E = PatchVisitor.averageEmittance(patch, ALL_XXDF_COMPONENTS);
-        ColorRgb R = PatchVisitor.averageNormalAlbedo(patch, ALL_BSDF_COMPONENTS);
-        ColorRgb power = new ColorRgb();
+        ColorRgbMutable E = PatchVisitor.averageEmittance(patch, ALL_XXDF_COMPONENTS);
+        ColorRgbMutable R = PatchVisitor.averageNormalAlbedo(patch, ALL_BSDF_COMPONENTS);
+        ColorRgbMutable power = new ColorRgbMutable();
 
         Statistics.instance().radiance.totalArea += patch.area;
         power.scaledCopy(patch.area, E);
@@ -66,9 +66,9 @@ public final class SceneBuilder {
 
     private static void sceneBuilderComputeStats(Scene scene) {
         Vector3D zero = new Vector3D();
-        ColorRgb one = new ColorRgb();
-        ColorRgb averageAbsorption = new ColorRgb();
-        ColorRgb BP;
+        ColorRgbMutable one = new ColorRgbMutable();
+        ColorRgbMutable averageAbsorption = new ColorRgbMutable();
+        ColorRgbMutable BP;
 
         one.setMonochrome(1.0f);
         zero.set(0, 0, 0);
@@ -396,47 +396,27 @@ they are primitive or not
     {
         File file = new File(fileName);
         if ( !file.exists() ) {
-            Logger.error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "Requested %s file '%s' does not exist",
-                fileRole,
-                fileName);
+            Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Requested %s file '%s' does not exist", fileRole, fileName));
             return false;
         }
         if ( !file.isFile() ) {
-            Logger.error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "Requested %s file '%s' is not a regular file",
-                fileRole,
-                fileName);
+            Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Requested %s file '%s' is not a regular file", fileRole, fileName));
             return false;
         }
         if ( !file.canRead() ) {
-            Logger.error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "Requested %s file '%s' is not readable",
-                fileRole,
-                fileName);
+            Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Requested %s file '%s' is not readable", fileRole, fileName));
             return false;
         }
 
         try (FileInputStream input = new FileInputStream(fileName)) {
             int firstByte = input.read();
             if ( firstByte < 0 ) {
-                Logger.error(
-                    "SceneBuilder::sceneBuilderReadFile",
-                    "Requested %s file '%s' is empty",
-                    fileRole,
-                    fileName);
+                Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Requested %s file '%s' is empty", fileRole, fileName));
                 return false;
             }
         }
         catch ( Exception ignored ) {
-            Logger.error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "Requested %s file '%s' is not readable",
-                fileRole,
-                fileName);
+            Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Requested %s file '%s' is not readable", fileRole, fileName));
             return false;
         }
 
@@ -538,10 +518,7 @@ Returns true if successful
                 }
                 else {
                     System.err.printf("failed.\n");
-                    Logger.error(
-                        "SceneBuilder::sceneBuilderReadFile",
-                        "Could not export ParseSnapshotContext binary to '%s'",
-                        batchOptions.binaryOutputFilename);
+                    Logger.reportMessage(null, Logger.ERROR, "SceneBuilder::sceneBuilderReadFile", String.format("Could not export ParseSnapshotContext binary to '%s'", batchOptions.binaryOutputFilename));
                 }
             }
         }
@@ -597,7 +574,7 @@ Returns true if successful
         scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
         if ( scene.clusteredRootGeometry.className != GeometryClassId.COMPOUND ) {
-            Logger.warning(null, "Strange clusters for this world ...");
+            Logger.reportMessage(null, Logger.WARNING, "", "Strange clusters for this world ...");
         }
 
         t = System.nanoTime();
@@ -710,7 +687,7 @@ Returns true if successful
         // All options should have disappeared from argv now
         if ( argc != null && argc.length > 0 && argc[0] > 1 ) {
             if ( argv[1] != null && argv[1].startsWith("-") ) {
-                Logger.error(null, "Unrecognized option '%s'", argv[1]);
+                Logger.reportMessage(null, Logger.ERROR, "", String.format("Unrecognized option '%s'", argv[1]));
             }
             else if ( !SceneBuilder.sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
                 System.exit(1);

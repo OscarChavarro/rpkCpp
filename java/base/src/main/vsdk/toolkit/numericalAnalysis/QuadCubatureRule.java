@@ -416,7 +416,7 @@ public class QuadCubatureRule {
                 quadRule[0] = crq7Pg;
                 break;
             default:
-                Logger.fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree.ordinal());
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "setQuadCubatureRules", String.format("Invalid degree %d", degree.ordinal()));
         }
     }
 }

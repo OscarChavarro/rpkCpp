@@ -135,7 +135,7 @@ public class MgfParserLoader {
     */
     private static void mgfSetNrQuartCircDivs(int divs) {
         if (divs <= 0) {
-            Logger.error(null, "Number of quarter circle divisions (%d) should be positive", divs);
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Number of quarter circle divisions (%d) should be positive", divs));
             return;
         }
     }
@@ -339,7 +339,7 @@ Contorted logic works as follows:
         final int handlerIndex = handlerType.ordinal();
         EntityDispatchContext handler = context.readerStackState.handlerByType[handlerIndex];
         if (handler == null) {
-            Logger.fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "mgfHandlerFromType", String.format("Missing MGF handler for type %d", handlerIndex));
         }
         return handler;
     }

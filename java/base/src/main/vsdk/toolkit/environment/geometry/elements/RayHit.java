@@ -58,8 +58,8 @@ public class RayHit {
     */
     private boolean computeUv(Vector2Dd inUv) {
         if ((flags & RayHitFlag.UV) != 0) {
-            inUv.u = uv.u;
-            inUv.v = uv.v;
+            inUv.x = uv.x;
+            inUv.y = uv.y;
             return true;
         }
 
@@ -67,10 +67,10 @@ public class RayHit {
             double[] u = new double[] {0.0};
             double[] v = new double[] {0.0};
             patch.uv(point, u, v);
-            uv.u = u[0];
-            uv.v = v[0];
-            inUv.u = uv.u;
-            inUv.v = uv.v;
+            uv.x = u[0];
+            uv.y = v[0];
+            inUv.x = uv.x;
+            inUv.y = uv.y;
             flags |= RayHitFlag.UV;
             return true;
         }
@@ -88,7 +88,7 @@ public class RayHit {
         boolean success = false;
 
         if (!hitInitialised()) {
-            Logger.warning("pointShadingFrame", "uninitialised hit structure");
+            Logger.reportMessage(this, Logger.WARNING, "pointShadingFrame", "uninitialised hit structure");
             return false;
         }
 
@@ -115,7 +115,7 @@ public class RayHit {
             Vector3D x = inX != null ? inX : new Vector3D();
             Vector3D y = inY != null ? inY : new Vector3D();
             Vector3D z = inZ != null ? inZ : new Vector3D();
-            patch.interpolatedFrameAtUv(uv.u, uv.v, x, y, z);
+            patch.interpolatedFrameAtUv(uv.x, uv.y, x, y, z);
 
             if (inX != null) {
                 inX.copy(x);
@@ -165,8 +165,8 @@ public class RayHit {
         shadingFrame.setX(localNormal);
         shadingFrame.setY(localNormal);
         shadingFrame.setZ(localNormal);
-        uv.u = 0.0;
-        uv.v = 0.0;
+        uv.x = 0.0;
+        uv.y = 0.0;
 
         return hitInitialised();
     }
@@ -185,7 +185,7 @@ public class RayHit {
         }
 
         if ((flags & RayHitFlag.PATCH) != 0 && patch != null) {
-            texCoord = patch.textureCoordAtUv(uv.u, uv.v);
+            texCoord = patch.textureCoordAtUv(uv.x, uv.y);
             outTexCoord.copy(texCoord);
             flags |= RayHitFlag.TEXTURE_COORDINATE;
             return true;
@@ -274,13 +274,13 @@ public class RayHit {
     }
 
     public void setUv(Vector2Dd inUv) {
-        uv.u = inUv.u;
-        uv.v = inUv.v;
+        uv.x = inUv.x;
+        uv.y = inUv.y;
     }
 
     public void setUv(double inU, double inV) {
-        uv.u = inU;
-        uv.v = inV;
+        uv.x = inU;
+        uv.y = inV;
     }
 
     public int getFlags() {
@@ -337,8 +337,8 @@ public class RayHit {
         shadingFrame.setX(other.shadingFrame.getX());
         shadingFrame.setY(other.shadingFrame.getY());
         shadingFrame.setZ(other.shadingFrame.getZ());
-        uv.u = other.uv.u;
-        uv.v = other.uv.v;
+        uv.x = other.uv.x;
+        uv.y = other.uv.y;
         flags = other.flags;
     }
 

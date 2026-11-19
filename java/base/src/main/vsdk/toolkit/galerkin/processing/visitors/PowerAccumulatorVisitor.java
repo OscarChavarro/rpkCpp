@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinElement;
@@ -8,18 +8,18 @@ import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 
 public final class PowerAccumulatorVisitor implements ClusterLeafVisitor {
-    private ColorRgb sourceRadiance;
+    private ColorRgbMutable sourceRadiance;
     private Vector3D samplePoint;
-    private ColorRgb accumulatedRadiance;
+    private ColorRgbMutable accumulatedRadiance;
 
-    public PowerAccumulatorVisitor(ColorRgb inSourceRadiance, Vector3D inSamplePoint) {
+    public PowerAccumulatorVisitor(ColorRgbMutable inSourceRadiance, Vector3D inSamplePoint) {
         sourceRadiance = inSourceRadiance;
         samplePoint = inSamplePoint;
-        accumulatedRadiance = new ColorRgb();
+        accumulatedRadiance = new ColorRgbMutable();
         accumulatedRadiance.clear();
     }
 
-    public ColorRgb getAccumulatedRadiance() {
+    public ColorRgbMutable getAccumulatedRadiance() {
         return accumulatedRadiance;
     }
 
@@ -48,7 +48,7 @@ and ignores intra-cluster visibility.
             return;
         }
 
-        ColorRgb rad;
+        ColorRgbMutable rad;
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ||
              galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI ) {
             rad = galerkinElement.radiance[0];

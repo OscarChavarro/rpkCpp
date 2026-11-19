@@ -37,7 +37,7 @@ public class LightDirSampler extends Sampler {
         double[] pdfDir = new double[] {0.0};
 
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {
-            Logger.error("CLightDirSampler::sample", "No EDF");
+            Logger.reportMessage(this, Logger.ERROR, "CLightDirSampler::sample", "No EDF");
             return false;
         }
 
@@ -90,7 +90,7 @@ public class LightDirSampler extends Sampler {
         Vector3D outDir = new Vector3D();
 
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {
-            Logger.error("CLightDirSampler::evalPdf", "No EDF");
+            Logger.reportMessage(this, Logger.ERROR, "CLightDirSampler::evalPdf", "No EDF");
             return 0.0;
         }
         // More efficient with extra params?

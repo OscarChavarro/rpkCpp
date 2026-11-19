@@ -107,9 +107,9 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
         float inNr,
         float inNi) {
         Kd = new ColorRgb(inKd.getR(), inKd.getG(), inKd.getB());
-        avgKd = Kd.average();
+        avgKd = new ColorRgbMutable(Kd).average();
         Ks = new ColorRgb(inKs.getR(), inKs.getG(), inKs.getB());
-        avgKs = Ks.average();
+        avgKs = new ColorRgbMutable(Ks).average();
         Ns = inNs;
         refractionIndex = new RefractionIndex();
         refractionIndex.set(inNr, inNi);
@@ -149,7 +149,7 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
         }
 
         if (!Float.isFinite(result.average())) {
-            Logger.fatal(-1, "transmittance", "Oops - result is not finite!");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "transmittance", "Oops - result is not finite!");
         }
 
         return result.toImmutable();

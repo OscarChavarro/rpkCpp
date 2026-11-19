@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 /**
 References:
@@ -10,7 +10,7 @@ Visual Adaptation for Realistic Image Synthesis, SIGGRAPH 1996,
 pp. 249-258.
 */
 public final class FerwerdaToneMap extends ToneMap {
-    private ColorRgb sf;
+    private ColorRgbMutable sf;
     private float msf;
     private float pmComp;
     private float pmDisplay;
@@ -63,7 +63,7 @@ public final class FerwerdaToneMap extends ToneMap {
     }
 
     public FerwerdaToneMap() {
-        sf = new ColorRgb(0.062f, 0.608f, 0.330f);
+        sf = new ColorRgbMutable(0.062f, 0.608f, 0.330f);
         msf = 0.0f;
         pmComp = 0.0f;
         pmDisplay = 0.0f;
@@ -91,8 +91,8 @@ public final class FerwerdaToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForComputations(ColorRgb radiance) {
-        ColorRgb p = new ColorRgb();
+    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
+        ColorRgbMutable p = new ColorRgbMutable();
         float sl;
 
         // Convert to photometric values
@@ -116,8 +116,8 @@ public final class FerwerdaToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForDisplay(ColorRgb radiance) {
-        ColorRgb p = new ColorRgb();
+    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
+        ColorRgbMutable p = new ColorRgbMutable();
         float sl;
 
         // Convert to photometric values

@@ -92,12 +92,12 @@ public class UniformLightSampler extends NextEventSampler {
                 light = currentPatch;
                 pdfLight = 1.0;
             } else {
-                Logger.warning("sample Unit Light Node", "No valid light selected");
+                Logger.reportMessage(this, Logger.WARNING, "sample Unit Light Node", "No valid light selected");
                 return false;
             }
         } else {
             if ( lightList == null ) {
-                Logger.warning("FillLightNode", "No light list available");
+                Logger.reportMessage(this, Logger.WARNING, "FillLightNode", "No light list available");
                 return false;
             }
             double[] localX1 = new double[] {x1};
@@ -107,7 +107,7 @@ public class UniformLightSampler extends NextEventSampler {
             pdfLight = outPdfLight[0];
 
             if ( light == null ) {
-                Logger.warning("FillLightNode", "No light found");
+                Logger.reportMessage(this, Logger.WARNING, "FillLightNode", "No light found");
                 return false;
             }
         }

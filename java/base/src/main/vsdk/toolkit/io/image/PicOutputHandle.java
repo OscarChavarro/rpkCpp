@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.io.PersistenceElement;
+import vsdk.toolkit.io.wrapper.PersistenceElement;
 
 /**
 High dynamic range PIC output handle.

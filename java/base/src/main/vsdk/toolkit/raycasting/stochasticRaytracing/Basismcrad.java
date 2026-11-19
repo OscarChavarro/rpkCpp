@@ -4,7 +4,7 @@ Higher order approximations for Galerkin radiosity
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
@@ -35,7 +35,7 @@ public final class Basismcrad {
                 elem = "quadrilaterals";
                 break;
             default:
-                Logger.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et.ordinal());
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "Basismcrad::makeBasis", String.format("Invalid element type %d", et.ordinal()));
                 return basis;
         }
 
@@ -135,8 +135,8 @@ Initialises table of bases
     /**
 Returns color at a given point, with parameters (u,v)
 */
-    public static ColorRgb colorAtUv(GalerkinBasis basis, ColorRgb[] rad, double u, double v) {
-        ColorRgb res = new ColorRgb();
+    public static ColorRgbMutable colorAtUv(GalerkinBasis basis, ColorRgbMutable[] rad, double u, double v) {
+        ColorRgbMutable res = new ColorRgbMutable();
         res.clear();
         for ( int i = 0; i < basis.size; i++ ) {
             double s = basis.function[i].eval(u, v);
@@ -149,7 +149,7 @@ Returns color at a given point, with parameters (u,v)
 These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
-    public static void filterColorDown(ColorRgb[] parent, double[][] h, ColorRgb[] child, int n) {
+    public static void filterColorDown(ColorRgbMutable[] parent, double[][] h, ColorRgbMutable[] child, int n) {
         for ( int i = 0; i < n; i++ ) {
             for ( int j = 0; j < n; j++ ) {
                 child[i].addScaled(child[i], (float)h[j][i], parent[j]);
@@ -157,7 +157,7 @@ the result to the destination coefficients
         }
     }
 
-    public static void filterColorUp(ColorRgb[] child, double[][] h, ColorRgb[] parent, int n, double areaFactor) {
+    public static void filterColorUp(ColorRgbMutable[] child, double[][] h, ColorRgbMutable[] parent, int n, double areaFactor) {
         for ( int i = 0; i < n; i++ ) {
             for ( int j = 0; j < n; j++ ) {
                 double H = h[i][j] * areaFactor;

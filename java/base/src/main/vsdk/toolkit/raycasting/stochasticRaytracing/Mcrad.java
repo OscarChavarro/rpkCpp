@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -102,16 +102,16 @@ are delayed to just before the first iteration step, see ReInit() below
 Initialises patch data
 */
     private static void monteCarloRadiosityInitPatch(Patch patch) {
-        ColorRgb Ed = McradP.topLevelStochasticRadiosityElement(patch).Ed;
+        ColorRgbMutable Ed = McradP.topLevelStochasticRadiosityElement(patch).Ed;
 
         Coefficientsmcrad.reAllocCoefficients(McradP.topLevelStochasticRadiosityElement(patch));
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchBasis(patch));
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchBasis(patch));
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
 
-        McradP.getTopLevelPatchRad(patch)[0] = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
-        McradP.getTopLevelPatchUnShotRad(patch)[0] = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
-        McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgb(Ed.getR(), Ed.getG(), Ed.getB());
+        McradP.getTopLevelPatchRad(patch)[0] = new ColorRgbMutable(Ed.getR(), Ed.getG(), Ed.getB());
+        McradP.getTopLevelPatchUnShotRad(patch)[0] = new ColorRgbMutable(Ed.getR(), Ed.getG(), Ed.getB());
+        McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgbMutable(Ed.getR(), Ed.getG(), Ed.getB());
         McradP.getTopLevelPatchReceivedRad(patch)[0].clear();
 
         McradP.topLevelStochasticRadiosityElement(patch).rayIndex = patch.id * 11L;
@@ -350,7 +350,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
         StochasticRelaxation.activeState().inited = 0;
     }
 
-    private static ColorRgb monteCarloRadiosityDiffuseReflectanceAtPoint(Patch patch, double u, double v) {
+    private static ColorRgbMutable monteCarloRadiosityDiffuseReflectanceAtPoint(Patch patch, double u, double v) {
         RayHit hit = new RayHit();
         Vector3D point = new Vector3D();
         patch.uniformPoint(u, v, point);
@@ -358,17 +358,17 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
         hit.setUv(u, v);
         int newFlags = hit.getFlags() | RayHitFlag.UV;
         hit.setFlags(newFlags);
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
         if ( hit.getMaterial().getBsdf() != null ) {
-            result = hit.getMaterial().getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+            result = new ColorRgbMutable(hit.getMaterial().getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
         }
         return result;
     }
 
-    private static ColorRgb vertexReflectance(Vertex v) {
+    private static ColorRgbMutable vertexReflectance(Vertex v) {
         int count = 0;
-        ColorRgb rd = new ColorRgb();
+        ColorRgbMutable rd = new ColorRgbMutable();
 
         rd.clear();
         for ( int i = 0; v.radianceData != null && i < v.radianceData.size(); i++ ) {
@@ -391,10 +391,10 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
     }
 
     private static StochasticRadiosityElement cachedLeaf = null;
-    private static ColorRgb[] vrd = new ColorRgb[] {new ColorRgb(), new ColorRgb(), new ColorRgb(), new ColorRgb()};
-    private static ColorRgb cachedRd = new ColorRgb();
+    private static ColorRgbMutable[] vrd = new ColorRgbMutable[] {new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable()};
+    private static ColorRgbMutable cachedRd = new ColorRgbMutable();
 
-    private static ColorRgb monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement leaf, double u, double v) {
+    private static ColorRgbMutable monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement leaf, double u, double v) {
         if ( leaf != null ) {
             if ( leaf != cachedLeaf ) {
                 for ( int i = 0; i < leaf.numberOfVertices; i++ ) {
@@ -412,8 +412,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
                     cachedRd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], (float)u, (float)v);
                     break;
                 default:
-                    Logger.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
-                        leaf.numberOfVertices);
+                    Logger.reportMessage(null, Logger.FATAL_ERROR, "monteCarloRadiosityInterpolatedReflectanceAtPoint", String.format("Invalid nr of vertices %d", leaf.numberOfVertices));
             }
         }
         return cachedRd;
@@ -423,17 +422,17 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
 Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
-    public static ColorRgb monteCarloRadiosityGetRadiance(Patch patch, double u, double v, Vector3D dir, RenderOptions renderOptions) {
-        ColorRgb trueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
+    public static ColorRgbMutable monteCarloRadiosityGetRadiance(Patch patch, double u, double v, Vector3D dir, RenderOptions renderOptions) {
+        ColorRgbMutable trueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
         double[] uu = new double[] {u};
         double[] vv = new double[] {v};
         StochasticRadiosityElement leaf = StochasticRadiosityElement.stochasticRadiosityElementRegularLeafElementAtPoint(
             McradP.topLevelStochasticRadiosityElement(patch), uu, vv);
-        ColorRgb usedRdAtPoint = renderOptions.smoothShading
+        ColorRgbMutable usedRdAtPoint = renderOptions.smoothShading
             ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, uu[0], vv[0])
             : leaf.Rd;
-        ColorRgb radianceAtPoint = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadianceAtPoint(leaf, uu[0], vv[0], renderOptions);
-        ColorRgb sourceRad = new ColorRgb();
+        ColorRgbMutable radianceAtPoint = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadianceAtPoint(leaf, uu[0], vv[0], renderOptions);
+        ColorRgbMutable sourceRad = new ColorRgbMutable();
         sourceRad.clear();
 
         // Subtract source radiance

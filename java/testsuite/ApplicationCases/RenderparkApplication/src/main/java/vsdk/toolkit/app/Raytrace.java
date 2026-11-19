@@ -71,7 +71,7 @@ This routine sets the current raytracing method to be used
         if ( newRaytracer == null
              && (rayTracerName == null
                  || !rayTracerName.regionMatches(true, 0, "none", 0, 4)) ) {
-            Logger.error(null, "Invalid raytracing method name '%s'", rayTracerName);
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid raytracing method name '%s'", rayTracerName));
         }
 
         return newRaytracer;
@@ -125,10 +125,10 @@ This routine sets the current raytracing method to be used
         }
 
         if ( rayTracer == null ) {
-            Logger.warning(null, "No ray tracing method active");
+            Logger.reportMessage(null, Logger.WARNING, "", "No ray tracing method active");
         }
         else if ( !rayTracer.saveImage(img) ) {
-            Logger.warning(null, "No previous %s image available", rayTracer.getName());
+            Logger.reportMessage(null, Logger.WARNING, "", String.format("No previous %s image available", rayTracer.getName()));
         }
 
         ImageOutputHandle.deleteImageOutputHandle(img);

@@ -37,7 +37,7 @@ public class DensityHitList {
 
     public DensityHit get(int i) {
         if ( i >= numHits ) {
-            Logger.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
         }
 
         if ( cacheCurrent == null || (i < cacheLowerLimit) ) {

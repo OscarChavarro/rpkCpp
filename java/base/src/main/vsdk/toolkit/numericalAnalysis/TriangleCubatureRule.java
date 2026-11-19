@@ -303,7 +303,7 @@ public class TriangleCubatureRule {
                 triRule[0] = crt9;
                 break;
             default:
-                Logger.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree.ordinal());
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "setTriangleCubatureRules", String.format("Invalid degree %d", degree.ordinal()));
         }
     }
 }

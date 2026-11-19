@@ -5,7 +5,7 @@ All kind of form factor computations
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
@@ -422,13 +422,13 @@ relevant for surface elements
             ? null
             : GalerkinBasis.basisForVertexCount(sourceElement.patch.numberOfVertices);
 
-        ColorRgb[] sourceRadiance = (galerkinState.galerkinIterationMethod == vsdk.toolkit.galerkin.GalerkinIterationMethod.SOUTH_WELL)
+        ColorRgbMutable[] sourceRadiance = (galerkinState.galerkinIterationMethod == vsdk.toolkit.galerkin.GalerkinIterationMethod.SOUTH_WELL)
             ? sourceElement.unShotRadiance
             : sourceElement.radiance;
 
-        ColorRgb[] deltaRadiance = new ColorRgb[CubatureRule.MAXIMUM_NODES];
+        ColorRgbMutable[] deltaRadiance = new ColorRgbMutable[CubatureRule.MAXIMUM_NODES];
         for ( int i = 0; i < deltaRadiance.length; i++ ) {
-            deltaRadiance[i] = new ColorRgb();
+            deltaRadiance[i] = new ColorRgbMutable();
         }
         double[] gMin = new double[] {Numeric.HUGE_DOUBLE_VALUE};
         double[] gMax = new double[] {-Numeric.HUGE_DOUBLE_VALUE};
@@ -463,8 +463,8 @@ relevant for surface elements
         GalerkinElement receiverElement,
         double gMin,
         double gMax,
-        ColorRgb[] sourceRadiance,
-        ColorRgb[] deltaRadiance,
+        ColorRgbMutable[] sourceRadiance,
+        ColorRgbMutable[] deltaRadiance,
         Interaction link)
     {
         if ( sourceRadiance[0].isBlack() ) {
@@ -496,10 +496,10 @@ relevant for surface elements
         GalerkinElement receiverElement,
         vsdk.toolkit.galerkin.GalerkinBasis sourceBasis,
         vsdk.toolkit.galerkin.GalerkinBasis receiverBasis,
-        ColorRgb[] sourceRadiance,
+        ColorRgbMutable[] sourceRadiance,
         double[] gMin,
         double[] gMax,
-        ColorRgb[] deltaRadiance,
+        ColorRgbMutable[] deltaRadiance,
         Interaction twoPatchesInteraction)
     {
         double[][] receiverPhi = new double[GalerkinBasis.MAX_BASIS_SIZE][CubatureRule.MAXIMUM_NODES];

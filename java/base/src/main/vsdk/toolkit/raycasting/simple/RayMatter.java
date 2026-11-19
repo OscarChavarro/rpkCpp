@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.simple;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
@@ -166,7 +166,7 @@ public final class RayMatter extends RayTracer {
                     value = 1.0f;
                 }
 
-                ColorRgb matte = new ColorRgb();
+                ColorRgbMutable matte = new ColorRgbMutable();
                 matte.set(value, value, value);
                 screenBuffer.add(x, y, matte);
             }

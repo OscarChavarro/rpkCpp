@@ -9,7 +9,7 @@ import vsdk.toolkit.common.Random;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -132,7 +132,7 @@ public class SamplerConfig {
         if ( lastNode == null ) {
             // Fill in first node
             if ( !pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2) ) {
-                Logger.warning("SamplerConfig::traceNode", "Point sampler failed");
+                Logger.reportMessage(this, Logger.WARNING, "SamplerConfig::traceNode", "Point sampler failed");
                 return null;
             }
         } else if ( lastNode.m_depth == 0 ) {
@@ -356,7 +356,7 @@ public class SamplerConfig {
         // bsdf(EP->E->L)
         if ( nodeEP == null ) {
             // Eye
-            nodeX.m_bsdfEval = new ColorRgb(1.0, 1.0, 1.0);
+            nodeX.m_bsdfEval = new ColorRgbMutable(1.0, 1.0, 1.0);
             nodeX.m_bsdfComp.Clear();
             nodeX.m_bsdfComp.Fill(nodeX.m_bsdfEval, (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         } else {
@@ -375,10 +375,10 @@ public class SamplerConfig {
         if ( nodeLP == null ) {
             // nodeL is  light source
             if ( nodeY.m_hit.getMaterial() == null || nodeY.m_hit.getMaterial().getEdf() == null ) {
-                nodeY.m_bsdfEval = new ColorRgb();
+                nodeY.m_bsdfEval = new ColorRgbMutable();
             } else {
-                nodeY.m_bsdfEval = nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
-                    nodeY.m_hit.shadingContext(), dirLE, bsdfFlagsL & 0xFF, null);
+                nodeY.m_bsdfEval = new ColorRgbMutable(nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
+                    nodeY.m_hit.shadingContext(), dirLE, bsdfFlagsL & 0xFF, null));
             }
             nodeY.m_bsdfComp.Clear();
             nodeY.m_bsdfComp.Fill(nodeY.m_bsdfEval, (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);

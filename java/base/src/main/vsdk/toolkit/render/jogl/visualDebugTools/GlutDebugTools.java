@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.Opengl;
@@ -175,7 +175,7 @@ public class GlutDebugTools implements GLEventListener {
                 break;
         }
 
-        ColorRgb c = element.radiance == null || element.radiance.length == 0 ? null : element.radiance[0];
+        ColorRgbMutable c = element.radiance == null || element.radiance.length == 0 ? null : element.radiance[0];
         long numberOfInteractions = element.interactions == null ? 0 : element.interactions.size();
 
         if ( element.regularSubElements == null ) {

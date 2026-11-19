@@ -5,7 +5,7 @@ with a Z-buffer visibility algorithm in software
 
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -100,8 +100,8 @@ into the virtual screen
 After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
-    public static ColorRgb scratchRadiance(GalerkinState galerkinState) {
-        ColorRgb rad = new ColorRgb();
+    public static ColorRgbMutable scratchRadiance(GalerkinState galerkinState) {
+        ColorRgbMutable rad = new ColorRgbMutable();
         rad.clear();
         int nonBackGround = 0;
 

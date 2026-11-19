@@ -7,7 +7,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -48,7 +48,7 @@ Returns true a component was chosen, false if absorbed
         float[] probabilityDensityFunction,
         boolean[] chose1)
     {
-        ColorRgb color = new ColorRgb();
+        ColorRgbMutable color = new ColorRgbMutable();
         float power1;
         float power2;
         float totalPower;
@@ -57,13 +57,13 @@ Returns true a component was chosen, false if absorbed
         color.clear();
 
         if ( bsdf != null ) {
-            color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF);
+            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF));
         }
         power1 = color.average();
 
         color.clear();
         if ( bsdf != null ) {
-            color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF);
+            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF));
         }
         power2 = color.average();
 
@@ -202,7 +202,7 @@ Returns true a component was chosen, false if absorbed
         double x2,
         Vector3D dir,
         double[] pdfDir,
-        ColorRgb scatteringColor,
+        ColorRgbMutable scatteringColor,
         boolean[] doCosInverse)
     {
         // Index of refractions are taken
@@ -212,26 +212,25 @@ Returns true a component was chosen, false if absorbed
         // Reflectance and Transmittance values are taken. Normally one of the two
         // would be zero
         PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
-        ColorRgb reflectance = new ColorRgb();
+        ColorRgbMutable reflectance = new ColorRgbMutable();
         reflectance.clear();
         if ( bsdf != null ) {
-            reflectance = bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
-                BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT);
+            reflectance = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
+                BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT));
         }
 
-        ColorRgb transmittance = new ColorRgb();
+        ColorRgbMutable transmittance = new ColorRgbMutable();
         transmittance.clear();
         if ( bsdf != null ) {
-            transmittance = bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
-                BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT);
+            transmittance = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
+                BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT));
         }
 
         boolean reflective = (reflectance.average() > Numeric.EPSILON);
         boolean trans = (transmittance.average() > Numeric.EPSILON);
 
         if ( reflective && trans ) {
-            Logger.error("FresnelFactor",
-                 "Cannot deal with simultaneous reflective & transit materials");
+            Logger.reportMessage(null, Logger.ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
             return false;
         }
 
@@ -250,7 +249,7 @@ Returns true a component was chosen, false if absorbed
                 reflectedDir = Xxdf.idealReflectedDirection(thisNode.m_inDirT, thisNode.m_normal);
                 cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
                 if ( cosI < 0 ) {
-                    Logger.error("fresnelSample", "cosI < 0");
+                    Logger.reportMessage(null, Logger.ERROR, "fresnelSample", "cosI < 0");
                 }
             } else {
                 F = 0;
@@ -271,14 +270,14 @@ Returns true a component was chosen, false if absorbed
             cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
 
             if ( cosI < 0 ) {
-                Logger.error("fresnelSample", "cosI < 0");
+                Logger.reportMessage(null, Logger.ERROR, "fresnelSample", "cosI < 0");
             }
 
             if ( !tir[0] ) {
                 cost = -thisNode.m_normal.dotProduct(refractedDir);
 
                 if ( cost < 0 ) {
-                    Logger.error("fresnelSample", "cost < 0");
+                    Logger.reportMessage(null, Logger.ERROR, "fresnelSample", "cost < 0");
                 }
 
                 float rParallel;
@@ -359,7 +358,7 @@ Returns true a component was chosen, false if absorbed
         Vector3D dir = new Vector3D();
         double[] pdfDir = new double[1];
         boolean[] doCosInverse = new boolean[1];
-        ColorRgb scatteringColor = new ColorRgb();
+        ColorRgbMutable scatteringColor = new ColorRgbMutable();
 
         if ( !chooseFresnelDirection(thisNode, flags, x2, dir, pdfDir,
                                  scatteringColor, doCosInverse) ) {
@@ -387,7 +386,7 @@ Returns true a component was chosen, false if absorbed
 
         // Fill in probability for previous node
         if ( m_computeFromNextPdf && prevNode != null ) {
-            Logger.warning("FresnelSampler", "FromNextPdf not supported");
+            Logger.reportMessage(this, Logger.WARNING, "FresnelSampler", "FromNextPdf not supported");
         }
 
         // Component propagation
@@ -458,7 +457,7 @@ Returns true a component was chosen, false if absorbed
         } else {
             flags = (byte)BsdfComponent.BRDF_GLOSSY_COMPONENT;
 
-            Logger.error("PhotonMapSampler::gdSample", "Not done yet");
+            Logger.reportMessage(this, Logger.ERROR, "PhotonMapSampler::gdSample", "Not done yet");
             return false;
         }
 

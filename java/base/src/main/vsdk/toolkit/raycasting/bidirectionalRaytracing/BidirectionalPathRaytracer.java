@@ -5,7 +5,7 @@ import vsdk.toolkit.common.Random;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
@@ -49,8 +49,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             return copy;
         }
 
-        ColorRgb[] src = source.asArray();
-        ColorRgb[] dst = copy.asArray();
+        ColorRgbMutable[] src = source.asArray();
+        ColorRgbMutable[] dst = copy.asArray();
 
         for ( int i = 0; i < src.length && i < dst.length; i++ ) {
             dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
@@ -64,8 +64,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             return;
         }
 
-        ColorRgb[] src = source.asArray();
-        ColorRgb[] dst = destination.asArray();
+        ColorRgbMutable[] src = source.asArray();
+        ColorRgbMutable[] dst = destination.asArray();
 
         for ( int i = 0; i < src.length && i < dst.length; i++ ) {
             dst[i].set(src[i].getR(), src[i].getG(), src[i].getB());
@@ -114,7 +114,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         BidirectionalPathTracingConfiguration config = new BidirectionalPathTracingConfiguration();
         config.toneMapOptions = toneMapOptions;
         if ( config.toneMapOptions == null ) {
-            Logger.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
         }
 
         // Copy base config (so that rendering is independent of GUI)
@@ -258,7 +258,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
     }
 
-    private static boolean spikeCheck(ColorRgb color) {
+    private static boolean spikeCheck(ColorRgbMutable color) {
         double colAvg = color.average();
 
         if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
@@ -282,7 +282,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         int ny,
         float pixX,
         float pixY,
-        ColorRgb f)
+        ColorRgbMutable f)
     {
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f, false);
     }
@@ -295,7 +295,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         int ny,
         float pixX,
         float pixY,
-        ColorRgb f,
+        ColorRgbMutable f,
         boolean radSample)
     {
         if ( config.baseConfig.doDensityEstimation != 0 ) {
@@ -321,7 +321,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             } else {
                 // Now splat directly into the dest screen
                 Vector2D center = new Vector2D();
-                ColorRgb g = new ColorRgb();
+                ColorRgbMutable g = new ColorRgbMutable();
 
                 // Get the center:
                 center.x = pixX;
@@ -367,9 +367,9 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                 : null;
         boolean endingInEnvironment = path.m_eyeEndNode.m_rayType == PathRayType.ENVIRONMENT;
         boolean hasEnvironmentBackground = endingInEnvironment && sceneBackground != null;
-        ColorRgb oldBsdfEval = new ColorRgb();
-        ColorRgb f;
-        ColorRgb fRad = new ColorRgb();
+        ColorRgbMutable oldBsdfEval = new ColorRgbMutable();
+        ColorRgbMutable f;
+        ColorRgbMutable fRad = new ColorRgbMutable();
         BsdfComp oldBsdfComp;
         float factor;
         double pdfLNE;
@@ -414,11 +414,11 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                 if ( endingEdf == null ) {
                     eyeEndNode.m_bsdfEval.clear();
                 } else {
-                    eyeEndNode.m_bsdfEval = endingEdf.phongEdfEval(
+                    eyeEndNode.m_bsdfEval = new ColorRgbMutable(endingEdf.phongEdfEval(
                         eyeEndNode.m_hit.shadingContext(),
                         eyeEndNode.m_inDirF,
                         XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
-                        null);
+                        null));
                 }
                 eyeEndNode.m_bsdfComp.Fill(eyeEndNode.m_bsdfEval,
                     (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);
@@ -473,7 +473,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             path.m_geomConnect = 1.0; // Fake connection for X_0 paths
 
             if ( config.baseConfig.useSpars != 0 ) {
-                config.sparList.handlePath(config.sparConfig, path, fRad, f = new ColorRgb());
+                config.sparList.handlePath(config.sparConfig, path, fRad, f = new ColorRgbMutable());
                 factor = 1.0f; // pdf and weight already taken into account
             } else {
                 f = path.evalRadiance();
@@ -506,19 +506,19 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
     }
 
-    private static ColorRgb
+    private static ColorRgbMutable
     computeNeFluxEstimate(
         Camera camera,
         BidirectionalPathTracingConfiguration config,
         BiPath path,
         float[] pPdf,
         float[] pWeight,
-        ColorRgb fRad)
+        ColorRgbMutable fRad)
     {
         SimpleRaytracingPathNode eyePrevNode;
         SimpleRaytracingPathNode lightPrevNode;
-        ColorRgb oldBsdfL = new ColorRgb();
-        ColorRgb oldBsdfE = new ColorRgb();
+        ColorRgbMutable oldBsdfL = new ColorRgbMutable();
+        ColorRgbMutable oldBsdfE = new ColorRgbMutable();
         BsdfComp oldBsdfCompL;
         BsdfComp oldBsdfCompE;
         double oldPdfL;
@@ -529,7 +529,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         double oldPdfEP = 0.0;
         double oldRRPdfLP = 0.0;
         double oldRRPdfEP = 0.0;
-        ColorRgb f;
+        ColorRgbMutable f;
         SimpleRaytracingPathNode eyeEndNode;
         SimpleRaytracingPathNode lightEndNode;
 
@@ -573,8 +573,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
 
         // Evaluate radiance and pdf and weight
         if ( config.baseConfig.useSpars != 0 ) {
-            ColorRgb localFRad = fRad != null ? fRad : new ColorRgb();
-            f = new ColorRgb();
+            ColorRgbMutable localFRad = fRad != null ? fRad : new ColorRgbMutable();
+            f = new ColorRgbMutable();
             config.sparList.handlePath(config.sparConfig, path, localFRad, f);
             if ( fRad == null ) {
                 localFRad.clear();
@@ -624,8 +624,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         BidirectionalPathTracingConfiguration config,
         BiPath path)
     {
-        ColorRgb f;
-        ColorRgb fRad = new ColorRgb();
+        ColorRgbMutable f;
+        ColorRgbMutable fRad = new ColorRgbMutable();
         double oldPdfLNE = 0.0;
         float[] pdf = new float[1];
         float[] weight = new float[1];
@@ -738,8 +738,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             pixY) ) {
             int[] nx = new int[1];
             int[] ny = new int[1];
-            ColorRgb f;
-            ColorRgb fRad = new ColorRgb();
+            ColorRgbMutable f;
+            ColorRgbMutable fRad = new ColorRgbMutable();
             float[] pdf = new float[1];
             float[] weight = new float[1];
 
@@ -860,7 +860,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
     }
 
-    private static ColorRgb
+    private static ColorRgbMutable
     bpCalcPixel(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
@@ -872,7 +872,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         BidirectionalPathTracingConfiguration config = (BidirectionalPathTracingConfiguration)data;
         double[] x1 = new double[1];
         double[] x2 = new double[1];
-        ColorRgb result = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
         StratifiedSampling2D stratifiedSampling2D = new StratifiedSampling2D(config.baseConfig.samplesPerPixel);
         SimpleRaytracingPathNode pixNode;
         SimpleRaytracingPathNode nextNode;
@@ -937,7 +937,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
 
         // Radiance contributions are added to the screen buffer directly
-        ColorRgb src;
+        ColorRgbMutable src;
         if ( config.baseConfig.doDensityEstimation != 0 ) {
             if ( config.dBuffer != null ) {
                 src = config.screen.get(nx, ny);

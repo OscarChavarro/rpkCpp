@@ -1,6 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 
@@ -26,9 +26,9 @@ public abstract class ToneMap {
         }
     }
 
-    private static ColorRgb toneMapScaleForDisplay(ColorRgb radiance) {
+    private static ColorRgbMutable toneMapScaleForDisplay(ColorRgbMutable radiance) {
         if (activeToneMap == null) {
-            Logger.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "ToneMap::toneMapScaleForDisplay", "No active tone map");
         }
         return activeToneMap.scaleForDisplay(radiance);
     }
@@ -36,10 +36,10 @@ public abstract class ToneMap {
     /**
 Rescale real world radiance using properly set up tone mapping algorithm
 */
-    private static ColorRgb rescaleRadiance(ColorRgb in, ColorRgb out, ToneMappingContext toneMapOptions) {
-        ColorRgb scaledInput = new ColorRgb(in.getR(), in.getG(), in.getB());
+    private static ColorRgbMutable rescaleRadiance(ColorRgbMutable in, ColorRgbMutable out, ToneMappingContext toneMapOptions) {
+        ColorRgbMutable scaledInput = new ColorRgbMutable(in.getR(), in.getG(), in.getB());
         scaledInput.scale(toneMapOptions.pow_bright_adjust);
-        ColorRgb scaled = ToneMap.toneMapScaleForDisplay(scaledInput);
+        ColorRgbMutable scaled = ToneMap.toneMapScaleForDisplay(scaledInput);
         out.set(scaled.getR(), scaled.getG(), scaled.getB());
         return out;
     }
@@ -72,20 +72,20 @@ Rescale real world radiance using properly set up tone mapping algorithm
     correct scaling value that transforms display luminance back into
     the real world luminance.
     */
-    public abstract ColorRgb scaleForComputations(ColorRgb radiance);
+    public abstract ColorRgbMutable scaleForComputations(ColorRgbMutable radiance);
 
     /**
     Full tone mapping to display values. Transforms real world luminance of
     colour specified by "radiance" into corresponding display input
     values. The result has to be clipped to <0,1> afterwards.
     */
-    public abstract ColorRgb scaleForDisplay(ColorRgb radiance);
+    public abstract ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance);
 
     public static void setActiveToneMap(ToneMap toneMap) {
         activeToneMap = toneMap;
     }
 
-    public static void toneMappingGammaCorrection(ColorRgb rgb, ToneMappingContext toneMapOptions) {
+    public static void toneMappingGammaCorrection(ColorRgbMutable rgb, ToneMappingContext toneMapOptions) {
         rgb.r = toneMapOptions.gammaTab[0][gammaTableEntry((float)rgb.getR())];
         rgb.g = toneMapOptions.gammaTab[1][gammaTableEntry((float)rgb.getG())];
         rgb.b = toneMapOptions.gammaTab[2][gammaTableEntry((float)rgb.getB())];
@@ -94,7 +94,7 @@ Rescale real world radiance using properly set up tone mapping algorithm
     /**
 Recomputes gamma tables for the given gamma values for red, green and blue
 */
-    public static void recomputeGammaTables(ToneMappingContext toneMapOptions, ColorRgb gamma) {
+    public static void recomputeGammaTables(ToneMappingContext toneMapOptions, ColorRgbMutable gamma) {
         ToneMap.recomputeGammaTable(toneMapOptions, 0, gamma.getR());
         ToneMap.recomputeGammaTable(toneMapOptions, 1, gamma.getG());
         ToneMap.recomputeGammaTable(toneMapOptions, 2, gamma.getB());
@@ -108,8 +108,8 @@ Does most to convert radiance to display RGB color
    an RGB triplet for display on the screen
 3) clipping of RGB values to the range [0,1].
 */
-    public static ColorRgb radianceToRgb(ColorRgb color, ColorRgb rgb, ToneMappingContext toneMapOptions) {
-        ColorRgb rescaled = new ColorRgb();
+    public static ColorRgbMutable radianceToRgb(ColorRgbMutable color, ColorRgbMutable rgb, ToneMappingContext toneMapOptions) {
+        ColorRgbMutable rescaled = new ColorRgbMutable();
         ToneMap.rescaleRadiance(color, rescaled, toneMapOptions);
         rgb.set(rescaled.getR(), rescaled.getG(), rescaled.getB());
         rgb.clip();

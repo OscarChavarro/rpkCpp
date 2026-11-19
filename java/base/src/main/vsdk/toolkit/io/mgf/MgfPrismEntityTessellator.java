@@ -70,25 +70,20 @@ public final class MgfPrismEntityTessellator {
                 return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
             }
 
-            if (!vertexContext.n.isNull(Numeric.EPSILON)) {
+            if (!MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
                 hasNormal++;
             }
 
-            Vector3Dd v2 = new Vector3Dd();
-            Vector3Dd v3 = new Vector3Dd();
-
-            v2.x = vertexContext.p.x - v0Context.p.x;
-            v2.y = vertexContext.p.y - v0Context.p.y;
-            v2.z = vertexContext.p.z - v0Context.p.z;
-            v3.crossProduct(v1, v2);
-            normal.x += v3.x;
-            normal.y += v3.y;
-            normal.z += v3.z;
-            v1.copy(v2);
+            Vector3Dd v2 = new Vector3Dd(vertexContext.p.x() - v0Context.p.x(), vertexContext.p.y() - v0Context.p.y(), vertexContext.p.z() - v0Context.p.z());
+            Vector3Dd v3 = v1.crossProduct(v2);
+            normal = new Vector3Dd(normal.x() + v3.x(), normal.y() + v3.y(), normal.z() + v3.z());
+            v1 = v2;
         }
-        if (normal.normalizeAndGivePreviousNorm(Numeric.EPSILON) == 0.0) {
+        Vector3Dd[] normalHolder = new Vector3Dd[] {normal};
+        if (MgfTessellationMath.normalizeAndGivePreviousNorm(normalHolder, Numeric.EPSILON) == 0.0) {
             return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
+        normal = normalHolder[0];
 
         // Create moved vertices
         for (i = 1; i < argumentCount - 1; i++) {
@@ -100,9 +95,9 @@ public final class MgfPrismEntityTessellator {
                 return errorCode;
             }
             vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[i], context); // Checked above
-            MgfTessellationMath.formatFloat(px, 24, vertexContext.p.x - length * normal.x);
-            MgfTessellationMath.formatFloat(py, 24, vertexContext.p.y - length * normal.y);
-            MgfTessellationMath.formatFloat(pz, 24, vertexContext.p.z - length * normal.z);
+            MgfTessellationMath.formatFloat(px, 24, vertexContext.p.x() - length * normal.x());
+            MgfTessellationMath.formatFloat(py, 24, vertexContext.p.y() - length * normal.y());
+            MgfTessellationMath.formatFloat(pz, 24, vertexContext.p.z() - length * normal.z());
             pointEntity[1] = px.toString();
             pointEntity[2] = py.toString();
             pointEntity[3] = pz.toString();

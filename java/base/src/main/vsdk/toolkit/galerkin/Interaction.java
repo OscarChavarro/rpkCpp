@@ -50,7 +50,7 @@ public class Interaction {
         }
 
         if ( (numberOfReceiverCubaturePositions & 0xFF) > 1 ) {
-            Logger.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "interactionCreate", "Not yet implemented for higher order approximations");
         }
 
         deltaK = inDeltaK;

@@ -6,7 +6,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
@@ -39,7 +39,7 @@ public final class StochasticRadiosityElement extends Element {
 
     public GalerkinBasis basis; // Radiosity approximation data
     // Higher order approximations need an array of color values for representing radiance
-    public ColorRgb sourceRad; // Always constant source radiosity
+    public ColorRgbMutable sourceRad; // Always constant source radiosity
 
     public float importance; // For view-importance driven sampling
     public float unShotImportance;
@@ -64,7 +64,7 @@ public final class StochasticRadiosityElement extends Element {
         samplingProbability = 0.0f;
         ng = 0.0f;
         basis = null;
-        sourceRad = new ColorRgb();
+        sourceRad = new ColorRgbMutable();
         importance = 0.0f;
         unShotImportance = 0.0f;
         receivedImportance = 0.0f;
@@ -352,7 +352,7 @@ The point is transformed to the corresponding point on the sub-element
                 }
                 break;
             default:
-                Logger.fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
         }
 
         return child;
@@ -499,7 +499,7 @@ found.
                             v = ((StochasticRadiosityElement)neighbour.regularSubElements[2]).vertices[0];
                             break;
                         default:
-                            Logger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                            Logger.reportMessage(null, Logger.ERROR, "EdgeMidpointVertex", String.format("Invalid vertex index %d", index));
                     }
                     break;
                 case 4:
@@ -517,11 +517,11 @@ found.
                             v = ((StochasticRadiosityElement)neighbour.regularSubElements[2]).vertices[0];
                             break;
                         default:
-                            Logger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                            Logger.reportMessage(null, Logger.ERROR, "EdgeMidpointVertex", String.format("Invalid vertex index %d", index));
                     }
                     break;
                 default:
-                    Logger.fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+                    Logger.reportMessage(null, Logger.FATAL_ERROR, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
             }
         }
 
@@ -554,7 +554,7 @@ Only for surface elements
 */
     public static boolean stochasticRadiosityElementIsTextured(StochasticRadiosityElement elem) {
         if ( elem.isCluster() ) {
-            Logger.fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
             return false;
         }
         Material mat = elem.patch.material;
@@ -591,8 +591,8 @@ Computes average reflectance and emittance of a surface sub-element
         long[] msb1 = new long[1];
         long[] rMostSignificantBit2 = new long[1];
         long[] n = new long[] {1};
-        ColorRgb albedo = new ColorRgb();
-        ColorRgb emittance = new ColorRgb();
+        ColorRgbMutable albedo = new ColorRgbMutable();
+        ColorRgbMutable emittance = new ColorRgbMutable();
         RayHit hit = new RayHit();
         hit.init(patch, patch.midPoint, patch.normal, patch.material);
 
@@ -603,19 +603,19 @@ Computes average reflectance and emittance of a surface sub-element
         StochasticRadiosityElement.stochasticRadiosityElementRange(elem, nbits, msb1, rMostSignificantBit2);
 
         for ( int i = 0; i < numberOfSamples; i++, n[0]++ ) {
-            ColorRgb sample;
+            ColorRgbMutable sample;
             long[] xi = Niederreiter.NextNiedInRange(n, +1, nbits[0], msb1[0], rMostSignificantBit2[0]);
             hit.setUv((double)xi[0] * Niederreiter.RECIP, (double)xi[1] * Niederreiter.RECIP);
             int newFlags = hit.getFlags() | RayHitFlag.UV;
             hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
-            patch.uniformPoint(hit.getUv().u, hit.getUv().v, position);
+            patch.uniformPoint(hit.getUv().x, hit.getUv().y, position);
             if ( patch.material.getBsdf() != null ) {
-                sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+                sample = new ColorRgbMutable(patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
                 albedo.add(albedo, sample);
             }
             if ( patch.material.getEdf() != null ) {
-                sample = patch.material.getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT);
+                sample = new ColorRgbMutable(patch.material.getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT));
                 emittance.add(emittance, sample);
             }
         }
@@ -627,7 +627,7 @@ Computes average reflectance and emittance of a surface sub-element
 Initial push operation for surface sub-elements
 */
     private static void monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement parent, StochasticRadiosityElement child) {
-        child.sourceRad = new ColorRgb(parent.sourceRad.getR(), parent.sourceRad.getG(), parent.sourceRad.getB());
+        child.sourceRad = new ColorRgbMutable(parent.sourceRad.getR(), parent.sourceRad.getG(), parent.sourceRad.getB());
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.radiance, child.radiance);
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.unShotRadiance, child.unShotRadiance);
 
@@ -650,8 +650,8 @@ Initial push operation for surface sub-elements
         child.quality = parent.quality;
         child.samplingProbability = parent.samplingProbability * child.area / parent.area;
 
-        child.Rd = new ColorRgb(parent.Rd.getR(), parent.Rd.getG(), parent.Rd.getB());
-        child.Ed = new ColorRgb(parent.Ed.getR(), parent.Ed.getG(), parent.Ed.getB());
+        child.Rd = new ColorRgbMutable(parent.Rd.getR(), parent.Rd.getG(), parent.Rd.getB());
+        child.Ed = new ColorRgbMutable(parent.Ed.getR(), parent.Ed.getG(), parent.Ed.getB());
         monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(child);
     }
 
@@ -752,13 +752,12 @@ done so before. Returns the list of created sub-elements
         }
 
         if ( element.isCluster() ) {
-            Logger.fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
             return null;
         }
 
         if ( element.patch.jacobian != null ) {
-            Logger.warning("galerkinElementRegularSubDivide",
-                "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)");
+            Logger.reportMessage(null, Logger.WARNING, "galerkinElementRegularSubDivide", "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)");
         }
 
         // Create the sub-elements
@@ -771,7 +770,7 @@ done so before. Returns the list of created sub-elements
                 monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
                 break;
             default:
-                Logger.fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
         }
         return castElementArray(element.regularSubElements);
     }
@@ -833,8 +832,8 @@ done so before. Returns the list of created sub-elements
     public static void stochasticRadiosityElementPushRadiance(
         StochasticRadiosityElement parent,
         StochasticRadiosityElement child,
-        ColorRgb[] parentRadiance,
-        ColorRgb[] childRadiance)
+        ColorRgbMutable[] parentRadiance,
+        ColorRgbMutable[] childRadiance)
     {
         if ( parent.isCluster() || child.basis.size == 1 ) {
             childRadiance[0].add(childRadiance[0], parentRadiance[0]);
@@ -842,8 +841,7 @@ done so before. Returns the list of created sub-elements
             Basismcrad.filterColorDown(parentRadiance, child.basis.regularFilter[child.childNumber], childRadiance,
                 child.basis.size);
         } else {
-            Logger.fatal(-1, "stochasticRadiosityElementPushRadiance",
-                "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementPushRadiance", "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
         }
     }
 
@@ -854,8 +852,8 @@ done so before. Returns the list of created sub-elements
     public static void stochasticRadiosityElementPullRadiance(
         StochasticRadiosityElement parent,
         StochasticRadiosityElement child,
-        ColorRgb[] parentRad,
-        ColorRgb[] childRad)
+        ColorRgbMutable[] parentRad,
+        ColorRgbMutable[] childRad)
     {
         float areaFactor = child.area / parent.area;
         if ( parent.isCluster() || child.basis.size == 1 ) {
@@ -864,8 +862,7 @@ done so before. Returns the list of created sub-elements
             Basismcrad.filterColorUp(childRad, child.basis.regularFilter[child.childNumber],
                 parentRad, child.basis.size, areaFactor);
         } else {
-            Logger.fatal(-1, "stochasticRadiosityElementPullRadiance",
-                "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementPullRadiance", "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
         }
     }
 
@@ -873,8 +870,8 @@ done so before. Returns the list of created sub-elements
         parentImportance[0] += child.area / parent.area * childImportance[0];
     }
 
-    public static ColorRgb stochasticRadiosityElementColor(StochasticRadiosityElement element) {
-        ColorRgb color = new ColorRgb();
+    public static ColorRgbMutable stochasticRadiosityElementColor(StochasticRadiosityElement element) {
+        ColorRgbMutable color = new ColorRgbMutable();
 
         switch ( StochasticRelaxation.activeState().show ) {
             case SHOW_TOTAL_RADIANCE:
@@ -897,19 +894,15 @@ done so before. Returns the list of created sub-elements
                 break;
             }
             default:
-                Logger.fatal(
-                    -1,
-                    "stochasticRadiosityElementColor",
-                    "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
-                    StochasticRelaxation.activeState().show.ordinal());
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementColor", String.format("Do not know what to display (StochasticRelaxation::activeState().show = %d)", StochasticRelaxation.activeState().show.ordinal()));
         }
 
         return color;
     }
 
-    private static ColorRgb vertexRadiance(Vertex v) {
+    private static ColorRgbMutable vertexRadiance(Vertex v) {
         int count = 0;
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable radiance = new ColorRgbMutable();
 
         radiance.clear();
         for ( int i = 0; v.radianceData != null && i < v.radianceData.size(); i++ ) {
@@ -919,7 +912,7 @@ done so before. Returns the list of created sub-elements
             }
             StochasticRadiosityElement elem = (StochasticRadiosityElement)element;
             if ( elem.regularSubElements == null ) {
-                ColorRgb elementRadiosity = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadiance(elem);
+                ColorRgbMutable elementRadiosity = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadiance(elem);
                 radiance.add(radiance, elementRadiosity);
                 count++;
             }
@@ -958,7 +951,7 @@ Same as above but for importance
         return imp;
     }
 
-    private static ColorRgb vertexColor(Vertex v) {
+    private static ColorRgbMutable vertexColor(Vertex v) {
         switch ( StochasticRelaxation.activeState().show ) {
             case SHOW_TOTAL_RADIANCE:
             case SHOW_INDIRECT_RADIANCE:
@@ -979,9 +972,7 @@ Same as above but for importance
                 break;
             }
             default:
-                Logger.fatal(-1, "vertexColor",
-                    "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
-                    StochasticRelaxation.activeState().show.ordinal());
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "vertexColor", String.format("Do not know what to display (StochasticRelaxation::activeState().show = %d)", StochasticRelaxation.activeState().show.ordinal()));
         }
 
         return v.color;
@@ -1012,7 +1003,7 @@ Compute new vertex colors
         }
 
         if ( n > 0 ) {
-            ColorRgb color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
+            ColorRgbMutable color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
             for ( int i = 0; i < stochasticRadiosityElement.numberOfVertices; i++ ) {
                 if ( m[i] != null ) {
                     m[i].color.r = (m[i].color.r + color.getR()) * 0.5f;
@@ -1023,8 +1014,8 @@ Compute new vertex colors
         }
     }
 
-    public static ColorRgb stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement elem) {
-        ColorRgb radiance = new ColorRgb();
+    public static ColorRgbMutable stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement elem) {
+        ColorRgbMutable radiance = new ColorRgbMutable();
         radiance.subtract(elem.radiance[0], elem.sourceRad);
 
         if ( StochasticRelaxation.activeState().show != WhatToShow.SHOW_INDIRECT_RADIANCE ) {
@@ -1039,17 +1030,17 @@ Compute new vertex colors
         return radiance;
     }
 
-    public static ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(
+    public static ColorRgbMutable stochasticRadiosityElementDisplayRadianceAtPoint(
         StochasticRadiosityElement elem,
         double u,
         double v,
         RenderOptions renderOptions)
     {
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable radiance = new ColorRgbMutable();
         if ( elem.basis.size == 1 ) {
             if ( renderOptions.smoothShading ) {
                 // Do Gouraud interpolation if required
-                ColorRgb[] rad = new ColorRgb[4];
+                ColorRgbMutable[] rad = new ColorRgbMutable[4];
                 for ( int i = 0; i < elem.numberOfVertices; i++ ) {
                     rad[i] = vertexRadiance(elem.vertices[i]);
                 }
@@ -1061,8 +1052,7 @@ Compute new vertex colors
                         radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float)u, (float)v);
                         break;
                     default:
-                        Logger.fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
-                            "can only handle triangular or quadrilateral elements");
+                        Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
                 }
             } else {
                 // Flat shading

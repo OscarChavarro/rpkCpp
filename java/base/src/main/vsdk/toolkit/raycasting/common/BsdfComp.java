@@ -4,7 +4,7 @@ Some bsdf component stuff.
 
 package vsdk.toolkit.raycasting.common;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.BsdfComponentFlag;
 
@@ -17,20 +17,20 @@ public class BsdfComp {
         | BsdfComponent.BTDF_GLOSSY_COMPONENT
         | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
-    public ColorRgb[] comp;
+    public ColorRgbMutable[] comp;
 
     public BsdfComp() {
-        comp = new ColorRgb[BSDF_COMPONENTS];
+        comp = new ColorRgbMutable[BSDF_COMPONENTS];
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
-            comp[i] = new ColorRgb();
+            comp[i] = new ColorRgbMutable();
         }
     }
 
-    public ColorRgb get(int index) {
+    public ColorRgbMutable get(int index) {
         return comp[index];
     }
 
-    public ColorRgb[] asArray() {
+    public ColorRgbMutable[] asArray() {
         return comp;
     }
 
@@ -41,28 +41,28 @@ public class BsdfComp {
     public void Clear(byte flags) {
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
             if ((flags & (BsdfComponentFlag.bsdfIndexToComp(i))) != 0) {
-                comp[i] = new ColorRgb();
+                comp[i] = new ColorRgbMutable();
             }
         }
     }
 
-    public void Fill(ColorRgb col) {
+    public void Fill(ColorRgbMutable col) {
         Fill(col, (byte)BSDF_ALL_COMPONENTS);
     }
 
-    public void Fill(ColorRgb col, byte flags) {
+    public void Fill(ColorRgbMutable col, byte flags) {
         for (int i = 0; i < BSDF_COMPONENTS; i++) {
             if ((flags & (BsdfComponentFlag.bsdfIndexToComp(i))) != 0) {
-                comp[i] = new ColorRgb(col.getR(), col.getG(), col.getB());
+                comp[i] = new ColorRgbMutable(col.getR(), col.getG(), col.getB());
             }
         }
     }
 
-    public ColorRgb Sum() {
+    public ColorRgbMutable Sum() {
         return Sum((byte)BSDF_ALL_COMPONENTS);
     }
 
-    public ColorRgb Sum(byte flags) {
+    public ColorRgbMutable Sum(byte flags) {
         double r = 0.0;
         double g = 0.0;
         double b = 0.0;
@@ -75,6 +75,6 @@ public class BsdfComp {
             }
         }
 
-        return new ColorRgb(r, g, b);
+        return new ColorRgbMutable(r, g, b);
     }
 }

@@ -4,7 +4,7 @@ Path node sampler using bsdf sampling
 
 package vsdk.toolkit.raycasting.raytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.ShadingContext;
@@ -58,10 +58,10 @@ public class BsdfSampler extends SurfaceSampler {
 
         newNode.accumulatedRussianRouletteFactors = thisNode.accumulatedRussianRouletteFactors;
         if ( doRR ) {
-            ColorRgb albedo = new ColorRgb();
+            ColorRgbMutable albedo = new ColorRgbMutable();
             albedo.clear();
             if ( thisNode.m_useBsdf != null && thisContext != null ) {
-                albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisContext, flags & 0xFF);
+                albedo = new ColorRgbMutable(thisNode.m_useBsdf.splitBsdfScatteredPower(thisContext, flags & 0xFF));
             }
             newNode.accumulatedRussianRouletteFactors *= albedo.average();
         }

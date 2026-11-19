@@ -14,7 +14,7 @@ import vsdk.toolkit.common.Random;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -30,7 +30,7 @@ import vsdk.toolkit.environment.geometry.elements.RayHit;
 public final class StochasticJacobi {
     @FunctionalInterface
     public interface GetRadianceCallback {
-        ColorRgb[] apply(StochasticRadiosityElement elem);
+        ColorRgbMutable[] apply(StochasticRadiosityElement elem);
     }
 
     @FunctionalInterface
@@ -106,8 +106,8 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
         if ( getRadianceCallback != null ) {
             // Probability proportional to power to be propagated
-            ColorRgb[] callbackRadiance = getRadianceCallback.apply(elem);
-            ColorRgb radiance = new ColorRgb();
+            ColorRgbMutable[] callbackRadiance = getRadianceCallback.apply(elem);
+            ColorRgbMutable radiance = new ColorRgbMutable();
             radiance.set(
                 callbackRadiance[0].getR(),
                 callbackRadiance[0].getG(),
@@ -129,7 +129,7 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
             if ( StochasticRelaxation.activeState().radianceDriven != 0 ) {
                 // Received-radiance weighted importance transport
-                ColorRgb receivedRadiance = new ColorRgb();
+                ColorRgbMutable receivedRadiance = new ColorRgbMutable();
                 receivedRadiance.subtract(elem.radiance[0], elem.sourceRad);
                 prob2 *= receivedRadiance.sumAbsComponents();
             }
@@ -199,7 +199,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
         stochasticJacobiElementSetup(ElementHierarchyState.activeState().topCluster);
 
         if ( sumOfProbabilities < Numeric.EPSILON * Numeric.EPSILON ) {
-            Logger.warning("Iteration", "No sources");
+            Logger.reportMessage(null, Logger.WARNING, "Iteration", "No sources");
             return false;
         }
         return true;
@@ -208,8 +208,8 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
     /**
 Returns radiance to be propagated from the given location of the element
 */
-    private static ColorRgb stochasticJacobiGetSourceRadiance(StochasticRadiosityElement src, double us, double vs) {
-        ColorRgb[] srcRad = getRadianceCallback.apply(src);
+    private static ColorRgbMutable stochasticJacobiGetSourceRadiance(StochasticRadiosityElement src, double us, double vs) {
+        ColorRgbMutable[] srcRad = getRadianceCallback.apply(src);
         return Basismcrad.colorAtUv(src.basis, srcRad, us, vs);
     }
 
@@ -217,7 +217,7 @@ Returns radiance to be propagated from the given location of the element
         StochasticRadiosityElement rcv,
         double ur,
         double vr,
-        ColorRgb rayPower,
+        ColorRgbMutable rayPower,
         StochasticRadiosityElement src,
         double fraction,
         double weight)
@@ -234,7 +234,7 @@ Returns radiance to be propagated from the given location of the element
 
     private static void stochasticJacobiPropagateRadianceToClusterIsotropic(
         StochasticRadiosityElement cluster,
-        ColorRgb rayPower,
+        ColorRgbMutable rayPower,
         StochasticRadiosityElement src,
         double fraction,
         double weight)
@@ -251,7 +251,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
     private static void stochasticJacobiPropagateRadianceClusterRecursive(
         StochasticRadiosityElement currentElement,
-        ColorRgb rayPower,
+        ColorRgbMutable rayPower,
         Ray ray,
         float dir,
         double projectedArea,
@@ -285,7 +285,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 
     private static void stochasticJacobiPropagateRadianceToClusterOriented(
         StochasticRadiosityElement cluster,
-        ColorRgb rayPower,
+        ColorRgbMutable rayPower,
         Ray ray,
         float dir,
         StochasticRadiosityElement src,
@@ -358,8 +358,8 @@ the receiver is a cluster
         Ray ray,
         float dir)
     {
-        ColorRgb radiance;
-        ColorRgb rayPower = new ColorRgb();
+        ColorRgbMutable radiance;
+        ColorRgbMutable rayPower = new ColorRgbMutable();
         double area;
         double weight = sumOfProbabilities / srcProb; // src area / normalised src prob
         double fraction = srcProb / (srcProb + rcvProb); // 1 for uni-directional transfers
@@ -381,8 +381,7 @@ the receiver is a cluster
         } else {
             switch ( ElementHierarchyState.activeState().clustering ) {
                 case NO_CLUSTERING:
-                    Logger.fatal(-1, "Propagate",
-                        "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
+                    Logger.reportMessage(null, Logger.FATAL_ERROR, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
                     break;
                 case ISOTROPIC_CLUSTERING:
                     stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
@@ -395,8 +394,7 @@ the receiver is a cluster
                     }
                     break;
                 default:
-                    Logger.fatal(-1, "Propagate", "Invalid clustering mode %d\n",
-                        ElementHierarchyState.activeState().clustering.ordinal());
+                    Logger.reportMessage(null, Logger.FATAL_ERROR, "Propagate", String.format("Invalid clustering mode %d\n", ElementHierarchyState.activeState().clustering.ordinal()));
                     break;
             }
         }
@@ -426,8 +424,7 @@ Idem but for importance
 
         if ( ElementHierarchyState.activeState().do_h_meshing != 0 ||
              ElementHierarchyState.activeState().clustering != HierarchyClusteringMode.NO_CLUSTERING ) {
-            Logger.fatal(-1, "Propagate",
-                "Importance propagation not implemented in combination with hierarchical refinement");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
         }
     }
 
@@ -573,8 +570,8 @@ Determines uniform (u,v) parameters of hit point on hit patch
     private static void stochasticJacobiUniformHitCoordinates(RayHit hit, double[] uHit, double[] vHit) {
         if ( (hit.getFlags() & RayHitFlag.UV) != 0 ) {
             // (u,v) coordinates obtained as side result of intersection test
-            uHit[0] = hit.getUv().u;
-            vHit[0] = hit.getUv().v;
+            uHit[0] = hit.getUv().x;
+            vHit[0] = hit.getUv().y;
             if ( hit.getPatch().jacobian != null ) {
                 hit.getPatch().biLinearToUniform(uHit, vHit);
             }
@@ -775,12 +772,12 @@ approximation of total and un-shot radiance and importance
         if ( getRadianceCallback != null ) {
             if ( parent.isCluster() && !child.isCluster() ) {
                 // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
-                ColorRgb rad = new ColorRgb(
+                ColorRgbMutable rad = new ColorRgbMutable(
                     parent.receivedRadiance[0].getR(), parent.receivedRadiance[0].getG(), parent.receivedRadiance[0].getB());
-                ColorRgb Rd = child.Rd;
+                ColorRgbMutable Rd = child.Rd;
                 rad.selfScalarProduct(Rd);
                 StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(
-                    parent, child, new ColorRgb[] {rad}, child.receivedRadiance);
+                    parent, child, new ColorRgbMutable[] {rad}, child.receivedRadiance);
             } else {
                 StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(
                     parent, child, parent.receivedRadiance, child.receivedRadiance);

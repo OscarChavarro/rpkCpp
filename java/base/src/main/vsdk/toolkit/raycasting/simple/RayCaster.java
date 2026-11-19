@@ -6,7 +6,7 @@ package vsdk.toolkit.raycasting.simple;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -115,7 +115,7 @@ public final class RayCaster extends RayTracer {
 Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
-    private ColorRgb
+    private ColorRgbMutable
     getRadianceAtPixel(
         Camera camera,
         int x,
@@ -124,7 +124,7 @@ Determines the radiance of the nearest patch visible through the pixel
         RadianceMethod radianceMethod,
         RenderOptions renderOptions)
     {
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable radiance = new ColorRgbMutable();
         radiance.clear();
 
         if (radianceMethod != null) {
@@ -173,7 +173,7 @@ Determines the radiance of the nearest patch visible through the pixel
         long[] height = new long[1];
         idRenderer.getSize(width, height);
         if (width[0] != screenBuffer.getHRes() || height[0] != screenBuffer.getVRes()) {
-            Logger.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "RayCaster::render", "ID buffer size doesn't match screen size");
         }
 
         // This is the main loop for ray-casting
@@ -181,7 +181,7 @@ Determines the radiance of the nearest patch visible through the pixel
             for (int x = 0; x < width[0]; x++) {
                 Patch patch = idRenderer.getPatchAtPixel(x, y);
                 if (patch != null) {
-                    ColorRgb rad = getRadianceAtPixel(scene.camera, x, y, patch, radianceMethod, renderOptions);
+                    ColorRgbMutable rad = getRadianceAtPixel(scene.camera, x, y, patch, radianceMethod, renderOptions);
                     screenBuffer.add(x, y, rad);
                 }
             }

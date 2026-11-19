@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
@@ -33,7 +33,7 @@ public class LightList extends CircularList<LightInfo> {
     // Non emitting patches (edf == nullptr) are NOT put in the list.
     public LightList(ArrayList<Patch> list, boolean includeVirtualPatches) {
         LightInfo info = new LightInfo();
-        ColorRgb lightColor;
+        ColorRgbMutable lightColor;
 
         totalFlux = 0.0f;
         lightCount = 0;
@@ -49,11 +49,11 @@ public class LightList extends CircularList<LightInfo> {
 
                 // calc emittedFlux
                 if ( light.hasZeroVertices() ) {
-                    ColorRgb e;
+                    ColorRgbMutable e;
                     if ( light.material.getEdf() == null ) {
-                        e = new ColorRgb();
+                        e = new ColorRgbMutable();
                     } else {
-                        e = light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT);
+                        e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT));
                     }
                     info.emittedFlux = e.average();
                 } else {
@@ -93,7 +93,7 @@ public class LightList extends CircularList<LightInfo> {
         }
 
         if ( info == null ) {
-            Logger.warning("CLightList::sample", "No lights available");
+            Logger.reportMessage(this, Logger.WARNING, "CLightList::sample", "No lights available");
             return null;
         }
 
@@ -133,11 +133,11 @@ public class LightList extends CircularList<LightInfo> {
         // Prob for choosing this light
         int all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-        ColorRgb e;
+        ColorRgbMutable e;
         if ( light.material.getEdf() == null ) {
-            e = new ColorRgb();
+            e = new ColorRgbMutable();
         } else {
-            e = light.material.getEdf().phongEmittance(null, all);
+            e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, all));
         }
         probabilityDensityFunction = e.average() / totalFlux;
 
@@ -146,7 +146,7 @@ public class LightList extends CircularList<LightInfo> {
 
     private double evalPdfReal(Patch light, Vector3D point) {
         // Eval PDF for normal patches (see EvalPDF)
-        ColorRgb color;
+        ColorRgbMutable color;
         double pdf;
 
         color = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
@@ -183,12 +183,12 @@ public class LightList extends CircularList<LightInfo> {
         // ComputeOneLightImportance for virtual patches
         int all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-        ColorRgb e;
+        ColorRgbMutable e;
 
         if ( light.material.getEdf() == null ) {
-            e = new ColorRgb();
+            e = new ColorRgbMutable();
         } else {
-            e = light.material.getEdf().phongEmittance(null, all);
+            e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, all));
         }
         return e.average();
     }
@@ -328,7 +328,7 @@ public class LightList extends CircularList<LightInfo> {
         }
 
         if ( info == null ) {
-            Logger.warning("CLightList::sample", "No lights available");
+            Logger.reportMessage(this, Logger.WARNING, "CLightList::sample", "No lights available");
             return null;
         }
 
@@ -383,7 +383,7 @@ public class LightList extends CircularList<LightInfo> {
         } while ( info != null && info.light != light );
 
         if ( info == null ) {
-            Logger.warning("CLightList::evalPdfImportant", "Could not find light");
+            Logger.reportMessage(this, Logger.WARNING, "CLightList::evalPdfImportant", "Could not find light");
             return 0.0;
         }
 

@@ -4,7 +4,6 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
@@ -69,7 +68,7 @@ public class Kernel2D {
     IN: The screen buffer to cover.
     OUT: /
     */
-    public void cover(Vector2D point, float scale, ColorRgb col, ScreenBuffer screen) {
+    public void cover(Vector2D point, float scale, ColorRgbMutable col, ScreenBuffer screen) {
         // For each neighbourhood pixel : eval kernel and add contrib
 
         int[] nxMinV = new int[1];
@@ -95,7 +94,7 @@ public class Kernel2D {
                     center = screen.getPixelCenter(nx, ny);
                     factor = scale * Evaluate(point, center);
                     addCol.scaledCopy(factor, new ColorRgbMutable(col));
-                    screen.add(nx, ny, addCol.toImmutable());
+                    screen.add(nx, ny, new ColorRgbMutable(addCol));
                 } else {
                     // Handle boundary bias !
                 }
@@ -109,7 +108,7 @@ public class Kernel2D {
     public void
     varCover(
         Vector2D center,
-        ColorRgb color,
+        ColorRgbMutable color,
         ScreenBuffer ref,
         ScreenBuffer dest,
         int totalSamples,
@@ -130,7 +129,7 @@ public class Kernel2D {
         // Now compute h for this sample
 
         // Reference estimated function
-        ColorRgb fe = ref.getBiLinear(center.x, center.y);
+        ColorRgbMutable fe = ref.getBiLinear(center.x, center.y);
 
         float avgFe = fe.average();
         float avgG = color.average();

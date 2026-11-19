@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 
@@ -29,13 +29,13 @@ public final class LightnessToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForComputations(ColorRgb radiance) {
-        Logger.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
+    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
+        Logger.reportMessage(this, Logger.WARNING, "ScaleForComputations", String.format("%s %d not yet implemented", "LightnessToneMap.cpp", 0));
         return radiance;
     }
 
     @Override
-    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
         float max = radiance.maximumComponent();
         if (max < 1e-32) {
             return radiance;

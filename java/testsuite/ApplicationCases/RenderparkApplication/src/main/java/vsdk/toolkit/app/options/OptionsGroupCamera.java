@@ -1,6 +1,6 @@
 package vsdk.toolkit.app.options;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
@@ -13,7 +13,7 @@ public final class OptionsGroupCamera {
     private static final Vector3D DEFAULT_CAMERA_EYE_POSITION = new Vector3D(10.0, 0.0, 0.0);
     private static final Vector3D DEFAULT_CAMERA_LOOK_POSITION = new Vector3D(0.0, 0.0, 0.0);
     private static final Vector3D DEFAULT_CAMERA_UP_DIRECTION = new Vector3D(0.0, 0.0, 1.0);
-    private static final ColorRgb DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
+    private static final ColorRgbMutable DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
     private static Camera cameraState = new Camera();
 
     private static void cameraSetEyePositionOption(TypedOption.MutableValue<Vector3D> val) {
@@ -36,7 +36,7 @@ public final class OptionsGroupCamera {
         Vector3D eyePosition = new Vector3D(DEFAULT_CAMERA_EYE_POSITION.x, DEFAULT_CAMERA_EYE_POSITION.y, DEFAULT_CAMERA_EYE_POSITION.z);
         Vector3D lookPosition = new Vector3D(DEFAULT_CAMERA_LOOK_POSITION.x, DEFAULT_CAMERA_LOOK_POSITION.y, DEFAULT_CAMERA_LOOK_POSITION.z);
         Vector3D upDirection = new Vector3D(DEFAULT_CAMERA_UP_DIRECTION.x, DEFAULT_CAMERA_UP_DIRECTION.y, DEFAULT_CAMERA_UP_DIRECTION.z);
-        ColorRgb backgroundColorSelected = new ColorRgb(
+        ColorRgbMutable backgroundColorSelected = new ColorRgbMutable(
             DEFAULT_BACKGROUND_COLOR.getR(),
             DEFAULT_BACKGROUND_COLOR.getG(),
             DEFAULT_BACKGROUND_COLOR.getB());

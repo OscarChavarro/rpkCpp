@@ -37,7 +37,7 @@ public class FileUncompressWrapper {
         }
 
         if (stream == null) {
-            Logger.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.READ));
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.READ)));
             if (isPipe != null && isPipe.length > 0) {
                 isPipe[0] = 0;
             }
@@ -79,7 +79,7 @@ public class FileUncompressWrapper {
         }
 
         if (stream == null) {
-            Logger.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.WRITE));
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.WRITE)));
             if (isPipe != null && isPipe.length > 0) {
                 isPipe[0] = 0;
             }

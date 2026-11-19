@@ -3,7 +3,7 @@ package vsdk.toolkit.app;
 import java.util.ArrayList;
 import java.util.Arrays;
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -19,7 +19,7 @@ Estimate static adaptation luminance in the current scene
 */
 public final class Adaptation {
     private interface PatchRadianceEstimateFn {
-        ColorRgb apply(Patch patch);
+        ColorRgbMutable apply(Patch patch);
     }
 
     private static int numEntries = 0;
@@ -36,7 +36,7 @@ public final class Adaptation {
     /**
 A-priori estimate of a patch's radiance
 */
-    private static ColorRgb initRadianceEstimate(Patch patch) {
+    private static ColorRgbMutable initRadianceEstimate(Patch patch) {
         int allXxdfComponents = XxdfComponentFlag.DIFFUSE_COMPONENT
             | XxdfComponentFlag.GLOSSY_COMPONENT
             | XxdfComponentFlag.SPECULAR_COMPONENT;
@@ -47,9 +47,9 @@ A-priori estimate of a patch's radiance
             | BsdfComponent.BTDF_GLOSSY_COMPONENT
             | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
-        ColorRgb E = PatchVisitor.averageEmittance(patch, allXxdfComponents);
-        ColorRgb R = PatchVisitor.averageNormalAlbedo(patch, allBsdfComponents);
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable E = PatchVisitor.averageEmittance(patch, allXxdfComponents);
+        ColorRgbMutable R = PatchVisitor.averageNormalAlbedo(patch, allBsdfComponents);
+        ColorRgbMutable radiance = new ColorRgbMutable();
 
         radiance.scalarProduct(R, Statistics.instance().radiance.estimatedAverageRadiance);
         radiance.addScaled(radiance, (1.0f / (float)Math.PI), E);
@@ -57,7 +57,7 @@ A-priori estimate of a patch's radiance
     }
 
     private static float patchBrightnessEstimate(Patch patch) {
-        ColorRgb radiance = patchRadianceEstimate.apply(patch);
+        ColorRgbMutable radiance = patchRadianceEstimate.apply(patch);
         float brightness = Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         if ( brightness < Numeric.EPSILON_FLOAT ) {
             brightness = Numeric.EPSILON_FLOAT;
@@ -160,7 +160,7 @@ emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLumi
                 break;
             }
             default:
-                Logger.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
+                Logger.reportMessage(null, Logger.ERROR, "sceneBuilderComputeStats", String.format("unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod));
         }
     }
 

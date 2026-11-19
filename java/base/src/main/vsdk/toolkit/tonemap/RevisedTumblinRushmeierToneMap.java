@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 /**
 References:
@@ -51,7 +51,7 @@ public final class RevisedTumblinRushmeierToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForComputations(ColorRgb radiance) {
+    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
         float rwl = Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         float scale;
 
@@ -68,7 +68,7 @@ public final class RevisedTumblinRushmeierToneMap extends ToneMap {
     }
 
     @Override
-    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
         float rwl = (float)Math.PI * Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         float eff = Cie.getLuminousEfficacy();
         radiance.scale(eff * (float)Math.PI);

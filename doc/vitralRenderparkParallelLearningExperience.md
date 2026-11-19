@@ -73,10 +73,8 @@ This constrains how convergence work is done:
   `doc/patchBoundingBoxDecoupling.md` were written as C++-only; under this
   intent, structural changes are now expected to propagate.)
 - The Turbo C port adds a mechanical constraint the other trees never face:
-  8.3 filenames via `turboc/mappings.csv`. That port keeps its own flat
-  directory layout, so it is unaffected by structural changes in the C++
-  port's `base/`; any change that does touch turboc's own file names must
-  still update that mapping.
+  8.3 filenames via `turboc/mappings.csv`. Any change that adds, removes,
+  moves or renames a file under `turboc/` must update that mapping.
 - Language-specific idioms stay out of the shared design: this is the same
   force that already keeps the C++ port free of STL, iterators and operator
   overloading, and it is why VITRAL's encapsulation style (private
@@ -94,9 +92,12 @@ The C++ port's `base/` already follows VITRAL's directory and namespace
 layout — `base/src/main/vsdk/toolkit/...`, with the `java::` JDK mirror kept
 as a sibling root (`base/src/main/java/`) rather than nested inside the
 toolkit — matching the convention the Java and TypeScript ports of rpkCpp
-already use. File-level diffs between rpkCpp classes and VITRAL classes are
-therefore directly comparable, which is the working mode the povCpp effort
-already enjoys.
+already use. The Turbo C port's `base/` follows the same layout as VITRAL's
+own `turboc/` port, so each rpkCpp port is compared against its VITRAL
+counterpart (`cpp/` against `vitral/cpp`, `turboc/` against `vitral/turboc`).
+File-level diffs between rpkCpp classes and VITRAL classes are therefore
+directly comparable, which is the working mode the povCpp effort already
+enjoys.
 
 Layers conceptually shared already (same role, divergent shape, see
 `doc/vitralNormalizationAnalysis.md` for the class-by-class detail):

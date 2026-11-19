@@ -2,6 +2,7 @@ package vsdk.toolkit.render.jogl.visualDebugTools;
 
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -106,21 +107,21 @@ public final class GlutDebugPatchHierarchy {
         float grayValue = OUTLINE_MIN_GRAY;
 
         if ( renderOptions.drawSurfaces ) {
-            ColorRgb radianceSample = new ColorRgb();
+            ColorRgbMutable radianceSample = new ColorRgbMutable();
             if ( element.radiance != null && element.radiance.length > 0 ) {
-                radianceSample = new ColorRgb(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
+                radianceSample = new ColorRgbMutable(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
             }
 
             if ( element.galerkinState != null
                  && element.galerkinState.useAmbientRadiance != 0
                  && element.patch != null
                  && element.patch.radianceData != null ) {
-                ColorRgb ambient = new ColorRgb();
+                ColorRgbMutable ambient = new ColorRgbMutable();
                 ambient.scalarProduct(element.patch.radianceData.Rd, element.galerkinState.ambientRadiance);
                 radianceSample.add(radianceSample, ambient);
             }
 
-            ColorRgb rgbColor = new ColorRgb();
+            ColorRgbMutable rgbColor = new ColorRgbMutable();
             ToneMap.radianceToRgb(radianceSample, rgbColor, toneMapOptions);
             grayValue = toneMappedGrayAndDarkened(Cie.spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
             Opengl.openGlRenderSetColor(new ColorRgb(grayValue, grayValue, grayValue), renderOptions);

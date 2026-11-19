@@ -87,7 +87,7 @@ public final class Random {
                 // glibc's unseeded drand48 runs from a zero 48-bit state, so
                 // leaving libc untouched reproduces the same sequence.
             } catch ( Throwable error ) {
-                Logger.warning("Random.startup", "could not load native RNG library, falling back to Java implementation: %s", error);
+                Logger.reportMessage(null, Logger.WARNING, "Random.startup", String.format("could not load native RNG library, falling back to Java implementation: %s", error));
                 nativeMode = false;
             }
         }
@@ -102,7 +102,7 @@ public final class Random {
             try {
                 nativeShutdown.invoke();
             } catch ( Throwable error ) {
-                Logger.warning("Random.shutdown", "error during native RNG shutdown: %s", error);
+                Logger.reportMessage(null, Logger.WARNING, "Random.shutdown", String.format("error during native RNG shutdown: %s", error));
             }
         }
         nativeSrand48 = null;

@@ -1,6 +1,7 @@
 package vsdk.toolkit.render.jogl;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinBasis;
@@ -67,11 +68,11 @@ public final class GalerkinOpenGLRenderer {
             }
 
             if ( (mode & GalerkinElementRenderMode.GOURAUD.value) == 0 ) {
-                ColorRgb color = new ColorRgb();
-                ColorRgb rho = element.patch.radianceData.Rd;
+                ColorRgbMutable color = new ColorRgbMutable();
+                ColorRgbMutable rho = element.patch.radianceData.Rd;
 
                 if ( element.galerkinState != null && element.galerkinState.useAmbientRadiance != 0 ) {
-                    ColorRgb radVis = new ColorRgb();
+                    ColorRgbMutable radVis = new ColorRgbMutable();
                     radVis.scalarProduct(rho, element.galerkinState.ambientRadiance);
                     radVis.add(radVis, element.radiance[0]);
                     ToneMap.radianceToRgb(radVis, color, toneMapOptions);
@@ -80,12 +81,12 @@ public final class GalerkinOpenGLRenderer {
                     ToneMap.radianceToRgb(element.radiance[0], color, toneMapOptions);
                 }
 
-                Opengl.openGlRenderSetColor(color, renderOptions);
+                Opengl.openGlRenderSetColor(color.toImmutable(), renderOptions);
                 Opengl.openGlRenderPolygonFlat(numberOfVertices, p);
             }
             else {
-                ColorRgb[] vertexRadiance = new ColorRgb[] {
-                    new ColorRgb(), new ColorRgb(), new ColorRgb(), new ColorRgb()
+                ColorRgbMutable[] vertexRadiance = new ColorRgbMutable[] {
+                    new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable()
                 };
 
                 if ( numberOfVertices == 3 ) {
@@ -101,16 +102,16 @@ public final class GalerkinOpenGLRenderer {
                 }
 
                 if ( element.galerkinState != null && element.galerkinState.useAmbientRadiance != 0 ) {
-                    ColorRgb reflectivity = element.patch.radianceData.Rd;
-                    ColorRgb ambient = new ColorRgb();
+                    ColorRgbMutable reflectivity = element.patch.radianceData.Rd;
+                    ColorRgbMutable ambient = new ColorRgbMutable();
                     ambient.scalarProduct(reflectivity, element.galerkinState.ambientRadiance);
                     for ( int i = 0; i < numberOfVertices; i++ ) {
                         vertexRadiance[i].add(vertexRadiance[i], ambient);
                     }
                 }
 
-                ColorRgb[] vertexColors = new ColorRgb[] {
-                    new ColorRgb(), new ColorRgb(), new ColorRgb(), new ColorRgb()
+                ColorRgbMutable[] vertexColors = new ColorRgbMutable[] {
+                    new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable()
                 };
                 for ( int i = 0; i < numberOfVertices; i++ ) {
                     ToneMap.radianceToRgb(vertexRadiance[i], vertexColors[i], toneMapOptions);

@@ -76,7 +76,7 @@ public final class MgfRingEntityTessellator {
         if (vertexContext == null) {
             return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        if (vertexContext.n.isNull(Numeric.EPSILON)) {
+        if (MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
             return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
         if (!TokenValidationContext.isFloat(argumentValues[2]) || !TokenValidationContext.isFloat(argumentValues[3])) {
@@ -92,13 +92,15 @@ public final class MgfRingEntityTessellator {
         }
 
         // Initialize
-        Vector3Dd u = new Vector3Dd();
-        Vector3Dd v = new Vector3Dd();
+        Vector3Dd[] uHolder = new Vector3Dd[1];
+        Vector3Dd[] vHolder = new Vector3Dd[1];
 
-        MgfTessellationMath.mgfMakeAxes(u, v, vertexContext.n, Numeric.EPSILON);
-        MgfTessellationMath.formatFloat(p3x, 24, vertexContext.p.x + maxRadius * u.x);
-        MgfTessellationMath.formatFloat(p3y, 24, vertexContext.p.y + maxRadius * u.y);
-        MgfTessellationMath.formatFloat(p3z, 24, vertexContext.p.z + maxRadius * u.z);
+        MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, vertexContext.n, Numeric.EPSILON);
+        Vector3Dd u = uHolder[0];
+        Vector3Dd v = vHolder[0];
+        MgfTessellationMath.formatFloat(p3x, 24, vertexContext.p.x() + maxRadius * u.x());
+        MgfTessellationMath.formatFloat(p3y, 24, vertexContext.p.y() + maxRadius * u.y());
+        MgfTessellationMath.formatFloat(p3z, 24, vertexContext.p.z() + maxRadius * u.z());
         p3Entity[1] = p3x.toString();
         p3Entity[2] = p3y.toString();
         p3Entity[3] = p3z.toString();
@@ -131,13 +133,13 @@ public final class MgfRingEntityTessellator {
 
                 MgfTessellationMath.formatFloat(
                     p3x, 24,
-                    vertexContext.p.x + maxRadius * u.x * Math.cos(theta) + maxRadius * v.x * Math.sin(theta));
+                    vertexContext.p.x() + maxRadius * u.x() * Math.cos(theta) + maxRadius * v.x() * Math.sin(theta));
                 MgfTessellationMath.formatFloat(
                     p3y, 24,
-                    vertexContext.p.y + maxRadius * u.y * Math.cos(theta) + maxRadius * v.y * Math.sin(theta));
+                    vertexContext.p.y() + maxRadius * u.y() * Math.cos(theta) + maxRadius * v.y() * Math.sin(theta));
                 MgfTessellationMath.formatFloat(
                     p3z, 24,
-                    vertexContext.p.z + maxRadius * u.z * Math.cos(theta) + maxRadius * v.z * Math.sin(theta));
+                    vertexContext.p.z() + maxRadius * u.z() * Math.cos(theta) + maxRadius * v.z() * Math.sin(theta));
 
                 errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity, context);
                 if (errorCode != ParseErrorContext.MGF_OK) {
@@ -163,9 +165,9 @@ public final class MgfRingEntityTessellator {
                 return errorCode;
             }
 
-            MgfTessellationMath.formatFloat(p4x, 24, vertexContext.p.x + minRadius * u.x);
-            MgfTessellationMath.formatFloat(p4y, 24, vertexContext.p.y + minRadius * u.y);
-            MgfTessellationMath.formatFloat(p4z, 24, vertexContext.p.z + minRadius * u.z);
+            MgfTessellationMath.formatFloat(p4x, 24, vertexContext.p.x() + minRadius * u.x());
+            MgfTessellationMath.formatFloat(p4y, 24, vertexContext.p.y() + minRadius * u.y());
+            MgfTessellationMath.formatFloat(p4z, 24, vertexContext.p.z() + minRadius * u.z());
             p4Entity[1] = p4x.toString();
             p4Entity[2] = p4y.toString();
             p4Entity[3] = p4z.toString();
@@ -186,17 +188,17 @@ public final class MgfRingEntityTessellator {
                     return errorCode;
                 }
 
-                double delta = u.x * Math.cos(theta) + v.x * Math.sin(theta);
-                MgfTessellationMath.formatFloat(p3x, 24, vertexContext.p.x + maxRadius * delta);
-                MgfTessellationMath.formatFloat(p4x, 24, vertexContext.p.x + minRadius * delta);
+                double delta = u.x() * Math.cos(theta) + v.x() * Math.sin(theta);
+                MgfTessellationMath.formatFloat(p3x, 24, vertexContext.p.x() + maxRadius * delta);
+                MgfTessellationMath.formatFloat(p4x, 24, vertexContext.p.x() + minRadius * delta);
 
-                delta = u.y * Math.cos(theta) + v.y * Math.sin(theta);
-                MgfTessellationMath.formatFloat(p3y, 24, vertexContext.p.y + maxRadius * delta);
-                MgfTessellationMath.formatFloat(p4y, 24, vertexContext.p.y + minRadius * delta);
+                delta = u.y() * Math.cos(theta) + v.y() * Math.sin(theta);
+                MgfTessellationMath.formatFloat(p3y, 24, vertexContext.p.y() + maxRadius * delta);
+                MgfTessellationMath.formatFloat(p4y, 24, vertexContext.p.y() + minRadius * delta);
 
-                delta = u.z * Math.cos(theta) + v.z * Math.sin(theta);
-                MgfTessellationMath.formatFloat(p3z, 24, vertexContext.p.z + maxRadius * delta);
-                MgfTessellationMath.formatFloat(p4z, 24, vertexContext.p.z + minRadius * delta);
+                delta = u.z() * Math.cos(theta) + v.z() * Math.sin(theta);
+                MgfTessellationMath.formatFloat(p3z, 24, vertexContext.p.z() + maxRadius * delta);
+                MgfTessellationMath.formatFloat(p4z, 24, vertexContext.p.z() + minRadius * delta);
 
                 errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v3Entity, context);
                 if (errorCode != ParseErrorContext.MGF_OK) {

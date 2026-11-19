@@ -78,7 +78,7 @@ public class StochasticRadiosityBasisState {
 
     public static StochasticRadiosityBasisState activeState() {
         if ( activeStatePtr == null ) {
-            Logger.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
         }
         return activeStatePtr;
     }

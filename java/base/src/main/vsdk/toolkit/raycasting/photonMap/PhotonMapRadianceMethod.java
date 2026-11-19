@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -137,7 +137,7 @@ Initializes the computations for the current scene (if any)
         System.err.printf("Photon map activated\n");
 
         if ( toneMapOptions == null ) {
-            Logger.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
         }
 
         photonMapState.lastClock = System.nanoTime();
@@ -210,8 +210,8 @@ Initializes the computations for the current scene (if any)
         photonMapConfig.causticMap = new PhotonMap(photonMapState, new int[] {photonMapState.reconCPhotons});
     }
 
-    private static ColorRgb cloneColor(ColorRgb c) {
-        return new ColorRgb(c.getR(), c.getG(), c.getB());
+    private static ColorRgbMutable cloneColor(ColorRgbMutable c) {
+        return new ColorRgbMutable(c.getR(), c.getG(), c.getB());
     }
 
     private static BsdfComp cloneBsdfComp(BsdfComp comp) {
@@ -225,7 +225,7 @@ Initializes the computations for the current scene (if any)
     /**
 Adapted from bi-directional path, this is a bit overkill for here
 */
-    private ColorRgb
+    private ColorRgbMutable
     photonMapDoComputePixelFluxEstimate(
         Camera camera,
         PhotonMapConfig config,
@@ -234,8 +234,8 @@ Adapted from bi-directional path, this is a bit overkill for here
         BiPath bp = config.biPath;
         SimpleRaytracingPathNode eyePrevNode;
         SimpleRaytracingPathNode lightPrevNode;
-        ColorRgb oldBsdfL;
-        ColorRgb oldBsdfE;
+        ColorRgbMutable oldBsdfL;
+        ColorRgbMutable oldBsdfE;
         BsdfComp oldBsdfCompL;
         BsdfComp oldBsdfCompE;
         double oldPdfL;
@@ -246,7 +246,7 @@ Adapted from bi-directional path, this is a bit overkill for here
         double oldPdfEP = 0.0;
         double oldRRPdfLP = 0.0;
         double oldRRPdfEP = 0.0;
-        ColorRgb f;
+        ColorRgbMutable f;
         SimpleRaytracingPathNode eyeEndNode;
         SimpleRaytracingPathNode lightEndNode;
 
@@ -337,7 +337,7 @@ does not give correct display
         int[] ny = new int[1];
         float[] pixX = new float[1];
         float[] pixY = new float[1];
-        ColorRgb f;
+        ColorRgbMutable f;
         BiPath bp = config.biPath;
 
         if ( config.currentMap == config.importanceMap ) {
@@ -382,7 +382,7 @@ Store a photon. Some acceptance tests are performed first
     photonMapDoPhotonStore(
         Camera camera,
         SimpleRaytracingPathNode node,
-        ColorRgb power)
+        ColorRgbMutable power)
     {
         if ( node.m_hit.getPatch() != null && node.m_hit.getPatch().material != null ) {
             // Only add photons on surfaces with a certain reflection
@@ -437,7 +437,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
     {
         boolean lDone;
         BiPath bp = config.biPath;
-        ColorRgb accPower = new ColorRgb();
+        ColorRgbMutable accPower = new ColorRgbMutable();
         float factor;
 
         // Iterate over all light nodes
@@ -664,7 +664,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
     /**
 Returns the radiance emitted in the node related direction
 */
-    public ColorRgb getNodeGRadiance(SimpleRaytracingPathNode node) {
+    public ColorRgbMutable getNodeGRadiance(SimpleRaytracingPathNode node) {
         photonMapConfig.map.doBalancing(photonMapState.balanceKDTree != 0);
         return photonMapConfig.map.reconstruct(node.m_hit, node.m_inDirF,
             node.m_useBsdf,
@@ -674,7 +674,7 @@ Returns the radiance emitted in the node related direction
     /**
 Returns the radiance emitted in the node related direction
 */
-    public ColorRgb getNodeCRadiance(SimpleRaytracingPathNode node) {
+    public ColorRgbMutable getNodeCRadiance(SimpleRaytracingPathNode node) {
         photonMapConfig.causticMap.doBalancing(photonMapState.balanceKDTree != 0);
 
         return photonMapConfig.causticMap.reconstruct(node.m_hit, node.m_inDirF,
@@ -683,7 +683,7 @@ Returns the radiance emitted in the node related direction
     }
 
     @Override
-    public ColorRgb
+    public ColorRgbMutable
     getRadiance(
         Camera camera,
         Patch patch,
@@ -695,7 +695,7 @@ Returns the radiance emitted in the node related direction
         RayHit hit = new RayHit();
         Vector3D point = new Vector3D();
         PhongBidirectionalScatteringDistributionFunction bsdf = patch.material.getBsdf();
-        ColorRgb radiance = new ColorRgb();
+        ColorRgbMutable radiance = new ColorRgbMutable();
         float density;
 
         patch.pointBarycentricMapping(u, v, point);
@@ -758,7 +758,7 @@ Returns the radiance emitted in the node related direction
                 break;
             default:
                 radiance.clear();
-                Logger.error("photonMapGetRadiance", "Unknown radiance return");
+                Logger.reportMessage(this, Logger.ERROR, "photonMapGetRadiance", "Unknown radiance return");
         }
 
         return radiance;

@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -72,12 +73,12 @@ public final class Opengl {
             return;
         }
 
-        ColorRgb corrected = new ColorRgb(rgb.getR(), rgb.getG(), rgb.getB());
+        ColorRgbMutable corrected = new ColorRgbMutable(rgb.getR(), rgb.getG(), rgb.getB());
         if ( activeToneMapOptions != null ) {
             ToneMap.toneMappingGammaCorrection(corrected, activeToneMapOptions);
         }
         else if ( !openGlMissingToneMapWarningShown ) {
-            Logger.warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
+            Logger.reportMessage(null, Logger.WARNING, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
         gl.glColor3f((float)corrected.getR(), (float)corrected.getG(), (float)corrected.getB());
@@ -95,7 +96,7 @@ public final class Opengl {
         gl.glEnd();
     }
 
-    public static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D[] vertices, ColorRgb[] verticesColors, RenderOptions renderOptions) {
+    public static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D[] vertices, ColorRgbMutable[] verticesColors, RenderOptions renderOptions) {
         GL2 gl = gl();
         if ( gl == null || vertices == null || verticesColors == null || numberOfVertices <= 0 ) {
             return;
@@ -103,7 +104,7 @@ public final class Opengl {
 
         gl.glBegin(GL2.GL_POLYGON);
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            openGlRenderSetColor(verticesColors[i], renderOptions);
+            openGlRenderSetColor(verticesColors[i].toImmutable(), renderOptions);
             gl.glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
         }
         gl.glEnd();
@@ -113,7 +114,7 @@ public final class Opengl {
         if ( patch == null ) {
             return;
         }
-        openGlRenderSetColor(patch.color, renderOptions);
+        openGlRenderSetColor(patch.color.toImmutable(), renderOptions);
         GL2 gl = gl();
         if ( gl == null ) {
             return;
@@ -143,7 +144,7 @@ public final class Opengl {
             : (patch.numberOfVertices == 4 ? GL2.GL_QUADS : GL2.GL_POLYGON);
         gl.glBegin(primitive);
         for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            openGlRenderSetColor(patch.vertex[i].color, renderOptions);
+            openGlRenderSetColor(patch.vertex[i].color.toImmutable(), renderOptions);
             gl.glVertex3f(patch.vertex[i].point.x, patch.vertex[i].point.y, patch.vertex[i].point.z);
         }
         gl.glEnd();
@@ -216,7 +217,7 @@ public final class Opengl {
             Geometry child = children.get(j);
             if ( child.isCompound() ) {
                 if ( i >= 8 ) {
-                    Logger.error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                    Logger.reportMessage(null, Logger.ERROR, "openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                     return;
                 }
                 octreeChildren[i++].geometry = child;
@@ -490,12 +491,12 @@ public final class Opengl {
 
     public static void openGlRenderScene(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions, RenderOptions renderOptions, GlutDebugState debugState) {
         if ( scene == null ) {
-            Logger.fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "Opengl::openGlRenderScene", "Scene not provided");
         }
 
         activeToneMapOptions = toneMapOptions;
         if ( toneMapOptions == null && !openGlMissingToneMapWarningShown ) {
-            Logger.warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
+            Logger.reportMessage(null, Logger.WARNING, "Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
 

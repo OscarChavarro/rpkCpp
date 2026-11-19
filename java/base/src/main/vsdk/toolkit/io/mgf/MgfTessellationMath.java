@@ -15,14 +15,12 @@ public class MgfTessellationMath {
     }
 
     /**
-    Compute u and v given w (normalized)
+    Compute u and v given w (normalized). u and v are out-parameters: their
+    first element receives the computed axis.
     */
-    public static void mgfMakeAxes(Vector3Dd u, Vector3Dd v, Vector3Dd w, double epsilon) {
-        v.x = 0.0;
-        v.y = 0.0;
-        v.z = 0.0;
-        double[] vArr = new double[] {v.x, v.y, v.z};
-        double[] wArr = new double[] {w.x, w.y, w.z};
+    public static void mgfMakeAxes(Vector3Dd[] u, Vector3Dd[] v, Vector3Dd w, double epsilon) {
+        double[] vArr = new double[] {0.0, 0.0, 0.0};
+        double[] wArr = new double[] {w.x(), w.y(), w.z()};
 
         int i;
         for (i = 0; i < 3; i++) {
@@ -35,12 +33,47 @@ public class MgfTessellationMath {
             vArr[i] = 1.0;
         }
 
-        v.x = vArr[0];
-        v.y = vArr[1];
-        v.z = vArr[2];
+        v[0] = new Vector3Dd(vArr[0], vArr[1], vArr[2]);
 
-        u.crossProduct(v, w);
-        u.normalizeAndGivePreviousNorm(epsilon);
-        v.crossProduct(w, u);
+        u[0] = v[0].crossProduct(w);
+        normalizeAndGivePreviousNorm(u, epsilon);
+        v[0] = w.crossProduct(u[0]);
+    }
+
+    /**
+    Normalize a vector, return old magnitude. The vector is an in/out-parameter:
+    its first element is replaced by the normalized vector.
+    */
+    public static double normalizeAndGivePreviousNorm(Vector3Dd[] vector, double epsilon) {
+        double len = vector[0].dotProduct(vector[0]); // Note: this starts being length ^ 2
+
+        if (len <= 0.0) {
+            return 0.0;
+        }
+
+        if (len <= 1.0 + epsilon && len >= 1.0 - epsilon) {
+            // First order approximation
+            len = 0.5 + 0.5 * len;
+        } else {
+            len = Math.sqrt(len);
+        }
+
+        vector[0] = new Vector3Dd(vector[0].x() / len, vector[0].y() / len, vector[0].z() / len);
+
+        return len;
+    }
+
+    public static boolean isNull(Vector3Dd vector, double epsilon) {
+        return vector.dotProduct(vector) <= epsilon * epsilon;
+    }
+
+    /**
+    Returns squared distance between the two vectors
+    */
+    public static double distanceSquared(Vector3Dd a, Vector3Dd b) {
+        double dx = b.x() - a.x();
+        double dy = b.y() - a.y();
+        double dz = b.z() - a.z();
+        return dx * dx + dy * dy + dz * dz;
     }
 }

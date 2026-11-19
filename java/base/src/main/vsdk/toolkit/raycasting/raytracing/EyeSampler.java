@@ -30,7 +30,7 @@ public class EyeSampler extends Sampler {
         byte flags)
     {
         if ( prevNode != null || thisNode != null ) {
-            Logger.warning("EyeSampler::sample", "Not first node in path ?!");
+            Logger.reportMessage(this, Logger.WARNING, "EyeSampler::sample", "Not first node in path ?!");
         }
 
         // Just fill in newNode with camera data. Appropriate pdf fields are set to 1

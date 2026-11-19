@@ -1,6 +1,6 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
@@ -16,14 +16,14 @@ public class Background {
     positions towards the background). If probabilityDensityFunction is non-null, also fills
     in the probability of sampling this direction with sample()
     */
-    public ColorRgb radiance(
+    public ColorRgbMutable radiance(
         Vector3D position,
         Vector3D direction,
         float[] probabilityDensityFunction) {
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = 0.0f;
         }
-        return new ColorRgb(0.0, 0.0, 0.0);
+        return new ColorRgbMutable(0.0, 0.0, 0.0);
     }
 
     /*
@@ -40,7 +40,7 @@ public class Background {
         Vector3D position,
         float xi1,
         float xi2,
-        ColorRgb radianceValue,
+        ColorRgbMutable radianceValue,
         float[] probabilityDensityFunction) {
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = 0.0f;
@@ -52,26 +52,26 @@ public class Background {
     Computes total power emitted by the background (= integral over
     the full sphere of the background radiance.
     */
-    public ColorRgb power(Vector3D position) {
-        return new ColorRgb(0.0, 0.0, 0.0);
+    public ColorRgbMutable power(Vector3D position) {
+        return new ColorRgbMutable(0.0, 0.0, 0.0);
     }
 
-    public static ColorRgb backgroundRadiance(
+    public static ColorRgbMutable backgroundRadiance(
         Background bkg,
         Vector3D position,
         Vector3D direction,
         float[] probabilityDensityFunction) {
         if (bkg == null) {
-            return new ColorRgb(0.0, 0.0, 0.0);
+            return new ColorRgbMutable(0.0, 0.0, 0.0);
         }
         else {
             return bkg.radiance(position, direction, probabilityDensityFunction);
         }
     }
 
-    public static ColorRgb backgroundPower(Background bkg, Vector3D position) {
+    public static ColorRgbMutable backgroundPower(Background bkg, Vector3D position) {
         if (bkg == null) {
-            return new ColorRgb(0.0, 0.0, 0.0);
+            return new ColorRgbMutable(0.0, 0.0, 0.0);
         }
         else {
             return bkg.power(position);

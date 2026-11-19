@@ -11,6 +11,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -90,14 +91,15 @@ returns the number of pixels written
 */
     public int writeRadianceRGB(ColorRgb[] rgbRadiance) {
         if (toneMapOptions == null) {
-            Logger.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
         }
 
         byte[] rgb = new byte[3 * width];
         for (int i = 0; i < width; i++) {
             // Convert RGB radiance to display RGB
-            ColorRgb displayRgb = new ColorRgb();
-            ToneMap.radianceToRgb(rgbRadiance[i], displayRgb, toneMapOptions);
+            ColorRgbMutable displayRgbMutable = new ColorRgbMutable();
+            ToneMap.radianceToRgb(new ColorRgbMutable(rgbRadiance[i]), displayRgbMutable, toneMapOptions);
+            ColorRgb displayRgb = displayRgbMutable.toImmutable();
 
             // Apply gamma correction
             displayRgb = gammaCorrect(displayRgb, gamma);
@@ -171,17 +173,14 @@ use to write radiance image
             // Olaf: HDR PIC output
             else if (fileExtension != null && fileExtension.regionMatches(true, 0, "pic", 0, 3)) {
                 if (isPipe != 0) {
-                    Logger.error("createRadianceImageOutputHandle",
-                        "Can't write PIC output to a pipe.\n");
+                    Logger.reportMessage(null, Logger.ERROR, "createRadianceImageOutputHandle", "Can't write PIC output to a pipe.\n");
                     return null;
                 }
 
                 return new PicOutputHandle(fileName, width, height);
             }
             else {
-                Logger.error("createRadianceImageOutputHandle",
-                    "Can't save high dynamic range image to a '%s' file, format not supported.",
-                    fileExtension);
+                Logger.reportMessage(null, Logger.ERROR, "createRadianceImageOutputHandle", String.format("Can't save high dynamic range image to a '%s' file, format not supported.", fileExtension));
                 return null;
             }
         }
@@ -206,9 +205,7 @@ Same, but for writing "normal" display RGB images instead radiance image
                 return new PPMOutputHandle(outputStream, width, height);
             }
             else {
-                Logger.error("createImageOutputHandle",
-                    "Can't save display-RGB images to a '%s' file, format not supported.\n",
-                    fileExtension);
+                Logger.reportMessage(null, Logger.ERROR, "createImageOutputHandle", String.format("Can't save display-RGB images to a '%s' file, format not supported.\n", fileExtension));
                 return null;
             }
         }

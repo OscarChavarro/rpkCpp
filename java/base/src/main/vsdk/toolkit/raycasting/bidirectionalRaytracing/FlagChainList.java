@@ -1,6 +1,5 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
@@ -31,7 +30,7 @@ public final class FlagChainList extends CircularList<FlagChain> {
     public void add(FlagChain chain) {
         if ( count > 0 ) {
             if ( chain.length != length ) {
-                Logger.error("CChainList::add", "Wrong length flag chain inserted!");
+                Logger.reportMessage(this, Logger.ERROR, "CChainList::add", "Wrong length flag chain inserted!");
                 return;
             }
         } else {
@@ -46,7 +45,7 @@ public final class FlagChainList extends CircularList<FlagChain> {
     public void addDisjoint(FlagChain chain) {
         if ( count > 0 ) {
             if ( chain.length != length ) {
-                Logger.error("CChainList::add", "Wrong length flag chain inserted!");
+                Logger.reportMessage(this, Logger.ERROR, "CChainList::add", "Wrong length flag chain inserted!");
                 return;
             }
         } else {
@@ -68,9 +67,9 @@ public final class FlagChainList extends CircularList<FlagChain> {
         }
     }
 
-    public ColorRgb compute(BiPath path) {
+    public ColorRgbMutable compute(BiPath path) {
         ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgb tmpCol;
+        ColorRgbMutable tmpCol;
 
         result.clear();
 
@@ -82,7 +81,7 @@ public final class FlagChainList extends CircularList<FlagChain> {
             result.add(new ColorRgbMutable(tmpCol), result);
         }
 
-        return result.toImmutable();
+        return new ColorRgbMutable(result);
     }
 
     /**

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -89,7 +89,7 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
     }
 
     @Override
-    public ColorRgb getRadiance(
+    public ColorRgbMutable getRadiance(
         Camera camera,
         Patch patch,
         double u,
@@ -137,7 +137,7 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
         }
         StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
         if ( StochasticRelaxation.activeState().toneMapOptions == null ) {
-            Logger.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
         }
         StochasticRelaxation.activeState().method = StochasticRaytracingMethod.STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
         Mcrad.monteCarloRadiosityInit();
@@ -206,7 +206,7 @@ distribution
         return w / StochasticRadiosityElement.stochasticRadiosityElementScalarReflectance(elem);
     }
 
-    private static ColorRgb[] stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement elem) {
+    private static ColorRgbMutable[] stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement elem) {
         return elem.unShotRadiance;
     }
 
@@ -216,8 +216,7 @@ distribution
         if ( StochasticRelaxation.activeState().discardIncremental != 0 ) {
             elem.quality = 0.0f;
             if ( !repeatedDiscardIncrementalWarning ) {
-                Logger.warning("stochasticRelaxationRadiosityElementIncrementRadiance",
-                    "Solution of incremental Jacobi steps receives zero quality");
+                Logger.reportMessage(null, Logger.WARNING, "stochasticRelaxationRadiosityElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
             }
             repeatedDiscardIncrementalWarning = true;
         } else {
@@ -394,7 +393,7 @@ distribution
         StochasticRelaxation.activeState().weightedSampling = weightedSampling;
     }
 
-    private static ColorRgb[] stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement elem) {
+    private static ColorRgbMutable[] stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement elem) {
         return elem.radiance;
     }
 
@@ -560,7 +559,7 @@ required for some of the experimental stuff to work
 
             if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
                 if ( StochasticRelaxation.activeState().incrementalUsesImportance == 0 ) {
-                    Logger.warning(null, "Importance is only used from the second iteration on ...");
+                    Logger.reportMessage(this, Logger.WARNING, "", "Importance is only used from the second iteration on ...");
                 } else if ( StochasticRelaxation.activeState().importanceUpdated != 0 ) {
                     StochasticRelaxation.activeState().importanceUpdated = 0;
 

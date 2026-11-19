@@ -4,7 +4,7 @@ import vsdk.toolkit.common.Random;
 
 import java.io.PrintStream;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -120,12 +120,12 @@ public class PhotonMap {
 
     public static boolean
     zeroAlbedo(PhongBidirectionalScatteringDistributionFunction bsdf, RayHit hit, byte flags) {
-        ColorRgb color;
+        ColorRgbMutable color;
         if ( bsdf == null ) {
-            color = new ColorRgb();
+            color = new ColorRgbMutable();
             color.clear();
         } else {
-            color = bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags & 0xFF);
+            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags & 0xFF));
         }
         return (color.average() < Numeric.EPSILON);
     }
@@ -145,8 +145,8 @@ public class PhotonMap {
     }
 
     // Convert a value val given a maximum into some nice color
-    public static ColorRgb getFalseColor(float val, PhotonMapState photonMapState) {
-        ColorRgb col = new ColorRgb();
+    public static ColorRgbMutable getFalseColor(float val, PhotonMapState photonMapState) {
+        ColorRgbMutable col = new ColorRgbMutable();
         float tmp;
         float r = 0;
         float g = 0;
@@ -293,7 +293,7 @@ Adding photons, returns if photon was added
 
             return (0.5 * (1.0 + Math.cos(ratio * Math.PI)));
         } else {
-            Logger.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+            Logger.reportMessage(null, Logger.ERROR, "PhotonMap::computeAcceptProb", "Unknown accept pdf type");
             return 0.0;
         }
     }
@@ -306,10 +306,10 @@ Adding photons, returns if photon was added
         // -- Check the flags
         // -- normal weighted average?
 
-        ColorRgb deltaPower = new ColorRgb();
+        ColorRgbMutable deltaPower = new ColorRgbMutable();
         float factor = 1.0f / (float)m_nrpCosinePos;
 
-        ColorRgb pow = photon.power();
+        ColorRgbMutable pow = photon.power();
         deltaPower.scaledCopy(factor, pow);
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
@@ -384,7 +384,7 @@ Get a maximum radius^2 to be used when locating photons
 
     // Precompute Irradiance
     public void photonPrecomputeIrradiance(Camera camera, IrrPhoton photon) {
-        ColorRgb irradiance = new ColorRgb();
+        ColorRgbMutable irradiance = new ColorRgbMutable();
         irradiance.clear();
 
         // Locate the nearest photons using a max radius limit
@@ -397,7 +397,7 @@ Get a maximum radius^2 to be used when locating photons
 
             for ( int i = 0; i < m_nrpFound; i++ ) {
                 if ( photon.Normal().dotProduct(m_photons[i].dir()) > 0 ) {
-                    ColorRgb power = m_photons[i].power();
+                    ColorRgbMutable power = m_photons[i].power();
                     irradiance.add(irradiance, power);
                 }
             }
@@ -429,8 +429,8 @@ Get a maximum radius^2 to be used when locating photons
     irradianceReconstruct(
         RayHit hit,
         Vector3D outDir,
-        ColorRgb diffuseAlbedo,
-        ColorRgb result)
+        ColorRgbMutable diffuseAlbedo,
+        ColorRgbMutable result)
     {
         if ( !m_irradianceComputed ) {
             precomputeIrradiance();
@@ -451,7 +451,7 @@ Get a maximum radius^2 to be used when locating photons
     }
 
     // reconstruct
-    public ColorRgb reconstruct(
+    public ColorRgbMutable reconstruct(
         RayHit hit,
         Vector3D outDir,
         PhongBidirectionalScatteringDistributionFunction bsdf,
@@ -459,23 +459,23 @@ Get a maximum radius^2 to be used when locating photons
         PhongBidirectionalScatteringDistributionFunction outBsdf)
     {
         // Find the nearest photons
-        ColorRgb result = new ColorRgb();
-        ColorRgb eval = new ColorRgb();
-        ColorRgb col = new ColorRgb();
+        ColorRgbMutable result = new ColorRgbMutable();
+        ColorRgbMutable eval = new ColorRgbMutable();
+        ColorRgbMutable col = new ColorRgbMutable();
 
         result.clear();
 
-        ColorRgb diffuseAlbedo = new ColorRgb();
-        ColorRgb glossyAlbedo = new ColorRgb();
+        ColorRgbMutable diffuseAlbedo = new ColorRgbMutable();
+        ColorRgbMutable glossyAlbedo = new ColorRgbMutable();
 
         diffuseAlbedo.clear();
         glossyAlbedo.clear();
 
         if ( bsdf != null ) {
-            diffuseAlbedo = bsdf.splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
+            diffuseAlbedo = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
             // -- TODO Irradiance pre-computation for diffuse transmission
-            glossyAlbedo = bsdf.splitBsdfScatteredPower(hit.shadingContext(),
-                BsdfComponent.BTDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT | BsdfComponent.BTDF_GLOSSY_COMPONENT);
+            glossyAlbedo = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(),
+                BsdfComponent.BTDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT | BsdfComponent.BTDF_GLOSSY_COMPONENT));
         }
 
         checkNBalance();
@@ -513,7 +513,7 @@ Get a maximum radius^2 to be used when locating photons
             if ( bsdf == null ) {
                 eval.clear();
             } else {
-                eval = bsdf.evaluate(
+                eval = new ColorRgbMutable(bsdf.evaluate(
                     hit.shadingContext(),
                     inBsdf,
                     outBsdf,
@@ -522,9 +522,9 @@ Get a maximum radius^2 to be used when locating photons
                     BsdfComponent.BRDF_DIFFUSE_COMPONENT |
                     BsdfComponent.BTDF_DIFFUSE_COMPONENT |
                     BsdfComponent.BRDF_GLOSSY_COMPONENT |
-                    BsdfComponent.BTDF_GLOSSY_COMPONENT);
+                    BsdfComponent.BTDF_GLOSSY_COMPONENT));
             }
-            ColorRgb power = m_photons[i].power();
+            ColorRgbMutable power = m_photons[i].power();
 
             col.scalarProduct(eval, power);
             result.add(result, col);
@@ -572,7 +572,7 @@ Get a maximum radius^2 to be used when locating photons
     /**
 Return a color coded density of the photon map
 */
-    public ColorRgb getDensityColor(RayHit hit) {
+    public ColorRgbMutable getDensityColor(RayHit hit) {
         float density = getCurrentDensity(hit, 0);
 
         return PhotonMap.getFalseColor(density, photonMapState);
@@ -607,7 +607,7 @@ Return a color coded density of the photon map
                 // in a local spherical frame before building the 2D sampling grid.
                 m_photons[i].findRS(pr, ps, coord, flag, n);
 
-                ColorRgb color = m_photons[i].power();
+                ColorRgbMutable color = m_photons[i].power();
 
                 m_grid.add(pr[0], ps[0], color.average() / (float)m_nrPhotons);
             }

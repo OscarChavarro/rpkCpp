@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.BsdfComponent;
 
@@ -34,14 +34,14 @@ public class ContribHandler {
         }
     }
 
-    public ColorRgb compute(BiPath path) {
+    public ColorRgbMutable compute(BiPath path) {
         int length;
 
         length = path.m_eyeSize + path.m_lightSize;
 
         if ( length > maxLength ) {
-            Logger.error("CContribHandler::Compute", "Path too long !!");
-            return new ColorRgb();
+            Logger.reportMessage(this, Logger.ERROR, "CContribHandler::Compute", "Path too long !!");
+            return new ColorRgbMutable();
         }
 
         return array[length].compute(path);
@@ -70,7 +70,7 @@ public class ContribHandler {
     }
 
     protected void doSyntaxError(String errString) {
-        Logger.error("Flag chain Syntax Error", errString);
+        Logger.reportMessage(this, Logger.ERROR, "Flag chain Syntax Error", errString);
         init(maxLength);
     }
 

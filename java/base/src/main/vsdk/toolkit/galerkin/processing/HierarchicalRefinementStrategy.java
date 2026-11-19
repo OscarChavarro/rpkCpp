@@ -2,7 +2,7 @@ package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -121,7 +121,7 @@ public class HierarchicalRefinementStrategy {
         }
     }
 
-    private static double hierarchicRefinementColorToError(ColorRgb radiance) {
+    private static double hierarchicRefinementColorToError(ColorRgbMutable radiance) {
         return radiance != null ? radiance.maximumComponent() : 0.0;
     }
 
@@ -156,12 +156,12 @@ public class HierarchicalRefinementStrategy {
 
     private static double hierarchicRefinementApproximationError(
         Interaction interaction,
-        ColorRgb srcRho,
-        ColorRgb rcvRho,
+        ColorRgbMutable srcRho,
+        ColorRgbMutable rcvRho,
         GalerkinState galerkinState)
     {
-        ColorRgb error = new ColorRgb();
-        ColorRgb srcRad;
+        ColorRgbMutable error = new ColorRgbMutable();
+        ColorRgbMutable srcRad;
 
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL
             || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI ) {
@@ -190,7 +190,7 @@ public class HierarchicalRefinementStrategy {
 
     private static double sourceClusterRadianceVariationError(
         Interaction interaction,
-        ColorRgb rcvRho,
+        ColorRgbMutable rcvRho,
         double receiverArea,
         GalerkinState galerkinState)
     {
@@ -205,13 +205,13 @@ public class HierarchicalRefinementStrategy {
         };
         int numberOfReceiverVertices = interaction.receiverElement.vertices(rcVertices);
 
-        ColorRgb minimumSourceRadiance = new ColorRgb();
-        ColorRgb maximumSourceRadiance = new ColorRgb();
-        ColorRgb error = new ColorRgb();
+        ColorRgbMutable minimumSourceRadiance = new ColorRgbMutable();
+        ColorRgbMutable maximumSourceRadiance = new ColorRgbMutable();
+        ColorRgbMutable error = new ColorRgbMutable();
         minimumSourceRadiance.setMonochrome(Numeric.HUGE_FLOAT_VALUE);
         maximumSourceRadiance.setMonochrome(-Numeric.HUGE_FLOAT_VALUE);
         for ( int i = 0; i < numberOfReceiverVertices; i++ ) {
-            ColorRgb radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
+            ColorRgbMutable radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
                 interaction.sourceElement, rcVertices[i], galerkinState);
             minimumSourceRadiance.minimum(minimumSourceRadiance, radiance);
             maximumSourceRadiance.maximum(maximumSourceRadiance, radiance);
@@ -231,7 +231,7 @@ public class HierarchicalRefinementStrategy {
         }
 
         double receiveArea;
-        ColorRgb rcvRho = new ColorRgb();
+        ColorRgbMutable rcvRho = new ColorRgbMutable();
         if ( interaction.receiverElement.isCluster() ) {
             rcvRho.setMonochrome(1.0f);
             receiveArea = ClusterTraversalStrategy.receiverArea(interaction, galerkinState);
@@ -241,7 +241,7 @@ public class HierarchicalRefinementStrategy {
             receiveArea = interaction.receiverElement.area;
         }
 
-        ColorRgb srcRho = new ColorRgb();
+        ColorRgbMutable srcRho = new ColorRgbMutable();
         if ( interaction.sourceElement.isCluster() ) {
             srcRho.setMonochrome(1.0f);
         }
@@ -299,7 +299,7 @@ public class HierarchicalRefinementStrategy {
             interaction.sourceElement.basisUsed = (byte)b;
         }
 
-        ColorRgb[] srcRad;
+        ColorRgbMutable[] srcRad;
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
             srcRad = interaction.sourceElement.unShotRadiance;
         }
@@ -307,17 +307,17 @@ public class HierarchicalRefinementStrategy {
             srcRad = interaction.sourceElement.radiance;
         }
 
-        ColorRgb linkClusterRad = new ColorRgb();
+        ColorRgbMutable linkClusterRad = new ColorRgbMutable();
         if ( interaction.sourceElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
             linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
-            srcRad = new ColorRgb[] {linkClusterRad};
+            srcRad = new ColorRgbMutable[] {linkClusterRad};
         }
 
         if ( interaction.receiverElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
             ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, galerkinState);
         }
         else {
-            ColorRgb[] rcvRad = interaction.receiverElement.receivedRadiance;
+            ColorRgbMutable[] rcvRad = interaction.receiverElement.receivedRadiance;
             if ( interaction.numberOfBasisFunctionsOnReceiver == 1
                 && interaction.numberOfBasisFunctionsOnSource == 1 ) {
                 rcvRad[0].addScaled(rcvRad[0], interaction.K[0], srcRad[0]);
@@ -336,8 +336,8 @@ public class HierarchicalRefinementStrategy {
 
         if ( galerkinState.importanceDriven != 0 ) {
             float K = interaction.K[0];
-            ColorRgb rcvRho = new ColorRgb();
-            ColorRgb srcRho = new ColorRgb();
+            ColorRgbMutable rcvRho = new ColorRgbMutable();
+            ColorRgbMutable srcRho = new ColorRgbMutable();
 
             if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL
                  || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI ) {

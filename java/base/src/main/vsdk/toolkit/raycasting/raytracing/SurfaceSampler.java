@@ -1,6 +1,7 @@
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
@@ -51,7 +52,7 @@ public abstract class SurfaceSampler extends Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    public ColorRgb
+    public ColorRgbMutable
     DoBsdfEval(
         PhongBidirectionalScatteringDistributionFunction bsdf,
         RayHit hit,
@@ -64,20 +65,29 @@ public abstract class SurfaceSampler extends Sampler {
     {
         if ( m_computeBsdfComponents ) {
             if ( bsdf == null ) {
-                return new ColorRgb();
+                return new ColorRgbMutable();
             } else {
                 BsdfComp localBsdfComp = bsdfComp != null ? bsdfComp : new BsdfComp();
-                return bsdf.bsdfEvalComponents(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF, localBsdfComp.asArray());
+                ColorRgbMutable[] components = localBsdfComp.asArray();
+                ColorRgb[] componentArray = new ColorRgb[components.length];
+                for ( int i = 0; i < componentArray.length; i++ ) {
+                    componentArray[i] = new ColorRgb(0.0, 0.0, 0.0);
+                }
+                ColorRgb radiance = bsdf.bsdfEvalComponents(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF, componentArray);
+                for ( int i = 0; i < componentArray.length; i++ ) {
+                    components[i] = new ColorRgbMutable(componentArray[i]);
+                }
+                return new ColorRgbMutable(radiance);
             }
         } else {
             if ( bsdfComp != null ) {
                 bsdfComp.Clear();
             }
-            ColorRgb radiance = new ColorRgb();
+            ColorRgbMutable radiance = new ColorRgbMutable();
             if ( bsdf == null ) {
-                radiance = new ColorRgb();
+                radiance = new ColorRgbMutable();
             } else {
-                radiance = bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF);
+                radiance = new ColorRgbMutable(bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF));
             }
             return radiance;
         }

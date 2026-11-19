@@ -9,7 +9,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -58,19 +58,19 @@ Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
 towards the samplePoint point
 */
-    public static ColorRgb clusterRadianceToSamplePoint(
+    public static ColorRgbMutable clusterRadianceToSamplePoint(
         GalerkinElement sourceElement,
         Vector3D samplePoint,
         GalerkinState galerkinState)
     {
         if ( sourceElement == null || galerkinState == null ) {
-            return new ColorRgb();
+            return new ColorRgbMutable();
         }
         switch ( galerkinState.clusteringStrategy ) {
             case ISOTROPIC:
                 return sourceElement.radiance[0];
             case ORIENTED: {
-                ColorRgb sourceRadiance = new ColorRgb();
+                ColorRgbMutable sourceRadiance = new ColorRgbMutable();
                 sourceRadiance.clear();
                 PowerAccumulatorVisitor leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
                 traverseAllLeafElements(leafVisitor, sourceElement, galerkinState);
@@ -81,8 +81,8 @@ towards the samplePoint point
             case Z_VISIBILITY:
                 return sourceElement.radiance[0];
             default:
-                Logger.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
-                return new ColorRgb();
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "clusterRadianceToSamplePoint", String.format("Invalid clustering strategy %s\n", galerkinState.clusteringStrategy));
+                return new ColorRgbMutable();
         }
     }
 
@@ -91,11 +91,11 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-    public static ColorRgb sourceClusterRadiance(Interaction link, GalerkinState galerkinState) {
+    public static ColorRgbMutable sourceClusterRadiance(Interaction link, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( sourceElement == null || receiverElement == null || !sourceElement.isCluster() || sourceElement == receiverElement ) {
-            Logger.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
         return clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
     }
@@ -151,7 +151,7 @@ ignoring intra-receiver visibility
             case Z_VISIBILITY:
                 return receiverElement.area;
             default:
-                Logger.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "receiverArea", String.format("Invalid clustering strategy %s", galerkinState.clusteringStrategy));
                 return receiverElement.area;
         }
     }
@@ -167,9 +167,9 @@ radiance is explicit given
         GalerkinElement rcv,
         double areaFactor,
         Interaction link,
-        ColorRgb[] sourceRadiance)
+        ColorRgbMutable[] sourceRadiance)
     {
-        ColorRgb[] rcvRad = rcv.receivedRadiance;
+        ColorRgbMutable[] rcvRad = rcv.receivedRadiance;
 
         if ( link.numberOfBasisFunctionsOnReceiver == 1 && link.numberOfBasisFunctionsOnSource == 1 ) {
             rcvRad[0].addScaled(rcvRad[0], (float)(areaFactor * link.K[0]), sourceRadiance[0]);
@@ -192,11 +192,11 @@ radiance is explicit given
 Distributes the source radiance to the surface elements in the
 receiver cluster
 */
-    public static void gatherRadiance(Interaction link, ColorRgb[] srcRad, GalerkinState galerkinState) {
+    public static void gatherRadiance(Interaction link, ColorRgbMutable[] srcRad, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( !receiverElement.isCluster() || sourceElement == receiverElement ) {
-            Logger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+            Logger.reportMessage(null, Logger.FATAL_ERROR, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
 
         switch ( galerkinState.clusteringStrategy ) {
@@ -217,11 +217,11 @@ receiver cluster
                 traverseAllLeafElements(dvgv, receiverElement, galerkinState);
                 break;
             default:
-                Logger.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "gatherRadiance", String.format("Invalid clustering strategy %s", galerkinState.clusteringStrategy));
         }
     }
 
-    public static ColorRgb maxRadiance(GalerkinElement cluster, GalerkinState galerkinState) {
+    public static ColorRgbMutable maxRadiance(GalerkinElement cluster, GalerkinState galerkinState) {
         MaximumRadianceVisitor leafVisitor = new MaximumRadianceVisitor();
         traverseAllLeafElements(leafVisitor, cluster, galerkinState);
         return leafVisitor.getAccumulatedRadiance();

@@ -7,7 +7,7 @@ Several functions are provided for different iterating schemes
 
 package vsdk.toolkit.raycasting.raytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.render.SoftIds;
 import vsdk.toolkit.scene.Background;
@@ -56,16 +56,16 @@ public class ScreenIterate {
     {
         int width;
         int height;
-        ColorRgb col;
-        ColorRgb[] rgb;
+        ColorRgbMutable col;
+        ColorRgbMutable[] rgb;
 
         init();
 
         width = camera.xSize;
         height = camera.ySize;
-        rgb = new ColorRgb[width];
+        rgb = new ColorRgbMutable[width];
         for ( int i = 0; i < width; i++ ) {
-            rgb[i] = new ColorRgb();
+            rgb[i] = new ColorRgbMutable();
         }
 
         // Shoot rays through all the pixels
@@ -92,27 +92,27 @@ public class ScreenIterate {
         int y0,
         int x1,
         int y1,
-        ColorRgb col,
-        ColorRgb[] rgb)
+        ColorRgbMutable col,
+        ColorRgbMutable[] rgb)
     {
         for ( int x = x0; x < x1; x++ ) {
             for ( int y = y0; y < y1; y++ ) {
-                ColorRgb c = rgb[y * camera.xSize + x];
+                ColorRgbMutable c = rgb[y * camera.xSize + x];
                 c.set(col.getR(), col.getG(), col.getB());
             }
         }
     }
 
-    private static void renderSegment(int width, int yMin, int yMax, ColorRgb[] rgb, ToneMappingContext toneMapOptions) {
+    private static void renderSegment(int width, int yMin, int yMax, ColorRgbMutable[] rgb, ToneMappingContext toneMapOptions) {
         int height = yMax - yMin;
         if ( height <= 0 ) {
             return;
         }
-        ColorRgb[] segment = new ColorRgb[width * height];
+        ColorRgbMutable[] segment = new ColorRgbMutable[width * height];
         int srcOffset = yMin * width;
         for ( int i = 0; i < segment.length; i++ ) {
-            ColorRgb src = rgb[srcOffset + i];
-            segment[i] = new ColorRgb(src.getR(), src.getG(), src.getB());
+            ColorRgbMutable src = rgb[srcOffset + i];
+            segment[i] = new ColorRgbMutable(src.getR(), src.getG(), src.getB());
         }
         SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
     }
@@ -128,9 +128,9 @@ public class ScreenIterate {
     {
         int width;
         int height;
-        ColorRgb col;
-        ColorRgb pixelRGB = new ColorRgb();
-        ColorRgb[] rgb;
+        ColorRgbMutable col;
+        ColorRgbMutable pixelRGB = new ColorRgbMutable();
+        ColorRgbMutable[] rgb;
         int x0;
         int y0;
         int x1;
@@ -148,12 +148,12 @@ public class ScreenIterate {
 
         width = camera.xSize;
         height = camera.ySize;
-        rgb = new ColorRgb[width * height]; // We need a full screen!
+        rgb = new ColorRgbMutable[width * height]; // We need a full screen!
 
-        ColorRgb white = new ColorRgb(1.0, 1.0, 1.0);
+        ColorRgbMutable white = new ColorRgbMutable(1.0, 1.0, 1.0);
 
         for ( int i = 0; i < width * height; i++ ) {
-            rgb[i] = new ColorRgb(white.getR(), white.getG(), white.getB());
+            rgb[i] = new ColorRgbMutable(white.getR(), white.getG(), white.getB());
         }
 
         stepSize = 64;

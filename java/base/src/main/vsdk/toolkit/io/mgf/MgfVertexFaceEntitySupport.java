@@ -49,7 +49,7 @@ the code
             case EntityTypeContext.PRISM:
                 return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
             default:
-                Logger.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+                Logger.reportMessage(null, Logger.FATAL_ERROR, "mgf.c: doDiscreteConic", String.format("Unsupported geometry entity number %d", en));
                 return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
         }
     }
@@ -83,20 +83,18 @@ the code
         if (theVertex == null
          || vp.clock >= 1
          || vp.xid != MgfVertexFaceEntitySupport.transformXid(context.transformContext)
-         || vp.n.isNull(Numeric.EPSILON)) {
+         || MgfTessellationMath.isNull(vp.n, Numeric.EPSILON)) {
             // New vertex, or updated vertex or same vertex, but other transform, or
             // vertex without normal: create a new Vertex
-            Vector3Dd vert = new Vector3Dd();
-            Vector3Dd norm = new Vector3Dd();
             Vector3D theNormal;
 
-            MgfTransformationSupport.mgfTransformPoint(vert, vp.p, context);
-            Vector3D thePoint = installPoint((float)vert.x, (float)vert.y, (float)vert.z, context);
-            if (vp.n.isNull(Numeric.EPSILON)) {
+            Vector3Dd vert = MgfTransformationSupport.mgfTransformPoint(vp.p, context);
+            Vector3D thePoint = installPoint((float)vert.x(), (float)vert.y(), (float)vert.z(), context);
+            if (MgfTessellationMath.isNull(vp.n, Numeric.EPSILON)) {
                 theNormal = null;
             } else {
-                MgfTransformationSupport.mgfTransformVector(norm, vp.n, context);
-                theNormal = installNormal((float)norm.x, (float)norm.y, (float)norm.z, context);
+                Vector3Dd norm = MgfTransformationSupport.mgfTransformVector(vp.n, context);
+                theNormal = installNormal((float)norm.x(), (float)norm.y(), (float)norm.z(), context);
             }
             theVertex = installVertex(thePoint, theNormal, context);
             vp.vertex = theVertex;
@@ -669,9 +667,7 @@ without hole entity handling routine MgfVertexFaceEntitySupport::handleFaceEntit
                 if (TokenValidationContext.isFloat(av[1]) == false || TokenValidationContext.isFloat(av[2]) == false || TokenValidationContext.isFloat(av[3]) == false) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentVertexContext.p.x = Double.parseDouble(av[1]);
-                currentVertexContext.p.y = Double.parseDouble(av[2]);
-                currentVertexContext.p.z = Double.parseDouble(av[3]);
+                currentVertexContext.p = new Vector3Dd(Double.parseDouble(av[1]), Double.parseDouble(av[2]), Double.parseDouble(av[3]));
                 currentVertexContext.clock++;
                 return ParseErrorContext.MGF_OK;
             case EntityTypeContext.MGF_NORMAL:
@@ -682,10 +678,11 @@ without hole entity handling routine MgfVertexFaceEntitySupport::handleFaceEntit
                 if (TokenValidationContext.isFloat(av[1]) == false || TokenValidationContext.isFloat(av[2]) == false || TokenValidationContext.isFloat(av[3]) == false) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentVertexContext.n.x = Double.parseDouble(av[1]);
-                currentVertexContext.n.y = Double.parseDouble(av[2]);
-                currentVertexContext.n.z = Double.parseDouble(av[3]);
-                currentVertexContext.n.normalizeAndGivePreviousNorm(Numeric.EPSILON);
+                Vector3Dd[] normalHolder = new Vector3Dd[] {
+                    new Vector3Dd(Double.parseDouble(av[1]), Double.parseDouble(av[2]), Double.parseDouble(av[3]))
+                };
+                MgfTessellationMath.normalizeAndGivePreviousNorm(normalHolder, Numeric.EPSILON);
+                currentVertexContext.n = normalHolder[0];
                 currentVertexContext.clock++;
                 return ParseErrorContext.MGF_OK;
             default:

@@ -54,11 +54,11 @@ public class MgfEntityControl {
     }
 
     public static void doError(String errmsg, ParseRuntimeContext context) {
-        Logger.error(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
+        Logger.reportMessage(null, Logger.ERROR, "", String.format("%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg));
     }
 
     public static void doWarning(String errmsg, ParseRuntimeContext context) {
-        Logger.warning(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
+        Logger.reportMessage(null, Logger.WARNING, "", String.format("%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg));
     }
 
     /**

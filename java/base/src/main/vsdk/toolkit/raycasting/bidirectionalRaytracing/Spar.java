@@ -4,7 +4,6 @@ Specification of the Stored Partial Radiance class
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.scene.RadianceMethod;
 
@@ -61,9 +60,9 @@ public class Spar {
     is returned. Normally this is a contribution for the pixel
     affected by the path
     */
-    public ColorRgb handlePath(SparConfig config, BiPath path) {
+    public ColorRgbMutable handlePath(SparConfig config, BiPath path) {
         ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
-        return result.toImmutable();
+        return new ColorRgbMutable(result);
     }
 }

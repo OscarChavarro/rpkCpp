@@ -12,8 +12,9 @@ three single byte mantissas and a common exponent.
 
 import java.io.OutputStream;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.memoryManagement.CppReAlloc;
-import vsdk.toolkit.io.PersistenceElement;
+import vsdk.toolkit.io.wrapper.PersistenceElement;
 
 public class DkColor {
     private static final int RED = 0;

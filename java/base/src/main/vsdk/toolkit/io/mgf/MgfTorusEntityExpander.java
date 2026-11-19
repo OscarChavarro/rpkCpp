@@ -52,7 +52,7 @@ public final class MgfTorusEntityExpander {
         if ((vertexContext = MgfVertexFaceEntitySupport.getNamedVertex(argumentValues[1], context)) == null) {
             return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        if (vertexContext.n.isNull(Numeric.EPSILON)) {
+        if (MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
             return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
         if (!TokenValidationContext.isFloat(argumentValues[2]) || !TokenValidationContext.isFloat(argumentValues[3])) {
@@ -80,9 +80,9 @@ public final class MgfTorusEntityExpander {
         // Initialize
         context.warpConeEnds = true;
         v2Entity[3] = argumentValues[1];
-        MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.x);
-        MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.y);
-        MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.z);
+        MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.x());
+        MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.y());
+        MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.z());
         p2Entity[1] = p2x.toString();
         p2Entity[2] = p2y.toString();
         p2Entity[3] = p2z.toString();
@@ -104,9 +104,9 @@ public final class MgfTorusEntityExpander {
             if (errorCode != ParseErrorContext.MGF_OK) {
                 return errorCode;
             }
-            MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.x);
-            MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.y);
-            MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.z);
+            MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.x());
+            MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.y());
+            MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.z());
             errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity, context);
             if (errorCode != ParseErrorContext.MGF_OK) {
                 return errorCode;
@@ -133,9 +133,9 @@ public final class MgfTorusEntityExpander {
         MgfTessellationMath.formatFloat(radius2, 24, -0.5 * (minRadius + maxRadius));
         for (; i <= 4 * context.numberOfQuarterCircleDivisions; i++) {
             theta = i * (Math.PI / 2) / context.numberOfQuarterCircleDivisions;
-            MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.x);
-            MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.y);
-            MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.z);
+            MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.x());
+            MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.y());
+            MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * Math.cos(theta) * vertexContext.n.z());
             errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity, context);
             if (errorCode != ParseErrorContext.MGF_OK) {
                 return errorCode;

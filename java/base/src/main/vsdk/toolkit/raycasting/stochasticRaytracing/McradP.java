@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class McradP {
@@ -15,15 +15,15 @@ public final class McradP {
         return (StochasticRadiosityElement)patch.radianceData;
     }
 
-    public static ColorRgb[] getTopLevelPatchRad(Patch patch) {
+    public static ColorRgbMutable[] getTopLevelPatchRad(Patch patch) {
         return topLevelStochasticRadiosityElement(patch).radiance;
     }
 
-    public static ColorRgb[] getTopLevelPatchUnShotRad(Patch patch) {
+    public static ColorRgbMutable[] getTopLevelPatchUnShotRad(Patch patch) {
         return topLevelStochasticRadiosityElement(patch).unShotRadiance;
     }
 
-    public static ColorRgb[] getTopLevelPatchReceivedRad(Patch patch) {
+    public static ColorRgbMutable[] getTopLevelPatchReceivedRad(Patch patch) {
         return topLevelStochasticRadiosityElement(patch).receivedRadiance;
     }
 

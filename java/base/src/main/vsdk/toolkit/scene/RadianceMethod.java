@@ -2,7 +2,7 @@ package vsdk.toolkit.scene;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.environment.geometry.elements.Element;
@@ -34,7 +34,7 @@ public abstract class RadianceMethod {
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    public abstract ColorRgb getRadiance(
+    public abstract ColorRgbMutable getRadiance(
         Camera camera,
         Patch patch,
         double u,

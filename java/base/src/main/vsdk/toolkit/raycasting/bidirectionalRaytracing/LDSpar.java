@@ -17,7 +17,7 @@ public final class LDSpar extends Spar {
         }
 
         if ( radianceMethod == null ) {
-            Logger.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
+            Logger.reportMessage(this, Logger.ERROR, "CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
         }
 
         // Overlap group

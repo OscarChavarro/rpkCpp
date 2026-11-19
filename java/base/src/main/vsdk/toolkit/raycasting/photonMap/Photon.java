@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -9,19 +9,19 @@ import vsdk.toolkit.material.BsdfComponent;
 // Non-compact photon representation
 public class Photon {
     protected Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
-    protected ColorRgb m_power;  // power represented by this photon
+    protected ColorRgbMutable m_power;  // power represented by this photon
     //  float m_dcWeight; // Weight for density control
     protected Vector3D m_dir;  // Direction
 
     public Photon() {
         m_pos = new Vector3D();
-        m_power = new ColorRgb();
+        m_power = new ColorRgbMutable();
         m_dir = new Vector3D();
     }
 
-    public Photon(Vector3D pos, ColorRgb power, Vector3D dir) {
+    public Photon(Vector3D pos, ColorRgbMutable power, Vector3D dir) {
         m_pos = new Vector3D(pos.x, pos.y, pos.z);
-        m_power = new ColorRgb(power.getR(), power.getG(), power.getB());
+        m_power = new ColorRgbMutable(power.getR(), power.getG(), power.getB());
         m_dir = new Vector3D(dir.x, dir.y, dir.z);
     }
 
@@ -30,13 +30,13 @@ public class Photon {
         return m_pos;
     }
 
-    public ColorRgb
+    public ColorRgbMutable
     power() {
         return m_power;
     }
 
     public void
-    addPower(ColorRgb col) {
+    addPower(ColorRgbMutable col) {
         m_power.add(m_power, col);
     }
 
@@ -65,7 +65,7 @@ public class Photon {
             s[0] = phi[0] / (2.0 * Math.PI);
             r[0] = Math.pow(Math.cos(theta[0]), (double)n + 1.0);
         } else {
-            Logger.error("Photon::findRS", "Component %d not implemented yet", flag);
+            Logger.reportMessage(this, Logger.ERROR, "Photon::findRS", String.format("Component %d not implemented yet", flag));
         }
     }
 }

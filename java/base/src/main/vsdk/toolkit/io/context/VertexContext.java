@@ -24,8 +24,8 @@ public class VertexContext {
         xid = 0;
         clock = 0;
         vertex = null;
-        p.copy(inP);
-        n.copy(inN);
+        p = inP;
+        n = inN;
         xid = inXid;
         clock = inClock;
         vertex = inVertex;
@@ -35,8 +35,8 @@ public class VertexContext {
         if (source == null) {
             return;
         }
-        p.copy(source.p);
-        n.copy(source.n);
+        p = source.p;
+        n = source.n;
         xid = source.xid;
         clock = source.clock;
         vertex = source.vertex;

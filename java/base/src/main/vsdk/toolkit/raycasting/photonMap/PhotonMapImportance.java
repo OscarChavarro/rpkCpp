@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.photonMap;
 
 import vsdk.toolkit.common.Random;
 
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -40,7 +40,7 @@ Store a importon/poton. Some acceptance tests are performed first
         return (node.m_usedComponents & mask) != 0;
     }
 
-    private static boolean doImportanceStore(ImportanceMap map, SimpleRaytracingPathNode node, ColorRgb importance) {
+    private static boolean doImportanceStore(ImportanceMap map, SimpleRaytracingPathNode node, ColorRgbMutable importance) {
         if ( PhotonMapImportance.hasDiffuseOrGlossy(node) ) {
             float importanceF = importance.average();
             float potentialF = 1.0f;
@@ -79,7 +79,7 @@ Store a importon/poton. Some acceptance tests are performed first
         }
         photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-        ColorRgb accImportance = new ColorRgb();  // Track importance along the ray
+        ColorRgbMutable accImportance = new ColorRgbMutable();  // Track importance along the ray
         accImportance.setMonochrome(1.0f);
 
         // Adjust importance for eye ray

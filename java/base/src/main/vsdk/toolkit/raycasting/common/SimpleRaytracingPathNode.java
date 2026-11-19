@@ -9,7 +9,7 @@ import java.io.PrintStream;
 
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.io.wrapper.Vector3DPrinter;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
@@ -42,7 +42,7 @@ public class SimpleRaytracingPathNode {
     //  known beforehand => separate components needed.
     public double accumulatedRussianRouletteFactors;
 
-    public ColorRgb m_bsdfEval;
+    public ColorRgbMutable m_bsdfEval;
     public BsdfComp m_bsdfComp;
 
     public byte m_usedComponents; // Components used for scattering in this
@@ -74,7 +74,7 @@ public class SimpleRaytracingPathNode {
         m_rrPdfFromNext = 0.0;
         accumulatedRussianRouletteFactors = 0.0;
 
-        m_bsdfEval = new ColorRgb();
+        m_bsdfEval = new ColorRgbMutable();
         m_bsdfComp = new BsdfComp();
 
         m_usedComponents = 0;
@@ -178,7 +178,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
                 case REFLECTS:
                     break;
                 default:
-                    Logger.error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+                    Logger.reportMessage(this, Logger.ERROR, "CPathNode::GetMatchingNode", "Wrong ray type in path");
             }
 
             matchedNode = tmpNode;
@@ -195,19 +195,19 @@ Helper routine, searches the corresponding 'Enters' node for this node
 
     public PhongBidirectionalScatteringDistributionFunction getPreviousBsdf() {
         if ((m_hit.getFlags() & RayHitFlag.BACK) == 0) {
-            Logger.error("CPathNode::getPreviousBsdf", "Last node not a back hit");
+            Logger.reportMessage(this, Logger.ERROR, "CPathNode::getPreviousBsdf", "Last node not a back hit");
             return m_inBsdf;  // Should not happen
         }
 
         if (m_hit.getPatch().material.getBsdf() != m_inBsdf) {
-            Logger.warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+            Logger.reportMessage(this, Logger.WARNING, "CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
         }
 
         // Find the corresponding ray that enters the material
         final SimpleRaytracingPathNode matchedNode = GetMatchingNode();
 
         if (matchedNode == null) {
-            Logger.warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+            Logger.reportMessage(this, Logger.WARNING, "CPathNode::GetPreviousBtdf", "No corresponding entering ray");
             return m_inBsdf;  // Should not happen
         }
 

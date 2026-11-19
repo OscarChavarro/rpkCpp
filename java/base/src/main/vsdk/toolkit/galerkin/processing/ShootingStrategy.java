@@ -1,7 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinBasis;
@@ -93,7 +93,7 @@ public class ShootingStrategy {
         }
 
         if ( elem.unShotRadiance != null ) {
-            ColorRgb.arrayClear(elem.unShotRadiance, elem.basisSize);
+            ColorRgbMutable.arrayClear(elem.unShotRadiance, elem.basisSize);
         }
         elem.unShotPotential = 0.0f;
     }
@@ -225,7 +225,7 @@ public class ShootingStrategy {
                  && galerkinState.topCluster.unShotRadiance != null
                  && galerkinState.topCluster.unShotRadiance.length > 0
                  && galerkinState.topCluster.unShotRadiance[0] != null ) {
-                ColorRgb ambient = galerkinState.topCluster.unShotRadiance[0];
+                ColorRgbMutable ambient = galerkinState.topCluster.unShotRadiance[0];
                 galerkinState.ambientRadiance.set(ambient.getR(), ambient.getG(), ambient.getB());
             }
         }

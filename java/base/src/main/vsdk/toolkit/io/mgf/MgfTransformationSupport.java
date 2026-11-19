@@ -39,7 +39,7 @@ public class MgfTransformationSupport {
         ByteBuffer buffer = ByteBuffer.allocate(16 * 8).order(ByteOrder.LITTLE_ENDIAN);
         for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
-                buffer.putDouble(xfm.m[r][c]);
+                buffer.putDouble(xfm.get(r, c));
             }
         }
         byte[] raw = buffer.array();
@@ -202,28 +202,52 @@ public class MgfTransformationSupport {
     /**
     Transform a point by the current matrix
     */
-    public static void mgfTransformPoint(Vector3Dd v1, Vector3Dd v2, ParseRuntimeContext context) {
+    public static Vector3Dd mgfTransformPoint(Vector3Dd v2, ParseRuntimeContext context) {
         if (context.transformContext == null) {
-            v1.copy(v2);
-            return;
+            return v2;
         }
-        context.transformContext.xf.transformMatrix.multiplyWithTranslation(v1, v2);
+        return transformPoint(context.transformContext.xf.transformMatrix, v2);
     }
 
     /**
     Transform a vector using current matrix
     */
-    public static void mgfTransformVector(Vector3Dd v1, Vector3Dd v2, ParseRuntimeContext context) {
+    public static Vector3Dd mgfTransformVector(Vector3Dd v2, ParseRuntimeContext context) {
         if (context.transformContext == null) {
-            v1.copy(v2);
-            return;
+            return v2;
         }
-        context.transformContext.xf.transformMatrix.multiply(v1, v2);
+        return transformDirection(context.transformContext.xf.transformMatrix, v2);
+    }
+
+    /**
+    Transforms a point as a row vector (translation in the last row)
+    */
+    private static Vector3Dd transformPoint(Matrix4x4d m, Vector3Dd v) {
+        double vx = v.x();
+        double vy = v.y();
+        double vz = v.z();
+        return new Vector3Dd(
+            m.get(0, 0) * vx + m.get(1, 0) * vy + m.get(2, 0) * vz + m.get(3, 0),
+            m.get(0, 1) * vx + m.get(1, 1) * vy + m.get(2, 1) * vz + m.get(3, 1),
+            m.get(0, 2) * vx + m.get(1, 2) * vy + m.get(2, 2) * vz + m.get(3, 2));
+    }
+
+    /**
+    Transforms a direction as a row vector (translation ignored)
+    */
+    private static Vector3Dd transformDirection(Matrix4x4d m, Vector3Dd v) {
+        double vx = v.x();
+        double vy = v.y();
+        double vz = v.z();
+        return new Vector3Dd(
+            m.get(0, 0) * vx + m.get(1, 0) * vy + m.get(2, 0) * vz,
+            m.get(0, 1) * vx + m.get(1, 1) * vy + m.get(2, 1) * vz,
+            m.get(0, 2) * vx + m.get(1, 2) * vy + m.get(2, 2) * vz);
     }
 
     private static void finish(int count, TransformContext ret, Matrix4x4d transformMatrix, double scaTransform) {
         while (count-- > 0) {
-            Matrix4x4d.multiplyMatrix4(ret.transformMatrix, ret.transformMatrix, transformMatrix);
+            ret.transformMatrix = ret.transformMatrix.multiply(transformMatrix);
             ret.scaleFactor *= scaTransform;
         }
     }
@@ -232,18 +256,17 @@ public class MgfTransformationSupport {
     Get transform specification
     */
     private static int xf(TransformContext ret, int ac, String[] av) {
-        ret.transformMatrix.identity();
+        ret.transformMatrix = Matrix4x4d.identityMatrix();
         ret.scaleFactor = 1.0;
 
         int counter = 1;
-        Matrix4x4d transformMatrix = new Matrix4x4d();
-        transformMatrix.identity();
+        Matrix4x4d transformMatrix = Matrix4x4d.identityMatrix();
         double scaTransform = 1.0;
 
         int i;
         double tmp;
         for (i = 0; i < ac && av[i] != null && av[i].length() > 0 && av[i].charAt(0) == '-'; i++) {
-            Matrix4x4d m4 = new Matrix4x4d();
+            double[][] m4 = Matrix4x4d.identityMatrix().toArrayCopy();
 
             if (av[i].length() < 2) {
                 finish(counter, ret, transformMatrix, scaTransform);
@@ -258,9 +281,9 @@ public class MgfTransformationSupport {
                         finish(counter, ret, transformMatrix, scaTransform);
                         return i;
                     }
-                    m4.m[3][0] = Double.parseDouble(av[++i]);
-                    m4.m[3][1] = Double.parseDouble(av[++i]);
-                    m4.m[3][2] = Double.parseDouble(av[++i]);
+                    m4[3][0] = Double.parseDouble(av[++i]);
+                    m4[3][1] = Double.parseDouble(av[++i]);
+                    m4[3][2] = Double.parseDouble(av[++i]);
                     break;
 
                 case 'r':
@@ -274,8 +297,8 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 tmp = d2r(Double.parseDouble(av[++i]));
-                                m4.m[1][1] = m4.m[2][2] = Math.cos(tmp);
-                                m4.m[2][1] = -(m4.m[1][2] = Math.sin(tmp));
+                                m4[1][1] = m4[2][2] = Math.cos(tmp);
+                                m4[2][1] = -(m4[1][2] = Math.sin(tmp));
                                 break;
                             case 'y':
                                 if (!checkArgument(3, "f", ac, av, i)) {
@@ -283,8 +306,8 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 tmp = d2r(Double.parseDouble(av[++i]));
-                                m4.m[0][0] = m4.m[2][2] = Math.cos(tmp);
-                                m4.m[0][2] = -(m4.m[2][0] = Math.sin(tmp));
+                                m4[0][0] = m4[2][2] = Math.cos(tmp);
+                                m4[0][2] = -(m4[2][0] = Math.sin(tmp));
                                 break;
                             case 'z':
                                 if (!checkArgument(3, "f", ac, av, i)) {
@@ -292,8 +315,8 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 tmp = d2r(Double.parseDouble(av[++i]));
-                                m4.m[0][0] = m4.m[1][1] = Math.cos(tmp);
-                                m4.m[1][0] = -(m4.m[0][1] = Math.sin(tmp));
+                                m4[0][0] = m4[1][1] = Math.cos(tmp);
+                                m4[1][0] = -(m4[0][1] = Math.sin(tmp));
                                 break;
                             default: {
                                 if (!checkArgument(2, "ffff", ac, av, i)) {
@@ -311,21 +334,21 @@ public class MgfTransformationSupport {
                                 float c = (float)Math.cos(a);
                                 s = (float)Math.sin(a);
                                 float t = 1 - c;
-                                m4.m[0][0] = t * x * x + c;
-                                m4.m[1][1] = t * y * y + c;
-                                m4.m[2][2] = t * z * z + c;
+                                m4[0][0] = t * x * x + c;
+                                m4[1][1] = t * y * y + c;
+                                m4[2][2] = t * z * z + c;
                                 float A = t * x * y;
                                 float B = s * z;
-                                m4.m[0][1] = A + B;
-                                m4.m[1][0] = A - B;
+                                m4[0][1] = A + B;
+                                m4[1][0] = A - B;
                                 A = t * x * z;
                                 B = s * y;
-                                m4.m[0][2] = A - B;
-                                m4.m[2][0] = A + B;
+                                m4[0][2] = A - B;
+                                m4[2][0] = A + B;
                                 A = t * y * z;
                                 B = s * x;
-                                m4.m[1][2] = A + B;
-                                m4.m[2][1] = A - B;
+                                m4[1][2] = A + B;
+                                m4[2][1] = A - B;
                             }
                         }
                     }
@@ -346,7 +369,7 @@ public class MgfTransformationSupport {
                                     finish(counter, ret, transformMatrix, scaTransform);
                                     return i;
                                 }
-                                m4.m[0][0] = tmp;
+                                m4[0][0] = tmp;
                                 break;
                             case 'y':
                                 if (!checkArgument(3, "f", ac, av, i)) {
@@ -358,7 +381,7 @@ public class MgfTransformationSupport {
                                     finish(counter, ret, transformMatrix, scaTransform);
                                     return i;
                                 }
-                                m4.m[1][1] = tmp;
+                                m4[1][1] = tmp;
                                 break;
                             case 'z':
                                 if (!checkArgument(3, "f", ac, av, i)) {
@@ -370,7 +393,7 @@ public class MgfTransformationSupport {
                                     finish(counter, ret, transformMatrix, scaTransform);
                                     return i;
                                 }
-                                m4.m[2][2] = tmp;
+                                m4[2][2] = tmp;
                                 break;
                             default:
                                 if (!checkArgument(2, "f", ac, av, i)) {
@@ -383,9 +406,9 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 scaTransform *=
-                                m4.m[0][0] =
-                                m4.m[1][1] =
-                                m4.m[2][2] = tmp;
+                                m4[0][0] =
+                                m4[1][1] =
+                                m4[2][2] = tmp;
                                 break;
                         }
                         i++;
@@ -403,7 +426,7 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 scaTransform *=
-                                m4.m[0][0] = -1.0;
+                                m4[0][0] = -1.0;
                                 break;
                             case 'y':
                                 if (!checkArgument(3, "", ac, av, i)) {
@@ -411,7 +434,7 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 scaTransform *=
-                                m4.m[1][1] = -1.0;
+                                m4[1][1] = -1.0;
                                 break;
                             case 'z':
                                 if (!checkArgument(3, "", ac, av, i)) {
@@ -419,7 +442,7 @@ public class MgfTransformationSupport {
                                     return i;
                                 }
                                 scaTransform *=
-                                m4.m[2][2] = -1.0;
+                                m4[2][2] = -1.0;
                                 break;
                             default:
                                 finish(counter, ret, transformMatrix, scaTransform);
@@ -435,11 +458,11 @@ public class MgfTransformationSupport {
                         return i;
                     }
                     while (counter-- > 0) {
-                        Matrix4x4d.multiplyMatrix4(ret.transformMatrix, ret.transformMatrix, transformMatrix);
+                        ret.transformMatrix = ret.transformMatrix.multiply(transformMatrix);
                         ret.scaleFactor *= scaTransform;
                     }
                     counter = Integer.parseInt(av[++i]);
-                    transformMatrix.identity();
+                    transformMatrix = Matrix4x4d.identityMatrix();
                     scaTransform = 1.0;
                     continue;
 
@@ -448,7 +471,7 @@ public class MgfTransformationSupport {
                     return i;
 
             }
-            Matrix4x4d.multiplyMatrix4(transformMatrix, transformMatrix, m4);
+            transformMatrix = transformMatrix.multiply(new Matrix4x4d(m4));
         }
 
         finish(counter, ret, transformMatrix, scaTransform);
@@ -544,7 +567,7 @@ public class MgfTransformationSupport {
 
         // Compute total transformation
         if (spec.prev != null) {
-            Matrix4x4d.multiplyMatrix4(spec.xf.transformMatrix, spec.xf.transformMatrix, spec.prev.xf.transformMatrix);
+            spec.xf.transformMatrix = spec.xf.transformMatrix.multiply(spec.prev.xf.transformMatrix);
             spec.xf.scaleFactor *= spec.prev.xf.scaleFactor;
             spec.rev = (short)((spec.rev ^ spec.prev.rev) != 0 ? 1 : 0);
         }

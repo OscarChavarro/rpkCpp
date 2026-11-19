@@ -8,7 +8,6 @@ A chain list is a set of scattering modes
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -133,9 +132,9 @@ public class FlagChain {
     Compute : calculate the product of bsdf components defined
     by the chain. Eye and light node ARE INCLUDED
     */
-    public ColorRgb compute(BiPath path) {
+    public ColorRgbMutable compute(BiPath path) {
         ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgb tmpCol;
+        ColorRgbMutable tmpCol;
         result.setMonochrome(1.0f);
         int eyeSize = path.m_eyeSize;
         int lightSize = path.m_lightSize;
@@ -143,8 +142,8 @@ public class FlagChain {
         SimpleRaytracingPathNode node;
 
         if ( lightSize + eyeSize != length ) {
-            Logger.error("FlagChain::Compute", "Wrong path length");
-            return result.toImmutable();
+            Logger.reportMessage(this, Logger.ERROR, "FlagChain::Compute", "Wrong path length");
+            return new ColorRgbMutable(result);
         }
 
         // Flag chain start at the light node and end at the eye node
@@ -168,6 +167,6 @@ public class FlagChain {
             result.scale(-1.0f);
         }
 
-        return result.toImmutable();
+        return new ColorRgbMutable(result);
     }
 }

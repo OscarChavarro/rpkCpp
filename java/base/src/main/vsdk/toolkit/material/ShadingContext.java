@@ -31,8 +31,8 @@ public final class ShadingContext {
         shadingNormal = new Vector3D(inShadingNormal.x, inShadingNormal.y, inShadingNormal.z);
         texCoord = new Vector3D(inTexCoord.x, inTexCoord.y, inTexCoord.z);
         uv = new Vector2Dd();
-        uv.u = inUv.u;
-        uv.v = inUv.v;
+        uv.x = inUv.x;
+        uv.y = inUv.y;
         shadingFrame = new CoordinateSystem();
         shadingFrame.setX(inShadingFrame.getX());
         shadingFrame.setY(inShadingFrame.getY());

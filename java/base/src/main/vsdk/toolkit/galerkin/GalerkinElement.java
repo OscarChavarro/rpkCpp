@@ -5,7 +5,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
@@ -385,7 +385,7 @@ public class GalerkinElement extends Element {
             return;
         }
         if ( isCluster() ) {
-            Logger.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "galerkinElementPolygon", "Cannot use this function for cluster elements");
             return;
         }
         if ( patch == null ) {
@@ -427,26 +427,26 @@ public class GalerkinElement extends Element {
             }
         }
 
-        ColorRgb[] defaultRadiance = new ColorRgb[localBasisSize];
-        ColorRgb[] defaultReceivedRadiance = new ColorRgb[localBasisSize];
-        ColorRgb[] defaultUnShotRadiance = new ColorRgb[localBasisSize];
+        ColorRgbMutable[] defaultRadiance = new ColorRgbMutable[localBasisSize];
+        ColorRgbMutable[] defaultReceivedRadiance = new ColorRgbMutable[localBasisSize];
+        ColorRgbMutable[] defaultUnShotRadiance = new ColorRgbMutable[localBasisSize];
         for ( int i = 0; i < localBasisSize; i++ ) {
-            defaultRadiance[i] = new ColorRgb();
-            defaultReceivedRadiance[i] = new ColorRgb();
-            defaultUnShotRadiance[i] = new ColorRgb();
+            defaultRadiance[i] = new ColorRgbMutable();
+            defaultReceivedRadiance[i] = new ColorRgbMutable();
+            defaultUnShotRadiance[i] = new ColorRgbMutable();
         }
-        ColorRgb.arrayClear(defaultRadiance, localBasisSize);
-        ColorRgb.arrayClear(defaultReceivedRadiance, localBasisSize);
-        ColorRgb.arrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgbMutable.arrayClear(defaultRadiance, localBasisSize);
+        ColorRgbMutable.arrayClear(defaultReceivedRadiance, localBasisSize);
+        ColorRgbMutable.arrayClear(defaultUnShotRadiance, localBasisSize);
 
         if ( radiance != null ) {
-            ColorRgb.arrayCopy(defaultRadiance, radiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMutable.arrayCopy(defaultRadiance, radiance, Math.min(basisSize, localBasisSize));
         }
         if ( receivedRadiance != null ) {
-            ColorRgb.arrayCopy(defaultReceivedRadiance, receivedRadiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMutable.arrayCopy(defaultReceivedRadiance, receivedRadiance, Math.min(basisSize, localBasisSize));
         }
         if ( unShotRadiance != null ) {
-            ColorRgb.arrayCopy(defaultUnShotRadiance, unShotRadiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMutable.arrayCopy(defaultUnShotRadiance, unShotRadiance, Math.min(basisSize, localBasisSize));
         }
 
         radiance = defaultRadiance;

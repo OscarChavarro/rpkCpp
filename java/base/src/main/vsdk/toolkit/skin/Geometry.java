@@ -144,7 +144,7 @@ public class Geometry {
     */
     public Geometry clone() {
         if (className != GeometryClassId.PATCH_SET) {
-            Logger.fatal(666, "duplicateIfPatchSet", "this should not happen");
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "duplicateIfPatchSet", "this should not happen");
         }
 
         PatchSet newPatchSet = new PatchSet(Geometry.patchListReference(this));

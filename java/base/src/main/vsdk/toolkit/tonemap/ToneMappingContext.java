@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 
 public class ToneMappingContext {
     // Gamma correction table
@@ -29,7 +29,7 @@ public class ToneMappingContext {
     public float yw;
 
     // Display RGB mapping (corrects display non-linear response)
-    public ColorRgb gamma; // Gamma factors for red, green, blue
+    public ColorRgbMutable gamma; // Gamma factors for red, green, blue
     public float[][] gammaTab; // Gamma correction tables for red, green and blue
 
     private static final float DEFAULT_GAMMA = 1.7f;
@@ -56,7 +56,7 @@ public class ToneMappingContext {
         yw = 0.333333333333f;
         Cie.computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
-        gamma = new ColorRgb(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+        gamma = new ColorRgbMutable(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
         gammaTab = new float[3][GAMMA_TABLE_SIZE];
         ToneMap.recomputeGammaTables(this, gamma);
     }

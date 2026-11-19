@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
@@ -17,12 +17,12 @@ public final class Ccr {
 
     @FunctionalInterface
     public interface GetRadianceCallback {
-        ColorRgb[] apply(StochasticRadiosityElement element);
+        ColorRgbMutable[] apply(StochasticRadiosityElement element);
     }
 
     @FunctionalInterface
     public interface GetScalingCallback {
-        ColorRgb apply(StochasticRadiosityElement element);
+        ColorRgbMutable apply(StochasticRadiosityElement element);
     }
 
     private static final int NUMBER_OF_INTERVALS = 10;
@@ -31,17 +31,17 @@ public final class Ccr {
 
     static void initialControlRadiosityRecursive(
         StochasticRadiosityElement element,
-        ColorRgb minRad,
-        ColorRgb maxRad,
-        ColorRgb fMin,
-        ColorRgb fMax,
-        ColorRgb totalFluxColor,
-        ColorRgb maxRadColor,
+        ColorRgbMutable minRad,
+        ColorRgbMutable maxRad,
+        ColorRgbMutable fMin,
+        ColorRgbMutable fMax,
+        ColorRgbMutable totalFluxColor,
+        ColorRgbMutable maxRadColor,
         double[] area)
     {
         if ( element.regularSubElements == null ) {
             // Trivial case
-            ColorRgb rad = getRadianceCallback.apply(element)[0];
+            ColorRgbMutable rad = getRadianceCallback.apply(element)[0];
             float weightedArea = element.area;
             if ( StochasticRelaxation.activeState().importanceDriven != 0 &&
                  StochasticRelaxation.activeState().method != StochasticRaytracingMethod.RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -71,14 +71,14 @@ public final class Ccr {
 Initial guess for constant control radiance value
 */
     static void initialControlRadiosity(
-        ColorRgb minRad,
-        ColorRgb maxRad,
-        ColorRgb fMin,
-        ColorRgb fMax,
+        ColorRgbMutable minRad,
+        ColorRgbMutable maxRad,
+        ColorRgbMutable fMin,
+        ColorRgbMutable fMax,
         ArrayList<Patch> scenePatches)
     {
-        ColorRgb totalFluxColor = new ColorRgb();
-        ColorRgb maxRadColor = new ColorRgb();
+        ColorRgbMutable totalFluxColor = new ColorRgbMutable();
+        ColorRgbMutable maxRadColor = new ColorRgbMutable();
         double[] area = new double[] {0.0};
         totalFluxColor.clear();
         maxRadColor.clear();
@@ -151,14 +151,14 @@ Initial guess for constant control radiance value
 
     static void refineControlRadiosityRecursive(
         StochasticRadiosityElement element,
-        ColorRgb colorOne,
-        ColorRgb[] rad,
-        ColorRgb[] f)
+        ColorRgbMutable colorOne,
+        ColorRgbMutable[] rad,
+        ColorRgbMutable[] f)
     {
         if ( element.regularSubElements == null ) {
             // Trivial case
-            ColorRgb B = getRadianceCallback.apply(element)[0];
-            ColorRgb s = getScalingCallback != null ? getScalingCallback.apply(element) : colorOne;
+            ColorRgbMutable B = getRadianceCallback.apply(element)[0];
+            ColorRgbMutable s = getScalingCallback != null ? getScalingCallback.apply(element) : colorOne;
             float weightedArea = element.area;
             if ( StochasticRelaxation.activeState().importanceDriven != 0 &&
                  StochasticRelaxation.activeState().method !=
@@ -166,7 +166,7 @@ Initial guess for constant control radiance value
                 weightedArea *= (element.importance - element.sourceImportance); /* multiply with received importance */
             }
             for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-                ColorRgb t = new ColorRgb();
+                ColorRgbMutable t = new ColorRgbMutable();
                 t.scalarProduct(s, rad[i]);
                 t.subtract(B, t);
                 t.abs();
@@ -186,25 +186,25 @@ Uses regular interval subdivision (generalisation of the bisection
 method). Does so component wise
 */
     static void refineControlRadiosity(
-        ColorRgb minRad,
-        ColorRgb maxRad,
-        ColorRgb fMin,
-        ColorRgb fMax,
+        ColorRgbMutable minRad,
+        ColorRgbMutable maxRad,
+        ColorRgbMutable fMin,
+        ColorRgbMutable fMax,
         ArrayList<Patch> scenePatches)
     {
-        ColorRgb colorOne = new ColorRgb();
-        ColorRgb[] f = new ColorRgb[NUMBER_OF_INTERVALS + 1];
-        ColorRgb[] rad = new ColorRgb[NUMBER_OF_INTERVALS + 1];
-        ColorRgb d = new ColorRgb();
+        ColorRgbMutable colorOne = new ColorRgbMutable();
+        ColorRgbMutable[] f = new ColorRgbMutable[NUMBER_OF_INTERVALS + 1];
+        ColorRgbMutable[] rad = new ColorRgbMutable[NUMBER_OF_INTERVALS + 1];
+        ColorRgbMutable d = new ColorRgbMutable();
 
         colorOne.setMonochrome(1.0f);
 
         // Initialisations. rad[i] = radiosity at boundary i
         d.subtract(maxRad, minRad);
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-            f[i] = new ColorRgb();
+            f[i] = new ColorRgbMutable();
             f[i].clear();
-            rad[i] = new ColorRgb();
+            rad[i] = new ColorRgbMutable();
             rad[i].addScaled(minRad, (float)i / (float)NUMBER_OF_INTERVALS, d);
         }
 
@@ -297,17 +297,17 @@ multiplied with the radiance of the element. If getScaling is a nullptr
 pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
-    public static ColorRgb determineControlRadiosity(
+    public static ColorRgbMutable determineControlRadiosity(
         GetRadianceCallback getRadiance,
         GetScalingCallback getScaling,
         ArrayList<Patch> scenePatches)
     {
-        ColorRgb minRad = new ColorRgb();
-        ColorRgb maxRad = new ColorRgb();
-        ColorRgb fMin = new ColorRgb();
-        ColorRgb fMax = new ColorRgb();
-        ColorRgb beta = new ColorRgb();
-        ColorRgb delta = new ColorRgb();
+        ColorRgbMutable minRad = new ColorRgbMutable();
+        ColorRgbMutable maxRad = new ColorRgbMutable();
+        ColorRgbMutable fMin = new ColorRgbMutable();
+        ColorRgbMutable fMax = new ColorRgbMutable();
+        ColorRgbMutable beta = new ColorRgbMutable();
+        ColorRgbMutable delta = new ColorRgbMutable();
         float eps = 0.001f;
         int sweep = 0;
 
