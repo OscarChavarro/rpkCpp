@@ -1,9 +1,10 @@
 #include <strings.h>
 
-#include "common/logging/Logger.h"
-#include "galerkin/GalerkinRadianceMethod.h"
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
+#include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
+#include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"
 #include "app/options/OptionsGroupGalerkin.h"
 
 int OptionsGroupGalerkin::trueValue = true;
@@ -18,7 +19,7 @@ OptionsGroupGalerkin::iterationMethodOption(char *&name) {
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = SOUTH_WELL;
     } else {
-        Logger::error(NULL, "Invalid iteration method '%s'", name);
+        Logger::reportMessage("OptionsGroupGalerkin", Logger::ERROR, "", LoggerFormat::format("Invalid iteration method '%s'", name));
     }
 }
 

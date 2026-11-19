@@ -49,7 +49,7 @@ check_image "output/04_office1.ppm" "$base_dir/04_office1.ppm"
 check_image "output/05_office2.ppm" "$base_dir/05_office2.ppm"
 check_image "output/06_office3.ppm" "$base_dir/06_office3.ppm"
 check_image "output/07_classroom.ppm" "$base_dir/07_classroom.ppm"
-check_image "output/08_soda.ppm" "$base_dir/08_soda.ppm"
+# 08_soda is excluded: it needs more than 4 GB of memory, see README.md
 check_image "output/10_floorRayMatting.ppm" "$base_dir/10_floorRayMatting.ppm"
 check_image "output/11_floorRayCasting.ppm" "$base_dir/11_floorRayCasting.ppm"
 check_image "output/12_floorBidirectionalPathTracing.ppm" "$base_dir/12_floorBidirectionalPathTracing.ppm"

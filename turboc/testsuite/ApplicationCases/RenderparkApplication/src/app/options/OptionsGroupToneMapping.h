@@ -5,9 +5,9 @@
 #ifndef CMMND_LINE_TONE_MAP_OPTNS_GRP
 #define CMMND_LINE_TONE_MAP_OPTNS_GRP
 
-#include "common/color/ColorRgb.h"
-#include "common/linealAlgebra/Vector3D.h"
-#include "tonemap/ToneMappingContext.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
+#include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class OptionsGroupToneMapping{ public:
     static void toneMapParseOptions( int *argc, char **argv, char *toneMapNameOut, ToneMappingContext &toneMapOptionsContext);

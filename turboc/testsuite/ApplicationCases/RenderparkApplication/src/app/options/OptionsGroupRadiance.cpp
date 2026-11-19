@@ -10,13 +10,13 @@
 #include "app/options/OptionsGroupRandomWalkRadiosity.h"
 #include "app/options/OptionsGroupStochasticRaytracing.h"
 #include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
-#include "galerkin/GalerkinRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/photonMap/PhotonMapRadianceMethod.h"
-    #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
-    #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
+    #include "vsdk/toolkit/raycasting/photonMap/PhotonMapRadianceMethod.h"
+    #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+    #include "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
 void

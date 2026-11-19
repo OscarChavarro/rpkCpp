@@ -3,12 +3,12 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
-#include "raycasting/common/RayTracer.h"
-#include "scene/RadianceMethod.h"
-#include "environment/geometry/elements/Patch.h"
-#include "scene/Scene.h"
+#include "vsdk/toolkit/raycasting/common/RayTracer.h"
+#include "vsdk/toolkit/scene/RadianceMethod.h"
+#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
+#include "vsdk/toolkit/scene/Scene.h"
 #include "app/options/BatchOptions.h"
-#include "tonemap/ToneMappingContext.h"
+#include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class Batch{ public:
     static void batchExecuteRadianceSimulation( Scene *scene, RadianceMethod *radianceMethod, const RayTracer *rayTracer, ToneMappingContext *toneMapOptions, RenderOptions *renderOptions);

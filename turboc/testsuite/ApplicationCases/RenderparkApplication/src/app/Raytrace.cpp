@@ -1,17 +1,18 @@
-#include "material/RendererConfiguration.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/System.h"
 #include <string.h>
 
-#include "common/logging/Logger.h"
-#include "render/Canvas.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
-#include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "raycasting/simple/RayCaster.h"
-#include "raycasting/simple/RayMatter.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
+#include "vsdk/toolkit/render/Canvas.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracer.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
+#include "vsdk/toolkit/raycasting/simple/RayCaster.h"
+#include "vsdk/toolkit/raycasting/simple/RayMatter.h"
 #include "app/Raytrace.h"
 #include "app/options/OptionsGroupRaytracing.h"
 
@@ -55,7 +56,7 @@ Raytrace::rayTraceCreateRayTracerFromName(
     Raytrace::rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList, lightList);
 
     if ( newRaytracer == NULL && strncasecmp(rayTracerName, "none", 4) != 0 ) {
-        Logger::error(NULL, "Invalid raytracing method name '%s'", rayTracerName);
+        Logger::reportMessage("Raytrace", Logger::ERROR, "", LoggerFormat::format("Invalid raytracing method name '%s'", rayTracerName));
     }
 
     return newRaytracer;
@@ -113,9 +114,9 @@ Raytrace::rayTraceSaveImage(
     }
 
     if ( rayTracer == NULL ) {
-        Logger::warning(NULL, "No ray tracing method active");
+        Logger::reportMessage("Raytrace", Logger::WARNING, "", "No ray tracing method active");
     } else if ( !rayTracer->saveImage(img) ) {
-        Logger::warning(NULL, "No previous %s image available", rayTracer->getName());
+        Logger::reportMessage("Raytrace", Logger::WARNING, "", LoggerFormat::format("No previous %s image available", rayTracer->getName()));
     }
 
     ImageOutputHandle::deleteImageOutputHandle(img);

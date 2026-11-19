@@ -4,21 +4,22 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "common/logging/Logger.h"
-#include "common/color/Cie.h"
-#include "common/statistics/Statistics.h"
-#include "scene/PatchClusterOctreeNode.h"
-#include "tonemap/ToneMap.h"
-#include "numericalAnalysis/MeshSurfaceVisitor.h"
-#include "numericalAnalysis/PatchVisitor.h"
-#include "io/context/ParseSnapshotContext.h"
-#include "io/bin/reader/BinaryModelDeserializer.h"
-#include "io/bin/writer/BinaryModelSerializer.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
+#include "vsdk/toolkit/common/color/Cie.h"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
+#include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
+#include "vsdk/toolkit/tonemap/ToneMap.h"
+#include "vsdk/toolkit/numericalAnalysis/MeshSurfaceVisitor.h"
+#include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
+#include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
+#include "vsdk/toolkit/io/bin/reader/BinaryModelDeserializer.h"
+#include "vsdk/toolkit/io/bin/writer/BinaryModelSerializer.h"
 #ifdef MGF_ENABLED
-    #include "io/mgf/MgfParserLoader.h"
+    #include "vsdk/toolkit/io/mgf/MgfParserLoader.h"
 #endif
-#include "render/RenderHookList.h"
-#include "render/ScreenBuffer.h"
+#include "vsdk/toolkit/render/RenderHookList.h"
+#include "vsdk/toolkit/render/ScreenBuffer.h"
 #include "app/Adaptation.h"
 #include "app/Batch.h"
 #include "app/options/OptionsGroupCore.h"
@@ -389,27 +390,15 @@ SceneBuilder::sceneBldValReadFile(
 {
     File file(fileName);
     if ( !file.exists() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' does not exist",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("Requested %s file '%s' does not exist", fileRole, fileName));
         return false;
     }
     if ( !file.isFile() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is not a regular file",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("Requested %s file '%s' is not a regular file", fileRole, fileName));
         return false;
     }
     if ( !file.canRead() ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is not readable",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("Requested %s file '%s' is not readable", fileRole, fileName));
         return false;
     }
 
@@ -418,11 +407,7 @@ SceneBuilder::sceneBldValReadFile(
     input.close();
 
     if ( firstByte < 0 ) {
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Requested %s file '%s' is empty",
-            fileRole,
-            fileName);
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("Requested %s file '%s' is empty", fileRole, fileName));
         return false;
     }
 
@@ -477,20 +462,14 @@ SceneBuilder::sceneBuilderReadFile(
             } else {
                 System::err.printf("MGF_ENABLED was OFF at compile time.\n");
                 System::err.flush();
-                Logger::error(
-                    "SceneBuilder::sceneBuilderReadFile",
-                    "MGF_ENABLED was OFF at compile time. Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
-                    requestedInputName,
-                    fallbackBinaryInputName != NULL ? fallbackBinaryInputName : "(not derivable)");
+                Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("MGF_ENABLED was OFF at compile time. Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.", requestedInputName, fallbackBinaryInputName != NULL ? fallbackBinaryInputName : "(not derivable)"));
                 delete[] fallbackBinaryInputName;
                 return false;
             }
         } else {
             System::err.printf("MGF_ENABLED was OFF at compile time.\n");
             System::err.flush();
-            Logger::error(
-                "SceneBuilder::sceneBuilderReadFile",
-                "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+            Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
             return false;
         }
     }
@@ -559,18 +538,13 @@ SceneBuilder::sceneBuilderReadFile(
                 System::err.printf("done.\n");
             } else {
                 System::err.printf("failed.\n");
-                Logger::error(
-                    "SceneBuilder::sceneBuilderReadFile",
-                    "Could not export ParseSnapshotContext binary to '%s'",
-                    batchOptions->binaryOutputFilename);
+                Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", LoggerFormat::format("Could not export ParseSnapshotContext binary to '%s'", batchOptions->binaryOutputFilename));
             }
         }
 #else
         System::err.printf("MGF_ENABLED was OFF at compile time.\n");
         System::err.flush();
-        Logger::error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+        Logger::reportMessage("SceneBuilder", Logger::ERROR, "SceneBuilder::sceneBuilderReadFile", "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
 #endif
     }
 
@@ -625,7 +599,7 @@ SceneBuilder::sceneBuilderReadFile(
     scene->clusteredRootGeometry = SceneBuilder::sceneBldCreateClustHier(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className != COMPOUND ) {
-        Logger::warning(NULL, "Strange clusters for this world ...");
+        Logger::reportMessage("SceneBuilder", Logger::WARNING, "", "Strange clusters for this world ...");
     }
 
     t = System::nanoTime();
@@ -736,7 +710,7 @@ SceneBuilder::sceneBuilderCreateModel(
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
-            Logger::error(NULL, "Unrecognized option '%s'", argv[1]);
+            Logger::reportMessage("SceneBuilder", Logger::ERROR, "", LoggerFormat::format("Unrecognized option '%s'", argv[1]));
         } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
             System::exit(1);
         }

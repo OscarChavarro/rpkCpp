@@ -5,20 +5,20 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "material/RendererConfiguration.h"
-#include "raycasting/photonMap/PhotonMapConfig.h"
-#include "raycasting/photonMap/PhotonMapState.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "raycasting/simple/RayMatterState.h"
-#include "raycasting/stochasticRaytracing/Basismcrad.h"
-#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "scene/Scene.h"
-#include "io/context/ParseRuntimeContext.h"
-#include "raycasting/common/RayTracer.h"
-#include "tonemap/ToneMap.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
+#include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
+#include "vsdk/toolkit/raycasting/simple/RayMatterState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "vsdk/toolkit/scene/Scene.h"
+#include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
+#include "vsdk/toolkit/raycasting/common/RayTracer.h"
+#include "vsdk/toolkit/tonemap/ToneMap.h"
 
 class RpkApplication {
   private:

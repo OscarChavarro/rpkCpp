@@ -1,8 +1,8 @@
 #ifndef __OPTIONS_GROUP_RAY_MATTER__
 #define __OPTIONS_GROUP_RAY_MATTER__
 
-#include "raycasting/common/RayTracer.h"
-#include "raycasting/simple/RayMatterState.h"
+#include "vsdk/toolkit/raycasting/common/RayTracer.h"
+#include "vsdk/toolkit/raycasting/simple/RayMatterState.h"
 #include "app/options/EnumDesc.h"
 
 class OptionsGroupRayMatter{ public:

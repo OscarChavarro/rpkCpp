@@ -1,24 +1,24 @@
 #include <string.h>
 
-#include "material/RendererConfiguration.h"
-#include "scene/PatchClusterOctreeNode.h"
-#include "tonemap/FerwerdaToneMap.h"
-#include "tonemap/LightnessToneMap.h"
-#include "tonemap/RevisedTumblinRushmeierToneMap.h"
-#include "tonemap/ToneMap.h"
-#include "tonemap/TumblinRushmeierToneMap.h"
-#include "tonemap/WardToneMap.h"
-#include "raycasting/simple/RayMatterState.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
-#include "raycasting/stochasticRaytracing/Basismcrad.h"
-#include "raycasting/photonMap/PhotonMapState.h"
-#include "raycasting/photonMap/PhotonMapConfig.h"
-#include "io/image/Dkcolor.h"
-#include "galerkin/GalerkinRadianceMethod.h"
-#include "galerkin/processing/ClusterCreationStrategy.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
+#include "vsdk/toolkit/tonemap/FerwerdaToneMap.h"
+#include "vsdk/toolkit/tonemap/LightnessToneMap.h"
+#include "vsdk/toolkit/tonemap/RevisedTumblinRushmeierToneMap.h"
+#include "vsdk/toolkit/tonemap/ToneMap.h"
+#include "vsdk/toolkit/tonemap/TumblinRushmeierToneMap.h"
+#include "vsdk/toolkit/tonemap/WardToneMap.h"
+#include "vsdk/toolkit/raycasting/simple/RayMatterState.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
+#include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
+#include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
+#include "vsdk/toolkit/io/image/Dkcolor.h"
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
+#include "vsdk/toolkit/galerkin/processing/ClusterCreationStrategy.h"
 #include "app/Batch.h"
 #include "app/options/OptionsGroupCore.h"
 #include "app/Radiance.h"
@@ -26,17 +26,17 @@
 #include "app/SceneBuilder.h"
 
 #ifdef OPEN_GL_ENABLED
-    #include "render/opengl/visualDebugTools/GlutDebugTools.h"
-    #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
-    #include "render/opengl/visualDebugTools/GlutDebugState.h"
+    #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugTools.h"
+    #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsModel.h"
+    #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugState.h"
 #endif
 
 #ifdef MGF_ENABLED
-    #include "io/mgf/MgfParserLoader.h"
+    #include "vsdk/toolkit/io/mgf/MgfParserLoader.h"
 #endif
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/bidirectionalRaytracing/LightList.h"
+    #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
     #include "app/Raytrace.h"
 #endif
 

@@ -3,14 +3,14 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
-#include "material/RendererConfiguration.h"
-#include "scene/Scene.h"
-#include "raycasting/common/RayTracer.h"
-#include "raycasting/simple/RayMatterState.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "tonemap/ToneMappingContext.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/scene/Scene.h"
+#include "vsdk/toolkit/raycasting/common/RayTracer.h"
+#include "vsdk/toolkit/raycasting/simple/RayMatterState.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
+#include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 #ifdef RAYTRACING_ENABLED
 class Raytrace{ public:

@@ -13,7 +13,7 @@ LDFLAGS ?=
 LDLIBS ?= -lm
 
 ROOT_DIR := .
-BASE_DIR := $(ROOT_DIR)/base/src
+BASE_DIR := $(ROOT_DIR)/base/src/main
 APP_DIR := $(ROOT_DIR)/testsuite/ApplicationCases/RenderparkApplication/src
 
 OBJ_DIR := $(ROOT_DIR)/build

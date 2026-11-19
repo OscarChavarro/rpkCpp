@@ -1,5 +1,5 @@
 
-#include "common/VSDK.h"
+#include "vsdk/toolkit/common/VSDK.h"
 #ifndef CMMND_LINE_GLRKN_OPTNS_GRP
 #define CMMND_LINE_GLRKN_OPTNS_GRP
 

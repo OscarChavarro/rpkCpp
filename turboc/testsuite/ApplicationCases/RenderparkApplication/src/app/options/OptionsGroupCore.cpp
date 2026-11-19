@@ -3,9 +3,9 @@
 #include <string.h>
 
 #include "java/lang/System.h"
-#include "scene/ConstantColorBackground.h"
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
+#include "vsdk/toolkit/scene/ConstantColorBackground.h"
+#include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
+#include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"
 #include "app/options/EnumAppOptions.h"
 #include "app/options/OptionsGroupCore.h"
 #include "app/options/OptionsGroupRender.h"

@@ -27,11 +27,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 file(GLOB_RECURSE VITRAL_TURBOC_SRC CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/*.cpp
 )
 
 # Keep the normal lowercase source tree only; uppercase 8.3 mirror files are not build inputs.
-list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/src/[A-Z0-9_]+/")
+list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/src/main/[A-Z0-9_]+/")
 
 if(NOT MGF_ENABLED)
     list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/io/mgf/")
@@ -47,7 +47,7 @@ add_library(vitral-turboc SHARED ${VITRAL_TURBOC_SRC})
 
 target_include_directories(vitral-turboc
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main
 )
 
 set_target_properties(vitral-turboc PROPERTIES

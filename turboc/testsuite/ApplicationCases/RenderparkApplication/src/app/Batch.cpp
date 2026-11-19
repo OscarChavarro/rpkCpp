@@ -3,16 +3,16 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "material/RendererConfiguration.h"
-#include "io/image/ImageOutputHandle.h"
-#include "io/wrapper/FileUncompressWrapper.h"
-#include "render/Canvas.h"
-#include "render/RadianceImageExporter.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/io/image/ImageOutputHandle.h"
+#include "vsdk/toolkit/io/wrapper/FileUncompressWrapper.h"
+#include "vsdk/toolkit/render/Canvas.h"
+#include "vsdk/toolkit/render/RadianceImageExporter.h"
 #include "app/Batch.h"
 #include "app/options/OptionsGroupBatch.h"
 
 #ifdef OPEN_GL_ENABLED
-    #include "render/opengl/RenderOpenGL.h"
+    #include "vsdk/toolkit/render/opengl/RenderOpenGL.h"
 #endif
 
 #ifdef RAYTRACING_ENABLED

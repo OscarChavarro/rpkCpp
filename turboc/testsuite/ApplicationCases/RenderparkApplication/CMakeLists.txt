@@ -27,7 +27,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 get_filename_component(VITRAL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../base REALPATH)
-set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src" CACHE PATH "Include directory for the turboc vitral library")
+set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src/main" CACHE PATH "Include directory for the turboc vitral library")
 set(VITRAL_LIBRARY_PATH "${VITRAL_BASE_DIR}/build/libvitral-turboc.so" CACHE FILEPATH "Shared library path for turboc vitral when building standalone")
 
 file(GLOB_RECURSE RPK_APP_SRC CONFIGURE_DEPENDS

@@ -55,3 +55,27 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
    - Replaced exception wrapper with explicit checks + `goto fail` cleanup flow
    - Goal: keep deterministic C++98-compatible control flow
 9. Remove all uses of namespaces. Those were not still invented in early 1990s.
+10. Variadic `java::String::format(...)` -> `LoggerFormat::format(...)`
+   - The VITRAL turboc `String` only offers `formatCStringToJavaString(format, va_list)`;
+     `vsdk/toolkit/common/logging/LoggerFormat` wraps it for `Logger::reportMessage` messages
+11. `explicit operator ColorRgb()` in `ColorRgbMutable` -> implicit conversion operator
+   - C++98 has no explicit conversion operators
+
+## VITRAL turboc shared subset
+
+`base/src/main` follows the layout of VITRAL's own turboc port
+(`base/src/main/java` and `base/src/main/vsdk/toolkit`). Every file that also
+exists at the same path in VITRAL's `turboc/base/src/main` is kept
+byte-identical to it; rpk-only adapters live outside those files. The one
+exception is `vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp`, which upstream
+still calls the removed `Logger::error`.
+
+## Golden image test and the 4 GB limit
+
+This port is built as 32-bit code (`-m32`), as Turbo C targets do, so a process
+can address at most 4 GB. Scene `08_soda` needs more than that for its
+radiosity hierarchy: the render still finishes and writes an image, but the
+solution is not the one the 64-bit ports converge to, so it does not match
+`doc/testBaseImages/08_soda.ppm`. For that reason `scripts/testReviewResults.sh`
+leaves `08_soda` out of the golden image test. `scripts/08_runSoda.sh` is kept
+so the scene can still be rendered by hand.

@@ -1,8 +1,8 @@
 #include <string.h>
 #include <strings.h>
 
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
+#include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
+#include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"
 #include "app/options/OptionsGroupPhotonMap.h"
 
 bool

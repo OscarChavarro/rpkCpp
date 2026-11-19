@@ -2,11 +2,12 @@
 #include <strings.h>
 
 #include "java/lang/Math.h"
-#include "common/logging/Logger.h"
-#include "common/color/Cie.h"
-#include "common/commandLineOptions/OptionParser.h"
-#include "common/commandLineOptions/TypedOption.h"
-#include "tonemap/ToneMap.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
+#include "vsdk/toolkit/common/color/Cie.h"
+#include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
+#include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"
+#include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "app/options/OptionsGroupToneMapping.h"
 
 char OptionsGroupToneMapping::toneMappingMethodsString[TONE_MAP_MTHS_STR_LEN];
@@ -33,7 +34,7 @@ OptionsGroupToneMapping::toneMappingMethodOption(char *&name) {
 void
 OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::brightnessAdjustOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::brightnessAdjustOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).pow_bright_adjust = Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
 }
@@ -41,7 +42,7 @@ OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
 void
 OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::redChromaOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::redChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xr = value.x;
     (*toneMapOptions).yr = value.y;
@@ -55,7 +56,7 @@ OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::greenChromaOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::greenChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xg = value.x;
     (*toneMapOptions).yg = value.y;
@@ -69,7 +70,7 @@ OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::blueChromaOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::blueChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xb = value.x;
     (*toneMapOptions).yb = value.y;
@@ -83,7 +84,7 @@ OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::whiteChromaOption(Vector3D &value) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::whiteChromaOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::whiteChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xw = value.x;
     (*toneMapOptions).yw = value.y;
@@ -97,21 +98,21 @@ OptionsGroupToneMapping::whiteChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::tonMppCmdLinOptDesAdaMetOpt(char *&name) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::tonMppCmdLinOptDesAdaMetOpt", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::tonMppCmdLinOptDesAdaMetOpt", "ToneMappingContext not set");
     }
     if ( strncasecmp(name, "average", 2) == 0 ) {
         (*toneMapOptions).staticAdaptationMethod = TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
         (*toneMapOptions).staticAdaptationMethod = TMA_MEDIAN;
     } else {
-        Logger::error(NULL, "Invalid adaptation estimate method '%s'", name);
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::ERROR, "", LoggerFormat::format("Invalid adaptation estimate method '%s'", name));
     }
 }
 
 void
 OptionsGroupToneMapping::gammaOption(float &gam) {
     if ( toneMapOptions == NULL ) {
-        Logger::fatal(-1, "CmdLineToneMppngOptsGrp::gammaOption", "ToneMappingContext not set");
+        Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::gammaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).gamma = ColorRgb(gam, gam, gam);
 }

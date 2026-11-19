@@ -6,11 +6,12 @@ Estimate static adaptation for tone mapping
 
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
-#include "common/logging/Logger.h"
-#include "common/color/Cie.h"
-#include "common/statistics/Statistics.h"
-#include "tonemap/ToneMap.h"
-#include "numericalAnalysis/PatchVisitor.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
+#include "vsdk/toolkit/common/color/Cie.h"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
+#include "vsdk/toolkit/tonemap/ToneMap.h"
+#include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
 #include "app/Adaptation.h"
 #include "app/LuminanceArea.h"
 
@@ -18,7 +19,7 @@ int Adaptation::numEntries = 0;
 double Adaptation::logAreaLum = 0.0;
 LuminanceArea *Adaptation::lumArea = NULL;
 int Adaptation::lumAreaIndex = 0;
-float Adaptation::lumMin = FLOAT_MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+float Adaptation::lumMin = Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 float Adaptation::lumMax = 0.0;
 Adaptation::PatchRadianceEstimateFn Adaptation::patchRadianceEstimate = NULL;
 
@@ -151,7 +152,7 @@ Adaptation::estimateSceneAdaptation(
             break;
         }
         default:
-            Logger::error("sceneBuilderComputeStats", "unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod);
+            Logger::reportMessage("Adaptation", Logger::ERROR, "sceneBuilderComputeStats", LoggerFormat::format("unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod));
     }
 }
 
