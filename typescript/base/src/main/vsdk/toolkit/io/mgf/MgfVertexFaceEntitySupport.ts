@@ -1,3 +1,5 @@
+import { MgfTessellationMath } from "./MgfTessellationMath";
+import { String as JavaString } from "../../../../java/lang/String";
 import { Logger } from "../../common/logging/Logger";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { CoordinateAxis } from "../../common/linealAlgebra/CoordinateAxis";
@@ -59,7 +61,7 @@ export class MgfVertexFaceEntitySupport {
       case EntityTypeContext.PRISM:
         return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
       default:
-        Logger.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+        Logger.reportMessage(null, Logger.FATAL_ERROR, "mgf.c: doDiscreteConic", JavaString.vformat("Unsupported geometry entity number %d", [en]));
         return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
     }
   }
@@ -100,21 +102,19 @@ export class MgfVertexFaceEntitySupport {
       theVertex === null
       || vp.clock >= 1
       || vp.xid !== MgfVertexFaceEntitySupport.transformXid(context.transformContext)
-      || vp.n.isNull(Numeric.EPSILON)
+      || MgfTessellationMath.isNull(vp.n, Numeric.EPSILON)
     ) {
       // New vertex, updated vertex, different transform, or no normal
-      const vert = new Vector3Dd();
-      const norm = new Vector3Dd();
       let theNormal: Vector3D | null;
 
-      MgfTransformationSupport.mgfTransformPoint(vert, vp.p, context);
-      const thePoint = MgfVertexFaceEntitySupport.installPoint(vert.x, vert.y, vert.z, context);
-      if (vp.n.isNull(Numeric.EPSILON)) {
+      const vert = MgfTransformationSupport.mgfTransformPoint(vp.p, context);
+      const thePoint = MgfVertexFaceEntitySupport.installPoint(vert.x(), vert.y(), vert.z(), context);
+      if (MgfTessellationMath.isNull(vp.n, Numeric.EPSILON)) {
         theNormal = null;
       }
       else {
-        MgfTransformationSupport.mgfTransformVector(norm, vp.n, context);
-        theNormal = MgfVertexFaceEntitySupport.installNormal(norm.x, norm.y, norm.z, context);
+        const norm = MgfTransformationSupport.mgfTransformVector(vp.n, context);
+        theNormal = MgfVertexFaceEntitySupport.installNormal(norm.x(), norm.y(), norm.z(), context);
       }
       theVertex = MgfVertexFaceEntitySupport.installVertex(thePoint, theNormal, context);
       vp.vertex = theVertex;
@@ -700,9 +700,7 @@ export class MgfVertexFaceEntitySupport {
         if (currentVertexContext === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        currentVertexContext.p.x = Number.parseFloat(av[1]!);
-        currentVertexContext.p.y = Number.parseFloat(av[2]!);
-        currentVertexContext.p.z = Number.parseFloat(av[3]!);
+        currentVertexContext.p = new Vector3Dd(Number.parseFloat(av[1]!), Number.parseFloat(av[2]!), Number.parseFloat(av[3]!));
         currentVertexContext.clock++;
         return ParseErrorContext.MGF_OK;
       case EntityTypeContext.MGF_NORMAL:
@@ -720,10 +718,11 @@ export class MgfVertexFaceEntitySupport {
         if (currentVertexContext === null) {
           return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        currentVertexContext.n.x = Number.parseFloat(av[1]!);
-        currentVertexContext.n.y = Number.parseFloat(av[2]!);
-        currentVertexContext.n.z = Number.parseFloat(av[3]!);
-        currentVertexContext.n.normalizeAndGivePreviousNorm(Numeric.EPSILON);
+        const normalHolder: Vector3Dd[] = [
+          new Vector3Dd(Number.parseFloat(av[1]!), Number.parseFloat(av[2]!), Number.parseFloat(av[3]!))
+        ];
+        MgfTessellationMath.normalizeAndGivePreviousNorm(normalHolder, Numeric.EPSILON);
+        currentVertexContext.n = normalHolder[0]!;
         currentVertexContext.clock++;
         return ParseErrorContext.MGF_OK;
       default:

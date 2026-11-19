@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
@@ -9,31 +9,31 @@ import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
 
 export class PhongEmittanceDistributionFunction {
-  private readonly Kd: ColorRgb;
-  private readonly kd: ColorRgb;
-  private readonly Ks: ColorRgb;
+  private readonly Kd: ColorRgbMutable;
+  private readonly kd: ColorRgbMutable;
+  private readonly Ks: ColorRgbMutable;
   private readonly Ns: number;
 
   private isSpecular(): boolean {
     return this.Ns >= Xxdf.PHONG_LOWEST_SPECULAR_EXP;
   }
 
-  public constructor(KdParameter: ColorRgb, KsParameter: ColorRgb, NsParameter: number) {
-    this.Kd = new ColorRgb(KdParameter.r, KdParameter.g, KdParameter.b);
-    this.kd = new ColorRgb();
+  public constructor(KdParameter: ColorRgbMutable, KsParameter: ColorRgbMutable, NsParameter: number) {
+    this.Kd = new ColorRgbMutable(KdParameter.r, KdParameter.g, KdParameter.b);
+    this.kd = new ColorRgbMutable();
     this.kd.scaledCopy(1.0 / globalThis.Math.PI, this.Kd);
-    this.Ks = new ColorRgb(KsParameter.r, KsParameter.g, KsParameter.b);
+    this.Ks = new ColorRgbMutable(KsParameter.r, KsParameter.g, KsParameter.b);
     if (!this.Ks.isBlack()) {
-      VsdkLogger.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
     this.Ns = NsParameter;
   }
 
-  public getKd(): ColorRgb {
+  public getKd(): ColorRgbMutable {
     return this.Kd;
   }
 
-  public getKs(): ColorRgb {
+  public getKs(): ColorRgbMutable {
     return this.Ks;
   }
 
@@ -53,9 +53,9 @@ export class PhongEmittanceDistributionFunction {
     return false;
   }
 
-  public phongEmittance(context: ShadingContext | null, flags: number): ColorRgb {
+  public phongEmittance(context: ShadingContext | null, flags: number): ColorRgbMutable {
     void context;
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
 
     if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) {
@@ -79,14 +79,14 @@ export class PhongEmittanceDistributionFunction {
     out: Vector3D,
     flags: number,
     probabilityDensityFunction: number[] | null
-  ): ColorRgb {
+  ): ColorRgbMutable {
     const normal = new Vector3D();
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
     PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
 
     if (context === null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-      VsdkLogger.warning("phongEdfEval", "Couldn't determine shading normal");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
       return result;
     }
     normal.copy(context.getShadingNormal());
@@ -113,7 +113,7 @@ export class PhongEmittanceDistributionFunction {
     flags: number,
     xi1: number,
     xi2: number,
-    selfEmittedRadiance: ColorRgb | null,
+    selfEmittedRadiance: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
   ): Vector3D {
     if (selfEmittedRadiance !== null) {
@@ -126,7 +126,7 @@ export class PhongEmittanceDistributionFunction {
       const coord = new CoordinateSystem();
       const normal = new Vector3D();
       if (context === null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-        VsdkLogger.warning("phongEdfEval", "Couldn't determine shading normal");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
         return dir;
       }
       normal.copy(context.getShadingNormal());

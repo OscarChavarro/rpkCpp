@@ -1,45 +1,42 @@
-import { Vector2D } from "./Vector2D";
+import { Vector2D } from "./Vector2D.js";
 
-type Matrix2 = [
-  [number, number],
-  [number, number]
-];
+type Matrix2 = [[number, number], [number, number]];
 
 type Vector2 = [number, number];
 
 export class Matrix2x2 {
-  public m: Matrix2;
-  public t: Vector2;
+    public m: Matrix2;
+    public t: Vector2;
 
-  public constructor() {
-    this.m = [
-      [0.0, 0.0],
-      [0.0, 0.0]
-    ];
-    this.t = [0.0, 0.0];
-  }
+    public constructor() {
+        this.m = [
+            [0.0, 0.0],
+            [0.0, 0.0],
+        ];
+        this.t = [0.0, 0.0];
+    }
 
-  public transformPoint2D(src: Vector2D, dst: Vector2D): void {
-    const outX = this.m[0][0] * src.x + this.m[0][1] * src.y + this.t[0];
-    const outY = this.m[1][0] * src.x + this.m[1][1] * src.y + this.t[1];
-    dst.x = outX;
-    dst.y = outY;
-  }
+    public transformPoint2D(src: Vector2D, dst: Vector2D): void {
+        const outX = this.m[0][0] * src.x + this.m[0][1] * src.y + this.t[0];
+        const outY = this.m[1][0] * src.x + this.m[1][1] * src.y + this.t[1];
+        dst.x = outX;
+        dst.y = outY;
+    }
 
-  public matrix2DPreConcatTransform(xf1: Matrix2x2, xf: Matrix2x2): void {
-    const tmpXf = new Matrix2x2();
-    tmpXf.m[0][0] = this.m[0][0] * xf1.m[0][0] + this.m[0][1] * xf1.m[1][0];
-    tmpXf.m[0][1] = this.m[0][0] * xf1.m[0][1] + this.m[0][1] * xf1.m[1][1];
-    tmpXf.m[1][0] = this.m[1][0] * xf1.m[0][0] + this.m[1][1] * xf1.m[1][0];
-    tmpXf.m[1][1] = this.m[1][0] * xf1.m[0][1] + this.m[1][1] * xf1.m[1][1];
-    tmpXf.t[0] = this.m[0][0] * xf1.t[0] + this.m[0][1] * xf1.t[1] + this.t[0];
-    tmpXf.t[1] = this.m[1][0] * xf1.t[0] + this.m[1][1] * xf1.t[1] + this.t[1];
+    public matrix2DPreConcatTransform(xf1: Matrix2x2, xf: Matrix2x2): void {
+        const tmpXf = new Matrix2x2();
+        tmpXf.m[0][0] = this.m[0][0] * xf1.m[0][0] + this.m[0][1] * xf1.m[1][0];
+        tmpXf.m[0][1] = this.m[0][0] * xf1.m[0][1] + this.m[0][1] * xf1.m[1][1];
+        tmpXf.m[1][0] = this.m[1][0] * xf1.m[0][0] + this.m[1][1] * xf1.m[1][0];
+        tmpXf.m[1][1] = this.m[1][0] * xf1.m[0][1] + this.m[1][1] * xf1.m[1][1];
+        tmpXf.t[0] = this.m[0][0] * xf1.t[0] + this.m[0][1] * xf1.t[1] + this.t[0];
+        tmpXf.t[1] = this.m[1][0] * xf1.t[0] + this.m[1][1] * xf1.t[1] + this.t[1];
 
-    xf.m[0][0] = tmpXf.m[0][0];
-    xf.m[0][1] = tmpXf.m[0][1];
-    xf.m[1][0] = tmpXf.m[1][0];
-    xf.m[1][1] = tmpXf.m[1][1];
-    xf.t[0] = tmpXf.t[0];
-    xf.t[1] = tmpXf.t[1];
-  }
+        xf.m[0][0] = tmpXf.m[0][0];
+        xf.m[0][1] = tmpXf.m[0][1];
+        xf.m[1][0] = tmpXf.m[1][0];
+        xf.m[1][1] = tmpXf.m[1][1];
+        xf.t[0] = tmpXf.t[0];
+        xf.t[1] = tmpXf.t[1];
+    }
 }

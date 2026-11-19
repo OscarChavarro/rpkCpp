@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -53,10 +53,10 @@ export abstract class SurfaceSampler extends Sampler {
     outgoing: Vector3D,
     flags: number,
     bsdfComp: BsdfComp | null
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (this.m_computeBsdfComponents) {
       if (bsdf === null) {
-        const black = new ColorRgb();
+        const black = new ColorRgbMutable();
         black.clear();
         return black;
       }
@@ -68,7 +68,7 @@ export abstract class SurfaceSampler extends Sampler {
     if (bsdfComp !== null) {
       bsdfComp.Clear();
     }
-    let radiance = new ColorRgb();
+    let radiance = new ColorRgbMutable();
     if (bsdf === null) {
       radiance.clear();
     }

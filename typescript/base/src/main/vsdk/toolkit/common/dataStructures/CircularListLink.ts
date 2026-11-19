@@ -1,7 +1,7 @@
 export class CircularListLink {
-  public nextLink: CircularListLink | null;
+    public nextLink: CircularListLink | null;
 
-  public constructor() {
-    this.nextLink = null;
-  }
+    public constructor() {
+        this.nextLink = null;
+    }
 }

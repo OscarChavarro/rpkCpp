@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -51,8 +51,8 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return false;
   }
 
-  private static splitBsdfEvalTexture(texture: Texture | null, context: ShadingContext): ColorRgb {
-    const col = new ColorRgb();
+  private static splitBsdfEvalTexture(texture: Texture | null, context: ShadingContext): ColorRgbMutable {
+    const col = new ColorRgbMutable();
     col.clear();
 
     if (texture === null) {
@@ -60,15 +60,15 @@ export class PhongBidirectionalScatteringDistributionFunction {
     }
 
     if (!context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE)) {
-      VsdkLogger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "splitBsdfEvalTexture", "Couldn't get texture coordinates");
       return col;
     }
     const texCoord = context.getTexCoord();
     return texture.evaluateColor(texCoord.x, texCoord.y);
   }
 
-  public splitBsdfScatteredPower(context: ShadingContext, flags: number): ColorRgb {
-    const albedo = new ColorRgb();
+  public splitBsdfScatteredPower(context: ShadingContext, flags: number): ColorRgbMutable {
+    const albedo = new ColorRgbMutable();
     albedo.clear();
 
     if (this.texture !== null && (flags & PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT) !== 0) {
@@ -80,7 +80,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     if (this.brdf !== null) {
       const reflectance = this.brdf.reflectance(flags);
       if (!globalThis.Number.isFinite(reflectance.average())) {
-        VsdkLogger.fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "brdfReflectance", "Oops - test Rd is not finite!");
       }
       albedo.add(albedo, reflectance);
     }
@@ -140,10 +140,10 @@ export class PhongBidirectionalScatteringDistributionFunction {
     PhongBidirectionalScatteringDistributionFunction.setOut(brdfFlags, BsdfComponentFlag.getBrdfFlags(flags));
     PhongBidirectionalScatteringDistributionFunction.setOut(btdfFlags, BsdfComponentFlag.getBtdfFlags(flags));
 
-    const reflectance = this.brdf === null ? new ColorRgb() : this.brdf.reflectance(brdfFlags?.[0] ?? 0);
+    const reflectance = this.brdf === null ? new ColorRgbMutable() : this.brdf.reflectance(brdfFlags?.[0] ?? 0);
     PhongBidirectionalScatteringDistributionFunction.setOut(reflection, reflectance.average());
 
-    const transmittance = this.btdf === null ? new ColorRgb() : this.btdf.transmittance(btdfFlags?.[0] ?? 0);
+    const transmittance = this.btdf === null ? new ColorRgbMutable() : this.btdf.transmittance(btdfFlags?.[0] ?? 0);
     PhongBidirectionalScatteringDistributionFunction.setOut(transmission, transmittance.average());
   }
 
@@ -202,7 +202,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-      VsdkLogger.warning("sample", "Couldn't determine shading normal");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "sample", "Couldn't determine shading normal");
       out.set(0.0, 0.0, 1.0);
       return out;
     }
@@ -351,13 +351,13 @@ export class PhongBidirectionalScatteringDistributionFunction {
     inDirection: Vector3D,
     out: Vector3D,
     flags: number
-  ): ColorRgb {
-    const result = new ColorRgb();
+  ): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     const normal = new Vector3D();
 
     result.clear();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-      VsdkLogger.warning("evaluate", "Couldn't determine shading normal");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "evaluate", "Couldn't determine shading normal");
       return result;
     }
     normal.copy(context.getShadingNormal());
@@ -375,7 +375,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
       const inIndex = new RefractionIndex();
       const outIndex = new RefractionIndex();
-      let refractionCol: ColorRgb;
+      let refractionCol: ColorRgbMutable;
 
       if (inBsdf !== null) {
         inBsdf.indexOfRefraction(inIndex);
@@ -385,7 +385,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
       }
 
       if (this.btdf === null) {
-        refractionCol = new ColorRgb();
+        refractionCol = new ColorRgbMutable();
         refractionCol.clear();
       }
       else {
@@ -415,7 +415,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
 
     const normal = new Vector3D();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-      VsdkLogger.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
       return;
     }
     normal.copy(context.getShadingNormal());
@@ -492,10 +492,10 @@ export class PhongBidirectionalScatteringDistributionFunction {
     inDirection: Vector3D,
     out: Vector3D,
     flags: number,
-    colArray: ColorRgb[]
-  ): ColorRgb {
-    const result = new ColorRgb();
-    const empty = new ColorRgb();
+    colArray: ColorRgbMutable[]
+  ): ColorRgbMutable {
+    const result = new ColorRgbMutable();
+    const empty = new ColorRgbMutable();
     empty.clear();
     result.clear();
 
@@ -506,7 +506,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
         result.add(result, colArray[i]!);
       }
       else {
-        colArray[i] = new ColorRgb(empty.r, empty.g, empty.b);
+        colArray[i] = new ColorRgbMutable(empty.r, empty.g, empty.b);
       }
     }
 

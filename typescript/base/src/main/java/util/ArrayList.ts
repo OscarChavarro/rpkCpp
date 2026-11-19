@@ -1,69 +1,163 @@
-export class ArrayList<T> {
-  private readonly dataArray: T[];
+import { IllegalArgumentException } from "../lang/IllegalArgumentException.js";
+import { IllegalStateException } from "../lang/IllegalStateException.js";
+import { IndexOutOfBoundsException } from "../lang/IndexOutOfBoundsException.js";
+import { type Iterator } from "./Iterator.js";
 
-  public constructor(_initialCapacity = 100) {
-    this.dataArray = [];
-  }
+/** Array-backed Java List with index checks and fail-fast iterators. */
+export class ArrayList<T> implements Iterable<T> {
+    private readonly elements: T[];
+    private modificationCount = 0;
 
-  public dispose(): void {
-    this.dataArray.length = 0;
-  }
-
-  public size(): number {
-    return this.dataArray.length;
-  }
-
-  public get(i: number): T {
-    const value = this.dataArray[i];
-    if (value === undefined) {
-      throw new RangeError(`ArrayList index out of bounds: ${i}`);
-    }
-    return value;
-  }
-
-  public add(elem: T): boolean;
-  public add(pos: number, elem: T): void;
-  public add(posOrElem: number | T, elem?: T): boolean | void {
-    if (typeof posOrElem === "number" && elem !== undefined) {
-      const position = posOrElem < 0 ? 0 : posOrElem;
-      if (position >= this.dataArray.length) {
-        this.dataArray.push(elem);
-        return;
-      }
-      this.dataArray.splice(position, 0, elem);
-      return;
+    public constructor(initialCapacityOrValues: number | Iterable<T> = 10) {
+        if (typeof initialCapacityOrValues === "number") {
+            if (!Number.isInteger(initialCapacityOrValues) || initialCapacityOrValues < 0)
+                throw new IllegalArgumentException("Illegal Capacity");
+            this.elements = [];
+        } else this.elements = Array.from(initialCapacityOrValues);
     }
 
-    this.dataArray.push(posOrElem as T);
-    return true;
-  }
-
-  public data(): T[] {
-    return this.dataArray;
-  }
-
-  public clear(): void {
-    this.dataArray.length = 0;
-  }
-
-  public remove(pos: number): void;
-  public remove(data: T): void;
-  public remove(posOrData: number | T): void {
-    if (typeof posOrData === "number" && Number.isInteger(posOrData)) {
-      const position = posOrData;
-      if (position >= 0 && position < this.dataArray.length) {
-        this.dataArray.splice(position, 1);
-      }
-      return;
+    public size(): number {
+        return this.elements.length;
+    }
+    public isEmpty(): boolean {
+        return this.elements.length === 0;
+    }
+    public contains(value: T): boolean {
+        return this.indexOf(value) >= 0;
+    }
+    public get(index: number): T {
+        this.requireElementIndex(index);
+        return this.elements[index] as T;
+    }
+    public set(index: number, value: T): T {
+        this.requireElementIndex(index);
+        const previous = this.elements[index] as T;
+        this.elements[index] = value;
+        return previous;
     }
 
-    const index = this.dataArray.indexOf(posOrData as T);
-    if (index >= 0) {
-      this.dataArray.splice(index, 1);
+    public add(value: T): boolean;
+    public add(index: number, value: T): void;
+    public add(indexOrValue: number | T, value?: T): boolean | void {
+        if (arguments.length === 2) {
+            const index = indexOrValue as number;
+            this.requirePositionIndex(index);
+            this.elements.splice(index, 0, value as T);
+            this.modificationCount++;
+            return;
+        }
+        this.elements.push(indexOrValue as T);
+        this.modificationCount++;
+        return true;
     }
-  }
 
-  public set(pos: number, elem: T): void {
-    this.dataArray[pos] = elem;
-  }
+    public addAll(values: Iterable<T>): boolean;
+    public addAll(index: number, values: Iterable<T>): boolean;
+    public addAll(indexOrValues: number | Iterable<T>, values?: Iterable<T>): boolean {
+        const index = typeof indexOrValues === "number" ? indexOrValues : this.size();
+        const source = typeof indexOrValues === "number" ? values : indexOrValues;
+        this.requirePositionIndex(index);
+        if (source === undefined) throw new IllegalArgumentException("Collection must not be undefined");
+        const additions = Array.from(source);
+        if (additions.length === 0) return false;
+        this.elements.splice(index, 0, ...additions);
+        this.modificationCount++;
+        return true;
+    }
+
+    /** Java remove(int). Use removeElement for an element when T may be number. */
+    public remove(index: number): T {
+        return this.removeAt(index);
+    }
+    public removeAt(index: number): T {
+        this.requireElementIndex(index);
+        const removed = this.elements.splice(index, 1)[0] as T;
+        this.modificationCount++;
+        return removed;
+    }
+    public removeElement(value: T): boolean {
+        const index = this.indexOf(value);
+        if (index < 0) return false;
+        this.removeAt(index);
+        return true;
+    }
+    public clear(): void {
+        if (this.elements.length > 0) {
+            this.elements.length = 0;
+            this.modificationCount++;
+        }
+    }
+    public indexOf(value: T): number {
+        for (let i = 0; i < this.elements.length; i++) if (ArrayList.javaEquals(this.elements[i] as T, value)) return i;
+        return -1;
+    }
+    public lastIndexOf(value: T): number {
+        for (let i = this.elements.length - 1; i >= 0; i--)
+            if (ArrayList.javaEquals(this.elements[i] as T, value)) return i;
+        return -1;
+    }
+    public toArray(): T[] {
+        return this.elements.slice();
+    }
+
+    public iterator(): Iterator<T> {
+        const list = this;
+        let cursor = 0;
+        let lastReturned = -1;
+        let expectedModificationCount = this.modificationCount;
+        const check = (): void => {
+            if (list.modificationCount !== expectedModificationCount)
+                throw new IllegalStateException("Collection modified during iteration");
+        };
+        return {
+            hasNext: (): boolean => {
+                check();
+                return cursor < list.size();
+            },
+            next: (): T => {
+                check();
+                if (cursor >= list.size()) throw new IndexOutOfBoundsException("No more elements");
+                lastReturned = cursor;
+                cursor++;
+                return list.get(lastReturned);
+            },
+            remove: (): void => {
+                check();
+                if (lastReturned < 0) throw new IllegalStateException("next has not been called");
+                list.removeAt(lastReturned);
+                cursor = lastReturned;
+                lastReturned = -1;
+                expectedModificationCount = list.modificationCount;
+            },
+        };
+    }
+
+    public *[Symbol.iterator](): IterableIterator<T> {
+        const iterator = this.iterator();
+        while (iterator.hasNext()) yield iterator.next();
+    }
+
+    private requireElementIndex(index: number): void {
+        if (!Number.isInteger(index) || index < 0 || index >= this.elements.length)
+            throw new IndexOutOfBoundsException(`Index ${index}, size ${this.elements.length}`);
+    }
+    private requirePositionIndex(index: number): void {
+        if (!Number.isInteger(index) || index < 0 || index > this.elements.length)
+            throw new IndexOutOfBoundsException(`Index ${index}, size ${this.elements.length}`);
+    }
+    private static javaEquals(left: unknown, right: unknown): boolean {
+        if (
+            left === right ||
+            (typeof left === "number" && typeof right === "number" && Number.isNaN(left) && Number.isNaN(right))
+        )
+            return true;
+        if (
+            left !== null &&
+            typeof left === "object" &&
+            "equals" in left &&
+            typeof (left as { equals?: unknown }).equals === "function"
+        )
+            return (left as { equals(other: unknown): boolean }).equals(right);
+        return false;
+    }
 }

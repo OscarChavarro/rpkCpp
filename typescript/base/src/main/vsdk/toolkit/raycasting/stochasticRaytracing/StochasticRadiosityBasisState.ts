@@ -84,7 +84,7 @@ export class StochasticRadiosityBasisState {
 
   public static activeState(): StochasticRadiosityBasisState {
     if (StochasticRadiosityBasisState.activeStatePtr === null) {
-      VsdkLogger.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
     }
     return StochasticRadiosityBasisState.activeStatePtr!;
   }

@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { String as JavaString } from "../../../java/lang/String";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -65,11 +65,11 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     const element = patch.radianceData as GalerkinElement;
     const reflectivity = element.Rd;
-    const radVis = new ColorRgb();
+    const radVis = new ColorRgbMutable();
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       radVis.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
-      radVis.add(radVis, (element.radiance as ColorRgb[])[0]!);
+      radVis.add(radVis, (element.radiance as ColorRgbMutable[])[0]!);
       ToneMap.radianceToRgb(
         radVis,
         patch.color,
@@ -78,7 +78,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
     else {
       ToneMap.radianceToRgb(
-        (element.radiance as ColorRgb[])[0]!,
+        (element.radiance as ColorRgbMutable[])[0]!,
         patch.color,
         GalerkinRadianceMethod.galerkinState.toneMapOptions as ToneMappingContext,
       );
@@ -122,22 +122,22 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     const selfEmittanceRadiance = element.Ed;
 
     if (GalerkinRadianceMethod.galerkinState.useConstantRadiance !== 0) {
-      (element.radiance as ColorRgb[])[0]!.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.constantRadiance);
-      (element.radiance as ColorRgb[])[0]!.add((element.radiance as ColorRgb[])[0]!, selfEmittanceRadiance);
+      (element.radiance as ColorRgbMutable[])[0]!.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.constantRadiance);
+      (element.radiance as ColorRgbMutable[])[0]!.add((element.radiance as ColorRgbMutable[])[0]!, selfEmittanceRadiance);
       if (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-        (element.unShotRadiance as ColorRgb[])[0]!.subtract(
-          (element.radiance as ColorRgb[])[0]!,
+        (element.unShotRadiance as ColorRgbMutable[])[0]!.subtract(
+          (element.radiance as ColorRgbMutable[])[0]!,
           GalerkinRadianceMethod.galerkinState.constantRadiance,
         );
       }
     }
     else {
-      (element.radiance as ColorRgb[])[0]!.set(selfEmittanceRadiance.r, selfEmittanceRadiance.g, selfEmittanceRadiance.b);
+      (element.radiance as ColorRgbMutable[])[0]!.set(selfEmittanceRadiance.r, selfEmittanceRadiance.g, selfEmittanceRadiance.b);
       if (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-        (element.unShotRadiance as ColorRgb[])[0]!.set(
-          (element.radiance as ColorRgb[])[0]!.r,
-          (element.radiance as ColorRgb[])[0]!.g,
-          (element.radiance as ColorRgb[])[0]!.b,
+        (element.unShotRadiance as ColorRgbMutable[])[0]!.set(
+          (element.radiance as ColorRgbMutable[])[0]!.r,
+          (element.radiance as ColorRgbMutable[])[0]!.g,
+          (element.radiance as ColorRgbMutable[])[0]!.b,
         );
       }
     }
@@ -153,7 +153,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
           element.unShotPotential = patch.directPotential;
           break;
         default:
-          VsdkLogger.fatal(-1, "patchInit", "Invalid iteration method");
+          VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "patchInit", "Invalid iteration method");
       }
     }
 
@@ -163,7 +163,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
   public override initialize(scene: Scene, toneMapOptions: ToneMappingContext): void {
     GalerkinRadianceMethod.galerkinState.toneMapOptions = toneMapOptions;
     if (GalerkinRadianceMethod.galerkinState.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     GalerkinRadianceMethod.galerkinState.iterationNumber = 0;
@@ -202,7 +202,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
   public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
     if (GalerkinRadianceMethod.galerkinState.iterationNumber < 0) {
-      VsdkLogger.error("doGalerkinOneStep", "method not initialized");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "doGalerkinOneStep", "method not initialized");
       return true;
     }
 
@@ -226,12 +226,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
         done = ShootingStrategy.doShootingStep(scene, GalerkinRadianceMethod.galerkinState, renderOptions);
         break;
       default:
-        VsdkLogger.fatal(
-          2,
-          "doGalerkinOneStep",
-          "Invalid iteration method %s\n",
-          GalerkinRadianceMethod.galerkinState.galerkinIterationMethod,
-        );
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "doGalerkinOneStep", JavaString.vformat("Invalid iteration method %s\n", [GalerkinRadianceMethod.galerkinState.galerkinIterationMethod, ]));
         done = true;
         break;
     }
@@ -302,9 +297,9 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     GalerkinRadianceMethod.galerkinState.lastClock = t;
   }
 
-  private computePatchRadiance(patch: Patch, u: number, v: number): ColorRgb {
+  private computePatchRadiance(patch: Patch, u: number, v: number): ColorRgbMutable {
     if (patch === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.clear();
       return black;
     }
@@ -319,7 +314,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     const topLevelElement = GalerkinElement.fromPatch(patch);
     if (topLevelElement === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.clear();
       return black;
     }
@@ -330,7 +325,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       const reflectivity = patch.radianceData!.Rd;
-      const ambientRadiance = new ColorRgb();
+      const ambientRadiance = new ColorRgbMutable();
       ambientRadiance.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       rad.add(rad, ambientRadiance);
     }
@@ -345,7 +340,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     v: number,
     dir: Vector3D,
     renderOptions: RendererConfiguration,
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (camera !== null || dir !== null || renderOptions !== null) {
       // Parameters intentionally unused in this method.
     }
@@ -426,7 +421,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     const bytes = Buffer.from(text, "utf8");
     try {
-      GalerkinRadianceMethod.vrmlOutputStream.write(bytes, 0, bytes.length);
+      GalerkinRadianceMethod.vrmlOutputStream.writeBytes(bytes, 0, bytes.length);
     }
     catch (_ignored) {
     }
@@ -474,7 +469,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     GalerkinRadianceMethod.writeFormatted("%s", "\n\t}\n");
   }
 
-  private static writeVertexColor(color: ColorRgb): void {
+  private static writeVertexColor(color: ColorRgbMutable): void {
     if (color === null) {
       return;
     }
@@ -498,7 +493,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return;
     }
 
-    const vertexRadiosity: ColorRgb[] = [new ColorRgb(), new ColorRgb(), new ColorRgb(), new ColorRgb()];
+    const vertexRadiosity: ColorRgbMutable[] = [new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable()];
     const numberOfVertices = galerkinElement.patch.numberOfVertices;
     if (numberOfVertices === 3) {
       vertexRadiosity[0] = GalerkinBasis.radianceAtPoint(galerkinElement, galerkinElement.radiance, 0.0, 0.0);
@@ -514,7 +509,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       const reflectivity = galerkinElement.patch.radianceData!.Rd;
-      const ambient = new ColorRgb();
+      const ambient = new ColorRgbMutable();
       ambient.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       for (let i = 0; i < numberOfVertices; i++) {
         vertexRadiosity[i]!.add(vertexRadiosity[i]!, ambient);
@@ -522,7 +517,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     for (let i = 0; i < numberOfVertices; i++) {
-      const col = new ColorRgb();
+      const col = new ColorRgbMutable();
       ToneMap.radianceToRgb(
         vertexRadiosity[i]!,
         col,
@@ -549,7 +544,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return;
     }
     if (!renderOptions.smoothShading) {
-      VsdkLogger.warning(null, "I assume you want a smooth shaded model ...");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", "I assume you want a smooth shaded model ...");
     }
     GalerkinRadianceMethod.writeFormatted("\tcolorPerVertex %s\n", "TRUE");
     GalerkinRadianceMethod.writeVertexColorsTopCluster();

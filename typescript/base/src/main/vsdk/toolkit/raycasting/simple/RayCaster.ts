@@ -4,7 +4,7 @@ a software frame buffer directly.
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -30,7 +30,7 @@ export class RayCaster extends RayTracer {
   public constructor(inScreen: ScreenBuffer | null, defaultCamera: Camera | null, toneMapOptions: ToneMappingContext) {
     super();
     if (defaultCamera === null) {
-      VsdkLogger.fatal(-1, "RayCaster::constructor", "Default camera not set");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "RayCaster::constructor", "Default camera not set");
     }
 
     if (inScreen === null) {
@@ -119,8 +119,8 @@ export class RayCaster extends RayTracer {
     patch: Patch,
     radianceMethod: RadianceMethod | null,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
-    const radiance = new ColorRgb();
+  ): ColorRgbMutable {
+    const radiance = new ColorRgbMutable();
     radiance.clear();
 
     if (radianceMethod !== null) {
@@ -159,7 +159,7 @@ export class RayCaster extends RayTracer {
     renderOptions: RendererConfiguration
   ): void {
     if (scene.camera === null) {
-      VsdkLogger.fatal(-1, "RayCaster::render", "Scene camera not set");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "RayCaster::render", "Scene camera not set");
       return;
     }
 
@@ -172,7 +172,7 @@ export class RayCaster extends RayTracer {
     const height = [0];
     idRenderer.getSize(width, height);
     if (width[0]! !== this.screenBuffer.getHRes() || height[0]! !== this.screenBuffer.getVRes()) {
-      VsdkLogger.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // This is the main loop for ray-casting

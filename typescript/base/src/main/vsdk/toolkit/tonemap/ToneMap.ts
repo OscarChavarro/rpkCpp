@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -22,15 +22,15 @@ export abstract class ToneMap {
     }
   }
 
-  private static toneMapScaleForDisplay(radiance: ColorRgb): ColorRgb {
+  private static toneMapScaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
     if (ToneMap.activeToneMap === null) {
-      VsdkLogger.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
     return (ToneMap.activeToneMap as ToneMap).scaleForDisplay(radiance);
   }
 
-  private static rescaleRadiance(input: ColorRgb, out: ColorRgb, toneMapOptions: ToneMappingContext): ColorRgb {
-    const scaledInput = new ColorRgb(input.r, input.g, input.b);
+  private static rescaleRadiance(input: ColorRgbMutable, out: ColorRgbMutable, toneMapOptions: ToneMappingContext): ColorRgbMutable {
+    const scaledInput = new ColorRgbMutable(input.r, input.g, input.b);
     scaledInput.scale(toneMapOptions.pow_bright_adjust);
     const scaled = ToneMap.toneMapScaleForDisplay(scaledInput);
     out.set(scaled.r, scaled.g, scaled.b);
@@ -50,28 +50,28 @@ export abstract class ToneMap {
     return a / (globalThis.Math.PI * 1e-4);
   }
 
-  public abstract scaleForComputations(radiance: ColorRgb): ColorRgb;
+  public abstract scaleForComputations(radiance: ColorRgbMutable): ColorRgbMutable;
 
-  public abstract scaleForDisplay(radiance: ColorRgb): ColorRgb;
+  public abstract scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable;
 
   public static setActiveToneMap(toneMap: ToneMap): void {
     ToneMap.activeToneMap = toneMap;
   }
 
-  public static toneMappingGammaCorrection(rgb: ColorRgb, toneMapOptions: ToneMappingContext): void {
+  public static toneMappingGammaCorrection(rgb: ColorRgbMutable, toneMapOptions: ToneMappingContext): void {
     rgb.r = toneMapOptions.gammaTab[0]![ToneMap.gammaTableEntry(rgb.r)]!;
     rgb.g = toneMapOptions.gammaTab[1]![ToneMap.gammaTableEntry(rgb.g)]!;
     rgb.b = toneMapOptions.gammaTab[2]![ToneMap.gammaTableEntry(rgb.b)]!;
   }
 
-  public static recomputeGammaTables(toneMapOptions: ToneMappingContext, gamma: ColorRgb): void {
+  public static recomputeGammaTables(toneMapOptions: ToneMappingContext, gamma: ColorRgbMutable): void {
     ToneMap.recomputeGammaTable(toneMapOptions, 0, gamma.r);
     ToneMap.recomputeGammaTable(toneMapOptions, 1, gamma.g);
     ToneMap.recomputeGammaTable(toneMapOptions, 2, gamma.b);
   }
 
-  public static radianceToRgb(color: ColorRgb, rgb: ColorRgb, toneMapOptions: ToneMappingContext): ColorRgb {
-    const rescaled = new ColorRgb();
+  public static radianceToRgb(color: ColorRgbMutable, rgb: ColorRgbMutable, toneMapOptions: ToneMappingContext): ColorRgbMutable {
+    const rescaled = new ColorRgbMutable();
     ToneMap.rescaleRadiance(color, rescaled, toneMapOptions);
     rgb.set(rescaled.r, rescaled.g, rescaled.b);
     rgb.clip();

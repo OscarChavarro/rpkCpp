@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Statistics } from "../../common/statistics/Statistics";
 import { SoftIds } from "../../render/SoftIds";
 import { Background } from "../../scene/Background";
@@ -44,9 +44,9 @@ export class ScreenIterate {
 
     const width = camera.xSize;
     const height = camera.ySize;
-    const rgb = new Array<ColorRgb>(width);
+    const rgb = new Array<ColorRgbMutable>(width);
     for (let i = 0; i < width; i++) {
-      rgb[i] = new ColorRgb();
+      rgb[i] = new ColorRgbMutable();
     }
 
     for (let i = 0; i < height; i++) {
@@ -68,8 +68,8 @@ export class ScreenIterate {
     y0: number,
     x1: number,
     y1: number,
-    col: ColorRgb,
-    rgb: ColorRgb[]
+    col: ColorRgbMutable,
+    rgb: ColorRgbMutable[]
   ): void {
     for (let x = x0; x < x1; x++) {
       for (let y = y0; y < y1; y++) {
@@ -83,18 +83,18 @@ export class ScreenIterate {
     width: number,
     yMin: number,
     yMax: number,
-    rgb: ColorRgb[],
+    rgb: ColorRgbMutable[],
     toneMapOptions: ToneMappingContext
   ): void {
     const height = yMax - yMin;
     if (height <= 0) {
       return;
     }
-    const segment = new Array<ColorRgb>(width * height);
+    const segment = new Array<ColorRgbMutable>(width * height);
     const srcOffset = yMin * width;
     for (let i = 0; i < segment.length; i++) {
       const src = rgb[srcOffset + i];
-      segment[i] = new ColorRgb(src!.r, src!.g, src!.b);
+      segment[i] = new ColorRgbMutable(src!.r, src!.g, src!.b);
     }
     SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
   }
@@ -124,13 +124,13 @@ export class ScreenIterate {
 
     const width = camera.xSize;
     const height = camera.ySize;
-    const pixelRGB = new ColorRgb();
-    const rgb = new Array<ColorRgb>(width * height);
+    const pixelRGB = new ColorRgbMutable();
+    const rgb = new Array<ColorRgbMutable>(width * height);
 
-    const white = new ColorRgb(1.0, 1.0, 1.0);
+    const white = new ColorRgbMutable(1.0, 1.0, 1.0);
 
     for (let i = 0; i < width * height; i++) {
-      rgb[i] = new ColorRgb(white.r, white.g, white.b);
+      rgb[i] = new ColorRgbMutable(white.r, white.g, white.b);
     }
 
     stepSize = 64;

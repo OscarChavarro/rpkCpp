@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../java/io/OutputStream";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Element } from "../environment/geometry/elements/Element";
@@ -32,7 +32,7 @@ export abstract class RadianceMethod {
     v: number,
     dir: Vector3D,
     renderOptions: RendererConfiguration
-  ): ColorRgb;
+  ): ColorRgbMutable;
 
   public abstract createPatchData(patch: Patch): Element | null;
 

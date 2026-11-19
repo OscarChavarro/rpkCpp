@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { CppReAlloc } from "../../common/memoryManagement/CppReAlloc";
 
 export class DkColor {
@@ -34,7 +34,7 @@ export class DkColor {
       return;
     }
     try {
-      stream.write(bytes, 0, length);
+      stream.writeBytes(bytes, 0, length);
     }
     catch (_ignored) {
     }
@@ -187,9 +187,9 @@ export class DkColor {
   }
 
   public static writeScan(scanline: number[][], len: number, outputStream: OutputStream | null): number;
-  public static writeScan(scanline: ColorRgb[], len: number, outputStream: OutputStream | null): number;
+  public static writeScan(scanline: ColorRgbMutable[], len: number, outputStream: OutputStream | null): number;
   public static writeScan(
-    scanline: number[][] | ColorRgb[],
+    scanline: number[][] | ColorRgbMutable[],
     len: number,
     outputStream: OutputStream | null
   ): number {
@@ -198,8 +198,8 @@ export class DkColor {
       return -1;
     }
 
-    if (scanline.length > 0 && scanline[0] instanceof ColorRgb) {
-      const colorArray = scanline as ColorRgb[];
+    if (scanline.length > 0 && scanline[0] instanceof ColorRgbMutable) {
+      const colorArray = scanline as ColorRgbMutable[];
       for (let n = 0; n < len; n++) {
         const base = n * 4;
         DkColor.setByteColors(colorScan, base, colorArray[n]!.r, colorArray[n]!.g, colorArray[n]!.b);

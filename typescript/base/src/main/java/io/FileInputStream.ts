@@ -55,7 +55,11 @@ export class FileInputStream extends InputStream {
     return readCount;
   }
 
-  public close(): void {
+  public override readBytes(buffer: Uint8Array, offset = 0, length = buffer.length - offset): number {
+    return this.read(buffer, offset, length);
+  }
+
+  public override close(): void {
     if (this.fileDescriptor === null) {
       return;
     }

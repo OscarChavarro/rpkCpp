@@ -4,7 +4,7 @@ import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -119,7 +119,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     v: number,
     dir: Vector3D,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
+  ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
     StochasticRadiosityBasisState.setActiveState(this.stochasticRadiosityBasisState);
@@ -156,7 +156,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     }
     StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
     if (StochasticRelaxation.activeState().toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation.activeState().method = StochasticRaytracingMethod.STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     Mcrad.monteCarloRadiosityInit();
@@ -221,7 +221,7 @@ Computes quality factor on given leaf element.
     return w / StochasticRadiosityElement.stochasticRadiosityElementScalarReflectance(elem);
   }
 
-  private static stochasticRelaxationRadiosityElementUnShotRadiance(elem: StochasticRadiosityElement): ColorRgb[] {
+  private static stochasticRelaxationRadiosityElementUnShotRadiance(elem: StochasticRadiosityElement): ColorRgbMutable[] {
     return elem.unShotRadiance!;
   }
 
@@ -229,10 +229,7 @@ Computes quality factor on given leaf element.
     if (StochasticRelaxation.activeState().discardIncremental !== 0) {
       elem.quality = 0.0;
       if (!StochasticJacobiRadianceMethod.repeatedDiscardIncrementalWarning) {
-        VsdkLogger.warning(
-          "stochasticRelaxationRadiosityElementIncrementRadiance",
-          "Solution of incremental Jacobi steps receives zero quality"
-        );
+        VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "stochasticRelaxationRadiosityElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
       }
       StochasticJacobiRadianceMethod.repeatedDiscardIncrementalWarning = true;
     }
@@ -419,7 +416,7 @@ Computes quality factor on given leaf element.
     StochasticRelaxation.activeState().weightedSampling = weightedSampling;
   }
 
-  private static stochasticRelaxationRadiosityElementRadiance(elem: StochasticRadiosityElement): ColorRgb[] {
+  private static stochasticRelaxationRadiosityElementRadiance(elem: StochasticRadiosityElement): ColorRgbMutable[] {
     return elem.radiance!;
   }
 
@@ -587,7 +584,7 @@ iteration.
 
       if (StochasticRelaxation.activeState().importanceDriven !== 0) {
         if (StochasticRelaxation.activeState().incrementalUsesImportance === 0) {
-          VsdkLogger.warning(null, "Importance is only used from the second iteration on ...");
+          VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "", "Importance is only used from the second iteration on ...");
         }
         else if (StochasticRelaxation.activeState().importanceUpdated !== 0) {
           StochasticRelaxation.activeState().importanceUpdated = 0;

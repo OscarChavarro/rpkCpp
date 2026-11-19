@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Background } from "./Background";
 
@@ -6,15 +6,15 @@ export class ConstantColorBackground extends Background {
   private static readonly FOUR_PI = 12.56637061435917295385;
   private static readonly INV_FOUR_PI = 0.07957747154594766788;
 
-  private color: ColorRgb;
+  private color: ColorRgbMutable;
 
   public constructor();
-  public constructor(backgroundColor: ColorRgb);
-  public constructor(backgroundColor?: ColorRgb) {
+  public constructor(backgroundColor: ColorRgbMutable);
+  public constructor(backgroundColor?: ColorRgbMutable) {
     super();
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     if (backgroundColor !== undefined) {
-      this.color = new ColorRgb(backgroundColor.r, backgroundColor.g, backgroundColor.b);
+      this.color = new ColorRgbMutable(backgroundColor.r, backgroundColor.g, backgroundColor.b);
     }
     else {
       this.color.clear();
@@ -25,7 +25,7 @@ export class ConstantColorBackground extends Background {
     position: Vector3D,
     direction: Vector3D,
     probabilityDensityFunction: number[] | null
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
       probabilityDensityFunction[0] = ConstantColorBackground.INV_FOUR_PI;
     }
@@ -38,7 +38,7 @@ export class ConstantColorBackground extends Background {
     position: Vector3D,
     xi1: number,
     xi2: number,
-    radianceValue: ColorRgb | null,
+    radianceValue: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
   ): Vector3D {
     const phi = 2.0 * globalThis.Math.PI * xi1;
@@ -63,8 +63,8 @@ export class ConstantColorBackground extends Background {
     return direction;
   }
 
-  public override power(position: Vector3D): ColorRgb {
-    const emittedPower = new ColorRgb();
+  public override power(position: Vector3D): ColorRgbMutable {
+    const emittedPower = new ColorRgbMutable();
     emittedPower.scaledCopy(ConstantColorBackground.FOUR_PI, this.color);
     void position;
     return emittedPower;

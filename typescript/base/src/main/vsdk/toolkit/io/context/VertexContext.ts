@@ -18,8 +18,8 @@ export class VertexContext {
     this.vertex = null;
 
     if (inP !== undefined && inN !== undefined && inXid !== undefined && inClock !== undefined) {
-      this.p.copy(inP);
-      this.n.copy(inN);
+      this.p = inP;
+      this.n = inN;
       this.xid = inXid;
       this.clock = inClock;
       this.vertex = inVertex ?? null;
@@ -30,8 +30,8 @@ export class VertexContext {
     if (source === null) {
       return;
     }
-    this.p.copy(source.p);
-    this.n.copy(source.n);
+    this.p = source.p;
+    this.n = source.n;
     this.xid = source.xid;
     this.clock = source.clock;
     this.vertex = source.vertex;

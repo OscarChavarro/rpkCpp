@@ -1,6 +1,6 @@
 import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
@@ -116,7 +116,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const sceneBackground = scene.background;
 
     if (camera === null || sceneVoxelGrid === null) {
-      VsdkLogger.fatal(-1, "BidirectionalPathRaytracer::execute", "Scene camera/voxel grid not available");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "BidirectionalPathRaytracer::execute", "Scene camera/voxel grid not available");
       return;
     }
 
@@ -124,7 +124,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     config.toneMapOptions = toneMapOptions;
 
     if (config.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
       return;
     }
 
@@ -269,7 +269,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     }
   }
 
-  private static spikeCheck(color: ColorRgb): boolean {
+  private static spikeCheck(color: ColorRgbMutable): boolean {
     const colAvg = color.average();
 
     if (colAvg > 60000.0) {
@@ -292,7 +292,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     ny: number,
     pixX: number,
     pixY: number,
-    f: ColorRgb,
+    f: ColorRgbMutable,
     radSample = false
   ): void {
     void path;
@@ -321,7 +321,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
       }
       else {
         const center = new Vector2D();
-        const g = new ColorRgb();
+        const g = new ColorRgbMutable();
 
         center.x = pixX;
         center.y = pixY;
@@ -373,10 +373,10 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const endingInEnvironment = path.m_eyeEndNode.m_rayType === PathRayType.ENVIRONMENT;
     const hasEnvironmentBackground = endingInEnvironment && sceneBackground !== null;
 
-    const oldBsdfEval = new ColorRgb();
-    const fRad = new ColorRgb();
+    const oldBsdfEval = new ColorRgbMutable();
+    const fRad = new ColorRgbMutable();
 
-    let f: ColorRgb;
+    let f: ColorRgbMutable;
     let factor: number;
     let pdfLNE: number;
     let oldPdfLNE: number;
@@ -485,7 +485,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
       path.m_geomConnect = 1.0;
 
       if (config.baseConfig.useSpars !== 0) {
-        f = new ColorRgb();
+        f = new ColorRgbMutable();
         (config.sparList as SparList).handlePath(config.sparConfig, path, fRad, f);
         factor = 1.0;
       }
@@ -549,16 +549,16 @@ export class BidirectionalPathRaytracer extends RayTracer {
     path: BiPath,
     pPdf: number[] | null,
     pWeight: number[] | null,
-    fRad: ColorRgb | null
-  ): ColorRgb {
+    fRad: ColorRgbMutable | null
+  ): ColorRgbMutable {
     const eyeEndNode = path.m_eyeEndNode as SimpleRaytracingPathNode;
     const lightEndNode = path.m_lightEndNode as SimpleRaytracingPathNode;
 
     const eyePrevNode = eyeEndNode.previous();
     const lightPrevNode = lightEndNode.previous();
 
-    const oldBsdfL = new ColorRgb();
-    const oldBsdfE = new ColorRgb();
+    const oldBsdfL = new ColorRgbMutable();
+    const oldBsdfE = new ColorRgbMutable();
 
     let oldPdfLP = 0.0;
     let oldPdfEP = 0.0;
@@ -603,11 +603,11 @@ export class BidirectionalPathRaytracer extends RayTracer {
 
     path.m_dirLE.scaledCopy(-1.0, path.m_dirEL);
 
-    let f: ColorRgb;
+    let f: ColorRgbMutable;
 
     if (config.baseConfig !== null && config.baseConfig.useSpars !== 0) {
-      const localFRad = fRad !== null ? fRad : new ColorRgb();
-      f = new ColorRgb();
+      const localFRad = fRad !== null ? fRad : new ColorRgbMutable();
+      f = new ColorRgbMutable();
       (config.sparList as SparList).handlePath(config.sparConfig, path, localFRad, f);
       if (fRad === null) {
         localFRad.clear();
@@ -664,7 +664,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const pdf = [0.0];
     const weight = [0.0];
 
-    const fRad = new ColorRgb();
+    const fRad = new ColorRgbMutable();
 
     const newLightNode = new SimpleRaytracingPathNode();
     let oldLightPath: SimpleRaytracingPathNode | null = null;
@@ -789,7 +789,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
       const nx = [0];
       const ny = [0];
 
-      const fRad = new ColorRgb();
+      const fRad = new ColorRgbMutable();
       const pdf = [0.0];
       const weight = [0.0];
 
@@ -911,13 +911,13 @@ export class BidirectionalPathRaytracer extends RayTracer {
     nx: number,
     ny: number,
     data: unknown
-  ): ColorRgb {
+  ): ColorRgbMutable {
     const config = data as BidirectionalPathTracingConfiguration;
 
     const x1 = [0.0];
     const x2 = [0.0];
 
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
 
     if (config.baseConfig === null || config.screen === null) {
@@ -998,7 +998,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
       BidirectionalPathRaytracer.bpCombinePaths(camera, sceneVoxelGrid, sceneBackground, config);
     }
 
-    let src: ColorRgb;
+    let src: ColorRgbMutable;
     if (config.baseConfig.doDensityEstimation !== 0) {
       if (config.dBuffer !== null) {
         src = config.screen.get(nx, ny);

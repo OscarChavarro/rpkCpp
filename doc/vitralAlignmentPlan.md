@@ -1,0 +1,265 @@
+# Aligning RenderPark C++ with VITRAL
+
+The first milestone is a Galerkin render that uses a VITRAL surface and material and can switch between the RenderPark voxel grid and VITRAL's WALD2007 hierarchy. A second consumer, VITRAL's RaytracingOfflineExample, should be able to time both structures on the same triangle mesh. Deliver these changes in independently verifiable steps. The generic raycasting, raytracing, stochastic raytracing and path tracing engines belong to a later plan.
+
+Two further goals shape every step, although neither is delivered here:
+
+- **A parallel Galerkin solver comes next.** Every contract introduced by this plan must be usable from several worker threads without locks: shared objects are built once and never mutated, and every piece of per-query scratch is owned by the caller. Section 7 states what the later plan will rely on.
+- **Stricter object orientation.** Classes added or migrated by this plan have no public attributes and expose `const` operations by default. Immutability is preferred where it costs nothing. The rules are in "Ground rules".
+- **Performance is not traded away.** Where a design rule of this plan and the measured speed of the solver disagree, speed wins and the rule yields.
+
+Out of scope: threads in the solver, a backend choice for the raytracers, and changes to refinement or cubature mathematics.
+
+This document is the authoritative source for the VITRAL alignment work: its order, its gates and its decisions. `designObjectives.md` states the project objectives, `vitralNormalizationAnalysis.md` holds the class-by-class comparison, and `vitralRenderparkParallelLearningExperience.md` records the intent; where any of them disagrees with this plan about what to do next, this plan governs.
+
+## What the POV-Ray migration established
+
+POV-Ray commits `dcf7d1c2` through `3064cf1d` migrated geometry and scene responsibilities in slices. Commit `6617162f` revisited intersectors over VITRAL geometry, and `a0a567ce` recorded the completed alignment. The durable precedent in POV-Ray's `doc/vitralPlan.md` (stages J and K) and `doc/vitralConvergenceExecution.md` is that the parser constructs the library geometry directly. Closest surface hit, ordered boundary crossings and classification of the intervals inside a solid have distinct contracts over the same shape. The application owns its render state and historical query policies. The execution record pairs each removal with geometry tests, image comparisons and a source uniqueness audit.
+
+In VITRAL, the CSG series from `c70ab451` through `2f5c8418` supplied the geometry and scene operations. Commits `492c5357` and `e0362702` then added mesh and instance acceleration, leaf sizing and traversal counters. In RPK, `857cbf2e` and `d97a063d` prepared and synchronized the C++ tree. Similar include paths do not establish binary compatibility.
+
+Eleven headers have the same class name and a different contract in the two trees, at different paths: `AxisAlignedBoundingBox`, `Background`, `Camera`, `Element` (VITRAL's is `org/w3c/dom`), `Geometry`, `Material`, `PersistenceElement`, `Ray`, `RayHit`, `RendererConfiguration` and `Vertex`. Neither tree uses namespaces for `vsdk`, so compiling two of these into one binary is an ODR violation that the linker resolves silently by picking one definition. `BinnedSahHierarchy::traverseClosest` takes VITRAL's `Ray`, so the collision becomes real with the first file of step 4.
+
+## Ground rules
+
+These apply to every step. An agent taking one step should be able to work from this section, the decisions table and that step alone.
+
+### Design rules for new and migrated classes
+
+Rules 1, 2 and 6 are requirements. Rules 3 to 5 are preferences: follow them when they are free, and drop them, with a one-line note in the commit, when T4 shows a cost.
+
+1. **Performance first.** A change that slows the corridor solver beyond the run-to-run spread is not accepted for the sake of encapsulation, immutability or symmetry with VITRAL. Results are written into reusable caller-owned records, never into objects allocated per ray: the Java port ran 8× slower than C++ from heap allocation in hot loops until that was done. Small arithmetic value types used inside hot loops (`Vector3D`, `ColorRgbMutable`) keep their in-place mutators.
+2. **No public attributes.** Private attributes, inline getters, constructors that establish full state. No `friend` (VITRAL removed its friend classes in `74b6f3a5`; RPK's `VoxelData` grants `friend VoxelGrid` and cannot be ported as it is). No class-level or function-local `static` mutable state.
+3. **Prefer `const`.** Queries are `const` member functions taking `const` references, and the solver reaches scene objects through pointers to `const`. Avoid `mutable` and `const_cast`: a `const` query that writes to shared state is the one thing here that is a correctness defect and not a matter of style, because the parallel solver will call it from several threads. An accessor that returns mutable state from a `const` object, such as `Patch::getRadianceData()`, is something to remove when the class is migrated.
+4. **Prefer immutable shared objects.** An object that every worker reads (spatial index, face geometry, face table, material) is best constructed complete and given no setters. When construction in one expression is awkward or slow, a setter used only while the scene is being built is acceptable; what matters is that nothing changes the object during a solve.
+5. **Prefer one role per class.** It helps a reader, and the parallel plan, to know which of these a class is:
+
+   | Role | Meaning | Examples in this plan |
+   | --- | --- | --- |
+   | Shared, read-only during a solve | Any number of workers may use it without synchronization | Spatial index, scene query, face geometry, face table, material and its lobes, exclusion set, acceleration options |
+   | Builder | Used by one thread before the solve; produces a shared object | Grid builder, SAH builder, face table builder |
+   | Workspace | Mutable scratch owned by one worker, preallocated, passed explicitly on every call | Traversal stack and mailbox stamps, hit record, cubature nodes and kernel matrix |
+   | Solver state | Mutable, private, changed through named operations | Radiance and potential arrays, links, element hierarchy |
+
+6. **Portable subset.** C++11, no STL, no lambdas, no new operator overloads; visitors are classes. Everything must have a direct counterpart in Java 17, TypeScript and Turbo C++ 3.0 (no `nullptr`, `constexpr` or `final` there, 8.3 file names recorded in `turboc/mappings.csv`).
+
+### Verification tiers
+
+Images are compared with ImageMagick's `compare`. `compare -metric AE reference.ppm output.ppm null:` prints the number of differing pixels and exits 0 only when there are none; `-metric RMSE` gives the magnitude, and naming an output file instead of `null:` writes a difference image for inspection. `findimagedupes -t 100`, used by `scripts/testReviewResults.sh` until step 0 replaces it, is a perceptual match that does not notice a refactor changing thousands of visibility decisions.
+
+There are two kinds of reference, and they answer different questions:
+
+- **Port references**, captured in step 0 from the unchanged tree, one per script output. They answer "did this commit change the result?" and the criterion is exact: AE = 0.
+- **Golden images** in `doc/testBaseImages`, shared by the four ports. They answer "is this still the same picture?" and the criterion is a recorded RMSE bound per image, because the ports are not pixel-identical to each other. The C++ output does not match them exactly today (cube: 52 293 differing pixels, RMSE 0.00044; corridor: 183 966 pixels, RMSE 0.0035 with a peak difference of 0.49), which is decision D9.
+
+| Tier | Check | When |
+| --- | --- | --- |
+| T0 | Build with and without `RAYTRACING_ENABLED` under `-Wall -Wextra -pedantic` with no new warnings; duplicate-symbol audit of the link inputs | Every commit |
+| T1 | `compare -metric AE` = 0 against the port reference, plus an identical statistics fingerprint (elements, clusters and interactions by type per iteration, shadow rays, cache hits) | Every commit of a step declared result-preserving. Cube Jacobi takes seconds; the corridor takes about five minutes |
+| T2 | Contract tests and the ray replay of step 4, each a plain console program returning non-zero on failure | Every commit that touches a contract |
+| T3 | Full corpus (`01`–`08`, `10`–`14`, `21`–`22`) through `scripts/testReviewResults.sh`: `compare -metric RMSE` against the golden image within the recorded bound, difference image kept on failure; never `--refresh-baseline` to make a step pass | End of each numbered step |
+| T4 | Corridor solver CPU, wall clock and peak RSS against the step 0 capture, judged against the run-to-run spread measured there | End of each numbered step, and any commit that touches a hot path |
+| T5 | Concurrent replay under `-fsanitize=thread` | Step 4 and step 5 |
+
+Steps 0, 3 and 5 with the voxel default are result-preserving and must pass T1. A step that cannot pass T1 stops and reports; it does not fall back to T3 on its own authority.
+
+### Trees and ports
+
+- Work lands in `cpp/` first. The governing rule in `vitralNormalizationAnalysis.md` §14 is that each completed step is propagated 1:1 to `java/`, `typescript/` and `turboc/` before the next one starts. Decision D8 confirms or relaxes that for this plan.
+- Files that exist at the same path in both trees stay byte-identical with the pinned VITRAL revision. RPK-only adapters live in RPK-only files.
+- A VITRAL-side addition (material specialization, grid, traversal contract) lands in VITRAL's own four ports. All four already carry `BinnedSahHierarchy`, so each RPK port synchronizes from the matching VITRAL port, never from `vitral/cpp`. Budget every VITRAL-side class four times.
+- The VITRAL working tree currently has uncommitted changes. A pin is a commit hash recorded with the references, taken from a clean checkout.
+- When a step lands, rewrite `designObjectives.md`, `vitralNormalizationAnalysis.md` and `vitralRenderparkParallelLearningExperience.md` so they describe the resulting state. This plan changes two things those documents currently say: §8 lists no immediate material work, and §14 places upstream contributions last.
+
+### Stop and ask
+
+An agent stops and reports instead of proceeding when: a result-preserving step cannot pass T1; a shared VITRAL file would need a non-additive change; a legacy behavior disagrees with the reference implementation (D5); a rename outside the approved map is needed; a golden image or its bound would have to change; or T4 shows a slowdown beyond the measured spread.
+
+## Decisions to take before coding
+
+Each has a recommendation. The steps below are written assuming the recommendation.
+
+| # | Decision | Why it cannot be left to the implementer | Recommendation |
+| --- | --- | --- | --- |
+| D1 | Build boundary: copy a pinned source subset into RPK, or link a VITRAL library | Determines whether duplicate class names are a link-time or only a translation-unit problem, and whether Turbo C can follow | Source subset, refreshed by script and diffed against the pin, as today |
+| D2 | Rename map for the eleven colliding class names, and which tree renames | Renames cross four ports and `mappings.csv`; two agents choosing independently will diverge | Approve the map for `Ray`, `AxisAlignedBoundingBox`, `RayHit`, `Geometry`, `Material` and `Vertex` before step 3; defer the rest until their headers enter the closure |
+| D3 | Precision at the boundary: index bounds and traversal, face geometry kernels, material evaluation | VITRAL is `double`, RPK's radiosity core is `float`. Recomputing area, normal, Jacobian or reflectance in `double` moves cubature nodes and `Rd` in the last bits and breaks T1 for every Galerkin scene and every port | Index and traversal in `double` (pruning only); exact face test, face kernels and material averages keep today's precision and operation order. Any change of precision is its own step with owner-approved references |
+| D4 | The twelve raytracer-side files that call `VoxelGrid` (`Raytools`, `BidirectionalPathRaytracer`, `StochasticJacobiRadianceMethod` and others) | Step 6 cannot delete the legacy grid while they use it, yet the raytracers are declared out of scope | Move them to the scene query with the voxel backend only, gated by T1 on scenes `10`–`14`; no backend choice is validated for them here |
+| D5 | What to do when the legacy grid disagrees with the linear reference | The golden images encode whatever the legacy grid does, including a possible missed or early-accepted hit | The port reproduces the legacy answer; each disagreement is recorded with its ray and decided by the owner as a separate defect |
+| D6 | Where traversal counters go | `BinnedSahHierarchy::traverseClosest` writes to VITRAL's static atomic `RaytraceStatistics` once per ray; RPK keeps instance statistics per domain. At 190 million shadow rays a shared atomic is a contention point for the parallel solver | Counters accumulate in the workspace and are merged by the caller; the static recorder is not reached from RPK's path |
+| D7 | How much of the material model the milestone needs | Galerkin reads the material at exactly one place (`GalerkinElement.cpp:176-179`): average diffuse albedo and average diffuse emittance. Sampling and PDFs serve only the raytracers | Milestone requires 2a (integrated reflectance and emittance). 2b (evaluation, sampling, PDF) is a parallel track gated by scenes `10`–`14` |
+| D8 | Port propagation cadence | The plan is written for C++, the governing rule is per step | Per step for steps 0 and 3; step 4 by synchronizing each port from VITRAL's matching port; step 2b once, when complete |
+| D9 | The golden images no longer match the C++ output exactly | An exact gate against `doc/testBaseImages` fails before any work starts, and a bound chosen by the implementer is arbitrary | After reviewing the difference images, refresh the goldens once from the step 0 capture; until then the bound for each image is the RMSE measured on the unchanged tree and may not grow |
+
+## Order of work
+
+```
+0 ──► 1 ──► 3 ──► 4 ──► 5 ──► 6
+            │                 ▲
+            └──► 2a ──────────┘
+                 2b  (independent track; not required by the milestone)
+```
+
+Step 0 installs the image gate and takes the port references before it changes any code; step 1 adds the captures that only the later steps need. Steps 3 and 4.1–4.2 can be developed in parallel by different agents once D2 and D3 are settled; step 4.3 needs step 0.
+
+## 0. Install the gate, then remove process-wide state from the visibility path
+
+**0.1 The gate.** Before any source change:
+
+1. Run the whole corpus on the unchanged tree at a recorded commit and store every output PPM as that script's port reference, with its checksum, its statistics fingerprint and the build flags. Store them outside `output/`, which the scripts overwrite.
+2. Run the corridor at least five times warm and record the median and spread of solver CPU, wall clock and peak RSS. This is the T4 baseline.
+3. Rewrite `scripts/testReviewResults.sh` around `compare`. For each output it reports AE against the port reference and RMSE against the golden image, fails on AE ≠ 0 in the exact mode and on RMSE above the recorded bound in the golden mode, and writes a difference image on failure. It checks that `compare` is installed and treats exit status 2 (an error, such as different image sizes) as a failure, not as a mismatch count. The `findimagedupes` dependency leaves the script and the installation line of `README.md`. Each output is compared with its own reference: today `01_cubeGaussSiedel.ppm` is checked against the Jacobi golden and a missing golden falls back to `01_cube.ppm`, both of which an exact comparison turns into false failures.
+4. Record the RMSE of every current output against its golden image as that image's bound, and put the difference images in front of the owner for D9.
+5. Run the new script twice on the unchanged tree. Two runs must give AE = 0 against each other; a scene that does not is non-deterministic and is reported before it is used as a gate.
+
+**0.2 The refactor.** The spatial query cannot move to VITRAL, and cannot be called from two threads, while its inputs are static. This is `vitralNormalizationAnalysis.md` §14 step 1 restricted to what the milestone touches. It is a pure refactor: T1 on the whole corpus.
+
+| State today | Location | Becomes |
+| --- | --- | --- |
+| Excluded patches (up to four) and excluded geometries (two) | `Patch::excludedPatches`, `Geometry::excludedGeometry1/2`; set at `FormFactorStrategy.cpp:568-573`, `Raytools.cpp:31,153,236`, `Localline.cpp:78` | An exclusion value constructed by the caller and passed down every intersect call |
+| Last receiver and source, cubature rules and nodes, kernel matrix, maximum kernel, visibility count | `FormFactorStrategy::formFactorLastReceived/Source`; function statics at `FormFactorStrategy.cpp:482-485,559-561` | A form-factor workspace owned by the solver and passed in; one per worker later |
+| Ray identifier counter for duplicate suppression | `VoxelGrid::randomRayId` (`VoxelGrid.cpp:273`) | A counter in the query workspace |
+| Last-ray stamp written into the shared item during a `const` traversal | `VoxelData::flags` via `updateRayId` | A stamp array in the query workspace, indexed by item |
+| Lazily allocated box written from a `const` method | `mutable MinMaxBox *rayIntersectionBox` in `VoxelGrid::gridBoundsIntersect` | Computed in the constructor |
+| Deletion caches and recursion depth | `VoxelGrid::subGridsToDelete`, `voxelCellsToDelete`, `static int level` (`VoxelGrid.cpp:16-17,49`) | Owned by the grid instance or its builder |
+
+Design the exclusion value for the step 3 identifiers from the start: it holds face identifiers and group identifiers, not pointers, once those exist. Passing it by reference adds one parameter to `discretizationIntersect`, `gridIntersect`, `Patch::intersect` and `ShadowCache::cacheHit`; measure T4, because `Patch::intersect` is the hottest function in the solver.
+
+The remaining process-wide state is listed here so that nobody mistakes this step for the whole job. It is not on the visibility path and is left to the parallel plan unless a step below touches it: the static `GalerkinRadianceMethod::galerkinState`, `vertexId` and `numberOfWrites`; the instance counters in `Interaction` and `GalerkinElement`; the identifier counters `Patch::patchId`, `Geometry::nextGeometryId` and `MeshSurface::nextSurfaceId`; `Vertex::currentComparisonFlags`; the static pools `Shaft::patchSetPool`, `LinkingClusteredStrategy::linkingClusteredPool`, `LinkingSimpleStrategy::interactionCoefficientsPool` and `HierarchicalRefinementStrategy::hierarchicalCoefficientsPool`; the single scratch renderer with its `lastClusterId` and `lastEye` cache in `GalerkinState`; and the static box at `ScratchVisibilityStrategy.cpp:44`.
+
+Done when: the new gate script is in place with port references, bounds and the timing baseline recorded; no `static` mutable remains in `VoxelGrid`, `VoxelData`, `ShadowCache`, `FormFactorStrategy`, or the exclusion code of `Patch` and `Geometry`; `VoxelGrid::gridIntersect` no longer writes to anything reachable from the grid; T1, T3 and T4 pass.
+
+## 1. Capture the current answers and establish the build boundary
+
+Start from the C++ applications on pinned revisions. Record the configuration, compiler flags, scene, seed where applicable, and command alongside each reference. From RPK's `cpp/`, use `scripts/01_runCubeJacobi.sh` for the 11-iteration cube, `scripts/02_runCorridor.sh` for a larger visibility workload, and an existing textured or transmissive material case. The port references and the timing baseline come from step 0; re-run them here only if the pin moved. Capture VITRAL's offline mesh example under both existing values of `--mesh-acceleration`. Check that the chosen scene reaches the accelerated mesh path. These runs supply the controls for steps 2–6.
+
+Add two captures the later steps depend on:
+
+- **Where shadow rays are answered.** For the cube and the corridor, count the rays resolved by the shadow cache, by the restricted geometry list that shaft culling produces, and by the full-scene index. Shaft culling for refinement is the default, so the full-scene index may see a small share. If it does, the step 6 comparison needs an additional configuration with shaft culling off, or it measures nothing.
+- **A ray corpus.** Behind a build flag, write every full-scene and restricted-list visibility query of the corridor run to a file: origin, direction, interval, flags, exclusions, the accepted blocker and distance. Do the same for a closest-hit raytracer run. This corpus is the input to the replay of step 4 and is reusable by all four ports.
+
+Inventory the transitive headers and link inputs for the first slice. Use one pinned VITRAL implementation per shared type. Apply the D2 rename map to RPK-only types before the colliding VITRAL header enters the tree, and convert float storage, ray parameters, color and hit data at an explicit boundary. Keep the hot path allocation-free. Script and diff the refresh of the source subset against the pin, as POV-Ray did. Add the duplicate-symbol audit to T0: no class name may be defined by two different headers anywhere in the link closure. Build a standalone VITRAL test and the RPK consumer before deleting each local implementation. Use the existing [normalization inventory](vitralNormalizationAnalysis.md) to track prerequisites and cross-port follow-up.
+
+Decide where contract tests live. RPK has no unit-test directory and VITRAL keeps API tests under `cpp/testsuite/_APITests`. Tests of a VITRAL class go there and include no RPK header; RPK-side replays go under `cpp/testsuite` beside the application. No test framework is introduced.
+
+Done when: the ray accounting and the ray corpus are stored with the pin hashes; the closure inventory and the approved rename map are recorded; the audit runs in the build.
+
+## 2. Give VITRAL the RPK reflection model
+
+VITRAL's `environment/material/Material` exposes `copy` and three transforms, all of which mutate through non-`const` pointers. Its `SimpleMaterial` and `MicroFacetedMaterial` already serve existing shaders. RPK's `material/Material` binds an optional Phong BSDF, optional EDF, name and sidedness. A shared Phong exponent alone cannot reproduce RPK's directional evaluation, component selection and sampling probabilities.
+
+The specialization and its lobes are shared by all faces and all workers, so evaluation and sampling are `const` and write nothing to the material. Preferably it is constructed complete and has no setters.
+
+**2a, required by the milestone.**
+
+1. Introduce a VITRAL material specialization that composes scattering and optional emission, with the two integrated quantities Galerkin consumes: reflectance by component and emittance by component. Specify ownership and copy behavior. Existing shaders continue to consume their current material types.
+2. Switch `PatchVisitor::averageNormalAlbedo` and `averageEmittance` to it. Under D3 the averages keep their current precision and summation order, so `Rd` and `Ed` are bit-identical and T1 holds. Make sidedness available at the surface binding so MGF front and back behavior survives.
+
+**2b, independent track.**
+
+1. Add directional evaluation, sampling from supplied variates, and independent PDF evaluation, starting from `PhongBidirectionalReflectanceDistributionFunction`. Define the direction convention at each entry point, the oriented shading normal, the solid-angle measure and the distinction between conditional PDF and roulette survival. Preserve the diffuse, glossy and specular masks, including RPK's exponent threshold (`Xxdf::PHONG_LOWEST_SPECULAR_EXP`).
+2. Lock down the math before wiring a renderer. For pure diffuse, evaluation on the reflective hemisphere is Kd/π and integrated reflectance is Kd. For the Phong lobe, evaluation uses (Ns+2)/(2π) while the sampled lobe density uses (Ns+1)/(2π). Compare the old and new implementations on identical directions and variates, including mixtures, disabled lobes, grazing angles, zero power and roulette rejection. Compare returned samples and probabilities with the independently evaluated PDF using the same convention.
+3. Migrate the surrounding BSDF composition. Preserve the textured diffuse contribution, BTDF, indices on both sides of an interface, and EDF evaluation as distinct operations. Use RPK's existing `ShadingContext` as the inventory of required point, UV, texture coordinates, normals and frame, and pass these as values. Leave patch lookup, RNG sequence, path termination decisions, MGF names and parsing with RPK.
+4. Switch the sampling consumers, with a temporary forwarding adapter where needed, and retire each local lobe once its last caller uses VITRAL.
+
+The 2b gate is T1 on scenes `10`–`14`, which is stricter than it looks. Variates must be drawn by the caller in the same order as today and passed in; a sampling function that draws its own numbers, or a call whose arguments each draw one, changes the sequence. Scene 12 was brought to golden parity only after fixing exactly that kind of difference (argument evaluation order under gcc).
+
+## 3. Define a surface face that Galerkin can reference
+
+An RPK `Patch` has three or four vertices. The quad's UV map, Jacobian, area and uniform sampling matter to cubature even when its silhouette could be rendered with two triangles. Keep one logical face with one stable identifier. First exercise VITRAL's `Triangle`, `TriangleMesh` and `QuadMesh` operations on RPK fixtures. Reuse the existing geometry storage and kernels where they agree bit for bit under D3; where they agree only to rounding, add a face operation in VITRAL that preserves RPK's precision and operation order, including the native quad mapping.
+
+| Responsibility today in or reachable from Patch | Proposed owner | Role |
+| --- | --- | --- |
+| Vertex positions and indices, winding, area, geometric normal, plane constant and tolerance, dominant axis, UV mapping, frame interpolation, area sampling | VITRAL surface geometry and its operations | Shared, read-only |
+| Ray/face hit, front or back, ray parameter and local face coordinates | VITRAL surface intersector, filling a hit record with a face identifier and geometric detail | Shared; writes only the caller's workspace |
+| Material binding, twin face and mapping from a hit to the original MGF face | Scene-owned face table indexed by stable ID | Shared, read-only |
+| Radiance element, direct potential, display color, visibility flag | RPK solver or display arrays indexed by face ID | Solver state |
+| Source/receiver/twin exclusions, temporary omit policy | The exclusion value of step 0 | Shared, read-only |
+| Conservative cached bounds | Spatial data store shared by the accelerator and shaft culling | Shared, read-only |
+| Repeated-cell traversal scratch | Query workspace | Workspace |
+
+After loading, nothing in a render changes a face's geometry. `Patch` today is finished by setters after construction (`setJacobian`, `setMaterial`, `setTwin`, `setId`), has a non-`const` `intersect`, and returns a mutable `Element` from a `const` getter. What the parallel solver needs is that geometric operations are `const` and that solver and display data live in arrays owned by whoever mutates them. Removing the build-time setters as well is welcome and optional. Moving per-face data from the patch into separate arrays changes memory locality in the solver's inner loops, so each row of the table is measured under T4 and a row that costs time is kept where it is and reported.
+
+**Identifiers.** Allocate a dense, zero-based face index at scene construction, in depth-first order of `clusteredRootGeometry`, and define its lifetime through hierarchy rebuilds. Dense indices make per-face arrays possible, and disjoint array slots are what lets workers write without locks later. Depth-first order makes every geometry and cluster a contiguous index range, so a group exclusion and a shaft candidate set become range tests; verify first that no patch is reachable from two geometries (`Geometry::isDuplicate` suggests the case exists). The legacy `Patch::id` starts at 1 and is consumed by ID rendering in `Potential.cpp:39`, by array sizing in `Mcrad.cpp:233`, by the shaft omit set and by the binary model files; keep it as a derived display identifier until those readers move.
+
+**Serialized state.** `BinaryModelDeserializer` reads patch identifiers, `omit` and `shaftCullGeometry` (`BinaryModelDeserializer.cpp:422,469,554`). Moving those fields out of `Patch` and `Geometry` must not change the file format silently: keep reading and discard, or version the format.
+
+Implement the split behind RPK's current accessors first, one row of the table per commit, each under T1. Build the indexed bounds once for the scene and share them with the accelerator and shaft culling. Preserve constant-time lookup as specified in the [patch bounds plan](patchBoundingBoxDecoupling.md), which is a prerequisite of this step, not a parallel effort. Keep solver subdivision and the mapping of child elements to their parent face in RPK.
+
+Exercise triangles and irregular quads for bounds, hit distance, side, edges, UV round trips, interpolated normals, area and uniform sampling. Compare each kernel with the current `Patch` implementation for bit equality on the corridor's faces, not only for agreement within a tolerance. A surface hit on an open face is meaningful on its own. Use VITRAL's separate classification operation only when a caller supplies a solid with a defined interior. Confirm that the shared face can be constructed, intersected and sampled in a VITRAL test without a material, Galerkin element or RPK header. Then make the RPK scene builder reference that geometry directly.
+
+Done when: no geometric operation of the face is non-`const`; solver and display fields have left it, except any that T4 showed must stay; the VITRAL test builds without RPK; T1, T3 and T4 pass.
+
+## 4. Put both spatial indexes behind the right query
+
+VITRAL's `BoundingVolumeHierarchy` / `PreRayHitElement` provides conservative rejection. A positive `mayIntersectBefore` still requires an exact test. VITRAL already has two relevant traversal interfaces: `TriangleAccelerationStructure` defines exact closest-hit behavior for a mesh, and `BinnedSahHierarchy::traverseClosest` visits candidate primitive IDs for a caller-supplied test. RPK's `VoxelGrid` is a hierarchical axis-aligned grid with cell stepping, subgrids and items spanning multiple cells. Its `gridIntersect` also applies RPK's exact intersection and hit flags.
+
+The invariant that makes this step testable: **the index only prunes; RPK's exact face test decides.** If every backend is conservative and the exact test and exclusions are the same, every backend returns the same visibility boolean for every ray, even when it finds a different blocker. Galerkin output is then byte-identical across `voxel`, `wald2007` and `bruteforce`, and T1 applies across backends, not only across commits. Conservative means the stored bounds contain the face plus the plane tolerance the exact test admits, after widening the `float` vertices to `double` and padding.
+
+Three gaps in `traverseClosest` as it stands, all to be closed additively because its node layout and traversal are mirrored by the Vulkan compute path (`doc/flatBinaryTreeContract.md`) and by three other ports:
+
+- It has no any-hit mode. The visitor cannot stop the traversal; lowering `inOutBestT` to force an exit is a trick, not a contract. Add an any-hit traversal or a visitor result that ends it.
+- It clips node entry at parameter zero. RPK's inclusive minimum distance must be applied by the exact test, and the tests of item 4 must cover a blocker closer than the minimum.
+- It reports to the static `RaytraceStatistics` on every call (D6).
+
+1. Put a narrow traversal contract over bounded primitive IDs in VITRAL. A query on a built index is a `const` operation that writes only to the workspace it is given. Build from conservative bounds and stable IDs, with an optional tree of groups to preserve grid subdivision and group exclusion. Supply an exact-test visitor, a ray interval, an exclusion value, and closest-hit or any-hit mode. Fill the accepted ID and hit parameter. The caller can request UV and normal detail for the winning face. Keep unbounded primitives on an explicit fallback path. Geometry or placement changes are handled by building a new index.
+2. Implement a linear reference and a WALD2007 adapter using the existing binned SAH builder and visitor. Preserve VITRAL's lowest-triangle-index tie rule for meshes. Characterize equal-distance hits on shared RPK edges before fixing its tie policy. Carry RPK's inclusive minimum/maximum distance and front/back selection to the exact test. Apply exclusions before accepting a candidate or shortening the interval. Any-hit may stop at the first eligible blocker. If a closest-only traversal initially implements any-hit, label that limitation in timings.
+3. Port the grid builder and traversal to VITRAL over the same primitive view, starting from the grid as step 0 left it. Preserve bounds padding (`DELTA_BOUND_FACTOR`), the cell-count rule (`pow(itemCount, 0.33333) + 1`), the subdivision threshold of ten items, subgrid traversal and duplicate suppression. Map RPK's compound geometry, patch and subgrid items at build time. Ensure that repeated cells and nested grids cannot suppress a candidate for another ray or another worker. For the mesh consumer, a hit found in a cell is accepted only if its parameter lies inside that cell, and ties resolve to the lowest triangle index, or the adapter will not reproduce the brute-force answer that `TriangleAccelerationStructure` promises. Keep the original grid available as a comparison until the port agrees.
+4. Replay the step 1 ray corpus through the legacy grid, the ported grid, the WALD2007 adapter and the linear reference with the same exact intersector. Then add synthetic cases: inside starts, axis-parallel rays, cell-boundary ties, flat bounds, long faces spanning many cells, overlapping faces, empty scenes, a blocker just beyond the endpoint and one just inside the minimum distance. Check closest ID, distance and UV with a declared numerical tolerance, plus occlusion and blocker eligibility for any-hit. A legacy answer that differs from the linear reference is handled under D5. Replay sequentially and from several threads sharing one index with one workspace each, under T5; the per-thread answers must equal the sequential ones exactly.
+
+Done when: the four implementations agree on the corpus or every disagreement is recorded under D5; the concurrent replay is clean under the thread sanitizer; no index class has a non-`const` query.
+
+## 5. Expose the choice at the two application entry points
+
+**RaytracingOfflineExample.** Extend `TriangleMeshAccelerationMethod`, its name mapping and `TriangleAccelerationStructure::create` with a grid adapter over indexed triangles. Use the existing option, for example `--mesh-acceleration voxel`, alongside `wald2007` and `bruteforce`. Preserve the current WALD2007 default and the existing triangle hit kernel. Report the effective method. Hold instance-level acceleration fixed while comparing mesh-level methods. The enumeration documents that every method gives exactly the brute-force hit; the grid adapter is held to that.
+
+**RenderPark Galerkin.** `SceneBuilder` currently builds `scene->voxelGrid` from `clusteredRootGeometry`. Add an application option such as `-scene-acceleration voxel|wald2007|bruteforce` and construct the selected index there, with voxel as the compatibility default. The scene exposes one scene query; `LinkingSimpleStrategy`, `HierarchicalRefinementStrategy` and `FormFactorStrategy::shadowTestDiscretization` receive it as a pointer to `const` together with the caller's workspace, and no longer name `VoxelGrid`. Keep the solver's cluster hierarchy for refinement and cubature. Only its spatial visibility query needs this choice. Under D4 the raytracer call sites take the same query with the voxel backend.
+
+Preserve the shadow cache probe, the restricted geometry-list path and the bounded `FRONT | ANY` query on the full scene. Return the accepted face ID so RPK can cache the actual blocker. The shadow cache is already a local object per link; keep it so. Test a restricted list with an occluder outside that list, and source/receiver exclusions with a second blocker behind an excluded face. Validate visibility decisions and form factors as well as the resulting Jacobi image.
+
+Gates: T1 against the step 1 capture with `voxel`; T1 between `voxel`, `wald2007` and `bruteforce` on the cube and the corridor, where the image and the element and interaction counts must be identical and only the shadow-cache statistics may differ; T1 on scenes `10`–`14` for the raytracer call sites.
+
+## 6. Compare performance and retire the duplicates
+
+For the offline example, replay one fixed mesh workload with all three methods. For RPK, run the same cube and corridor with each scene index, fixed solver iterations, rays, cache settings, seeds and thread count. Compare methods **within** each workload. Record build time separately from trace or solve time, total time, peak index memory, rays, exact primitive tests, node or cell visits, and shadow-cache hits. Report medians and spread over repeated warm runs with the compiler, hardware, scene size, grid parameters and SAH leaf size. Include the accelerated scene query count from step 1 so a cache-only or list-only run is visible, and add the shaft-culling-off configuration if that count is small. Publish correctness results beside timings before drawing a performance conclusion.
+
+Expect and report one structural cost: the VITRAL path converts each ray from `float` to `double` and makes one virtual visitor call per candidate. If the ported voxel backend is slower than the legacy grid beyond the measured spread, that regression is reported and decided before the legacy grid is deleted.
+
+The milestone is complete when both applications select both VITRAL backends at runtime, the existing deterministic image references pass, and RPK obtains its face geometry and its integrated reflectance and emittance from the pinned library. Audit build inputs and includes in both directions, remove the retired RPK spatial and material implementations, and retain the ray corpus and exact-query fixtures for future backends. Record any numerical differences separately for review before changing a reference. The reusable outputs for the later integrator migration are the surface hit, material evaluation/sampling and spatial query contracts.
+
+## 7. What this leaves ready for a parallel Galerkin
+
+The solver stays single-threaded here. The later plan can start from the following, and a step of this plan that would break one of them is wrong even if its images match.
+
+- **A read-only world.** Face geometry, face table, materials and the spatial index are not modified during a solve. Any number of workers may query them.
+- **Explicit scratch.** A visibility query needs a query workspace; a form-factor evaluation needs a form-factor workspace. Both are plain objects a worker owns. Nothing else is written during a query.
+- **Exclusions by value.** Two workers evaluating different links carry different exclusion values; neither can see the other's.
+- **Dense face identifiers.** Per-face solver data lives in arrays, so workers assigned disjoint receivers write disjoint slots.
+- **A demonstrated concurrent query**, from the replay of step 4, with answers equal to the sequential ones.
+
+What remains for that plan, so its size is not underestimated:
+
+- The form-factor computation reads two elements and the scene and writes into the link it is given. Separating it into a pure evaluation that returns a result (coupling coefficients, error estimate, visibility, blocker) and a commit that stores it is the natural seam.
+- Refinement mutates shared structure while it recurses: it subdivides source elements as well as receivers, appends links, allocates from static pools, edits the candidate occluder list passed down the recursion, and rewrites `relLinkErrorThreshold` during the iteration. A parallel design evaluates in parallel and commits in a deterministic order on one thread, so that element identifiers, link order and floating-point accumulation do not depend on the number of workers. Its gate is T1 at one, two and many threads.
+- Only Jacobi gathering is a candidate. Gauss-Seidel and Southwell depend on update order.
+- The remaining static state listed in step 0, and `GalerkinState`, `GalerkinElement`, `Interaction` and `Element`, which are entirely public attributes today.
+- The thread primitives. VITRAL's Java mirror has `java/lang/Thread` and `java/util/concurrent`; RPK's copy of the mirror does not carry them yet. TypeScript has no shared-memory threads and Turbo C has none, so the serial path must remain the one-worker case of the same code.
+
+## Risks
+
+| Risk | Evidence | Mitigation | Step |
+| --- | --- | --- | --- |
+| Two definitions of one class name linked together | Eleven colliding headers; no namespaces | D2 map before the header enters; symbol audit in T0 | 1, 3, 4 |
+| Double-precision kernels shift every Galerkin image and all four ports' parity | VITRAL meshes and colors are `double`; RPK is `float` | D3; bit-equality kernel tests; stop and ask | 2a, 3 |
+| A perceptual gate hides a real regression | `findimagedupes -t 100` | `compare -metric AE` against port references, with fingerprints | 0, all |
+| The golden images are already stale, so the gate fails or is loosened arbitrarily | C++ corridor output differs from its golden in 183 966 pixels | Bounds measured on the unchanged tree; D9 | 0 |
+| Encapsulation or data relocation slows the solver | Per-face data moves out of `Patch`; an exclusion parameter is added to the hottest call | Performance-first rule; T4 per row of step 3 | 0, 3 |
+| The Galerkin backend comparison measures the shadow cache and shaft lists, not the index | Shaft culling for refinement is the default; 28 % of corridor rays are cache hits | Ray accounting in step 1; extra configuration in step 6 | 1, 6 |
+| The legacy grid is not conservative and the goldens encode it | Float cell stepping, early acceptance | Three-way replay; D5 | 4 |
+| Deleting the legacy grid breaks the raytracers | Twelve call sites outside Galerkin | D4 | 5, 6 |
+| Sampling migration changes the random sequence | Scene 12 parity history | Caller-drawn variates; T1 on `10`–`14`; 2b off the critical path | 2b |
+| A non-additive edit to a shared VITRAL file | `BinnedSahHierarchy` is mirrored by the Vulkan path and three ports | Additive methods only; stop and ask | 4 |
+| Traversal counters become a contention point | Static atomic recorder per traversal | D6 | 4, 7 |
+| The binary model format changes without notice | Serialized `omit`, `shaftCullGeometry`, patch IDs | Read and discard, or version | 3 |
+| VITRAL-side work is four ports, not one | VITRAL keeps C++, Java, TypeScript and Turbo C in step | Budget per class; D8 | 2, 4 |
+| An unpinned VITRAL moves under the work | Uncommitted changes in the VITRAL tree | Pin a commit from a clean checkout | 1 |

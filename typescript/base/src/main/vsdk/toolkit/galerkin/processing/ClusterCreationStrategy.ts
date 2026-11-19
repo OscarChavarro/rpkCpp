@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
@@ -55,7 +55,7 @@ export class ClusterCreationStrategy {
     galerkinElement.area = 0.0;
     galerkinElement.numberOfPatches = 0;
     galerkinElement.minimumArea = Numeric.HUGE_FLOAT_VALUE;
-    ColorRgb.arrayClear(galerkinElement.radiance as ColorRgb[], galerkinElement.basisSize);
+    ColorRgbMutable.arrayClear(galerkinElement.radiance as ColorRgbMutable[], galerkinElement.basisSize);
 
     for (let i = 0;
       galerkinElement.irregularSubElements !== null && i < galerkinElement.irregularSubElements.length;
@@ -66,7 +66,7 @@ export class ClusterCreationStrategy {
       }
       galerkinElement.area += subCluster.area;
       galerkinElement.numberOfPatches += subCluster.numberOfPatches;
-      (galerkinElement.radiance as ColorRgb[])[0]!.addScaled((galerkinElement.radiance as ColorRgb[])[0]!, subCluster.area, (subCluster.radiance as ColorRgb[])[0]!);
+      (galerkinElement.radiance as ColorRgbMutable[])[0]!.addScaled((galerkinElement.radiance as ColorRgbMutable[])[0]!, subCluster.area, (subCluster.radiance as ColorRgbMutable[])[0]!);
       if (subCluster.minimumArea < galerkinElement.minimumArea) {
         galerkinElement.minimumArea = subCluster.minimumArea;
       }
@@ -75,12 +75,12 @@ export class ClusterCreationStrategy {
     }
 
     if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
-      (galerkinElement.radiance as ColorRgb[])[0]!.scale(1.0 / galerkinElement.area);
+      (galerkinElement.radiance as ColorRgbMutable[])[0]!.scale(1.0 / galerkinElement.area);
       galerkinElement.Ed.scale(1.0 / galerkinElement.area);
     }
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-      ColorRgb.arrayClear(galerkinElement.unShotRadiance as ColorRgb[], galerkinElement.basisSize);
+      ColorRgbMutable.arrayClear(galerkinElement.unShotRadiance as ColorRgbMutable[], galerkinElement.basisSize);
       for (let i = 0;
         galerkinElement.irregularSubElements !== null && i < galerkinElement.irregularSubElements.length;
         i++) {
@@ -88,14 +88,14 @@ export class ClusterCreationStrategy {
         if (subCluster === null) {
           continue;
         }
-        (galerkinElement.unShotRadiance as ColorRgb[])[0]!.addScaled(
-          (galerkinElement.unShotRadiance as ColorRgb[])[0]!,
+        (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!.addScaled(
+          (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!,
           subCluster.area,
-          (subCluster.unShotRadiance as ColorRgb[])[0]!,
+          (subCluster.unShotRadiance as ColorRgbMutable[])[0]!,
         );
       }
       if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
-        (galerkinElement.unShotRadiance as ColorRgb[])[0]!.scale(1.0 / galerkinElement.area);
+        (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!.scale(1.0 / galerkinElement.area);
       }
     }
 

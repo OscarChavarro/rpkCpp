@@ -1,6 +1,8 @@
+import { Matrix4x4d } from "../../../common/linealAlgebra/Matrix4x4d";
+import { String as JavaString } from "../../../../../java/lang/String";
 import { BufferedInputStream } from "../../../../../java/io/BufferedInputStream";
 import { FileInputStream } from "../../../../../java/io/FileInputStream";
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../../common/logging/Logger";
 import { CoordinateAxis } from "../../../common/linealAlgebra/CoordinateAxis";
 import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
@@ -176,8 +178,8 @@ export class BinaryModelDeserializer {
         let edf: PhongEmittanceDistributionFunction | null = null;
         const hasEdf = BinaryModelReadPrimitives.readBool(input);
         if (hasEdf) {
-          const kd = new ColorRgb();
-          const ks = new ColorRgb();
+          const kd = new ColorRgbMutable();
+          const ks = new ColorRgbMutable();
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, kd));
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, ks));
           const ns = BinaryModelReadPrimitives.readFloatLE(input);
@@ -193,8 +195,8 @@ export class BinaryModelDeserializer {
 
           const hasBrdf = BinaryModelReadPrimitives.readBool(input);
           if (hasBrdf) {
-            const kd = new ColorRgb();
-            const ks = new ColorRgb();
+            const kd = new ColorRgbMutable();
+            const ks = new ColorRgbMutable();
             BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, kd));
             BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, ks));
             const ns = BinaryModelReadPrimitives.readFloatLE(input);
@@ -203,8 +205,8 @@ export class BinaryModelDeserializer {
 
           const hasBtdf = BinaryModelReadPrimitives.readBool(input);
           if (hasBtdf) {
-            const kd = new ColorRgb();
-            const ks = new ColorRgb();
+            const kd = new ColorRgbMutable();
+            const ks = new ColorRgbMutable();
             BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, kd));
             BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, ks));
             const ns = BinaryModelReadPrimitives.readFloatLE(input);
@@ -221,20 +223,20 @@ export class BinaryModelDeserializer {
             const dataBytes = BinaryModelReadPrimitives.readInt64LE(input);
 
             if (width < 0 || height < 0 || channels < 0 || dataBytes < 0) {
-              VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Invalid texture dimensions in binary material");
+              VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Invalid texture dimensions in binary material"]));
               throw new ReadFailureException();
             }
 
             const expectedBytes = width * height * channels;
             if (expectedBytes !== dataBytes) {
-              VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Texture byte count mismatch in binary material");
+              VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Texture byte count mismatch in binary material"]));
               throw new ReadFailureException();
             }
 
             let textureData: Uint8Array | null = null;
             if (dataBytes > 0) {
               if (dataBytes > 2147483647) {
-                VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Texture data too large for current platform");
+                VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Texture data too large for current platform"]));
                 throw new ReadFailureException();
               }
               textureData = new Uint8Array(dataBytes);
@@ -337,11 +339,13 @@ export class BinaryModelDeserializer {
         transformContext.xac = BinaryModelReadPrimitives.readInt16LE(input);
         transformContext.rev = BinaryModelReadPrimitives.readInt16LE(input);
 
+        const transformValues: number[][] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
         for (let row = 0; row < 4; row++) {
           for (let col = 0; col < 4; col++) {
-            transformContext.xf.transformMatrix.m[row]![col] = BinaryModelReadPrimitives.readDoubleLE(input);
+            transformValues[row]![col] = BinaryModelReadPrimitives.readDoubleLE(input);
           }
         }
+        transformContext.xf.transformMatrix = new Matrix4x4d(transformValues);
         transformContext.xf.scaleFactor = BinaryModelReadPrimitives.readDoubleLE(input);
         transformContextArrayIndex[i] = BinaryModelReadPrimitives.readInt32LE(input);
         transformContextPrevIndex[i] = BinaryModelReadPrimitives.readInt32LE(input);
@@ -387,7 +391,7 @@ export class BinaryModelDeserializer {
         record.tmp = BinaryModelReadPrimitives.readInt32LE(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Vertex radianceData is not supported in binary reader");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Vertex radianceData is not supported in binary reader"]));
           throw new ReadFailureException();
         }
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "vertex.patches", record.patchIndices));
@@ -406,7 +410,7 @@ export class BinaryModelDeserializer {
           []
         );
         vertex.id = record.id;
-        vertex.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
+        vertex.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
         vertex.tmp = record.tmp;
         vertex.radianceData = null;
         vertices[i] = vertex;
@@ -430,7 +434,7 @@ export class BinaryModelDeserializer {
         record.twinIndex = BinaryModelReadPrimitives.readInt32LE(input);
         record.numberOfVertices = BinaryModelReadPrimitives.readInt32LE(input);
         if (record.numberOfVertices !== 3 && record.numberOfVertices !== 4) {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Invalid patch vertex count while loading binary model");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Invalid patch vertex count while loading binary model"]));
           throw new ReadFailureException();
         }
 
@@ -467,7 +471,7 @@ export class BinaryModelDeserializer {
         record.materialIndex = BinaryModelReadPrimitives.readInt32LE(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Patch radianceData is not supported in binary reader");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Patch radianceData is not supported in binary reader"]));
           throw new ReadFailureException();
         }
 
@@ -495,7 +499,7 @@ export class BinaryModelDeserializer {
         }
         patch.omit = record.omit ? 1 : 0;
         patch.setFlags(record.flags & 0xFF);
-        patch.color = new ColorRgb(record.color.r, record.color.g, record.color.b);
+        patch.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
 
         const materialOut = new BinaryModelReadPrimitives.Out<Material | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));
@@ -558,7 +562,7 @@ export class BinaryModelDeserializer {
         record.hasRayIntersectionBox = BinaryModelReadPrimitives.readBool(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Geometry radianceData is not supported in binary reader");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Geometry radianceData is not supported in binary reader"]));
           throw new ReadFailureException();
         }
 
@@ -587,7 +591,7 @@ export class BinaryModelDeserializer {
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "patchSet.patchList", record.patchSetPatches));
         }
         else {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Unsupported geometry type in binary model");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Unsupported geometry type in binary model"]));
           throw new ReadFailureException();
         }
       }
@@ -633,7 +637,7 @@ export class BinaryModelDeserializer {
         }
 
         if (geometry === null) {
-          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Could not instantiate geometry while loading binary model");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Could not instantiate geometry while loading binary model"]));
           throw new ReadFailureException();
         }
 
@@ -761,7 +765,7 @@ export class BinaryModelDeserializer {
         ok = false;
       }
       else {
-        VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Unexpected failure while reading binary model");
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Unexpected failure while reading binary model"]));
         ok = false;
       }
     }

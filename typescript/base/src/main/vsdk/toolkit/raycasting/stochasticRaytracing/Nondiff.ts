@@ -4,7 +4,7 @@ Non diffuse first shot
 
 import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -76,7 +76,7 @@ export class Nondiff {
 
   public static sampleLightRay(
     patch: Patch,
-    emittedRad: ColorRgb,
+    emittedRad: ColorRgbMutable,
     pointSelectionPdf: number[],
     dirSelectionPdf: number[]
   ): Ray {
@@ -113,7 +113,7 @@ export class Nondiff {
   }
 
   public static sampleLight(sceneWorldVoxelGrid: VoxelGrid, light: LightSourceTable, lightSelectionPdf: number): void {
-    const rad = new ColorRgb();
+    const rad = new ColorRgbMutable();
     const pointSelectionPdf = [0.0];
     const dirSelectionPdf = [0.0];
     const lightPatch = light.patch as Patch;
@@ -128,7 +128,7 @@ export class Nondiff {
       const topPatchUnShot = McradP.getTopLevelPatchUnShotRad(hitPatch)!;
       const pdf = lightSelectionPdf * pointSelectionPdf[0]! * dirSelectionPdf[0]!;
       const outCos = ray.direction.dotProduct(lightPatch.normal);
-      const receivedRadiosity = new ColorRgb();
+      const receivedRadiosity = new ColorRgbMutable();
       const rd = McradP.topLevelStochasticRadiosityElement(hitPatch).Rd;
       receivedRadiosity.scaledCopy(outCos / (globalThis.Math.PI * hitPatch.area * pdf * Nondiff.numberOfSamples), rad);
       receivedRadiosity.selfScalarProduct(rd);

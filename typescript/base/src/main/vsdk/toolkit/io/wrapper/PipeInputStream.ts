@@ -108,7 +108,11 @@ export class PipeInputStream extends InputStream {
     return this.readRange(buffer, safeOffset, safeLength);
   }
 
-  public close(): void {
+  public override readBytes(buffer: Uint8Array, offset = 0, length = buffer.length - offset): number {
+    return this.read(buffer, offset, length);
+  }
+
+  public override close(): void {
     if (this.pipeInput === null) {
       return;
     }

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { BiPath } from "./BiPath";
 
@@ -106,14 +106,14 @@ export class FlagChain {
     return null;
   }
 
-  public compute(path: BiPath): ColorRgb {
-    const result = new ColorRgb();
+  public compute(path: BiPath): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.setMonochrome(1.0);
     const eyeSize = path.m_eyeSize;
     const lightSize = path.m_lightSize;
 
     if (lightSize + eyeSize !== this.length) {
-      VsdkLogger.error("FlagChain::Compute", "Wrong path length");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "FlagChain::Compute", "Wrong path length");
       return result;
     }
 

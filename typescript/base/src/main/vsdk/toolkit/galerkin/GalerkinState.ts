@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { CubatureDegree } from "../numericalAnalysis/CubatureDegree";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
@@ -25,8 +25,8 @@ export class GalerkinState {
   public multiResolutionVisibility: number;
   public useConstantRadiance: number;
   public useAmbientRadiance: number;
-  public constantRadiance: ColorRgb;
-  public ambientRadiance: ColorRgb;
+  public constantRadiance: ColorRgbMutable;
+  public ambientRadiance: ColorRgbMutable;
   public shaftCullMode: GalerkinShaftCullMode;
 
   public receiverDegree: CubatureDegree;
@@ -86,8 +86,8 @@ export class GalerkinState {
   private static readonly DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 
   public constructor() {
-    this.constantRadiance = new ColorRgb();
-    this.ambientRadiance = new ColorRgb();
+    this.constantRadiance = new ColorRgbMutable();
+    this.ambientRadiance = new ColorRgbMutable();
     this.receiverTriangleCubatureRule = null;
     this.receiverQuadCubatureRule = null;
     this.sourceTriangleCubatureRule = null;

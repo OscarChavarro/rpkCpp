@@ -1,5 +1,6 @@
+import { String as JavaString } from "../../../../../java/lang/String";
 import { InputStream } from "../../../../../java/io/InputStream";
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger } from "../../../common/logging/Logger";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
@@ -31,7 +32,7 @@ export class BinaryModelReadPrimitives {
     let numRead = 0;
     do {
       try {
-        numRead = input.read(buffer, offset, length - offset);
+        numRead = input.readBytes(buffer, offset, length - offset);
       }
       catch (_error) {
         numRead = -1;
@@ -62,7 +63,7 @@ export class BinaryModelReadPrimitives {
   }
 
   public static reportReadError(routine: string, message: string): boolean {
-    Logger.error(routine, "%s", message);
+    Logger.reportMessage(null, Logger.ERROR, routine, JavaString.vformat("%s", [message]));
     return false;
   }
 
@@ -74,11 +75,7 @@ export class BinaryModelReadPrimitives {
       );
     }
     if (count < 0) {
-      Logger.error(
-        "BinaryModelReadPrimitives::initializeArrayList",
-        "Negative count while reading binary model (%s)",
-        what
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::initializeArrayList", JavaString.vformat("Negative count while reading binary model (%s)", [what]));
       return false;
     }
 
@@ -105,10 +102,7 @@ export class BinaryModelReadPrimitives {
     }
 
     if (length > buffer.length) {
-      Logger.error(
-        "BinaryModelReadPrimitives::readBytes",
-        "Requested length exceeds destination buffer"
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::readBytes", "Requested length exceeds destination buffer");
       length = buffer.length;
     }
 
@@ -117,12 +111,7 @@ export class BinaryModelReadPrimitives {
       for (let i = offset; i < length; i++) {
         buffer[i] = 0;
       }
-      Logger.error(
-        "BinaryModelReadPrimitives::readBytes",
-        "could not read requested length (%d/%d)",
-        offset,
-        length
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::readBytes", JavaString.vformat("could not read requested length (%d/%d)", [offset, length]));
     }
   }
 
@@ -233,11 +222,7 @@ export class BinaryModelReadPrimitives {
 
     count[0] = BinaryModelReadPrimitives.readInt32LE(input);
     if (count[0] < 0) {
-      Logger.error(
-        "BinaryModelReadPrimitives::readNonNegativeCount",
-        "Negative count while reading binary model (%s)",
-        what
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::readNonNegativeCount", JavaString.vformat("Negative count while reading binary model (%s)", [what]));
       return false;
     }
 
@@ -300,7 +285,7 @@ export class BinaryModelReadPrimitives {
     return true;
   }
 
-  public static readColor(input: InputStream | null, color: ColorRgb | null): boolean {
+  public static readColor(input: InputStream | null, color: ColorRgbMutable | null): boolean {
     if (color === null) {
       return BinaryModelReadPrimitives.reportReadError(
         "BinaryModelReadPrimitives::readColor",
@@ -394,11 +379,7 @@ export class BinaryModelReadPrimitives {
       return true;
     }
     if (count < -1) {
-      Logger.error(
-        "BinaryModelReadPrimitives::readIndexList",
-        "Negative index list count while reading binary model (%s)",
-        what
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::readIndexList", JavaString.vformat("Negative index list count while reading binary model (%s)", [what]));
       return false;
     }
 
@@ -430,11 +411,7 @@ export class BinaryModelReadPrimitives {
     }
 
     if (values === null || index < 0 || index >= values.length) {
-      Logger.error(
-        "BinaryModelReadPrimitives::pointerFromIndex",
-        "Out of range index while reading binary model (%s)",
-        what
-      );
+      Logger.reportMessage(null, Logger.ERROR, "BinaryModelReadPrimitives::pointerFromIndex", JavaString.vformat("Out of range index while reading binary model (%s)", [what]));
       return false;
     }
 

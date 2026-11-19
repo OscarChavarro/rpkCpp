@@ -46,7 +46,7 @@ export class VrmlWriter {
 
     const bytes = Buffer.from(text, "utf8");
     try {
-      outputStream.write(bytes, 0, bytes.length);
+      outputStream.writeBytes(bytes, 0, bytes.length);
     }
     catch (_ignored) {
     }

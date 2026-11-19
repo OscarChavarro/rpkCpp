@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { BinaryModelIndexListRef } from "./BinaryModelIndexListRef";
 
 export class BinaryModelVertexRecordData {
@@ -6,7 +6,7 @@ export class BinaryModelVertexRecordData {
   public pointIndex: number;
   public normalIndex: number;
   public textureCoordinateIndex: number;
-  public color: ColorRgb;
+  public color: ColorRgbMutable;
   public backIndex: number;
   public tmp: number;
   public hasRadianceData: boolean;
@@ -17,7 +17,7 @@ export class BinaryModelVertexRecordData {
     this.pointIndex = -1;
     this.normalIndex = -1;
     this.textureCoordinateIndex = -1;
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     this.backIndex = -1;
     this.tmp = 0;
     this.hasRadianceData = false;

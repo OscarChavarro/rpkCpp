@@ -397,8 +397,12 @@ within tolerance; run the full gate once per flag.
 
 ## 4. Validation protocol
 
-The regression gate is `scripts/testReviewResults.sh`: perceptual comparison
-(`findimagedupes -t 100`) of the 8 scene renders against `doc/testBaseImages`.
+The regression gate is `scripts/testReviewResults.sh`, as defined by the
+verification tiers of [`vitralAlignmentPlan.md`](vitralAlignmentPlan.md), the
+authoritative source for gates: ImageMagick `compare -metric AE` must report
+zero differing pixels against the port's own references, and
+`compare -metric RMSE` against `doc/testBaseImages` must stay within the
+recorded bound per image.
 Rendering all scenes takes ~1 hour on this machine, so it is a *phase* gate, not a
 *commit* gate.
 
@@ -407,7 +411,7 @@ Per commit (fast, ~5 min):
 2. Compare the statistics fingerprint (elements / clusters / interactions per type
    per iteration) against the recorded baseline:
    - Phase 1 and 2 changes: fingerprint must be **identical**, and the corridor PPM
-     should be **byte-identical** (`cmp`) — a stronger and cheaper check than the gate.
+     must be pixel-identical (`compare -metric AE` = 0 against its reference).
    - Phase 3 and 4 changes: fingerprint may move slightly; record the new one.
 3. Record wall/CPU/RSS deltas in `output/perf/`.
 

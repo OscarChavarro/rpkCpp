@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
@@ -82,7 +82,7 @@ export class ShootingStrategy {
     }
 
     if (elem.unShotRadiance !== null) {
-      ColorRgb.arrayClear(elem.unShotRadiance as ColorRgb[], elem.basisSize);
+      ColorRgbMutable.arrayClear(elem.unShotRadiance as ColorRgbMutable[], elem.basisSize);
     }
     elem.unShotPotential = 0.0;
   }

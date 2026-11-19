@@ -59,7 +59,7 @@ export class ElementHierarchyState {
 
   public static activeState(): ElementHierarchyState {
     if (ElementHierarchyState.activeStatePtr === null) {
-      VsdkLogger.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
     }
     return ElementHierarchyState.activeStatePtr!;
   }

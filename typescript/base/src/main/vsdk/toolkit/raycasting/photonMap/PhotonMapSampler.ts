@@ -5,7 +5,7 @@ Specular materials are treated as Fresnel reflectors/refractors.
 NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 */
 
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -48,7 +48,7 @@ Returns true a component was chosen, false if absorbed
     probabilityDensityFunction: number[],
     chose1: boolean[]
   ): boolean {
-    let color = new ColorRgb();
+    let color = new ColorRgbMutable();
     let power1: number;
     let power2: number;
     let totalPower: number;
@@ -191,14 +191,14 @@ The Fresnel sampler works as follows:
     x2: number,
     dir: Vector3D,
     pdfDir: number[],
-    scatteringColor: ColorRgb,
+    scatteringColor: ColorRgbMutable,
     doCosInverse: boolean[]
   ): boolean {
     const ncIn = PhotonMapSampler.bsdfGeometricIOR(thisNode.m_inBsdf);
     const ncOut = PhotonMapSampler.bsdfGeometricIOR(thisNode.m_outBsdf);
 
     const bsdf = thisNode.m_useBsdf;
-    let reflectance = new ColorRgb();
+    let reflectance = new ColorRgbMutable();
     reflectance.clear();
     if (bsdf !== null) {
       reflectance = bsdf.splitBsdfScatteredPower(
@@ -207,7 +207,7 @@ The Fresnel sampler works as follows:
       );
     }
 
-    let transmittance = new ColorRgb();
+    let transmittance = new ColorRgbMutable();
     transmittance.clear();
     if (bsdf !== null) {
       transmittance = bsdf.splitBsdfScatteredPower(
@@ -220,10 +220,7 @@ The Fresnel sampler works as follows:
     const trans = transmittance.average() > Numeric.EPSILON;
 
     if (reflective && trans) {
-      VsdkLogger.error(
-        "FresnelFactor",
-        "Cannot deal with simultaneous reflective & transit materials"
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
       return false;
     }
 
@@ -240,7 +237,7 @@ The Fresnel sampler works as follows:
         reflectedDir = Xxdf.idealReflectedDirection(thisNode.m_inDirT, thisNode.m_normal);
         cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
         if (cosI < 0) {
-          VsdkLogger.error("fresnelSample", "cosI < 0");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "fresnelSample", "cosI < 0");
         }
       }
       else {
@@ -263,14 +260,14 @@ The Fresnel sampler works as follows:
       cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
 
       if (cosI < 0) {
-        VsdkLogger.error("fresnelSample", "cosI < 0");
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "fresnelSample", "cosI < 0");
       }
 
       if (!tir[0]) {
         cost = -thisNode.m_normal.dotProduct(refractedDir);
 
         if (cost < 0) {
-          VsdkLogger.error("fresnelSample", "cost < 0");
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "fresnelSample", "cost < 0");
         }
 
         const nt = ncOut.getNr();
@@ -350,7 +347,7 @@ The Fresnel sampler works as follows:
     const dir = new Vector3D();
     const pdfDir = [0.0];
     const doCosInverse = [false];
-    const scatteringColor = new ColorRgb();
+    const scatteringColor = new ColorRgbMutable();
 
     if (!PhotonMapSampler.chooseFresnelDirection(thisNode, flags, x2, dir, pdfDir, scatteringColor, doCosInverse)) {
       return false;
@@ -372,7 +369,7 @@ The Fresnel sampler works as follows:
     }
 
     if (this.m_computeFromNextPdf && prevNode !== null) {
-      VsdkLogger.warning("FresnelSampler", "FromNextPdf not supported");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "FresnelSampler", "FromNextPdf not supported");
     }
 
     if (thisNode.m_rayType === PathRayType.REFLECTS) {
@@ -435,7 +432,7 @@ The Fresnel sampler works as follows:
     }
     else {
       flags = BsdfComponent.BRDF_GLOSSY_COMPONENT;
-      VsdkLogger.error("PhotonMapSampler::gdSample", "Not done yet");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "PhotonMapSampler::gdSample", "Not done yet");
       return false;
     }
 

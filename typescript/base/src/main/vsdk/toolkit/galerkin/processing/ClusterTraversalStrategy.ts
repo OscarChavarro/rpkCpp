@@ -1,4 +1,5 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { String as JavaString } from "../../../../java/lang/String";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -44,15 +45,15 @@ export class ClusterTraversalStrategy {
     sourceElement: GalerkinElement,
     samplePoint: Vector3D,
     galerkinState: GalerkinState,
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (sourceElement === null || galerkinState === null) {
-      return new ColorRgb();
+      return new ColorRgbMutable();
     }
     switch (galerkinState.clusteringStrategy) {
       case GalerkinClusteringStrategy.ISOTROPIC:
-        return (sourceElement.radiance as ColorRgb[])[0]!;
+        return (sourceElement.radiance as ColorRgbMutable[])[0]!;
       case GalerkinClusteringStrategy.ORIENTED: {
-        let sourceRadiance = new ColorRgb();
+        let sourceRadiance = new ColorRgbMutable();
         sourceRadiance.clear();
         const leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
         ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, sourceElement, galerkinState);
@@ -61,18 +62,18 @@ export class ClusterTraversalStrategy {
         return sourceRadiance;
       }
       case GalerkinClusteringStrategy.Z_VISIBILITY:
-        return (sourceElement.radiance as ColorRgb[])[0]!;
+        return (sourceElement.radiance as ColorRgbMutable[])[0]!;
       default:
-        VsdkLogger.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
-        return new ColorRgb();
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "clusterRadianceToSamplePoint", JavaString.vformat("Invalid clustering strategy %s\n", [galerkinState.clusteringStrategy]));
+        return new ColorRgbMutable();
     }
   }
 
-  public static sourceClusterRadiance(link: Interaction, galerkinState: GalerkinState): ColorRgb {
+  public static sourceClusterRadiance(link: Interaction, galerkinState: GalerkinState): ColorRgbMutable {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (sourceElement === null || receiverElement === null || !sourceElement.isCluster() || sourceElement === receiverElement) {
-      VsdkLogger.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
     return ClusterTraversalStrategy.clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
   }
@@ -120,7 +121,7 @@ export class ClusterTraversalStrategy {
       case GalerkinClusteringStrategy.Z_VISIBILITY:
         return receiverElement.area;
       default:
-        VsdkLogger.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "receiverArea", JavaString.vformat("Invalid clustering strategy %s", [galerkinState.clusteringStrategy]));
         return receiverElement.area;
     }
   }
@@ -129,9 +130,9 @@ export class ClusterTraversalStrategy {
     rcv: GalerkinElement,
     areaFactor: number,
     link: Interaction,
-    sourceRadiance: ColorRgb[],
+    sourceRadiance: ColorRgbMutable[],
   ): void {
-    const rcvRad = rcv.receivedRadiance as ColorRgb[];
+    const rcvRad = rcv.receivedRadiance as ColorRgbMutable[];
 
     if (link.numberOfBasisFunctionsOnReceiver === 1 && link.numberOfBasisFunctionsOnSource === 1) {
       rcvRad[0]!.addScaled(rcvRad[0]!, areaFactor * link.K[0]!, sourceRadiance[0]!);
@@ -151,11 +152,11 @@ export class ClusterTraversalStrategy {
     }
   }
 
-  public static gatherRadiance(link: Interaction, srcRad: ColorRgb[], galerkinState: GalerkinState): void {
+  public static gatherRadiance(link: Interaction, srcRad: ColorRgbMutable[], galerkinState: GalerkinState): void {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (!receiverElement.isCluster() || sourceElement === receiverElement) {
-      VsdkLogger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     switch (galerkinState.clusteringStrategy) {
@@ -178,11 +179,11 @@ export class ClusterTraversalStrategy {
         break;
       }
       default:
-        VsdkLogger.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "gatherRadiance", JavaString.vformat("Invalid clustering strategy %s", [galerkinState.clusteringStrategy]));
     }
   }
 
-  public static maxRadiance(cluster: GalerkinElement, galerkinState: GalerkinState): ColorRgb {
+  public static maxRadiance(cluster: GalerkinElement, galerkinState: GalerkinState): ColorRgbMutable {
     const leafVisitor = new MaximumRadianceVisitor();
     ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, cluster, galerkinState);
     return leafVisitor.getAccumulatedRadiance();

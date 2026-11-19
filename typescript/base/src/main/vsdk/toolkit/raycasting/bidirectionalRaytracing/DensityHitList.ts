@@ -34,7 +34,7 @@ export class DensityHitList {
 
   public get(i: number): DensityHit {
     if (i >= this.numHits) {
-      VsdkLogger.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if (this.cacheCurrent === null || i < this.cacheLowerLimit) {

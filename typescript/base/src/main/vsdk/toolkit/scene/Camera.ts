@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "../common/logging/Logger";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -23,7 +23,7 @@ export class Camera {
   public X: Vector3D;
   public Y: Vector3D;
   public Z: Vector3D;
-  public background: ColorRgb;
+  public background: ColorRgbMutable;
   public changed: number;
   public pixelWidth: number;
   public pixelHeight: number;
@@ -46,7 +46,7 @@ export class Camera {
     this.X = new Vector3D();
     this.Y = new Vector3D();
     this.Z = new Vector3D();
-    this.background = new ColorRgb();
+    this.background = new ColorRgbMutable();
     this.changed = 0;
     this.pixelWidth = 0.0;
     this.pixelHeight = 0.0;
@@ -83,7 +83,7 @@ export class Camera {
 
     this.viewDistance = this.Z.norm();
     if (this.viewDistance < Numeric.EPSILON) {
-      Logger.error("SetCamera", "eye point and look-point coincide");
+      Logger.reportMessage(this, Logger.ERROR, "SetCamera", "eye point and look-point coincide");
       return null;
     }
     this.Z.inverseScaledCopy(this.viewDistance, this.Z, Numeric.EPSILON_FLOAT);
@@ -91,7 +91,7 @@ export class Camera {
     this.X.crossProduct(this.Z, this.upDirection);
     const n = this.X.norm();
     if (n < Numeric.EPSILON) {
-      Logger.error("SetCamera", "up-direction and viewing direction coincide");
+      Logger.reportMessage(this, Logger.ERROR, "SetCamera", "up-direction and viewing direction coincide");
       return null;
     }
     this.X.inverseScaledCopy(n, this.X, Numeric.EPSILON_FLOAT);
@@ -132,7 +132,7 @@ export class Camera {
     inFieldOfVision: number,
     inXSize: number,
     inYSize: number,
-    inBackground: ColorRgb
+    inBackground: ColorRgbMutable
   ): void {
     this.eyePosition = new Vector3D(inEyePosition.x, inEyePosition.y, inEyePosition.z);
     this.lookPosition = new Vector3D(inLoopPosition.x, inLoopPosition.y, inLoopPosition.z);
@@ -140,7 +140,7 @@ export class Camera {
     this.fieldOfVision = inFieldOfVision;
     this.xSize = inXSize;
     this.ySize = inYSize;
-    this.background = new ColorRgb(inBackground.r, inBackground.g, inBackground.b);
+    this.background = new ColorRgbMutable(inBackground.r, inBackground.g, inBackground.b);
     this.changed = 1;
     this.complete();
   }

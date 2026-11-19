@@ -8,9 +8,11 @@ bidirectional path tracing, photon map). This document reviews the current
 state of the code under `cpp/` against the project's stated objectives.
 
 The transversal direction that binds everything — convergence with the
-[VITRAL library](https://github.com/OscarChavarro/vitral) — is documented
-separately in `doc/vitralRenderparkParallelLearningExperience.md` and
-`doc/vitralNormalizationAnalysis.md`.
+[VITRAL library](https://github.com/OscarChavarro/vitral) — is planned in
+`doc/vitralAlignmentPlan.md`, the authoritative source for the order, gates
+and decisions of that work. `doc/vitralRenderparkParallelLearningExperience.md`
+records its intent and `doc/vitralNormalizationAnalysis.md` the
+class-by-class comparison.
 
 ## Project objectives
 

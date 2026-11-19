@@ -5,7 +5,7 @@ Constant Control Radiosity
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { McradP } from "./McradP";
@@ -18,17 +18,17 @@ export class Ccr {
   }
 
   private static readonly NUMBER_OF_INTERVALS = 10;
-  private static getRadianceCallback: ((element: StochasticRadiosityElement) => ColorRgb[] | null) | null = null;
-  private static getScalingCallback: ((element: StochasticRadiosityElement) => ColorRgb | null) | null = null;
+  private static getRadianceCallback: ((element: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null = null;
+  private static getScalingCallback: ((element: StochasticRadiosityElement) => ColorRgbMutable | null) | null = null;
 
   public static initialControlRadiosityRecursive(
     element: StochasticRadiosityElement,
-    minRad: ColorRgb,
-    maxRad: ColorRgb,
-    fMin: ColorRgb,
-    fMax: ColorRgb,
-    totalFluxColor: ColorRgb,
-    maxRadColor: ColorRgb,
+    minRad: ColorRgbMutable,
+    maxRad: ColorRgbMutable,
+    fMin: ColorRgbMutable,
+    fMax: ColorRgbMutable,
+    totalFluxColor: ColorRgbMutable,
+    maxRadColor: ColorRgbMutable,
     area: number[]
   ): void {
     void minRad;
@@ -69,14 +69,14 @@ export class Ccr {
 Initial guess for constant control radiance value
 */
   public static initialControlRadiosity(
-    minRad: ColorRgb,
-    maxRad: ColorRgb,
-    fMin: ColorRgb,
-    fMax: ColorRgb,
+    minRad: ColorRgbMutable,
+    maxRad: ColorRgbMutable,
+    fMin: ColorRgbMutable,
+    fMax: ColorRgbMutable,
     scenePatches: ArrayList<Patch>
   ): void {
-    const totalFluxColor = new ColorRgb();
-    const maxRadColor = new ColorRgb();
+    const totalFluxColor = new ColorRgbMutable();
+    const maxRadColor = new ColorRgbMutable();
     const area = [0.0];
     totalFluxColor.clear();
     maxRadColor.clear();
@@ -147,9 +147,9 @@ Initial guess for constant control radiance value
 
   public static refineControlRadiosityRecursive(
     element: StochasticRadiosityElement,
-    colorOne: ColorRgb,
-    rad: ColorRgb[],
-    f: ColorRgb[]
+    colorOne: ColorRgbMutable,
+    rad: ColorRgbMutable[],
+    f: ColorRgbMutable[]
   ): void {
     if (element.regularSubElements === null) {
       const B = Ccr.getRadianceCallback!(element)![0]!;
@@ -162,7 +162,7 @@ Initial guess for constant control radiance value
         weightedArea *= (element.importance - element.sourceImportance);
       }
       for (let i = 0; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
-        const t = new ColorRgb();
+        const t = new ColorRgbMutable();
         t.scalarProduct(s, rad[i]!);
         t.subtract(B, t);
         t.abs();
@@ -182,24 +182,24 @@ Uses regular interval subdivision (generalisation of the bisection
 method). Does so component wise
 */
   public static refineControlRadiosity(
-    minRad: ColorRgb,
-    maxRad: ColorRgb,
-    fMin: ColorRgb,
-    fMax: ColorRgb,
+    minRad: ColorRgbMutable,
+    maxRad: ColorRgbMutable,
+    fMin: ColorRgbMutable,
+    fMax: ColorRgbMutable,
     scenePatches: ArrayList<Patch>
   ): void {
-    const colorOne = new ColorRgb();
-    const f = new Array<ColorRgb>(Ccr.NUMBER_OF_INTERVALS + 1);
-    const rad = new Array<ColorRgb>(Ccr.NUMBER_OF_INTERVALS + 1);
-    const d = new ColorRgb();
+    const colorOne = new ColorRgbMutable();
+    const f = new Array<ColorRgbMutable>(Ccr.NUMBER_OF_INTERVALS + 1);
+    const rad = new Array<ColorRgbMutable>(Ccr.NUMBER_OF_INTERVALS + 1);
+    const d = new ColorRgbMutable();
 
     colorOne.setMonochrome(1.0);
 
     d.subtract(maxRad, minRad);
     for (let i = 0; i <= Ccr.NUMBER_OF_INTERVALS; i++) {
-      f[i] = new ColorRgb();
+      f[i] = new ColorRgbMutable();
       f[i]!.clear();
-      rad[i] = new ColorRgb();
+      rad[i] = new ColorRgbMutable();
       rad[i]!.addScaled(minRad, i / Ccr.NUMBER_OF_INTERVALS, d);
     }
 
@@ -290,16 +290,16 @@ pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
   public static determineControlRadiosity(
-    getRadiance: ((element: StochasticRadiosityElement) => ColorRgb[] | null) | null,
-    getScaling: ((element: StochasticRadiosityElement) => ColorRgb | null) | null,
+    getRadiance: ((element: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null,
+    getScaling: ((element: StochasticRadiosityElement) => ColorRgbMutable | null) | null,
     scenePatches: ArrayList<Patch>
-  ): ColorRgb {
-    const minRad = new ColorRgb();
-    const maxRad = new ColorRgb();
-    const fMin = new ColorRgb();
-    const fMax = new ColorRgb();
-    const beta = new ColorRgb();
-    const delta = new ColorRgb();
+  ): ColorRgbMutable {
+    const minRad = new ColorRgbMutable();
+    const maxRad = new ColorRgbMutable();
+    const fMin = new ColorRgbMutable();
+    const fMax = new ColorRgbMutable();
+    const beta = new ColorRgbMutable();
+    const delta = new ColorRgbMutable();
     const eps = 0.001;
     let sweep = 0;
 

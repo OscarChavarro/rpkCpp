@@ -1,4 +1,4 @@
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
 import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
@@ -8,7 +8,7 @@ import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/
 export class OptionsGroupRender {
   private static trueValue = 1;
   private static renderOptionsState = new RendererConfiguration();
-  private static outlineColor = new ColorRgb();
+  private static outlineColor = new ColorRgbMutable();
 
   private constructor() {
   }
@@ -32,7 +32,7 @@ export class OptionsGroupRender {
   private static parseColor3(
     argc: number,
     argv: string[] | null,
-    value: TypedOption.MutableValue<ColorRgb>
+    value: TypedOption.MutableValue<ColorRgbMutable>
   ): boolean {
     if (argc < 3 || argv === null || argv[0] === null || argv[1] === null || argv[2] === null) {
       return false;
@@ -54,9 +54,9 @@ export class OptionsGroupRender {
       return;
     }
 
-    target.outlineColor = new ColorRgb(source.outlineColor.r, source.outlineColor.g, source.outlineColor.b);
-    target.boundingBoxColor = new ColorRgb(source.boundingBoxColor.r, source.boundingBoxColor.g, source.boundingBoxColor.b);
-    target.clusterColor = new ColorRgb(source.clusterColor.r, source.clusterColor.g, source.clusterColor.b);
+    target.outlineColor = new ColorRgbMutable(source.outlineColor.r, source.outlineColor.g, source.outlineColor.b);
+    target.boundingBoxColor = new ColorRgbMutable(source.boundingBoxColor.r, source.boundingBoxColor.g, source.boundingBoxColor.b);
+    target.clusterColor = new ColorRgbMutable(source.clusterColor.r, source.clusterColor.g, source.clusterColor.b);
     target.lineWidth = source.lineWidth;
     target.drawOutlines = source.drawOutlines;
     target.drawSurfaces = source.drawSurfaces;
@@ -99,7 +99,7 @@ export class OptionsGroupRender {
       OptionsGroupRender.outlinesOption,
       null
     );
-    const outlineColorOpt = new TypedOption<ColorRgb>(
+    const outlineColorOpt = new TypedOption<ColorRgbMutable>(
       "-outline-color",
       TypedOption.valueRef(OptionsGroupRender.outlineColor),
       3,

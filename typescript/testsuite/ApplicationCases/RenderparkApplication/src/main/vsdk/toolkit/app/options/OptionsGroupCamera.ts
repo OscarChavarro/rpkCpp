@@ -1,4 +1,4 @@
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
 import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
@@ -11,7 +11,7 @@ export class OptionsGroupCamera {
   private static readonly DEFAULT_CAMERA_EYE_POSITION = new Vector3D(10.0, 0.0, 0.0);
   private static readonly DEFAULT_CAMERA_LOOK_POSITION = new Vector3D(0.0, 0.0, 0.0);
   private static readonly DEFAULT_CAMERA_UP_DIRECTION = new Vector3D(0.0, 0.0, 1.0);
-  private static readonly DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
+  private static readonly DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
   private static cameraState = new Camera();
 
   private constructor() {
@@ -49,7 +49,7 @@ export class OptionsGroupCamera {
       OptionsGroupCamera.DEFAULT_CAMERA_UP_DIRECTION.y,
       OptionsGroupCamera.DEFAULT_CAMERA_UP_DIRECTION.z
     );
-    const backgroundColorSelected = new ColorRgb(
+    const backgroundColorSelected = new ColorRgbMutable(
       OptionsGroupCamera.DEFAULT_BACKGROUND_COLOR.r,
       OptionsGroupCamera.DEFAULT_BACKGROUND_COLOR.g,
       OptionsGroupCamera.DEFAULT_BACKGROUND_COLOR.b

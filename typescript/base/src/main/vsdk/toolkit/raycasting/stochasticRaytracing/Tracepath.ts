@@ -165,7 +165,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
     }
     if (Tracepath.sumProbabilities < Numeric.EPSILON) {
-      VsdkLogger.warning("tracePaths", "No sources");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "tracePaths", "No sources");
       return;
     }
 

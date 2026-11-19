@@ -106,7 +106,7 @@ export class Geometry {
 
   public clone(): Geometry {
     if (this.className !== GeometryClassId.PATCH_SET) {
-      VsdkLogger.fatal(666, "duplicateIfPatchSet", "this should not happen");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "duplicateIfPatchSet", "this should not happen");
     }
 
     const PatchSetClass = require("../environment/geometry/elements/PatchSet").PatchSet as { new(input: Patch[]): PatchSet };

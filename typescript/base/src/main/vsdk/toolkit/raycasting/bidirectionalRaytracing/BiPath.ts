@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { BidirectionalPathRaytracerConfig } from "./BidirectionalPathRaytracerConfig";
@@ -36,8 +36,8 @@ export class BiPath {
     this.m_geomConnect = 0.0;
   }
 
-  public evalRadiance(): ColorRgb {
-    const col = new ColorRgb();
+  public evalRadiance(): ColorRgbMutable {
+    const col = new ColorRgbMutable();
     let factor = 1.0;
 
     col.setMonochrome(1.0);

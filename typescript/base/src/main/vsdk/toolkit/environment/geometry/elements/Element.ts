@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../../common/logging/Logger";
 import { RendererConfiguration } from "../../../material/RendererConfiguration";
 import { Matrix2x2 } from "../../../common/linealAlgebra/Matrix2x2";
@@ -6,11 +6,11 @@ import { ElementFlags } from "./ElementFlags";
 
 export class Element {
   public id: number;
-  public Ed: ColorRgb;
-  public Rd: ColorRgb;
-  public radiance: ColorRgb[] | null;
-  public receivedRadiance: ColorRgb[] | null;
-  public unShotRadiance: ColorRgb[] | null;
+  public Ed: ColorRgbMutable;
+  public Rd: ColorRgbMutable;
+  public radiance: ColorRgbMutable[] | null;
+  public receivedRadiance: ColorRgbMutable[] | null;
+  public unShotRadiance: ColorRgbMutable[] | null;
   public area: number;
   public className: number;
   public flags: number;
@@ -22,8 +22,8 @@ export class Element {
 
   public constructor() {
     this.id = 0;
-    this.Ed = new ColorRgb();
-    this.Rd = new ColorRgb();
+    this.Ed = new ColorRgbMutable();
+    this.Rd = new ColorRgbMutable();
     this.radiance = null;
     this.receivedRadiance = null;
     this.unShotRadiance = null;
@@ -118,7 +118,7 @@ export class Element {
       descendant = descendant.parent;
     }
     if (descendant === null) {
-      VsdkLogger.fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "Element::childContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
   }

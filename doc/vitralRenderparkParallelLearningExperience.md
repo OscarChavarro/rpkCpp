@@ -7,6 +7,9 @@ phases. It records why these source trees are being developed side by side,
 what has already converged between them, and the direction future changes
 should take to keep reconciling them. Use it as a compass for individual
 changes (commits, small refactors), not as a checklist to execute in order.
+The checklist is [`vitralAlignmentPlan.md`](vitralAlignmentPlan.md), the
+authoritative source for the order, gates and decisions of the alignment
+work.
 
 It is the rpkCpp analogue of
 `povCpp/doc/vitralPovrayParallelLearningExperience.md`, and it deliberately
@@ -64,9 +67,11 @@ across ports.
 
 This constrains how convergence work is done:
 
-- Every convergence change lands in the **C++ port first**, gated on
-  unchanged golden images (and on the timing baselines in
-  `doc/performanceImprovementPlan.md` when hot paths are touched).
+- Every convergence change lands in the **C++ port first**, gated by the
+  verification tiers of `doc/vitralAlignmentPlan.md`: an exact ImageMagick
+  `compare` against the port's own references, a bounded `compare` against
+  the golden images, and the timing baseline. Not slowing the solver takes
+  priority over design preferences.
 - Once stable, the same change is migrated 1:1 to `java/`, `typescript/` and
   `turboc/` **before the next convergence step begins**, so the ports never
   drift structurally. (Earlier plans such as
@@ -111,35 +116,42 @@ Layers conceptually shared already (same role, divergent shape, see
    different signatures; unlike povCpp, no new traversal primitive needs to
    be invented for VITRAL on rpkCpp's behalf.
 
-## Next phase: encapsulation, then naming convergence
+## Next phase: a Galerkin render over VITRAL face, material and spatial index
 
-The next unification targets, in order:
+The next milestone, planned in `doc/vitralAlignmentPlan.md`, is a Galerkin
+render that takes its face geometry and material from VITRAL and can switch
+between a port of the RenderPark voxel grid and VITRAL's WALD2007 hierarchy.
+Its direction, in the order the plan follows:
 
-1. **Retire static mutable state** (`Patch::excludedPatches`,
-   `Geometry::excludedGeometry1/2`, ID counters) into per-render context —
-   both a VITRAL-compatibility and a parallel-readiness requirement.
-2. **Encapsulation migration**: convert the public-attribute core model
-   (`Vector3D`, `Vector3Dd`, `Ray`, `Camera`, `Vertex`, `Element`, `Patch`,
-   `Geometry`) to VITRAL's style — private attributes, getters, full-state
-   constructors — **without giving up mutability**: hot loops keep their
-   in-place mutators as inline members, so the abstraction costs nothing.
-   The repository already contains both styles side by side (`Material`,
-   `RayHit`, `Scene`, `RendererConfiguration` are private;
-   the geometry/algebra core is public), so this migration makes the tree
-   self-consistent, not just VITRAL-consistent. Innermost types first,
-   one class at a time, each step measured.
-3. **Naming and signature convergence** with VITRAL on the shared primitives
+1. **Retire static mutable state on the visibility path**
+   (`Patch::excludedPatches`, `Geometry::excludedGeometry1/2`, the
+   `FormFactorStrategy` and `VoxelGrid` statics) into values and workspaces
+   the caller owns — both a VITRAL-compatibility and a parallel-readiness
+   requirement. The remaining counters and pools follow with the parallel
+   Galerkin solver, which is the goal after this milestone.
+2. **A shared face, material and spatial query**, built once and only read
+   during a solve, so that any number of workers can use them.
+3. **Encapsulation as classes are migrated**: private attributes, getters,
+   full-state constructors, `const` operations by default. Performance comes
+   first: hot loops keep their in-place mutators as inline members, and
+   immutability is adopted where it is free. The repository already contains
+   both styles side by side (`Material`, `RayHit`, `Scene`,
+   `RendererConfiguration` are private; the geometry/algebra core is public),
+   so this makes the tree self-consistent, not just VITRAL-consistent.
+4. **Naming and signature convergence** with VITRAL on the shared primitives
    (vector naming scheme, ray `origin`, detail flags, the nearest-hit
-   signature) — negotiated once, renamed once, in both trees.
+   signature) — negotiated once, renamed once, in both trees. The class names
+   that collide between the trees are renamed as their headers meet.
 
-`doc/vitralNormalizationAnalysis.md` section 14 ("Required alignment work")
-is the authoritative, itemized and ordered list; this document only
-summarizes the direction.
+`doc/vitralAlignmentPlan.md` is the authoritative, ordered plan;
+`doc/vitralNormalizationAnalysis.md` section 14 lists the alignment work by
+area, and this document only summarizes the direction.
 
 The Galerkin engine, the raytracer family, tone mapping, the MGF reader and
-the render/`sgl` layer are considered rpkCpp application-specific for now and
-are **not** planned to move to VITRAL until the primitives they stand on have
-converged — moving them earlier would drag divergent types upstream.
+the render/`sgl` layer stay rpkCpp application-specific until the primitives
+they stand on have converged — moving them earlier would drag divergent
+types upstream. The reflection model and the voxel grid are the exceptions:
+the milestone needs them in VITRAL.
 
 ## Worked example: the intersection contract
 
@@ -191,10 +203,11 @@ recorded for statistics — is:
   `doc/patchBoundingBoxDecoupling.md`. Whether this becomes a shared
   "algorithm attachment" concept in VITRAL or stays application-side is an
   open question for the geometry-convergence phase.
-- **Acceleration structures.** rpkCpp ships a voxel grid and a patch-cluster
-  octree; povCpp recorded that neither VITRAL nor POV-Ray has BVHs. Scene
-  acceleration remains future shared work, independent of this
-  reconciliation.
+- **Acceleration structures.** rpkCpp ships a hierarchical voxel grid and a
+  patch-cluster octree; VITRAL ships a WALD2007 binned-SAH hierarchy in all
+  of its ports. The alignment plan puts both behind one spatial query in
+  which the index only prunes and rpkCpp's exact face test decides, so every
+  backend yields the same visibility.
 - **The DOS port as a design regulator.** Keeping Turbo C 3.0 viable forbids
   header-only template growth, long filenames without mapping updates and
   memory-hungry designs (the `08_soda` scene already exceeds what a 32-bit

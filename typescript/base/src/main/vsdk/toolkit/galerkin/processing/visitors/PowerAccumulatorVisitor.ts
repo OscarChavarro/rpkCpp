@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Numeric } from "../../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { GalerkinElement } from "../../GalerkinElement";
@@ -7,18 +7,18 @@ import { GalerkinState } from "../../GalerkinState";
 import { ClusterLeafVisitor } from "./ClusterLeafVisitor";
 
 export class PowerAccumulatorVisitor implements ClusterLeafVisitor {
-  private readonly sourceRadiance: ColorRgb;
+  private readonly sourceRadiance: ColorRgbMutable;
   private readonly samplePoint: Vector3D;
-  private readonly accumulatedRadiance: ColorRgb;
+  private readonly accumulatedRadiance: ColorRgbMutable;
 
-  public constructor(inSourceRadiance: ColorRgb, inSamplePoint: Vector3D) {
+  public constructor(inSourceRadiance: ColorRgbMutable, inSamplePoint: Vector3D) {
     this.sourceRadiance = inSourceRadiance;
     this.samplePoint = inSamplePoint;
-    this.accumulatedRadiance = new ColorRgb();
+    this.accumulatedRadiance = new ColorRgbMutable();
     this.accumulatedRadiance.clear();
   }
 
-  public getAccumulatedRadiance(): ColorRgb {
+  public getAccumulatedRadiance(): ColorRgbMutable {
     return this.accumulatedRadiance;
   }
 
@@ -40,13 +40,13 @@ export class PowerAccumulatorVisitor implements ClusterLeafVisitor {
       return;
     }
 
-    let rad: ColorRgb;
+    let rad: ColorRgbMutable;
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
-      rad = (galerkinElement.radiance as ColorRgb[])[0]!;
+      rad = (galerkinElement.radiance as ColorRgbMutable[])[0]!;
     }
     else {
-      rad = (galerkinElement.unShotRadiance as ColorRgb[])[0]!;
+      rad = (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!;
     }
 
     this.accumulatedRadiance.addScaled(this.sourceRadiance, srcOs * galerkinElement.area, rad);

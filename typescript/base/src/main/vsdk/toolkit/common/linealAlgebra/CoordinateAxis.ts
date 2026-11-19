@@ -1,5 +1,5 @@
 export enum CoordinateAxis {
-  X,
-  Y,
-  Z
+    X,
+    Y,
+    Z,
 }

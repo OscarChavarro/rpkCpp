@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -8,8 +8,8 @@ import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
 
 export class PhongBidirectionalTransmittanceDistributionFunction {
-  private readonly Kd: ColorRgb;
-  private readonly Ks: ColorRgb;
+  private readonly Kd: ColorRgbMutable;
+  private readonly Ks: ColorRgbMutable;
   private readonly avgKd: number;
   private readonly avgKs: number;
   private readonly Ns: number;
@@ -19,21 +19,21 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     return this.Ns >= Xxdf.PHONG_LOWEST_SPECULAR_EXP;
   }
 
-  public constructor(inKd: ColorRgb, inKs: ColorRgb, inNs: number, inNr: number, inNi: number) {
-    this.Kd = new ColorRgb(inKd.r, inKd.g, inKd.b);
+  public constructor(inKd: ColorRgbMutable, inKs: ColorRgbMutable, inNs: number, inNr: number, inNi: number) {
+    this.Kd = new ColorRgbMutable(inKd.r, inKd.g, inKd.b);
     this.avgKd = this.Kd.average();
-    this.Ks = new ColorRgb(inKs.r, inKs.g, inKs.b);
+    this.Ks = new ColorRgbMutable(inKs.r, inKs.g, inKs.b);
     this.avgKs = this.Ks.average();
     this.Ns = inNs;
     this.refractionIndex = new RefractionIndex();
     this.refractionIndex.set(inNr, inNi);
   }
 
-  public getKd(): ColorRgb {
+  public getKd(): ColorRgbMutable {
     return this.Kd;
   }
 
-  public getKs(): ColorRgb {
+  public getKs(): ColorRgbMutable {
     return this.Ks;
   }
 
@@ -45,8 +45,8 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     return this.refractionIndex;
   }
 
-  public transmittance(flags: number): ColorRgb {
-    const result = new ColorRgb();
+  public transmittance(flags: number): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.clear();
 
     if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) {
@@ -63,7 +63,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     }
 
     if (!globalThis.Number.isFinite(result.average())) {
-      VsdkLogger.fatal(-1, "transmittance", "Oops - result is not finite!");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "transmittance", "Oops - result is not finite!");
     }
 
     return result;
@@ -76,11 +76,11 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     out: Vector3D,
     normal: Vector3D,
     flags: number
-  ): ColorRgb {
+  ): ColorRgbMutable {
     const inRev = new Vector3D();
     inRev.scaledCopy(-1.0, inDirection);
 
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
 
     if (((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) && (this.avgKd > 0.0)) {

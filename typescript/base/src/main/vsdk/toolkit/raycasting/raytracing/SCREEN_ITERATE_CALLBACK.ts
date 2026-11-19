@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
@@ -10,4 +10,4 @@ export type SCREEN_ITERATE_CALLBACK = (
   x: number,
   y: number,
   data: unknown
-) => ColorRgb;
+) => ColorRgbMutable;

@@ -23,7 +23,7 @@ export class PPMOutputHandle extends ImageOutputHandle {
       return;
     }
     try {
-      this.outputStream.write(bytes, 0, length);
+      this.outputStream.writeBytes(bytes, 0, length);
     }
     catch (_ignored) {
     }

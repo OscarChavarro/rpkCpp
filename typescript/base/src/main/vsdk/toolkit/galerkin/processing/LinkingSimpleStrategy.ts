@@ -91,7 +91,7 @@ export class LinkingSimpleStrategy {
         sourceElement = topLevelElement;
         break;
       default:
-        VsdkLogger.fatal(2, "createInitialLink", "Impossible element role");
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "createInitialLink", "Impossible element role");
         return;
     }
 
@@ -256,7 +256,7 @@ export class LinkingSimpleStrategy {
     }
 
     if ((topElement.flags & ElementFlags.IS_CLUSTER_MASK) !== 0) {
-      VsdkLogger.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
       return;
     }
     if (topElement.patch === null) {

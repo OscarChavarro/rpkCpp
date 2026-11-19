@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Background } from "../../scene/Background";
@@ -48,7 +48,7 @@ export class BsdfSampler extends SurfaceSampler {
 
     newNode.accumulatedRussianRouletteFactors = thisNode.accumulatedRussianRouletteFactors;
     if (doRR) {
-      let albedo = new ColorRgb();
+      let albedo = new ColorRgbMutable();
       albedo.clear();
       if (thisNode.m_useBsdf !== null) {
         albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), flags);

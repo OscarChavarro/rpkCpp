@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
@@ -31,7 +31,7 @@ export class FlagChainList extends CircularList<FlagChain> {
     const chain = listOrChain;
     if (this.count > 0) {
       if (chain.length !== this.length) {
-        VsdkLogger.error("CChainList::add", "Wrong length flag chain inserted!");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CChainList::add", "Wrong length flag chain inserted!");
         return;
       }
     }
@@ -46,7 +46,7 @@ export class FlagChainList extends CircularList<FlagChain> {
   public addDisjoint(chain: FlagChain): void {
     if (this.count > 0) {
       if (chain.length !== this.length) {
-        VsdkLogger.error("CChainList::add", "Wrong length flag chain inserted!");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CChainList::add", "Wrong length flag chain inserted!");
         return;
       }
     }
@@ -68,8 +68,8 @@ export class FlagChainList extends CircularList<FlagChain> {
     }
   }
 
-  public compute(path: BiPath): ColorRgb {
-    const result = new ColorRgb();
+  public compute(path: BiPath): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.clear();
 
     const iter = new CircularListIterator<FlagChain>(this);

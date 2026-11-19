@@ -29,7 +29,7 @@ export class LightDirSampler extends Sampler {
     const pdfDir = [0.0];
 
     if (thisNode === null || thisNode.m_hit.getMaterial() === null || thisNode.m_hit.getMaterial()!.getEdf() === null) {
-      VsdkLogger.error("CLightDirSampler::sample", "No EDF");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CLightDirSampler::sample", "No EDF");
       return false;
     }
 
@@ -84,7 +84,7 @@ export class LightDirSampler extends Sampler {
     let pdfDir: number;
 
     if (thisNode.m_hit.getMaterial() === null || thisNode.m_hit.getMaterial()!.getEdf() === null) {
-      VsdkLogger.error("CLightDirSampler::evalPdf", "No EDF");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CLightDirSampler::evalPdf", "No EDF");
       return 0.0;
     }
 

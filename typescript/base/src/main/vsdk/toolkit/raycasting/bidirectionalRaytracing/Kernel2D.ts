@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
@@ -45,12 +45,12 @@ export class Kernel2D {
     return 0.0;
   }
 
-  public cover(point: Vector2D, scale: number, col: ColorRgb, screen: ScreenBuffer): void {
+  public cover(point: Vector2D, scale: number, col: ColorRgbMutable, screen: ScreenBuffer): void {
     const nxMinV = [0];
     const nxMaxV = [0];
     const nyMinV = [0];
     const nyMaxV = [0];
-    const addCol = new ColorRgb();
+    const addCol = new ColorRgbMutable();
 
     screen.getPixel(point.x - this.m_h, point.y - this.m_h, nxMinV, nyMinV);
     screen.getPixel(point.x + this.m_h, point.y + this.m_h, nxMaxV, nyMaxV);
@@ -74,7 +74,7 @@ export class Kernel2D {
 
   public varCover(
     center: Vector2D,
-    color: ColorRgb,
+    color: ColorRgbMutable,
     ref: ScreenBuffer,
     dest: ScreenBuffer,
     totalSamples: number,

@@ -1,5 +1,5 @@
 import { Random48 } from "../../common/Random48";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { Background } from "../../scene/Background";
@@ -44,7 +44,7 @@ Store a importon/poton. Some acceptance tests are performed first
     return (node.m_usedComponents & mask) !== 0;
   }
 
-  private static doImportanceStore(map: ImportanceMap, node: SimpleRaytracingPathNode, importance: ColorRgb): boolean {
+  private static doImportanceStore(map: ImportanceMap, node: SimpleRaytracingPathNode, importance: ColorRgbMutable): boolean {
     if (PhotonMapImportance.hasDiffuseOrGlossy(node)) {
       const importanceF = importance.average();
       const potentialF = 1.0;
@@ -78,7 +78,7 @@ Store a importon/poton. Some acceptance tests are performed first
     }
     photonMapConfig.biPath.m_eyePath = path;
 
-    const accImportance = new ColorRgb();
+    const accImportance = new ColorRgbMutable();
     accImportance.setMonochrome(1.0);
 
     let factor = path.m_G / path.m_pdfFromPrev;

@@ -1,4 +1,4 @@
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
 import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
@@ -20,7 +20,7 @@ import { OptionsGroupToneMapping } from "./OptionsGroupToneMapping";
 export class OptionsGroupCore {
   private static readonly DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
   private static readonly DEFAULT_FORCE_ONE_SIDED = true;
-  private static readonly DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
+  private static readonly DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
 
   private static numberOfQuarterCircleDivisions = OptionsGroupCore.DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
   private static fileOptionsForceOneSidedSurfaces = 0;
@@ -28,7 +28,7 @@ export class OptionsGroupCore {
   private static outputImageHeight = 1080;
   private static glutDebugEnabled = 0;
   private static backgroundMode = EnumBackgroundMode.NONE;
-  private static backgroundColor = new ColorRgb(
+  private static backgroundColor = new ColorRgbMutable(
     OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.r,
     OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.g,
     OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.b
@@ -106,7 +106,7 @@ export class OptionsGroupCore {
     return true;
   }
 
-  private static commandLineParseBackgroundColor(rArg: string | null, gArg: string | null, bArg: string | null, color: ColorRgb): boolean {
+  private static commandLineParseBackgroundColor(rArg: string | null, gArg: string | null, bArg: string | null, color: ColorRgbMutable): boolean {
     const red = [0.0];
     const green = [0.0];
     const blue = [0.0];
@@ -169,7 +169,7 @@ export class OptionsGroupCore {
         continue;
       }
 
-      const parsedColor = new ColorRgb();
+      const parsedColor = new ColorRgbMutable();
       if (
         !OptionsGroupCore.commandLineParseBackgroundColor(
           args[readIndex + 2]!,
@@ -300,7 +300,7 @@ export class OptionsGroupCore {
     OptionsGroupCore.fileOptionsForceOneSidedSurfaces = OptionsGroupCore.DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
     OptionsGroupCore.numberOfQuarterCircleDivisions = OptionsGroupCore.DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     OptionsGroupCore.backgroundMode = EnumBackgroundMode.NONE;
-    OptionsGroupCore.backgroundColor = new ColorRgb(
+    OptionsGroupCore.backgroundColor = new ColorRgbMutable(
       OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.r,
       OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.g,
       OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.b

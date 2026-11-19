@@ -8,9 +8,10 @@ sampling positions on shooters with higher order radiosity approximation
 TODO: lines and line bundles.
 */
 
+import { String as JavaString } from "../../../../java/lang/String";
 import { Random48 } from "../../common/Random48";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -40,7 +41,7 @@ export class StochasticJacobi {
   private constructor() {
   }
 
-  private static getRadianceCallback: ((elem: StochasticRadiosityElement) => ColorRgb[] | null) | null = null;
+  private static getRadianceCallback: ((elem: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null = null;
   private static getImportanceCallback: ((elem: StochasticRadiosityElement) => number) | null = null;
   private static reflectCallback: ((elem: StochasticRadiosityElement, w: number) => void) | null = null;
   private static useControlVariate = 0;
@@ -49,7 +50,7 @@ export class StochasticJacobi {
 
   private static stochasticJacobiInitGlobals(
     numberOfRays: number,
-    getRadianceCallBack: ((elem: StochasticRadiosityElement) => ColorRgb[] | null) | null,
+    getRadianceCallBack: ((elem: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null,
     getImportanceCallBack: ((elem: StochasticRadiosityElement) => number) | null,
     updateCallBack: ((elem: StochasticRadiosityElement, w: number) => void) | null
   ): void {
@@ -103,7 +104,7 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
     if (StochasticJacobi.getRadianceCallback !== null) {
       const callbackRadiance = StochasticJacobi.getRadianceCallback(elem)!;
-      const radiance = new ColorRgb();
+      const radiance = new ColorRgbMutable();
       radiance.set(callbackRadiance[0]!.r, callbackRadiance[0]!.g, callbackRadiance[0]!.b);
       if (StochasticRelaxation.activeState().constantControlVariate !== 0) {
         radiance.subtract(radiance, StochasticRelaxation.activeState().controlRadiance);
@@ -120,7 +121,7 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
         StochasticRadiosityElement.stochasticRadiosityElementScalarReflectance(elem);
 
       if (StochasticRelaxation.activeState().radianceDriven !== 0) {
-        const receivedRadiance = new ColorRgb();
+        const receivedRadiance = new ColorRgbMutable();
         receivedRadiance.subtract(elem.radiance![0]!, elem.sourceRad);
         prob2 *= receivedRadiance.sumAbsComponents();
       }
@@ -188,7 +189,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
     StochasticJacobi.stochasticJacobiElementSetup(ElementHierarchyState.activeState().topCluster as Element);
 
     if (StochasticJacobi.sumOfProbabilities < Numeric.EPSILON * Numeric.EPSILON) {
-      VsdkLogger.warning("Iteration", "No sources");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "Iteration", "No sources");
       return false;
     }
     return true;
@@ -197,8 +198,8 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
   /**
 Returns radiance to be propagated from the given location of the element
 */
-  private static stochasticJacobiGetSourceRadiance(src: StochasticRadiosityElement, us: number, vs: number): ColorRgb {
-    const srcRad = StochasticJacobi.getRadianceCallback!(src) as ColorRgb[];
+  private static stochasticJacobiGetSourceRadiance(src: StochasticRadiosityElement, us: number, vs: number): ColorRgbMutable {
+    const srcRad = StochasticJacobi.getRadianceCallback!(src) as ColorRgbMutable[];
     return Basismcrad.colorAtUv(src.basis!, srcRad, us, vs);
   }
 
@@ -206,7 +207,7 @@ Returns radiance to be propagated from the given location of the element
     rcv: StochasticRadiosityElement,
     ur: number,
     vr: number,
-    rayPower: ColorRgb,
+    rayPower: ColorRgbMutable,
     src: StochasticRadiosityElement,
     fraction: number,
     weight: number
@@ -223,7 +224,7 @@ Returns radiance to be propagated from the given location of the element
 
   private static stochasticJacobiPropagateRadianceToClusterIsotropic(
     cluster: StochasticRadiosityElement,
-    rayPower: ColorRgb,
+    rayPower: ColorRgbMutable,
     src: StochasticRadiosityElement,
     fraction: number,
     weight: number
@@ -240,7 +241,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
   private static stochasticJacobiPropagateRadianceClusterRecursive(
     currentElement: StochasticRadiosityElement,
-    rayPower: ColorRgb,
+    rayPower: ColorRgbMutable,
     ray: Ray,
     dir: number,
     projectedArea: number,
@@ -274,7 +275,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 
   private static stochasticJacobiPropagateRadianceToClusterOriented(
     cluster: StochasticRadiosityElement,
-    rayPower: ColorRgb,
+    rayPower: ColorRgbMutable,
     ray: Ray,
     dir: number,
     src: StochasticRadiosityElement,
@@ -340,7 +341,7 @@ Transfer radiance from src to rcv.
     ray: Ray,
     dir: number
   ): void {
-    const rayPower = new ColorRgb();
+    const rayPower = new ColorRgbMutable();
     let area: number;
     const weight = StochasticJacobi.sumOfProbabilities / srcProb;
     const fraction = srcProb / (srcProb + rcvProb);
@@ -361,11 +362,7 @@ Transfer radiance from src to rcv.
     else {
       switch (ElementHierarchyState.activeState().clustering) {
         case HierarchyClusteringMode.NO_CLUSTERING:
-          VsdkLogger.fatal(
-            -1,
-            "Propagate",
-            "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n"
-          );
+          VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
           break;
         case HierarchyClusteringMode.ISOTROPIC_CLUSTERING:
           StochasticJacobi.stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
@@ -386,12 +383,7 @@ Transfer radiance from src to rcv.
           }
           break;
         default:
-          VsdkLogger.fatal(
-            -1,
-            "Propagate",
-            "Invalid clustering mode %d\n",
-            (ElementHierarchyState.activeState().clustering as number)
-          );
+          VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Propagate", JavaString.vformat("Invalid clustering mode %d\n", [(ElementHierarchyState.activeState().clustering as number)]));
           break;
       }
     }
@@ -422,11 +414,7 @@ Idem but for importance
 
     if (ElementHierarchyState.activeState().do_h_meshing !== 0 ||
       ElementHierarchyState.activeState().clustering !== HierarchyClusteringMode.NO_CLUSTERING) {
-      VsdkLogger.fatal(
-        -1,
-        "Propagate",
-        "Importance propagation not implemented in combination with hierarchical refinement"
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
   }
 
@@ -581,8 +569,8 @@ Determines uniform (u,v) parameters of hit point on hit patch
 */
   private static stochasticJacobiUniformHitCoordinates(hit: RayHit, uHit: number[], vHit: number[]): void {
     if ((hit.getFlags() & RayHitFlag.UV) !== 0) {
-      uHit[0] = hit.getUv().u;
-      vHit[0] = hit.getUv().v;
+      uHit[0] = hit.getUv().x;
+      vHit[0] = hit.getUv().y;
       if (hit.getPatch()!.jacobian !== null) {
         hit.getPatch()!.biLinearToUniform(uHit, vHit);
       }
@@ -799,7 +787,7 @@ approximation of total and un-shot radiance and importance
   private static stochasticJacobiPush(parent: StochasticRadiosityElement, child: StochasticRadiosityElement): void {
     if (StochasticJacobi.getRadianceCallback !== null) {
       if (parent.isCluster() && !child.isCluster()) {
-        const rad = new ColorRgb(parent.receivedRadiance![0]!.r, parent.receivedRadiance![0]!.g, parent.receivedRadiance![0]!.b);
+        const rad = new ColorRgbMutable(parent.receivedRadiance![0]!.r, parent.receivedRadiance![0]!.g, parent.receivedRadiance![0]!.b);
         const Rd = child.Rd;
         rad.selfScalarProduct(Rd);
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, [rad], child.receivedRadiance!);
@@ -921,7 +909,7 @@ Generic routine for Stochastic Jacobi iterations.
   public static doStochasticJacobiIteration(
     sceneWorldVoxelGrid: VoxelGrid,
     numberOfRays: number,
-    getRadianceCallBack: ((elem: StochasticRadiosityElement) => ColorRgb[] | null) | null,
+    getRadianceCallBack: ((elem: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null,
     getImportanceCallBack: ((elem: StochasticRadiosityElement) => number) | null,
     updateCallBack: ((elem: StochasticRadiosityElement, w: number) => void) | null,
     scenePatches: ArrayList<Patch>,

@@ -1,3 +1,4 @@
+import { String as JavaString } from "../../../../java/lang/String";
 import { InputStream } from "../../../../java/io/InputStream";
 import { Logger } from "../../common/logging/Logger";
 import { ColorContext } from "../context/ColorContext";
@@ -143,7 +144,7 @@ export class MgfParserLoader {
   */
   private static mgfSetNrQuartCircDivs(divs: number): void {
     if (divs <= 0) {
-      Logger.error(null, "Number of quarter circle divisions (%d) should be positive", divs);
+      Logger.reportMessage(null, Logger.ERROR, "", JavaString.vformat("Number of quarter circle divisions (%d) should be positive", [divs]));
     }
   }
 
@@ -399,7 +400,7 @@ export class MgfParserLoader {
     const handlerIndex = handlerType as number;
     const handler = context.readerStackState.handlerByType[handlerIndex];
     if (handler === null) {
-      Logger.fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+      Logger.reportMessage(null, Logger.FATAL_ERROR, "mgfHandlerFromType", JavaString.vformat("Missing MGF handler for type %d", [handlerIndex]));
     }
     return handler as EntityDispatchContext;
   }

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { Patch } from "../../../environment/geometry/elements/Patch";
 
@@ -22,7 +22,7 @@ export class BinaryModelPatchRecordData {
   public dominantIndex: number;
   public omit: boolean;
   public flags: number;
-  public color: ColorRgb;
+  public color: ColorRgbMutable;
   public materialIndex: number;
   public hasRadianceData: boolean;
 
@@ -46,7 +46,7 @@ export class BinaryModelPatchRecordData {
     this.dominantIndex = 0;
     this.omit = false;
     this.flags = 0;
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     this.materialIndex = -1;
     this.hasRadianceData = false;
   }

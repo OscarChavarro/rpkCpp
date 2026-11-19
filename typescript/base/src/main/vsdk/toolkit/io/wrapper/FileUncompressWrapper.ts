@@ -1,3 +1,4 @@
+import { String as JavaString } from "../../../../java/lang/String";
 import { File } from "../../../../java/io/File";
 import { FileInputStream } from "../../../../java/io/FileInputStream";
 import { FileOutputStream } from "../../../../java/io/FileOutputStream";
@@ -40,7 +41,7 @@ export class FileUncompressWrapper {
     }
 
     if (stream === null) {
-      Logger.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.READ));
+      Logger.reportMessage(null, Logger.ERROR, "", JavaString.vformat("Can't open file '%s' for %s", [safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.READ)]));
       if (isPipe !== null && isPipe.length > 0) {
         isPipe[0] = 0;
       }
@@ -80,7 +81,7 @@ export class FileUncompressWrapper {
     }
 
     if (stream === null) {
-      Logger.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.WRITE));
+      Logger.reportMessage(null, Logger.ERROR, "", JavaString.vformat("Can't open file '%s' for %s", [safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.WRITE)]));
       if (isPipe !== null && isPipe.length > 0) {
         isPipe[0] = 0;
       }

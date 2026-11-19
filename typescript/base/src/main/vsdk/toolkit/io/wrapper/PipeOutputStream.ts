@@ -82,7 +82,11 @@ export class PipeOutputStream extends OutputStream {
     }
   }
 
-  public close(): void {
+  public override writeBytes(buffer: Uint8Array, offset = 0, length = buffer.length - offset): void {
+    this.write(buffer, offset, length);
+  }
+
+  public override close(): void {
     if (this.pipeOutput === null) {
       return;
     }

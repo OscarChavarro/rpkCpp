@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -101,7 +101,7 @@ export class SoftIds {
     return ids;
   }
 
-  public static softRenderPixels(width: number, height: number, rgb: ColorRgb[], toneMapOptions: ToneMappingContext): void {
+  public static softRenderPixels(width: number, height: number, rgb: ColorRgbMutable[], toneMapOptions: ToneMappingContext): void {
     const rowLength = ((4 * width * Uint8Array.BYTES_PER_ELEMENT + 7) & ~7);
     const c = new Uint8Array(height * rowLength + 8);
 
@@ -109,7 +109,7 @@ export class SoftIds {
       const rowRgbStart = j * width;
       const rowStart = j * rowLength;
       for (let i = 0; i < width; i++) {
-        const correctedRgb = new ColorRgb(
+        const correctedRgb = new ColorRgbMutable(
           rgb[rowRgbStart + i]!.r,
           rgb[rowRgbStart + i]!.g,
           rgb[rowRgbStart + i]!.b

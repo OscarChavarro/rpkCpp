@@ -121,18 +121,18 @@ export class SamplerConfig {
 
     if (lastNode === null) {
       if (this.pointSampler === null) {
-        VsdkLogger.warning("SamplerConfig::traceNode", "Point sampler not configured");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Point sampler not configured");
         return null;
       }
       if (!this.pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2)) {
-        VsdkLogger.warning("SamplerConfig::traceNode", "Point sampler failed");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Point sampler failed");
         return null;
       }
     }
     else if (lastNode.m_depth === 0) {
       if (lastNode.m_depth + 1 < this.maxDepth) {
         if (this.dirSampler === null) {
-          VsdkLogger.warning("SamplerConfig::traceNode", "Direction sampler not configured");
+          VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Direction sampler not configured");
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }
@@ -149,7 +149,7 @@ export class SamplerConfig {
     else {
       if (lastNode.m_depth + 1 < this.maxDepth) {
         if (this.surfaceSampler === null) {
-          VsdkLogger.warning("SamplerConfig::traceNode", "Surface sampler not configured");
+          VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Surface sampler not configured");
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }

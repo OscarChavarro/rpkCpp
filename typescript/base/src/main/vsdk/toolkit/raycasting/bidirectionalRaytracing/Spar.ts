@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { BiPath } from "./BiPath";
 import { ContribHandler } from "./ContribHandler";
@@ -50,10 +50,10 @@ export class Spar {
     }
   }
 
-  public handlePath(config: SparConfig, path: BiPath): ColorRgb {
+  public handlePath(config: SparConfig, path: BiPath): ColorRgbMutable {
     void config;
     void path;
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
     return result;
   }

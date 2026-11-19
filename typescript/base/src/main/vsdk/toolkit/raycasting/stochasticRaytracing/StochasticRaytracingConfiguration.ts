@@ -119,10 +119,10 @@ export class StochasticRaytracingConfiguration {
 
     if (this.radMode !== RayTracingRadMode.STORED_NONE) {
       if (radianceMethod === null) {
-        VsdkLogger.error("Stored Radiance", "No radiance method active, using no storage");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Stored Radiance", "No radiance method active, using no storage");
       }
       else if ((this.radMode === RayTracingRadMode.STORED_PHOTON_MAP) && (radianceMethod.className !== RadianceMethodAlgorithm.PHOTON_MAP)) {
-        VsdkLogger.error("Stored Radiance", "Photon map method not active, using no storage");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Stored Radiance", "Photon map method not active, using no storage");
       }
       this.radMode = RayTracingRadMode.STORED_NONE;
     }
@@ -141,7 +141,7 @@ export class StochasticRaytracingConfiguration {
       this.reflectionSampling === RayTracingSamplingMode.CLASSICAL_SAMPLING
       && (this.radMode as RayTracingRadMode) === RayTracingRadMode.STORED_INDIRECT
     ) {
-      VsdkLogger.error("Classical raytracing", "Incompatible with extended final gather, using storage directly");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Classical raytracing", "Incompatible with extended final gather, using storage directly");
       this.radMode = RayTracingRadMode.STORED_DIRECT;
     }
 
@@ -156,7 +156,7 @@ export class StochasticRaytracingConfiguration {
     this.separateSpecular = state.separateSpecular !== 0;
 
     if (this.reflectionSampling === RayTracingSamplingMode.PHOTON_MAP_SAMPLING) {
-      VsdkLogger.warning("Fresnel Specular Sampling", "always uses separate specular");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "Fresnel Specular Sampling", "always uses separate specular");
       this.separateSpecular = true;
     }
 
@@ -165,7 +165,7 @@ export class StochasticRaytracingConfiguration {
 
     this.toneMapOptions = inToneMapOptions;
     if (this.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
       return;
     }
 
@@ -196,7 +196,7 @@ export class StochasticRaytracingConfiguration {
         this.samplerConfig.surfaceSampler = new BsdfSampler();
         break;
       default:
-        VsdkLogger.error("SR CONFIG::initDependentVars", "Wrong sampling mode");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "SR CONFIG::initDependentVars", "Wrong sampling mode");
         break;
     }
 
@@ -245,7 +245,7 @@ export class StochasticRaytracingConfiguration {
         this.siStorage.nrSamplesAfter = 0;
         break;
       default:
-        VsdkLogger.error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "SR CONFIG::initDependentVars", "Wrong Rad Mode");
         break;
     }
 

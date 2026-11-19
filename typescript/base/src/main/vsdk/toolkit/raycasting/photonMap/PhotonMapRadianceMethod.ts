@@ -4,7 +4,7 @@ import { String as JavaString } from "../../../../java/lang/String";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -143,7 +143,7 @@ Initializes the computations for the current scene (if any)
     process.stderr.write("Photon map activated\n");
 
     if (toneMapOptions === null || scene.camera === null) {
-      VsdkLogger.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context or camera not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "PhotonMapRadianceMethod::initialize", "Tone mapping context or camera not provided");
       return;
     }
 
@@ -213,8 +213,8 @@ Initializes the computations for the current scene (if any)
     this.photonMapConfig.causticMap = new PhotonMap(this.photonMapState, [this.photonMapState.reconCPhotons]);
   }
 
-  private static cloneColor(c: ColorRgb): ColorRgb {
-    return new ColorRgb(c.r, c.g, c.b);
+  private static cloneColor(c: ColorRgbMutable): ColorRgbMutable {
+    return new ColorRgbMutable(c.r, c.g, c.b);
   }
 
   private static cloneBsdfComp(comp: BsdfComp): BsdfComp {
@@ -232,7 +232,7 @@ Adapted from bi-directional path, this is a bit overkill for here
     camera: Camera,
     config: PhotonMapConfig,
     radianceMethod: RadianceMethod
-  ): ColorRgb {
+  ): ColorRgbMutable {
     void radianceMethod;
     const bp = config.biPath;
     const eyeEndNode = bp.m_eyeEndNode as SimpleRaytracingPathNode;
@@ -367,7 +367,7 @@ Store a photon. Some acceptance tests are performed first
   private photonMapDoPhotonStore(
     camera: Camera,
     node: SimpleRaytracingPathNode,
-    power: ColorRgb
+    power: ColorRgbMutable
   ): boolean {
     if (node.m_hit.getPatch() !== null && node.m_hit.getPatch()!.material !== null) {
       const bsdf = node.m_hit.getPatch()!.material!.getBsdf();
@@ -428,7 +428,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
     radianceMethod: RadianceMethod
   ): void {
     const bp: BiPath = config.biPath;
-    const accPower = new ColorRgb();
+    const accPower = new ColorRgbMutable();
 
     bp.m_lightSize = 1;
     let currentNode = bp.m_lightPath;
@@ -613,7 +613,7 @@ method is not updated in this file
     void renderOptions;
 
     if (scene.camera === null || scene.voxelGrid === null) {
-      VsdkLogger.fatal(-1, "PhotonMapRadianceMethod::doStep", "Scene camera/voxel grid not available");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "PhotonMapRadianceMethod::doStep", "Scene camera/voxel grid not available");
       return false;
     }
 
@@ -648,9 +648,9 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
   /**
 Returns the radiance emitted in the node related direction
 */
-  public getNodeGRadiance(node: SimpleRaytracingPathNode): ColorRgb {
+  public getNodeGRadiance(node: SimpleRaytracingPathNode): ColorRgbMutable {
     if (this.photonMapConfig.map === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.clear();
       return black;
     }
@@ -667,9 +667,9 @@ Returns the radiance emitted in the node related direction
   /**
 Returns the radiance emitted in the node related direction
 */
-  public getNodeCRadiance(node: SimpleRaytracingPathNode): ColorRgb {
+  public getNodeCRadiance(node: SimpleRaytracingPathNode): ColorRgbMutable {
     if (this.photonMapConfig.causticMap === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.clear();
       return black;
     }
@@ -691,13 +691,13 @@ Returns the radiance emitted in the node related direction
     v: number,
     dir: Vector3D,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
+  ): ColorRgbMutable {
     void renderOptions;
 
     const hit = new RayHit();
     const point = new Vector3D();
     const bsdf = patch.material !== null ? patch.material.getBsdf() : null;
-    let radiance = new ColorRgb();
+    let radiance = new ColorRgbMutable();
     let density: number;
 
     patch.pointBarycentricMapping(u, v, point);
@@ -726,16 +726,16 @@ Returns the radiance emitted in the node related direction
 
     switch (radiosityReturn) {
       case RadiosityReturnOption.GLOBAL_DENSITY:
-        radiance = this.photonMapConfig.map !== null ? this.photonMapConfig.map.getDensityColor(hit) : new ColorRgb();
+        radiance = this.photonMapConfig.map !== null ? this.photonMapConfig.map.getDensityColor(hit) : new ColorRgbMutable();
         break;
       case RadiosityReturnOption.CAUSTIC_DENSITY:
-        radiance = this.photonMapConfig.causticMap !== null ? this.photonMapConfig.causticMap.getDensityColor(hit) : new ColorRgb();
+        radiance = this.photonMapConfig.causticMap !== null ? this.photonMapConfig.causticMap.getDensityColor(hit) : new ColorRgbMutable();
         break;
       case RadiosityReturnOption.IMPORTANCE_C_DENSITY:
-        radiance = this.photonMapConfig.importanceCMap !== null ? this.photonMapConfig.importanceCMap.getDensityColor(hit) : new ColorRgb();
+        radiance = this.photonMapConfig.importanceCMap !== null ? this.photonMapConfig.importanceCMap.getDensityColor(hit) : new ColorRgbMutable();
         break;
       case RadiosityReturnOption.IMPORTANCE_G_DENSITY:
-        radiance = this.photonMapConfig.importanceMap !== null ? this.photonMapConfig.importanceMap.getDensityColor(hit) : new ColorRgb();
+        radiance = this.photonMapConfig.importanceMap !== null ? this.photonMapConfig.importanceMap.getDensityColor(hit) : new ColorRgbMutable();
         break;
       case RadiosityReturnOption.REC_C_DENSITY:
         if (this.photonMapConfig.importanceCMap !== null) {
@@ -777,7 +777,7 @@ Returns the radiance emitted in the node related direction
         break;
       default:
         radiance.clear();
-        VsdkLogger.error("photonMapGetRadiance", "Unknown radiance return");
+        VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "photonMapGetRadiance", "Unknown radiance return");
     }
 
     return radiance;

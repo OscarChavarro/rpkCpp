@@ -1,7 +1,7 @@
 import { File } from "../../../../java/io/File";
 import { FileOutputStream } from "../../../../java/io/FileOutputStream";
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { DkColor } from "./DkColor";
 import { ImageOutputHandle } from "./ImageOutputHandle";
 import { String as JavaString } from "../../../../java/lang/String";
@@ -37,7 +37,7 @@ export class PicOutputHandle extends ImageOutputHandle {
 
     const bytes = new Uint8Array(Buffer.from(text, "ascii"));
     try {
-      outputStream.write(bytes, 0, bytes.length);
+      outputStream.writeBytes(bytes, 0, bytes.length);
     }
     catch (_ignored) {
     }
@@ -89,7 +89,7 @@ export class PicOutputHandle extends ImageOutputHandle {
     this.outputStream = null;
   }
 
-  public override writeRadianceRGB(rgbRadiance: ColorRgb[]): number {
+  public override writeRadianceRGB(rgbRadiance: ColorRgbMutable[]): number {
     let result = 0;
     if (this.outputStream !== null) {
       result = DkColor.writeScan(rgbRadiance, this.width, this.outputStream);

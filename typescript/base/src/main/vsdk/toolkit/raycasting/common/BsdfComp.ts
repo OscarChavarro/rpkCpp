@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { BsdfComponentFlag } from "../../material/BsdfComponentFlag";
 
@@ -12,20 +12,20 @@ export class BsdfComp {
     | BsdfComponent.BTDF_GLOSSY_COMPONENT
     | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
-  public comp: ColorRgb[];
+  public comp: ColorRgbMutable[];
 
   public constructor() {
-    this.comp = new Array<ColorRgb>(BsdfComp.BSDF_COMPONENTS);
+    this.comp = new Array<ColorRgbMutable>(BsdfComp.BSDF_COMPONENTS);
     for (let i = 0; i < BsdfComp.BSDF_COMPONENTS; i++) {
-      this.comp[i] = new ColorRgb();
+      this.comp[i] = new ColorRgbMutable();
     }
   }
 
-  public get(index: number): ColorRgb {
+  public get(index: number): ColorRgbMutable {
     return this.comp[index]!;
   }
 
-  public asArray(): ColorRgb[] {
+  public asArray(): ColorRgbMutable[] {
     return this.comp;
   }
 
@@ -38,7 +38,7 @@ export class BsdfComp {
     }
   }
 
-  public Fill(col: ColorRgb, flags?: number): void {
+  public Fill(col: ColorRgbMutable, flags?: number): void {
     const useFlags = flags ?? BsdfComp.BSDF_ALL_COMPONENTS;
     for (let i = 0; i < BsdfComp.BSDF_COMPONENTS; i++) {
       if ((useFlags & BsdfComponentFlag.bsdfIndexToComp(i)) !== 0) {
@@ -47,9 +47,9 @@ export class BsdfComp {
     }
   }
 
-  public Sum(flags?: number): ColorRgb {
+  public Sum(flags?: number): ColorRgbMutable {
     const useFlags = flags ?? BsdfComp.BSDF_ALL_COMPONENTS;
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
 
     for (let i = 0; i < BsdfComp.BSDF_COMPONENTS; i++) {

@@ -2,7 +2,8 @@
 Higher order approximations for Galerkin radiosity
 */
 
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { String as JavaString } from "../../../../java/lang/String";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
@@ -40,7 +41,7 @@ export class Basismcrad {
         elem = "quadrilaterals";
         break;
       default:
-        VsdkLogger.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Basismcrad::makeBasis", JavaString.vformat("Invalid element type %d", [et]));
         return basis;
     }
 
@@ -142,8 +143,8 @@ Initialises table of bases
   /**
 Returns color at a given point, with parameters (u,v)
 */
-  public static colorAtUv(basis: GalerkinBasis, rad: ColorRgb[], u: number, v: number): ColorRgb {
-    const res = new ColorRgb();
+  public static colorAtUv(basis: GalerkinBasis, rad: ColorRgbMutable[], u: number, v: number): ColorRgbMutable {
+    const res = new ColorRgbMutable();
     res.clear();
     for (let i = 0; i < basis.size; i++) {
       const s = basis.function![i]!(u, v);
@@ -156,7 +157,7 @@ Returns color at a given point, with parameters (u,v)
 These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
-  public static filterColorDown(parent: ColorRgb[], h: number[][], child: ColorRgb[], n: number): void {
+  public static filterColorDown(parent: ColorRgbMutable[], h: number[][], child: ColorRgbMutable[], n: number): void {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         child[i]!.addScaled(child[i]!, h[j]![i]!, parent[j]!);
@@ -164,7 +165,7 @@ the result to the destination coefficients
     }
   }
 
-  public static filterColorUp(child: ColorRgb[], h: number[][], parent: ColorRgb[], n: number, areaFactor: number): void {
+  public static filterColorUp(child: ColorRgbMutable[], h: number[][], parent: ColorRgbMutable[], n: number, areaFactor: number): void {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         const H = h[i]![j]! * areaFactor;

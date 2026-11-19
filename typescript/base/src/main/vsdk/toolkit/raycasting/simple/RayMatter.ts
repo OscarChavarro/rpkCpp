@@ -3,7 +3,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -167,7 +167,7 @@ export class RayMatter extends RayTracer {
           value = 1.0;
         }
 
-        const matte = new ColorRgb();
+        const matte = new ColorRgbMutable();
         matte.set(value, value, value);
         this.screenBuffer.add(x, y, matte);
       }

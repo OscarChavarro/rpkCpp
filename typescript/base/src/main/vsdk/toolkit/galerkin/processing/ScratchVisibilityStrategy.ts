@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Matrix4x4 } from "../../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -72,8 +72,8 @@ export class ScratchVisibilityStrategy {
     return boundingBox;
   }
 
-  public static scratchRadiance(galerkinState: GalerkinState): ColorRgb {
-    const rad = new ColorRgb();
+  public static scratchRadiance(galerkinState: GalerkinState): ColorRgbMutable {
+    const rad = new ColorRgbMutable();
     rad.clear();
     let nonBackGround = 0;
 
@@ -85,10 +85,10 @@ export class ScratchVisibilityStrategy {
           const element = elementBase as GalerkinElement;
           if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
             || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
-            rad.add(rad, (element.radiance as ColorRgb[])[0]!);
+            rad.add(rad, (element.radiance as ColorRgbMutable[])[0]!);
           }
           else {
-            rad.add(rad, (element.unShotRadiance as ColorRgb[])[0]!);
+            rad.add(rad, (element.unShotRadiance as ColorRgbMutable[])[0]!);
           }
           nonBackGround++;
         }

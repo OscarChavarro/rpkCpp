@@ -28,7 +28,7 @@ export class EyeSampler extends Sampler {
     void flags;
 
     if (prevNode !== null || thisNode !== null) {
-      VsdkLogger.warning("EyeSampler::sample", "Not first node in path ?!");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "EyeSampler::sample", "Not first node in path ?!");
     }
 
     newNode.m_depth = 0;

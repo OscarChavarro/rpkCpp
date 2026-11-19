@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../java/io/OutputStream";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";
@@ -12,8 +12,8 @@ import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { SoftIds } from "./SoftIds";
 
 export class ScreenBuffer {
-  private radiance: ColorRgb[] | null;
-  private rgbColor: ColorRgb[] | null;
+  private radiance: ColorRgbMutable[] | null;
+  private rgbColor: ColorRgbMutable[] | null;
   private camera: Camera;
 
   private synced: boolean;
@@ -63,7 +63,7 @@ export class ScreenBuffer {
     }
 
     if (inCamera === null) {
-      Logger.fatal(-1, "ScreenBuffer::init", "Camera not set");
+      Logger.reportMessage(this, Logger.FATAL_ERROR, "ScreenBuffer::init", "Camera not set");
       return;
     }
 
@@ -75,20 +75,20 @@ export class ScreenBuffer {
     this.camera = ScreenBuffer.copyCamera(inCamera) as Camera;
 
     if (this.radiance === null) {
-      this.radiance = new Array<ColorRgb>(this.camera.xSize * this.camera.ySize);
-      this.rgbColor = new Array<ColorRgb>(this.camera.xSize * this.camera.ySize);
+      this.radiance = new Array<ColorRgbMutable>(this.camera.xSize * this.camera.ySize);
+      this.rgbColor = new Array<ColorRgbMutable>(this.camera.xSize * this.camera.ySize);
       for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-        this.radiance[i] = new ColorRgb();
-        this.rgbColor[i] = new ColorRgb();
+        this.radiance[i] = new ColorRgbMutable();
+        this.rgbColor[i] = new ColorRgbMutable();
         this.radiance[i]!.clear();
         this.rgbColor[i]!.clear();
       }
     }
 
-    const black = new ColorRgb(0.0, 0.0, 0.0);
+    const black = new ColorRgbMutable(0.0, 0.0, 0.0);
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i]!.setMonochrome(0.0);
-      (this.rgbColor as ColorRgb[])[i]!.set(black.r, black.g, black.b);
+      (this.radiance as ColorRgbMutable[])[i]!.setMonochrome(0.0);
+      (this.rgbColor as ColorRgbMutable[])[i]!.set(black.r, black.g, black.b);
     }
 
     this.factor = 1.0;
@@ -120,7 +120,7 @@ export class ScreenBuffer {
     this.rgbImage = source.isRgbImage();
 
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i]!.set((source.radiance as ColorRgb[])[i]!.r, (source.radiance as ColorRgb[])[i]!.g, (source.radiance as ColorRgb[])[i]!.b);
+      (this.radiance as ColorRgbMutable[])[i]!.set((source.radiance as ColorRgbMutable[])[i]!.r, (source.radiance as ColorRgbMutable[])[i]!.g, (source.radiance as ColorRgbMutable[])[i]!.b);
     }
     this.synced = false;
   }
@@ -130,31 +130,31 @@ export class ScreenBuffer {
     this.rgbImage = src1.isRgbImage();
 
     if ((this.getHRes() !== src2.getHRes()) || (this.getVRes() !== src2.getVRes())) {
-      Logger.error("ScreenBuffer::merge", "Incompatible screen buffer sources");
+      Logger.reportMessage(this, Logger.ERROR, "ScreenBuffer::merge", "Incompatible screen buffer sources");
       return;
     }
 
     const n = this.getVRes() * this.getHRes();
     for (let i = 0; i < n; i++) {
-      (this.radiance as ColorRgb[])[i]!.add((src1.radiance as ColorRgb[])[i]!, (src2.radiance as ColorRgb[])[i]!);
+      (this.radiance as ColorRgbMutable[])[i]!.add((src1.radiance as ColorRgbMutable[])[i]!, (src2.radiance as ColorRgbMutable[])[i]!);
     }
   }
 
-  public add(x: number, y: number, inRadiance: ColorRgb): void {
+  public add(x: number, y: number, inRadiance: ColorRgbMutable): void {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    (this.radiance as ColorRgb[])[index]!.addScaled((this.radiance as ColorRgb[])[index]!, this.addFactor, inRadiance);
+    (this.radiance as ColorRgbMutable[])[index]!.addScaled((this.radiance as ColorRgbMutable[])[index]!, this.addFactor, inRadiance);
     this.synced = false;
   }
 
-  public set(x: number, y: number, inRadiance: ColorRgb): void {
+  public set(x: number, y: number, inRadiance: ColorRgbMutable): void {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    (this.radiance as ColorRgb[])[index]!.scaledCopy(this.addFactor, inRadiance);
+    (this.radiance as ColorRgbMutable[])[index]!.scaledCopy(this.addFactor, inRadiance);
     this.synced = false;
   }
 
-  public get(x: number, y: number): ColorRgb {
+  public get(x: number, y: number): ColorRgbMutable {
     const index = x + (this.camera.ySize - y - 1) * this.camera.xSize;
-    return (this.radiance as ColorRgb[])[index]!;
+    return (this.radiance as ColorRgbMutable[])[index]!;
   }
 
   public render(): void {
@@ -165,7 +165,7 @@ export class ScreenBuffer {
     SoftIds.softRenderPixels(
       this.camera.xSize,
       this.camera.ySize,
-      this.rgbColor as ColorRgb[],
+      this.rgbColor as ColorRgbMutable[],
       this.requireToneMappingContext()
     );
   }
@@ -198,10 +198,10 @@ export class ScreenBuffer {
 
       for (let i = this.camera.ySize - 1; i >= 0; i--) {
         if (!this.isRgbImage()) {
-          const scanline = new Array<ColorRgb>(this.camera.xSize);
+          const scanline = new Array<ColorRgbMutable>(this.camera.xSize);
           const rowStart = i * this.camera.xSize;
           for (let j = 0; j < this.camera.xSize; j++) {
-            scanline[j] = (this.radiance as ColorRgb[])[rowStart + j]!;
+            scanline[j] = (this.radiance as ColorRgbMutable[])[rowStart + j]!;
           }
           ip.writeRadianceRGB(scanline);
         }
@@ -209,7 +209,7 @@ export class ScreenBuffer {
           const rgbFloatArray = new Array<number>(3 * this.camera.xSize);
           const rowStart = i * this.camera.xSize;
           for (let j = 0; j < this.camera.xSize; j++) {
-            const color = (this.radiance as ColorRgb[])[rowStart + j]!;
+            const color = (this.radiance as ColorRgbMutable[])[rowStart + j]!;
             const base = 3 * j;
             rgbFloatArray[base] = color.r;
             rgbFloatArray[base + 1] = color.g;
@@ -261,25 +261,25 @@ export class ScreenBuffer {
       this.syncLine(y);
     }
 
-    const scanline = new Array<ColorRgb>(this.camera.xSize);
+    const scanline = new Array<ColorRgbMutable>(this.camera.xSize);
     const rowStart = y * this.camera.xSize;
     for (let i = 0; i < this.camera.xSize; i++) {
-      scanline[i] = (this.rgbColor as ColorRgb[])[rowStart + i]!;
+      scanline[i] = (this.rgbColor as ColorRgbMutable[])[rowStart + i]!;
     }
     SoftIds.softRenderPixels(this.camera.xSize, 1, scanline, this.requireToneMappingContext());
   }
 
   public sync(): void {
-    const tmpRad = new ColorRgb();
+    const tmpRad = new ColorRgbMutable();
     const activeToneMapOptions = this.requireToneMappingContext();
 
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[i]!);
+      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgbMutable[])[i]!);
       if (!this.isRgbImage()) {
-        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[i]!, activeToneMapOptions);
+        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgbMutable[])[i]!, activeToneMapOptions);
       }
       else {
-        tmpRad.set((this.rgbColor as ColorRgb[])[i]!.r, (this.rgbColor as ColorRgb[])[i]!.g, (this.rgbColor as ColorRgb[])[i]!.b);
+        tmpRad.set((this.rgbColor as ColorRgbMutable[])[i]!.r, (this.rgbColor as ColorRgbMutable[])[i]!.g, (this.rgbColor as ColorRgbMutable[])[i]!.b);
       }
     }
 
@@ -287,24 +287,24 @@ export class ScreenBuffer {
   }
 
   protected syncLine(lineNumber: number): void {
-    let tmpRad = new ColorRgb();
+    let tmpRad = new ColorRgbMutable();
     const activeToneMapOptions = this.requireToneMappingContext();
 
     for (let i = 0; i < this.camera.xSize; i++) {
       const idx = lineNumber * this.camera.xSize + i;
-      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgb[])[idx]!);
+      tmpRad.scaledCopy(this.factor, (this.radiance as ColorRgbMutable[])[idx]!);
       if (!this.isRgbImage()) {
-        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgb[])[idx]!, activeToneMapOptions);
+        ToneMap.radianceToRgb(tmpRad, (this.rgbColor as ColorRgbMutable[])[idx]!, activeToneMapOptions);
       }
       else {
-        tmpRad = (this.rgbColor as ColorRgb[])[idx]!;
+        tmpRad = (this.rgbColor as ColorRgbMutable[])[idx]!;
       }
     }
   }
 
   protected requireToneMappingContext(): ToneMappingContext {
     if (this.toneMapOptions === null) {
-      Logger.fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+      Logger.reportMessage(this, Logger.FATAL_ERROR, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
     }
     return this.toneMapOptions as ToneMappingContext;
   }
@@ -407,13 +407,13 @@ export class ScreenBuffer {
     return this.camera.pixelHeight * this.camera.ySize / 2.0;
   }
 
-  public getBiLinear(x: number, y: number): ColorRgb {
+  public getBiLinear(x: number, y: number): ColorRgbMutable {
     const nx0v = [0];
     const ny0v = [0];
     let nx1: number;
     let ny1: number;
     let center: Vector2D;
-    const color = new ColorRgb();
+    const color = new ColorRgbMutable();
 
     this.getPixel(x, y, nx0v, ny0v);
     const nx0 = nx0v[0]!;
@@ -450,7 +450,7 @@ export class ScreenBuffer {
 
   public scaleRadiance(inFactor: number): void {
     for (let i = 0; i < this.camera.xSize * this.camera.ySize; i++) {
-      (this.radiance as ColorRgb[])[i]!.scale(inFactor);
+      (this.radiance as ColorRgbMutable[])[i]!.scale(inFactor);
     }
     this.synced = false;
   }

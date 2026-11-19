@@ -1,5 +1,5 @@
 import { Cie } from "../../common/color/Cie";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { ColorContext } from "../context/ColorContext";
@@ -37,7 +37,7 @@ export class MgfMaterialEntitySupport {
   /**
   Translates mgf color into output color representation.
   */
-  private static mgfGetColor(cin: ColorContext, intensity: number, colorOut: ColorRgb, context: ParseRuntimeContext): void {
+  private static mgfGetColor(cin: ColorContext, intensity: number, colorOut: ColorRgbMutable, context: ParseRuntimeContext): void {
     const xyz = [0.0, 0.0, 0.0];
     const rgb = [0.0, 0.0, 0.0];
 
@@ -74,13 +74,13 @@ export class MgfMaterialEntitySupport {
     colorOut.set(rgb[0]!, rgb[1]!, rgb[2]!);
   }
 
-  private static specSamples(col: ColorRgb, rgb: number[]): void {
+  private static specSamples(col: ColorRgbMutable, rgb: number[]): void {
     rgb[0] = col.r;
     rgb[1] = col.g;
     rgb[2] = col.b;
   }
 
-  private static colorMax(col: ColorRgb): number {
+  private static colorMax(col: ColorRgbMutable): number {
     // First approximation: evaluate only RGB primaries.
     const samples = [0.0, 0.0, 0.0];
     MgfMaterialEntitySupport.specSamples(col, samples);
@@ -99,13 +99,13 @@ export class MgfMaterialEntitySupport {
   Returns true if material in use changed.
   */
   public static mgfGetCurrentMaterial(material: Array<Material | null>, allSurfacesSided: boolean, context: ParseRuntimeContext): boolean {
-    const Ed = new ColorRgb();
-    const Es = new ColorRgb();
-    const Rd = new ColorRgb();
-    const Td = new ColorRgb();
-    const Rs = new ColorRgb();
-    const Ts = new ColorRgb();
-    const A = new ColorRgb();
+    const Ed = new ColorRgbMutable();
+    const Es = new ColorRgbMutable();
+    const Rd = new ColorRgbMutable();
+    const Td = new ColorRgbMutable();
+    const Rs = new ColorRgbMutable();
+    const Ts = new ColorRgbMutable();
+    const A = new ColorRgbMutable();
     const currentMaterialContext = context.materialRepository.currentMaterialContext as MaterialContext;
     let materialName = context.currentMaterialName;
     if (materialName === null || materialName.length <= 0) {

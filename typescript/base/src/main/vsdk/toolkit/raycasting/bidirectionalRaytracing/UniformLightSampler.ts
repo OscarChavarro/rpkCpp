@@ -87,13 +87,13 @@ export class UniformLightSampler extends NextEventSampler {
         pdfLight = 1.0;
       }
       else {
-        VsdkLogger.warning("sample Unit Light Node", "No valid light selected");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "sample Unit Light Node", "No valid light selected");
         return false;
       }
     }
     else {
       if (this.lightList === null) {
-        VsdkLogger.warning("FillLightNode", "No light list available");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "FillLightNode", "No light list available");
         return false;
       }
       const localX1 = [x1];
@@ -103,7 +103,7 @@ export class UniformLightSampler extends NextEventSampler {
       pdfLight = outPdfLight[0]!;
 
       if (light === null) {
-        VsdkLogger.warning("FillLightNode", "No light found");
+        VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "FillLightNode", "No light found");
         return false;
       }
     }

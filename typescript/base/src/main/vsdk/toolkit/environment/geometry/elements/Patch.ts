@@ -1,4 +1,5 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { String as JavaString } from "../../../../../java/lang/String";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../../common/logging/Logger";
 import { CoordinateAxis } from "../../../common/linealAlgebra/CoordinateAxis";
 import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
@@ -13,6 +14,10 @@ import type { Element } from "./Element";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { RayHit } from "./RayHit";
 import { Vertex } from "./Vertex";
+
+function vector2DdDeterminant(a: Vector2Dd, b: Vector2Dd): number {
+  return a.x * b.y - a.y * b.x;
+}
 
 export class Patch {
   public static readonly MAXIMUM_VERTICES_PER_PATCH = 4;
@@ -39,7 +44,7 @@ export class Patch {
   public directPotential: number;
   public index: CoordinateAxis;
   public omit: number;
-  public color: ColorRgb;
+  public color: ColorRgbMutable;
   public radianceData: Element | null;
   public material: Material | null;
 
@@ -120,7 +125,7 @@ export class Patch {
         break;
       }
       default:
-        VsdkLogger.fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", this.numberOfVertices);
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "PatchNormalAtUV", JavaString.vformat("Invalid number of vertices %d", [this.numberOfVertices]));
         break;
     }
 
@@ -140,12 +145,7 @@ export class Patch {
     else {
       if (D < -Patch.TOLERANCE * Patch.TOLERANCE) {
         x[0] = -B / (2.0 * A);
-        VsdkLogger.error(
-          null,
-          "Bi-linear->Uniform mapping has negative discriminant D = %g. Taking 0 as discriminant and %g as solution.",
-          D,
-          x[0]
-        );
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Bi-linear->Uniform mapping has negative discriminant D = %g. Taking 0 as discriminant and %g as solution.", [D, x[0]]));
         return false;
       }
 
@@ -266,7 +266,7 @@ export class Patch {
         }
         break;
       default:
-        VsdkLogger.fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.");
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.");
         this.jacobian = null;
         this.area = 0.0;
         break;
@@ -321,55 +321,55 @@ export class Patch {
       case CoordinateAxis.X:
         u0 = this.vertex[vertexIndex]!.point.y;
         v0 = this.vertex[vertexIndex]!.point.z;
-        Vector2Dd.set(p0, point.y - u0, point.z - v0);
+        p0.set(point.y - u0, point.z - v0);
         vertexIndex++;
-        Vector2Dd.set(p1, this.vertex[vertexIndex]!.point.y - u0, this.vertex[vertexIndex]!.point.z - v0);
+        p1.set(this.vertex[vertexIndex]!.point.y - u0, this.vertex[vertexIndex]!.point.z - v0);
         vertexIndex++;
-        Vector2Dd.set(p2, this.vertex[vertexIndex]!.point.y - u0, this.vertex[vertexIndex]!.point.z - v0);
+        p2.set(this.vertex[vertexIndex]!.point.y - u0, this.vertex[vertexIndex]!.point.z - v0);
         break;
       case CoordinateAxis.Y:
         u0 = this.vertex[vertexIndex]!.point.x;
         v0 = this.vertex[vertexIndex]!.point.z;
-        Vector2Dd.set(p0, point.x - u0, point.z - v0);
+        p0.set(point.x - u0, point.z - v0);
         vertexIndex++;
-        Vector2Dd.set(p1, this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.z - v0);
+        p1.set(this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.z - v0);
         vertexIndex++;
-        Vector2Dd.set(p2, this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.z - v0);
+        p2.set(this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.z - v0);
         break;
       case CoordinateAxis.Z:
         u0 = this.vertex[vertexIndex]!.point.x;
         v0 = this.vertex[vertexIndex]!.point.y;
-        Vector2Dd.set(p0, point.x - u0, point.y - v0);
+        p0.set(point.x - u0, point.y - v0);
         vertexIndex++;
-        Vector2Dd.set(p1, this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.y - v0);
+        p1.set(this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.y - v0);
         vertexIndex++;
-        Vector2Dd.set(p2, this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.y - v0);
+        p2.set(this.vertex[vertexIndex]!.point.x - u0, this.vertex[vertexIndex]!.point.y - v0);
         break;
       default:
         break;
     }
 
-    if (p1.u < -Numeric.EPSILON || p1.u > Numeric.EPSILON) {
-      beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
+    if (p1.x < -Numeric.EPSILON || p1.x > Numeric.EPSILON) {
+      beta = (p0.y * p1.x - p0.x * p1.y) / (p2.y * p1.x - p2.x * p1.y);
       if (beta >= 0.0 && beta <= 1.0) {
-        alpha = (p0.u - beta * p2.u) / p1.u;
+        alpha = (p0.x - beta * p2.x) / p1.x;
       }
       else {
         return false;
       }
     }
     else {
-      beta = p0.u / p2.u;
+      beta = p0.x / p2.x;
       if (beta >= 0.0 && beta <= 1.0) {
-        alpha = (p0.v - beta * p2.v) / p1.v;
+        alpha = (p0.y - beta * p2.y) / p1.y;
       }
       else {
         return false;
       }
     }
 
-    uv.u = alpha;
-    uv.v = beta;
+    uv.x = alpha;
+    uv.y = beta;
     return !(alpha < 0.0 || (alpha + beta) > 1.0);
   }
 
@@ -406,75 +406,75 @@ export class Patch {
     let vertexIndex = 0;
     switch (patch.index) {
       case CoordinateAxis.X:
-        Vector2Dd.set(A, patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
+        A.set(patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(B, patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
+        B.set(patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(C, patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
+        C.set(patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(D, patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
-        Vector2Dd.set(M, point.y, point.z);
+        D.set(patch.vertex[vertexIndex]!.point.y, patch.vertex[vertexIndex]!.point.z);
+        M.set(point.y, point.z);
         break;
       case CoordinateAxis.Y:
-        Vector2Dd.set(A, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
+        A.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(B, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
+        B.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(C, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
+        C.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
         vertexIndex++;
-        Vector2Dd.set(D, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
-        Vector2Dd.set(M, point.x, point.z);
+        D.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.z);
+        M.set(point.x, point.z);
         break;
       case CoordinateAxis.Z:
-        Vector2Dd.set(A, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
+        A.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
         vertexIndex++;
-        Vector2Dd.set(B, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
+        B.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
         vertexIndex++;
-        Vector2Dd.set(C, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
+        C.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
         vertexIndex++;
-        Vector2Dd.set(D, patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
-        Vector2Dd.set(M, point.x, point.y);
+        D.set(patch.vertex[vertexIndex]!.point.x, patch.vertex[vertexIndex]!.point.y);
+        M.set(point.x, point.y);
         break;
       default:
         break;
     }
 
-    Vector2Dd.subtract(B, A, AB);
-    Vector2Dd.subtract(C, B, BC);
-    Vector2Dd.subtract(D, C, CD);
-    Vector2Dd.subtract(D, A, AD);
-    Vector2Dd.add(CD, AB, AE);
-    Vector2Dd.negate(AE);
-    Vector2Dd.subtract(M, A, AM);
+    AB.set(B.x - A.x, B.y - A.y);
+    BC.set(C.x - B.x, C.y - B.y);
+    CD.set(D.x - C.x, D.y - C.y);
+    AD.set(D.x - A.x, D.y - A.y);
+    AE.set(CD.x + AB.x, CD.y + AB.y);
+    AE.set(-AE.x, -AE.y);
+    AM.set(M.x - A.x, M.y - A.y);
 
     let a: number;
     let b: number;
     let c: number;
 
-    if (globalThis.Math.abs(Vector2Dd.determinant(AB, CD)) < Numeric.EPSILON) {
-      Vector2Dd.subtract(AB, CD, vector);
-      v = Vector2Dd.determinant(AM, vector) / Vector2Dd.determinant(AD, vector);
+    if (globalThis.Math.abs(vector2DdDeterminant(AB, CD)) < Numeric.EPSILON) {
+      vector.set(AB.x - CD.x, AB.y - CD.y);
+      v = vector2DdDeterminant(AM, vector) / vector2DdDeterminant(AD, vector);
       if (v >= 0.0 && v <= 1.0) {
-        b = Vector2Dd.determinant(AB, AD) - Vector2Dd.determinant(AM, AE);
-        c = Vector2Dd.determinant(AM, AD);
+        b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
+        c = vector2DdDeterminant(AM, AD);
         u = globalThis.Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
         isInside = (u >= 0.0 && u <= 1.0);
       }
     }
-    else if (globalThis.Math.abs(Vector2Dd.determinant(BC, AD)) < Numeric.EPSILON) {
-      Vector2Dd.add(AD, BC, vector);
-      u = Vector2Dd.determinant(AM, vector) / Vector2Dd.determinant(AB, vector);
+    else if (globalThis.Math.abs(vector2DdDeterminant(BC, AD)) < Numeric.EPSILON) {
+      vector.set(AD.x + BC.x, AD.y + BC.y);
+      u = vector2DdDeterminant(AM, vector) / vector2DdDeterminant(AB, vector);
       if (u >= 0.0 && u <= 1.0) {
-        b = Vector2Dd.determinant(AD, AB) - Vector2Dd.determinant(AM, AE);
-        c = Vector2Dd.determinant(AM, AB);
+        b = vector2DdDeterminant(AD, AB) - vector2DdDeterminant(AM, AE);
+        c = vector2DdDeterminant(AM, AB);
         v = globalThis.Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
         isInside = (v >= 0.0 && v <= 1.0);
       }
     }
     else {
-      a = Vector2Dd.determinant(AB, AE);
-      c = -Vector2Dd.determinant(AM, AD);
-      b = Vector2Dd.determinant(AB, AD) - Vector2Dd.determinant(AM, AE);
+      a = vector2DdDeterminant(AB, AE);
+      c = -vector2DdDeterminant(AM, AD);
+      b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
       a = -0.5 / a;
       b *= a;
       c *= (a + a);
@@ -486,12 +486,12 @@ export class Patch {
           u = b + sqrtDelta;
         }
         if (u >= 0.0 && u <= 1.0) {
-          v = AD.u + u * AE.u;
+          v = AD.x + u * AE.x;
           if (globalThis.Math.abs(v) < Numeric.EPSILON) {
-            v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
+            v = (AM.y - u * AB.y) / (AD.y + u * AE.y);
           }
           else {
-            v = (AM.u - u * AB.u) / v;
+            v = (AM.x - u * AB.x) / v;
           }
           isInside = (v >= 0.0 && v <= 1.0);
         }
@@ -502,8 +502,8 @@ export class Patch {
       }
     }
 
-    uv.u = Patch.clipToUnitInterval(u);
-    uv.v = Patch.clipToUnitInterval(v);
+    uv.x = Patch.clipToUnitInterval(u);
+    uv.y = Patch.clipToUnitInterval(v);
     return isInside;
   }
 
@@ -536,7 +536,7 @@ export class Patch {
 
     const localNorm = normal.norm();
     if (localNorm < Numeric.EPSILON) {
-      VsdkLogger.warning("patchNormal", "degenerate patch (id %d)", patch.id);
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "patchNormal", JavaString.vformat("degenerate patch (id %d)", [patch.id]));
       return null;
     }
     normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
@@ -563,17 +563,17 @@ export class Patch {
     this.directPotential = 0.0;
     this.index = CoordinateAxis.Z;
     this.omit = 0;
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     this.radianceData = null;
     this.material = null;
 
     if (v1 === null || v2 === null || v3 === null || (inNumberOfVertices === 4 && v4 === null)) {
-      VsdkLogger.error("Patch::Patch", "Null vertex");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Patch::Patch", "Null vertex");
       process.exit(1);
     }
 
     if (inNumberOfVertices !== 3 && inNumberOfVertices !== 4) {
-      VsdkLogger.error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Patch::Patch", "Can only handle quadrilateral or triangular patches");
       process.exit(2);
     }
 
@@ -598,7 +598,7 @@ export class Patch {
 
     if (Patch.patchNormal(this, this.normal) === null) {
       Statistics.instance().reader.numberOfElements--;
-      VsdkLogger.error("Patch::Patch", "Error computing patch normal");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Patch::Patch", "Error computing patch normal");
       process.exit(3);
     }
 
@@ -612,7 +612,7 @@ export class Patch {
     this.connectVertices();
 
     this.directPotential = 0.0;
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     this.color.set(0.0, 0.0, 0.0);
 
     this.omit = 0;
@@ -642,13 +642,7 @@ export class Patch {
 
   private static dontIntersectBase(n: number, p0: Patch | null, p1: Patch | null, p2: Patch | null, p3: Patch | null): void {
     if (n < 0 || n > Patch.MAX_EXCLUDED_PATCHES) {
-      VsdkLogger.fatal(
-        -1,
-        "Patch::dontIntersectBase",
-        "Invalid number of excluded patches %d (maximum is %d)",
-        n,
-        Patch.MAX_EXCLUDED_PATCHES
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Patch::dontIntersectBase", JavaString.vformat("Invalid number of excluded patches %d (maximum is %d)", [n, Patch.MAX_EXCLUDED_PATCHES]));
       return;
     }
 
@@ -728,7 +722,7 @@ export class Patch {
         break;
       }
       default:
-        VsdkLogger.fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", this.numberOfVertices);
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "textureCoordAtUv", JavaString.vformat("Invalid nr of vertices %d", [this.numberOfVertices]));
         break;
     }
     return texCoord;
@@ -867,7 +861,7 @@ export class Patch {
       Patch.pointInQuadrilateral(v1, v2, v3, v4, u, v, point);
     }
     else {
-      VsdkLogger.fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }
 
     return point;
@@ -896,12 +890,12 @@ export class Patch {
         inside = Patch.quadUv(this, point, localUv);
         break;
       default:
-        VsdkLogger.fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "uv", "Can only handle triangular or quadrilateral patches");
         break;
     }
 
-    u[0] = localUv.u;
-    v[0] = localUv.v;
+    u[0] = localUv.x;
+    v[0] = localUv.y;
     return inside;
   }
 

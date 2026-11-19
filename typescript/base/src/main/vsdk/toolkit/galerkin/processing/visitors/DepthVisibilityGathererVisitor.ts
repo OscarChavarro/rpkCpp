@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinState } from "../../GalerkinState";
 import { Interaction } from "../../Interaction";
@@ -7,12 +7,12 @@ import { ClusterLeafVisitor } from "./ClusterLeafVisitor";
 
 export class DepthVisibilityGathererVisitor implements ClusterLeafVisitor {
   private readonly link: Interaction;
-  private readonly sourceRadiance: ColorRgb[];
+  private readonly sourceRadiance: ColorRgbMutable[];
   private readonly pixelArea: number;
 
   public constructor(
     inLink: Interaction,
-    inSourceRadiance: ColorRgb[],
+    inSourceRadiance: ColorRgbMutable[],
     inPixelArea: number,
   ) {
     this.link = inLink;

@@ -1,4 +1,4 @@
 export enum LookUpBehaviors {
-  NON_OWNING,
-  OWNING
+    NON_OWNING,
+    OWNING,
 }

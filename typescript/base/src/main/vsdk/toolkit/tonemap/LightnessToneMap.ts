@@ -1,5 +1,6 @@
+import { String as JavaString } from "../../../java/lang/String";
 import { Cie } from "../common/color/Cie";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Statistics } from "../common/statistics/Statistics";
 import { ToneMap } from "./ToneMap";
@@ -26,12 +27,12 @@ export class LightnessToneMap extends ToneMap {
     void toneMapOptions;
   }
 
-  public override scaleForComputations(radiance: ColorRgb): ColorRgb {
-    VsdkLogger.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
+  public override scaleForComputations(radiance: ColorRgbMutable): ColorRgbMutable {
+    VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "ScaleForComputations", JavaString.vformat("%s %d not yet implemented", ["LightnessToneMap.cpp", 0]));
     return radiance;
   }
 
-  public override scaleForDisplay(radiance: ColorRgb): ColorRgb {
+  public override scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
     const max = radiance.maximumComponent();
     if (max < 1e-32) {
       return radiance;

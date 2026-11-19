@@ -1,6 +1,5 @@
 class JavaObject {
-  public dispose(): void {
-  }
+    public dispose(): void {}
 }
 
 export { JavaObject as Object };

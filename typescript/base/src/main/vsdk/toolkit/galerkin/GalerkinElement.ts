@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
@@ -452,7 +452,7 @@ export class GalerkinElement extends Element {
       return;
     }
     if (this.isCluster()) {
-      VsdkLogger.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "galerkinElementPolygon", "Cannot use this function for cluster elements");
       return;
     }
     if (this.patch === null) {
@@ -497,26 +497,26 @@ export class GalerkinElement extends Element {
       }
     }
 
-    const defaultRadiance = new Array<ColorRgb>(localBasisSize);
-    const defaultReceivedRadiance = new Array<ColorRgb>(localBasisSize);
-    const defaultUnShotRadiance = new Array<ColorRgb>(localBasisSize);
+    const defaultRadiance = new Array<ColorRgbMutable>(localBasisSize);
+    const defaultReceivedRadiance = new Array<ColorRgbMutable>(localBasisSize);
+    const defaultUnShotRadiance = new Array<ColorRgbMutable>(localBasisSize);
     for (let i = 0; i < localBasisSize; i++) {
-      defaultRadiance[i] = new ColorRgb();
-      defaultReceivedRadiance[i] = new ColorRgb();
-      defaultUnShotRadiance[i] = new ColorRgb();
+      defaultRadiance[i] = new ColorRgbMutable();
+      defaultReceivedRadiance[i] = new ColorRgbMutable();
+      defaultUnShotRadiance[i] = new ColorRgbMutable();
     }
-    ColorRgb.arrayClear(defaultRadiance, localBasisSize);
-    ColorRgb.arrayClear(defaultReceivedRadiance, localBasisSize);
-    ColorRgb.arrayClear(defaultUnShotRadiance, localBasisSize);
+    ColorRgbMutable.arrayClear(defaultRadiance, localBasisSize);
+    ColorRgbMutable.arrayClear(defaultReceivedRadiance, localBasisSize);
+    ColorRgbMutable.arrayClear(defaultUnShotRadiance, localBasisSize);
 
     if (this.radiance !== null) {
-      ColorRgb.arrayCopy(defaultRadiance, this.radiance, Math.min(this.basisSize, localBasisSize));
+      ColorRgbMutable.arrayCopy(defaultRadiance, this.radiance, Math.min(this.basisSize, localBasisSize));
     }
     if (this.receivedRadiance !== null) {
-      ColorRgb.arrayCopy(defaultReceivedRadiance, this.receivedRadiance, Math.min(this.basisSize, localBasisSize));
+      ColorRgbMutable.arrayCopy(defaultReceivedRadiance, this.receivedRadiance, Math.min(this.basisSize, localBasisSize));
     }
     if (this.unShotRadiance !== null) {
-      ColorRgb.arrayCopy(defaultUnShotRadiance, this.unShotRadiance, Math.min(this.basisSize, localBasisSize));
+      ColorRgbMutable.arrayCopy(defaultUnShotRadiance, this.unShotRadiance, Math.min(this.basisSize, localBasisSize));
     }
 
     this.radiance = defaultRadiance;

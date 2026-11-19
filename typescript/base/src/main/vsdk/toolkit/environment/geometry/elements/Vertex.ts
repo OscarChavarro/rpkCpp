@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { VertexCompareFlags } from "./VertexCompareFlags";
@@ -14,7 +14,7 @@ export class Vertex {
   public point: Vector3D;
   public normal: Vector3D | null;
   public textureCoordinates: Vector3D | null;
-  public color: ColorRgb;
+  public color: ColorRgbMutable;
   public radianceData: Element[] | null;
   public back: Vertex | null;
   public patches: Patch[] | null;
@@ -31,7 +31,7 @@ export class Vertex {
     this.normal = inNormal;
     this.textureCoordinates = inTextureCoordinates;
     this.patches = inPatches;
-    this.color = new ColorRgb();
+    this.color = new ColorRgbMutable();
     this.color.set(0.0, 0.0, 0.0);
     this.radianceData = null;
     this.back = null;

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
 
@@ -11,11 +11,11 @@ export class IdentityToneMap extends ToneMap {
     void toneMapOptions;
   }
 
-  public override scaleForComputations(radiance: ColorRgb): ColorRgb {
+  public override scaleForComputations(radiance: ColorRgbMutable): ColorRgbMutable {
     return radiance;
   }
 
-  public override scaleForDisplay(radiance: ColorRgb): ColorRgb {
+  public override scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
     return radiance;
   }
 }

@@ -56,7 +56,7 @@ export class MgfTorusEntityExpander {
     if (vertexContext === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if (vertexContext.n.isNull(Numeric.EPSILON)) {
+    if (MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if (!TokenValidationContext.isFloat(argumentValues[2]!) || !TokenValidationContext.isFloat(argumentValues[3]!)) {
@@ -90,17 +90,17 @@ export class MgfTorusEntityExpander {
     MgfTessellationMath.formatFloat(
       p2x,
       24,
-      vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.x,
+      vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.x(),
     );
     MgfTessellationMath.formatFloat(
       p2y,
       24,
-      vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.y,
+      vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.y(),
     );
     MgfTessellationMath.formatFloat(
       p2z,
       24,
-      vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.z,
+      vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * vertexContext.n.z(),
     );
     p2Entity[1] = p2x[0]!;
     p2Entity[2] = p2y[0]!;
@@ -127,17 +127,17 @@ export class MgfTorusEntityExpander {
       MgfTessellationMath.formatFloat(
         p2x,
         24,
-        vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.x,
+        vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.x(),
       );
       MgfTessellationMath.formatFloat(
         p2y,
         24,
-        vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.y,
+        vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.y(),
       );
       MgfTessellationMath.formatFloat(
         p2z,
         24,
-        vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z,
+        vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z(),
       );
       errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
@@ -167,17 +167,17 @@ export class MgfTorusEntityExpander {
       MgfTessellationMath.formatFloat(
         p2x,
         24,
-        vertexContext.p.x + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.x,
+        vertexContext.p.x() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.x(),
       );
       MgfTessellationMath.formatFloat(
         p2y,
         24,
-        vertexContext.p.y + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.y,
+        vertexContext.p.y() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.y(),
       );
       MgfTessellationMath.formatFloat(
         p2z,
         24,
-        vertexContext.p.z + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z,
+        vertexContext.p.z() + 0.5 * sign * (maxRadius - minRadius) * globalThis.Math.cos(theta) * vertexContext.n.z(),
       );
       errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {

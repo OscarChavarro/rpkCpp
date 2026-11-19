@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { BiPath } from "./BiPath";
@@ -31,14 +31,14 @@ export class ContribHandler {
     }
   }
 
-  public compute(path: BiPath): ColorRgb {
-    const result = new ColorRgb();
+  public compute(path: BiPath): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.clear();
 
     const length = path.m_eyeSize + path.m_lightSize;
 
     if (length > this.maxLength) {
-      VsdkLogger.error("CContribHandler::Compute", "Path too long !!");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CContribHandler::Compute", "Path too long !!");
       return result;
     }
 
@@ -63,7 +63,7 @@ export class ContribHandler {
   }
 
   protected doSyntaxError(errString: string): void {
-    VsdkLogger.error("Flag chain Syntax Error", errString);
+    VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Flag chain Syntax Error", errString);
     this.init(this.maxLength);
   }
 

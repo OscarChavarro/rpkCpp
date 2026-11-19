@@ -129,12 +129,12 @@ export class MgfConeEntityTessellator {
     const sign = radius2 < 0.0 ? -1 : 1;
 
     // Initialize
-    const w = new Vector3Dd();
-    w.x = v1Context.p.x - v2Context.p.x;
-    w.y = v1Context.p.y - v2Context.p.y;
-    w.z = v1Context.p.z - v2Context.p.z;
+    const wHolder: Vector3Dd[] = [
+      new Vector3Dd(v1Context.p.x() - v2Context.p.x(), v1Context.p.y() - v2Context.p.y(), v1Context.p.z() - v2Context.p.z())
+    ];
 
-    d = w.normalizeAndGivePreviousNorm(Numeric.EPSILON);
+    d = MgfTessellationMath.normalizeAndGivePreviousNorm(wHolder, Numeric.EPSILON);
+    const w = wHolder[0]!;
     if (Numeric.doubleEqual(d, 0.0, Numeric.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
@@ -150,32 +150,34 @@ export class MgfConeEntityTessellator {
       }
     }
 
-    const u = new Vector3Dd();
-    const v = new Vector3Dd();
-    MgfTessellationMath.mgfMakeAxes(u, v, w, Numeric.EPSILON);
+    const uHolder: Vector3Dd[] = [];
+    const vHolder: Vector3Dd[] = [];
+    MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, w, Numeric.EPSILON);
+    const u = uHolder[0]!;
+    const v = vHolder[0]!;
 
-    MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x + radius2 * u.x);
+    MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * u.x());
     if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
-      MgfTessellationMath.formatFloat(n3x, 24, -w.x);
+      MgfTessellationMath.formatFloat(n3x, 24, -w.x());
     }
     else {
-      MgfTessellationMath.formatFloat(n3x, 24, u.x + w.x * normalOffset2);
+      MgfTessellationMath.formatFloat(n3x, 24, u.x() + w.x() * normalOffset2);
     }
 
-    MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y + radius2 * u.y);
+    MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * u.y());
     if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
-      MgfTessellationMath.formatFloat(n3y, 24, -w.y);
+      MgfTessellationMath.formatFloat(n3y, 24, -w.y());
     }
     else {
-      MgfTessellationMath.formatFloat(n3y, 24, u.y + w.y * normalOffset2);
+      MgfTessellationMath.formatFloat(n3y, 24, u.y() + w.y() * normalOffset2);
     }
 
-    MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z + radius2 * u.z);
+    MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * u.z());
     if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
-      MgfTessellationMath.formatFloat(n3z, 24, -w.z);
+      MgfTessellationMath.formatFloat(n3z, 24, -w.z());
     }
     else {
-      MgfTessellationMath.formatFloat(n3z, 24, u.z + w.z * normalOffset2);
+      MgfTessellationMath.formatFloat(n3z, 24, u.z() + w.z() * normalOffset2);
     }
 
     p3Entity[1] = p3x[0]!;
@@ -205,9 +207,9 @@ export class MgfConeEntityTessellator {
         return errorCode;
       }
 
-      MgfTessellationMath.formatFloat(n4x, 24, w.x);
-      MgfTessellationMath.formatFloat(n4y, 24, w.y);
-      MgfTessellationMath.formatFloat(n4z, 24, w.z);
+      MgfTessellationMath.formatFloat(n4x, 24, w.x());
+      MgfTessellationMath.formatFloat(n4y, 24, w.y());
+      MgfTessellationMath.formatFloat(n4z, 24, w.z());
       n4Entity[1] = n4x[0]!;
       n4Entity[2] = n4y[0]!;
       n4Entity[3] = n4z[0]!;
@@ -223,22 +225,22 @@ export class MgfConeEntityTessellator {
           return errorCode;
         }
 
-        d = u.x * globalThis.Math.cos(theta) + v.x * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x + radius2 * d);
+        d = u.x() * globalThis.Math.cos(theta) + v.x() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3x, 24, d + w.x * normalOffset2);
+          MgfTessellationMath.formatFloat(n3x, 24, d + w.x() * normalOffset2);
         }
 
-        d = u.y * globalThis.Math.cos(theta) + v.y * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y + radius2 * d);
+        d = u.y() * globalThis.Math.cos(theta) + v.y() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3y, 24, d + w.y * normalOffset2);
+          MgfTessellationMath.formatFloat(n3y, 24, d + w.y() * normalOffset2);
         }
 
-        d = u.z * globalThis.Math.cos(theta) + v.z * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z + radius2 * d);
+        d = u.z() * globalThis.Math.cos(theta) + v.z() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3z, 24, d + w.z * normalOffset2);
+          MgfTessellationMath.formatFloat(n3z, 24, d + w.z() * normalOffset2);
         }
         p3Entity[1] = p3x[0]!;
         p3Entity[2] = p3y[0]!;
@@ -281,28 +283,28 @@ export class MgfConeEntityTessellator {
         }
       }
 
-      MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x + radius1 * u.x);
+      MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x() + radius1 * u.x());
       if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
-        MgfTessellationMath.formatFloat(n4x, 24, w.x);
+        MgfTessellationMath.formatFloat(n4x, 24, w.x());
       }
       else {
-        MgfTessellationMath.formatFloat(n4x, 24, u.x + w.x * normalOffset1);
+        MgfTessellationMath.formatFloat(n4x, 24, u.x() + w.x() * normalOffset1);
       }
 
-      MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y + radius1 * u.y);
+      MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y() + radius1 * u.y());
       if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
-        MgfTessellationMath.formatFloat(n4y, 24, w.y);
+        MgfTessellationMath.formatFloat(n4y, 24, w.y());
       }
       else {
-        MgfTessellationMath.formatFloat(n4y, 24, u.y + w.y * normalOffset1);
+        MgfTessellationMath.formatFloat(n4y, 24, u.y() + w.y() * normalOffset1);
       }
 
-      MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z + radius1 * u.z);
+      MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z() + radius1 * u.z());
       if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
-        MgfTessellationMath.formatFloat(n4z, 24, w.z);
+        MgfTessellationMath.formatFloat(n4z, 24, w.z());
       }
       else {
-        MgfTessellationMath.formatFloat(n4z, 24, u.z + w.z * normalOffset1);
+        MgfTessellationMath.formatFloat(n4z, 24, u.z() + w.z() * normalOffset1);
       }
       p4Entity[1] = p4x[0]!;
       p4Entity[2] = p4y[0]!;
@@ -334,34 +336,34 @@ export class MgfConeEntityTessellator {
           return errorCode;
         }
 
-        d = u.x * globalThis.Math.cos(theta) + v.x * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x + radius2 * d);
+        d = u.x() * globalThis.Math.cos(theta) + v.x() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3x, 24, d + w.x * normalOffset2);
+          MgfTessellationMath.formatFloat(n3x, 24, d + w.x() * normalOffset2);
         }
-        MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x + radius1 * d);
+        MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x() + radius1 * d);
         if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n4x, 24, d + w.x * normalOffset1);
+          MgfTessellationMath.formatFloat(n4x, 24, d + w.x() * normalOffset1);
         }
 
-        d = u.y * globalThis.Math.cos(theta) + v.y * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y + radius2 * d);
+        d = u.y() * globalThis.Math.cos(theta) + v.y() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3y, 24, d + w.y * normalOffset2);
+          MgfTessellationMath.formatFloat(n3y, 24, d + w.y() * normalOffset2);
         }
-        MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y + radius1 * d);
+        MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y() + radius1 * d);
         if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n4y, 24, d + w.y * normalOffset1);
+          MgfTessellationMath.formatFloat(n4y, 24, d + w.y() * normalOffset1);
         }
 
-        d = u.z * globalThis.Math.cos(theta) + v.z * globalThis.Math.sin(theta);
-        MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z + radius2 * d);
+        d = u.z() * globalThis.Math.cos(theta) + v.z() * globalThis.Math.sin(theta);
+        MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * d);
         if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n3z, 24, d + w.z * normalOffset2);
+          MgfTessellationMath.formatFloat(n3z, 24, d + w.z() * normalOffset2);
         }
-        MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z + radius1 * d);
+        MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z() + radius1 * d);
         if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
-          MgfTessellationMath.formatFloat(n4z, 24, d + w.z * normalOffset1);
+          MgfTessellationMath.formatFloat(n4z, 24, d + w.z() * normalOffset1);
         }
 
         p3Entity[1] = p3x[0]!;

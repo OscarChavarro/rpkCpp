@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { RandomWalkEstimatorKind } from "./RandomWalkEstimatorKind";
@@ -16,16 +16,16 @@ export class StochasticRelaxation {
   public show: WhatToShow | null;
   public inited: number;
   public currentIteration: number;
-  public unShotFlux: ColorRgb;
-  public totalFlux: ColorRgb;
-  public indirectImportanceWeightedUnShotFlux: ColorRgb;
+  public unShotFlux: ColorRgbMutable;
+  public totalFlux: ColorRgbMutable;
+  public indirectImportanceWeightedUnShotFlux: ColorRgbMutable;
   public unShotYmp: number;
   public totalYmp: number;
   public sourceYmp: number;
   public rayUnitsPerIt: number;
   public bidirectionalTransfers: number;
   public constantControlVariate: number;
-  public controlRadiance: ColorRgb;
+  public controlRadiance: ColorRgbMutable;
   public indirectOnly: number;
   public weightedSampling: number;
   public setSource: number;
@@ -62,16 +62,16 @@ export class StochasticRelaxation {
     this.show = null;
     this.inited = 0;
     this.currentIteration = 0;
-    this.unShotFlux = new ColorRgb();
-    this.totalFlux = new ColorRgb();
-    this.indirectImportanceWeightedUnShotFlux = new ColorRgb();
+    this.unShotFlux = new ColorRgbMutable();
+    this.totalFlux = new ColorRgbMutable();
+    this.indirectImportanceWeightedUnShotFlux = new ColorRgbMutable();
     this.unShotYmp = 0.0;
     this.totalYmp = 0.0;
     this.sourceYmp = 0.0;
     this.rayUnitsPerIt = 0;
     this.bidirectionalTransfers = 0;
     this.constantControlVariate = 0;
-    this.controlRadiance = new ColorRgb();
+    this.controlRadiance = new ColorRgbMutable();
     this.indirectOnly = 0;
     this.weightedSampling = 0;
     this.setSource = 0;
@@ -110,7 +110,7 @@ export class StochasticRelaxation {
 
   public static activeState(): StochasticRelaxation {
     if (StochasticRelaxation.activeStatePtr === null) {
-      VsdkLogger.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
     }
     return StochasticRelaxation.activeStatePtr!;
   }

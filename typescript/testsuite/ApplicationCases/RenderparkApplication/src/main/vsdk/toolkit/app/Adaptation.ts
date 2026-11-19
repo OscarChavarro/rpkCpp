@@ -1,5 +1,6 @@
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Numeric";
 import { Statistics } from "vitral/dist/vsdk/toolkit/common/statistics/Statistics";
@@ -21,7 +22,7 @@ export class Adaptation {
   private static lumAreaIndex = 0;
   private static lumMin = Number.MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
   private static lumMax = 0.0;
-  private static patchRadianceEstimate: ((patch: Patch) => ColorRgb) | null = null;
+  private static patchRadianceEstimate: ((patch: Patch) => ColorRgbMutable) | null = null;
 
   private constructor() {
   }
@@ -29,7 +30,7 @@ export class Adaptation {
   /**
   A-priori estimate of a patch's radiance
   */
-  private static initRadianceEstimate(patch: Patch): ColorRgb {
+  private static initRadianceEstimate(patch: Patch): ColorRgbMutable {
     const allXxdfComponents = XxdfComponentFlag.DIFFUSE_COMPONENT
       | XxdfComponentFlag.GLOSSY_COMPONENT
       | XxdfComponentFlag.SPECULAR_COMPONENT;
@@ -42,7 +43,7 @@ export class Adaptation {
 
     const E = PatchVisitor.averageEmittance(patch, allXxdfComponents);
     const R = PatchVisitor.averageNormalAlbedo(patch, allBsdfComponents);
-    const radiance = new ColorRgb();
+    const radiance = new ColorRgbMutable();
 
     radiance.scalarProduct(R, Statistics.instance().radiance.estimatedAverageRadiance);
     radiance.addScaled(radiance, (1.0 / globalThis.Math.PI), E);
@@ -50,7 +51,7 @@ export class Adaptation {
   }
 
   private static patchBrightnessEstimate(patch: Patch): number {
-    const radiance = (Adaptation.patchRadianceEstimate as (patch: Patch) => ColorRgb)(patch);
+    const radiance = (Adaptation.patchRadianceEstimate as (patch: Patch) => ColorRgbMutable)(patch);
     let brightness = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
     if (brightness < Numeric.EPSILON_FLOAT) {
       brightness = Numeric.EPSILON_FLOAT;
@@ -117,7 +118,7 @@ export class Adaptation {
   emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLuminance
   */
   private static estimateSceneAdaptation(
-    patchRadiance: (patch: Patch) => ColorRgb,
+    patchRadiance: (patch: Patch) => ColorRgbMutable,
     scenePatches: Patch[] | null,
     toneMapOptions: ToneMappingContext
   ): void {
@@ -162,7 +163,7 @@ export class Adaptation {
         break;
       }
       default:
-        VsdkLogger.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "sceneBuilderComputeStats", JavaString.vformat("unknown static adaptation method %s", [toneMapOptions.staticAdaptationMethod]));
     }
   }
 

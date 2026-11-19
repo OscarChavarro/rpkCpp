@@ -1,7 +1,7 @@
 import { Random48 } from "../../common/Random48";
 import { PrintStream } from "../../../../java/io/PrintStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { KDTree } from "../../common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
@@ -122,9 +122,9 @@ export class PhotonMap {
     hit: RayHit,
     flags: number
   ): boolean {
-    let color: ColorRgb;
+    let color: ColorRgbMutable;
     if (bsdf === null) {
-      color = new ColorRgb();
+      color = new ColorRgbMutable();
       color.clear();
     }
     else {
@@ -134,7 +134,7 @@ export class PhotonMap {
         color = bsdf.splitBsdfScatteredPower(shctx, flags & 0xFF);
       }
       else {
-        color = new ColorRgb();
+        color = new ColorRgbMutable();
         color.clear();
       }
     }
@@ -156,8 +156,8 @@ export class PhotonMap {
     return tmp;
   }
 
-  public static getFalseColor(val: number, photonMapState: PhotonMapState): ColorRgb {
-    const col = new ColorRgb();
+  public static getFalseColor(val: number, photonMapState: PhotonMapState): ColorRgbMutable {
+    const col = new ColorRgbMutable();
     let tmp: number;
     let r = 0.0;
     let g = 0.0;
@@ -294,12 +294,12 @@ Adding photons, returns if photon was added
       return 0.5 * (1.0 + globalThis.Math.cos(ratio * globalThis.Math.PI));
     }
 
-    VsdkLogger.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+    VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "PhotonMap::computeAcceptProb", "Unknown accept pdf type");
     return 0.0;
   }
 
   public redistribute(photon: Photon): void {
-    const deltaPower = new ColorRgb();
+    const deltaPower = new ColorRgbMutable();
     const factor = 1.0 / this.m_nrpCosinePos;
 
     const pow = photon.power();
@@ -355,7 +355,7 @@ Get a maximum radius^2 to be used when locating photons
   public photonPrecomputeIrradiance(camera: Camera | null, photon: IrrPhoton): void {
     void camera;
 
-    const irradiance = new ColorRgb();
+    const irradiance = new ColorRgbMutable();
     irradiance.clear();
 
     const pos = photon.pos();
@@ -393,8 +393,8 @@ Get a maximum radius^2 to be used when locating photons
   public irradianceReconstruct(
     hit: RayHit,
     outDir: Vector3D,
-    diffuseAlbedo: ColorRgb,
-    result: ColorRgb
+    diffuseAlbedo: ColorRgbMutable,
+    result: ColorRgbMutable
   ): boolean {
     void outDir;
 
@@ -420,15 +420,15 @@ Get a maximum radius^2 to be used when locating photons
     bsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null
-  ): ColorRgb {
-    const result = new ColorRgb();
-    const evalColor = new ColorRgb();
-    const col = new ColorRgb();
+  ): ColorRgbMutable {
+    const result = new ColorRgbMutable();
+    const evalColor = new ColorRgbMutable();
+    const col = new ColorRgbMutable();
 
     result.clear();
 
-    let diffuseAlbedo = new ColorRgb();
-    let glossyAlbedo = new ColorRgb();
+    let diffuseAlbedo = new ColorRgbMutable();
+    let glossyAlbedo = new ColorRgbMutable();
 
     diffuseAlbedo.clear();
     glossyAlbedo.clear();
@@ -531,7 +531,7 @@ Get a maximum radius^2 to be used when locating photons
   /**
 Return a color coded density of the photon map
 */
-  public getDensityColor(hit: RayHit): ColorRgb {
+  public getDensityColor(hit: RayHit): ColorRgbMutable {
     const density = this.getCurrentDensity(hit, 0);
 
     return PhotonMap.getFalseColor(density, this.photonMapState);

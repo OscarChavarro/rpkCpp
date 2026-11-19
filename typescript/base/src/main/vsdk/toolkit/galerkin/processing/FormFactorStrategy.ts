@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -433,12 +433,12 @@ export class FormFactorStrategy {
       : GalerkinBasis.basisForVertexCount((sourceElement.patch as Patch).numberOfVertices);
 
     const sourceRadiance = (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL)
-      ? (sourceElement.unShotRadiance as ColorRgb[])
-      : (sourceElement.radiance as ColorRgb[]);
+      ? (sourceElement.unShotRadiance as ColorRgbMutable[])
+      : (sourceElement.radiance as ColorRgbMutable[]);
 
-    const deltaRadiance = new Array<ColorRgb>(CubatureRule.MAXIMUM_NODES);
+    const deltaRadiance = new Array<ColorRgbMutable>(CubatureRule.MAXIMUM_NODES);
     for (let i = 0; i < deltaRadiance.length; i++) {
-      deltaRadiance[i] = new ColorRgb();
+      deltaRadiance[i] = new ColorRgbMutable();
     }
     const gMin = [Numeric.HUGE_DOUBLE_VALUE];
     const gMax = [-Numeric.HUGE_DOUBLE_VALUE];
@@ -474,8 +474,8 @@ export class FormFactorStrategy {
     receiverElement: GalerkinElement,
     gMin: number,
     gMax: number,
-    sourceRadiance: ColorRgb[],
-    deltaRadiance: ColorRgb[],
+    sourceRadiance: ColorRgbMutable[],
+    deltaRadiance: ColorRgbMutable[],
     link: Interaction,
   ): void {
     if (sourceRadiance[0]!.isBlack()) {
@@ -506,10 +506,10 @@ export class FormFactorStrategy {
     receiverElement: GalerkinElement,
     sourceBasis: GalerkinBasis | null,
     receiverBasis: GalerkinBasis | null,
-    sourceRadiance: ColorRgb[],
+    sourceRadiance: ColorRgbMutable[],
     gMin: number[],
     gMax: number[],
-    deltaRadiance: ColorRgb[],
+    deltaRadiance: ColorRgbMutable[],
     twoPatchesInteraction: Interaction,
   ): void {
     const receiverPhi = new Array<number[]>(GalerkinBasis.MAX_BASIS_SIZE);

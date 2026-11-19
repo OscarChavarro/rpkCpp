@@ -58,9 +58,9 @@ export class MgfSphereEntityExpander {
     if (errorCode !== ParseErrorContext.MGF_OK) {
       return errorCode;
     }
-    MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x);
-    MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y);
-    MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z + radius);
+    MgfTessellationMath.formatFloat(p2x, 24, vertexContext.p.x());
+    MgfTessellationMath.formatFloat(p2y, 24, vertexContext.p.y());
+    MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z() + radius);
     p2Entity[1] = p2x[0]!;
     p2Entity[2] = p2y[0]!;
     p2Entity[3] = p2z[0]!;
@@ -76,7 +76,7 @@ export class MgfSphereEntityExpander {
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;
       }
-      MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z + radius * globalThis.Math.cos(theta));
+      MgfTessellationMath.formatFloat(p2z, 24, vertexContext.p.z() + radius * globalThis.Math.cos(theta));
       errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v2Entity as string[], context);
       if (errorCode !== ParseErrorContext.MGF_OK) {
         return errorCode;

@@ -1,10 +1,10 @@
 import { Cie } from "../common/color/Cie";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
 
 export class FerwerdaToneMap extends ToneMap {
-  private sf: ColorRgb;
+  private sf: ColorRgbMutable;
   private msf: number;
   private pmComp: number;
   private pmDisplay: number;
@@ -54,7 +54,7 @@ export class FerwerdaToneMap extends ToneMap {
 
   public constructor() {
     super();
-    this.sf = new ColorRgb(0.062, 0.608, 0.330);
+    this.sf = new ColorRgbMutable(0.062, 0.608, 0.330);
     this.msf = 0.0;
     this.pmComp = 0.0;
     this.pmDisplay = 0.0;
@@ -77,8 +77,8 @@ export class FerwerdaToneMap extends ToneMap {
     this.pmDisplay = this.pmComp / maximumDisplayLuminance;
   }
 
-  public override scaleForComputations(radiance: ColorRgb): ColorRgb {
-    const p = new ColorRgb();
+  public override scaleForComputations(radiance: ColorRgbMutable): ColorRgbMutable {
+    const p = new ColorRgbMutable();
     let sl: number;
 
     const eff = Cie.getLuminousEfficacy();
@@ -96,8 +96,8 @@ export class FerwerdaToneMap extends ToneMap {
     return radiance;
   }
 
-  public override scaleForDisplay(radiance: ColorRgb): ColorRgb {
-    const p = new ColorRgb();
+  public override scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
+    const p = new ColorRgbMutable();
     let sl: number;
 
     const eff = Cie.getLuminousEfficacy();

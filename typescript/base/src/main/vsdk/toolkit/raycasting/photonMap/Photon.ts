@@ -1,4 +1,5 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { String as JavaString } from "../../../../java/lang/String";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -7,14 +8,14 @@ import { BsdfComponent } from "../../material/BsdfComponent";
 // Non-compact photon representation
 export class Photon {
   protected m_pos: Vector3D;
-  protected m_power: ColorRgb;
+  protected m_power: ColorRgbMutable;
   protected m_dir: Vector3D;
 
   public constructor();
-  public constructor(pos: Vector3D, power: ColorRgb, dir: Vector3D);
-  public constructor(pos?: Vector3D, power?: ColorRgb, dir?: Vector3D) {
+  public constructor(pos: Vector3D, power: ColorRgbMutable, dir: Vector3D);
+  public constructor(pos?: Vector3D, power?: ColorRgbMutable, dir?: Vector3D) {
     this.m_pos = pos === undefined ? new Vector3D() : new Vector3D(pos.x, pos.y, pos.z);
-    this.m_power = power === undefined ? new ColorRgb() : new ColorRgb(power.r, power.g, power.b);
+    this.m_power = power === undefined ? new ColorRgbMutable() : new ColorRgbMutable(power.r, power.g, power.b);
     this.m_dir = dir === undefined ? new Vector3D() : new Vector3D(dir.x, dir.y, dir.z);
   }
 
@@ -22,11 +23,11 @@ export class Photon {
     return this.m_pos;
   }
 
-  public power(): ColorRgb {
+  public power(): ColorRgbMutable {
     return this.m_power;
   }
 
-  public addPower(col: ColorRgb): void {
+  public addPower(col: ColorRgbMutable): void {
     this.m_power.add(this.m_power, col);
   }
 
@@ -49,7 +50,7 @@ export class Photon {
       r[0] = globalThis.Math.pow(globalThis.Math.cos(theta[0]!), n + 1.0);
     }
     else {
-      VsdkLogger.error("Photon::findRS", "Component %d not implemented yet", flag);
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Photon::findRS", JavaString.vformat("Component %d not implemented yet", [flag]));
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 
 export class Texture {
   private readonly width: number;
@@ -6,7 +6,7 @@ export class Texture {
   private readonly channels: number;
   private readonly data: Uint8Array | null;
 
-  private static setMonochrome(rgb: ColorRgb, val: number): void {
+  private static setMonochrome(rgb: ColorRgbMutable, val: number): void {
     rgb.set(val, val, val);
   }
 
@@ -51,8 +51,8 @@ export class Texture {
     return this.data;
   }
 
-  public evaluateColor(u: number, v: number): ColorRgb {
-    const rgb = new ColorRgb();
+  public evaluateColor(u: number, v: number): ColorRgbMutable {
+    const rgb = new ColorRgbMutable();
     rgb.clear();
 
     if (this.data === null || this.width <= 0 || this.height <= 0 || this.channels <= 0) {
@@ -93,10 +93,10 @@ export class Texture {
     const pixelIndex10 = (j * this.width + i1) * this.channels;
     const pixelIndex11 = (j1 * this.width + i1) * this.channels;
 
-    const rgb00 = new ColorRgb();
-    const rgb10 = new ColorRgb();
-    const rgb01 = new ColorRgb();
-    const rgb11 = new ColorRgb();
+    const rgb00 = new ColorRgbMutable();
+    const rgb10 = new ColorRgbMutable();
+    const rgb01 = new ColorRgbMutable();
+    const rgb11 = new ColorRgbMutable();
 
     switch (this.channels) {
       case 1:

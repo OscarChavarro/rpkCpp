@@ -70,7 +70,7 @@ export class Interaction {
     }
 
     if ((this.numberOfReceiverCubaturePositions & 0xff) > 1) {
-      VsdkLogger.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "interactionCreate", "Not yet implemented for higher order approximations");
     }
 
     this.deltaK = inDeltaK ?? 0.0;

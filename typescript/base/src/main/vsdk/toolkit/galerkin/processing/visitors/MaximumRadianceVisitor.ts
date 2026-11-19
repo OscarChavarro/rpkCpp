@@ -1,18 +1,18 @@
-import { ColorRgb } from "../../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinIterationMethod } from "../../GalerkinIterationMethod";
 import { GalerkinState } from "../../GalerkinState";
 import { ClusterLeafVisitor } from "./ClusterLeafVisitor";
 
 export class MaximumRadianceVisitor implements ClusterLeafVisitor {
-  private accumulatedRadiance: ColorRgb;
+  private accumulatedRadiance: ColorRgbMutable;
 
   public constructor() {
-    this.accumulatedRadiance = new ColorRgb();
+    this.accumulatedRadiance = new ColorRgbMutable();
     this.accumulatedRadiance.clear();
   }
 
-  public getAccumulatedRadiance(): ColorRgb {
+  public getAccumulatedRadiance(): ColorRgbMutable {
     return this.accumulatedRadiance;
   }
 
@@ -20,13 +20,13 @@ export class MaximumRadianceVisitor implements ClusterLeafVisitor {
     galerkinElement: GalerkinElement,
     galerkinState: GalerkinState,
   ): void {
-    let rad: ColorRgb;
+    let rad: ColorRgbMutable;
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
-      rad = (galerkinElement.radiance as ColorRgb[])[0]!;
+      rad = (galerkinElement.radiance as ColorRgbMutable[])[0]!;
     }
     else {
-      rad = (galerkinElement.unShotRadiance as ColorRgb[])[0]!;
+      rad = (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!;
     }
     this.accumulatedRadiance.maximum(this.accumulatedRadiance, rad);
   }

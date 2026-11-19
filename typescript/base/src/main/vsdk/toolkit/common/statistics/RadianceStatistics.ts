@@ -1,22 +1,22 @@
-import { ColorRgb } from "../color/ColorRgb";
+import { ColorRgbMutable } from "../color/ColorRgbMutable";
 
 export class RadianceStatistics {
   public totalArea: number;
-  public maxSelfEmittedRadiance: ColorRgb;
-  public maxSelfEmittedPower: ColorRgb;
+  public maxSelfEmittedRadiance: ColorRgbMutable;
+  public maxSelfEmittedPower: ColorRgbMutable;
   public referenceLuminance: number;
-  public totalEmittedPower: ColorRgb;
-  public estimatedAverageRadiance: ColorRgb;
-  public averageReflectivity: ColorRgb;
+  public totalEmittedPower: ColorRgbMutable;
+  public estimatedAverageRadiance: ColorRgbMutable;
+  public averageReflectivity: ColorRgbMutable;
 
   public constructor() {
     this.totalArea = 0.0;
-    this.maxSelfEmittedRadiance = new ColorRgb();
-    this.maxSelfEmittedPower = new ColorRgb();
+    this.maxSelfEmittedRadiance = new ColorRgbMutable();
+    this.maxSelfEmittedPower = new ColorRgbMutable();
     this.referenceLuminance = 0.0;
-    this.totalEmittedPower = new ColorRgb();
-    this.estimatedAverageRadiance = new ColorRgb();
-    this.averageReflectivity = new ColorRgb();
+    this.totalEmittedPower = new ColorRgbMutable();
+    this.estimatedAverageRadiance = new ColorRgbMutable();
+    this.averageReflectivity = new ColorRgbMutable();
   }
 
   public reset(): void {

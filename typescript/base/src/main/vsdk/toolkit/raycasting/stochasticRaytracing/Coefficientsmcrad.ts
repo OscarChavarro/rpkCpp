@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { GalerkinBasis } from "./GalerkinBasis";
 import { McradP } from "./McradP";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
@@ -9,69 +9,69 @@ export class Coefficientsmcrad {
   private constructor() {
   }
 
-  public static stochasticRadiosityClearCoefficients(c: ColorRgb[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityClearCoefficients(c: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
     if (c === null || galerkinBasis === null) {
       return;
     }
     for (let i = 0; i < galerkinBasis.size; i++) {
       if (c[i] === undefined || c[i] === null) {
-        c[i] = new ColorRgb();
+        c[i] = new ColorRgbMutable();
       }
       c[i]!.clear();
     }
   }
 
-  public static stochasticRadiosityCopyCoefficients(dst: ColorRgb[] | null, src: ColorRgb[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityCopyCoefficients(dst: ColorRgbMutable[] | null, src: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
     if (dst === null || src === null || galerkinBasis === null) {
       return;
     }
     for (let i = 0; i < galerkinBasis.size; i++) {
       if (dst[i] === undefined || dst[i] === null) {
-        dst[i] = new ColorRgb();
+        dst[i] = new ColorRgbMutable();
       }
       if (src[i] === undefined || src[i] === null) {
-        src[i] = new ColorRgb();
+        src[i] = new ColorRgbMutable();
       }
       dst[i]!.set(src[i]!.r, src[i]!.g, src[i]!.b);
     }
   }
 
-  public static stochasticRadiosityAddCoefficients(dst: ColorRgb[] | null, extra: ColorRgb[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityAddCoefficients(dst: ColorRgbMutable[] | null, extra: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
     if (dst === null || extra === null || galerkinBasis === null) {
       return;
     }
     for (let i = 0; i < galerkinBasis.size; i++) {
       if (dst[i] === undefined || dst[i] === null) {
-        dst[i] = new ColorRgb();
+        dst[i] = new ColorRgbMutable();
       }
       if (extra[i] === undefined || extra[i] === null) {
-        extra[i] = new ColorRgb();
+        extra[i] = new ColorRgbMutable();
       }
       dst[i]!.add(dst[i]!, extra[i]!);
     }
   }
 
-  public static stochasticRadiosityScaleCoefficients(scale: number, color: ColorRgb[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityScaleCoefficients(scale: number, color: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
     if (color === null || galerkinBasis === null) {
       return;
     }
     for (let i = 0; i < galerkinBasis.size; i++) {
       if (color[i] === undefined || color[i] === null) {
-        color[i] = new ColorRgb();
+        color[i] = new ColorRgbMutable();
       }
       color[i]!.scale(scale);
     }
   }
 
-  public static stochasticRadiosityMultiplyCoefficients(color: ColorRgb | null, coefficients: ColorRgb[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityMultiplyCoefficients(color: ColorRgbMutable | null, coefficients: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
     if (coefficients === null || galerkinBasis === null || color === null) {
       return;
     }
-    const c = new ColorRgb(color.r, color.g, color.b);
+    const c = new ColorRgbMutable(color.r, color.g, color.b);
 
     for (let i = 0; i < galerkinBasis.size; i++) {
       if (coefficients[i] === undefined || coefficients[i] === null) {
-        coefficients[i] = new ColorRgb();
+        coefficients[i] = new ColorRgbMutable();
       }
       coefficients[i]!.selfScalarProduct(c);
     }
@@ -145,10 +145,10 @@ Basically sets rad to nullptr
     elem.basis = StochasticRadiosityBasisState.activeState().dummyBasis;
   }
 
-  private static createColors(n: number): ColorRgb[] {
-    const data = new Array<ColorRgb>(n);
+  private static createColors(n: number): ColorRgbMutable[] {
+    const data = new Array<ColorRgbMutable>(n);
     for (let i = 0; i < n; i++) {
-      data[i] = new ColorRgb();
+      data[i] = new ColorRgbMutable();
     }
     return data;
   }

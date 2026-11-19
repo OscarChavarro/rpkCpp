@@ -31,8 +31,8 @@ export class ShadingContext {
     this.shadingNormal = new Vector3D(inShadingNormal.x, inShadingNormal.y, inShadingNormal.z);
     this.texCoord = new Vector3D(inTexCoord.x, inTexCoord.y, inTexCoord.z);
     this.uv = new Vector2Dd();
-    this.uv.u = inUv.u;
-    this.uv.v = inUv.v;
+    this.uv.x = inUv.x;
+    this.uv.y = inUv.y;
     this.shadingFrame = new CoordinateSystem();
     this.shadingFrame.setX(inShadingFrame.getX());
     this.shadingFrame.setY(inShadingFrame.getY());

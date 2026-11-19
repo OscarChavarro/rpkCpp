@@ -1,5 +1,6 @@
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
@@ -44,7 +45,7 @@ export class OptionsGroupToneMapping {
 
   private static brightnessAdjustOption(_value: TypedOption.MutableValue<number>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.pow_bright_adjust = globalThis.Math.pow(
@@ -55,7 +56,7 @@ export class OptionsGroupToneMapping {
 
   private static redChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.xr = value.value.x;
@@ -74,7 +75,7 @@ export class OptionsGroupToneMapping {
 
   private static greenChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.xg = value.value.x;
@@ -93,7 +94,7 @@ export class OptionsGroupToneMapping {
 
   private static blueChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.xb = value.value.x;
@@ -112,7 +113,7 @@ export class OptionsGroupToneMapping {
 
   private static whiteChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.xw = value.value.x;
@@ -131,11 +132,7 @@ export class OptionsGroupToneMapping {
 
   private static toneMappingCommandLineOptionDescAdaptMethodOption(name: TypedOption.MutableValue<string | null>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(
-        -1,
-        "CommandLineToneMappingOptionsGroup::toneMappingCommandLineOptionDescAdaptMethodOption",
-        "ToneMappingContext not set"
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
       return;
     }
     const value = name.value ?? "";
@@ -146,13 +143,13 @@ export class OptionsGroupToneMapping {
       OptionsGroupToneMapping.toneMapOptions.staticAdaptationMethod = ToneMapAdaptationMethod.TMA_MEDIAN;
     }
     else {
-      VsdkLogger.error(null, "Invalid adaptation estimate method '%s'", value);
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid adaptation estimate method '%s'", [value]));
     }
   }
 
   private static gammaOption(gam: TypedOption.MutableValue<number>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
       return;
     }
     OptionsGroupToneMapping.toneMapOptions.gamma.set(gam.value, gam.value, gam.value);
@@ -245,7 +242,7 @@ export class OptionsGroupToneMapping {
       OptionsGroupToneMapping.gammaOption,
       null
     );
-    const rgbGammaOpt = new TypedOption<ColorRgb>(
+    const rgbGammaOpt = new TypedOption<ColorRgbMutable>(
       "-rgbgamma",
       TypedOption.reference(
         () => toneMapOptionsContext.gamma,
@@ -315,7 +312,7 @@ export class OptionsGroupToneMapping {
   private static parseColor3(
     argc: number,
     argv: string[] | null,
-    value: TypedOption.MutableValue<ColorRgb>
+    value: TypedOption.MutableValue<ColorRgbMutable>
   ): boolean {
     if (argc < 3 || argv === null || argv[0] === null || argv[1] === null || argv[2] === null) {
       return false;

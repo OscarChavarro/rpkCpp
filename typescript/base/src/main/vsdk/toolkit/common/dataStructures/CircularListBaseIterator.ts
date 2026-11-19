@@ -1,36 +1,35 @@
-import { CircularListBase } from "./CircularListBase";
-import { CircularListLink } from "./CircularListLink";
+import { CircularListBase } from "./CircularListBase.js";
+import { CircularListLink } from "./CircularListLink.js";
 
 export class CircularListBaseIterator {
-  private currentElement: CircularListLink | null;
-  private currentList: CircularListBase | null;
+    private currentElement: CircularListLink | null;
+    private currentList: CircularListBase | null;
 
-  public constructor(list: CircularListBase) {
-    this.currentElement = null;
-    this.currentList = null;
-    this.init(list);
-  }
-
-  public init(list: CircularListBase): void {
-    this.currentList = list;
-    this.currentElement = this.currentList.lastLink();
-  }
-
-  public next(): CircularListLink | null {
-    let response: CircularListLink | null;
-
-    if (this.currentElement === null) {
-      response = null;
-    }
-    else {
-      this.currentElement = this.currentElement.nextLink;
-      response = this.currentElement;
+    public constructor(list: CircularListBase) {
+        this.currentElement = null;
+        this.currentList = null;
+        this.init(list);
     }
 
-    if (this.currentList !== null && this.currentElement === this.currentList.lastLink()) {
-      this.currentElement = null;
+    public init(list: CircularListBase): void {
+        this.currentList = list;
+        this.currentElement = this.currentList.lastLink();
     }
 
-    return response;
-  }
+    public next(): CircularListLink | null {
+        let response: CircularListLink | null;
+
+        if (this.currentElement === null) {
+            response = null;
+        } else {
+            this.currentElement = this.currentElement.nextLink;
+            response = this.currentElement;
+        }
+
+        if (this.currentList !== null && this.currentElement === this.currentList.lastLink()) {
+            this.currentElement = null;
+        }
+
+        return response;
+    }
 }

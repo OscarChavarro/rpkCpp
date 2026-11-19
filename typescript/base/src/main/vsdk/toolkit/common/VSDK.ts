@@ -1,289 +1,133 @@
-import { ColorRgb } from "./color/ColorRgb";
-import { Vector2D } from "./linealAlgebra/Vector2D";
-import { Vector3D } from "./linealAlgebra/Vector3D";
+import { setWithFatalExceptions, setWithSystemExit } from "./VSDKRuntimeSettings.js";
 
+/** Common numeric constants and utility operations in the current Java VSDK. */
 export class VSDK {
-  public static readonly EPSILON = 1e-6;
+    public static readonly EPSILON = 1e-6;
+    public static readonly WARNING = 1;
+    public static readonly ERROR = 2;
+    public static readonly FATAL_ERROR = 3;
+    public static readonly DEBUG = 4;
+    public static readonly VERBOSE = 5;
+    public static readonly POINT = 0;
+    public static readonly LINE = 1;
+    public static readonly TRIANGLE = 2;
+    public static readonly TRIANGLE_STRIP = 3;
+    public static readonly QUAD = 4;
+    public static readonly QUAD_STRIP = 5;
+    public static readonly PRIMITIVE_TYPE_COUNT = 6;
+    public static readonly PLANE = 0;
+    public static readonly SPHERE = 1;
+    public static readonly CONE = 2;
+    public static readonly INTERSECTION_TYPE_COUNT = 3;
 
-  public static readonly WARNING = 1;
-  public static readonly ERROR = 2;
-  public static readonly FATAL_ERROR = 3;
-  public static readonly DEBUG = 4;
-  public static readonly VERBOSE = 5;
-  private static withSystemExit = true;
-
-  public static readonly POINT = 0;
-  public static readonly LINE = 1;
-  public static readonly TRIANGLE = 2;
-  public static readonly TRIANGLE_STRIP = 3;
-  public static readonly QUAD = 4;
-  public static readonly QUAD_STRIP = 5;
-  public static readonly PRIMITIVE_TYPE_COUNT = 6;
-
-  public static readonly PLANE = 0;
-  public static readonly SPHERE = 1;
-  public static readonly CONE = 2;
-  public static readonly INTERSECTION_TYPE_COUNT = 3;
-
-  private static readonly primitiveCount = new Array<number>(VSDK.PRIMITIVE_TYPE_COUNT).fill(0);
-  private static readonly intersectionCount = new Array<number>(VSDK.INTERSECTION_TYPE_COUNT).fill(0);
-
-  public static resetPrimitiveCounters(): void {
-    for (let i = 0; i < VSDK.PRIMITIVE_TYPE_COUNT; i++) {
-      VSDK.primitiveCount[i] = 0;
+    public static equals(a: number, b: number): boolean {
+        return Math.abs(a - b) < VSDK.EPSILON;
     }
-  }
-
-  public static resetIntersectionCounters(): void {
-    for (let i = 0; i < VSDK.INTERSECTION_TYPE_COUNT; i++) {
-      VSDK.intersectionCount[i] = 0;
+    public static square(a: number): number {
+        return a * a;
     }
-  }
-
-  public static acumulatePrimitiveCount(type: number, count: number): void {
-    const current = VSDK.primitiveCount[type];
-    if (current !== undefined) {
-      VSDK.primitiveCount[type] = current + count;
+    public static formatNumberWithinZeroes(a: number | bigint, n: number): string {
+        return a.toString().padStart(n, "0");
     }
-  }
+    public static formatDouble(a: number): string;
+    public static formatDouble(a: number, digits: number): string;
+    /**
+     * Java formats through `DecimalFormat`, which rounds half to even on the
+     * exact binary value, keeps the sign of a negative zero or of a value that
+     * rounds to zero, never switches to exponent notation, and writes the
+     * non-finite values as `NaN`, `∞`, and `-∞`. JavaScript's `toFixed` rounds
+     * half away from zero and gives up above 1e21, so the digits are produced
+     * here with exact integer arithmetic instead.
+     */
+    public static formatDouble(a: number, digits = 2): string {
+        if (Number.isNaN(a)) return "NaN";
+        if (a === Infinity) return "∞";
+        if (a === -Infinity) return "-∞";
 
-  public static acumulateIntersectionCount(type: number, count: number): void {
-    const current = VSDK.intersectionCount[type];
-    if (current !== undefined) {
-      VSDK.intersectionCount[type] = current + count;
-    }
-  }
+        const decimals = digits > 0 ? digits : 0;
+        const sign = a < 0 || Object.is(a, -0) ? "-" : "";
+        const magnitude = Math.abs(a);
 
-  public static getPrimitiveCount(type: number): number {
-    return VSDK.primitiveCount[type] ?? 0;
-  }
-
-  public static getIntersectionCount(type: number): number {
-    return VSDK.intersectionCount[type] ?? 0;
-  }
-
-  public static equals(a: number, b: number): boolean {
-    return globalThis.Math.abs(a - b) < VSDK.EPSILON;
-  }
-
-  public static vectorDistance(a: Vector3D, b: Vector3D): number;
-  public static vectorDistance(a: Vector2D, b: Vector2D): number;
-  public static vectorDistance(a: Vector3D | Vector2D, b: Vector3D | Vector2D): number {
-    const ax = (a as Vector3D).x;
-    const ay = (a as Vector3D).y;
-    const bx = (b as Vector3D).x;
-    const by = (b as Vector3D).y;
-    const az = (a as Vector3D).z ?? 0.0;
-    const bz = (b as Vector3D).z ?? 0.0;
-    return globalThis.Math.sqrt(
-      (ax - bx) * (ax - bx) +
-      (ay - by) * (ay - by) +
-      (az - bz) * (az - bz)
-    );
-  }
-
-  public static colorDistance(a: ColorRgb, b: ColorRgb): number {
-    return globalThis.Math.sqrt(
-      (a.r - b.r) * (a.r - b.r) +
-      (a.g - b.g) * (a.g - b.g) +
-      (a.b - b.b) * (a.b - b.b)
-    );
-  }
-
-  public static square(a: number): number {
-    return a * a;
-  }
-
-  public static formatNumberWithinZeroes(a: number, n: number): string {
-    return globalThis.Math.trunc(a).toString().padStart(n, "0");
-  }
-
-  public static formatDouble(a: number): string;
-  public static formatDouble(a: number, digits: number): string;
-  public static formatDouble(a: number, digits?: number): string {
-    const safeDigits = digits === undefined ? 2 : digits;
-    if (safeDigits <= 0) {
-      return globalThis.Math.round(a).toString();
-    }
-    return a.toFixed(safeDigits);
-  }
-
-  public static formatByteAsHex(a: number): string {
-    const i = VSDK.signedByte2unsignedInteger(a);
-    const nibbleH = (i >> 4) & 0x0F;
-    const nibbleL = i & 0x0F;
-    const hex = "0123456789ABCDEF";
-    return `${hex.charAt(nibbleH)}${hex.charAt(nibbleL)}`;
-  }
-
-  public static formatIntAsHex(a: number): string {
-    let msg = "";
-    msg += VSDK.formatByteAsHex((a & 0xFF000000) >> 24);
-    msg += VSDK.formatByteAsHex((a & 0x00FF0000) >> 16);
-    msg += VSDK.formatByteAsHex((a & 0x0000FF00) >> 8);
-    msg += VSDK.formatByteAsHex(a & 0x000000FF);
-    return msg;
-  }
-
-  public static signedByte2unsignedInteger(input: number): number {
-    let a = input;
-    if (a < 0) {
-      a += 256;
-    }
-    return a;
-  }
-
-  public static unsigned8BitInteger2signedByte(input: number): number {
-    let inValue = input;
-    if (inValue > 255) {
-      inValue = 255;
-    }
-    if (inValue < 0) {
-      inValue = 0;
-    }
-    if (inValue > 127) {
-      inValue -= 256;
-    }
-    return inValue;
-  }
-
-  private static classNameOf(o: unknown): string {
-    if (o === null || o === undefined) {
-      return "null";
-    }
-    const anyObject = o as { constructor?: { name?: string } };
-    return anyObject.constructor?.name ?? typeof o;
-  }
-
-  public static reportMessageWithException(o: unknown, level: number, method: string, message: string, ee: unknown): void {
-    let msg = "===========================================================================\n";
-    msg += "= VSDK Exception report                                                   =\n";
-    if (o !== null && o !== undefined) {
-      msg += ` - An exception has been thrown in the "${VSDK.classNameOf(o)}" class\n`;
-    }
-    else {
-      msg += " - An exception has been thrown from a static context\n";
-    }
-    msg += ` - Exception located at method ${method}\n`;
-    msg += ` - Vitral exception message:\n${message}\n`;
-
-    if (ee !== null && ee !== undefined) {
-      const errorObject = ee as { name?: string; message?: string; stack?: string };
-      msg += ` - Java exception class:\n${errorObject.name ?? "Error"}\n`;
-      msg += ` - Java exception message:\n${errorObject.message ?? ""}\n`;
-      if (errorObject.stack) {
-        msg += `${errorObject.stack}\n`;
-      }
-    }
-    else {
-      msg += " - Java exception is null! No detailed information about error.\n";
-    }
-    msg += "===========================================================================\n";
-    if (level === VSDK.FATAL_ERROR) {
-      msg += "Program excecution suspended!\n";
-    }
-
-    process.stderr.write(msg);
-    process.stderr.write("---------------------------------------------------------------------------\n");
-    if (ee !== null && ee !== undefined) {
-      const errorObject = ee as { message?: string; stack?: string };
-      process.stderr.write(`${errorObject.message ?? ""}\n`);
-      if (errorObject.stack) {
-        process.stderr.write(`${errorObject.stack}\n`);
-      }
-    }
-    else {
-      process.stderr.write("Given exception is null! not reporting details!\n");
-    }
-    process.stderr.write("---------------------------------------------------------------------------\n");
-
-    if (level === VSDK.FATAL_ERROR) {
-      try {
-        throw new globalThis.Error("VSDK.reportMessage(FATAL_ERROR)");
-      }
-      catch (e) {
-        const report = e as globalThis.Error;
-        process.stderr.write(`${report.message}\n`);
-        if (report.stack) {
-          process.stderr.write(`${report.stack}\n`);
+        // `toFixed` disagrees with Java only on half-way cases, and loses
+        // digits once the scaled value leaves the exactly representable
+        // integers, so everything else takes the cheap path.
+        const scaled = magnitude * 10 ** decimals;
+        if (scaled < 9007199254740992 && Math.abs(scaled - Math.floor(scaled) - 0.5) > 1e-6) {
+            return sign + magnitude.toFixed(decimals);
         }
-      }
 
-      if (VSDK.withSystemExit) {
-        process.exit(1);
-      }
-    }
-  }
+        const rounded = VSDK.roundHalfEvenScaled(magnitude, decimals).toString();
+        if (decimals === 0) return sign + rounded;
 
-  public static reportMessage(o: unknown, level: number, method: string, message: string): void {
-    let msg = "===========================================================================\n";
-    msg += "= VSDK Exception report                                                   =\n";
-    if (o !== null && o !== undefined) {
-      msg += ` - An exception has been thrown in the "${VSDK.classNameOf(o)}" class\n`;
-    }
-    else {
-      msg += " - An exception has been thrown from a static context\n";
-    }
-    msg += ` - Exception located at method ${method}\n`;
-    msg += ` - Exception message:\n${message}\n`;
-    msg += "===========================================================================\n";
-    if (level === VSDK.FATAL_ERROR) {
-      msg += "Program excecution suspended!\n";
+        const padded = rounded.padStart(decimals + 1, "0");
+        return `${sign}${padded.slice(0, -decimals)}.${padded.slice(-decimals)}`;
     }
 
-    process.stderr.write(msg);
+    /**
+     * `round(|value| * 10^decimals)` the way `DecimalFormat` computes it: the
+     * shortest decimal representation that round-trips supplies the digits, and
+     * half-way cases in those digits are decided against the exact binary value
+     * before the remaining ties fall back to the half-to-even rule.
+     */
+    private static roundHalfEvenScaled(magnitude: number, decimals: number): bigint {
+        if (magnitude === 0) return 0n;
 
-    if (level === VSDK.FATAL_ERROR) {
-      try {
-        throw new globalThis.Error("VSDK.reportMessage(FATAL_ERROR)");
-      }
-      catch (e) {
-        const report = e as globalThis.Error;
-        process.stderr.write(`${report.message}\n`);
-        if (report.stack) {
-          process.stderr.write(`${report.stack}\n`);
-        }
-      }
-      if (VSDK.withSystemExit) {
-        process.exit(1);
-      }
-    }
-  }
+        const [mantissaText, exponentText] = magnitude.toExponential().split("e");
+        const shortestDigits = mantissaText!.replace(".", "");
+        const shift = decimals + Number(exponentText) - (shortestDigits.length - 1);
+        if (shift >= 0) return BigInt(shortestDigits) * 10n ** BigInt(shift);
 
-  public static setWithSystemExit(flag: boolean): void {
-    VSDK.withSystemExit = flag;
-  }
+        const divisor = 10n ** BigInt(-shift);
+        const quotient = BigInt(shortestDigits) / divisor;
+        const twiceRemainder = 2n * (BigInt(shortestDigits) % divisor);
+        if (twiceRemainder > divisor) return quotient + 1n;
+        if (twiceRemainder < divisor) return quotient;
 
-  public static formatSILengthUnit(x: number, digits: number): string {
-    const postfixes = [
-      "y", "_", "_", "z", "_", "_", "a", "_", "_", "f", "_", "_", "p", "_", "_", "n", "_", "_",
-      "micro", "_", "_", "m", "c", "d", "", "_", "_", "K", "_", "_", "M", "_", "_", "G", "_", "_",
-      "T", "_", "_", "P", "_", "_", "E", "_", "_", "Z", "_", "_", "Y"
-    ];
-
-    let corrected = x;
-    let base = globalThis.Math.floor(globalThis.Math.log10(corrected));
-    let multiplier = 1.0;
-
-    while (base < -24) {
-      multiplier /= 10.0;
-      corrected *= 10.0;
-      base = globalThis.Math.floor(globalThis.Math.log10(corrected));
-    }
-    while (base > 24) {
-      multiplier *= 10.0;
-      corrected /= 10.0;
-      base = globalThis.Math.floor(globalThis.Math.log10(corrected));
+        const exact = VSDK.compareScaledWithHalfWayPoint(magnitude, decimals, quotient);
+        if (exact > 0) return quotient + 1n;
+        if (exact < 0) return quotient;
+        return quotient % 2n === 0n ? quotient : quotient + 1n;
     }
 
-    let ibase = globalThis.Math.floor(base);
-    while (postfixes[ibase + 24] === "_") {
-      ibase--;
-      multiplier *= 10.0;
-    }
+    /**
+     * Compares the exact binary value of `magnitude * 10^decimals` against the
+     * half-way point `quotient + 1/2`, with no intermediate rounding.
+     */
+    private static compareScaledWithHalfWayPoint(magnitude: number, decimals: number, quotient: bigint): number {
+        const bits = new DataView(new ArrayBuffer(8));
+        bits.setFloat64(0, magnitude, false);
+        const raw = bits.getBigUint64(0, false);
+        const biasedExponent = Number((raw >> 52n) & 0x7ffn);
+        const storedMantissa = raw & 0xf_ffff_ffff_ffffn;
+        const mantissa = biasedExponent === 0 ? storedMantissa : storedMantissa | 0x10_0000_0000_0000n;
+        const exponent = (biasedExponent === 0 ? 1 : biasedExponent) - 1075;
 
-    base = globalThis.Math.floor(globalThis.Math.log10(corrected));
-    const normalized = corrected / globalThis.Math.pow(10.0, base);
-    return `${VSDK.formatDouble(multiplier * normalized, digits)} ${postfixes[ibase + 24]}m`;
-  }
+        let numerator = 2n * mantissa * 10n ** BigInt(decimals);
+        let denominator = 1n;
+        if (exponent >= 0) numerator <<= BigInt(exponent);
+        else denominator = 1n << BigInt(-exponent);
+
+        const halfWayPoint = (2n * quotient + 1n) * denominator;
+        return numerator > halfWayPoint ? 1 : numerator < halfWayPoint ? -1 : 0;
+    }
+    public static formatByteAsHex(a: number): string {
+        const i = VSDK.signedByte2unsignedInteger(a);
+        return i.toString(16).padStart(2, "0").toUpperCase();
+    }
+    public static formatIntAsHex(a: number): string {
+        return (a >>> 0).toString(16).padStart(8, "0").toUpperCase();
+    }
+    public static signedByte2unsignedInteger(input: number): number {
+        return input < 0 ? input + 256 : input;
+    }
+    public static unsigned8BitInteger2signedByte(input: number): number {
+        const value = Math.min(255, Math.max(0, input));
+        return value > 127 ? value - 256 : value;
+    }
+    public static setWithSystemExit(flag: boolean): void {
+        setWithSystemExit(flag);
+    }
+    public static setWithFatalExceptions(flag: boolean): void {
+        setWithFatalExceptions(flag);
+    }
 }

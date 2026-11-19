@@ -1,10 +1,11 @@
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { File } from "vitral/dist/java/io/File";
 import { FileInputStream } from "vitral/dist/java/io/FileInputStream";
 import { System } from "vitral/dist/java/lang/System";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
 import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Statistics } from "vitral/dist/vsdk/toolkit/common/statistics/Statistics";
 import { BinaryModelDeserializer } from "vitral/dist/vsdk/toolkit/io/bin/reader/BinaryModelDeserializer";
@@ -53,7 +54,7 @@ export class SceneBuilder {
   private static sceneBuilderPatchAccumulateStats(patch: Patch): void {
     const E = PatchVisitor.averageEmittance(patch, SceneBuilder.ALL_XXDF_COMPONENTS);
     const R = PatchVisitor.averageNormalAlbedo(patch, SceneBuilder.ALL_BSDF_COMPONENTS);
-    const power = new ColorRgb();
+    const power = new ColorRgbMutable();
 
     Statistics.instance().radiance.totalArea += patch.area;
     power.scaledCopy(patch.area, E);
@@ -66,8 +67,8 @@ export class SceneBuilder {
 
   private static sceneBuilderComputeStats(scene: Scene): void {
     const zero = new Vector3D();
-    const one = new ColorRgb();
-    const averageAbsorption = new ColorRgb();
+    const one = new ColorRgbMutable();
+    const averageAbsorption = new ColorRgbMutable();
 
     one.setMonochrome(1.0);
     zero.set(0, 0, 0);
@@ -402,32 +403,17 @@ export class SceneBuilder {
   ): boolean {
     const file = new File(fileName);
     if (!file.exists()) {
-      VsdkLogger.error(
-        "SceneBuilder::sceneBuilderReadFile",
-        "Requested %s file '%s' does not exist",
-        fileRole,
-        fileName
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Requested %s file '%s' does not exist", [fileRole, fileName]));
       file.dispose();
       return false;
     }
     if (!file.isFile()) {
-      VsdkLogger.error(
-        "SceneBuilder::sceneBuilderReadFile",
-        "Requested %s file '%s' is not a regular file",
-        fileRole,
-        fileName
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Requested %s file '%s' is not a regular file", [fileRole, fileName]));
       file.dispose();
       return false;
     }
     if (!file.canRead()) {
-      VsdkLogger.error(
-        "SceneBuilder::sceneBuilderReadFile",
-        "Requested %s file '%s' is not readable",
-        fileRole,
-        fileName
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Requested %s file '%s' is not readable", [fileRole, fileName]));
       file.dispose();
       return false;
     }
@@ -437,22 +423,12 @@ export class SceneBuilder {
     try {
       const firstByte = input.read();
       if (firstByte < 0) {
-        VsdkLogger.error(
-          "SceneBuilder::sceneBuilderReadFile",
-          "Requested %s file '%s' is empty",
-          fileRole,
-          fileName
-        );
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Requested %s file '%s' is empty", [fileRole, fileName]));
         return false;
       }
     }
     catch (_ignored) {
-      VsdkLogger.error(
-        "SceneBuilder::sceneBuilderReadFile",
-        "Requested %s file '%s' is not readable",
-        fileRole,
-        fileName
-      );
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Requested %s file '%s' is not readable", [fileRole, fileName]));
       return false;
     }
     finally {
@@ -563,11 +539,7 @@ export class SceneBuilder {
         }
         else {
           process.stderr.write("failed.\n");
-          VsdkLogger.error(
-            "SceneBuilder::sceneBuilderReadFile",
-            "Could not export ParseSnapshotContext binary to '%s'",
-            batchOptions.binaryOutputFilename
-          );
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "SceneBuilder::sceneBuilderReadFile", JavaString.vformat("Could not export ParseSnapshotContext binary to '%s'", [batchOptions.binaryOutputFilename]));
         }
       }
     }
@@ -611,7 +583,7 @@ export class SceneBuilder {
     scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
     if (scene.clusteredRootGeometry.className !== GeometryClassId.COMPOUND) {
-      VsdkLogger.warning(null, "Strange clusters for this world ...");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", "Strange clusters for this world ...");
     }
 
     t = process.hrtime.bigint();
@@ -717,7 +689,7 @@ export class SceneBuilder {
     // All options should have disappeared from argv now
     if (argc !== null && argc.length > 0 && argc[0]! > 1) {
       if (argv[1] !== null && argv[1]!.startsWith("-")) {
-        VsdkLogger.error(null, "Unrecognized option '%s'", argv[1]);
+        VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Unrecognized option '%s'", [argv[1]]));
       }
       else if (!SceneBuilder.sceneBuilderReadFile(argv[1]!, mgfContext, scene, toneMapOptions)) {
         process.exit(1);

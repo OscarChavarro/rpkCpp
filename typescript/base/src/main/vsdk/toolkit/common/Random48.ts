@@ -10,43 +10,42 @@ and the C++ port renders without seeding, so the state starts at zero here
 as well.
 */
 export class Random48 {
-  // Same constants glibc uses for drand48/srand48/seed48
-  private static readonly MULTIPLIER = 0x5DEECE66Dn;
-  private static readonly ADDEND = 0xBn;
-  private static readonly MASK_48 = (1n << 48n) - 1n;
-  private static readonly TWO_POW_48 = 281474976710656.0; // 2^48
+    // Same constants glibc uses for drand48/srand48/seed48
+    private static readonly MULTIPLIER = 0x5deece66dn;
+    private static readonly ADDEND = 0xbn;
+    private static readonly MASK_48 = (1n << 48n) - 1n;
+    private static readonly TWO_POW_48 = 281474976710656.0; // 2^48
 
-  private static state = 0n;
+    private static state = 0n;
 
-  private constructor() {
-  }
+    private constructor() {}
 
-  public static srand48(seed: number): void {
-    const high = BigInt(globalThis.Math.trunc(seed)) & 0xFFFFFFFFn;
-    Random48.state = ((high << 16n) | 0x330En) & Random48.MASK_48;
-  }
+    public static srand48(seed: number): void {
+        const high = BigInt(globalThis.Math.trunc(seed)) & 0xffffffffn;
+        Random48.state = ((high << 16n) | 0x330en) & Random48.MASK_48;
+    }
 
-  public static drand48(): number {
-    Random48.state = (Random48.MULTIPLIER * Random48.state + Random48.ADDEND) & Random48.MASK_48;
-    return Number(Random48.state) / Random48.TWO_POW_48;
-  }
+    public static drand48(): number {
+        Random48.state = (Random48.MULTIPLIER * Random48.state + Random48.ADDEND) & Random48.MASK_48;
+        return Number(Random48.state) / Random48.TWO_POW_48;
+    }
 
-  /**
+    /**
   Sets the 48-bit generator state from newSeed[3] (each entry treated as an
   unsigned 16-bit value, low word first) and returns the previous state,
   mirroring the C library's seed48() semantics used by SeedConfig.
   */
-  public static seed48(newSeed: number[]): number[] {
-    const previous = [
-      Number(Random48.state & 0xFFFFn),
-      Number((Random48.state >> 16n) & 0xFFFFn),
-      Number((Random48.state >> 32n) & 0xFFFFn)
-    ];
-    Random48.state = (
-      (BigInt((newSeed[2] ?? 0) & 0xFFFF) << 32n)
-      | (BigInt((newSeed[1] ?? 0) & 0xFFFF) << 16n)
-      | BigInt((newSeed[0] ?? 0) & 0xFFFF)
-    ) & Random48.MASK_48;
-    return previous;
-  }
+    public static seed48(newSeed: number[]): number[] {
+        const previous = [
+            Number(Random48.state & 0xffffn),
+            Number((Random48.state >> 16n) & 0xffffn),
+            Number((Random48.state >> 32n) & 0xffffn),
+        ];
+        Random48.state =
+            ((BigInt((newSeed[2] ?? 0) & 0xffff) << 32n) |
+                (BigInt((newSeed[1] ?? 0) & 0xffff) << 16n) |
+                BigInt((newSeed[0] ?? 0) & 0xffff)) &
+            Random48.MASK_48;
+        return previous;
+    }
 }

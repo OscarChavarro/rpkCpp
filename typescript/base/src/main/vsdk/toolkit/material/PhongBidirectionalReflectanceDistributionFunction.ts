@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -6,8 +6,8 @@ import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
 
 export class PhongBidirectionalReflectanceDistributionFunction {
-  private readonly Kd: ColorRgb;
-  private readonly Ks: ColorRgb;
+  private readonly Kd: ColorRgbMutable;
+  private readonly Ks: ColorRgbMutable;
   private readonly avgKd: number;
   private readonly avgKs: number;
   private readonly Ns: number;
@@ -16,19 +16,19 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     return this.Ns >= Xxdf.PHONG_LOWEST_SPECULAR_EXP;
   }
 
-  public constructor(inKd: ColorRgb, inKs: ColorRgb, inNs: number) {
-    this.Kd = new ColorRgb(inKd.r, inKd.g, inKd.b);
+  public constructor(inKd: ColorRgbMutable, inKs: ColorRgbMutable, inNs: number) {
+    this.Kd = new ColorRgbMutable(inKd.r, inKd.g, inKd.b);
     this.avgKd = this.Kd.average();
-    this.Ks = new ColorRgb(inKs.r, inKs.g, inKs.b);
+    this.Ks = new ColorRgbMutable(inKs.r, inKs.g, inKs.b);
     this.avgKs = this.Ks.average();
     this.Ns = inNs;
   }
 
-  public getKd(): ColorRgb {
+  public getKd(): ColorRgbMutable {
     return this.Kd;
   }
 
-  public getKs(): ColorRgb {
+  public getKs(): ColorRgbMutable {
     return this.Ks;
   }
 
@@ -36,8 +36,8 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     return this.Ns;
   }
 
-  public reflectance(flags: number): ColorRgb {
-    const result = new ColorRgb();
+  public reflectance(flags: number): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.clear();
 
     if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) {
@@ -56,8 +56,8 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     return result;
   }
 
-  public evaluate(inDirection: Vector3D, out: Vector3D, normal: Vector3D, flags: number): ColorRgb {
-    const result = new ColorRgb();
+  public evaluate(inDirection: Vector3D, out: Vector3D, normal: Vector3D, flags: number): ColorRgbMutable {
+    const result = new ColorRgbMutable();
     result.clear();
 
     if (out.dotProduct(normal) < 0.0) {

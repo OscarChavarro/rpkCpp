@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
@@ -55,9 +55,9 @@ export class DensityBuffer {
     );
   }
 
-  public add(x: number, y: number, color: ColorRgb): void {
+  public add(x: number, y: number, color: ColorRgbMutable): void {
     const factor = this.screenBuffer.getPixXSize() * this.screenBuffer.getPixYSize() * this.baseConfig.totalSamples;
-    const tmpCol = new ColorRgb();
+    const tmpCol = new ColorRgbMutable();
 
     if (color.average() > Numeric.EPSILON) {
       tmpCol.scaledCopy(factor, color);

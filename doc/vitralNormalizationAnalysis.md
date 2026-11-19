@@ -7,8 +7,13 @@ modernization) with the current
 The focus is the required alignment surface between both codebases: linear
 algebra, rays, hit records, the intersection operation model, geometry and
 scene models, cameras, materials, renderer configuration, bounding
-information and statistics. It closes with the authoritative, ordered list of
-alignment work (§14).
+information and statistics. It closes with the list of alignment work that
+remains beyond the first milestone (§14).
+
+The order, gates and decisions of the alignment work are governed by
+[`vitralAlignmentPlan.md`](vitralAlignmentPlan.md), which is the authoritative
+source; this document supplies the class-by-class comparison that plan works
+from.
 
 ---
 
@@ -315,9 +320,12 @@ strong upstream candidate once VITRAL needs physically-based rendering; in
 the meantime the two coexist, exactly as povCpp's `PovRayMaterial` stays
 application-side.
 
-Required alignment item: none immediate. When VITRAL gains a
-physically-based material interface, rpkCpp's Phong EDF/BSDF family is the
-proposed seed.
+Required alignment item: `vitralAlignmentPlan.md` step 2. A VITRAL material
+specialization composing scattering and optional emission is seeded from
+rpkCpp's Phong EDF/BSDF family. The integrated reflectance and emittance that
+Galerkin consumes are part of the first milestone; directional evaluation,
+sampling and PDFs follow on an independent track gated by the raytracer
+scenes.
 
 ## 9. Renderer configuration
 
@@ -355,8 +363,11 @@ proposal is inherited: a polymorphic bounding-volume contract whose naive
 implementation wraps a vptr-free AABB value. rpkCpp's
 `AxisAlignedBoundingBox` is already the value type of that shape; when the
 shared contract lands in VITRAL, rpkCpp adopts it instead of growing its own.
-Until then, finish `patchBoundingBoxDecoupling.md` first — it moves bounds out
-of `Patch` into a dedicated store, which is compatible with any winner.
+`patchBoundingBoxDecoupling.md` moves bounds out of `Patch` into a dedicated
+store, which is compatible with any winner and is a prerequisite of
+`vitralAlignmentPlan.md` step 3. VITRAL also provides a WALD2007 binned-SAH
+hierarchy (`BinnedSahHierarchy`) in all of its ports; step 4 of the plan puts
+it and a port of rpkCpp's voxel grid behind one spatial query.
 
 ## 11. Statistics
 
@@ -407,46 +418,59 @@ converged — never before, or they would drag the divergent types with them.
 | Intersection primitive | nearest-hit, interval + hitFlags + caller store | nearest-hit `doIntersectionFirstHit` | same primitive — naming/signature convergence only |
 | Geometry | concrete patch-aggregation tree + radiosity hooks + static excluded state | small abstract intersectable | same name, different abstraction level |
 | Scene | `Scene` + VoxelGrid + cluster octree | `SimpleScene`/`SimpleBody` | concept maps, contents domain-specific |
+| Ray acceleration | hierarchical `VoxelGrid` with static and shared traversal state | `BinnedSahHierarchy` (WALD2007), `TriangleAccelerationStructure` | both behind one spatial query (plan steps 0, 4, 5) |
 | Transforms | none (world-space baked at MGF load) | decomposed on `SimpleBody` | intentional divergence, documented |
 | Camera | public float camera + frustum planes | `Camera` + `CameraSnapshot` | adopt snapshot at render boundary |
-| Material | Phong EDF/BSDF family, encapsulated | `SimpleMaterial`/`MicroFacetedMaterial` | different models; rpkCpp is upstream seed |
+| Material | Phong EDF/BSDF family, encapsulated | `SimpleMaterial`/`MicroFacetedMaterial` | different models; rpkCpp seeds a VITRAL specialization (plan step 2) |
 | RendererConfiguration | display/debug flags, private | shading-type vocabulary + viewer flags | name collision; derive-from-base per povCpp precedent |
 | Bounding | `AxisAlignedBoundingBox` value on `Geometry`/`Patch` | `getMinMax()` | three-tree decision; povCpp `BoundingVolumeHierarchy` proposal inherited |
 | Statistics | per-domain instance counters | static recorder | povCpp worked example governs |
 | Radiosity / tonemap / QMC / MGF | full subsystems | — | rpkCpp-only, future contributions |
-| Encapsulation style | mixed (Material/RayHit/Scene private; Vector/Ray/Camera/Patch/Element/Vertex public) | private + getters + constructors, mutable | migration pending (M1) |
+| Encapsulation style | mixed (Material/RayHit/Scene private; Vector/Ray/Camera/Patch/Element/Vertex public) | private + getters + constructors, mutable | migration pending (M1), under the design rules of the plan |
 
 ## 14. Required alignment work
 
-Ordered; each step is gated on an unchanged golden-image corpus
-(`cpp/scripts/*.sh` vs `doc/testBaseImages`) and, where hot paths are
-touched, on the timing baselines of `doc/performanceImprovementPlan.md`.
-Every completed step is then propagated 1:1 to the `java/`, `typescript/` and
-`turboc/` ports before the next step starts.
+The first milestone — a Galerkin render over a VITRAL face and material with
+a selectable spatial index — is planned step by step in
+[`vitralAlignmentPlan.md`](vitralAlignmentPlan.md). That plan owns the
+order of work, the verification tiers (exact `compare` against port
+references, bounded `compare` against `doc/testBaseImages`, timing against
+the recorded baseline), the design rules for new and migrated classes and
+the port propagation cadence. The list below is the alignment work by area;
+where the plan schedules part of an item, the item says so, and the plan's
+order prevails over the numbering here.
 
 1. **Kill static mutable state**: move `Patch::excludedPatches`,
    `Geometry::excludedGeometry1/2` and the ID counters into per-render
    context objects. Prerequisite for objective #4 and for sharing any class
-   with VITRAL. (§5)
+   with VITRAL. Plan step 0 does this for the visibility path (exclusions,
+   `FormFactorStrategy` and `VoxelGrid` statics); the counters, pools and
+   solver statics remain for the parallel Galerkin work. (§5)
 2. **Encapsulation migration** of the public-attribute core — `Vector3D`,
    `Vector3Dd`, `Ray`, `Camera`, `Vertex`, `Element`, `Patch`, `Geometry` —
-   to private attributes with getters and full-state constructors, **keeping
-   the classes mutable** (setters/in-place mutators preserved) so hot loops
-   lose nothing; inline accessors keep the abstraction cost at zero. Do it
-   class by class, innermost types first (`Vector3D` → `Ray` → `Vertex`/
-   `Patch` → `Element` → `Geometry` → `Camera`), measuring each. (M1)
+   to private attributes with getters and full-state constructors. Performance
+   comes first: small arithmetic value types keep their in-place mutators so
+   hot loops lose nothing, and inline accessors keep the abstraction cost at
+   zero. Objects shared read-only during a solve are preferably immutable,
+   when that is free. Do it class by class, innermost types first
+   (`Vector3D` → `Ray` → `Vertex`/`Patch` → `Element` → `Geometry` →
+   `Camera`), measuring each. Plan step 3 covers `Patch`. (M1)
 3. **Naming convergence on the shared primitives**: `Vector3Df`/`Vector3Dd`
    scheme, ray `origin`, `DETAIL_*`-compatible hit flags — only after step
    2, and jointly with VITRAL so both trees rename once. (§1–§3)
 4. **Shared nearest-hit signature**: negotiate the interval+flags+store
    extensions into VITRAL's `doIntersectionFirstHit`, then adopt the shared
-   name in rpkCpp. (§4)
+   name in rpkCpp. Plan step 4 defines the spatial query contract (interval,
+   exclusions, closest-hit or any-hit, caller-owned workspace) that this
+   signature must agree with. (§4)
 5. **`RendererConfiguration` derives from the VITRAL base**, mapping shading
    flags onto `SHADING_TYPE_*`. (§9)
-6. **Bounding contract**: adopt the povCpp-proposed `BoundingVolumeHierarchy`
-   family when it lands in VITRAL; finish `patchBoundingBoxDecoupling.md`
-   first. (§10)
+6. **Bounding contract and ray acceleration**: adopt VITRAL's
+   `BoundingVolumeHierarchy` family; finish `patchBoundingBoxDecoupling.md`
+   first. Plan steps 3 to 5. (§10)
 7. **Statistics taxonomy**: join the povCpp/VITRAL shared-taxonomy design
    with rpkCpp's per-domain split as input. (§11)
 8. **Upstream contributions** (Galerkin, raytracer family, tone mapping,
-   QMC, MGF) — only after their supporting types are shared. (§12)
+   QMC, MGF) — only after their supporting types are shared. The material
+   model and the voxel grid go upstream earlier, in plan steps 2 and 4,
+   because the milestone needs them. (§12)

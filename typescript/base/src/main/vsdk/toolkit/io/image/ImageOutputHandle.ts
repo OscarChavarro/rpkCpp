@@ -1,5 +1,6 @@
+import { String as JavaString } from "../../../../java/lang/String";
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger } from "../../common/logging/Logger";
 import { ToneMap } from "../../tonemap/ToneMap";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
@@ -54,7 +55,7 @@ export class ImageOutputHandle {
     return value & 0xFF;
   }
 
-  protected static gammaCorrect(rgb: ColorRgb, gamma: number[]): void {
+  protected static gammaCorrect(rgb: ColorRgbMutable, gamma: number[]): void {
     rgb.r = gamma[0]! === 1.0 ? rgb.r : globalThis.Math.pow(rgb.r, 1.0 / gamma[0]!);
     rgb.g = gamma[1]! === 1.0 ? rgb.g : globalThis.Math.pow(rgb.g, 1.0 / gamma[1]!);
     rgb.b = gamma[2]! === 1.0 ? rgb.b : globalThis.Math.pow(rgb.b, 1.0 / gamma[2]!);
@@ -71,7 +72,7 @@ export class ImageOutputHandle {
     const rgbFloatArray = x;
     const rgb = new Uint8Array(3 * this.width);
     for (let i = 0; i < this.width; i++) {
-      const displayRgb = new ColorRgb(
+      const displayRgb = new ColorRgbMutable(
         rgbFloatArray[3 * i],
         rgbFloatArray[3 * i + 1],
         rgbFloatArray[3 * i + 2]
@@ -86,14 +87,14 @@ export class ImageOutputHandle {
     return this.writeDisplayRGB(rgb);
   }
 
-  public writeRadianceRGB(rgbRadiance: ColorRgb[]): number {
+  public writeRadianceRGB(rgbRadiance: ColorRgbMutable[]): number {
     if (this.toneMapOptions === null) {
-      Logger.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+      Logger.reportMessage(this, Logger.FATAL_ERROR, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
 
     const rgb = new Uint8Array(3 * this.width);
     for (let i = 0; i < this.width; i++) {
-      const displayRgb = new ColorRgb();
+      const displayRgb = new ColorRgbMutable();
       ToneMap.radianceToRgb(rgbRadiance[i]!, displayRgb, this.toneMapOptions as ToneMappingContext);
       ImageOutputHandle.gammaCorrect(displayRgb, this.gamma);
       rgb[3 * i] = ImageOutputHandle.javaByte(ImageOutputHandle.javaIntCast(displayRgb.r * 255.0));
@@ -161,10 +162,7 @@ export class ImageOutputHandle {
       }
       if (ImageOutputHandle.extensionMatches(fileExtension, "pic")) {
         if (isPipe !== 0) {
-          Logger.error(
-            "createRadianceImageOutputHandle",
-            "Can't write PIC output to a pipe.\n"
-          );
+          Logger.reportMessage(null, Logger.ERROR, "createRadianceImageOutputHandle", "Can't write PIC output to a pipe.\n");
           return null;
         }
 
@@ -172,11 +170,7 @@ export class ImageOutputHandle {
         return new module.PicOutputHandle(fileName === null ? "" : fileName, width, height);
       }
 
-      Logger.error(
-        "createRadianceImageOutputHandle",
-        "Can't save high dynamic range image to a '%s' file, format not supported.",
-        fileExtension
-      );
+      Logger.reportMessage(null, Logger.ERROR, "createRadianceImageOutputHandle", JavaString.vformat("Can't save high dynamic range image to a '%s' file, format not supported.", [fileExtension]));
       return null;
     }
     return null;
@@ -197,11 +191,7 @@ export class ImageOutputHandle {
         return new module.PPMOutputHandle(outputStream, width, height);
       }
 
-      Logger.error(
-        "createImageOutputHandle",
-        "Can't save display-RGB images to a '%s' file, format not supported.\n",
-        fileExtension
-      );
+      Logger.reportMessage(null, Logger.ERROR, "createImageOutputHandle", JavaString.vformat("Can't save display-RGB images to a '%s' file, format not supported.\n", [fileExtension]));
       return null;
     }
     return null;

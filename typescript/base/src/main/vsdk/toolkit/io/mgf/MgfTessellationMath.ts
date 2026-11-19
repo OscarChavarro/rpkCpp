@@ -27,14 +27,12 @@ export class MgfTessellationMath {
   }
 
   /**
-  Compute u and v given w (normalized)
+  Compute u and v given w (normalized). u and v are out-parameters: their
+  first element receives the computed axis.
   */
-  public static mgfMakeAxes(u: Vector3Dd, v: Vector3Dd, w: Vector3Dd, epsilon: number): void {
-    v.x = 0.0;
-    v.y = 0.0;
-    v.z = 0.0;
-    const vArr = [v.x, v.y, v.z];
-    const wArr = [w.x, w.y, w.z];
+  public static mgfMakeAxes(u: Vector3Dd[], v: Vector3Dd[], w: Vector3Dd, epsilon: number): void {
+    const vArr = [0.0, 0.0, 0.0];
+    const wArr = [w.x(), w.y(), w.z()];
 
     let i = 0;
     for (; i < 3; i++) {
@@ -47,12 +45,48 @@ export class MgfTessellationMath {
       vArr[i] = 1.0;
     }
 
-    v.x = vArr[0]!;
-    v.y = vArr[1]!;
-    v.z = vArr[2]!;
+    v[0] = new Vector3Dd(vArr[0]!, vArr[1]!, vArr[2]!);
 
-    u.crossProduct(v, w);
-    u.normalizeAndGivePreviousNorm(epsilon);
-    v.crossProduct(w, u);
+    u[0] = v[0].crossProduct(w);
+    MgfTessellationMath.normalizeAndGivePreviousNorm(u, epsilon);
+    v[0] = w.crossProduct(u[0]);
+  }
+
+  /**
+  Normalize a vector, return old magnitude. The vector is an in/out-parameter:
+  its first element is replaced by the normalized vector.
+  */
+  public static normalizeAndGivePreviousNorm(vector: Vector3Dd[], epsilon: number): number {
+    const v = vector[0]!;
+    let len = v.dotProduct(v); // Note: this starts being length ^ 2
+    if (len <= 0.0) {
+      return 0.0;
+    }
+
+    if (len <= 1.0 + epsilon && len >= 1.0 - epsilon) {
+      // First order approximation
+      len = 0.5 + 0.5 * len;
+    }
+    else {
+      len = globalThis.Math.sqrt(len);
+    }
+
+    vector[0] = new Vector3Dd(v.x() / len, v.y() / len, v.z() / len);
+
+    return len;
+  }
+
+  public static isNull(vector: Vector3Dd, epsilon: number): boolean {
+    return vector.dotProduct(vector) <= epsilon * epsilon;
+  }
+
+  /**
+  Returns squared distance between the two vectors
+  */
+  public static distanceSquared(a: Vector3Dd, b: Vector3Dd): number {
+    const dx = b.x() - a.x();
+    const dy = b.y() - a.y();
+    const dz = b.z() - a.z();
+    return dx * dx + dy * dy + dz * dz;
   }
 }

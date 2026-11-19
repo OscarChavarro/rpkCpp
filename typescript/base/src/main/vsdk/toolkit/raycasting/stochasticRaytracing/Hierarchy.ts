@@ -3,7 +3,7 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -189,7 +189,7 @@ export class Hierarchy {
   public static lowPowerLink(link: Link, statistics: Statistics): boolean {
     const rcv = link.rcv as StochasticRadiosityElement;
     const src = link.src as StochasticRadiosityElement;
-    const rhoSrcRad = new ColorRgb();
+    const rhoSrcRad = new ColorRgbMutable();
     const ff = Hierarchy.formFactorEstimate(rcv, src);
     let threshold: number;
     let propagatedPower: number;

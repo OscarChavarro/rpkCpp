@@ -1,6 +1,6 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Random48 } from "../../common/Random48";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
@@ -82,7 +82,7 @@ Raytrace the current scene as seen with the current camera.
     renderOptions: RendererConfiguration
   ): void {
     if (toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "StochasticRaytracer::execute", "Tone mapping context not provided");
     }
 
     const config = new StochasticRaytracingConfiguration(
@@ -160,14 +160,14 @@ Raytrace the current scene as seen with the current camera.
     readout: StorageReadout,
     radianceMethod: RadianceMethod,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
+  ): ColorRgbMutable {
     let siCurrent: number;
     let si: ScatterInfo;
 
     const newNode = new SimpleRaytracingPathNode();
     thisNode.attach(newNode);
 
-    const result = new ColorRgb();
+    const result = new ColorRgbMutable();
     result.clear();
 
     if ((config.samplerConfig.surfaceSampler === null) ||
@@ -196,7 +196,7 @@ Raytrace the current scene as seen with the current camera.
       }
 
       if (numberOfSamples > 2) {
-        let albedo = new ColorRgb();
+        let albedo = new ColorRgbMutable();
         albedo.clear();
         if (thisNode.m_useBsdf !== null) {
           albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags);
@@ -211,7 +211,7 @@ Raytrace the current scene as seen with the current camera.
         const x2 = [0.0];
         let factor: number;
         const stratified = new StratifiedSampling2D(numberOfSamples);
-        let radiance: ColorRgb;
+        let radiance: ColorRgbMutable;
         const doRR = thisNode.m_depth >= config.samplerConfig.minDepth;
 
         for (let i = 0; i < numberOfSamples; i++) {
@@ -296,9 +296,9 @@ Raytrace the current scene as seen with the current camera.
     prevNode: SimpleRaytracingPathNode,
     config: StochasticRaytracingConfiguration,
     readout: StorageReadout
-  ): ColorRgb {
-    const result = new ColorRgb();
-    const radiance = new ColorRgb();
+  ): ColorRgbMutable {
+    const result = new ColorRgbMutable();
+    const radiance = new ColorRgbMutable();
     result.clear();
     const dirEL = new Vector3D();
 
@@ -445,9 +445,9 @@ Raytrace the current scene as seen with the current camera.
     usedScatterSamples: number,
     radianceMethod: RadianceMethod,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
-    const result = new ColorRgb();
-    let radiance = new ColorRgb();
+  ): ColorRgbMutable {
+    const result = new ColorRgbMutable();
+    let radiance = new ColorRgbMutable();
     let edfFlags = 0x01 | 0x02 | 0x04;
     const bsdfSpec = BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
@@ -523,9 +523,9 @@ Raytrace the current scene as seen with the current camera.
             renderOptions
           );
 
-          let diffEmit: ColorRgb;
+          let diffEmit: ColorRgbMutable;
           if (thisEdf === null) {
-            diffEmit = new ColorRgb();
+            diffEmit = new ColorRgbMutable();
             diffEmit.clear();
           }
           else {
@@ -577,7 +577,7 @@ Raytrace the current scene as seen with the current camera.
         let weight: number;
         let cr: number;
         let cl: number;
-        let col: ColorRgb;
+        let col: ColorRgbMutable;
         let doWeight = true;
 
         if (thisNode.m_depth <= 1) {
@@ -609,7 +609,7 @@ Raytrace the current scene as seen with the current camera.
         }
 
         if (thisEdf === null) {
-          col = new ColorRgb();
+          col = new ColorRgbMutable();
           col.clear();
         }
         else {
@@ -632,7 +632,7 @@ Raytrace the current scene as seen with the current camera.
     nx: number,
     ny: number,
     data: unknown
-  ): ColorRgb {
+  ): ColorRgbMutable {
     const callbackData = data as StochasticRaytracerCallbackData;
     const config = callbackData.config as StochasticRaytracingConfiguration;
     const radianceMethod = callbackData.radianceMethod as RadianceMethod;
@@ -641,8 +641,8 @@ Raytrace the current scene as seen with the current camera.
     const pixelNode = new SimpleRaytracingPathNode();
     const x1 = [0.0];
     const x2 = [0.0];
-    let col: ColorRgb;
-    const result = new ColorRgb();
+    let col: ColorRgbMutable;
+    const result = new ColorRgbMutable();
     const stratified = new StratifiedSampling2D(config.samplesPerPixel);
 
     result.clear();

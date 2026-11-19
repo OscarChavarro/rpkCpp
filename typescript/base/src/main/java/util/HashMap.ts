@@ -1,182 +1,158 @@
-import { HashMapEntry } from "./HashMapEntry";
+import { IllegalStateException } from "../lang/IllegalStateException.js";
 
-export class HashMap<K, V> {
-  private static readonly DEFAULT_CAPACITY = 16;
-  private static readonly DEFAULT_LOAD_FACTOR = 0.75;
-  private static nextObjectId = 1;
-  private static readonly objectIds = new WeakMap<object, number>();
+export interface MapEntry<K, V> {
+    readonly key: K;
+    value: V;
+}
 
-  private buckets: Array<HashMapEntry<K, V> | null>;
-  private elementCount: number;
-  private readonly maxLoadFactor: number;
+interface HashMapSlot<K, V> extends MapEntry<K, V> {
+    /**
+    The key's `hashCode()` as it stood when the slot was created, mirroring
+    the `hash` field a `java.util.HashMap.Node` caches at insertion time.
+    `undefined` marks a key that exposes no `hashCode()`, which is matched by
+    `equals` alone. Caching matters for keys that callers mutate after
+    insertion: Java then keeps the slot reachable only under its original
+    hash, so a lookup by an equal-but-differently-hashed key misses, and so
+    must this map.
+    */
+    readonly hash: number | undefined;
+}
 
-  public constructor(initialCapacity = HashMap.DEFAULT_CAPACITY) {
-    this.maxLoadFactor = HashMap.DEFAULT_LOAD_FACTOR;
-    this.buckets = [];
-    this.elementCount = 0;
-    this.initialize(initialCapacity <= 0 ? HashMap.DEFAULT_CAPACITY : initialCapacity);
-  }
+/** Java Map semantics with Java-style equals dispatch for object keys. */
+export class HashMap<K, V> implements Iterable<MapEntry<K, V>> {
+    private readonly entriesArray: HashMapSlot<K, V>[] = [];
+    /**
+    Slots grouped by their cached hash, playing the role of a
+    `java.util.HashMap` bucket table: a lookup only ever compares against the
+    slots that hashed the same way. Keys with no `hashCode()` are absent here
+    and fall back to a scan of `entriesArray`.
+    */
+    private readonly buckets = new Map<number, HashMapSlot<K, V>[]>();
+    private modificationCount = 0;
 
-  private initialize(initialBucketCount: number): void {
-    this.buckets = new Array<HashMapEntry<K, V> | null>(initialBucketCount);
-    this.buckets.fill(null);
-    this.elementCount = 0;
-  }
-
-  public clear(): void {
-    this.buckets.fill(null);
-    this.elementCount = 0;
-  }
-
-  public size(): number {
-    return this.elementCount;
-  }
-
-  public isEmpty(): boolean {
-    return this.elementCount === 0;
-  }
-
-  private static hashFNV1a(text: string): number {
-    let hash = 2166136261;
-    for (let i = 0; i < text.length; i++) {
-      hash ^= text.charCodeAt(i);
-      hash = (hash * 16777619) >>> 0;
+    public constructor(initial?: Iterable<readonly [K, V]>) {
+        if (initial !== undefined) for (const [key, value] of initial) this.put(key, value);
     }
-    return hash >>> 0;
-  }
-
-  private static hashKeyValue(value: unknown): number {
-    if (value === null || value === undefined) {
-      return HashMap.hashFNV1a("null");
+    public size(): number {
+        return this.entriesArray.length;
     }
-
-    const valueType = typeof value;
-    if (valueType === "string" || valueType === "number" || valueType === "boolean" || valueType === "bigint") {
-      return HashMap.hashFNV1a(`${valueType}:${globalThis.String(value)}`);
+    public isEmpty(): boolean {
+        return this.entriesArray.length === 0;
     }
-
-    if (valueType === "object" || valueType === "function") {
-      const keyObject = value as object;
-      let id = HashMap.objectIds.get(keyObject);
-      if (id === undefined) {
-        id = HashMap.nextObjectId++;
-        HashMap.objectIds.set(keyObject, id);
-      }
-      return HashMap.hashFNV1a(`object:${id}`);
+    public containsKey(key: K): boolean {
+        return this.findSlot(key) !== undefined;
     }
-
-    return HashMap.hashFNV1a(`${valueType}:unknown`);
-  }
-
-  private bucketIndexFor(key: K): number {
-    if (this.buckets.length <= 0) {
-      return 0;
+    public containsValue(value: V): boolean {
+        return this.entriesArray.some((entry) => HashMap.javaEquals(entry.value, value));
     }
-    return HashMap.hashKeyValue(key) % this.buckets.length;
-  }
-
-  public containsKey(key: K): boolean {
-    return this.tryGet(key);
-  }
-
-  public tryGet(key: K, valueOut?: { value: V }): boolean {
-    if (this.buckets.length <= 0) {
-      return false;
+    public get(key: K): V | undefined {
+        return this.findSlot(key)?.value;
     }
-
-    const index = this.bucketIndexFor(key);
-    let current = this.buckets[index] ?? null;
-    while (current !== null) {
-      if (current.key === key) {
-        if (valueOut !== undefined) {
-          valueOut.value = current.value;
-        }
+    public getOrDefault(key: K, defaultValue: V): V {
+        const slot = this.findSlot(key);
+        return slot === undefined ? defaultValue : slot.value;
+    }
+    public tryGet(key: K, valueOut?: { value: V }): boolean {
+        const slot = this.findSlot(key);
+        if (slot === undefined) return false;
+        if (valueOut !== undefined) valueOut.value = slot.value;
         return true;
-      }
-      current = current.next;
-    }
-    return false;
-  }
-
-  public getOrDefault(key: K, defaultValue: V): V {
-    const out = { value: defaultValue };
-    if (this.tryGet(key, out)) {
-      return out.value;
-    }
-    return defaultValue;
-  }
-
-  private rehash(newBucketCount: number): void {
-    if (newBucketCount <= this.buckets.length) {
-      return;
     }
 
-    const oldBuckets = this.buckets;
-    this.buckets = new Array<HashMapEntry<K, V> | null>(newBucketCount);
-    this.buckets.fill(null);
-
-    for (const head of oldBuckets) {
-      let current = head;
-      while (current !== null) {
-        const next = current.next;
-        const index = this.bucketIndexFor(current.key);
-        current.next = this.buckets[index] ?? null;
-        this.buckets[index] = current;
-        current = next;
-      }
-    }
-  }
-
-  public put(key: K, value: V): boolean {
-    if (this.buckets.length <= 0) {
-      this.initialize(HashMap.DEFAULT_CAPACITY);
-    }
-
-    const index = this.bucketIndexFor(key);
-    let current = this.buckets[index] ?? null;
-    while (current !== null) {
-      if (current.key === key) {
-        current.value = value;
-        return true;
-      }
-      current = current.next;
-    }
-
-    const entry = new HashMapEntry(key, value, this.buckets[index] ?? null);
-    this.buckets[index] = entry;
-    this.elementCount++;
-
-    if (this.elementCount > this.buckets.length * this.maxLoadFactor) {
-      this.rehash(this.buckets.length * 2);
-    }
-
-    return true;
-  }
-
-  public remove(key: K): boolean {
-    if (this.buckets.length <= 0) {
-      return false;
-    }
-
-    const index = this.bucketIndexFor(key);
-    let current = this.buckets[index] ?? null;
-    let previous: HashMapEntry<K, V> | null = null;
-
-    while (current !== null) {
-      if (current.key === key) {
-        if (previous === null) {
-          this.buckets[index] = current.next;
+    /** Java Map.put: returns the prior value, or undefined for Java null/absent. */
+    public put(key: K, value: V): V | undefined {
+        const existing = this.findSlot(key);
+        if (existing !== undefined) {
+            const previous = existing.value;
+            existing.value = value;
+            return previous;
         }
-        else {
-          previous.next = current.next;
+        const hash = HashMap.javaHashCode(key);
+        const slot: HashMapSlot<K, V> = { key, value, hash };
+        this.entriesArray.push(slot);
+        if (hash !== undefined) {
+            const bucket = this.buckets.get(hash);
+            if (bucket === undefined) this.buckets.set(hash, [slot]);
+            else bucket.push(slot);
         }
-        this.elementCount--;
-        return true;
-      }
-      previous = current;
-      current = current.next;
+        this.modificationCount++;
+        return undefined;
     }
 
-    return false;
-  }
+    public putAll(entries: Iterable<readonly [K, V]>): void {
+        for (const [key, value] of entries) this.put(key, value);
+    }
+    /** Java Map.remove: returns the prior value, or undefined for Java null/absent. */
+    public remove(key: K): V | undefined {
+        const slot = this.findSlot(key);
+        if (slot === undefined) return undefined;
+        this.entriesArray.splice(this.entriesArray.indexOf(slot), 1);
+        if (slot.hash !== undefined) {
+            const bucket = this.buckets.get(slot.hash);
+            if (bucket !== undefined) {
+                bucket.splice(bucket.indexOf(slot), 1);
+                if (bucket.length === 0) this.buckets.delete(slot.hash);
+            }
+        }
+        this.modificationCount++;
+        return slot.value;
+    }
+    public clear(): void {
+        if (this.entriesArray.length > 0) {
+            this.entriesArray.length = 0;
+            this.buckets.clear();
+            this.modificationCount++;
+        }
+    }
+    public keySet(): K[] {
+        return this.entriesArray.map((entry) => entry.key);
+    }
+    public values(): V[] {
+        return this.entriesArray.map((entry) => entry.value);
+    }
+    public entrySet(): MapEntry<K, V>[] {
+        return this.entriesArray.map((entry) => ({ key: entry.key, value: entry.value }));
+    }
+
+    public *[Symbol.iterator](): IterableIterator<MapEntry<K, V>> {
+        const expectedModificationCount = this.modificationCount;
+        for (const entry of this.entriesArray) {
+            if (this.modificationCount !== expectedModificationCount)
+                throw new IllegalStateException("Map modified during iteration");
+            yield entry;
+        }
+    }
+
+    private findSlot(key: K): HashMapSlot<K, V> | undefined {
+        const hash = HashMap.javaHashCode(key);
+        if (hash === undefined) {
+            return this.entriesArray.find((entry) => entry.hash === undefined && HashMap.javaEquals(entry.key, key));
+        }
+        return this.buckets.get(hash)?.find((entry) => HashMap.javaEquals(entry.key, key));
+    }
+    private static javaHashCode(key: unknown): number | undefined {
+        if (
+            key !== null &&
+            typeof key === "object" &&
+            "hashCode" in key &&
+            typeof (key as { hashCode?: unknown }).hashCode === "function"
+        )
+            return (key as { hashCode(): number }).hashCode();
+        return undefined;
+    }
+    private static javaEquals(left: unknown, right: unknown): boolean {
+        if (
+            left === right ||
+            (typeof left === "number" && typeof right === "number" && Number.isNaN(left) && Number.isNaN(right))
+        )
+            return true;
+        if (
+            left !== null &&
+            typeof left === "object" &&
+            "equals" in left &&
+            typeof (left as { equals?: unknown }).equals === "function"
+        )
+            return (left as { equals(other: unknown): boolean }).equals(right);
+        return false;
+    }
 }

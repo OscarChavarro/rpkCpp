@@ -1,5 +1,5 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
@@ -38,7 +38,7 @@ export class LightList extends CircularList<LightInfo> {
         info.light = light;
 
         if (light.hasZeroVertices()) {
-          let e = new ColorRgb();
+          let e = new ColorRgbMutable();
           if (light.material === null || light.material.getEdf() === null) {
             e.clear();
           }
@@ -75,7 +75,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info === null) {
-      VsdkLogger.warning("CLightList::sample", "No lights available");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "CLightList::sample", "No lights available");
       return null;
     }
 
@@ -115,10 +115,10 @@ export class LightList extends CircularList<LightInfo> {
 
     const all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-    let e: ColorRgb;
+    let e: ColorRgbMutable;
 
     if (light.material === null || light.material.getEdf() === null) {
-      e = new ColorRgb();
+      e = new ColorRgbMutable();
       e.clear();
     }
     else {
@@ -157,10 +157,10 @@ export class LightList extends CircularList<LightInfo> {
     void emittedFlux;
     const all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-    let e: ColorRgb;
+    let e: ColorRgbMutable;
 
     if (light.material === null || light.material.getEdf() === null) {
-      e = new ColorRgb();
+      e = new ColorRgbMutable();
       e.clear();
     }
     else {
@@ -276,7 +276,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info === null) {
-      VsdkLogger.warning("CLightList::sample", "No lights available");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "CLightList::sample", "No lights available");
       return null;
     }
 
@@ -328,7 +328,7 @@ export class LightList extends CircularList<LightInfo> {
     } while (info !== null && info.light !== light);
 
     if (info === null) {
-      VsdkLogger.warning("CLightList::evalPdfImportant", "Could not find light");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "CLightList::evalPdfImportant", "Could not find light");
       return 0.0;
     }
 

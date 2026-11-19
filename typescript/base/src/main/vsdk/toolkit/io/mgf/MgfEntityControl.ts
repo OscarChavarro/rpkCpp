@@ -1,3 +1,4 @@
+import { String as JavaString } from "../../../../java/lang/String";
 import { File } from "../../../../java/io/File";
 import { FileInputStream } from "../../../../java/io/FileInputStream";
 import { InputStream } from "../../../../java/io/InputStream";
@@ -61,14 +62,14 @@ export class MgfEntityControl {
     const readerContext = context.readerContext;
     const fileName = readerContext?.fileName ?? "<unknown>";
     const lineNumber = readerContext?.lineNumber ?? 0;
-    Logger.error(null, "%s line %d: %s", fileName, lineNumber, errmsg);
+    Logger.reportMessage(null, Logger.ERROR, "", JavaString.vformat("%s line %d: %s", [fileName, lineNumber, errmsg]));
   }
 
   public static doWarning(errmsg: string, context: ParseRuntimeContext): void {
     const readerContext = context.readerContext;
     const fileName = readerContext?.fileName ?? "<unknown>";
     const lineNumber = readerContext?.lineNumber ?? 0;
-    Logger.warning(null, "%s line %d: %s", fileName, lineNumber, errmsg);
+    Logger.reportMessage(null, Logger.WARNING, "", JavaString.vformat("%s line %d: %s", [fileName, lineNumber, errmsg]));
   }
 
   /**

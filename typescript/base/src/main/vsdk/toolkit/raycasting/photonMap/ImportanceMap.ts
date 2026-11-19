@@ -86,7 +86,7 @@ export class ImportanceMap extends PhotonMap {
             density *= this.m_impScalePtr[0]!;
             break;
           default:
-            VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+            VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "ImportanceMap::getRequiredDensity", "Unsupported importance option");
             return 0.0;
         }
       }
@@ -107,7 +107,7 @@ export class ImportanceMap extends PhotonMap {
           density *= this.m_impScalePtr[0]!;
           break;
         default:
-          VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+          VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "ImportanceMap::getRequiredDensity", "Unsupported importance option");
           return 0.0;
       }
     }

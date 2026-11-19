@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { BsdfComponent } from "../material/BsdfComponent";
 import { MaterialColorFlags } from "../material/MaterialColorFlags";
 import { MeshSurface } from "../skin/MeshSurface";
@@ -32,7 +32,7 @@ export class MeshSurfaceVisitor {
         break;
       }
       default: {
-        const rho: ColorRgb = PatchVisitor.averageNormalAlbedo(
+        const rho: ColorRgbMutable = PatchVisitor.averageNormalAlbedo(
           face,
           BsdfComponent.BRDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT
         );

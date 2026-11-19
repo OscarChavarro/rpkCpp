@@ -41,8 +41,8 @@ export class RayHit {
 
   private computeUv(inUv: Vector2Dd): boolean {
     if ((this.flags & RayHitFlag.UV) !== 0) {
-      inUv.u = this.uv.u;
-      inUv.v = this.uv.v;
+      inUv.x = this.uv.x;
+      inUv.y = this.uv.y;
       return true;
     }
 
@@ -50,10 +50,10 @@ export class RayHit {
       const u = [0.0];
       const v = [0.0];
       this.patch.uv(this.point, u, v);
-      this.uv.u = u[0] ?? 0.0;
-      this.uv.v = v[0] ?? 0.0;
-      inUv.u = this.uv.u;
-      inUv.v = this.uv.v;
+      this.uv.x = u[0] ?? 0.0;
+      this.uv.y = v[0] ?? 0.0;
+      inUv.x = this.uv.x;
+      inUv.y = this.uv.y;
       this.flags |= RayHitFlag.UV;
       return true;
     }
@@ -65,7 +65,7 @@ export class RayHit {
     let success = false;
 
     if (!this.hitInitialised()) {
-      VsdkLogger.warning("pointShadingFrame", "uninitialised hit structure");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "pointShadingFrame", "uninitialised hit structure");
       return false;
     }
 
@@ -101,7 +101,7 @@ export class RayHit {
       const x = inX !== null ? inX : new Vector3D();
       const y = inY !== null ? inY : new Vector3D();
       const z = inZ !== null ? inZ : new Vector3D();
-      this.patch.interpolatedFrameAtUv(this.uv.u, this.uv.v, x, y, z);
+      this.patch.interpolatedFrameAtUv(this.uv.x, this.uv.y, x, y, z);
 
       if (inX !== null) {
         inX.copy(x);
@@ -150,8 +150,8 @@ export class RayHit {
     this.shadingFrame.setX(localNormal);
     this.shadingFrame.setY(localNormal);
     this.shadingFrame.setZ(localNormal);
-    this.uv.u = 0.0;
-    this.uv.v = 0.0;
+    this.uv.x = 0.0;
+    this.uv.y = 0.0;
 
     return this.hitInitialised();
   }
@@ -167,7 +167,7 @@ export class RayHit {
     }
 
     if ((this.flags & RayHitFlag.PATCH) !== 0 && this.patch !== null) {
-      this.texCoord = this.patch.textureCoordAtUv(this.uv.u, this.uv.v);
+      this.texCoord = this.patch.textureCoordAtUv(this.uv.x, this.uv.y);
       outTexCoord.copy(this.texCoord);
       this.flags |= RayHitFlag.TEXTURE_COORDINATE;
       return true;
@@ -303,13 +303,13 @@ export class RayHit {
   public setUv(inU: number, inV: number): void;
   public setUv(inUvOrU: Vector2Dd | number, inV?: number): void {
     if (inUvOrU instanceof Vector2Dd) {
-      this.uv.u = inUvOrU.u;
-      this.uv.v = inUvOrU.v;
+      this.uv.x = inUvOrU.x;
+      this.uv.y = inUvOrU.y;
       return;
     }
 
-    this.uv.u = inUvOrU;
-    this.uv.v = inV as number;
+    this.uv.x = inUvOrU;
+    this.uv.y = inV as number;
   }
 
   public getFlags(): number {
@@ -360,8 +360,8 @@ export class RayHit {
     this.shadingFrame.setX(other.shadingFrame.getX());
     this.shadingFrame.setY(other.shadingFrame.getY());
     this.shadingFrame.setZ(other.shadingFrame.getZ());
-    this.uv.u = other.uv.u;
-    this.uv.v = other.uv.v;
+    this.uv.x = other.uv.x;
+    this.uv.y = other.uv.y;
     this.flags = other.flags;
   }
 }

@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../java/io/OutputStream";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "../common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
@@ -31,7 +31,7 @@ export class RadianceImageExporter {
     }
 
     if (toneMapOptions === null) {
-      Logger.error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
+      Logger.reportMessage(null, Logger.ERROR, "RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
       return;
     }
 
@@ -42,7 +42,7 @@ export class RadianceImageExporter {
     const height = [0];
     idRenderer.getSize(width, height);
     if (width[0] !== screenBuffer.getHRes() || height[0] !== screenBuffer.getVRes()) {
-      Logger.error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
+      Logger.reportMessage(null, Logger.ERROR, "RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
       return;
     }
 
@@ -110,8 +110,8 @@ export class RadianceImageExporter {
     patch: Patch | null,
     radianceMethod: RadianceMethod | null,
     renderOptions: RendererConfiguration | null
-  ): ColorRgb {
-    const radiance = new ColorRgb();
+  ): ColorRgbMutable {
+    const radiance = new ColorRgbMutable();
     radiance.clear();
 
     if (screenBuffer === null || camera === null || patch === null || radianceMethod === null || renderOptions === null) {

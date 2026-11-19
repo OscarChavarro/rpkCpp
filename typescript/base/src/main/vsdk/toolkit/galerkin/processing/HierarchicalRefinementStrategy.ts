@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -122,7 +122,7 @@ export class HierarchicalRefinementStrategy {
     }
   }
 
-  private static hierarchicRefinementColorToError(radiance: ColorRgb): number {
+  private static hierarchicRefinementColorToError(radiance: ColorRgbMutable): number {
     return radiance !== null ? radiance.maximumComponent() : 0.0;
   }
 
@@ -157,12 +157,12 @@ export class HierarchicalRefinementStrategy {
 
   private static hierarchicRefinementApproximationError(
     interaction: Interaction,
-    srcRho: ColorRgb,
-    rcvRho: ColorRgb,
+    srcRho: ColorRgbMutable,
+    rcvRho: ColorRgbMutable,
     galerkinState: GalerkinState,
   ): number {
-    const error = new ColorRgb();
-    let srcRad: ColorRgb;
+    const error = new ColorRgbMutable();
+    let srcRad: ColorRgbMutable;
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
@@ -171,7 +171,7 @@ export class HierarchicalRefinementStrategy {
         srcRad = ClusterTraversalStrategy.maxRadiance(interaction.sourceElement, galerkinState);
       }
       else {
-        srcRad = (interaction.sourceElement.radiance as ColorRgb[])[0]!;
+        srcRad = (interaction.sourceElement.radiance as ColorRgbMutable[])[0]!;
       }
     }
     else {
@@ -180,7 +180,7 @@ export class HierarchicalRefinementStrategy {
         srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
       }
       else {
-        srcRad = (interaction.sourceElement.unShotRadiance as ColorRgb[])[0]!;
+        srcRad = (interaction.sourceElement.unShotRadiance as ColorRgbMutable[])[0]!;
       }
     }
 
@@ -191,12 +191,12 @@ export class HierarchicalRefinementStrategy {
 
   private static sourceClusterRadianceVariationError(
     interaction: Interaction,
-    rcvRho: ColorRgb,
+    rcvRho: ColorRgbMutable,
     receiverArea: number,
     galerkinState: GalerkinState,
   ): number {
     const K = interaction.K[0]!;
-    if (K === 0.0 || rcvRho.isBlack() || (interaction.sourceElement.radiance as ColorRgb[])[0]!.isBlack()) {
+    if (K === 0.0 || rcvRho.isBlack() || (interaction.sourceElement.radiance as ColorRgbMutable[])[0]!.isBlack()) {
       return 0.0;
     }
 
@@ -206,9 +206,9 @@ export class HierarchicalRefinementStrategy {
     ];
     const numberOfReceiverVertices = interaction.receiverElement.vertices(rcVertices);
 
-    const minimumSourceRadiance = new ColorRgb();
-    const maximumSourceRadiance = new ColorRgb();
-    const error = new ColorRgb();
+    const minimumSourceRadiance = new ColorRgbMutable();
+    const maximumSourceRadiance = new ColorRgbMutable();
+    const error = new ColorRgbMutable();
     minimumSourceRadiance.setMonochrome(Numeric.HUGE_FLOAT_VALUE);
     maximumSourceRadiance.setMonochrome(-Numeric.HUGE_FLOAT_VALUE);
 
@@ -236,7 +236,7 @@ export class HierarchicalRefinementStrategy {
     }
 
     let receiverArea: number;
-    const rcvRho = new ColorRgb();
+    const rcvRho = new ColorRgbMutable();
     if (interaction.receiverElement.isCluster()) {
       rcvRho.setMonochrome(1.0);
       receiverArea = ClusterTraversalStrategy.receiverArea(interaction, galerkinState);
@@ -250,7 +250,7 @@ export class HierarchicalRefinementStrategy {
       receiverArea = interaction.receiverElement.area;
     }
 
-    const srcRho = new ColorRgb();
+    const srcRho = new ColorRgbMutable();
     if (interaction.sourceElement.isCluster()) {
       srcRho.setMonochrome(1.0);
     }
@@ -326,12 +326,12 @@ export class HierarchicalRefinementStrategy {
       interaction.sourceElement.basisUsed = b;
     }
 
-    let srcRad: ColorRgb[];
+    let srcRad: ColorRgbMutable[];
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-      srcRad = interaction.sourceElement.unShotRadiance as ColorRgb[];
+      srcRad = interaction.sourceElement.unShotRadiance as ColorRgbMutable[];
     }
     else {
-      srcRad = interaction.sourceElement.radiance as ColorRgb[];
+      srcRad = interaction.sourceElement.radiance as ColorRgbMutable[];
     }
 
     if (interaction.sourceElement.isCluster() && interaction.sourceElement !== interaction.receiverElement) {
@@ -343,7 +343,7 @@ export class HierarchicalRefinementStrategy {
       ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, galerkinState);
     }
     else {
-      const rcvRad = interaction.receiverElement.receivedRadiance as ColorRgb[];
+      const rcvRad = interaction.receiverElement.receivedRadiance as ColorRgbMutable[];
       if (interaction.numberOfBasisFunctionsOnReceiver === 1
         && interaction.numberOfBasisFunctionsOnSource === 1) {
         rcvRad[0]!.addScaled(rcvRad[0]!, interaction.K[0]!, srcRad[0]!);
@@ -363,8 +363,8 @@ export class HierarchicalRefinementStrategy {
 
     if (galerkinState.importanceDriven !== 0) {
       const K = interaction.K[0]!;
-      const rcvRho = new ColorRgb();
-      const srcRho = new ColorRgb();
+      const rcvRho = new ColorRgbMutable();
+      const srcRho = new ColorRgbMutable();
 
       if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {

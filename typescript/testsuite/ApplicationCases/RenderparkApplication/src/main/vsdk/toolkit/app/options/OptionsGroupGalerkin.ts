@@ -1,3 +1,4 @@
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
@@ -26,7 +27,7 @@ export class OptionsGroupGalerkin {
       GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.SOUTH_WELL;
     }
     else {
-      VsdkLogger.error(null, "Invalid iteration method '%s'", name);
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid iteration method '%s'", [name]));
     }
   }
 

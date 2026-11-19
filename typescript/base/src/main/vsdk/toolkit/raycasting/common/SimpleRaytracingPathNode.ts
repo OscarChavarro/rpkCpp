@@ -1,5 +1,5 @@
 import { PrintStream } from "../../../../java/io/PrintStream";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vector3DPrinter } from "../../io/wrapper/Vector3DPrinter";
@@ -25,7 +25,7 @@ export class SimpleRaytracingPathNode {
   public m_rrPdfFromNext: number;
   public accumulatedRussianRouletteFactors: number;
 
-  public m_bsdfEval: ColorRgb;
+  public m_bsdfEval: ColorRgbMutable;
   public m_bsdfComp: BsdfComp;
 
   public m_usedComponents: number;
@@ -52,7 +52,7 @@ export class SimpleRaytracingPathNode {
     this.m_rrPdfFromNext = 0.0;
     this.accumulatedRussianRouletteFactors = 0.0;
 
-    this.m_bsdfEval = new ColorRgb();
+    this.m_bsdfEval = new ColorRgbMutable();
     this.m_bsdfComp = new BsdfComp();
 
     this.m_usedComponents = 0;
@@ -154,7 +154,7 @@ export class SimpleRaytracingPathNode {
         case PathRayType.REFLECTS:
           break;
         default:
-          VsdkLogger.error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+          VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CPathNode::GetMatchingNode", "Wrong ray type in path");
       }
 
       matchedNode = tmpNode;
@@ -166,20 +166,20 @@ export class SimpleRaytracingPathNode {
 
   public getPreviousBsdf(): PhongBidirectionalScatteringDistributionFunction | null {
     if ((this.m_hit.getFlags() & RayHitFlag.BACK) === 0) {
-      VsdkLogger.error("CPathNode::getPreviousBsdf", "Last node not a back hit");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CPathNode::getPreviousBsdf", "Last node not a back hit");
       return this.m_inBsdf;
     }
 
     const patch = this.m_hit.getPatch();
     const patchBsdf = patch !== null && patch.material !== null ? patch.material.getBsdf() : null;
     if (patchBsdf !== this.m_inBsdf) {
-      VsdkLogger.warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     const matchedNode = this.GetMatchingNode();
 
     if (matchedNode === null) {
-      VsdkLogger.warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "CPathNode::GetPreviousBtdf", "No corresponding entering ray");
       return this.m_inBsdf;
     }
 

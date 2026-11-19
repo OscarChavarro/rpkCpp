@@ -1,3 +1,4 @@
+import { String as JavaString } from "../../../java/lang/String";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CubatureDegree } from "./CubatureDegree";
 import { CubatureRule } from "./CubatureRule";
@@ -331,7 +332,7 @@ export class TriangleCubatureRule {
         triRule[0] = TriangleCubatureRule.crt9;
         break;
       default:
-        VsdkLogger.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "setTriangleCubatureRules", JavaString.vformat("Invalid degree %d", [degree]));
     }
   }
 

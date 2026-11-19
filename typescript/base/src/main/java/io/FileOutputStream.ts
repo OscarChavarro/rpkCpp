@@ -49,7 +49,11 @@ export class FileOutputStream extends OutputStream {
     fs.fsyncSync(this.fileDescriptor);
   }
 
-  public close(): void {
+  public override writeBytes(buffer: Uint8Array, offset = 0, length = buffer.length - offset): void {
+    this.write(buffer, offset, length);
+  }
+
+  public override close(): void {
     if (this.fileDescriptor === null) {
       return;
     }

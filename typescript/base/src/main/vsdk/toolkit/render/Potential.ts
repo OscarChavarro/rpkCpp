@@ -1,3 +1,4 @@
+import { String as JavaString } from "../../../java/lang/String";
 import { Logger } from "../common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -65,7 +66,7 @@ export class Potential {
     }
 
     if (lostPixels > 0) {
-      Logger.warning(null, "%d lost pixels", lostPixels);
+      Logger.reportMessage(null, Logger.WARNING, "", JavaString.vformat("%d lost pixels", [lostPixels]));
     }
 
     const statistics = Statistics.instance();

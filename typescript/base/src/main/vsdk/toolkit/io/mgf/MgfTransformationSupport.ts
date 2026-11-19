@@ -39,9 +39,8 @@ export class MgfTransformationSupport {
     const view = new DataView(buffer);
     let offset = 0;
     for (let r = 0; r < 4; r++) {
-      const row = xfm.m[r]!;
       for (let c = 0; c < 4; c++) {
-        view.setFloat64(offset, row[c]!, true);
+        view.setFloat64(offset, xfm.get(r, c), true);
         offset += 8;
       }
     }
@@ -200,28 +199,52 @@ export class MgfTransformationSupport {
   /**
   Transform a point by the current matrix.
   */
-  public static mgfTransformPoint(v1: Vector3Dd, v2: Vector3Dd, context: ParseRuntimeContext): void {
+  public static mgfTransformPoint(v2: Vector3Dd, context: ParseRuntimeContext): Vector3Dd {
     if (context.transformContext === null) {
-      v1.copy(v2);
-      return;
+      return v2;
     }
-    context.transformContext.xf.transformMatrix.multiplyWithTranslation(v1, v2);
+    return MgfTransformationSupport.transformPoint(context.transformContext.xf.transformMatrix, v2);
   }
 
   /**
   Transform a vector using current matrix.
   */
-  public static mgfTransformVector(v1: Vector3Dd, v2: Vector3Dd, context: ParseRuntimeContext): void {
+  public static mgfTransformVector(v2: Vector3Dd, context: ParseRuntimeContext): Vector3Dd {
     if (context.transformContext === null) {
-      v1.copy(v2);
-      return;
+      return v2;
     }
-    context.transformContext.xf.transformMatrix.multiply(v1, v2);
+    return MgfTransformationSupport.transformDirection(context.transformContext.xf.transformMatrix, v2);
+  }
+
+  /**
+  Transforms a point as a row vector (translation in the last row).
+  */
+  private static transformPoint(m: Matrix4x4d, v: Vector3Dd): Vector3Dd {
+    const vx = v.x();
+    const vy = v.y();
+    const vz = v.z();
+    return new Vector3Dd(
+      m.get(0, 0) * vx + m.get(1, 0) * vy + m.get(2, 0) * vz + m.get(3, 0),
+      m.get(0, 1) * vx + m.get(1, 1) * vy + m.get(2, 1) * vz + m.get(3, 1),
+      m.get(0, 2) * vx + m.get(1, 2) * vy + m.get(2, 2) * vz + m.get(3, 2));
+  }
+
+  /**
+  Transforms a direction as a row vector (translation ignored).
+  */
+  private static transformDirection(m: Matrix4x4d, v: Vector3Dd): Vector3Dd {
+    const vx = v.x();
+    const vy = v.y();
+    const vz = v.z();
+    return new Vector3Dd(
+      m.get(0, 0) * vx + m.get(1, 0) * vy + m.get(2, 0) * vz,
+      m.get(0, 1) * vx + m.get(1, 1) * vy + m.get(2, 1) * vz,
+      m.get(0, 2) * vx + m.get(1, 2) * vy + m.get(2, 2) * vz);
   }
 
   private static finish(count: number, ret: TransformContext, transformMatrix: Matrix4x4d, scaTransform: number): void {
     while (count-- > 0) {
-      Matrix4x4d.multiplyMatrix4(ret.transformMatrix, ret.transformMatrix, transformMatrix);
+      ret.transformMatrix = ret.transformMatrix.multiply(transformMatrix);
       ret.scaleFactor *= scaTransform;
     }
   }
@@ -230,7 +253,7 @@ export class MgfTransformationSupport {
   Get transform specification.
   */
   private static xf(ret: TransformContext, ac: number, av: string[] | null): number {
-    ret.transformMatrix.identity();
+    ret.transformMatrix = Matrix4x4d.identityMatrix();
     ret.scaleFactor = 1.0;
 
     if (av === null) {
@@ -238,8 +261,7 @@ export class MgfTransformationSupport {
     }
 
     let counter = 1;
-    const transformMatrix = new Matrix4x4d();
-    transformMatrix.identity();
+    let transformMatrix = Matrix4x4d.identityMatrix();
     let scaTransform = 1.0;
 
     let i: number;
@@ -249,7 +271,7 @@ export class MgfTransformationSupport {
       if (cmd === undefined || cmd === null || cmd.length <= 0 || cmd.charAt(0) !== "-") {
         break;
       }
-      const m4 = new Matrix4x4d();
+      const m4: number[][] = Matrix4x4d.identityMatrix().toArrayCopy();
 
       if (cmd.length < 2) {
         MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
@@ -263,9 +285,9 @@ export class MgfTransformationSupport {
             MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
             return i;
           }
-          m4.m[3]![0] = Number.parseFloat(av[++i]!);
-          m4.m[3]![1] = Number.parseFloat(av[++i]!);
-          m4.m[3]![2] = Number.parseFloat(av[++i]!);
+          m4[3]![0] = Number.parseFloat(av[++i]!);
+          m4[3]![1] = Number.parseFloat(av[++i]!);
+          m4[3]![2] = Number.parseFloat(av[++i]!);
           break;
 
         case "r": {
@@ -278,8 +300,8 @@ export class MgfTransformationSupport {
                 return i;
               }
               tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
-              m4.m[1][1] = m4.m[2][2] = globalThis.Math.cos(tmp);
-              m4.m[2][1] = -(m4.m[1][2] = globalThis.Math.sin(tmp));
+              m4[1]![1] = m4[2]![2] = globalThis.Math.cos(tmp);
+              m4[2]![1] = -(m4[1]![2] = globalThis.Math.sin(tmp));
               break;
             case "y":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
@@ -287,8 +309,8 @@ export class MgfTransformationSupport {
                 return i;
               }
               tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
-              m4.m[0][0] = m4.m[2][2] = globalThis.Math.cos(tmp);
-              m4.m[0][2] = -(m4.m[2][0] = globalThis.Math.sin(tmp));
+              m4[0]![0] = m4[2]![2] = globalThis.Math.cos(tmp);
+              m4[0]![2] = -(m4[2]![0] = globalThis.Math.sin(tmp));
               break;
             case "z":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
@@ -296,8 +318,8 @@ export class MgfTransformationSupport {
                 return i;
               }
               tmp = MgfTransformationSupport.d2r(Number.parseFloat(av[++i]!));
-              m4.m[0][0] = m4.m[1][1] = globalThis.Math.cos(tmp);
-              m4.m[1][0] = -(m4.m[0][1] = globalThis.Math.sin(tmp));
+              m4[0]![0] = m4[1]![1] = globalThis.Math.cos(tmp);
+              m4[1]![0] = -(m4[0]![1] = globalThis.Math.sin(tmp));
               break;
             default: {
               if (!MgfTransformationSupport.checkArgument(2, "ffff", ac, av, i)) {
@@ -315,21 +337,21 @@ export class MgfTransformationSupport {
               const c = globalThis.Math.cos(a);
               s = globalThis.Math.sin(a);
               const t = 1 - c;
-              m4.m[0][0] = t * x * x + c;
-              m4.m[1][1] = t * y * y + c;
-              m4.m[2][2] = t * z * z + c;
+              m4[0]![0] = t * x * x + c;
+              m4[1]![1] = t * y * y + c;
+              m4[2]![2] = t * z * z + c;
               let A = t * x * y;
               let B = s * z;
-              m4.m[0][1] = A + B;
-              m4.m[1][0] = A - B;
+              m4[0]![1] = A + B;
+              m4[1]![0] = A - B;
               A = t * x * z;
               B = s * y;
-              m4.m[0][2] = A - B;
-              m4.m[2][0] = A + B;
+              m4[0]![2] = A - B;
+              m4[2]![0] = A + B;
               A = t * y * z;
               B = s * x;
-              m4.m[1][2] = A + B;
-              m4.m[2][1] = A - B;
+              m4[1]![2] = A + B;
+              m4[2]![1] = A - B;
             }
           }
           break;
@@ -349,7 +371,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              m4.m[0][0] = tmp;
+              m4[0]![0] = tmp;
               break;
             case "y":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
@@ -361,7 +383,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              m4.m[1][1] = tmp;
+              m4[1]![1] = tmp;
               break;
             case "z":
               if (!MgfTransformationSupport.checkArgument(3, "f", ac, av, i)) {
@@ -373,7 +395,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              m4.m[2][2] = tmp;
+              m4[2]![2] = tmp;
               break;
             default:
               if (!MgfTransformationSupport.checkArgument(2, "f", ac, av, i)) {
@@ -385,7 +407,7 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              scaTransform *= (m4.m[0][0] = m4.m[1][1] = m4.m[2][2] = tmp);
+              scaTransform *= (m4[0]![0] = m4[1]![1] = m4[2]![2] = tmp);
               break;
           }
           i++;
@@ -401,21 +423,21 @@ export class MgfTransformationSupport {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              scaTransform *= (m4.m[0][0] = -1.0);
+              scaTransform *= (m4[0]![0] = -1.0);
               break;
             case "y":
               if (!MgfTransformationSupport.checkArgument(3, "", ac, av, i)) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              scaTransform *= (m4.m[1][1] = -1.0);
+              scaTransform *= (m4[1]![1] = -1.0);
               break;
             case "z":
               if (!MgfTransformationSupport.checkArgument(3, "", ac, av, i)) {
                 MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
                 return i;
               }
-              scaTransform *= (m4.m[2][2] = -1.0);
+              scaTransform *= (m4[2]![2] = -1.0);
               break;
             default:
               MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
@@ -431,11 +453,11 @@ export class MgfTransformationSupport {
             return i;
           }
           while (counter-- > 0) {
-            Matrix4x4d.multiplyMatrix4(ret.transformMatrix, ret.transformMatrix, transformMatrix);
+            ret.transformMatrix = ret.transformMatrix.multiply(transformMatrix);
             ret.scaleFactor *= scaTransform;
           }
           counter = Number.parseInt(av[++i]!, 10);
-          transformMatrix.identity();
+          transformMatrix = Matrix4x4d.identityMatrix();
           scaTransform = 1.0;
           continue;
 
@@ -443,7 +465,7 @@ export class MgfTransformationSupport {
           MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
           return i;
       }
-      Matrix4x4d.multiplyMatrix4(transformMatrix, transformMatrix, m4);
+      transformMatrix = transformMatrix.multiply(new Matrix4x4d(m4));
     }
 
     MgfTransformationSupport.finish(counter, ret, transformMatrix, scaTransform);
@@ -543,7 +565,7 @@ export class MgfTransformationSupport {
 
     // Compute total transformation
     if (spec.prev !== null) {
-      Matrix4x4d.multiplyMatrix4(spec.xf.transformMatrix, spec.xf.transformMatrix, spec.prev.xf.transformMatrix);
+      spec.xf.transformMatrix = spec.xf.transformMatrix.multiply(spec.prev.xf.transformMatrix);
       spec.xf.scaleFactor *= spec.prev.xf.scaleFactor;
       spec.rev = ((spec.rev ^ spec.prev.rev) !== 0) ? 1 : 0;
     }

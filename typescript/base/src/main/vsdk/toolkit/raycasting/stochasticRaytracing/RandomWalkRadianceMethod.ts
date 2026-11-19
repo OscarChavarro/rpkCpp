@@ -4,7 +4,7 @@ import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
-import { ColorRgb } from "../../common/color/ColorRgb";
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -40,11 +40,11 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
   private readonly stochasticRelaxationState: StochasticRelaxation;
   private readonly elementHierarchyState: ElementHierarchyState;
   private readonly stochasticRadiosityBasisState: StochasticRadiosityBasisState;
-  private static readonly selfEmittedRadiance = new Array<ColorRgb>(GalerkinBasis.MAX_BASIS_SIZE);
+  private static readonly selfEmittedRadiance = new Array<ColorRgbMutable>(GalerkinBasis.MAX_BASIS_SIZE);
 
   static {
     for (let i = 0; i < RandomWalkRadianceMethod.selfEmittedRadiance.length; i++) {
-      RandomWalkRadianceMethod.selfEmittedRadiance[i] = new ColorRgb();
+      RandomWalkRadianceMethod.selfEmittedRadiance[i] = new ColorRgbMutable();
     }
   }
 
@@ -114,7 +114,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     v: number,
     dir: Vector3D,
     renderOptions: RendererConfiguration
-  ): ColorRgb {
+  ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
     StochasticRadiosityBasisState.setActiveState(this.stochasticRadiosityBasisState);
@@ -151,7 +151,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     }
     StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
     if (StochasticRelaxation.activeState().toneMapOptions === null) {
-      VsdkLogger.fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation.activeState().method = StochasticRaytracingMethod.RANDOM_WALK_RADIOSITY_METHOD;
     Mcrad.monteCarloRadiosityInit();
@@ -207,7 +207,7 @@ a survival stochasticJacobiProbability function
     return Mcrad.monteCarloRadiosityScalarReflectance(patch);
   }
 
-  private static randomWalkRadiosityGetSelfEmittedRadiance(elem: StochasticRadiosityElement): ColorRgb[] {
+  private static randomWalkRadiosityGetSelfEmittedRadiance(elem: StochasticRadiosityElement): ColorRgbMutable[] {
     Coefficientsmcrad.stochasticRadiosityClearCoefficients(RandomWalkRadianceMethod.selfEmittedRadiance, elem.basis);
     const ed = McradP.topLevelStochasticRadiosityElement(elem.patch as Patch).Ed;
     RandomWalkRadianceMethod.selfEmittedRadiance[0]!.set(ed.r, ed.g, ed.b);
@@ -220,7 +220,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
   private static randomWalkRadiosityReduceSource(scenePatches: ArrayList<Patch>): void {
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
       const patch = scenePatches.get(i);
-      const newSourceRadiance = new ColorRgb();
+      const newSourceRadiance = new ColorRgbMutable();
       const rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
 
       newSourceRadiance.setMonochrome(1.0);
@@ -272,12 +272,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
         }
         break;
       default:
-        VsdkLogger.fatal(
-          -1,
-          "randomWalkRadiosityScoreWeight",
-          "Unknown random walk estimator kind %d",
-          StochasticRelaxation.activeState().randomWalkEstimatorKind as number
-        );
+        VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "randomWalkRadiosityScoreWeight", JavaString.vformat("Unknown random walk estimator kind %d", [StochasticRelaxation.activeState().randomWalkEstimatorKind as number]));
         break;
     }
     return w;
@@ -291,7 +286,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
     if (birthProbability === null) {
       // Keep C++ signature.
     }
-    const accumPow = new ColorRgb();
+    const accumPow = new ColorRgbMutable();
     const firstNode = path.nodes![0]!;
 
     accumPow.scaledCopy(
@@ -409,21 +404,21 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
   /**
 Determines control radiosity value for collision gathering estimator
 */
-  private static randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches: ArrayList<Patch>): ColorRgb {
-    const c1 = new ColorRgb();
-    const c2 = new ColorRgb();
-    const cr = new ColorRgb();
+  private static randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches: ArrayList<Patch>): ColorRgbMutable {
+    const c1 = new ColorRgbMutable();
+    const c2 = new ColorRgbMutable();
+    const cr = new ColorRgbMutable();
 
     c1.clear();
     c2.clear();
 
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
       const patch = scenePatches.get(i);
-      const absorb = new ColorRgb();
+      const absorb = new ColorRgbMutable();
       const rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
       const Ed = McradP.topLevelStochasticRadiosityElement(patch).sourceRad;
-      const num = new ColorRgb();
-      const denominator = new ColorRgb();
+      const num = new ColorRgbMutable();
+      const denominator = new ColorRgbMutable();
 
       absorb.setMonochrome(1.0);
       absorb.subtract(absorb, rho);
@@ -452,7 +447,7 @@ Determines control radiosity value for collision gathering estimator
       // Keep C++ signature.
     }
     const lastNodeIndex = path.numberOfNodes - 1;
-    let accumRad = new ColorRgb(
+    let accumRad = new ColorRgbMutable(
       McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.r,
       McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.g,
       McradP.topLevelStochasticRadiosityElement(path.nodes![lastNodeIndex]!.patch as Patch).sourceRad.b
@@ -526,7 +521,7 @@ Determines control radiosity value for collision gathering estimator
     );
 
     if (StochasticRelaxation.activeState().constantControlVariate !== 0) {
-      const cr = new ColorRgb(
+      const cr = new ColorRgbMutable(
         StochasticRelaxation.activeState().controlRadiance.r,
         StochasticRelaxation.activeState().controlRadiance.g,
         StochasticRelaxation.activeState().controlRadiance.b
@@ -647,12 +642,7 @@ Determines control radiosity value for collision gathering estimator
         RandomWalkRadianceMethod.randomWalkRadiosityDoGatheringIteration(scene.voxelGrid as VoxelGrid, scenePatches);
         break;
       default:
-        VsdkLogger.fatal(
-          -1,
-          "randomWalkRadiosityDoStep",
-          "Unknown random walk estimator type %d",
-          StochasticRelaxation.activeState().randomWalkEstimatorType as number
-        );
+        VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "randomWalkRadiosityDoStep", JavaString.vformat("Unknown random walk estimator type %d", [StochasticRelaxation.activeState().randomWalkEstimatorType as number]));
         break;
     }
 

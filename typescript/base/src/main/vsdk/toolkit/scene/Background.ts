@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Patch } from "../environment/geometry/elements/Patch";
 
@@ -13,11 +13,11 @@ export class Background {
     position: Vector3D,
     direction: Vector3D,
     probabilityDensityFunction: number[] | null
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
       probabilityDensityFunction[0] = 0.0;
     }
-    const black = new ColorRgb();
+    const black = new ColorRgbMutable();
     black.setMonochrome(0.0);
     void position;
     void direction;
@@ -28,7 +28,7 @@ export class Background {
     position: Vector3D,
     xi1: number,
     xi2: number,
-    radianceValue: ColorRgb | null,
+    radianceValue: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
   ): Vector3D {
     if (radianceValue !== null) {
@@ -43,8 +43,8 @@ export class Background {
     return new Vector3D();
   }
 
-  public power(position: Vector3D): ColorRgb {
-    const black = new ColorRgb();
+  public power(position: Vector3D): ColorRgbMutable {
+    const black = new ColorRgbMutable();
     black.setMonochrome(0.0);
     void position;
     return black;
@@ -55,18 +55,18 @@ export class Background {
     position: Vector3D,
     direction: Vector3D,
     probabilityDensityFunction: number[] | null
-  ): ColorRgb {
+  ): ColorRgbMutable {
     if (bkg === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.setMonochrome(0.0);
       return black;
     }
     return bkg.radiance(position, direction, probabilityDensityFunction);
   }
 
-  public static backgroundPower(bkg: Background | null, position: Vector3D): ColorRgb {
+  public static backgroundPower(bkg: Background | null, position: Vector3D): ColorRgbMutable {
     if (bkg === null) {
-      const black = new ColorRgb();
+      const black = new ColorRgbMutable();
       black.setMonochrome(0.0);
       return black;
     }

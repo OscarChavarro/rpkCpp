@@ -13,7 +13,7 @@ export class LDSpar extends Spar {
     }
 
     if (radianceMethod === null) {
-      VsdkLogger.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
+      VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
     }
 
     if (sparConfig.baseConfig.doLD !== 0) {

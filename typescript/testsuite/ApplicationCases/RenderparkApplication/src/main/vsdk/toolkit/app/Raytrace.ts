@@ -1,3 +1,4 @@
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { System } from "vitral/dist/java/lang/System";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
@@ -77,7 +78,7 @@ export class Raytrace {
     Raytrace.rayTraceSetMethod(newRaytracer, scene.lightSourcePatchList, lightList);
 
     if (newRaytracer === null && (rayTracerName === null || rayTracerName.substring(0, 4).toLowerCase() !== "none")) {
-      VsdkLogger.error(null, "Invalid raytracing method name '%s'", rayTracerName);
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid raytracing method name '%s'", [rayTracerName]));
     }
 
     return newRaytracer;
@@ -136,10 +137,10 @@ export class Raytrace {
     }
 
     if (rayTracer === null) {
-      VsdkLogger.warning(null, "No ray tracing method active");
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", "No ray tracing method active");
     }
     else if (!rayTracer.saveImage(img)) {
-      VsdkLogger.warning(null, "No previous %s image available", rayTracer.getName());
+      VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", JavaString.vformat("No previous %s image available", [rayTracer.getName()]));
     }
 
     ImageOutputHandle.deleteImageOutputHandle(img);

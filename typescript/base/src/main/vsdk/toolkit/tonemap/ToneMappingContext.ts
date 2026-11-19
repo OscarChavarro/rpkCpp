@@ -1,5 +1,5 @@
 import { Cie } from "../common/color/Cie";
-import { ColorRgb } from "../common/color/ColorRgb";
+import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMapAdaptationMethod } from "./ToneMapAdaptationMethod";
 
@@ -24,7 +24,7 @@ export class ToneMappingContext {
   public xw: number;
   public yw: number;
 
-  public gamma: ColorRgb;
+  public gamma: ColorRgbMutable;
   public gammaTab: number[][];
 
   private static readonly DEFAULT_GAMMA = 1.7;
@@ -51,7 +51,7 @@ export class ToneMappingContext {
     this.yw = 0.333333333333;
     Cie.computeColorConversionTransforms(this.xr, this.yr, this.xg, this.yg, this.xb, this.yb, this.xw, this.yw);
 
-    this.gamma = new ColorRgb();
+    this.gamma = new ColorRgbMutable();
     this.gamma.set(ToneMappingContext.DEFAULT_GAMMA, ToneMappingContext.DEFAULT_GAMMA, ToneMappingContext.DEFAULT_GAMMA);
     this.gammaTab = [
       new Array<number>(ToneMappingContext.GAMMA_TABLE_SIZE).fill(0.0),
