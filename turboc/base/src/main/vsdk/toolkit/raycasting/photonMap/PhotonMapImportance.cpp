@@ -53,6 +53,7 @@ bool
 PhotonMapImportance::tracePotentialPath(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     PhotonMapState &photonMapState,
     PhotonMapConfig &photonMapConfig)
@@ -61,7 +62,7 @@ PhotonMapImportance::tracePotentialPath(
     const SamplerConfig &scfg = photonMapConfig.eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, drand48(), drand48(), BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     if ( path == NULL ) {
         return false;
     }
@@ -93,6 +94,7 @@ PhotonMapImportance::tracePotentialPath(
     while ( scfg.traceNode(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             node,
             x1,
@@ -142,6 +144,7 @@ void
 PhotonMapImportance::tracePotentialPaths(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     int numberOfPaths,
     PhotonMapState &photonMapState,
@@ -155,6 +158,7 @@ PhotonMapImportance::tracePotentialPaths(
         PhotonMapImportance::tracePotentialPath(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             photonMapState,
             photonMapConfig);

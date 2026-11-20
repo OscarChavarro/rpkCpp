@@ -60,16 +60,13 @@ public:
     void setUv(const double inU, const double inV);
     unsigned int getFlags() const;
     void setFlags(unsigned int inFlags);
-
-#ifdef RAYTRACING_ENABLED
+    Vector3D getGeometricNormal() const;
     bool setShadingFrame(CoordinateSystem *frame);
     Vector3D getNormal() const;
     void setNormal(const Vector3D *n);
     CoordinateSystem getShadingFrame() const;
     const Material * getMaterial() const;
-    Vector3D getGeometricNormal() const;
     void setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ);
-#endif
 
 };
 
@@ -129,7 +126,11 @@ RayHit::setFlags(unsigned int inFlags) {
     flags = inFlags;
 }
 
-#ifdef RAYTRACING_ENABLED
+inline Vector3D
+RayHit::getGeometricNormal() const {
+    return geometricNormal;
+}
+
 inline Vector3D
 RayHit::getNormal() const {
     return shadingFrame.getZ();
@@ -150,17 +151,11 @@ RayHit::getMaterial() const {
     return material;
 }
 
-inline Vector3D
-RayHit::getGeometricNormal() const {
-    return geometricNormal;
-}
-
 inline void
 RayHit::setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
     shadingFrame.setX(*inX);
     shadingFrame.setY(*inY);
     shadingFrame.setZ(*inZ);
 }
-#endif
 
 #endif

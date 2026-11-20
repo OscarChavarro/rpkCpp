@@ -7,36 +7,54 @@
 
 class VoxelGrid;
 
+/**
+One item stored in the cells of a VoxelGrid: a patch, a geometry or a sub
+grid. The index is dense over the whole grid hierarchy and addresses the
+per-item scratch of a VoxelGridWorkspace.
+
+Shared, read-only after the grid is built.
+*/
 class VoxelData {
   private:
     Patch *patch;
     Geometry *geometry;
     VoxelGrid *voxelGrid;
-
-    unsigned flags; // Patch or geometry? last ray id, ...
-
-    VoxelData(VoxelGrid *data, unsigned flags);
-    VoxelData(Patch *data, unsigned flags);
-    VoxelData(Geometry *data, unsigned flags);
-    virtual ~VoxelData();
-    void updateRayId(const unsigned int id);
-    unsigned int lastRayId() const;
-    bool isPatch() const;
-    bool isGeom() const;
-    bool isGrid() const;
+    unsigned flags; // Patch, geometry or grid
+    int index;
 
   public:
-    friend class VoxelGrid;
+    VoxelData(VoxelGrid *data, unsigned flags, int inIndex);
+    VoxelData(Patch *data, unsigned flags, int inIndex);
+    VoxelData(Geometry *data, unsigned flags, int inIndex);
+    virtual ~VoxelData();
+
+    inline Patch *getPatch() const;
+    inline Geometry *getGeometry() const;
+    inline VoxelGrid *getVoxelGrid() const;
+    inline int getIndex() const;
+    inline bool isPatch() const;
+    inline bool isGeom() const;
+    inline bool isGrid() const;
 };
 
-inline void
-VoxelData::updateRayId(const unsigned int id) {
-    flags = (flags & ~VOXEL_DATA_RAY_COUNT_MASK) | (id & VOXEL_DATA_RAY_COUNT_MASK);
+inline Patch *
+VoxelData::getPatch() const {
+    return patch;
 }
 
-inline unsigned int
-VoxelData::lastRayId() const {
-    return flags & VOXEL_DATA_RAY_COUNT_MASK;
+inline Geometry *
+VoxelData::getGeometry() const {
+    return geometry;
+}
+
+inline VoxelGrid *
+VoxelData::getVoxelGrid() const {
+    return voxelGrid;
+}
+
+inline int
+VoxelData::getIndex() const {
+    return index;
 }
 
 inline bool

@@ -13,7 +13,7 @@ Generate and trace a local line
 
 class Localline{ public:
     static Ray mcrGenerateLocalLine(const Patch *patch, const double *xi);
-    static RayHit *mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *patch, Ray *ray, RayHit *hitStore);
+    static RayHit *mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Patch *patch, Ray *ray, RayHit *hitStore);
 
   private:
     static void patchCoordSys(const Patch *patch, CoordinateSystem *coord);

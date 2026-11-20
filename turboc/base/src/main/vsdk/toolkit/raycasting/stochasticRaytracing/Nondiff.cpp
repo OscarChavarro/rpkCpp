@@ -94,7 +94,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
 }
 
 void
-Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
+Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, LightSourceTable *light, double light_selection_pdf) {
     ColorRgb rad;
     double pointSelectionPdf;
     double dirSelectionPdf;
@@ -103,7 +103,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
     const RayHit *hit;
 
     StochasticRelaxation::activeState().tracedRays++;
-    hit = Localline::mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
+    hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->normal);
@@ -130,7 +130,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
 }
 
 void
-Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCount) {
+Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, int samplesCount) {
     double rnd = drand48();
     int count = 0;
     double pCumulative = 0.0;
@@ -143,7 +143,7 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCou
                 ((int)(floor((pCumulative + p) * ((double)(Nondiff::numberOfSamples)) + rnd))) - count;
 
         for ( int j = 0; j < samples_this_light; j++ ) {
-            sampleLight(sceneWorldVoxelGrid, &lights[i], p);
+            sampleLight(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, &lights[i], p);
         }
 
         pCumulative += p;
@@ -194,6 +194,7 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
         StochasticRelaxation::activeState().initialLightSourceSamples * numberOfLights);
     summarize(scene->patchList);
     delete[] lights;

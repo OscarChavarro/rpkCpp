@@ -13,6 +13,7 @@ RayTools::pathFrontHitFlags() {
 RayHit *
 RayTools::traceWorld(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     Ray *ray,
     Patch *patch,
     unsigned int flags,
@@ -27,15 +28,14 @@ RayTools::traceWorld(
     }
 
     dist = Numeric::HUGE_FLOAT_VALUE;
-    Patch::dontIntersect3(patch, patch ? patch->twin : NULL, extraPatch);
-    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, ((int)(flags)), hitStore);
+    const RayExclusionSet exclusions(patch, patch ? patch->twin : NULL, extraPatch);
+    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, ((int)(flags)), hitStore, exclusions, sceneWorldVoxelGridWorkspace);
 
     if ( result ) {
         // Compute shading frame (Z-axis = shading normal) at intersection point
         CoordinateSystem frame = result->getShadingFrame();
         result->setShadingFrame(&frame);
     }
-    Patch::dontIntersect0();
 
     return result;
 }
@@ -43,6 +43,7 @@ RayTools::traceWorld(
 RayHit *
 RayTools::findRayIntersection(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     Ray *ray,
     Patch *patch,
     const PhongBidirScattDistFunc *currentBsdf,
@@ -59,7 +60,7 @@ RayTools::findRayIntersection(
     }
 
     // Trace the ray
-    newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, NULL, hitStore);
+    newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, NULL, hitStore);
     Statistics::instance().rayTracer.rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
@@ -68,7 +69,7 @@ RayTools::findRayIntersection(
     if ( newHit != NULL && (newHit->getFlags() & BACK) &&
          newHit->getPatch()->material->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
-        newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->getPatch(), hitStore);
+        newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, newHit->getPatch(), hitStore);
         Statistics::instance().rayTracer.rayCount++; // Statistics
     }
 
@@ -81,6 +82,7 @@ pathNodesVisible : send a shadow ray
 bool
 RayTools::pathNodesVisible(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const SimpleRaytracingPathNode *node1,
     const SimpleRaytracingPathNode *node2)
 {
@@ -149,7 +151,7 @@ RayTools::pathNodesVisible(
             fDistance = ((float)(dist));
         }
 
-        Patch::dontIntersect3(
+        const RayExclusionSet exclusions(
             node2->m_hit.getPatch(),
             node1->m_hit.getPatch(),
             node1->m_hit.getPatch() != NULL ? node1->m_hit.getPatch()->twin : NULL);
@@ -158,8 +160,9 @@ RayTools::pathNodesVisible(
             0.0,
             &fDistance,
             FRONT | BACK | ANY,
-            &hitStore);
-        Patch::dontIntersect0();
+            &hitStore,
+            exclusions,
+            sceneWorldVoxelGridWorkspace);
         visible = (hit == NULL);
 
         Statistics::instance().rayTracer.rayCount++; // Statistics
@@ -177,6 +180,7 @@ bool
 RayTools::eyeNodeVisible(
     const Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const SimpleRaytracingPathNode *eyeNode,
     const SimpleRaytracingPathNode *node,
     float *pixX,
@@ -232,13 +236,13 @@ RayTools::eyeNodeVisible(
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = ((float)(dist));
-                    Patch::dontIntersect3(
+                    const RayExclusionSet exclusions(
                         node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
                         eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : NULL);
                     hit = sceneWorldVoxelGrid->gridIntersect(&ray,
                                                              0.0, &fDistance,
-                                                             FRONT | ANY, &hitStore);
-                    Patch::dontIntersect0();
+                                                             FRONT | ANY, &hitStore,
+                                                             exclusions, sceneWorldVoxelGridWorkspace);
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == NULL);
 

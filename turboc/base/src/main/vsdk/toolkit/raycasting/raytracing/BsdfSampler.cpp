@@ -9,6 +9,7 @@ bool
 BsdfSampler::sample(
     Camera */*camera*/,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -57,7 +58,7 @@ BsdfSampler::sample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

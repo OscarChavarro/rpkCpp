@@ -31,7 +31,7 @@ class SpecularSampler: public SurfaceSampler{ public:
     // components, a scatter mode is chosen randomly !!
 
     virtual bool
-    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR, char flags);
+    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR, char flags);
 
     // Use this for N.E.E.: connecting a light node with an eye node
 

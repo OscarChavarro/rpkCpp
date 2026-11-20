@@ -6,8 +6,6 @@
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 
-Geometry *Geometry::excludedGeometry1 = NULL;
-Geometry *Geometry::excludedGeometry2 = NULL;
 int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():
@@ -143,23 +141,14 @@ Geometry::clone() const {
     return newPatchSet;
 }
 
-/**
-Will avoid intersection testing with geom1 and geom2 (possibly NULL
-pointers). Can be used for avoiding immediate self-intersections
-*/
-void
-Geometry::dontIntersect(Geometry *geometry1, Geometry *geometry2) {
-    Geometry::excludedGeometry1 = geometry1;
-    Geometry::excludedGeometry2 = geometry2;
-}
-
 bool
 Geometry::discretizationIntersectPreTest(
     const Ray *ray,
     float minimumDistance,
-    const float *maximumDistance) const
+    const float *maximumDistance,
+    const RayExclusionSet &exclusions) const
 {
-    if ( this == excludedGeometry1 || this == excludedGeometry2 ) {
+    if ( exclusions.excludesGeometry(this) ) {
         return false;
     }
 
@@ -196,18 +185,19 @@ Geometry::discretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions) ) {
         return NULL;
     }
 
     if ( className == SURFACE_MESH ) {
-        return ((const MeshSurface *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const MeshSurface *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     } else if ( className == COMPOUND ) {
-        return ((const Compound *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const Compound *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     } else if ( className == PATCH_SET ) {
-        return ((const PatchSet *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const PatchSet *)(this))->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
     return NULL;
 }
@@ -219,13 +209,14 @@ Geometry::listDiscretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions)
 {
     RayHit *hit = NULL;
 
     for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
         RayHit *h = geometryList->get(i)->discretizationIntersect(
-            ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         if ( h != NULL ) {
             if ( hitFlags & ANY ) {
                 return h;
@@ -262,11 +253,12 @@ Geometry::patchListIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions)
 {
     RayHit *hit = NULL;
     for ( int i = 0; patchList != NULL && i < patchList->size(); i++ ) {
-        RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         if ( h != NULL ) {
             if ( hitFlags & ANY ) {
                 return h;
@@ -288,9 +280,4 @@ Geometry::patchListBounds(const ArrayList<Patch *> *patchList, BoundingBox *boun
     }
 
     return boundingBox;
-}
-
-bool
-Geometry::isExcluded() const {
-    return this == excludedGeometry1 || this == excludedGeometry2;
 }

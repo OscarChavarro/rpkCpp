@@ -14,7 +14,7 @@ It's kind of a dual of a pixel sampler.
 
 class LightDirSampler: public Sampler{ public:
     bool
-    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR = false, char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR = false, char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);
 
     double
     evalPDF( Camera *camera, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS, double *probabilityDensityFunction = NULL, double *probabilityDensityFunctionRR = NULL);

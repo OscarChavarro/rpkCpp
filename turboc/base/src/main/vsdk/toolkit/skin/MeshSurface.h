@@ -52,7 +52,7 @@ class MeshSurface: public Geometry{ private:
     ~MeshSurface();
 
     RayHit *
-    discretizationIntersect( Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore) const;
+    discretizationIntersect( Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
 };
 
 #endif

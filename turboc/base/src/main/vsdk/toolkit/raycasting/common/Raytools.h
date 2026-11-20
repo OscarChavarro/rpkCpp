@@ -17,6 +17,7 @@ class RayTools {
     static RayHit *
     findRayIntersection(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         Ray *ray,
         Patch *patch,
         const PhongBidirScattDistFunc *currentBsdf,
@@ -25,6 +26,7 @@ class RayTools {
     static bool
     pathNodesVisible(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const SimpleRaytracingPathNode *node1,
         const SimpleRaytracingPathNode *node2);
 
@@ -32,6 +34,7 @@ class RayTools {
     eyeNodeVisible(
         const Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const SimpleRaytracingPathNode *eyeNode,
         const SimpleRaytracingPathNode *node,
         float *pixX,
@@ -43,6 +46,7 @@ class RayTools {
     static RayHit *
     traceWorld(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         Ray *ray,
         Patch *patch,
         unsigned int flags,

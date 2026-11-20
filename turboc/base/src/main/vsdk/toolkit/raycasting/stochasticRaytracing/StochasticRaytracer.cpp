@@ -77,6 +77,7 @@ StochasticRaytracer::execute(
         ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
+                scene->voxelGridWorkspace,
                 scene->background,
                 StochasticRaytracer::calcPixel,
                 &callbackData,
@@ -85,6 +86,7 @@ StochasticRaytracer::execute(
         ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
+                scene->voxelGridWorkspace,
                 scene->background,
                 StochasticRaytracer::calcPixel,
                 &callbackData,
@@ -131,6 +133,7 @@ StochasticRaytracer::terminate() const {
 StochasticRaytracer::stchsRaytrcGetScttrRadn(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background * sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochRaytrConfig *config,
@@ -203,6 +206,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                 if ( config->samplerConfig.surfaceSampler->sample(
                         camera,
                         sceneVoxelGrid,
+                        sceneVoxelGridWorkspace,
                         sceneBackground,
                         thisNode->previous(),
                         thisNode,
@@ -225,6 +229,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                         radiance = stochasticRaytracerGetRadiance(
                                 camera,
                                 sceneVoxelGrid,
+                                sceneVoxelGridWorkspace,
                                 sceneBackground,
                                 &newNode,
                                 config,
@@ -236,6 +241,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                         radiance = stochasticRaytracerGetRadiance(
                                 camera,
                                 sceneVoxelGrid,
+                                sceneVoxelGridWorkspace,
                                 sceneBackground,
                                 &newNode,
                                 config,
@@ -280,6 +286,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
 StochasticRaytracer::srGetDirectRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     StochRaytrConfig *config,
@@ -328,6 +335,7 @@ StochasticRaytracer::srGetDirectRadiance(
                 if ( config->samplerConfig.neSampler->sample(
                     camera,
                     sceneVoxelGrid,
+                    sceneVoxelGridWorkspace,
                     sceneBackground,
                     prevNode->previous(),
                     prevNode,
@@ -336,7 +344,7 @@ StochasticRaytracer::srGetDirectRadiance(
                     x2,
                     true,
                     BsdfComponentInfo::BSDF_ALL_COMPONENTS)
-                    && ( RayTools::pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) ) {
+                    && ( RayTools::pathNodesVisible(sceneVoxelGrid, sceneVoxelGridWorkspace, prevNode, &lightNode) ) ) {
                     // Now connect for all applicable scatter-info's
                     // If no weighting between reflection sampling and
                     // next event estimation were used, only one connect
@@ -441,6 +449,7 @@ StochasticRaytracer::srGetDirectRadiance(
 StochasticRaytracer::stochasticRaytracerGetRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochRaytrConfig *config,
@@ -563,7 +572,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 result.getB() + radiance.getB());
         }
 
-        radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout);
+        radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, config, readout);
         result = ColorRgb(
             result.getR() + radiance.getR(),
             result.getG() + radiance.getG(),
@@ -573,6 +582,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
         radiance = stchsRaytrcGetScttrRadn(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 thisNode,
                 config,
@@ -650,6 +660,7 @@ ColorRgb
 StochasticRaytracer::calcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     int nx,
     int ny,
@@ -682,7 +693,7 @@ StochasticRaytracer::calcPixel(
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, NULL, NULL, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, NULL, &eyeNode, 0, 0);
     ((PixelSampler *)(config->samplerConfig.dirSampler))->SetPixel(camera, nx, ny, NULL);
 
     eyeNode.attach(&pixelNode);
@@ -691,7 +702,7 @@ StochasticRaytracer::calcPixel(
     for ( int i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, NULL, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 
@@ -703,6 +714,7 @@ StochasticRaytracer::calcPixel(
             col = stochasticRaytracerGetRadiance(
                     camera,
                     sceneVoxelGrid,
+                    sceneVoxelGridWorkspace,
                     sceneBackground,
                     &pixelNode,
                     config,

@@ -745,3 +745,9 @@ base/src/main/vsdk/toolkit/common/memoryManagement/MemoryPool.h,base/src/main/vs
 base/src/main/vsdk/toolkit/common/memoryManagement/MemoryPool.txx,base/src/main/vsdk/toolkit/common/memoryManagement/MEMOPOOL.TXX,MemoryPool.txx,MEMOPOOL.TXX
 base/src/main/vsdk/toolkit/material/ShadingContext.h,base/src/main/vsdk/toolkit/material/SHADCTXT.H,ShadingContext.h,SHADCTXT.H
 base/src/main/vsdk/toolkit/material/ShadingContextFlag.h,base/src/main/vsdk/toolkit/material/SHCTXFLG.H,ShadingContextFlag.h,SHCTXFLG.H
+base/src/main/vsdk/toolkit/environment/geometry/elements/PatchConstants.h,base/src/main/vsdk/toolkit/environment/geometry/elements/PATCHCON.H,PatchConstants.h,PATCHCON.H
+base/src/main/vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h,base/src/main/vsdk/toolkit/environment/geometry/elements/RAYEXCLS.H,RayExclusionSet.h,RAYEXCLS.H
+base/src/main/vsdk/toolkit/scene/VoxelGridWorkspace.h,base/src/main/vsdk/toolkit/scene/VOXGRDWS.H,VoxelGridWorkspace.h,VOXGRDWS.H
+base/src/main/vsdk/toolkit/scene/VoxelGridWorkspace.cpp,base/src/main/vsdk/toolkit/scene/VOXGRDWS.CPP,VoxelGridWorkspace.cpp,VOXGRDWS.CPP
+base/src/main/vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h,base/src/main/vsdk/toolkit/galerkin/processing/FOFAWKSP.H,FormFactorWorkspace.h,FOFAWKSP.H
+base/src/main/vsdk/toolkit/galerkin/processing/FormFactorWorkspace.cpp,base/src/main/vsdk/toolkit/galerkin/processing/FOFAWKSP.CPP,FormFactorWorkspace.cpp,FOFAWKSP.CPP

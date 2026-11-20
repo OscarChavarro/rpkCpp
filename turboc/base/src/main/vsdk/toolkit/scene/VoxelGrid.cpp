@@ -13,9 +13,6 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "vsdk/toolkit/skin/MinMaxBox.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
 
-ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = NULL;
-ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = NULL;
-
 short
 VoxelGrid::clampVoxel(const short v, const short max) {
     if (v < 0) {
@@ -36,34 +33,57 @@ VoxelGrid::shouldSubdivide(const Geometry *geometry) {
 Constructs a recursive grid structure containing the whole geometry
 */
 VoxelGrid::VoxelGrid(Geometry *geometry):
+    subGrids(NULL),
+    items(NULL),
+    root(this),
+    xSize(),
+    ySize(),
+    zSize(),
+    voxelSize(),
+    volumeListsOfItems(NULL),
+    gridItemPool(NULL),
     boundingBox(),
-    rayIntersectionBox()
+    rayIntersectionBox(NULL)
 {
-    xSize = 0.0f;
-    ySize = 0.0f;
-    zSize = 0.0f;
-    volumeListsOfItems = NULL;
-    gridItemPool = NULL;
-    rayIntersectionBox = NULL;
+    subGrids = new ArrayList<VoxelGrid *>();
+    items = new ArrayList<VoxelData *>();
+    build(geometry, 0);
+}
 
-    static int level = 0; // TODO warning: this makes this class non re-entrant
+VoxelGrid::VoxelGrid(Geometry *geometry, VoxelGrid *inRoot, const int level):
+    subGrids(NULL),
+    items(NULL),
+    root(inRoot),
+    xSize(),
+    ySize(),
+    zSize(),
+    voxelSize(),
+    volumeListsOfItems(NULL),
+    gridItemPool(NULL),
+    boundingBox(),
+    rayIntersectionBox(NULL)
+{
+    build(geometry, level);
+}
 
+void
+VoxelGrid::build(Geometry *geometry, const int level) {
     const double p = Math::pow(geometry->itemCount, 0.33333) + 1;
     const short gridSize = ((short)(Math::floor(p)));
     System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
-    level++;
 
-    putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
-
-    level--;
+    putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize, level + 1);
 }
 
 VoxelGrid::~VoxelGrid() {
+    if ( root == this ) {
+        freeVoxelGridElements();
+    }
     if ( rayIntersectionBox != NULL ) {
         delete rayIntersectionBox;
         rayIntersectionBox = NULL;
     }
-    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
+    for ( int i = 0; volumeListsOfItems != NULL && i < xSize * ySize * zSize; i++ ) {
         if ( volumeListsOfItems[i] != NULL ) {
             delete volumeListsOfItems[i];
         }
@@ -72,37 +92,47 @@ VoxelGrid::~VoxelGrid() {
     delete gridItemPool;
 }
 
-void
-VoxelGrid::addToCellsDeletionCache(VoxelData *cell) {
-    if ( voxelCellsToDelete == NULL ) {
-        voxelCellsToDelete = new ArrayList<VoxelData *>();
-    }
-    voxelCellsToDelete->add(cell);
+int
+VoxelGrid::nextItemIndex() const {
+    return root->items->size();
+}
+
+int
+VoxelGrid::addItem(VoxelData *cell) {
+    root->items->add(cell);
+    return cell->getIndex();
 }
 
 void
-VoxelGrid::addToSubGridsDeletionCache(VoxelGrid *voxelGrid) {
-    if ( subGridsToDelete == NULL ) {
-        subGridsToDelete = new ArrayList<VoxelGrid *>();
-    }
-    subGridsToDelete->add(voxelGrid);
+VoxelGrid::addSubGrid(VoxelGrid *voxelGrid) {
+    root->subGrids->add(voxelGrid);
 }
 
+int
+VoxelGrid::getNumberOfItems() const {
+    return root->items->size();
+}
+
+/**
+Releases the items and the sub grid contents of the hierarchy. Called on the
+root grid only
+*/
 void
 VoxelGrid::freeVoxelGridElements() {
-    if ( voxelCellsToDelete != NULL ) {
-        for ( int i = 0; i < voxelCellsToDelete->size(); i++ ) {
-            VoxelData *cell = voxelCellsToDelete->get(i);
+    if ( items != NULL ) {
+        for ( int i = 0; i < items->size(); i++ ) {
+            VoxelData *cell = items->get(i);
             if ( cell != NULL ) {
                 delete cell;
             }
         }
+        delete items;
+        items = NULL;
     }
-    delete voxelCellsToDelete;
 
-    if ( subGridsToDelete != NULL ) {
-        for ( int i = 0; i < subGridsToDelete->size(); i++ ) {
-            VoxelGrid *subGrid = subGridsToDelete->get(i);
+    if ( subGrids != NULL ) {
+        for ( int i = 0; i < subGrids->size(); i++ ) {
+            VoxelGrid *subGrid = subGrids->get(i);
             delete subGrid->gridItemPool;
             subGrid->gridItemPool = NULL;
             for ( int j = 0; j < subGrid->xSize * subGrid->ySize * subGrid->zSize; j++ ) {
@@ -111,8 +141,8 @@ VoxelGrid::freeVoxelGridElements() {
             delete[] subGrid->volumeListsOfItems;
             subGrid->volumeListsOfItems = NULL;
         }
-        delete subGridsToDelete;
-        subGridsToDelete = NULL;
+        delete subGrids;
+        subGrids = NULL;
     }
 }
 
@@ -162,7 +192,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 }
 
 void
-VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
+VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BoundingBox localBounds;
     if ( patch->boundingBox != NULL ) {
         localBounds = *patch->boundingBox;
@@ -170,9 +200,9 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
         patch->computeAndGetBoundingBox(&localBounds);
     }
 
-    VoxelData *voxelData = new VoxelData(patch, VOXEL_DATA_PATCH_MASK);
+    VoxelData *voxelData = new VoxelData(patch, VOXEL_DATA_PATCH_MASK, nextItemIndex());
     putItemInsideVoxelGrid(voxelData, &localBounds);
-    addToCellsDeletionCache(voxelData);
+    addItem(voxelData);
 }
 
 Vector3D
@@ -185,34 +215,34 @@ VoxelGrid::toVoxelClamped(const Vector3D &p) const {
 }
 
 void
-VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) const {
-    VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK);
+VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) {
+    VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK, nextItemIndex());
     putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
-    addToCellsDeletionCache(voxelData);
+    addItem(voxelData);
 }
 
 void
-VoxelGrid::insertSubGrid(Geometry *geometry) const {
-    VoxelGrid *subGrid = new VoxelGrid(geometry);
-    VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK);
+VoxelGrid::insertSubGrid(Geometry *geometry, const int level) {
+    VoxelGrid *subGrid = new VoxelGrid(geometry, root, level);
+    VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK, nextItemIndex());
 
     putItemInsideVoxelGrid(voxelData, &subGrid->boundingBox);
 
-    addToSubGridsDeletionCache(subGrid);
-    addToCellsDeletionCache(voxelData);
+    addSubGrid(subGrid);
+    addItem(voxelData);
 }
 
 void
-VoxelGrid::processCompoundGeometry(Geometry *geometry) {
+VoxelGrid::processCompoundGeometry(Geometry *geometry, const int level) {
     const ArrayList<Geometry *> *geometryList = ((const Compound *)(geometry))->children;
 
     for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
-        putSubGeometryInsideVoxelGrid(geometryList->get(i));
+        putSubGeometryInsideVoxelGrid(geometryList->get(i), level);
     }
 }
 
 void
-VoxelGrid::processPatches(Geometry *geometry) const {
+VoxelGrid::processPatches(Geometry *geometry) {
     const ArrayList<Patch *> *patches =
             Geometry::patchListReference(geometry);
 
@@ -222,10 +252,10 @@ VoxelGrid::processPatches(Geometry *geometry) const {
 }
 
 void
-VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
+VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry, const int level) {
     if ( isSmall(&geometry->boundingBox) ) {
         if ( shouldSubdivide(geometry) ) {
-            insertSubGrid(geometry);
+            insertSubGrid(geometry, level);
         } else {
             insertGeometryAsVoxelData(geometry);
         }
@@ -233,14 +263,14 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
     }
 
     if ( geometry->isCompound() ) {
-        processCompoundGeometry(geometry);
+        processCompoundGeometry(geometry, level);
         return;
     }
     processPatches(geometry);
 }
 
 void
-VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
+VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc, const int level) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
         Logger::reportMessage("VoxelGrid", Logger::ERROR, "VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         System::exit(1);
@@ -265,14 +295,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     for ( int i = 0; i < na * nb * nc; i++ ) {
         volumeListsOfItems[i] = NULL;
     }
-    putSubGeometryInsideVoxelGrid(geometry);
-}
-
-int
-VoxelGrid::randomRayId() {
-    static int count = 0; // TODO warning: this makes this class non re-entrant
-    count++;
-    return (count & VOXEL_DATA_RAY_COUNT_MASK);
+    putSubGeometryInsideVoxelGrid(geometry, level);
 }
 
 /**
@@ -292,9 +315,6 @@ VoxelGrid::gridBoundsIntersect(
     position->sumScaled(ray->position, *t0, ray->direction);
     if ( boundingBox.outOfBounds(position) ) {
         *t0 = maximumDistance;
-        if ( rayIntersectionBox == NULL ) {
-            rayIntersectionBox = new MinMaxBox(&boundingBox);
-        }
         if ( !rayIntersectionBox->intersect(ray, minimumDistance, t0) ) {
             return false;
         }
@@ -437,27 +457,30 @@ VoxelGrid::voxelIntersect(
     const float minimumDistance,
     float *maximumDistance,
     const int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions,
+    VoxelGridWorkspace *workspace)
 {
     RayHit *hit = NULL;
 
     for ( long i = 0; items != NULL && i < items->size(); i++ ) {
-        VoxelData *item = items->get(i);
-        if ( item->lastRayId() != counter ) {
+        const VoxelData *item = items->get(i);
+        const int itemIndex = item->getIndex();
+        if ( workspace->lastRayId(itemIndex) != counter ) {
             // Avoid testing objects multiple times
             RayHit *h = NULL;
             if ( item->isPatch() ) {
-                h = item->patch->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = item->getPatch()->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
             } else if ( item->isGeom() ) {
-                h = item->geometry->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = item->getGeometry()->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
             } else if ( item->isGrid() ) {
-                h = item->voxelGrid->gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = item->getVoxelGrid()->gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace);
             }
             if ( h ) {
                 hit = h;
             }
 
-            item->updateRayId(counter);
+            workspace->updateRayId(itemIndex, counter);
         }
     }
 
@@ -473,7 +496,9 @@ VoxelGrid::gridIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions,
+    VoxelGridWorkspace *workspace) const
 {
     Vector3D tNext;
     Vector3D tDelta;
@@ -491,12 +516,12 @@ VoxelGrid::gridIntersect(
     gridTraceSetup(ray, t0, &P, g, &tDelta, &tNext, step, out);
 
     // Ray counter in order to avoid testing objects spanning several voxel grid cells multiple times
-    const int counter = randomRayId();
+    const unsigned int counter = workspace->nextRayId();
 
     do {
         const ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
         if ( list != NULL ) {
-            RayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore);
+            RayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore, exclusions, workspace);
             if ( h != NULL ) {
                 hit = h;
             }

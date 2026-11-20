@@ -69,19 +69,20 @@ Localline::someFeedback() {
 Determines nearest intersection point and patch
 */
 RayHit *
-Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
+Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Patch *P, Ray *ray, RayHit *hitStore) {
     float distance = Numeric::HUGE_FLOAT_VALUE;
     RayHit *hit;
 
     // Reject self-intersections
-    Patch::dontIntersect2(P, P->twin);
+    const RayExclusionSet exclusions(P, P->twin);
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
         Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
         &distance,
         FRONT | POINT,
-        hitStore);
-    Patch::dontIntersect0();
+        hitStore,
+        exclusions,
+        sceneWorldVoxelGridWorkspace);
     someFeedback();
 
     return hit;

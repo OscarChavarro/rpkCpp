@@ -111,6 +111,8 @@ LinkingSimpleStrategy::createInitialLink(
     const ArrayList<Geometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::cmptAreaTAreaFormFactorVis(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
+        galerkinState->formFactorWorkspace,
         geometryListReferences,
         isSceneGeometry,
         isClusteredGeometry,

@@ -21,13 +21,13 @@ class BidirectionalPathRaytracer: public RayTracer{ private:
     LightList *&lightList;
 
     void
-    doBptAndSubsequentImages( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, BidirPathTraceConfig *config) const;
+    doBptAndSubsequentImages( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, BidirPathTraceConfig *config) const;
 
     void
-    doBptDensityEstimation( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, BidirPathTraceConfig *config) const;
+    doBptDensityEstimation( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, BidirPathTraceConfig *config) const;
 
     static ColorRgb
-    bpCalcPixel( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, int nx, int ny, void *data);
+    bpCalcPixel( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, int nx, int ny, void *data);
 
     static bool spikeCheck(ColorRgb color);
 
@@ -41,13 +41,13 @@ class BidirectionalPathRaytracer: public RayTracer{ private:
     computeNeFluxEstimate( Camera *camera, BidirPathTraceConfig *config, BiPath *path, float *pPdf = NULL, float *pWeight = NULL, ColorRgb *fRad = NULL);
 
     static void
-    handlePathXx( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, Background *sceneBackground, BidirPathTraceConfig *config, BiPath *path);
+    handlePathXx( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Background *sceneBackground, BidirPathTraceConfig *config, BiPath *path);
 
     static void
-    handlePath1X( Camera *camera, const VoxelGrid *sceneVoxelGrid, BidirPathTraceConfig *config, BiPath *path);
+    handlePath1X( Camera *camera, const VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, BidirPathTraceConfig *config, BiPath *path);
 
     static void
-    bpCombinePaths( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, BidirPathTraceConfig *config);
+    bpCombinePaths( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, BidirPathTraceConfig *config);
 
   public:
     BidirectionalPathRaytracer( BidirectionalPathTracingState &inBidirectionalPathState, LightList *&inLightList);

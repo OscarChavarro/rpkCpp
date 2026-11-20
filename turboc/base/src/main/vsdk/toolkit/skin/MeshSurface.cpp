@@ -130,7 +130,8 @@ MeshSurface::discretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }

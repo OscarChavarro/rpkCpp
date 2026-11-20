@@ -12,11 +12,8 @@
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
 
-enum {
-    MAXIMUM_VERTICES_PER_PATCH = 4,
-    PATCH_VISIBILITY = 0x01,
-    MAX_EXCLUDED_PATCHES = 4
-};
+#include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
 
 class RayHit;
 
@@ -46,15 +43,6 @@ class Patch {
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     static int patchId;
-    static Patch *excludedPatches[MAX_EXCLUDED_PATCHES];
-    static void
-    dontIntersectBase(
-        int n,
-        Patch *p0,
-        Patch *p1,
-        Patch *p2,
-        Patch *p3);
-
     unsigned char flags; // Other flags
 
     static double clipToUnitInterval(double x);
@@ -65,7 +53,6 @@ class Patch {
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;
     int getNumberOfSamples() const;
-    bool isExcluded() const;
     bool hitInPatch(RayHit *hit, const Patch *patch) const;
     bool allVerticesHaveANormal() const;
     Vector3D getInterpolatedNormalAtUv(double u, double v) const;
@@ -102,10 +89,6 @@ class Patch {
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     Material *material;
 
-    static void dontIntersect0();
-    static void dontIntersect2(Patch *p0, Patch *p1);
-    static void dontIntersect3(Patch *p0, Patch *p1, Patch *p2);
-    static void dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3);
     static int getNextId();
     static void setNextId(int id);
 
@@ -127,7 +110,7 @@ class Patch {
     bool facing(const Patch *other) const;
     void computeBoundingBox();
     void computeAndGetBoundingBox(BoundingBox *bounds);
-    RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
+    RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions);
 
 #ifdef RAYTRACING_ENABLED
     bool isVisible() const;

@@ -7,6 +7,7 @@
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 
 class Scene {
   private:
@@ -32,6 +33,7 @@ public:
     ArrayList<Geometry *> *clusteredGeometryList;
     Geometry *clusteredRootGeometry;
     VoxelGrid *voxelGrid;
+    VoxelGridWorkspace *voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
 
     // The list of all patches in the current scene
     ArrayList<Patch *> *patchList;

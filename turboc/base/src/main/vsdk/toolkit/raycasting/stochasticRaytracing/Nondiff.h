@@ -23,8 +23,8 @@ class Nondiff{ public:
     static void makeLightSourceTable( const ArrayList<Patch *> *scenePatches, const ArrayList<Patch *> *lightPatches);
     static void nextLightSample(const Patch *patch, double *zeta);
     static Ray sampleLightRay( Patch *patch, ColorRgb *emittedRadiance, double *pointSelectionPdf, double *dirSelectionPdf);
-    static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double lightSelectionPdf);
-    static void sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCount);
+    static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, LightSourceTable *light, double lightSelectionPdf);
+    static void sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, int samplesCount);
     static void summarize(const ArrayList<Patch *> *scenePatches);
 };
 

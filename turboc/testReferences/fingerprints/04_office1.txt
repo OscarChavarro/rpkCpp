@@ -1,0 +1,129 @@
+Stats: radiance.totalEmittedPower ................: 49.135288 W
+         radiance.estimatedAverageRadiance .........: 0.047447 W / sr
+         averageReflectivity ..............: 0.558523
+         radiance.maxSelfEmittedRadiance ...........: 3.258386 W / sr
+         radiance.maxSelfEmittedPower ..............: 3.070957 W
+         toneMapOptions.realWorldAdaptionLuminance .........: 7.052374 cd / m2
+         totalArea ........................: 749.735168 m2
+Iteration: 1
+Nr. elements: 50394
+clusters: 6474
+surface elements: 43920
+Nr. interactions: 195900
+cluster to cluster: 24
+cluster to surface: 0
+surface to cluster: 27698
+surface to surface: 168178
+shadow hits: 9811013
+shadow hits cached: 4723031
+Iteration: 2
+Nr. elements: 87282
+clusters: 6474
+surface elements: 80808
+Nr. interactions: 1028068
+cluster to cluster: 33529
+cluster to surface: 176756
+surface to cluster: 213604
+surface to surface: 604179
+shadow hits: 100554197
+shadow hits cached: 68749568
+Iteration: 3
+Nr. elements: 101850
+clusters: 6474
+surface elements: 95376
+Nr. interactions: 1311492
+cluster to cluster: 39405
+cluster to surface: 217074
+surface to cluster: 266100
+surface to surface: 788913
+shadow hits: 131861825
+shadow hits cached: 90286999
+Iteration: 4
+Nr. elements: 109786
+clusters: 6474
+surface elements: 103312
+Nr. interactions: 1454104
+cluster to cluster: 41919
+cluster to surface: 238923
+surface to cluster: 293649
+surface to surface: 879613
+shadow hits: 144430410
+shadow hits cached: 98039677
+Iteration: 5
+Nr. elements: 114206
+clusters: 6474
+surface elements: 107732
+Nr. interactions: 1532016
+cluster to cluster: 43821
+cluster to surface: 258826
+surface to cluster: 304530
+surface to surface: 924839
+shadow hits: 151278135
+shadow hits cached: 102240168
+Iteration: 6
+Nr. elements: 119978
+clusters: 6474
+surface elements: 113504
+Nr. interactions: 1581388
+cluster to cluster: 45480
+cluster to surface: 279541
+surface to cluster: 308900
+surface to surface: 947467
+shadow hits: 155681567
+shadow hits cached: 104862607
+Iteration: 7
+Nr. elements: 149678
+clusters: 6474
+surface elements: 143204
+Nr. interactions: 1687614
+cluster to cluster: 46864
+cluster to surface: 341067
+surface to cluster: 311032
+surface to surface: 988651
+shadow hits: 166047553
+shadow hits cached: 110776501
+Iteration: 8
+Nr. elements: 188426
+clusters: 6474
+surface elements: 181952
+Nr. interactions: 2282666
+cluster to cluster: 47822
+cluster to surface: 448902
+surface to cluster: 315719
+surface to surface: 1470223
+shadow hits: 223786704
+shadow hits cached: 144668348
+Iteration: 9
+Nr. elements: 224150
+clusters: 6474
+surface elements: 217676
+Nr. interactions: 4318795
+cluster to cluster: 48829
+cluster to surface: 527788
+surface to cluster: 332032
+surface to surface: 3410146
+shadow hits: 416511916
+shadow hits cached: 261855765
+Iteration: 10
+Nr. elements: 237534
+clusters: 6474
+surface elements: 231060
+Nr. interactions: 5479981
+cluster to cluster: 49444
+cluster to surface: 535408
+surface to cluster: 347107
+surface to surface: 4548022
+shadow hits: 553221089
+shadow hits cached: 353875616
+Iteration: 11
+Nr. elements: 248810
+clusters: 6474
+surface elements: 242336
+Nr. interactions: 6101095
+cluster to cluster: 49626
+cluster to surface: 556969
+surface to cluster: 355434
+surface to surface: 5139066
+shadow hits: 613372511
+shadow hits cached: 391214999
+--- stderr

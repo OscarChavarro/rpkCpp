@@ -305,6 +305,7 @@ RandomWalkRadianceMethod::rndmWalkRadShootUpd(const Patch *P, double w) {
  void
 RandomWalkRadianceMethod::rndmWalkRadDShootItrtn(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks;
@@ -326,6 +327,7 @@ RandomWalkRadianceMethod::rndmWalkRadDShootItrtn(
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfWalks,
         rndmWalkRadSclrSrcPwr,
         rndmWalkRadSclrRefl,
@@ -448,6 +450,7 @@ Returns true when converged and false if not
  void
 RandomWalkRadianceMethod::rndmWalkRadDGthrnItrtn(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks = StochasticRelaxation::activeState().initialNumberOfRays;
@@ -472,6 +475,7 @@ RandomWalkRadianceMethod::rndmWalkRadDGthrnItrtn(
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfWalks,
         randomWalkRadiosityPatchArea,
         rndmWalkRadSclrRefl,
@@ -491,13 +495,14 @@ RandomWalkRadianceMethod::rndmWalkRadUpdSrcIllum(StochasticRadiosityElement *ele
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
         StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     System::err.printf("First shot (%ld rays):\n", numberOfRays);
-    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, rndmWalkRadGetSelfEmitRadn, NULL,
+    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, numberOfRays, rndmWalkRadGetSelfEmitRadn, NULL,
                                 rndmWalkRadUpdSrcIllum, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }
@@ -519,15 +524,15 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 
     if ( StochasticRelaxation::activeState().currentIteration == 1
         && StochasticRelaxation::activeState().indirectOnly ) {
-        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
+        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
     }
 
     switch ( StochasticRelaxation::activeState().randomWalkEstimatorType ) {
         case RW_SHOOTING:
-            rndmWalkRadDShootItrtn(scene->voxelGrid, scene->patchList);
+            rndmWalkRadDShootItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
             break;
         case RW_GATHERING:
-            rndmWalkRadDGthrnItrtn(scene->voxelGrid, scene->patchList);
+            rndmWalkRadDGthrnItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
             break;
         default:
             Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "randomWalkRadiosityDoStep", LoggerFormat::format("Unknown random walk estimator type %d", StochasticRelaxation::activeState().randomWalkEstimatorType));

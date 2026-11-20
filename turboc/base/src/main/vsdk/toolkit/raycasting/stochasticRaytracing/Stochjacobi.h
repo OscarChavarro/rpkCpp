@@ -37,7 +37,7 @@ class StochasticJacobi{ public:
     typedef float (*GetImportanceCallback)(const StochasticRadiosityElement *);
     typedef void (*UpdateCallback)(StochasticRadiosityElement *elem, double w);
 
-    static void doStochasticJacobiIteration( VoxelGrid *sceneWorldVoxelGrid, long numberOfRays, GetRadianceCallback getRadianceCallBack, GetImportanceCallback getImportanceCallBack, UpdateCallback updateCallBack, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void doStochasticJacobiIteration( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, long numberOfRays, GetRadianceCallback getRadianceCallBack, GetImportanceCallback getImportanceCallBack, UpdateCallback updateCallBack, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
 
   private:
     static GetRadianceCallback getRadianceCallback;
@@ -67,10 +67,10 @@ class StochasticJacobi{ public:
     static void stchsJacRfnAProp( StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, Ray *ray, const RenderOptions *renderOptions);
     static double *stochasticJacobiNextSample( StochasticRadiosityElement *elem, int nMostSignificantBit, NiederreiterIndex mostSignificantBit1, NiederreiterIndex rMostSignificantBit2, double *zeta);
     static void stchsJacUnfrmHitCrdnt(const RayHit *hit, double *uHit, double *vHit);
-    static void stochasticJacobiElementShootRay( const VoxelGrid *sceneWorldVoxelGrid, StochasticRadiosityElement *src, int nMostSignificantBit, NiederreiterIndex mostSignificantBit1, NiederreiterIndex rMostSignificantBit2, const RenderOptions *renderOptions);
-    static void stchsJacElemShtRays( const VoxelGrid *sceneWorldVoxelGrid, StochasticRadiosityElement *element, int raysThisElem, const RenderOptions *renderOptions);
-    static void stchsJacShtRaysRec( VoxelGrid *sceneWorldVoxelGrid, StochasticRadiosityElement *element, double rnd, long *rayCount, double *cumulative, RenderOptions *renderOptions);
-    static void stochasticJacobiShootRays( VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void stochasticJacobiElementShootRay( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, StochasticRadiosityElement *src, int nMostSignificantBit, NiederreiterIndex mostSignificantBit1, NiederreiterIndex rMostSignificantBit2, const RenderOptions *renderOptions);
+    static void stchsJacElemShtRays( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, StochasticRadiosityElement *element, int raysThisElem, const RenderOptions *renderOptions);
+    static void stchsJacShtRaysRec( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, StochasticRadiosityElement *element, double rnd, long *rayCount, double *cumulative, RenderOptions *renderOptions);
+    static void stochasticJacobiShootRays( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
     static void stochasticJacobiUpdateElement(StochasticRadiosityElement *elem);
     static void stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child);
     static void stochasticJacobiPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child);

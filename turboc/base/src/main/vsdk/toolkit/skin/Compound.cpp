@@ -35,12 +35,13 @@ Compound::discretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions) ) {
         return NULL;
     }
 
     return Geometry::listDiscretizationIntersect(
-            children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            children, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }

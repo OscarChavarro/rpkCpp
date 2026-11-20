@@ -479,6 +479,8 @@ HierarchicalRefinementStrategy::hierRefCreateSubdivLink(
     const bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
     FormFactorStrategy::cmptAreaTAreaFormFactorVis(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
+        galerkinState->formFactorWorkspace,
         candidatesList,
         isSceneGeometry,
         isClusteredGeometry,

@@ -91,7 +91,8 @@ when no longer needed
 */
 Path *
 Tracepath::tracePath(
-    const VoxelGrid * sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     Patch *origin,
     double birthProb,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -118,7 +119,7 @@ Tracepath::tracePath(
         }
         path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
 
-        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
+        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;
@@ -143,6 +144,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 void
 Tracepath::tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     long numberOfPaths,
     PatchProbabilityCallback birthProbabilityCallBack,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -180,7 +182,7 @@ Tracepath::tracePaths(
         double p = birthProbabilityCallBack(patch) / sumProbabilities;
         long paths_this_patch = ((int)(Math::floor((pCumulative + p) * ((double)(numberOfPaths)) + rnd))) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, &path);
+            tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, &path);
             scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

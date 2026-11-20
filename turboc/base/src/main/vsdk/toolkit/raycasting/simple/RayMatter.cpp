@@ -82,7 +82,7 @@ RayMatter::execute(
         scene->camera,
         rayMatterState,
         toneMapOptions);
-    rayMatter->doMatting(scene->camera, scene->voxelGrid);
+    rayMatter->doMatting(scene->camera, scene->voxelGrid, scene->voxelGridWorkspace);
     if ( ip && rayMatter != NULL ) {
         rayMatter->save(ip);
     }
@@ -128,7 +128,7 @@ RayMatter::createFilter() {
 }
 
 void
-RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid) {
+RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace) {
     const long t = System::nanoTime();
 
     createFilter();
@@ -155,7 +155,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
                 ray.direction.normalize(Numeric::EPSILON_FLOAT);
 
                 // Check if hit
-                if ( RayTools::findRayIntersection(sceneWorldVoxelGrid, &ray, NULL, NULL, NULL) != NULL ) {
+                if ( RayTools::findRayIntersection(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, &ray, NULL, NULL, NULL) != NULL ) {
                     hits++;
                 }
             }

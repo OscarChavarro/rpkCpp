@@ -26,17 +26,17 @@ class PhotonMapRadianceMethod: public RadianceMethod{ private:
     ColorRgb
     phtnMapDCompPxlFluxEstmt( Camera *camera, PhotonMapConfig *config, const RadianceMethod *radianceMethod);
     void
-    photonMapDoScreenNEE( Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, PhotonMapConfig *config, const RadianceMethod *radianceMethod);
+    photonMapDoScreenNEE( Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, PhotonMapConfig *config, const RadianceMethod *radianceMethod);
     bool
     photonMapDoPhotonStore( const Camera *camera, SimpleRaytracingPathNode *node, ColorRgb power);
     void
-    photonMapHandlePath( Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, PhotonMapConfig *config, const RadianceMethod *radianceMethod);
+    photonMapHandlePath( Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, PhotonMapConfig *config, const RadianceMethod *radianceMethod);
     void
-    photonMapTracePath( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, PhotonMapConfig *config, char bsdfFlags);
+    photonMapTracePath( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, PhotonMapConfig *config, char bsdfFlags);
     void
-    photonMapTracePaths( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, Background *sceneBackground, PhotonMapConfig *config, int numberOfPaths, char bsdfFlags = BsdfComponentInfo::BSDF_ALL_COMPONENTS, const RadianceMethod *radianceMethod = NULL);
+    photonMapTracePaths( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Background *sceneBackground, PhotonMapConfig *config, int numberOfPaths, char bsdfFlags = BsdfComponentInfo::BSDF_ALL_COMPONENTS, const RadianceMethod *radianceMethod = NULL);
     void
-    photonMapBRRealIteration( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, Background *sceneBackground, const RadianceMethod *radianceMethod);
+    photonMapBRRealIteration( Camera *camera, VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Background *sceneBackground, const RadianceMethod *radianceMethod);
 
   public:
     explicit PhotonMapRadianceMethod(PhotonMapState &photonMapState, PhotonMapConfig &photonMapConfig);

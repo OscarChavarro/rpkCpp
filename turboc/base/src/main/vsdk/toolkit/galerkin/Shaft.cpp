@@ -610,7 +610,8 @@ Shaft::shaftPatchTest(Patch *patch) {
     ray.position = center1;
     ray.direction.subtraction(center2, center1);
     dist = 1.0f - Numeric::EPSILON_FLOAT;
-    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, FRONT | BACK, &hitStore) ) {
+    const RayExclusionSet noExclusions;
+    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, FRONT | BACK, &hitStore, noExclusions) ) {
         cut = true;
         return OVERLAP;
     }

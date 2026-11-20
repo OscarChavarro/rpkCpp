@@ -28,8 +28,6 @@ class Geometry {
 
   public: // Will become protected
     static int nextGeometryId;
-    static Geometry *excludedGeometry1;
-    static Geometry *excludedGeometry2;
 
     explicit Geometry(GeometryClassId inClassName);
 
@@ -37,7 +35,8 @@ class Geometry {
     discretizationIntersectPreTest(
         const Ray *ray,
         float minimumDistance,
-        const float *maximumDistance
+        const float *maximumDistance,
+        const RayExclusionSet &exclusions
     ) const;
 
   //public:
@@ -65,7 +64,8 @@ class Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const;
+        RayHit *hitStore,
+        const RayExclusionSet &exclusions) const;
 
     static RayHit *
     patchListIntersect(
@@ -74,16 +74,15 @@ class Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore);
+        RayHit *hitStore,
+        const RayExclusionSet &exclusions);
 
-    bool isExcluded() const;
     BoundingBox getBoundingBox() const;
     Geometry *clone() const;
 
     static void destroy(Geometry *geometry);
     static ArrayList<Geometry *> *primitiveListCopy(const Geometry *geometry);
     static ArrayList<Patch *> *patchListReference(const Geometry *geometry);
-    static void dontIntersect(Geometry *geometry1, Geometry *geometry2);
     static void listBounds(const ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
     static RayHit *
@@ -93,7 +92,8 @@ class Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore);
+        RayHit *hitStore,
+        const RayExclusionSet &exclusions);
 
   protected:
     static BoundingBox *

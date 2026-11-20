@@ -8,27 +8,27 @@ All kind of form factor computations
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/Geometry.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 
 class FormFactorStrategy {
   private:
-    // Global variables used for form factor computation optimisation
-    static GalerkinElement *formFactorLastReceived;
-    static GalerkinElement *formFactorLastSource;
-
     static RayHit *
     shadowTestDiscretization(
         Ray *ray,
         const ArrayList<Geometry *> *geometrySceneList,
         const VoxelGrid *voxelGrid,
+        VoxelGridWorkspace *voxelGridWorkspace,
         ShadowCache *shadowCache,
         float minimumDistance,
         RayHit *hitStore,
         bool isSceneGeometry,
-        bool isClusteredGeometry);
+        bool isClusteredGeometry,
+        const RayExclusionSet &exclusions);
 
     static void
     determineNodes(
@@ -42,6 +42,7 @@ class FormFactorStrategy {
     evaluatePointsPairKernel(
         ShadowCache *shadowCache,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *voxelGridWorkspace,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
@@ -49,7 +50,8 @@ class FormFactorStrategy {
         const ArrayList<Geometry *> *shadowGeometryList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
-        const GalerkinState *galerkinState);
+        const GalerkinState *galerkinState,
+        const RayExclusionSet &exclusions);
 
     static void
     dHighOrdAreaTAreaFormFactor(
@@ -88,6 +90,8 @@ class FormFactorStrategy {
     static void
     cmptAreaTAreaFormFactorVis(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *voxelGridWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
         const ArrayList<Geometry *> *geometryShadowList,
         bool isSceneGeometry,
         bool isClusteredGeometry,

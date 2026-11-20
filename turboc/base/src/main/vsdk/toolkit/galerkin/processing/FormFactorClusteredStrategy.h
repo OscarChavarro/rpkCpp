@@ -23,7 +23,8 @@ class FormFactorClusteredStrategy {
         Ray *ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize);
+        float minimumFeatureSize,
+        const RayExclusionSet &exclusions);
 
     static double
     geomMultiResVis(
@@ -32,7 +33,8 @@ class FormFactorClusteredStrategy {
         Ray *ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize);
+        float minimumFeatureSize,
+        const RayExclusionSet &exclusions);
 };
 
 #endif

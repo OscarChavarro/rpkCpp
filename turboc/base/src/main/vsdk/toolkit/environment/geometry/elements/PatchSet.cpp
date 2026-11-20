@@ -34,13 +34,14 @@ PatchSet::discretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions) ) {
         return NULL;
     }
 
-    return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }
 
 ArrayList<Patch *> *

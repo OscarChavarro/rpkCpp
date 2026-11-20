@@ -201,7 +201,6 @@ RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();
-    VoxelGrid::freeVoxelGridElements();
     if ( mgfContext->radianceMethod != NULL ) {
         delete mgfContext->radianceMethod;
     }

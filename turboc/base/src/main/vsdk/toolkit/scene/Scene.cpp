@@ -14,6 +14,7 @@ Scene::Scene():
     clusteredGeometryList(),
     clusteredRootGeometry(),
     voxelGrid(),
+    voxelGridWorkspace(),
     patchList(),
     lightSourcePatchList()
 {
@@ -37,6 +38,10 @@ Scene::~Scene() {
     if ( patchList != NULL ) {
         delete patchList;
         patchList = NULL;
+    }
+    if ( voxelGridWorkspace != NULL ) {
+        delete voxelGridWorkspace;
+        voxelGridWorkspace = NULL;
     }
     if ( voxelGrid != NULL ) {
         delete voxelGrid;

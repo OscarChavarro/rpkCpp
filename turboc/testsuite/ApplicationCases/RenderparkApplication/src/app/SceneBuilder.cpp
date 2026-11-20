@@ -610,6 +610,7 @@ SceneBuilder::sceneBuilderReadFile(
 
     // Create the scene level voxel grid
     scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
+    scene->voxelGridWorkspace = new VoxelGridWorkspace(scene->voxelGrid->getNumberOfItems());
 
     t = System::nanoTime();
     System::err.printf(

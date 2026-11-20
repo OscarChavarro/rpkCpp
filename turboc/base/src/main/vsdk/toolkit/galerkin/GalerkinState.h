@@ -17,6 +17,7 @@
 #include "vsdk/toolkit/galerkin/GalerkinIterationMethod.h"
 #include "vsdk/toolkit/galerkin/GalerkinShaftCullMode.h"
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class GalerkinState {
@@ -76,9 +77,17 @@ class GalerkinState {
     ShaftCullStrategy shaftCullStrategy;
     ToneMappingContext *toneMapOptions;
 
+    // Form factor scratch owned by the solver
+    FormFactorWorkspace *formFactorWorkspace;
+
     GalerkinState();
+    ~GalerkinState();
 
   private:
+    // Not copyable
+    GalerkinState(const GalerkinState &);
+    GalerkinState &operator=(const GalerkinState &);
+
     #define DEFAULT_GAL_HIERARCHICAL true
     #define DEFAULT_GAL_ITERATION_METHOD JACOBI
     #define DEFAULT_GAL_REL_MIN_ELEM_AREA ((float)1e-6)

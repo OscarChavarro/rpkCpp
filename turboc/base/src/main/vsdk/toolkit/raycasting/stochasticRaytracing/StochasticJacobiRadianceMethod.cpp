@@ -284,6 +284,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmRadnItrtn(
 
         StochasticJacobi::doStochasticJacobiIteration(
             scene->voxelGrid,
+            scene->voxelGridWorkspace,
             numberOfRays,
             stchsRelaxRadElemUnShotRadn,
             NULL,
@@ -325,6 +326,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadPrintIncrmImpStats() {
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmImpItrtn(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
@@ -361,6 +363,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmImpItrtn(
 
         StochasticJacobi::doStochasticJacobiIteration(
             sceneWorldVoxelGrid,
+            sceneWorldVoxelGridWorkspace,
             numberOfRays,
             NULL,
             stchsRelaxRadElemUnShotImp,
@@ -441,12 +444,14 @@ StochasticJacobiRadianceMethod::stchsRelaxRadPrintRegStats() {
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDRegRadnItrtn(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     System::err.printf("Regular radiance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
     StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         StochasticRelaxation::activeState().raysPerIteration,
         stchsRelaxRadElemRadn,
         NULL,
@@ -475,6 +480,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadElemUpdImp(StochasticRadiosityEleme
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDRegImpItrtn(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
@@ -491,6 +497,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDRegImpItrtn(
 
     StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfRays,
         NULL,
         stchsRelaxRadElemImp,
@@ -553,7 +560,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
                     StochasticRelaxation::activeState().importanceUpdated = false;
 
                     // Propagate importance changes
-                    stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->patchList, renderOptions);
+                    stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
                     if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                         StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                     }
@@ -574,15 +581,15 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
                 StochasticRelaxation::activeState().importanceUpdated = false;
 
                 // Propagate importance changes
-                stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->patchList, renderOptions);
+                stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
                 if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                     StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                 }
             } else {
-                stchsRelaxRadDRegImpItrtn(scene->voxelGrid, scene->patchList, renderOptions);
+                stchsRelaxRadDRegImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
             }
         }
-        stchsRelaxRadDRegRadnItrtn(scene->voxelGrid, scene->patchList, renderOptions);
+        stchsRelaxRadDRegRadnItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
     }
 
     stchsRelaxRadRecompDispClrs(scene->patchList);

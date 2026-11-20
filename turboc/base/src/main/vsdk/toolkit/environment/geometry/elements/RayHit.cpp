@@ -222,7 +222,6 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     return success;
 }
 
-#ifdef RAYTRACING_ENABLED
 /**
 Fills in shading frame: Z is the shading normal
 */
@@ -253,4 +252,3 @@ RayHit::setShadingFrame(CoordinateSystem *frame) {
     frame->setZ(shadingFrame.getZ());
     return true;
 }
-#endif

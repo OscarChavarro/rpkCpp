@@ -45,13 +45,13 @@ class RandomWalkRadianceMethod: public RadianceMethod{ public:
     static double randomWalkRadiosityScoreWeight(const Path *path, int nodeIndex);
     static void rndmWalkRadShootScr( const Path *path, long numberOfPaths, double (*birthProbability)(const Patch *patch));
     static void rndmWalkRadShootUpd(const Patch *patch, double w);
-    static void rndmWalkRadDShootItrtn( const VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches);
+    static void rndmWalkRadDShootItrtn( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches);
     static ColorRgb rndmWalkRadDetGthrnCtrlRad(const ArrayList<Patch *> *scenePatches);
     static void rndmWalkRadCllsnGthrnScr( const Path *path, long numberOfPaths, double (*birthProbability)(const Patch *patch));
     static void rndmWalkRadGthrnUpd(const Patch *patch, double w);
-    static void rndmWalkRadDGthrnItrtn( const VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches);
+    static void rndmWalkRadDGthrnItrtn( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches);
     static void rndmWalkRadUpdSrcIllum(StochasticRadiosityElement *elem, double w);
-    static void randomWalkRadiosityDoFirstShot( VoxelGrid *sceneWorldVoxelGrid, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void randomWalkRadiosityDoFirstShot( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
 };
 
 #endif

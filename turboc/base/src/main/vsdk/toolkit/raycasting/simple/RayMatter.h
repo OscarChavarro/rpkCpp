@@ -29,7 +29,7 @@ class RayMatter: public RayTracer{ private:
     ~RayMatter();
 
     void createFilter();
-    void doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid);
+    void doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace);
     void display();
     void save(ImageOutputHandle *ip);
 

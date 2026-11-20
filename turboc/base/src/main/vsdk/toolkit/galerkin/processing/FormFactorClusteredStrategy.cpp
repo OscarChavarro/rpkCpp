@@ -82,13 +82,14 @@ FormFactorClusteredStrategy::geomListMultiResVis(
     Ray *ray,
     float rcvDist,
     float srcSize,
-    float minimumFeatureSize)
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
 {
     double vis = 1.0;
 
     for ( int i = 0; geometryOccluderList != NULL && i < geometryOccluderList->size(); i++ ) {
         double v = FormFactorClusteredStrategy::geomMultiResVis(
-            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
+            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
         if ( v < Numeric::EPSILON ) {
             return 0.0;
         } else {
@@ -106,9 +107,10 @@ FormFactorClusteredStrategy::geomMultiResVis(
     Ray *ray,
     float rcvDist,
     float srcSize,
-    float minimumFeatureSize)
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
 {
-    if ( geometry->isExcluded() ) {
+    if ( exclusions.excludesGeometry(geometry) ) {
         return 1.0;
     }
 
@@ -156,7 +158,7 @@ FormFactorClusteredStrategy::geomMultiResVis(
         if ( geometry->isCompound() ) {
             ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
             double visibility = FormFactorClusteredStrategy::geomListMultiResVis(
-                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize);
+                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
             delete geometryList;
             return visibility;
         } else {
@@ -167,7 +169,8 @@ FormFactorClusteredStrategy::geomMultiResVis(
                     rcvDist * Numeric::EPSILON_FLOAT,
                     &rcvDist,
                     FRONT | ANY,
-                    &hitStore);
+                    &hitStore,
+                    exclusions);
 
             if ( hit != NULL ) {
                 shadowCache->addToShadowCache(hit->getPatch());

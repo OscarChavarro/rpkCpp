@@ -51,6 +51,7 @@ bool
 UniformLightSampler::sample(
     Camera */*camera*/,
     VoxelGrid */*sceneVoxelGrid*/,
+    VoxelGridWorkspace */*sceneVoxelGridWorkspace*/,
     Background */*sceneBackground*/,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
@@ -205,6 +206,7 @@ bool
 ImportantLightSampler::sample(
     Camera */*camera*/,
     VoxelGrid */*sceneVoxelGrid*/,
+    VoxelGridWorkspace */*sceneVoxelGridWorkspace*/,
     Background */*sceneBackground*/,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,

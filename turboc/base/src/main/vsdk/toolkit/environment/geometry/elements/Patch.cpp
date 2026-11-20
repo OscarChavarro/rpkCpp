@@ -13,7 +13,6 @@ vector2DdDeterminant(const Vector2Dd &a, const Vector2Dd &b) {
 }
 
 int Patch::patchId = 1;
-Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {NULL, NULL, NULL, NULL};
 
 /**
 This routine returns the ID number the next patch would get
@@ -30,17 +29,6 @@ Note that patch ID 0 is reserved. The smallest patch ID number should be 1
 void
 Patch::setNextId(int id) {
     patchId = id;
-}
-
-bool
-Patch::isExcluded() const {
-    // MAX_EXCLUDED_PATCHES tests!
-    for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        if ( excludedPatches[i] == this ) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool
@@ -720,49 +708,6 @@ Patch::computeBoundingBox() {
     }
 }
 
-void
-Patch::dontIntersectBase(
-    int n,
-    Patch *p0,
-    Patch *p1,
-    Patch *p2,
-    Patch *p3)
-{
-    if ( n < 0 || n > MAX_EXCLUDED_PATCHES ) {
-        Logger::reportMessage("Patch", Logger::FATAL_ERROR, "Patch::dontIntersectBase", LoggerFormat::format("Invalid number of excluded patches %d (maximum is %d)", n, MAX_EXCLUDED_PATCHES));
-        return;
-    }
-
-    Patch *localPatches[MAX_EXCLUDED_PATCHES] = {p0, p1, p2, p3};
-    int i = 0;
-    for ( ; i < n; i++ ) {
-        excludedPatches[i] = localPatches[i];
-    }
-    for ( ; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        excludedPatches[i] = NULL;
-    }
-}
-
-void
-Patch::dontIntersect0() {
-    dontIntersectBase(0, NULL, NULL, NULL, NULL);
-}
-
-void
-Patch::dontIntersect2(Patch *p0, Patch *p1) {
-    dontIntersectBase(2, p0, p1, NULL, NULL);
-}
-
-void
-Patch::dontIntersect3(Patch *p0, Patch *p1, Patch *p2) {
-    dontIntersectBase(3, p0, p1, p2, NULL);
-}
-
-void
-Patch::dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3) {
-    dontIntersectBase(4, p0, p1, p2, p3);
-}
-
 /**
 Computes interpolated (= shading) normal at the point with given parameters
 on the patch
@@ -852,11 +797,12 @@ Patch::intersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore,
+    const RayExclusionSet &exclusions)
 {
     RayHit hit;
 
-    if ( isExcluded() ) {
+    if ( exclusions.excludesPatch(this) ) {
         return NULL;
     }
 

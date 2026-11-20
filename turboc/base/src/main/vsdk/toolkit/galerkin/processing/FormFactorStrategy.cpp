@@ -14,9 +14,6 @@ References:
   with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3, September 1995
 */
 
-GalerkinElement *FormFactorStrategy::formFactorLastReceived = NULL;
-GalerkinElement *FormFactorStrategy::formFactorLastSource = NULL;
-
 /**
 Tests whether the ray intersects a geometry in the geometrySceneList. Returns
 NULL if the ray hits no geometries. Returns an arbitrary hit
@@ -28,14 +25,16 @@ FormFactorStrategy::shadowTestDiscretization(
     Ray *ray,
     const ArrayList<Geometry *> *geometrySceneList,
     const VoxelGrid *voxelGrid,
+    VoxelGridWorkspace *voxelGridWorkspace,
     ShadowCache *shadowCache,
     float minimumDistance,
     RayHit *hitStore,
     bool isSceneGeometry,
-    bool isClusteredGeometry)
+    bool isClusteredGeometry,
+    const RayExclusionSet &exclusions)
 {
     Statistics::instance().shadow.numberOfShadowRays++;
-    RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore);
+    RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore, exclusions);
     if ( hit != NULL ) {
         Statistics::instance().shadow.numberOfShadowCacheHits++;
     } else {
@@ -46,14 +45,17 @@ FormFactorStrategy::shadowTestDiscretization(
                 Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 FRONT | ANY,
-                hitStore);
+                hitStore,
+                exclusions);
         } else {
             hit = voxelGrid->gridIntersect(
                 ray,
                 Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 FRONT | ANY,
-                hitStore);
+                hitStore,
+                exclusions,
+                voxelGridWorkspace);
         }
         if ( hit != NULL ) {
             shadowCache->addToShadowCache(hit->getPatch());
@@ -146,6 +148,7 @@ double
 FormFactorStrategy::evaluatePointsPairKernel(
     ShadowCache *shadowCache,
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *voxelGridWorkspace,
     const Vector3D *x,
     const Vector3D *y,
     const GalerkinElement *receiverElement,
@@ -153,7 +156,8 @@ FormFactorStrategy::evaluatePointsPairKernel(
     const ArrayList<Geometry *> *shadowGeometryList,
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
-    const GalerkinState *galerkinState)
+    const GalerkinState *galerkinState,
+    const RayExclusionSet &exclusions)
 {
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     Ray ray;
@@ -207,25 +211,27 @@ FormFactorStrategy::evaluatePointsPairKernel(
                 &ray,
                 shadowGeometryList,
                 sceneWorldVoxelGrid,
+                voxelGridWorkspace,
                 shadowCache,
                 shortenedDistance,
                 &hitStore,
                 isSceneGeometry,
-                isClusteredGeometry) == NULL ) {
+                isClusteredGeometry,
+                exclusions) == NULL ) {
             // No intersection with occluders means no shadow, so full visibility
             visibilityFactor = 1.0;
         } else {
             // If intersection with occluders found, there is shadow, so no visibility
             visibilityFactor = 0.0;
         }
-    } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore) ) {
+    } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore, exclusions) ) {
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
             * ((float)(Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI)));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResVis(
-            shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
+            shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize, exclusions);
     }
 
     return formFactorKernelTerm * visibilityFactor;
@@ -469,24 +475,14 @@ is used, see [SILL1995b].
 void
 FormFactorStrategy::cmptAreaTAreaFormFactorVis(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *voxelGridWorkspace,
+    FormFactorWorkspace *formFactorWorkspace,
     const ArrayList<Geometry *> *geometryShadowList,
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
     Interaction *link,
     const GalerkinState *galerkinState)
 {
-    // TODO: Check how to keep the cache, in a re-entrant implementation (use GalerkinState?)
-    // Very often, the source or receiver element is the same as the one in
-    // the previous call of the function. We cache cubature rules and nodes
-    // in order to prevent re-computation
-    static CubatureRule *receiveCubatureRule = NULL; // Cubature rules to be used over the
-    static CubatureRule *sourceCubatureRule = NULL; // Receiving patch and source patch
-    static Vector3D x[CUBATURE_MAXIMUM_NODES];
-    static Vector3D y[CUBATURE_MAXIMUM_NODES];
-
-    // TODO: To make this re-entrant, should use the class as instanced objects,
-    // one per thread, and move static global variables to usual class attributes.
-
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
 
@@ -544,43 +540,54 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( receiverElement != formFactorLastReceived ) {
-        determineNodes(receiverElement, RECEIVER, galerkinState, &receiveCubatureRule, x);
+    // Very often, the source or receiver element is the same as the one in
+    // the previous call of the function. The cubature rules, nodes and kernel
+    // values of the last pair are kept in the form factor workspace
+    Vector3D *x = formFactorWorkspace->getReceiverNodes();
+    Vector3D *y = formFactorWorkspace->getSourceNodes();
+    double (*Gxy)[CUBATURE_MAXIMUM_NODES] = formFactorWorkspace->getKernel();
+    const bool sameReceiver = receiverElement == formFactorWorkspace->getLastReceiver();
+    const bool sameSource = sourceElement == formFactorWorkspace->getLastSource();
+
+    if ( !sameReceiver ) {
+        CubatureRule *rule = formFactorWorkspace->getReceiverCubatureRule();
+        determineNodes(receiverElement, RECEIVER, galerkinState, &rule, x);
+        formFactorWorkspace->setReceiverCubatureRule(rule);
     }
 
     // Same for the source element
-    if ( sourceElement != formFactorLastSource ) {
-        determineNodes(sourceElement, SOURCE, galerkinState, &sourceCubatureRule, y);
+    if ( !sameSource ) {
+        CubatureRule *rule = formFactorWorkspace->getSourceCubatureRule();
+        determineNodes(sourceElement, SOURCE, galerkinState, &rule, y);
+        formFactorWorkspace->setSourceCubatureRule(rule);
     }
+    const CubatureRule *receiveCubatureRule = formFactorWorkspace->getReceiverCubatureRule();
+    const CubatureRule *sourceCubatureRule = formFactorWorkspace->getSourceCubatureRule();
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    static double maximumKernelValue = 0.0;
-    static double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
-    static unsigned visibilityCount = 0; // Number of rays that "pass" occluders
-
-    if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {
+    if ( !sameReceiver || !sameSource ) {
         // Use shadow caching for accelerating occlusion detection
         ShadowCache shadowCache;
 
-        // Mark the patches in order to avoid immediate self-intersections
-        Patch::dontIntersect4(
+        // Exclude the patches in order to avoid immediate self-intersections
+        const RayExclusionSet exclusions(
             receiverElement->isCluster() ? NULL : receiverElement->patch,
             receiverElement->isCluster() ? NULL : receiverElement->patch->twin,
             sourceElement->isCluster() ? NULL : sourceElement->patch,
-            sourceElement->isCluster() ? NULL : sourceElement->patch->twin);
-        Geometry::dontIntersect(
+            sourceElement->isCluster() ? NULL : sourceElement->patch->twin,
             receiverElement->isCluster() ? receiverElement->geometry : NULL,
             sourceElement->isCluster() ? sourceElement->geometry : NULL);
 
-        maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
-        visibilityCount = 0; // Count the number of rays that "pass" occluders
+        double maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
+        unsigned visibilityCount = 0; // Count the number of rays that "pass" occluders
         for ( int r = 0; receiveCubatureRule != NULL && r < receiveCubatureRule->numberOfNodes; r++ ) {
             for ( int s = 0; sourceCubatureRule != NULL && s < sourceCubatureRule->numberOfNodes; s++ ) {
                 Gxy[r][s] = evaluatePointsPairKernel(
                     &shadowCache,
                     sceneWorldVoxelGrid,
+                    voxelGridWorkspace,
                     &x[r],
                     &y[s],
                     receiverElement,
@@ -588,7 +595,8 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
                     geometryShadowList,
                     isSceneGeometry,
                     isClusteredGeometry,
-                    galerkinState);
+                    galerkinState,
+                    exclusions);
 
                 if ( Gxy[r][s] > maximumKernelValue ) {
                     maximumKernelValue = Gxy[r][s];
@@ -599,10 +607,12 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
             }
         }
 
-        // Unmark the patches, so they are considered for ray-patch intersections again in future
-        Patch::dontIntersect0();
-        Geometry::dontIntersect(NULL, NULL);
+        formFactorWorkspace->setMaximumKernelValue(maximumKernelValue);
+        formFactorWorkspace->setVisibilityCount(visibilityCount);
     }
+
+    const double maximumKernelValue = formFactorWorkspace->getMaximumKernelValue();
+    const unsigned visibilityCount = formFactorWorkspace->getVisibilityCount();
 
     if ( visibilityCount != 0 ) {
         // Actually compute the form factors
@@ -616,8 +626,7 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
     }
 
     // Remember receiver and source for next time
-    formFactorLastReceived = receiverElement;
-    formFactorLastSource = sourceElement;
+    formFactorWorkspace->setLastPair(receiverElement, sourceElement);
 
     if ( galerkinState->clusteringStrategy == ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
