@@ -46,9 +46,6 @@ class RpkGeometry {
     int itemCount;
     char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
     char shaftCullGeometry; // Generated during shaft culling
-    char omit; // Indicates that the Geometry should not be considered for a number of things,
-               // such as intersection testing. Set to false by default, don't forget
-               // to set to false again after you changed it!
     bool isDuplicate;
 
     GeometryClassId className;

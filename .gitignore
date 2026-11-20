@@ -76,3 +76,11 @@ out/
 .codex
 AGENTS.md
 
+
+# Port references: images stay local, checksums and fingerprints are versioned
+cpp/testReferences/*.ppm
+cpp/testReferences/logs/
+turboc/testReferences/*.ppm
+java/testReferences/*.ppm
+typescript/testReferences/*.ppm
+cpp/testReferences/rayCorpus/*.vqc

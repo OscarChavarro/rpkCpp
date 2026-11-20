@@ -484,6 +484,10 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.bounded = BinaryModelReadPrimitives::readBool(input);
             record.shaftCullGeometry = BinaryModelReadPrimitives::readBool(input);
             record.omit = BinaryModelReadPrimitives::readBool(input);
+            if ( record.omit ) {
+                Logger::reportMessage("BinaryModelDeserializer", Logger::ERROR, "BinaryModelDeserializer::read", java::String::format("%s", "Geometry omit flag is not supported in binary reader"));
+                goto fail;
+            }
             record.isDuplicate = BinaryModelReadPrimitives::readBool(input);
             if ( !BinaryModelReadPrimitives::readBoundingBoxCoordinates(input, record.boundingBoxCoordinates) ) goto fail;
             record.hasRayIntersectionBox = BinaryModelReadPrimitives::readBool(input);
@@ -568,7 +572,6 @@ BinaryModelDeserializer::read(const char *fileName) {
             geometry->itemCount = record.itemCount;
             geometry->bounded = static_cast<char>(record.bounded ? 1 : 0);
             geometry->shaftCullGeometry = static_cast<char>(record.shaftCullGeometry ? 1 : 0);
-            geometry->omit = static_cast<char>(record.omit ? 1 : 0);
             geometry->isDuplicate = record.isDuplicate;
             if ( !BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(&geometry->boundingBox, record.boundingBoxCoordinates) ) goto fail;
 

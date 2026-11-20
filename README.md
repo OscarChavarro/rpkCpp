@@ -36,7 +36,7 @@ Here is an example:
 ### On linux
 
 ```bash
-apt-get install cmake build-essential freeglut3-dev libglu1-mesa-dev libosmesa6-dev findimagedupes
+apt-get install cmake build-essential freeglut3-dev libglu1-mesa-dev libosmesa6-dev imagemagick
 ```
 
 ### On MacOS
@@ -120,12 +120,17 @@ files on `./output` folder.
 ./scripts/runAll.sh
 ```
 
-Note that for verification purposes, the output images can be compared against the copies on `./doc/testBaseImages`.
-For checking if last run is successful, try
+To check a change, run the test corpus and then the image gate (ImageMagick `compare`):
 
 ```bash
-./scripts/testReviewResults.sh
+./scripts/runCorpus.sh                   # whole corpus in parallel, or name images to run a subset
+./scripts/testReviewResults.sh --exact   # every output pixel-identical to its port reference in ./testReferences
+./scripts/testReviewResults.sh --golden  # every output within its recorded RMSE bound of ./doc/testBaseImages
 ```
+
+With no option the script runs both checks. Port references and statistics fingerprints are captured
+from an unchanged tree with `--capture-references`; the golden images and their bounds change only by
+decision of the project owner. Failed comparisons leave difference images in `./output/diff`.
 
 ## Running program on old hardware
 

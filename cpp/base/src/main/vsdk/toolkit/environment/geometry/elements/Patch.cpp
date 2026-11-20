@@ -320,12 +320,12 @@ Patch::intersect(
         *maximumDistance,
         &faceHit);
     if ( inside ) {
-        const float distance = faceHit.distance;
-        Vector3D position(faceHit.pointX, faceHit.pointY, faceHit.pointZ);
+        const float distance = faceHit.getDistance();
+        Vector3D position(faceHit.getPointX(), faceHit.getPointY(), faceHit.getPointZ());
         hit.setPoint(&position);
-        hit.setUv(faceHit.u, faceHit.v);
+        hit.setUv(faceHit.getU(), faceHit.getV());
         hit.setFlags(hit.getFlags()
-            | (faceHit.side == PlanarFace::Side::BACK ? RayHitFlag::BACK : RayHitFlag::FRONT)
+            | (faceHit.getSide() == PlanarFace::Side::BACK ? RayHitFlag::BACK : RayHitFlag::FRONT)
             | RayHitFlag::UV);
         hit.setPatch(this);
         hit.setMaterial(material);

@@ -15,7 +15,6 @@ RpkGeometry::RpkGeometry():
     radianceData(),
     itemCount(),
     bounded(),
-    omit(),
     isDuplicate(),
     className()
 {
@@ -39,7 +38,6 @@ RpkGeometry::RpkGeometry(
     shaftCullGeometry = false;
     radianceData = nullptr;
     itemCount = 0;
-    omit = false;
 }
 
 RpkGeometry::~RpkGeometry() {
@@ -134,7 +132,6 @@ RpkGeometry::clone() const {
     newPatchSet->itemCount = itemCount;
     newPatchSet->bounded = bounded;
     newPatchSet->shaftCullGeometry = shaftCullGeometry;
-    newPatchSet->omit = omit;
     newPatchSet->className = className;
     newPatchSet->isDuplicate = true;
 

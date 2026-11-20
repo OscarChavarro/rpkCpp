@@ -47,8 +47,10 @@ class PlanarFace {
     };
 
     // Result of rayHit: the side the ray arrives at, the ray parameter of the
-    // plane hit, the hit point and its (u, v) parameters
-    struct RayHit {
+    // plane hit, the hit point and its (u, v) parameters. Only rayHit fills it
+    class RayHit {
+        friend class PlanarFace;
+      private:
         Side side;
         float distance;
         float pointX;
@@ -56,6 +58,15 @@ class PlanarFace {
         float pointZ;
         double u;
         double v;
+      public:
+        RayHit() : side(Side::PARALLEL), distance(0.0F), pointX(0.0F), pointY(0.0F), pointZ(0.0F), u(0.0), v(0.0) {}
+        Side getSide() const { return side; }
+        float getDistance() const { return distance; }
+        float getPointX() const { return pointX; }
+        float getPointY() const { return pointY; }
+        float getPointZ() const { return pointZ; }
+        double getU() const { return u; }
+        double getV() const { return v; }
     };
 
   private:
@@ -72,7 +83,7 @@ class PlanarFace {
     float midPointY;
     float midPointZ;
     float planeConstant;
-    float planeTolerance;
+    float tolerance;
     float area;
     float jacobianA;
     float jacobianB;
@@ -197,7 +208,7 @@ PlanarFace::getPlaneConstant() const {
 
 inline float
 PlanarFace::getTolerance() const {
-    return planeTolerance;
+    return tolerance;
 }
 
 inline float

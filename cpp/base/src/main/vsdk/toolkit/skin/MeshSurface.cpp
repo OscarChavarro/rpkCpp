@@ -65,7 +65,6 @@ MeshSurface::MeshSurface(
     shaftCullGeometry = false;
     radianceData = nullptr;
     itemCount = 0;
-    omit = false;
 }
 
 MeshSurface::~MeshSurface() {

@@ -441,7 +441,9 @@ BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Rpk
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
     vsdk::PersistenceElement::writeBool(output, geometry->bounded != 0);
     vsdk::PersistenceElement::writeBool(output, geometry->shaftCullGeometry != 0);
-    vsdk::PersistenceElement::writeBool(output, geometry->omit != 0);
+    // Omit flag: geometries were never omitted at run time (the shaft's omit set
+    // excludes patches per query); written false, as it always was
+    vsdk::PersistenceElement::writeBool(output, false);
     vsdk::PersistenceElement::writeBool(output, geometry->isDuplicate);
     writeBoundingBox(output, geometry->boundingBox);
     vsdk::PersistenceElement::writeBool(output, false);

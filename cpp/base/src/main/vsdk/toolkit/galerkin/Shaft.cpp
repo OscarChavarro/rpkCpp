@@ -65,8 +65,9 @@ Shaft::isCut() const {
 }
 
 /**
-Marks a geometry as to be omitted during shaft culling: it will not be added to the
-candidate list, even if the geometry overlaps or is inside the shaft
+Marks a patch as to be omitted during shaft culling (the source or receiver of
+the interaction): cullPatches will not add it to the culled patch list, even if
+it overlaps or is inside the shaft
 */
 void
 Shaft::setShaftOmit(Patch *patch) {
@@ -713,10 +714,6 @@ was created during previous shaft culling
 */
 void
 Shaft::keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) const {
-    if ( geometry->omit ) {
-        return;
-    }
-
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
         const PatchSet *oldPatchSet = static_cast<const PatchSet *>(geometry);
         RpkGeometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
@@ -733,10 +730,6 @@ Breaks the geometry into it's components and does shaft culling on the component
 */
 void
 Shaft::shaftCullOpen(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList, ShaftCullStrategy strategy) {
-    if ( geometry->omit ) {
-        return;
-    }
-
     if ( geometry->isCompound() ) {
         const Compound *compound = static_cast<const Compound *>(geometry);
         doCulling(compound->children, candidateList, strategy);
@@ -765,13 +758,9 @@ Shaft::cullGeometry(
     java::ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
-    // The omit set holds patch ids and is honoured for patches by cullPatches.
-    // A geometry is skipped only by its own flag: reading a patch id from a
-    // geometry (the former reinterpret_cast) was undefined behaviour
-    if ( geometry->omit ) {
-        return;
-    }
-
+    // The omit set holds patch ids and is honoured for patches by cullPatches;
+    // reading a patch id from a geometry (the former reinterpret_cast) was
+    // undefined behaviour
     // Unbounded geoms always overlap the shaft
     switch ( geometry->bounded ? boundingBoxTest(&geometry->boundingBox) : ShaftPlanePosition::OVERLAP ) {
         case ShaftPlanePosition::INSIDE:
