@@ -69,7 +69,7 @@ class GalerkinElement final : public Element {
     static int getNumberOfElements();
     static int getNumberOfClusters();
     static int getNumberOfSurfaceElements();
-    static GalerkinElement *fromPatch(const Patch *patch);
+    static GalerkinElement *fromPatch(const GalerkinState *galerkinState, const Patch *patch);
     static void initializeBasis();
     static int renderMode(const RendererConfiguration *renderOptions);
 

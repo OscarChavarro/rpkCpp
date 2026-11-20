@@ -172,7 +172,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateCluster(RpkGeometry *geomet
 
 void
 StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
-    StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(patch->getRadianceData()); // Created before
+    StochasticRadiosityElement *elem = McradP::topLevelStochasticRadiosityElement(patch); // Created before
     elem->parent = parent;
 
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;

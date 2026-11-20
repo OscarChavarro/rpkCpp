@@ -180,7 +180,6 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
         Ed.scaleInverse(M_PI, Ed);
     }
 
-    patch->setRadianceData(this);
     reAllocCoefficients();
 }
 
@@ -249,20 +248,21 @@ GalerkinElement::getNumberOfSurfaceElements() {
 }
 
 GalerkinElement *
-GalerkinElement::fromPatch(const Patch *patch) {
+GalerkinElement::fromPatch(const GalerkinState *galerkinState, const Patch *patch) {
     if ( patch == nullptr ) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
         java::System::exit(1);
     }
-    if ( patch->getRadianceData() == nullptr ) {
+    const Element *element = galerkinState->getRadianceElements()->get(patch->getFaceIndex());
+    if ( element == nullptr ) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
         java::System::exit(1);
     }
-    if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( element->className != ElementTypes::ELEMENT_GALERKIN ) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
         java::System::exit(1);
     }
-    return static_cast<GalerkinElement *>(patch->getRadianceData());
+    return galerkinState->topLevelElement(patch);
 }
 
 int
@@ -338,7 +338,10 @@ GalerkinElement::reAllocCoefficients() {
                 ColorRgbMutable::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->getMaterial() != nullptr ) {
-                defaultUnShotRadiance[0] = patch->getRadianceData()->Ed;
+                // While a top-level element is being constructed it is not in the
+                // scene's element table yet, and it is its face's top-level element
+                const GalerkinElement *topLevelElement = parent == nullptr ? this : galerkinState->topLevelElement(patch);
+                defaultUnShotRadiance[0] = topLevelElement->Ed;
             }
         }
         unShotRadiance = defaultUnShotRadiance;

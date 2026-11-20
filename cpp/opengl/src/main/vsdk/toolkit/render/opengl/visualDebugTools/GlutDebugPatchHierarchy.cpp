@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
@@ -71,14 +72,14 @@ GlutDebugPatchHierarchy::selectedPatchRoot(const Scene *scene, int patchIndex) {
     }
 
     const Patch *patch = scene->patchList->get(patchIndex);
-    if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
+    if ( patch == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr ) {
         return nullptr;
     }
-    if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( GalerkinRadianceMethod::galerkinState.boundElement(patch)->className != ElementTypes::ELEMENT_GALERKIN ) {
         return nullptr;
     }
 
-    return static_cast<const GalerkinElement *>(patch->getRadianceData());
+    return static_cast<const GalerkinElement *>(GalerkinRadianceMethod::galerkinState.boundElement(patch));
 }
 
 int
@@ -135,10 +136,10 @@ GlutDebugPatchHierarchy::renderElementGray(
         if ( element->galerkinState != nullptr
              && element->galerkinState->useAmbientRadiance
              && element->patch != nullptr
-             && element->patch->getRadianceData() != nullptr ) {
+             && GalerkinRadianceMethod::galerkinState.boundElement(element->patch) != nullptr ) {
             ColorRgbMutable ambient;
             ambient.scalarProduct(
-                element->patch->getRadianceData()->Rd,
+                GalerkinRadianceMethod::galerkinState.boundElement(element->patch)->Rd,
                 element->galerkinState->ambientRadiance);
             radianceSample.add(radianceSample, ambient);
         }
@@ -194,10 +195,10 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
         }
 
         const Patch *patch = scene->patchList->get(patchIndex);
-        if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
+        if ( patch == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr ) {
             continue;
         }
-        if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+        if ( GalerkinRadianceMethod::galerkinState.boundElement(patch)->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
         }
 
@@ -229,7 +230,7 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
             }
         }
 
-        const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(patch->getRadianceData());
+        const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(GalerkinRadianceMethod::galerkinState.boundElement(patch));
         renderElementGray(element, renderOptions);
     }
 }
@@ -483,7 +484,7 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     glLineWidth(2.0F);
 
     for ( int i = 0; i < interactingPatches.size(); i++ ) {
-        const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(interactingPatches.get(i));
+        const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, interactingPatches.get(i));
         if ( topLevelElement == nullptr || topLevelElement->isCluster() ) {
             continue;
         }

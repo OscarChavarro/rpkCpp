@@ -392,6 +392,10 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.directPotential = BinaryModelReadPrimitives::readFloatLE(input);
             record.dominantIndex = BinaryModelReadPrimitives::readInt32LE(input);
             record.omit = BinaryModelReadPrimitives::readBool(input);
+            if ( record.omit ) {
+                Logger::reportMessage("BinaryModelDeserializer", Logger::ERROR, "BinaryModelDeserializer::read", java::String::format("%s", "Patch omit flag is not supported in binary reader"));
+                goto fail;
+            }
             record.flags = BinaryModelReadPrimitives::readByte(input);
             if ( !BinaryModelReadPrimitives::readColor(input, &record.color) ) goto fail;
             record.materialIndex = BinaryModelReadPrimitives::readInt32LE(input);
@@ -419,8 +423,12 @@ BinaryModelDeserializer::read(const char *fileName) {
             // Area is immutable after construction and recomputed from geometry.
             // The direct potential is read and discarded: it is per-face solver data,
             // held by the scene's DirectPotentialTable, and starts at zero
-            patch->setDominantAxisIndex(static_cast<char>(record.dominantIndex));
-            patch->setOmit(record.omit);
+            // The dominant axis and the Jacobian are derived from the vertices by the
+            // patch's face; the file's values must agree with them bit for bit
+            if ( record.dominantIndex != patch->getDominantAxisIndex() ) {
+                Logger::reportMessage("BinaryModelDeserializer", Logger::ERROR, "BinaryModelDeserializer::read", java::String::format("%s", "Patch dominant axis disagrees with its vertices"));
+                goto fail;
+            }
             // The flags byte (direct visibility) is read and discarded: it is per-face
             // solver data, held by the scene's FaceVisibilityTable, and starts cleared
             // The display color is read and discarded: it is per-face display data,
@@ -428,11 +436,16 @@ BinaryModelDeserializer::read(const char *fileName) {
             RpkMaterial *material = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
             patch->setMaterial(material);
-            patch->setRadianceData(nullptr);
 
-            patch->setJacobian(nullptr);
-            if ( record.hasJacobian ) {
-                patch->setJacobian(new Jacobian(record.jacobianA, record.jacobianB, record.jacobianC));
+            {
+                const Jacobian *jacobian = patch->getJacobian();
+                const bool jacobianAgrees = record.hasJacobian
+                    ? jacobian != nullptr && jacobian->A == record.jacobianA && jacobian->B == record.jacobianB && jacobian->C == record.jacobianC
+                    : jacobian == nullptr;
+                if ( !jacobianAgrees ) {
+                    Logger::reportMessage("BinaryModelDeserializer", Logger::ERROR, "BinaryModelDeserializer::read", java::String::format("%s", "Patch Jacobian disagrees with its vertices"));
+                    goto fail;
+                }
             }
 
             // Patch bounding box is immutable after construction.

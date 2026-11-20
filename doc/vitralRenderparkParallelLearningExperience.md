@@ -123,12 +123,15 @@ render that takes its face geometry and material from VITRAL and can switch
 between a port of the RenderPark voxel grid and VITRAL's WALD2007 hierarchy.
 Its direction, in the order the plan follows:
 
-1. **Retire static mutable state on the visibility path**
-   (`Patch::excludedPatches`, `Geometry::excludedGeometry1/2`, the
-   `FormFactorStrategy` and `VoxelGrid` statics) into values and workspaces
-   the caller owns — both a VITRAL-compatibility and a parallel-readiness
-   requirement. The remaining counters and pools follow with the parallel
-   Galerkin solver, which is the goal after this milestone.
+1. **No static mutable state on the visibility path.** Exclusions are a
+   `RayExclusionSet` value, voxel grid stamps a `VoxelGridWorkspace`, and the
+   form-factor caches a `FormFactorWorkspace`, all owned by the caller — both
+   a VITRAL-compatibility and a parallel-readiness requirement. Every change
+   is checked by an exact image gate (`compare -metric AE` against port
+   references captured from the unchanged tree, plus a statistics
+   fingerprint) and a bounded one against the golden images. The remaining
+   counters and pools follow with the parallel Galerkin solver, which is the
+   goal after this milestone.
 2. **A shared face, material and spatial query**, built once and only read
    during a solve, so that any number of workers can use them.
 3. **Encapsulation as classes are migrated**: private attributes, getters,
@@ -164,7 +167,7 @@ the nearest-hit contract, because here the two trees *almost* agree already:
 - **rpkCpp**: `RayHit* discretizationIntersect(Ray* ray, float minimumDistance,
   float* maximumDistance, int hitFlags, RayHit* hitStore)`, float distances,
   a request mask (`hitFlags`) separate from the filled-fields mask
-  (`RayHit::flags`), a caller-owned hit store that doubles as the
+  (`RpkRayHit::flags`), a caller-owned hit store that doubles as the
   closest-so-far accumulator across lists and the voxel grid, and an
   in-place shrinking `maximumDistance` that gives shadow rays a natural
   any-hit early out.
@@ -196,8 +199,8 @@ recorded for statistics — is:
   single-precision for memory/bandwidth; VITRAL's shared primitives are
   double. The precision boundary is a real design decision to make jointly,
   not an accident to normalize away.
-- **Radiance-method hooks stamped on structure.** `Geometry::radianceData`,
-  `Patch::radianceData`, `Vertex::radianceData` let the active radiance
+- **Radiance-method hooks stamped on structure.** `RpkGeometry::radianceData`,
+  `Patch::radianceData`, `RpkVertex::radianceData` let the active radiance
   method annotate the scene in O(1) — a pattern VITRAL has no counterpart
   for, and a per-algorithm-coupling concern already flagged by
   `doc/patchBoundingBoxDecoupling.md`. Whether this becomes a shared

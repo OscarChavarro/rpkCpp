@@ -10,12 +10,14 @@
 #include "vsdk/toolkit/scene/DirectPotentialTable.h"
 #include "vsdk/toolkit/scene/FaceVisibilityTable.h"
 #include "vsdk/toolkit/scene/FaceColorTable.h"
+#include "vsdk/toolkit/scene/RadianceElementTable.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
 #include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
   private:
+    void deleteRadianceElements();
     static const char *compoundType;
     static const char *meshSurfaceType;
     static const char *patchSetType;
@@ -40,6 +42,7 @@ class Scene {
     DirectPotentialTable *directPotentials; // Owned; direct potential of the faceTable entries
     FaceVisibilityTable *faceVisibility; // Owned; direct visibility of the faceTable entries
     FaceColorTable *faceColors; // Owned; display color of the faceTable entries
+    RadianceElementTable *radianceElements; // Owned table; top-level radiance element of the faceTable entries
     static void collectFaces(const RpkGeometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
 
 public:
@@ -81,7 +84,14 @@ public:
     FaceVisibilityTable *getFaceVisibility() const;
     // Written by the radiance methods after each step, read by the displays
     FaceColorTable *getFaceColors() const;
+    // Filled by Radiance::setRadianceMethod, read by the radiance methods
+    RadianceElementTable *getRadianceElements() const;
 };
+
+inline RadianceElementTable *
+Scene::getRadianceElements() const {
+    return radianceElements;
+}
 
 inline FaceColorTable *
 Scene::getFaceColors() const {

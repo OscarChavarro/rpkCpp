@@ -82,7 +82,7 @@ GalerkinBasis::pushPullRadianceRecursive(
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
-        ColorRgbMutable rho = element->patch->getRadianceData()->Rd;
+        ColorRgbMutable rho = element->galerkinState->topLevelElement(element->patch)->Rd;
         for ( int i = 0; i < element->basisSize; i++ ) {
             Bup[i].scalarProduct(rho, Bdown[i]);
         }
@@ -91,7 +91,7 @@ GalerkinBasis::pushPullRadianceRecursive(
           || galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
             // add this leaf element
-            ColorRgbMutable Ed = element->patch->getRadianceData()->Ed;
+            ColorRgbMutable Ed = element->galerkinState->topLevelElement(element->patch)->Ed;
             Bup[0].add(Bup[0], Ed);
         }
     }

@@ -15,7 +15,7 @@ cluster to surface: 0
 surface to cluster: 98
 surface to surface: 12737
 shadow hits: 262290
-shadow hits cached: 106876
+shadow hits cached: 106872
 Iteration: 2
 Nr. elements: 6976
 clusters: 162
@@ -26,7 +26,7 @@ cluster to surface: 10887
 surface to cluster: 10527
 surface to surface: 61933
 shadow hits: 3802308
-shadow hits cached: 935470
+shadow hits cached: 935455
 Iteration: 3
 Nr. elements: 9208
 clusters: 162
@@ -37,7 +37,7 @@ cluster to surface: 15176
 surface to cluster: 15548
 surface to surface: 90376
 shadow hits: 5538150
-shadow hits cached: 1370319
+shadow hits cached: 1370314
 Iteration: 4
 Nr. elements: 10864
 clusters: 162
@@ -47,8 +47,8 @@ cluster to cluster: 1331
 cluster to surface: 17189
 surface to cluster: 17408
 surface to surface: 107185
-shadow hits: 6385278
-shadow hits cached: 1560726
+shadow hits: 6385614
+shadow hits cached: 1560717
 Iteration: 5
 Nr. elements: 11792
 clusters: 162
@@ -58,8 +58,8 @@ cluster to cluster: 1336
 cluster to surface: 18263
 surface to cluster: 18694
 surface to surface: 117897
-shadow hits: 6908629
-shadow hits cached: 1678667
+shadow hits: 6909133
+shadow hits cached: 1678656
 Iteration: 6
 Nr. elements: 12252
 clusters: 162
@@ -69,8 +69,8 @@ cluster to cluster: 1346
 cluster to surface: 18841
 surface to cluster: 19292
 surface to surface: 123932
-shadow hits: 7201181
-shadow hits cached: 1745072
+shadow hits: 7201685
+shadow hits cached: 1745065
 Iteration: 7
 Nr. elements: 12472
 clusters: 162
@@ -80,19 +80,19 @@ cluster to cluster: 1356
 cluster to surface: 18908
 surface to cluster: 19633
 surface to surface: 127243
-shadow hits: 7340651
+shadow hits: 7341162
 shadow hits cached: 1777450
 Iteration: 8
 Nr. elements: 12576
 clusters: 162
 surface elements: 12414
-Nr. interactions: 169034
+Nr. interactions: 169038
 cluster to cluster: 1361
-cluster to surface: 18997
+cluster to surface: 19001
 surface to cluster: 19755
 surface to surface: 128921
-shadow hits: 7420030
-shadow hits cached: 1796033
+shadow hits: 7420856
+shadow hits cached: 1796062
 Iteration: 9
 Nr. elements: 12648
 clusters: 162
@@ -102,8 +102,8 @@ cluster to cluster: 1361
 cluster to surface: 18948
 surface to cluster: 19841
 surface to surface: 129779
-shadow hits: 7456194
-shadow hits cached: 1803673
+shadow hits: 7456705
+shadow hits cached: 1803676
 Iteration: 10
 Nr. elements: 12656
 clusters: 162
@@ -113,17 +113,17 @@ cluster to cluster: 1363
 cluster to surface: 18922
 surface to cluster: 19865
 surface to surface: 130241
-shadow hits: 7478123
-shadow hits cached: 1808566
+shadow hits: 7478634
+shadow hits cached: 1808569
 Iteration: 11
 Nr. elements: 12668
 clusters: 162
 surface elements: 12506
-Nr. interactions: 170561
+Nr. interactions: 170565
 cluster to cluster: 1365
-cluster to surface: 18922
+cluster to surface: 18926
 surface to cluster: 19879
 surface to surface: 130395
-shadow hits: 7484615
-shadow hits cached: 1810099
+shadow hits: 7485441
+shadow hits cached: 1810124
 --- stderr

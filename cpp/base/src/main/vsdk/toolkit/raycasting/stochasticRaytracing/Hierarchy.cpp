@@ -20,7 +20,8 @@ ElementHierarchyState::ElementHierarchyState():
     coords(),
     normals(),
     texCoords(),
-    vertices()
+    vertices(),
+    radianceElements()
 {
 }
 
@@ -73,12 +74,13 @@ Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatche
     StochasticRadiosityElement::stochasticRadiosityElementDestroyClusterHierarchy(ElementHierarchyState::activeState().topCluster);
     ElementHierarchyState::activeState().topCluster = nullptr;
 
-    // Destroy surface elements
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+    // Destroy surface elements (only bound once the method was initialized)
+    RadianceElementTable *radianceElements = ElementHierarchyState::activeState().getRadianceElements();
+    for ( int i = 0; radianceElements != nullptr && scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         // Need to be destroyed before destroying the automatically created vertices
         StochasticRadiosityElement::stochasticRadiosityElementDestroy(McradP::topLevelStochasticRadiosityElement(patch));
-        patch->setRadianceData(nullptr); // Prevents destroying a 2nd time later
+        radianceElements->set(patch->getFaceIndex(), nullptr); // Prevents destroying a 2nd time later
     }
 
     // Delete vertices

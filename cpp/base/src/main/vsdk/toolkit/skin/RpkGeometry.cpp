@@ -277,7 +277,7 @@ RpkGeometry::patchListBounds(const java::ArrayList<Patch *> *patchList, RpkAxisA
     RpkAxisAlignedBoundingBox currentPatchBoundingBox;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->computeAndGetBoundingBox(&currentPatchBoundingBox);
+        patchList->get(i)->computeBounds(&currentPatchBoundingBox);
         boundingBox->enlarge(&currentPatchBoundingBox);
     }
 

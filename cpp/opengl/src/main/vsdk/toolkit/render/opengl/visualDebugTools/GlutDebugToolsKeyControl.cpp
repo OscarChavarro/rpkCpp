@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsKeyControl.h"
 
 #ifdef __APPLE__
@@ -25,11 +26,11 @@ GlutDebugToolsKeyControl::isGalerkinPatchIndex(const Scene *scene, int patchInde
     }
 
     const Patch *patch = scene->patchList->get(patchIndex);
-    if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
+    if ( patch == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr ) {
         return false;
     }
 
-    return patch->getRadianceData()->className == ElementTypes::ELEMENT_GALERKIN;
+    return GalerkinRadianceMethod::galerkinState.boundElement(patch)->className == ElementTypes::ELEMENT_GALERKIN;
 }
 
 void

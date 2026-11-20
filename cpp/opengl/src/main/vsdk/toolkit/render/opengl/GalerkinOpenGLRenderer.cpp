@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/GalerkinOpenGLRenderer.h"
 
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
@@ -17,7 +18,7 @@ GalerkinOpenGLRenderer::galerkinRenderPatch(
     if ( patch == nullptr ) {
         return;
     }
-    GalerkinOpenGLRenderer::renderElementHierarchy(GalerkinElement::fromPatch(patch), renderOptions);
+    GalerkinOpenGLRenderer::renderElementHierarchy(GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, patch), renderOptions);
 }
 
 void
@@ -62,7 +63,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
         if ( mode & GalerkinElementRenderMode::FLAT ) {
             ColorRgbMutable color{};
-            ColorRgbMutable rho = element->patch->getRadianceData()->Rd;
+            ColorRgbMutable rho = element->galerkinState->topLevelElement(element->patch)->Rd;
 
             if ( element->galerkinState->useAmbientRadiance ) {
                 ColorRgbMutable radVis;
@@ -89,7 +90,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             }
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgbMutable reflectivity = element->patch->getRadianceData()->Rd;
+                ColorRgbMutable reflectivity = element->galerkinState->topLevelElement(element->patch)->Rd;
                 ColorRgbMutable ambient;
 
                 ambient.scalarProduct(reflectivity, element->galerkinState->ambientRadiance);

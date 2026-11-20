@@ -3,6 +3,7 @@
 
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/PlanarFace.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
@@ -15,8 +16,6 @@ class FaceColorTable;
 
 class Patch {
   private:
-    static constexpr double TOLERANCE = 1e-5;
-
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     static int patchId;
@@ -40,46 +39,26 @@ class Patch {
         float v,
         Vector3D &p);
 
-    static double clipToUnitInterval(double x);
-    static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
-    static bool quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
-    static Vector3D *patchNormal(const Patch *patch, Vector3D *normal);
+    static Vector3Df toFace(const Vector3D &v);
+    static Vector3D fromFace(const Vector3Df &v);
 
-    Vector3D patchMidPoint; // Patch midpoint
+    // Geometry of the face: positions, plane, area, parametrization; immutable
+    PlanarFace face;
+    Vector3D normal; // face.getNormal(), in the type RPK's callers use
+    Vector3D patchMidPoint; // face.getMidPoint(), in the type RPK's callers use
     RpkMaterial *material;
     unsigned id; // Identification number for debugging, ID rendering
     int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
     Patch *twin; // Twin face (for double-sided surfaces)
     const char numberOfVertices; // Number of vertices: 3 or 4
     RpkVertex *const vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
-    RpkAxisAlignedBoundingBox *const boundingBox;
-    float planeTolerance; // Plane tolerance
-    // Only determined when asked to do so (see potential.[ch]).
-    Vector3D normal;
-    float planeConstant;
-    float area; // Patch area
-    Jacobian *jacobian; // Shape-related constants for irregular quadrilaterals.
-                        // Used for sampling the quadrilateral and for computing integrals
-    Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
-    char index; // Indicates dominant part of patch normal
-    char omit; // Indicates that the patch should not be considered
-    // for a couple of things, such as intersection
-    // testing, shaft culling, ... set to FALSE by
-    // default. Don't forget to set to FALSE again
-    // after you changed it!
+    Jacobian *jacobian; // face's Jacobian coefficients, for irregular quadrilaterals only
 
-    void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;
-    bool hitInPatch(RpkRayHit *hit, const Patch *patch) const;
     bool allVerticesHaveANormal() const;
     Vector3D getInterpolatedNormalAtUv(double u, double v) const;
-    float computeTolerance() const;
-    bool triangleUv(const Vector3D *point, Vector2Dd *uv) const;
-    bool isAtLeastPartlyInFront(const Patch *other) const;
     void connectVertex(RpkVertex *paramVertex);
     void connectVertices();
-    float computeRandomWalkRadiosityArea();
-    void computeMidpoint(Vector3D *p) const;
 
   public:
     static int getNextId();
@@ -89,12 +68,11 @@ class Patch {
     ~Patch();
 
     void biLinearToUniform(double *u, double *v) const;
-    void computeAndGetBoundingBox(RpkAxisAlignedBoundingBox *bounds);
-    void computeBoundingBox();
+    void computeBounds(RpkAxisAlignedBoundingBox *bounds) const;
     void computeVertexColors(const FaceColorTable *faceColors) const;
     bool facing(const Patch *other) const;
     float getArea() const;
-    const RpkAxisAlignedBoundingBox *getBoundingBox() const;
+    const PlanarFace &getFace() const;
     char getDominantAxisIndex() const;
     unsigned getId() const;
     int getFaceIndex() const;
@@ -103,23 +81,17 @@ class Patch {
     const Vector3D &getNormal() const;
     char getNumberOfVertices() const;
     float getPlaneConstant() const;
-    Element *getRadianceData() const;
     float getTolerance() const;
     Patch *const &getTwin() const;
     RpkVertex *const (&getVertices() const)[MAXIMUM_VERTICES_PER_PATCH];
     bool hasZeroVertices() const;
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const;
     RpkRayHit *intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
-    bool isOmitted() const;
     const Vector3D &midPoint() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
-    void setDominantAxisIndex(char newIndex);
     void setId(unsigned newId);
     void setFaceIndex(int newFaceIndex);
-    void setJacobian(Jacobian *newJacobian);
     void setMaterial(RpkMaterial *newMaterial);
-    void setOmit(bool shouldOmit);
-    void setRadianceData(Element *newRadianceData);
     void setTwin(Patch *newTwin);
     Vector3D textureCoordAtUv(double u, double v) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
@@ -130,28 +102,29 @@ class Patch {
 #endif
 };
 
-inline double
-Patch::clipToUnitInterval(double x) {
-    if ( x < Numeric::EPSILON ) {
-        return Numeric::EPSILON;
-    } else {
-        return x > (1.0 - Numeric::EPSILON) ? 1.0 - Numeric::EPSILON : x;
-    }
+inline Vector3Df
+Patch::toFace(const Vector3D &v) {
+    return Vector3Df(v.x, v.y, v.z);
+}
+
+inline Vector3D
+Patch::fromFace(const Vector3Df &v) {
+    return Vector3D(v.x(), v.y(), v.z());
 }
 
 inline float
 Patch::getArea() const {
-    return area;
+    return face.getArea();
 }
 
-inline const RpkAxisAlignedBoundingBox *
-Patch::getBoundingBox() const {
-    return boundingBox;
+inline const PlanarFace &
+Patch::getFace() const {
+    return face;
 }
 
 inline char
 Patch::getDominantAxisIndex() const {
-    return index;
+    return static_cast<char>(face.getDominantAxis());
 }
 
 inline int
@@ -191,17 +164,12 @@ Patch::getNumberOfVertices() const {
 
 inline float
 Patch::getPlaneConstant() const {
-    return planeConstant;
-}
-
-inline Element *
-Patch::getRadianceData() const {
-    return radianceData;
+    return face.getPlaneConstant();
 }
 
 inline float
 Patch::getTolerance() const {
-    return planeTolerance;
+    return face.getTolerance();
 }
 
 inline Patch *const &
@@ -214,19 +182,9 @@ Patch::getVertices() const)[MAXIMUM_VERTICES_PER_PATCH] {
     return vertex;
 }
 
-inline bool
-Patch::isOmitted() const {
-    return omit != 0;
-}
-
 inline const Vector3D &
 Patch::midPoint() const {
     return patchMidPoint;
-}
-
-inline void
-Patch::setDominantAxisIndex(char newIndex) {
-    index = newIndex;
 }
 
 inline void
@@ -235,26 +193,8 @@ Patch::setId(unsigned newId) {
 }
 
 inline void
-Patch::setJacobian(Jacobian *newJacobian) {
-    if ( jacobian != nullptr ) {
-        delete jacobian;
-    }
-    jacobian = newJacobian;
-}
-
-inline void
 Patch::setMaterial(RpkMaterial *newMaterial) {
     material = newMaterial;
-}
-
-inline void
-Patch::setOmit(bool shouldOmit) {
-    omit = static_cast<char>(shouldOmit ? 1 : 0);
-}
-
-inline void
-Patch::setRadianceData(Element *newRadianceData) {
-    radianceData = newRadianceData;
 }
 
 inline void

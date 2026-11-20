@@ -6,7 +6,7 @@ FaceBoundsTable::FaceBoundsTable(Patch *const *faces, const int inNumberOfFaces)
 {
     bounds = new RpkAxisAlignedBoundingBox[numberOfFaces > 0 ? numberOfFaces : 1];
     for ( int i = 0; i < numberOfFaces; i++ ) {
-        bounds[i].copyFrom(faces[i]->getBoundingBox());
+        faces[i]->computeBounds(&bounds[i]);
     }
 }
 

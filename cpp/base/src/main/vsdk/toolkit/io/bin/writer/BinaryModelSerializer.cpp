@@ -388,10 +388,11 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
         vsdk::PersistenceElement::writeInt32LE(output, vertexIndex);
     }
 
-    vsdk::PersistenceElement::writeBool(output, patch->getBoundingBox() != nullptr);
-    if ( patch->getBoundingBox() != nullptr ) {
-        writeBoundingBox(output, *patch->getBoundingBox());
-    }
+    // The format keeps the patch's box; it is derived from the vertices
+    RpkAxisAlignedBoundingBox patchBounds;
+    patch->computeBounds(&patchBounds);
+    vsdk::PersistenceElement::writeBool(output, true);
+    writeBoundingBox(output, patchBounds);
 
     writeVector(output, patch->getNormal());
     vsdk::PersistenceElement::writeFloatLE(output, patch->getPlaneConstant());
@@ -411,7 +412,9 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     // zero, the value every face starts with, so the file format is unchanged
     vsdk::PersistenceElement::writeFloatLE(output, 0.0F);
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
-    vsdk::PersistenceElement::writeBool(output, patch->isOmitted() != 0);
+    // Omit flag: faces are excluded per query by the shaft's omit set, never
+    // by a per-face flag; written false, as it always was
+    vsdk::PersistenceElement::writeBool(output, false);
     // Flags byte (direct visibility): per-face solver data, written cleared, the
     // value every face starts with, so the file format is unchanged
     vsdk::PersistenceElement::writeByte(output, 0);
@@ -425,7 +428,9 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     }
     vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
 
-    vsdk::PersistenceElement::writeBool(output, patch->getRadianceData() != nullptr);
+    // Radiance elements are per-face solver state held by the scene's
+    // RadianceElementTable, never serialized
+    vsdk::PersistenceElement::writeBool(output, false);
     return true;
 }
 

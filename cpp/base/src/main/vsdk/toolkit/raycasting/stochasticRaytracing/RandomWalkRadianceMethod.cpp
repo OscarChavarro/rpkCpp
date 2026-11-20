@@ -102,7 +102,7 @@ RandomWalkRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOp
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
-    (void) scene;
+    ElementHierarchyState::activeState().setRadianceElements(scene->getRadianceElements());
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
         Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");

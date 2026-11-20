@@ -310,7 +310,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
         rcvRho = ColorRgbMutable(1.0, 1.0, 1.0);
         receiveArea = ClusterTraversalStrategy::receiverArea(interaction, galerkinState);
     } else {
-        rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
+        rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
         receiveArea = interaction->receiverElement->area;
     }
 
@@ -318,7 +318,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     if ( interaction->sourceElement->isCluster() ) {
         srcRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
     } else {
-        srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
+        srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
     }
 
     // Determine error estimate and error threshold
@@ -424,7 +424,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             if ( interaction->receiverElement->isCluster() ) {
                 rcvRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
             } else {
-                rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
+                rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
             }
             interaction->sourceElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
@@ -432,7 +432,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             if ( interaction->sourceElement->isCluster() ) {
                 srcRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
             } else {
-                srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
+                srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
             }
             interaction->receiverElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);

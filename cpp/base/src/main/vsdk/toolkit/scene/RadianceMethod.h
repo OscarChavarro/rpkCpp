@@ -41,10 +41,13 @@ class RadianceMethod {
     // the point with given (u,v) parameters and into the given direction
     virtual ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const = 0;
 
-    // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
+    // Creates the top-level radiance element of the given patch (nullptr when the
+    // method keeps no per-face data); the caller binds it in the scene's
+    // RadianceElementTable
     virtual Element *createPatchData(Patch *patch) = 0;
 
-    // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
+    // Destroys the patch's top-level radiance element, if the method created one;
+    // the caller clears its binding in the scene's RadianceElementTable
     virtual void destroyPatchData(Patch *patch) = 0;
 
     // Returns a string with statistics information about the current run so far

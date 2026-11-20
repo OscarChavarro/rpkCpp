@@ -11,6 +11,10 @@ class PatchSet final : public RpkGeometry {
 
   public:
     explicit PatchSet(const java::ArrayList<Patch *> *input);
+    // patchBounds: the union of the patches' bounds, which the caller already
+    // has (for instance from the scene's FaceBoundsTable); the set is then
+    // bounded exactly as by the first constructor, without visiting vertices
+    PatchSet(const java::ArrayList<Patch *> *input, const RpkAxisAlignedBoundingBox &patchBounds);
     ~PatchSet() final;
 
     RpkRayHit *

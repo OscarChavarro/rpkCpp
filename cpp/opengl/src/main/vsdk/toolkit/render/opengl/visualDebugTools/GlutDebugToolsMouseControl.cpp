@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsMouseControl.h"
 
 #ifdef __APPLE__
@@ -344,7 +345,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         if ( patch == nullptr ) {
             continue;
         }
-        if ( patch->getRadianceData() == nullptr || patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+        if ( GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch)->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
         }
 

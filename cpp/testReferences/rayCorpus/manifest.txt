@@ -5,7 +5,8 @@
 # The <image>.accounting.txt files are versioned.
 #
 # Pins
-#   RenderPark rpkCpp  d09710f8 plus the uncommitted step 0 tree (images AE=0 vs testReferences)
+#   RenderPark rpkCpp  f14cfb91 plus the uncommitted step 3 tree with the face
+#                      geometry in VITRAL (images AE=0 vs testReferences)
 #   VITRAL             c8c514e77bea205fd92375593c37fe9c1c63ecb2
 # Build
 #   cmake -S cpp -B <dir>/top -DWITH_RAY_CAPTURE=ON (other options default:
@@ -13,6 +14,16 @@
 #   -std=c++11 -Wall -Wextra -pedantic -ffast-math -O3, x86_64
 # Scenes and options: the corpus.sh script of each image, unchanged; every
 # capture produced an image identical (AE=0) to testReferences/<image>.ppm.
+#
+# Captured again in step 3 after the owner-approved strict face geometry
+# (doc/vitralAlignmentPlan.md, "Face geometry in VITRAL"); the counts moved by
+# about 1e-5 relative and the findings below still hold. The step 1 capture
+# (rpkCpp d09710f8) had, with the same layout:
+#   01_cubeJacobi 72933124 5ca24a7722557fc5c3ee6ca65015636e9a6c6bfa05999cefc088841999fc656b
+#   02_corridor 11685431860 489ee85d2e4303ebb62f20269109fdc17872686a3c26815d9156f43eba36a28c
+#   11_floorRayCasting 3692379928 99f9975496f426fbf26159323bf04a6a5ee8cc7a549040d35bb7b2c71dd11db0
+#   12_floorBidirectionalPathTracing 702876436 2de95b711c6f8ca9befc674320a87336aa867d0ed7dcaa7a55f142660c008ab4
+#   14_floorStochasticRaytracingJacobi 3569239616 cb29d56020d1c11e1e495f58a43bb40e8f5cf375faa68f90ceeaab8a02b3f577
 #
 # Findings
 #   With the default shaft culling for refinement, the full-scene index answers
@@ -23,8 +34,8 @@
 #   supply the raytracer closest-hit and visibility queries.
 #
 # image bytes sha256
-01_cubeJacobi 72933124 5ca24a7722557fc5c3ee6ca65015636e9a6c6bfa05999cefc088841999fc656b
-02_corridor 11685431860 489ee85d2e4303ebb62f20269109fdc17872686a3c26815d9156f43eba36a28c
-11_floorRayCasting 3692379928 99f9975496f426fbf26159323bf04a6a5ee8cc7a549040d35bb7b2c71dd11db0
-12_floorBidirectionalPathTracing 702876436 2de95b711c6f8ca9befc674320a87336aa867d0ed7dcaa7a55f142660c008ab4
-14_floorStochasticRaytracingJacobi 3569239616 cb29d56020d1c11e1e495f58a43bb40e8f5cf375faa68f90ceeaab8a02b3f577
+01_cubeJacobi 72958636 7b3e9f2cec4a23fec02a250fc07ac29845185e55f0f4eeef3e629f7f6c2c64d5
+02_corridor 11685637520 f18432ac1be939ed53bb4ab29886332a1dbc9381dc8cb2c40de73cbcb1cff635
+11_floorRayCasting 3692374332 5c5c7c73a3024d7a3e46ab29a7772ce56c2c123369ac1849692a45d6aaa1f58e
+12_floorBidirectionalPathTracing 702876284 9e2f7c75130fb515e427ed48c725de68bfb5caf51df806003da8b3eebe44b5e6
+14_floorStochasticRaytracingJacobi 3569239388 a607923efc5b98d86c092487faaceb3cb14891b90a56a497aba0a52dd95245cb

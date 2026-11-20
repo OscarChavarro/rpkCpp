@@ -15,7 +15,8 @@ GalerkinState::GalerkinState():
     lastClock(),
     cpuSeconds(),
     toneMapOptions(),
-    formFactorWorkspace()
+    formFactorWorkspace(),
+    radianceElements()
 {
     formFactorWorkspace = new FormFactorWorkspace();
     hierarchical = DEFAULT_GAL_HIERARCHICAL;

@@ -23,8 +23,6 @@ file(GLOB_RECURSE VITRAL_SRC CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/*.cpp
 )
 
-list(FILTER VITRAL_SRC EXCLUDE REGEX "/render/opengl/")
-
 if(NOT WITH_MGF)
     list(FILTER VITRAL_SRC EXCLUDE REGEX "/io/mgf/")
 endif()
@@ -32,6 +30,15 @@ endif()
 if(NOT WITH_RAYCASTING)
     list(FILTER VITRAL_SRC EXCLUDE REGEX "/raycasting/")
 endif()
+
+# PlanarFace reproduces RenderPark's face kernels in source order: under
+# fast-math, the unrolled vertex loops are reassociated and the results move.
+# Without semantic interposition, the ray kernel (rayHit and the functions it
+# calls) is inlined inside the file instead of called through the PLT of the
+# shared library; this changes no arithmetic
+set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/vsdk/toolkit/environment/geometry/element/PlanarFace.cpp
+    PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off;-fno-semantic-interposition")
 
 add_library(vitral SHARED ${VITRAL_SRC})
 

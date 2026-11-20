@@ -16,11 +16,14 @@ Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene, ToneMa
         radianceMethod->terminate(scene->patchList);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
+        RadianceElementTable *radianceElements = scene->getRadianceElements();
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             radianceMethod->destroyPatchData(scene->patchList->get(i));
+            radianceElements->set(scene->patchList->get(i)->getFaceIndex(), nullptr);
         }
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            radianceMethod->createPatchData(scene->patchList->get(i));
+            Patch *patch = scene->patchList->get(i);
+            radianceElements->set(patch->getFaceIndex(), radianceMethod->createPatchData(patch));
         }
         radianceMethod->initialize(scene, toneMapOptions);
     }

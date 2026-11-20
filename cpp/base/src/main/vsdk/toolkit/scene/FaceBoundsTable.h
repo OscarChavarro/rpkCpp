@@ -7,9 +7,9 @@
 /**
 Conservative bounds of every face of a scene, in one contiguous array indexed
 by the dense face index (Patch::getFaceIndex()). Built once by the scene after
-the face indices are assigned, from the bounds each patch computed at
-construction, and read-only afterwards: the voxel grid and shaft culling read
-it, so any number of threads can share it.
+the face indices are assigned, from Patch::computeBounds, and read-only
+afterwards: the voxel grid and shaft culling (its patch tests and the bounds of
+the patch sets it creates) read it, so any number of threads can share it.
 */
 class FaceBoundsTable {
   private:

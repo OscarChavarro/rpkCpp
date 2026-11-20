@@ -17,13 +17,13 @@ See [COHE1993].5.3.3. section
 class ShootingStrategy {
   private:
     static inline float
-    galerkinGetPotential(Patch *patch) {
-        return static_cast<GalerkinElement *>(patch->getRadianceData())->potential;
+    galerkinGetPotential(const GalerkinState *galerkinState, const Patch *patch) {
+        return galerkinState->topLevelElement(patch)->potential;
     }
 
     static inline float
-    galerkinGetUnShotPotential(Patch *patch) {
-        return static_cast<GalerkinElement *>(patch->getRadianceData())->unShotPotential;
+    galerkinGetUnShotPotential(const GalerkinState *galerkinState, const Patch *patch) {
+        return galerkinState->topLevelElement(patch)->unShotPotential;
     }
 
     static Patch *
@@ -54,7 +54,7 @@ class ShootingStrategy {
     clusterUpdatePotential(GalerkinElement *clusterElement);
 
     static Patch *
-    choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches);
+    choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState);
 
     static void propagatePotential(const Scene *scene, GalerkinState *galerkinState);
 

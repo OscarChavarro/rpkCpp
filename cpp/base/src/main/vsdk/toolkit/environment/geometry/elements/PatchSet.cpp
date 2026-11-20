@@ -13,6 +13,20 @@ PatchSet::PatchSet(const java::ArrayList<Patch *> *input): RpkGeometry(GeometryC
     bounded = true;
 }
 
+PatchSet::PatchSet(const java::ArrayList<Patch *> *input, const RpkAxisAlignedBoundingBox &patchBounds):
+    RpkGeometry(GeometryClassId::PATCH_SET)
+{
+    memoryPoolManaged = false;
+    patchList = new java::ArrayList<Patch *>();
+    for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
+        patchList->add(input->get(i));
+    }
+
+    boundingBox.enlarge(&patchBounds);
+    boundingBox.enlargeTinyBit();
+    bounded = true;
+}
+
 PatchSet::~PatchSet() {
     // PatchSet always owns its internal patch pointer container.
     // `isDuplicate` only controls shared resources at Geometry level

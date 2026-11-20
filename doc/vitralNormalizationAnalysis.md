@@ -225,10 +225,11 @@ level; geometry is transform-free.
 - `Geometry` (base): `id`, `boundingBox`, `radianceData` (`Element*` hook for
   the radiance method), `bounded`/`shaftCullGeometry`/`omit` flags,
   `className` discriminator, plus static list operations
-  (`listDiscretizationIntersect`, `listBounds`). It also carries **static
-  mutable state**: `nextGeometryId`, `excludedGeometry1/2` (the
-  "don't self-intersect" mechanism), and the header admits the debt:
-  `public: // Will become protected`.
+  (`listDiscretizationIntersect`, `listBounds`). It still carries one piece of
+  **static mutable state**, the `nextGeometryId` counter, and the header admits
+  the debt: `public: // Will become protected`. The "don't self-intersect"
+  mechanism is a value: every intersect call takes a `RayExclusionSet` (up to
+  four patches and two geometries) built by the caller.
 - `Compound` — a list of child geometries (hierarchical scenes, clusters).
 - `MeshSurface` — a material + vertex/patch list.
 - `PatchSet` — a bare patch list.
@@ -247,7 +248,7 @@ patch-aggregation scene tree". The honest mapping is:
 
 | VITRAL | rpkCpp | Notes |
 |---|---|---|
-| `Geometry` (abstract intersectable) | `Patch` + `Geometry::discretizationIntersect` | the intersectable unit is the patch |
+| `Geometry` (abstract intersectable) | `Patch` + `RpkGeometry::discretizationIntersect` | the intersectable unit is the patch |
 | `SimpleBody` / `SimpleBodyGroup` | `MeshSurface` / `Compound` | body-with-material / grouping |
 | `SimpleScene` | `Scene` | §6 |
 | analytic `surface/`, `volume/` shapes | — (patches only) | rpkCpp has no analytic solids |
@@ -260,9 +261,8 @@ Required alignment items:
   `shaftCullGeometry`, `omit` are algorithm state stamped onto scene
   structure — the same concern `doc/patchBoundingBoxDecoupling.md` records
   for `Patch`/`BoundingBox`).
-- Replace the static `excludedGeometry1/2` / `Patch::excludedPatches`
-  mechanism with per-render context state (also required by design
-  objective #4).
+- Express the `RayExclusionSet` in face and group identifiers instead of
+  pointers once the shared face of plan step 3 exists.
 - rpkCpp's patch/mesh model is itself the candidate upstream contribution:
   VITRAL has meshes for painting but no patch-set intersectable with
   radiosity hooks.
@@ -440,12 +440,16 @@ the port propagation cadence. The list below is the alignment work by area;
 where the plan schedules part of an item, the item says so, and the plan's
 order prevails over the numbering here.
 
-1. **Kill static mutable state**: move `Patch::excludedPatches`,
-   `Geometry::excludedGeometry1/2` and the ID counters into per-render
-   context objects. Prerequisite for objective #4 and for sharing any class
-   with VITRAL. Plan step 0 does this for the visibility path (exclusions,
-   `FormFactorStrategy` and `VoxelGrid` statics); the counters, pools and
-   solver statics remain for the parallel Galerkin work. (§5)
+1. **Kill static mutable state**: the visibility path has none in any of the
+   four ports. Exclusions are a `RayExclusionSet` value passed down every
+   intersect call, the voxel grid ray counter and per-item stamps live in a
+   `VoxelGridWorkspace` owned by the `Scene`, the form-factor caches (last
+   element pair, cubature rules, nodes, kernel matrix) live in a
+   `FormFactorWorkspace` owned by `GalerkinState`, and the grid hierarchy is
+   owned by its root grid. What remains are the ID counters, the object pools
+   and the solver statics, left for the parallel Galerkin work and moved into
+   per-render or per-worker objects there. Prerequisite for objective #4 and
+   for sharing any class with VITRAL. (§5)
 2. **Encapsulation migration** of the public-attribute core — `Vector3D`,
    `Vector3Dd`, `Ray`, `Camera`, `Vertex`, `Element`, `Patch`, `Geometry` —
    to private attributes with getters and full-state constructors. Performance

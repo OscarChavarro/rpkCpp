@@ -107,7 +107,7 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene, ToneMappingContext *ton
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
-    (void) scene;
+    ElementHierarchyState::activeState().setRadianceElements(scene->getRadianceElements());
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
         Logger::reportMessage("StochasticJacobiRadianceMethod", Logger::FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");

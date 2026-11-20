@@ -2,7 +2,7 @@
 """T0 duplicate-class audit of the link closure.
 
 Collects the headers reachable through #include "..." from the compiled
-sources of the three targets (base library without render/opengl, the
+sources of the three targets (base library, the
 vitral-opengl library and the RenderPark application) and fails when one
 class name is defined by two different headers of that closure, or when two
 headers of the closure open with the same include guard, except for the names
@@ -25,7 +25,7 @@ INCLUDE_ROOTS = [
     os.path.join(PROJECT_DIR, 'opengl', 'src', 'main'),
 ]
 SOURCE_ROOTS = [
-    (os.path.join(PROJECT_DIR, 'base', 'src', 'main'), ['/render/opengl/']),
+    (os.path.join(PROJECT_DIR, 'base', 'src', 'main'), []),
     (os.path.join(PROJECT_DIR, 'opengl', 'src'), []),
     (os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RenderparkApplication', 'src'), []),
 ]

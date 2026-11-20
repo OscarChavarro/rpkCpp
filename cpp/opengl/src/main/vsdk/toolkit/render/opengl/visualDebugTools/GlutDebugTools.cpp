@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugTools.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugState.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsKeyControl.h"
@@ -205,11 +206,11 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
     if ( patch == nullptr ) {
         return interactions;
     }
-    if ( patch->getRadianceData() == nullptr || patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch)->className != ElementTypes::ELEMENT_GALERKIN ) {
         return interactions;
     }
 
-    const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, patch);
     if ( topLevelElement == nullptr ) {
         return interactions;
     }
@@ -227,14 +228,14 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
     if ( secondaryPatch == nullptr ) {
         return interactions;
     }
-    if ( secondaryPatch->getRadianceData() == nullptr
-         || secondaryPatch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( GalerkinRadianceMethod::galerkinState.boundElement(secondaryPatch) == nullptr
+         || GalerkinRadianceMethod::galerkinState.boundElement(secondaryPatch)->className != ElementTypes::ELEMENT_GALERKIN ) {
         delete interactions;
         interactions = new java::ArrayList<Interaction *>();
         return interactions;
     }
 
-    const GalerkinElement *secondaryTopLevelElement = GalerkinElement::fromPatch(secondaryPatch);
+    const GalerkinElement *secondaryTopLevelElement = GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, secondaryPatch);
     if ( secondaryTopLevelElement == nullptr ) {
         delete interactions;
         interactions = new java::ArrayList<Interaction *>();
@@ -407,10 +408,10 @@ GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex)
         return;
     }
     const Patch *patch = scene->patchList->get(patchIndex);
-    if  ( patch == nullptr || patch->getRadianceData() == nullptr ) {
+    if  ( patch == nullptr || GalerkinRadianceMethod::galerkinState.boundElement(patch) == nullptr ) {
         return;
     }
-    const GalerkinElement *element = GalerkinElement::fromPatch(patch);
+    const GalerkinElement *element = GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, patch);
     java::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->getId());
     printElementHierarchy(element, 0);
 }

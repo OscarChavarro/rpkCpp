@@ -1,6 +1,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/environment/geometry/elements/Element.h"
 #include "vsdk/toolkit/scene/Scene.h"
 
 const char *Scene::compoundType = "Compound";
@@ -15,6 +16,7 @@ Scene::Scene():
     directPotentials(nullptr),
     faceVisibility(nullptr),
     faceColors(nullptr),
+    radianceElements(nullptr),
     background(),
     camera(),
     geometryList(),
@@ -39,6 +41,7 @@ Scene::~Scene() {
     faceVisibility = nullptr;
     delete faceColors;
     faceColors = nullptr;
+    deleteRadianceElements();
     delete[] faceTable;
     faceTable = nullptr;
     numberOfFaces = 0;
@@ -290,6 +293,24 @@ Scene::collectFaces(const RpkGeometry *geometry, Patch **table, const int capaci
     }
 }
 
+/**
+Deletes the top-level radiance elements still bound to faces and the table.
+Radiance methods unbind (and destroy) their elements when they are replaced;
+the elements of the method in use at teardown are deleted here, as the
+faces' destructors did when they held them
+*/
+void
+Scene::deleteRadianceElements() {
+    if ( radianceElements != nullptr ) {
+        for ( int i = 0; i < radianceElements->getNumberOfFaces(); i++ ) {
+            delete radianceElements->get(i);
+            radianceElements->set(i, nullptr);
+        }
+    }
+    delete radianceElements;
+    radianceElements = nullptr;
+}
+
 void
 Scene::buildFaceTable() {
     delete faceBounds;
@@ -300,6 +321,7 @@ Scene::buildFaceTable() {
     faceVisibility = nullptr;
     delete faceColors;
     faceColors = nullptr;
+    deleteRadianceElements();
     delete[] faceTable;
     faceTable = nullptr;
     numberOfFaces = 0;
@@ -326,4 +348,5 @@ Scene::buildFaceTable() {
     directPotentials = new DirectPotentialTable(numberOfFaces);
     faceVisibility = new FaceVisibilityTable(numberOfFaces);
     faceColors = new FaceColorTable(numberOfFaces);
+    radianceElements = new RadianceElementTable(numberOfFaces);
 }

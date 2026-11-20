@@ -73,8 +73,8 @@ class Shaft {
     static ShaftPlanePosition testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
     static void ensurePatchSetPoolInitialized();
-    static PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches);
-    static void keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList);
+    PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches) const;
+    void keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) const;
 
     void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
     ShaftPlanePosition shaftPatchTest(Patch *patch);

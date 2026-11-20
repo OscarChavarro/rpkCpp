@@ -38,6 +38,14 @@ class-by-class comparison.
    implementations: re-entrant code, no global variables, mutable state owned
    by instances.
 
+   Runtime cost is accepted for structure, not for its own sake: a measured
+   slowdown is acceptable when it decouples components, improves the
+   architecture, makes a future parallel and/or GPU implementation feasible,
+   or moves generic code into VITRAL so that the RenderPark-specific
+   application layer gets thinner. Each such cost is measured against the
+   corridor timing baseline and accepted explicitly by the owner (rules in
+   `doc/vitralAlignmentPlan.md`, "Ground rules").
+
 ## Observed structure
 
 - **`cpp/base/src/main/vsdk/`** (~62k LOC, 333 class headers): the whole engine
@@ -90,9 +98,9 @@ class-by-class comparison.
 | P5 | **Disciplined C++11, no exotic features** — no STL/iterators/operator overloading/`#define` function macros; vanilla printf | `cpp/base/CMakeLists.txt` (`-std=c++11 -Wall -Wextra -pedantic`), `cpp/README.md` | #2 clean migration; #3 the same code shape compiles under Turbo C 3.0 discipline |
 | P6 | **Four live ports with parity fixes flowing between them** | `java/`, `typescript/`, `turboc/`; parity bug-fix history (shaft-culling omit bug, energy conservation, BPT RNG parity) | #3 fulfilled as an ongoing discipline, not an aspiration |
 | P7 | **Physically-based material model already encapsulated** — `Material`, Phong EDF/BRDF/BTDF/BSDF, `RefractionIndex` with private attributes, constructors and const getters | `toolkit/material/*` | #1 readable; #4 read-mostly materials are thread-shareable |
-| P8 | **`RayHit` already encapsulated with a fill-flags contract** — private fields, `init()`, lazily-computed shading frame gated by `RayHitFlag` masks | `elements/RayHit.h` | #4; precedent for the encapsulation migration (M1) |
+| P8 | **`RpkRayHit` already encapsulated with a fill-flags contract** — private fields, `init()`, lazily-computed shading frame gated by `RayHitFlag` masks | `elements/RpkRayHit.h` | #4; precedent for the encapsulation migration (M1) |
 | P9 | **Per-domain statistics as instance classes** — `Statistics`, `RadianceStatistics`, `RayTracerStatistics`, `ShadowStatistics`, `PotentialStatistics`, `ReaderStatistics` | `toolkit/common/statistics/*` | #4 instance-owned counters aggregate across threads; #1 measurable behavior |
-| P10 | **Acceleration structures isolated as classes** — `VoxelGrid` regular grid, patch cluster octree, per-patch bounding boxes | `toolkit/scene/VoxelGrid.*`, `PatchClusterOctreeNode.*` | #1; #4 traversal state is parameterized, not global |
+| P10 | **Acceleration structures isolated as classes** — `VoxelGrid` regular grid, patch cluster octree, per-patch bounding boxes. The grid is read-only once built: a query writes only to the caller's `VoxelGridWorkspace` and hit record | `toolkit/scene/VoxelGrid.*`, `VoxelGridWorkspace.*`, `PatchClusterOctreeNode.*` | #1; #4 traversal state is parameterized, not global |
 | P11 | **Optional subsystems cleanly severable** — OpenGL behind `OPEN_GL_ENABLED`, raytracers behind `RAYTRACING_ENABLED` | root `README.md`, `RendererConfiguration.h` comment | #2/#3: the Turbo C port trims what DOS cannot host |
 | P12 | **Valgrind-verified manual memory management, no smart pointers by design** | `cpp/README.md` ("Memory leak free after valgrind analysis") | #2 raw `new`/`delete` only; #1 explicit, traceable ownership |
 | P13 | **Performance work is planned and measured, not ad hoc** | `doc/performanceImprovementPlan.md` (baselines over `02_runCorridor.sh`), `doc/patchBoundingBoxDecoupling.md` | #1/#4: refactors are gated on identical golden output and timed baselines |
@@ -101,10 +109,10 @@ class-by-class comparison.
 
 | # | Aspect | Evidence / risk | Objective | Suggestion |
 |---|--------|-----------------|-----------|------------|
-| M1 | **Public-attribute data classes across the core model** — `Vector3D`, `Vector3Dd`, `Ray`, `Camera`, `Vertex`, `Element`, `Patch` (partially), `Geometry` expose raw fields; encapsulation is inconsistent with the already-private `Material`/`RayHit`/`RendererConfiguration`/`Scene` | `linealAlgebra/Vector3D.h`, `Ray.h`, `scene/Camera.h`, `elements/Vertex.h`, `elements/Element.h`, `skin/Geometry.h` (`public: // Will become protected`) | #1, #4, VITRAL convergence | Migrate to private attributes with getters and full-state constructors, **keeping the classes mutable** (setters/mutators in the VITRAL style) so hot loops keep in-place updates; gate every step on golden images + the timing baselines of `performanceImprovementPlan.md` |
-| M2 | **Residual static mutable state** — `Patch::patchId` counter and `Patch::excludedPatches[]`, `Geometry::nextGeometryId` / `excludedGeometry1` / `excludedGeometry2`, `Vertex::currentComparisonFlags` | `elements/Patch.h`, `skin/Geometry.h`, `elements/Vertex.h` | **#4** | These contradict the re-entrance claim in `cpp/README.md`; move exclusion sets and ID generation into per-render context objects before any threading work |
+| M1 | **Public-attribute data classes across the core model** — `Vector3D`, `Vector3Dd`, `RpkRay`, `Camera`, `RpkVertex`, `Element`, `Patch` (partially), `RpkGeometry` expose raw fields; encapsulation is inconsistent with the already-private `RpkMaterial`/`RpkRayHit`/`RendererConfiguration`/`Scene` | `linealAlgebra/Vector3D.h`, `RpkRay.h`, `scene/Camera.h`, `elements/RpkVertex.h`, `elements/Element.h`, `skin/RpkGeometry.h` (`public: // Will become protected`) | #1, #4, VITRAL convergence | Migrate to private attributes with getters and full-state constructors, **keeping the classes mutable** (setters/mutators in the VITRAL style) so hot loops keep in-place updates; gate every step on golden images + the timing baselines of `performanceImprovementPlan.md` |
+| M2 | **Residual static mutable state** — the identifier counters `Patch::patchId`, `RpkGeometry::nextGeometryId` and `MeshSurface::nextSurfaceId`, `RpkVertex::currentComparisonFlags`, the static object pools of `Shaft` and the linking/refinement strategies, and the static `GalerkinRadianceMethod::galerkinState`. The visibility path itself carries no static state: exclusions travel as a `RayExclusionSet` value, voxel grid ray stamps live in a caller-owned `VoxelGridWorkspace`, and form-factor caches in a solver-owned `FormFactorWorkspace` | `elements/Patch.h`, `skin/RpkGeometry.h`, `elements/RpkVertex.h`, `galerkin/Shaft.h`, `galerkin/GalerkinRadianceMethod.h` | **#4** | These contradict the re-entrance claim in `cpp/README.md`; move ID generation, pools and solver state into per-render or per-worker objects before any threading work, as `doc/vitralAlignmentPlan.md` §0 and §7 list them |
 | M3 | **Name/semantic collisions with VITRAL** — `Geometry`, `Ray`, `RayHit`, `Camera`, `Material`, `RendererConfiguration`, `Vector3Dd` exist in both trees with different contracts | see `doc/vitralNormalizationAnalysis.md` §1–§9 | VITRAL convergence | Reconcile class by class following the analysis document; never let both meanings coexist in one translation unit |
-| M4 | **`float` core vs VITRAL's `double` model** — the radiosity pipeline is deliberately `float` (`Vector3D`, `Ray`, patch geometry) for memory/bandwidth; VITRAL's shared primitives are `double` (`Vector3Dd`, `Ray`) | `Vector3D.h`, `Ray.h` vs VITRAL `Vector3Dd.h`, `Ray.h` | #3, VITRAL convergence | Decide the precision strategy per layer before merging classes: keep `float` storage for patch/radiosity data, adopt shared `double` types where VITRAL primitives are taken as-is |
+| M4 | **`float` core vs VITRAL's `double` model** — the radiosity pipeline is deliberately `float` (`Vector3D`, `RpkRay`, patch geometry) for memory/bandwidth; VITRAL's shared primitives are `double` (`Vector3Dd`, `Ray`) | `Vector3D.h`, `RpkRay.h` vs VITRAL `Vector3Dd.h`, `Ray.h` | #3, VITRAL convergence | Decide the precision strategy per layer before merging classes: keep `float` storage for patch/radiosity data, adopt shared `double` types where VITRAL primitives are taken as-is |
 | M5 | **No unit-test scaffolding** — only whole-image golden tests | no unit-test directory in `cpp/` | #1, #3, #4 | Golden images do not localize regressions and give no cross-port contract for `Vector3D*`/`Matrix4x4*`/solvers; unit tests would pin behavior for all four ports |
 
 ## Reading by objective
@@ -122,9 +130,10 @@ class-by-class comparison.
   are kept image-equivalent". M4 (float/double) and M5 (no shared unit
   contracts) are the standing risks to parity.
 - **#4 Parallel/concurrent readiness** — Partially prepared (P7–P10 give
-  instance-owned state and read-mostly shared data), but **not yet honest**:
-  M2's static mutable members must be eliminated before any pthreads work, and
-  the IO package is documented as non-re-entrant.
+  instance-owned state and read-mostly shared data, and visibility queries
+  take their exclusions and scratch from the caller), but **not yet honest**:
+  M2's remaining static members must be eliminated before any pthreads work,
+  and the IO package is documented as non-re-entrant.
 - **VITRAL convergence (transversal)** — The direction of travel for all of the
   above: M1 adopts VITRAL's encapsulation style, M3/M4 are the class-by-class
   reconciliation detailed in `doc/vitralNormalizationAnalysis.md`. The unique

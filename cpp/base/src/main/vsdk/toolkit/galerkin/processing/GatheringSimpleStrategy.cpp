@@ -20,7 +20,7 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
     const Patch *patch,
     const GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
 
     if ( !topLevelElement->radiance[0].isBlack()
       && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
@@ -45,7 +45,7 @@ hierarchical representation consistent and computes a new color for the patch
 */
 void
 GatheringSimpleStrategy::patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState, FaceColorTable *faceColors) {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
     GalerkinRadianceMethod::recomputePatchColor(patch, faceColors);
 }
@@ -62,7 +62,7 @@ GatheringSimpleStrategy::patchGather(
     const Scene *scene,
     GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
 
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance
@@ -98,8 +98,8 @@ GatheringSimpleStrategy::patchGather(
 }
 
 void
-GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials) {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState) {
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
     GatheringStrategy::pushPullPotential(topLevelElement, 0.0F, directPotentials);
 }
 
@@ -149,7 +149,7 @@ GatheringSimpleStrategy::doGatheringIteration(
 
     if ( galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            GatheringSimpleStrategy::patchUpdatePotential(scene->patchList->get(i), scene->getDirectPotentials());
+            GatheringSimpleStrategy::patchUpdatePotential(scene->patchList->get(i), scene->getDirectPotentials(), galerkinState);
         }
     }
 

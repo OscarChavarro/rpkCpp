@@ -5,7 +5,7 @@
 
 class GatheringSimpleStrategy final: public GatheringStrategy {
   private:
-    static void patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials);
+    static void patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState);
     static void patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState, FaceColorTable *faceColors);
 
     static void

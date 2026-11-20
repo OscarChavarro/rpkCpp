@@ -15,6 +15,7 @@
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
+#include "vsdk/toolkit/scene/RadianceElementTable.h"
 
 class GalerkinState {
   public:
@@ -81,7 +82,14 @@ class GalerkinState {
     GalerkinState(const GalerkinState &) = delete;
     GalerkinState &operator=(const GalerkinState &) = delete;
 
+    const RadianceElementTable *getRadianceElements() const;
+    GalerkinElement *topLevelElement(const Patch *patch) const;
+    const Element *boundElement(const Patch *patch) const;
+    void setRadianceElements(const RadianceElementTable *inRadianceElements);
+
   private:
+    // The scene's table of top-level elements, bound when the method is initialized
+    const RadianceElementTable *radianceElements;
     static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;
     static constexpr GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod::JACOBI;
     static constexpr float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6F;
@@ -103,5 +111,36 @@ class GalerkinState {
     static constexpr ShaftCullStrategy DEFAULT_GAL_SHAFT_CULL_STRATEGY = ShaftCullStrategy::OVERLAP_OPEN;
     static constexpr int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 };
+
+inline const RadianceElementTable *
+GalerkinState::getRadianceElements() const {
+    return radianceElements;
+}
+
+inline void
+GalerkinState::setRadianceElements(const RadianceElementTable *inRadianceElements) {
+    radianceElements = inRadianceElements;
+}
+
+/**
+Top-level element of a face, without checks (hot path); see
+GalerkinElement::fromPatch for the checked lookup
+*/
+inline GalerkinElement *
+GalerkinState::topLevelElement(const Patch *patch) const {
+    return static_cast<GalerkinElement *>(radianceElements->get(patch->getFaceIndex()));
+}
+
+/**
+Element bound to a face, of any radiance method, or nullptr when no method is
+bound or the face has no element (checked lookup for tools)
+*/
+inline const Element *
+GalerkinState::boundElement(const Patch *patch) const {
+    if ( radianceElements == nullptr || patch == nullptr ) {
+        return nullptr;
+    }
+    return radianceElements->get(patch->getFaceIndex());
+}
 
 #endif

@@ -79,6 +79,8 @@ vsdk/toolkit/common/logging/Logger.cpp
 vsdk/toolkit/common/logging/Logger.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.txx
+vsdk/toolkit/environment/geometry/element/PlanarFace.cpp
+vsdk/toolkit/environment/geometry/element/PlanarFace.h
 vsdk/toolkit/environment/material/Material.h
 vsdk/toolkit/environment/material/PhongLobe.cpp
 vsdk/toolkit/environment/material/PhongLobe.h

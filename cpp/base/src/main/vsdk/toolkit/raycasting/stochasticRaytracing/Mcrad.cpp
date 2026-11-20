@@ -65,16 +65,18 @@ Mcrad::monteCarloRadiosityUpdateCpuSecs() {
 
 Element *
 Mcrad::monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->setRadianceData(StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(patch));
-    return patch->getRadianceData();
+    return StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(patch);
 }
 
 void
 Mcrad::monteCarloRadiosityDestroyPatchData(Patch *patch) {
-    if ( patch->getRadianceData() ) {
-        StochasticRadiosityElement::stochasticRadiosityElementDestroy(McradP::topLevelStochasticRadiosityElement(patch));
+    // Elements are bound once the method has been initialized
+    if ( ElementHierarchyState::activeState().getRadianceElements() != nullptr ) {
+        StochasticRadiosityElement *element = McradP::topLevelStochasticRadiosityElement(patch);
+        if ( element != nullptr ) {
+            StochasticRadiosityElement::stochasticRadiosityElementDestroy(element);
+        }
     }
-    patch->setRadianceData(nullptr);
 }
 
 /**

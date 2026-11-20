@@ -99,13 +99,8 @@ PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
     if ( patch != nullptr ) {
         patches->add(patch);
 
-        RpkAxisAlignedBoundingBox patchBoundingBox{};
-
-        if ( patch->getBoundingBox() != nullptr ) {
-            patchBoundingBox = *patch->getBoundingBox();
-        } else {
-            patch->computeAndGetBoundingBox(&patchBoundingBox);
-        }
+        RpkAxisAlignedBoundingBox patchBoundingBox;
+        patch->computeBounds(&patchBoundingBox);
         boundingBox.enlarge(&patchBoundingBox);
     }
 }
@@ -128,7 +123,9 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(patchIndexOnParent);
-    const RpkAxisAlignedBoundingBox *patchBoundingBox = patch->getBoundingBox();
+    RpkAxisAlignedBoundingBox patchBoundsStore;
+    patch->computeBounds(&patchBoundsStore);
+    const RpkAxisAlignedBoundingBox *patchBoundingBox = &patchBoundsStore;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10.0F * Numeric::EPSILON_FLOAT;

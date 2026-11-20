@@ -19,7 +19,14 @@ Shaft::ensurePatchSetPoolInitialized() {
 }
 
 PatchSet *
-Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
+Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) const {
+    // The union of the face bounds, from the scene's table: the same box
+    // RpkGeometry::patchListBounds computes from the vertices
+    RpkAxisAlignedBoundingBox patchBounds;
+    for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
+        patchBounds.enlarge(&faceBounds->get(patches->get(i)->getFaceIndex()));
+    }
+
     ensurePatchSetPoolInitialized();
     PatchSet *slot = patchSetPool.allocate(1);
     if ( slot == nullptr ) {
@@ -28,9 +35,9 @@ Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
         }
     }
     if ( slot == nullptr ) {
-        return new PatchSet(patches);
+        return new PatchSet(patches, patchBounds);
     }
-    PatchSet *patchSet = new (slot) PatchSet(patches);
+    PatchSet *patchSet = new (slot) PatchSet(patches, patchBounds);
     patchSet->setMemoryPoolManaged(true);
     return patchSet;
 }
@@ -684,7 +691,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Pa
     culledPatchList->clear();
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
-        if ( patch->isOmitted() || patchIsOnOmitSet(patch->getId()) ) {
+        if ( patchIsOnOmitSet(patch->getId()) ) {
             continue;
         }
 
@@ -705,7 +712,7 @@ Adds the geometry to the candidateList, possibly duplicating if it
 was created during previous shaft culling
 */
 void
-Shaft::keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) {
+Shaft::keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) const {
     if ( geometry->omit ) {
         return;
     }
@@ -758,23 +765,11 @@ Shaft::cullGeometry(
     java::ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
-    if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        // TODO: Review this, Patch is not a Geometry! Probably here we are getting non-sense int numbers,
-        // not related to any Geometry/PatchSet neither Patch id.
-        const Patch* patch = reinterpret_cast<Patch *>(geometry);
-        const unsigned patchId = patch->getId();
-
-        // TODO: Check why the following alternatives does not work for test scene 05
-        // const unsigned geometryId = geometry->id;
-        // const PatchSet* patchSet = (PatchSet *)geometry;
-        // const unsigned patchSetId = patchSet->radianceData->id;
-
-        if ( geometry->omit || patchIsOnOmitSet(patchId) ) { // Cull by cache algorithm not being used
-            // TODO: Looks like original authors wanted to implement an efficiency improvement by
-            // implementing a omitted patches cache. Nevertheless, this was damaged on the transformation
-            // process from C to C++, or the algorithm never worked.
-            return;
-        }
+    // The omit set holds patch ids and is honoured for patches by cullPatches.
+    // A geometry is skipped only by its own flag: reading a patch id from a
+    // geometry (the former reinterpret_cast) was undefined behaviour
+    if ( geometry->omit ) {
+        return;
     }
 
     // Unbounded geoms always overlap the shaft
