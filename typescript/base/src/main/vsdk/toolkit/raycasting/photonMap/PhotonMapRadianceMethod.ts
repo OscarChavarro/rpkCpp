@@ -18,6 +18,7 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Element } from "../../environment/geometry/elements/Element";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
@@ -317,6 +318,7 @@ does not give correct display
   private photonMapDoScreenNEE(
     camera: Camera,
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     config: PhotonMapConfig,
     radianceMethod: RadianceMethod
   ): void {
@@ -340,6 +342,7 @@ does not give correct display
     if (RayTools.eyeNodeVisible(
       camera,
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       bp.m_eyeEndNode,
       bp.m_lightEndNode,
       pixX,
@@ -424,6 +427,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
   private photonMapHandlePath(
     camera: Camera,
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     config: PhotonMapConfig,
     radianceMethod: RadianceMethod
   ): void {
@@ -450,13 +454,13 @@ Handle one path : store at all end positions and for testing, connect to the eye
       if (config.currentMap === config.map) {
         if (bp.m_lightSize > 1 && this.photonMapDoPhotonStore(camera, currentNode, accPower)) {
           bp.m_lightEndNode = currentNode;
-          this.photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
+          this.photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
         }
       }
       else {
         if (bp.m_lightSize > 2 && this.photonMapDoPhotonStore(camera, currentNode, accPower)) {
           bp.m_lightEndNode = currentNode;
-          this.photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
+          this.photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
         }
       }
 
@@ -475,18 +479,19 @@ Handle one path : store at all end positions and for testing, connect to the eye
   private photonMapTracePath(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     config: PhotonMapConfig,
     bsdfFlags: number
   ): void {
-    config.biPath.m_eyePath = config.eyeConfig.tracePathDefault(camera, sceneVoxelGrid, sceneBackground, config.biPath.m_eyePath);
+    config.biPath.m_eyePath = config.eyeConfig.tracePathDefault(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config.biPath.m_eyePath);
 
     let path = config.biPath.m_lightPath;
 
     let x1 = Random48.drand48();
     let x2 = Random48.drand48();
 
-    path = config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
+    path = config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, x1, x2, bsdfFlags);
     if (path === null) {
       return;
     }
@@ -499,15 +504,16 @@ Handle one path : store at all end positions and for testing, connect to the eye
     x1 = Random48.drand48();
     x2 = Random48.drand48();
 
-    if (config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) !== null) {
+    if (config.lightConfig.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, node, x1, x2, bsdfFlags) !== null) {
       node.ensureNext();
-      config.lightConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, node.next(), bsdfFlags);
+      config.lightConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, node.next(), bsdfFlags);
     }
   }
 
   private photonMapTracePaths(
     camera: Camera,
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     config: PhotonMapConfig,
     numberOfPaths: number,
@@ -515,14 +521,15 @@ Handle one path : store at all end positions and for testing, connect to the eye
     radianceMethod: RadianceMethod
   ): void {
     for (let i = 0; i < numberOfPaths; i++) {
-      this.photonMapTracePath(camera, sceneWorldVoxelGrid, sceneBackground, config, bsdfFlags);
-      this.photonMapHandlePath(camera, sceneWorldVoxelGrid, config, radianceMethod);
+      this.photonMapTracePath(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, sceneBackground, config, bsdfFlags);
+      this.photonMapHandlePath(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
     }
   }
 
   private photonMapBRRealIteration(
     camera: Camera,
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     radianceMethod: RadianceMethod
   ): void {
@@ -547,6 +554,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
       PhotonMapImportance.tracePotentialPaths(
         camera,
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         sceneBackground,
         this.photonMapState.iPathsPerIteration,
         this.photonMapState,
@@ -569,6 +577,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
       this.photonMapTracePaths(
         camera,
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         sceneBackground,
         this.photonMapConfig,
         this.photonMapState.gPathsPerIteration,
@@ -591,6 +600,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
       this.photonMapTracePaths(
         camera,
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         sceneBackground,
         this.photonMapConfig,
         this.photonMapState.cPathsPerIteration,
@@ -619,7 +629,7 @@ method is not updated in this file
 
     this.photonMapState.lastClock = Number(process.hrtime.bigint());
 
-    this.photonMapBRRealIteration(scene.camera, scene.voxelGrid, scene.background, this);
+    this.photonMapBRRealIteration(scene.camera, scene.voxelGrid, scene.voxelGridWorkspace!, scene.background, this);
     this.photonMapRadiosityUpdateCpuSecs();
 
     this.photonMapState.runStopNumber++;

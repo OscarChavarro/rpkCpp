@@ -5,6 +5,7 @@ import { Interaction } from "../Interaction";
 import { ShadowCache } from "../ShadowCache";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 import { Geometry } from "../../skin/Geometry";
+import type { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 
 export class FormFactorClusteredStrategy {
   public static doConstantAreaToAreaFormFactor(
@@ -64,6 +65,7 @@ export class FormFactorClusteredStrategy {
     _rcvDist: number,
     _srcSize: number,
     _minimumFeatureSize: number,
+    _exclusions: RayExclusionSet,
   ): number {
     return 1.0;
   }
@@ -75,6 +77,7 @@ export class FormFactorClusteredStrategy {
     _rcvDist: number,
     _srcSize: number,
     _minimumFeatureSize: number,
+    _exclusions: RayExclusionSet,
   ): number {
     return 1.0;
   }

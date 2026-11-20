@@ -5,6 +5,7 @@ import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
@@ -53,6 +54,7 @@ export class UniformLightSampler extends NextEventSampler {
   public override sample(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,

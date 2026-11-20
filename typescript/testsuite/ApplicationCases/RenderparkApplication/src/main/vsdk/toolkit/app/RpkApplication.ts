@@ -195,7 +195,6 @@ export class RpkApplication {
     GalerkinRadianceMethod.freeMemory();
     PatchClusterOctreeNode.deleteCachedGeometries();
     ClusterCreationStrategy.freeClusterElements();
-    VoxelGrid.freeVoxelGridElements();
     if (mgfContext.radianceMethod !== null) {
       mgfContext.radianceMethod = null;
       mgfContext.parserConfig.radianceMethod = null;

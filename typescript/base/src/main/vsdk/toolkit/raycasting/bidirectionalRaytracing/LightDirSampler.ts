@@ -6,6 +6,7 @@ import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "../raytracing/Sampler";
@@ -14,6 +15,7 @@ export class LightDirSampler extends Sampler {
   public override sample(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,
@@ -55,7 +57,7 @@ export class LightDirSampler extends Sampler {
     thisNode.m_rayType = PathRayType.STARTS;
     newNode.m_inBsdf = thisNode.m_outBsdf;
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
+    if (!this.sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }

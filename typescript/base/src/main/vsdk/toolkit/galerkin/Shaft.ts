@@ -10,12 +10,15 @@ import { Geometry } from "../skin/Geometry";
 import { GeometryClassId } from "../skin/GeometryClassId";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { PatchSet } from "../environment/geometry/elements/PatchSet";
+import { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import { RayHit } from "../environment/geometry/elements/RayHit";
 import { ShaftCullStrategy } from "./ShaftCullStrategy";
 import { ShaftPlane } from "./ShaftPlane";
 import { ShaftPlanePosition } from "./ShaftPlanePosition";
 
 export class Shaft {
+  private static readonly NO_EXCLUSIONS = new RayExclusionSet();
+
   private static createPatchSetWithPool(patches: Patch[] | null): PatchSet {
     const p = new PatchSet(patches);
     p.setMemoryPoolManaged(true);
@@ -620,6 +623,7 @@ export class Shaft {
         dist,
         RayHitFlag.FRONT | RayHitFlag.BACK,
         hitStore,
+        Shaft.NO_EXCLUSIONS,
       ) !== null
     ) {
       this.cut = true;

@@ -6,6 +6,7 @@ import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { PathRayType } from "../common/PathRayType";
 import { RayTools } from "../common/RayTools";
@@ -22,6 +23,7 @@ export abstract class Sampler {
 
   protected sampleTransfer(
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     thisNode: SimpleRaytracingPathNode,
     newNode: SimpleRaytracingPathNode,
@@ -36,6 +38,7 @@ export abstract class Sampler {
     newNode.m_rayType = PathRayType.STOPS;
     const hit = RayTools.findRayIntersection(
       sceneVoxelGrid,
+      sceneVoxelGridWorkspace,
       ray,
       thisNode.m_hit.getPatch(),
       newNode.m_inBsdf,
@@ -95,6 +98,7 @@ export abstract class Sampler {
   public abstract sample(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,

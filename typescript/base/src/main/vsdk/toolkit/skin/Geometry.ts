@@ -7,6 +7,7 @@ import { BoundingBox } from "./AxisAlignedBoundingBox";
 import { GeometryClassId } from "./GeometryClassId";
 import type { Element } from "../environment/geometry/elements/Element";
 import type { Patch } from "../environment/geometry/elements/Patch";
+import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
 import type { PatchSet } from "../environment/geometry/elements/PatchSet";
 import type { MeshSurface } from "./MeshSurface";
@@ -14,8 +15,6 @@ import type { Compound } from "./Compound";
 
 export class Geometry {
   public static nextGeometryId = 0;
-  public static excludedGeometry1: Geometry | null = null;
-  public static excludedGeometry2: Geometry | null = null;
 
   public id: number;
   public boundingBox: BoundingBox;
@@ -126,19 +125,14 @@ export class Geometry {
     return newPatchSet as unknown as Geometry;
   }
 
-  public static dontIntersect(geometry1: Geometry | null, geometry2: Geometry | null): void {
-    Geometry.excludedGeometry1 = geometry1;
-    Geometry.excludedGeometry2 = geometry2;
-  }
-
   // Scratch storage reused across pre-test calls (this method runs billions
   // of times per scene on the single threaded rendering core; the C++ port
   // keeps these on the stack)
   private static readonly preTestScratchPoint = new Vector3D();
   private static readonly preTestScratchDistance = [0.0];
 
-  public discretizationIntersectPreTest(ray: Ray, minimumDistance: number, maximumDistance: number[]): boolean {
-    if (this === Geometry.excludedGeometry1 || this === Geometry.excludedGeometry2) {
+  public discretizationIntersectPreTest(ray: Ray, minimumDistance: number, maximumDistance: number[], exclusions: RayExclusionSet): boolean {
+    if (exclusions.excludesGeometry(this)) {
       return false;
     }
 
@@ -162,20 +156,21 @@ export class Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
-    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
       return null;
     }
 
     if (this.className === GeometryClassId.SURFACE_MESH) {
-      return ((this as unknown) as MeshSurface).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      return ((this as unknown) as MeshSurface).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
     if (this.className === GeometryClassId.COMPOUND) {
-      return ((this as unknown) as Compound).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      return ((this as unknown) as Compound).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
     if (this.className === GeometryClassId.PATCH_SET) {
-      return ((this as unknown) as PatchSet).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      return ((this as unknown) as PatchSet).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
     return null;
   }
@@ -186,12 +181,13 @@ export class Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
     let hit: RayHit | null = null;
 
     for (let i = 0; geometryList !== null && i < geometryList.length; i++) {
-      const h = geometryList[i]!.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      const h = geometryList[i]!.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
       if (h !== null) {
         if ((hitFlags & RayHitFlag.ANY) !== 0) {
           return h;
@@ -214,11 +210,12 @@ export class Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
     let hit: RayHit | null = null;
     for (let i = 0; patchList !== null && i < patchList.length; i++) {
-      const h = patchList[i]!.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+      const h = patchList[i]!.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
       if (h !== null) {
         if ((hitFlags & RayHitFlag.ANY) !== 0) {
           return h;
@@ -238,9 +235,5 @@ export class Geometry {
     }
 
     return boundingBox;
-  }
-
-  public isExcluded(): boolean {
-    return this === Geometry.excludedGeometry1 || this === Geometry.excludedGeometry2;
   }
 }

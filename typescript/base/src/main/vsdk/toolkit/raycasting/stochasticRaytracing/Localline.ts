@@ -2,12 +2,14 @@
 Generate and trace a local line
 */
 
+import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { StochasticRelaxation } from "./StochasticRelaxation";
@@ -64,18 +66,19 @@ In order to let the user have the impression that the computations are proceedin
   /**
 Determines nearest intersection point and patch
 */
-  public static mcrShootRay(sceneWorldVoxelGrid: VoxelGrid, P: Patch, ray: Ray, hitStore: RayHit | null): RayHit | null {
+  public static mcrShootRay(sceneWorldVoxelGrid: VoxelGrid, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace, P: Patch, ray: Ray, hitStore: RayHit | null): RayHit | null {
     const distance = [Numeric.HUGE_FLOAT_VALUE];
 
-    Patch.dontIntersect2(P, P.twin);
+    const exclusions = new RayExclusionSet(P, P.twin);
     const hit = sceneWorldVoxelGrid.gridIntersect(
       ray,
       Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
       distance,
       RayHitFlag.FRONT | RayHitFlag.POINT,
-      hitStore
+      hitStore,
+      exclusions,
+      sceneWorldVoxelGridWorkspace
     );
-    Patch.dontIntersect0();
     Localline.someFeedback();
 
     return hit;

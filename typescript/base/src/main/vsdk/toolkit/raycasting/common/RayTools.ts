@@ -1,4 +1,5 @@
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
+import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -7,6 +8,7 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../material
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { SimpleRaytracingPathNode } from "./SimpleRaytracingPathNode";
@@ -18,6 +20,7 @@ export class RayTools {
 
   private static traceWorld(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     ray: Ray,
     patch: Patch | null,
     flags: number,
@@ -28,20 +31,20 @@ export class RayTools {
     const dist = [Numeric.HUGE_FLOAT_VALUE];
     const localHitStore = hitStore === null ? myHitStore : hitStore;
 
-    Patch.dontIntersect3(patch, patch !== null ? patch.twin : null, extraPatch);
-    const result = sceneWorldVoxelGrid.gridIntersect(ray, 0.0, dist, flags, localHitStore);
+    const exclusions = new RayExclusionSet(patch, patch !== null ? patch.twin : null, extraPatch);
+    const result = sceneWorldVoxelGrid.gridIntersect(ray, 0.0, dist, flags, localHitStore, exclusions, sceneWorldVoxelGridWorkspace);
 
     if (result !== null) {
       const frame = result.getShadingFrame();
       result.setShadingFrame(frame);
     }
-    Patch.dontIntersect0();
 
     return result;
   }
 
   public static findRayIntersection(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     ray: Ray,
     patch: Patch | null,
     currentBsdf: PhongBidirectionalScatteringDistributionFunction | null,
@@ -56,7 +59,7 @@ export class RayTools {
       hitFlags = RayTools.pathFrontHitFlags() | RayHitFlag.BACK;
     }
 
-    let newHit = RayTools.traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, null, hitStore);
+    let newHit = RayTools.traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, null, hitStore);
     Statistics.instance().rayTracer.rayCount++;
 
     if (newHit !== null
@@ -64,7 +67,7 @@ export class RayTools {
       && newHit.getPatch() !== null
       && newHit.getPatch()!.material !== null
       && newHit.getPatch()!.material!.getBsdf() !== currentBsdf) {
-      newHit = RayTools.traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit.getPatch(), hitStore);
+      newHit = RayTools.traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, newHit.getPatch(), hitStore);
       Statistics.instance().rayTracer.rayCount++;
     }
 
@@ -73,6 +76,7 @@ export class RayTools {
 
   public static pathNodesVisible(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     node1: SimpleRaytracingPathNode,
     node2: SimpleRaytracingPathNode
   ): boolean {
@@ -129,7 +133,7 @@ export class RayTools {
         fDistance[0] = dist;
       }
 
-      Patch.dontIntersect3(
+      const exclusions = new RayExclusionSet(
         patch2,
         patch1,
         patch1 !== null ? patch1.twin : null
@@ -139,9 +143,10 @@ export class RayTools {
         0.0,
         fDistance,
         RayHitFlag.FRONT | RayHitFlag.BACK | RayHitFlag.ANY,
-        hitStore
+        hitStore,
+        exclusions,
+        sceneWorldVoxelGridWorkspace
       );
-      Patch.dontIntersect0();
       visible = hit === null;
 
       Statistics.instance().rayTracer.rayCount++;
@@ -156,6 +161,7 @@ export class RayTools {
   public static eyeNodeVisible(
     camera: Camera,
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     eyeNode: SimpleRaytracingPathNode,
     node: SimpleRaytracingPathNode,
     pixX: number[] | null,
@@ -197,7 +203,7 @@ export class RayTools {
             fDistance[0] = dist;
             const nodePatch = node.m_hit.getPatch();
             const eyePatch = eyeNode.m_hit.getPatch();
-            Patch.dontIntersect3(
+            const exclusions = new RayExclusionSet(
               nodePatch,
               eyePatch,
               eyePatch !== null ? eyePatch.twin : null
@@ -207,9 +213,10 @@ export class RayTools {
               0.0,
               fDistance,
               RayHitFlag.FRONT | RayHitFlag.ANY,
-              hitStore
+              hitStore,
+              exclusions,
+              sceneWorldVoxelGridWorkspace
             );
-            Patch.dontIntersect0();
             visible = hit === null;
 
             if (visible) {

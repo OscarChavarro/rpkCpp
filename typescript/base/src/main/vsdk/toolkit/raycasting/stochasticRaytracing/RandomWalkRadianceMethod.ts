@@ -15,6 +15,7 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Element } from "../../environment/geometry/elements/Element";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
@@ -368,6 +369,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 
   private static randomWalkRadiosityDoShootingIteration(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>
   ): void {
     let numberOfWalks = StochasticRelaxation.activeState().initialNumberOfRays;
@@ -392,6 +394,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 
     Tracepath.tracePaths(
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       numberOfWalks,
       RandomWalkRadianceMethod.randomWalkRadiosityScalarSourcePower,
       RandomWalkRadianceMethod.randomWalkRadiosityScalarReflectance,
@@ -541,6 +544,7 @@ Determines control radiosity value for collision gathering estimator
 
   private static randomWalkRadiosityDoGatheringIteration(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>
   ): void {
     let numberOfWalks = StochasticRelaxation.activeState().initialNumberOfRays;
@@ -572,6 +576,7 @@ Determines control radiosity value for collision gathering estimator
 
     Tracepath.tracePaths(
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       numberOfWalks,
       RandomWalkRadianceMethod.randomWalkRadiosityPatchArea,
       RandomWalkRadianceMethod.randomWalkRadiosityScalarReflectance,
@@ -593,6 +598,7 @@ Determines control radiosity value for collision gathering estimator
 
   private static randomWalkRadiosityDoFirstShot(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
@@ -604,6 +610,7 @@ Determines control radiosity value for collision gathering estimator
     System.err.printf("First shot (%d rays):\n", numberOfRays);
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       numberOfRays,
       RandomWalkRadianceMethod.randomWalkRadiosityGetSelfEmittedRadiance,
       null,
@@ -631,15 +638,15 @@ Determines control radiosity value for collision gathering estimator
 
     if (StochasticRelaxation.activeState().currentIteration === 1
       && StochasticRelaxation.activeState().indirectOnly !== 0) {
-      RandomWalkRadianceMethod.randomWalkRadiosityDoFirstShot(scene.voxelGrid as VoxelGrid, scenePatches, renderOptions);
+      RandomWalkRadianceMethod.randomWalkRadiosityDoFirstShot(scene.voxelGrid as VoxelGrid, scene.voxelGridWorkspace as VoxelGridWorkspace, scenePatches, renderOptions);
     }
 
     switch (StochasticRelaxation.activeState().randomWalkEstimatorType) {
       case RandomWalkEstimatorType.RW_SHOOTING:
-        RandomWalkRadianceMethod.randomWalkRadiosityDoShootingIteration(scene.voxelGrid as VoxelGrid, scenePatches);
+        RandomWalkRadianceMethod.randomWalkRadiosityDoShootingIteration(scene.voxelGrid as VoxelGrid, scene.voxelGridWorkspace as VoxelGridWorkspace, scenePatches);
         break;
       case RandomWalkEstimatorType.RW_GATHERING:
-        RandomWalkRadianceMethod.randomWalkRadiosityDoGatheringIteration(scene.voxelGrid as VoxelGrid, scenePatches);
+        RandomWalkRadianceMethod.randomWalkRadiosityDoGatheringIteration(scene.voxelGrid as VoxelGrid, scene.voxelGridWorkspace as VoxelGridWorkspace, scenePatches);
         break;
       default:
         VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "randomWalkRadiosityDoStep", JavaString.vformat("Unknown random walk estimator type %d", [StochasticRelaxation.activeState().randomWalkEstimatorType as number]));

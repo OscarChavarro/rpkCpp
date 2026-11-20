@@ -6,6 +6,7 @@ import { Geometry } from "./Geometry";
 import { GeometryClassId } from "./GeometryClassId";
 import { MaterialColorFlags } from "../material/MaterialColorFlags";
 import type { Patch } from "../environment/geometry/elements/Patch";
+import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
 import { Vertex } from "../environment/geometry/elements/Vertex";
 
@@ -125,8 +126,9 @@ export class MeshSurface extends Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
-    return Geometry.patchListIntersect(this.faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return Geometry.patchListIntersect(this.faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
   }
 }

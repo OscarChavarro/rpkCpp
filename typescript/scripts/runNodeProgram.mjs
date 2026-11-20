@@ -80,7 +80,9 @@ if (!entry) {
   process.exit(2);
 }
 
-if (shouldBuild) {
+// RPK_SKIP_BUILD=1 lets a caller that already built (scripts/runCorpus.sh) run
+// several programs in parallel without concurrent rebuilds
+if (shouldBuild && process.env.RPK_SKIP_BUILD !== "1") {
   const buildResult = spawnSync("npm", ["run", "build"], {
     cwd,
     stdio: "inherit"

@@ -9,6 +9,7 @@ import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { Material } from "../../../material/Material";
+import type { RayExclusionSet } from "./RayExclusionSet";
 import { RayHitFlag } from "./RayHitFlag";
 import type { Element } from "./Element";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
@@ -26,7 +27,6 @@ export class Patch {
   private static readonly TOLERANCE = 1e-5;
 
   private static patchId = 1;
-  private static readonly excludedPatches: Array<Patch | null> = [null, null, null, null];
 
   private flags: number;
 
@@ -54,15 +54,6 @@ export class Patch {
 
   public static setNextId(id: number): void {
     Patch.patchId = id;
-  }
-
-  private isExcluded(): boolean {
-    for (let i = 0; i < Patch.MAX_EXCLUDED_PATCHES; i++) {
-      if (Patch.excludedPatches[i] === this) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private allVerticesHaveANormal(): boolean {
@@ -640,38 +631,6 @@ export class Patch {
     }
   }
 
-  private static dontIntersectBase(n: number, p0: Patch | null, p1: Patch | null, p2: Patch | null, p3: Patch | null): void {
-    if (n < 0 || n > Patch.MAX_EXCLUDED_PATCHES) {
-      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "Patch::dontIntersectBase", JavaString.vformat("Invalid number of excluded patches %d (maximum is %d)", [n, Patch.MAX_EXCLUDED_PATCHES]));
-      return;
-    }
-
-    const localPatches = [p0, p1, p2, p3];
-    let i = 0;
-    for (; i < n; i++) {
-      Patch.excludedPatches[i] = localPatches[i] ?? null;
-    }
-    for (; i < Patch.MAX_EXCLUDED_PATCHES; i++) {
-      Patch.excludedPatches[i] = null;
-    }
-  }
-
-  public static dontIntersect0(): void {
-    Patch.dontIntersectBase(0, null, null, null, null);
-  }
-
-  public static dontIntersect2(p0: Patch | null, p1: Patch | null): void {
-    Patch.dontIntersectBase(2, p0, p1, null, null);
-  }
-
-  public static dontIntersect3(p0: Patch | null, p1: Patch | null, p2: Patch | null): void {
-    Patch.dontIntersectBase(3, p0, p1, p2, null);
-  }
-
-  public static dontIntersect4(p0: Patch | null, p1: Patch | null, p2: Patch | null, p3: Patch | null): void {
-    Patch.dontIntersectBase(4, p0, p1, p2, p3);
-  }
-
   private interpolatedNormalAtUv(u: number, v: number): Vector3D {
     if (!this.allVerticesHaveANormal()) {
       return this.normal;
@@ -740,14 +699,15 @@ export class Patch {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
     const hit = Patch.intersectScratchHit;
     hit.setFlags(0);
     hit.setPatch(null);
     hit.setMaterial(null);
 
-    if (this.isExcluded()) {
+    if (exclusions.excludesPatch(this)) {
       return null;
     }
 

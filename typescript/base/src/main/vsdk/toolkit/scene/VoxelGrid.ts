@@ -7,18 +7,32 @@ import { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
 import { MinMaxBox } from "../skin/MinMaxBox";
 import { Patch } from "../environment/geometry/elements/Patch";
+import { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import { RayHit } from "../environment/geometry/elements/RayHit";
 import { VoxelData } from "./VoxelData";
 import { VoxelDataFlags } from "./VoxelDataFlags";
+import { VoxelGridWorkspace } from "./VoxelGridWorkspace";
 
+/**
+Uniform voxel grid to optimize intersection operations
+
+Ray-grid intersection: [SNYD1987] Snyder & Barr, SIGGRAPH '87, p123, with several
+optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
+
+Shared, read-only after construction: gridIntersect writes only to the
+caller's VoxelGridWorkspace and hit record. The root grid owns every item and
+sub grid of the hierarchy; the item indices are dense over it.
+*/
 export class VoxelGrid {
   private static readonly MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
   private static readonly DELTA_BOUND_FACTOR = 1e-4;
 
-  private static subGridsToDelete: VoxelGrid[] | null = null;
-  private static voxelCellsToDelete: VoxelData[] | null = null;
-  private static constructorLevel = 0;
-  private static randomRayCounter = 0;
+  // Owned by the root grid only (null on sub grids)
+  private subGrids: VoxelGrid[] | null;
+  private items: VoxelData[] | null;
+  private readonly root: VoxelGrid;
+  private readonly depth: number; // Nesting depth, 0 for the root grid
+  private numberOfLevels: number; // Root grid only: deepest nesting depth + 1
 
   private xSize: number;
   private ySize: number;
@@ -29,30 +43,27 @@ export class VoxelGrid {
   private boundingBox: BoundingBox;
   private rayIntersectionBox: MinMaxBox | null;
 
-  // Per-instance scratch storage for gridIntersect. The rendering core is
-  // single threaded and recursion only descends into nested sub-grids,
-  // which are distinct VoxelGrid instances, so per-instance reuse is safe.
-  // The C++ port keeps these variables on the stack.
-  private readonly gridIntersectScratchTNext = new Vector3D();
-  private readonly gridIntersectScratchTDelta = new Vector3D();
-  private readonly gridIntersectScratchP = new Vector3D();
-  private readonly gridIntersectScratchStep = [0, 0, 0];
-  private readonly gridIntersectScratchOut = [0, 0, 0];
-  private readonly gridIntersectScratchG = [0, 0, 0];
-  private readonly gridIntersectScratchT0 = [0.0];
-
-  private static addToSubGridsDeletionCache(voxelGrid: VoxelGrid): void {
-    if (VoxelGrid.subGridsToDelete === null) {
-      VoxelGrid.subGridsToDelete = [];
-    }
-    VoxelGrid.subGridsToDelete.push(voxelGrid);
+  private nextItemIndex(): number {
+    return this.root.items!.length;
   }
 
-  private static addToCellsDeletionCache(cell: VoxelData): void {
-    if (VoxelGrid.voxelCellsToDelete === null) {
-      VoxelGrid.voxelCellsToDelete = [];
+  private addItem(cell: VoxelData): void {
+    this.root.items!.push(cell);
+  }
+
+  private addSubGrid(voxelGrid: VoxelGrid): void {
+    this.root.subGrids!.push(voxelGrid);
+    if (voxelGrid.depth + 1 > this.root.numberOfLevels) {
+      this.root.numberOfLevels = voxelGrid.depth + 1;
     }
-    VoxelGrid.voxelCellsToDelete.push(cell);
+  }
+
+  public getNumberOfItems(): number {
+    return this.root.items!.length;
+  }
+
+  public getNumberOfLevels(): number {
+    return this.root.numberOfLevels;
   }
 
   private static clampVoxel(v: number, max: number): number {
@@ -192,9 +203,9 @@ export class VoxelGrid {
       patch.computeAndGetBoundingBox(localBounds);
     }
 
-    const voxelData = new VoxelData(patch, VoxelDataFlags.VOXEL_DATA_PATCH_MASK);
+    const voxelData = new VoxelData(patch, VoxelDataFlags.VOXEL_DATA_PATCH_MASK, this.nextItemIndex());
     this.putItemInsideVoxelGrid(voxelData, localBounds);
-    VoxelGrid.addToCellsDeletionCache(voxelData);
+    this.addItem(voxelData);
   }
 
   private toVoxelClamped(p: Vector3D): Vector3D {
@@ -206,9 +217,9 @@ export class VoxelGrid {
   }
 
   private insertGeometryAsVoxelData(geometry: Geometry): void {
-    const voxelData = new VoxelData(geometry, VoxelDataFlags.VOXEL_DATA_GEOMETRY_MASK);
+    const voxelData = new VoxelData(geometry, VoxelDataFlags.VOXEL_DATA_GEOMETRY_MASK, this.nextItemIndex());
     this.putItemInsideVoxelGrid(voxelData, geometry.boundingBox);
-    VoxelGrid.addToCellsDeletionCache(voxelData);
+    this.addItem(voxelData);
   }
 
   private processCompoundGeometry(geometry: Geometry): void {
@@ -226,13 +237,13 @@ export class VoxelGrid {
   }
 
   private insertSubGrid(geometry: Geometry): void {
-    const subGrid = new VoxelGrid(geometry);
-    const voxelData = new VoxelData(subGrid, VoxelDataFlags.VOXEL_DATA_GRID_MASK);
+    const subGrid = new VoxelGrid(geometry, this.root, this.depth + 1);
+    const voxelData = new VoxelData(subGrid, VoxelDataFlags.VOXEL_DATA_GRID_MASK, this.nextItemIndex());
 
     this.putItemInsideVoxelGrid(voxelData, subGrid.boundingBox);
 
-    VoxelGrid.addToSubGridsDeletionCache(subGrid);
-    VoxelGrid.addToCellsDeletionCache(voxelData);
+    this.addSubGrid(subGrid);
+    this.addItem(voxelData);
   }
 
   private gridBoundsIntersect(
@@ -246,10 +257,7 @@ export class VoxelGrid {
     position.sumScaled(ray.position, t0[0], ray.direction);
     if (this.boundingBox.outOfBounds(position)) {
       t0[0] = maximumDistance;
-      if (this.rayIntersectionBox === null) {
-        this.rayIntersectionBox = new MinMaxBox(this.boundingBox);
-      }
-      if (!this.rayIntersectionBox.intersect(ray, minimumDistance, t0)) {
+      if (!this.rayIntersectionBox!.intersect(ray, minimumDistance, t0)) {
         return false;
       }
       position.sumScaled(ray.position, t0[0], ray.direction);
@@ -377,37 +385,36 @@ export class VoxelGrid {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet,
+    workspace: VoxelGridWorkspace
   ): RayHit | null {
     let hit: RayHit | null = null;
 
     for (let i = 0; items !== null && i < items.length; i++) {
       const item = items[i]!;
-      if (item.lastRayId() !== counter) {
+      const itemIndex = item.getIndex();
+      if (workspace.lastRayId(itemIndex) !== counter) {
+        // Avoid testing objects multiple times
         let h: RayHit | null = null;
-        if (item.isPatch() && item.patch !== null) {
-          h = item.patch.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        if (item.isPatch()) {
+          h = item.getPatch()!.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         }
-        else if (item.isGeom() && item.geometry !== null) {
-          h = item.geometry.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        else if (item.isGeom()) {
+          h = item.getGeometry()!.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         }
-        else if (item.isGrid() && item.voxelGrid !== null) {
-          h = item.voxelGrid.gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        else if (item.isGrid()) {
+          h = item.getVoxelGrid()!.gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace);
         }
         if (h !== null) {
           hit = h;
         }
 
-        item.updateRayId(counter);
+        workspace.updateRayId(itemIndex, counter);
       }
     }
 
     return hit;
-  }
-
-  private static randomRayId(): number {
-    VoxelGrid.randomRayCounter++;
-    return VoxelGrid.randomRayCounter & VoxelDataFlags.VOXEL_DATA_RAY_COUNT_MASK;
   }
 
   public gridIntersect(
@@ -415,16 +422,21 @@ export class VoxelGrid {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet,
+    workspace: VoxelGridWorkspace
   ): RayHit | null {
-    const tNext = this.gridIntersectScratchTNext;
-    const tDelta = this.gridIntersectScratchTDelta;
-    const p = this.gridIntersectScratchP;
-    const step = this.gridIntersectScratchStep;
-    const out = this.gridIntersectScratchOut;
-    const g = this.gridIntersectScratchG;
+    // The traversal variables of this nesting depth (the C++ port keeps them
+    // on the stack)
+    const frame = workspace.frame(this.depth);
+    const tNext = frame.tNext;
+    const tDelta = frame.tDelta;
+    const p = frame.p;
+    const step = frame.step;
+    const out = frame.out;
+    const g = frame.g;
     let hit: RayHit | null = null;
-    const t0 = this.gridIntersectScratchT0;
+    const t0 = frame.t0;
     step[0] = 0;
     step[1] = 0;
     step[2] = 0;
@@ -436,12 +448,13 @@ export class VoxelGrid {
 
     this.gridTraceSetup(ray, t0[0]!, p, g, tDelta, tNext, step, out);
 
-    const counter = VoxelGrid.randomRayId();
+    // Ray counter in order to avoid testing objects spanning several voxel grid cells multiple times
+    const counter = workspace.nextRayId();
 
     do {
       const list = this.volumeListsOfItems![this.cellIndexAddress(g[0]!, g[1]!, g[2]!)];
       if (list !== null) {
-        const h = VoxelGrid.voxelIntersect(list!, ray, counter, t0[0]!, maximumDistance, hitFlags, hitStore);
+        const h = VoxelGrid.voxelIntersect(list!, ray, counter, t0[0]!, maximumDistance, hitFlags, hitStore, exclusions, workspace);
         if (h !== null) {
           hit = h;
         }
@@ -451,7 +464,15 @@ export class VoxelGrid {
     return hit;
   }
 
-  public constructor(geometry: Geometry) {
+  /**
+  Constructs a recursive grid structure containing the whole geometry
+  */
+  public constructor(geometry: Geometry, inRoot: VoxelGrid | null = null, inDepth = 0) {
+    this.root = inRoot !== null ? inRoot : this;
+    this.depth = inDepth;
+    this.subGrids = inRoot === null ? [] : null;
+    this.items = inRoot === null ? [] : null;
+    this.numberOfLevels = 1;
     this.boundingBox = new BoundingBox();
     this.rayIntersectionBox = null;
     this.xSize = 0;
@@ -464,29 +485,29 @@ export class VoxelGrid {
     const p = globalThis.Math.pow(geometry.itemCount, 0.33333) + 1;
     const gridSize = globalThis.Math.floor(p);
     process.stderr.write(
-      `Setting ${geometry.itemCount} volumeListsOfItems in ${gridSize}^3 cells level ${VoxelGrid.constructorLevel} voxel grid ... \n`
+      `Setting ${geometry.itemCount} volumeListsOfItems in ${gridSize}^3 cells level ${this.depth} voxel grid ... \n`
     );
-    VoxelGrid.constructorLevel++;
 
     this.putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
-
-    VoxelGrid.constructorLevel--;
   }
 
-  public static freeVoxelGridElements(): void {
-    if (VoxelGrid.voxelCellsToDelete !== null) {
-      VoxelGrid.voxelCellsToDelete.length = 0;
-      VoxelGrid.voxelCellsToDelete = null;
+  /**
+  Releases the items and the sub grid contents of the hierarchy. Root grid only
+  */
+  public freeVoxelGridElements(): void {
+    if (this.items !== null) {
+      this.items.length = 0;
+      this.items = null;
     }
 
-    if (VoxelGrid.subGridsToDelete !== null) {
-      for (let i = 0; i < VoxelGrid.subGridsToDelete.length; i++) {
-        const subGrid = VoxelGrid.subGridsToDelete[i]!;
+    if (this.subGrids !== null) {
+      for (let i = 0; i < this.subGrids.length; i++) {
+        const subGrid = this.subGrids[i]!;
         subGrid.gridItemPool = null;
         subGrid.volumeListsOfItems = null;
       }
-      VoxelGrid.subGridsToDelete.length = 0;
-      VoxelGrid.subGridsToDelete = null;
+      this.subGrids.length = 0;
+      this.subGrids = null;
     }
   }
 

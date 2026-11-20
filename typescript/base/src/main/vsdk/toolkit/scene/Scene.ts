@@ -7,6 +7,7 @@ import { PatchSet } from "../environment/geometry/elements/PatchSet";
 import { Background } from "./Background";
 import { Camera } from "./Camera";
 import { VoxelGrid } from "./VoxelGrid";
+import type { VoxelGridWorkspace } from "./VoxelGridWorkspace";
 
 export class Scene {
   private static readonly compoundType = "Compound";
@@ -20,6 +21,7 @@ export class Scene {
   public clusteredGeometryList: Geometry[] | null;
   public clusteredRootGeometry: Geometry | null;
   public voxelGrid: VoxelGrid | null;
+  public voxelGridWorkspace: VoxelGridWorkspace | null; // Query scratch for voxelGrid, owned by the scene
   public patchList: Patch[] | null;
   public lightSourcePatchList: Patch[] | null;
 
@@ -30,6 +32,7 @@ export class Scene {
     this.clusteredGeometryList = [];
     this.clusteredRootGeometry = null;
     this.voxelGrid = null;
+    this.voxelGridWorkspace = null;
     this.patchList = null;
     this.lightSourcePatchList = null;
   }
@@ -48,8 +51,10 @@ export class Scene {
       this.patchList = null;
     }
     if (this.voxelGrid !== null) {
+      this.voxelGrid.freeVoxelGridElements();
       this.voxelGrid = null;
     }
+    this.voxelGridWorkspace = null;
     if (this.background !== null) {
       this.background = null;
     }

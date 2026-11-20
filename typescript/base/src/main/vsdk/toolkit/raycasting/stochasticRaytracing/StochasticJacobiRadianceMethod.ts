@@ -15,6 +15,7 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Element } from "../../environment/geometry/elements/Element";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
@@ -307,6 +308,7 @@ Computes quality factor on given leaf element.
 
       StochasticJacobi.doStochasticJacobiIteration(
         scene.voxelGrid as VoxelGrid,
+        scene.voxelGridWorkspace as VoxelGridWorkspace,
         numberOfRays,
         StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementUnShotRadiance,
         null,
@@ -360,6 +362,7 @@ Computes quality factor on given leaf element.
 
   private static stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
@@ -398,6 +401,7 @@ Computes quality factor on given leaf element.
 
       StochasticJacobi.doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfRays,
         null,
         StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementUnShotImportance,
@@ -475,12 +479,14 @@ Computes quality factor on given leaf element.
 
   private static stochasticRelaxationRadiosityDoRegularRadianceIteration(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
     System.err.printf("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       StochasticRelaxation.activeState().raysPerIteration,
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementRadiance,
       null,
@@ -512,6 +518,7 @@ Computes quality factor on given leaf element.
 
   private static stochasticRelaxationRadiosityDoRegularImportanceIteration(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
@@ -528,6 +535,7 @@ Computes quality factor on given leaf element.
 
     StochasticJacobi.doStochasticJacobiIteration(
       sceneWorldVoxelGrid,
+      sceneWorldVoxelGridWorkspace,
       numberOfRays,
       null,
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementImportance,
@@ -591,6 +599,7 @@ iteration.
 
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
             scene.voxelGrid as VoxelGrid,
+            scene.voxelGridWorkspace as VoxelGridWorkspace,
             scenePatches,
             renderOptions
           );
@@ -620,6 +629,7 @@ iteration.
 
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
             scene.voxelGrid as VoxelGrid,
+            scene.voxelGridWorkspace as VoxelGridWorkspace,
             scenePatches,
             renderOptions
           );
@@ -631,6 +641,7 @@ iteration.
         else {
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoRegularImportanceIteration(
             scene.voxelGrid as VoxelGrid,
+            scene.voxelGridWorkspace as VoxelGridWorkspace,
             scenePatches,
             renderOptions
           );
@@ -638,6 +649,7 @@ iteration.
       }
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoRegularRadianceIteration(
         scene.voxelGrid as VoxelGrid,
+        scene.voxelGridWorkspace as VoxelGridWorkspace,
         scenePatches,
         renderOptions
       );

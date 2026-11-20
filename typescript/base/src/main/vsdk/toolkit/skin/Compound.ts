@@ -2,6 +2,7 @@ import { Ray } from "../common/linealAlgebra/Ray";
 import { Statistics } from "../common/statistics/Statistics";
 import { Geometry } from "./Geometry";
 import { GeometryClassId } from "./GeometryClassId";
+import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
 
 export class Compound extends Geometry {
@@ -29,9 +30,10 @@ export class Compound extends Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
-    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
       return null;
     }
 
@@ -41,7 +43,8 @@ export class Compound extends Geometry {
       minimumDistance,
       maximumDistance,
       hitFlags,
-      hitStore
+      hitStore,
+      exclusions
     );
   }
 }

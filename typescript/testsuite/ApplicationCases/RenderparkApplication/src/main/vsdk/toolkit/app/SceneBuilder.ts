@@ -23,6 +23,7 @@ import { Background } from "vitral/dist/vsdk/toolkit/scene/Background";
 import { PatchClusterOctreeNode } from "vitral/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
 import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
 import { VoxelGrid } from "vitral/dist/vsdk/toolkit/scene/VoxelGrid";
+import { VoxelGridWorkspace } from "vitral/dist/vsdk/toolkit/scene/VoxelGridWorkspace";
 import { Compound } from "vitral/dist/vsdk/toolkit/skin/Compound";
 import { Geometry } from "vitral/dist/vsdk/toolkit/skin/Geometry";
 import { GeometryClassId } from "vitral/dist/vsdk/toolkit/skin/GeometryClassId";
@@ -592,6 +593,8 @@ export class SceneBuilder {
 
     // Create the scene level voxel grid
     scene.voxelGrid = new VoxelGrid(scene.clusteredRootGeometry);
+    scene.voxelGridWorkspace = new VoxelGridWorkspace(
+      scene.voxelGrid.getNumberOfItems(), scene.voxelGrid.getNumberOfLevels());
 
     t = process.hrtime.bigint();
     System.err.printf("Voxel grid creation took %g secs.\n", Number(t - last) / 1_000_000_000.0);

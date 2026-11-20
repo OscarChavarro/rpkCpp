@@ -427,6 +427,8 @@ export class HierarchicalRefinementStrategy {
     const isClusteredGeometry = (candidatesList === scene.clusteredGeometryList);
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
       scene.voxelGrid,
+      scene.voxelGridWorkspace,
+      galerkinState.formFactorWorkspace,
       candidatesList,
       isSceneGeometry,
       isClusteredGeometry,

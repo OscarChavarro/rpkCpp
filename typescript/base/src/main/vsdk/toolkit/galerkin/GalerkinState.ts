@@ -8,6 +8,7 @@ import { SglContext } from "../render/sgl/SglContext";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { GalerkinBasisType } from "./GalerkinBasisType";
 import { GalerkinClusteringStrategy } from "./GalerkinClusteringStrategy";
+import { FormFactorWorkspace } from "./processing/FormFactorWorkspace";
 import { GalerkinElement } from "./GalerkinElement";
 import { GalerkinErrorNorm } from "./GalerkinErrorNorm";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
@@ -63,6 +64,9 @@ export class GalerkinState {
 
   public shaftCullStrategy: ShaftCullStrategy;
   public toneMapOptions: ToneMappingContext | null;
+
+  // Form factor scratch owned by the solver
+  public readonly formFactorWorkspace = new FormFactorWorkspace();
 
   private static readonly DEFAULT_GAL_HIERARCHICAL = true;
   private static readonly DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod.JACOBI;

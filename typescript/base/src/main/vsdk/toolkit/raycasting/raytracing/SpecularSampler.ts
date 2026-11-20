@@ -1,6 +1,7 @@
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { SurfaceSampler } from "./SurfaceSampler";
 
@@ -8,6 +9,7 @@ export class SpecularSampler extends SurfaceSampler {
   public override sample(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,

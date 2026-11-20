@@ -2,6 +2,7 @@ import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { Patch } from "../environment/geometry/elements/Patch";
+import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import { RayHit } from "../environment/geometry/elements/RayHit";
 
 export class ShadowCache {
@@ -14,7 +15,7 @@ export class ShadowCache {
     this.patchCache = new Array<Patch | null>(ShadowCache.MAX_CACHE).fill(null);
   }
 
-  public cacheHit(ray: Ray, distance: number[], hitStore: RayHit): RayHit | null {
+  public cacheHit(ray: Ray, distance: number[], hitStore: RayHit, exclusions: RayExclusionSet): RayHit | null {
     for (let i = 0; i < this.numberOfCachedPatches; i++) {
       if (this.patchCache[i] === null) {
         continue;
@@ -25,6 +26,7 @@ export class ShadowCache {
         distance,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
+        exclusions,
       );
       if (hit !== null) {
         return hit;

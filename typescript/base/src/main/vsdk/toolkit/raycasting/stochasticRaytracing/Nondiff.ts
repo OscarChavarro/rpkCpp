@@ -12,6 +12,7 @@ import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -112,7 +113,7 @@ export class Nondiff {
     return ray;
   }
 
-  public static sampleLight(sceneWorldVoxelGrid: VoxelGrid, light: LightSourceTable, lightSelectionPdf: number): void {
+  public static sampleLight(sceneWorldVoxelGrid: VoxelGrid, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace, light: LightSourceTable, lightSelectionPdf: number): void {
     const rad = new ColorRgbMutable();
     const pointSelectionPdf = [0.0];
     const dirSelectionPdf = [0.0];
@@ -121,7 +122,7 @@ export class Nondiff {
     const hitStore = new RayHit();
 
     StochasticRelaxation.activeState().tracedRays++;
-    const hit = Localline.mcrShootRay(sceneWorldVoxelGrid, lightPatch, ray, hitStore);
+    const hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, lightPatch, ray, hitStore);
     if (hit !== null) {
       const hitPatch = hit.getPatch() as Patch;
       const topPatchRad = McradP.getTopLevelPatchRad(hitPatch)!;
@@ -141,7 +142,7 @@ export class Nondiff {
     }
   }
 
-  public static sampleLightSources(sceneWorldVoxelGrid: VoxelGrid, samplesCount: number): void {
+  public static sampleLightSources(sceneWorldVoxelGrid: VoxelGrid, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace, samplesCount: number): void {
     let rnd = Random48.drand48();
     let count = 0;
     let pCumulative = 0.0;
@@ -154,7 +155,7 @@ export class Nondiff {
         globalThis.Math.floor((pCumulative + p) * Nondiff.numberOfSamples + rnd) - count;
 
       for (let j = 0; j < samplesThisLight; j++) {
-        Nondiff.sampleLight(sceneWorldVoxelGrid, lights[i]!, p);
+        Nondiff.sampleLight(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, lights[i]!, p);
       }
 
       pCumulative += p;
@@ -221,6 +222,7 @@ Initial shooting pass handling non-diffuse light sources
     Nondiff.makeLightSourceTable(scenePatches, lightPatches);
     Nondiff.sampleLightSources(
       scene.voxelGrid as VoxelGrid,
+      scene.voxelGridWorkspace as VoxelGridWorkspace,
       StochasticRelaxation.activeState().initialLightSourceSamples * Nondiff.numberOfLights
     );
     Nondiff.summarize(scenePatches);

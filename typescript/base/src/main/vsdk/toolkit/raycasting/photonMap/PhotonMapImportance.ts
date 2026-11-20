@@ -5,6 +5,7 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../material
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "../raytracing/Sampler";
 import { SamplerConfig } from "../raytracing/SamplerConfig";
@@ -61,6 +62,7 @@ Store a importon/poton. Some acceptance tests are performed first
   private static tracePotentialPath(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     photonMapState: PhotonMapState,
     photonMapConfig: PhotonMapConfig
@@ -72,7 +74,7 @@ Store a importon/poton. Some acceptance tests are performed first
     // function arguments right to left: first draw is x2, second is x1.
     const eyeX2 = Random48.drand48();
     const eyeX1 = Random48.drand48();
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
     if (path === null) {
       return false;
     }
@@ -98,6 +100,7 @@ Store a importon/poton. Some acceptance tests are performed first
       scfg.traceNode(
         camera,
         sceneVoxelGrid,
+        sceneVoxelGridWorkspace,
         sceneBackground,
         node,
         x1,
@@ -135,6 +138,7 @@ Store a importon/poton. Some acceptance tests are performed first
   public static tracePotentialPaths(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     numberOfPaths: number,
     photonMapState: PhotonMapState,
@@ -147,6 +151,7 @@ Store a importon/poton. Some acceptance tests are performed first
       PhotonMapImportance.tracePotentialPath(
         camera,
         sceneVoxelGrid,
+        sceneVoxelGridWorkspace,
         sceneBackground,
         photonMapState,
         photonMapConfig

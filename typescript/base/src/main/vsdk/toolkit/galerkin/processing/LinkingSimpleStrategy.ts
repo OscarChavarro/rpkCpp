@@ -141,6 +141,8 @@ export class LinkingSimpleStrategy {
     const geometryListReferences = candidateList[0];
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
       scene.voxelGrid,
+      scene.voxelGridWorkspace,
+      galerkinState.formFactorWorkspace,
       geometryListReferences ?? null,
       isSceneGeometry,
       isClusteredGeometry,

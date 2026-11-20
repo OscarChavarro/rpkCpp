@@ -7,6 +7,7 @@ import { Niederreiter31 } from "../../numericalAnalysis/quasiMonteCarlo/Niederre
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { NextEventSampler } from "./NextEventSampler";
@@ -107,6 +108,7 @@ export class SamplerConfig {
   public traceNode(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     nextNode: SimpleRaytracingPathNode | null,
     x1: number,
@@ -124,7 +126,7 @@ export class SamplerConfig {
         VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Point sampler not configured");
         return null;
       }
-      if (!this.pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2)) {
+      if (!this.pointSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, null, nextNode, x1, x2)) {
         VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "SamplerConfig::traceNode", "Point sampler failed");
         return null;
       }
@@ -136,7 +138,7 @@ export class SamplerConfig {
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }
-        if (!this.dirSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, lastNode, nextNode, x1, x2)) {
+        if (!this.dirSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, lastNode, nextNode, x1, x2)) {
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }
@@ -156,6 +158,7 @@ export class SamplerConfig {
         if (!this.surfaceSampler.sample(
           camera,
           sceneVoxelGrid,
+          sceneVoxelGridWorkspace,
           sceneBackground,
           lastNode.previous(),
           lastNode,
@@ -185,6 +188,7 @@ export class SamplerConfig {
   public tracePath(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     nextNode: SimpleRaytracingPathNode | null,
     flags: number
@@ -199,7 +203,7 @@ export class SamplerConfig {
       this.getRand(nextNode.previous()!.m_depth + 1, x1, x2);
     }
 
-    const sampledNode = this.traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1[0]!, x2[0]!, flags);
+    const sampledNode = this.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, x1[0]!, x2[0]!, flags);
 
     let continueTrace = sampledNode !== null;
     if (continueTrace && sceneBackground !== null && sampledNode!.ends()) {
@@ -208,7 +212,7 @@ export class SamplerConfig {
 
     if (continueTrace) {
       sampledNode!.ensureNext();
-      this.tracePath(camera, sceneVoxelGrid, sceneBackground, sampledNode!.next(), flags);
+      this.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, sampledNode!.next(), flags);
     }
 
     return sampledNode;
@@ -217,10 +221,11 @@ export class SamplerConfig {
   public tracePathDefault(
     camera: Camera,
     sceneVoxelGrid: VoxelGrid,
+    sceneVoxelGridWorkspace: VoxelGridWorkspace,
     sceneBackground: Background | null,
     nextNode: SimpleRaytracingPathNode | null
   ): SimpleRaytracingPathNode | null {
-    return this.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode, Sampler.BSDF_ALL_COMPONENTS);
+    return this.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, Sampler.BSDF_ALL_COMPONENTS);
   }
 
   public static pathNodeConnect(

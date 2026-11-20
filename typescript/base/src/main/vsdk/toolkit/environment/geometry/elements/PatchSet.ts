@@ -2,6 +2,7 @@ import { Ray } from "../../../common/linealAlgebra/Ray";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
 import type { Patch } from "./Patch";
+import type { RayExclusionSet } from "./RayExclusionSet";
 import type { RayHit } from "./RayHit";
 
 export class PatchSet extends Geometry {
@@ -36,13 +37,14 @@ export class PatchSet extends Geometry {
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
-    hitStore: RayHit | null
+    hitStore: RayHit | null,
+    exclusions: RayExclusionSet
   ): RayHit | null {
-    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+    if (!this.discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
       return null;
     }
 
-    return Geometry.patchListIntersect(this.patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return Geometry.patchListIntersect(this.patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
   }
 
   public getPatchList(): Patch[] | null {

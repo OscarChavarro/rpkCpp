@@ -9,6 +9,7 @@ import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { VoxelGrid } from "../../scene/VoxelGrid";
+import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -96,6 +97,7 @@ when no longer needed
 */
   private static tracePath(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     origin: Patch,
     birthProb: number,
     survivalProbabilityCallBack: (patch: Patch) => number,
@@ -121,7 +123,7 @@ when no longer needed
       }
       path.nodes![path.numberOfNodes - 1]!.outpoint.copy(ray.position);
 
-      hit = Localline.mcrShootRay(sceneWorldVoxelGrid, P, ray, hitStore);
+      hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, ray, hitStore);
       if (hit === null) {
         break;
       }
@@ -143,6 +145,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 */
   public static tracePaths(
     sceneWorldVoxelGrid: VoxelGrid,
+    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
     numberOfPaths: number,
     birthProbabilityCallBack: (patch: Patch) => number,
     survivalProbabilityCallBack: (patch: Patch) => number,
@@ -179,7 +182,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
       const pathsThisPatch =
         globalThis.Math.floor((pCumulative + p) * numberOfPaths + rnd) - pathCount;
       for (let j = 0; j < pathsThisPatch; j++) {
-        Tracepath.tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, path);
+        Tracepath.tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, path);
         scorePathCallBack(path, numberOfPaths, Tracepath.patchNormalisedBirthProbability);
       }
       pCumulative += p;
