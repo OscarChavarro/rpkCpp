@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Link.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
@@ -38,7 +38,7 @@ class ElementHierarchyState {
     java::ArrayList<Vector3D *> *coords;
     java::ArrayList<Vector3D *> *normals; // Created during element subdivision
     java::ArrayList<Vector3D *> *texCoords; // Created during element subdivision
-    java::ArrayList<Vertex *> *vertices;
+    java::ArrayList<RpkVertex *> *vertices;
 
     ElementHierarchyState();
     static void setActiveState(ElementHierarchyState &state);

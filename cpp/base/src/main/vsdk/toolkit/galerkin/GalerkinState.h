@@ -4,7 +4,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/render/sgl/SglContext.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasisType.h"
 #include "vsdk/toolkit/galerkin/GalerkinClusteringStrategy.h"
@@ -13,6 +13,7 @@
 #include "vsdk/toolkit/galerkin/GalerkinIterationMethod.h"
 #include "vsdk/toolkit/galerkin/GalerkinShaftCullMode.h"
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class GalerkinState {
@@ -72,7 +73,13 @@ class GalerkinState {
     ShaftCullStrategy shaftCullStrategy;
     ToneMappingContext *toneMapOptions;
 
+    // Form factor scratch owned by the solver
+    FormFactorWorkspace *formFactorWorkspace;
+
     GalerkinState();
+    ~GalerkinState();
+    GalerkinState(const GalerkinState &) = delete;
+    GalerkinState &operator=(const GalerkinState &) = delete;
 
   private:
     static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;

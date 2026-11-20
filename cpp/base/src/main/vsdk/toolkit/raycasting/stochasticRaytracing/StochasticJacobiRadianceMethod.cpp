@@ -77,7 +77,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgbMutable
-StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const {
+StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, const Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
     StochasticRadiosityBasisState::setActiveState(const_cast<StochasticRadiosityBasisState &>(stochasticRadiosityBasisState));
@@ -149,14 +149,14 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRandomRound(float x
 }
 
 void
-StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches) {
+StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors) {
     StochasticRadiosityElement *topElement = ElementHierarchyState::activeState().topCluster;
     if ( topElement != nullptr ) {
         topElement->traverseClusterLeafElements(StochasticRadiosityElement::stochasticRadiosityElementComputeNewVertexColors);
         topElement->traverseClusterLeafElements(StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            Mcrad::monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));
+            Mcrad::monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i), faceColors);
         }
     }
 }
@@ -266,6 +266,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
 
         StochasticJacobi::doStochasticJacobiIteration(
             scene->voxelGrid,
+            scene->voxelGridWorkspace,
             numberOfRays,
             stochasticRelaxationRadiosityElementUnShotRadiance,
             nullptr,
@@ -278,7 +279,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
         Mcrad::monteCarloRadiosityUpdateCpuSecs();
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
-            stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
+            stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList, scene->getFaceColors());
         }
     }
 
@@ -307,6 +308,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintIncrementalImp
 void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
@@ -343,6 +345,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
 
         StochasticJacobi::doStochasticJacobiIteration(
             sceneWorldVoxelGrid,
+            sceneWorldVoxelGridWorkspace,
             numberOfRays,
             nullptr,
             stochasticRelaxationRadiosityElementUnShotImportance,
@@ -420,12 +423,14 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintRegularStats()
 void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularRadianceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
     java::System::err.printf("Regular radiance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
     StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         StochasticRelaxation::activeState().raysPerIteration,
         stochasticRelaxationRadiosityElementRadiance,
         nullptr,
@@ -454,6 +459,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateImport
 void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularImportanceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
@@ -470,6 +476,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularImportance
 
     StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfRays,
         nullptr,
         stochasticRelaxationRadiosityElementImportance,
@@ -532,7 +539,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RendererConfiguration *rend
                     StochasticRelaxation::activeState().importanceUpdated = false;
 
                     // Propagate importance changes
-                    stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scene->voxelGrid, scene->patchList, renderOptions);
+                    stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
                     if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                         StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                     }
@@ -553,18 +560,18 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RendererConfiguration *rend
                 StochasticRelaxation::activeState().importanceUpdated = false;
 
                 // Propagate importance changes
-                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scene->voxelGrid, scene->patchList, renderOptions);
+                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
                 if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                     StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                 }
             } else {
-                stochasticRelaxationRadiosityDoRegularImportanceIteration(scene->voxelGrid, scene->patchList, renderOptions);
+                stochasticRelaxationRadiosityDoRegularImportanceIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
             }
         }
-        stochasticRelaxationRadiosityDoRegularRadianceIteration(scene->voxelGrid, scene->patchList, renderOptions);
+        stochasticRelaxationRadiosityDoRegularRadianceIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
     }
 
-    stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
+    stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList, scene->getFaceColors());
 
     java::System::err.printf("%s\n", getStats());
 

@@ -1,7 +1,7 @@
 #ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
 #define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
 
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsModel.h"
 #include "vsdk/toolkit/scene/Scene.h"
@@ -29,9 +29,9 @@ class GlutDebugToolsMouseControl final {
 
     static bool applyPatchSelection(int pickedPatchIndex, int *selectedPatch);
     static void syncCameraToViewport(const GlutDebugToolsModel &model);
-    static void buildPickRay(const GlutDebugToolsModel &model, int x, int y, Ray *ray);
+    static void buildPickRay(const GlutDebugToolsModel &model, int x, int y, RpkRay *ray);
     static bool pickPatchAtMousePosition(const GlutDebugToolsModel &model, int x, int y, int *patchIndex);
-    static void applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, Ray *ray);
+    static void applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, RpkRay *ray);
     static Vector3D sceneRotationPivot(const Scene *scene);
     static void viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV);
     static void rotateVectorAroundAxis(Vector3D *vector, const Vector3D &axis, float angleDegrees);

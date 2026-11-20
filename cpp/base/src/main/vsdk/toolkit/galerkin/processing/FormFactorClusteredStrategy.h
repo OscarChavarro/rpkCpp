@@ -1,8 +1,8 @@
 #ifndef FORM_FACTOR_CLUSTERED_STRATEGY__
 #define FORM_FACTOR_CLUSTERED_STRATEGY__
 
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
@@ -18,21 +18,23 @@ class FormFactorClusteredStrategy {
 
     static double
     geomListMultiResolutionVisibility(
-        const java::ArrayList<Geometry *> *geometryOccluderList,
+        const java::ArrayList<RpkGeometry *> *geometryOccluderList,
         ShadowCache *shadowCache,
-        Ray *ray,
+        RpkRay *ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize);
+        float minimumFeatureSize,
+        const RayExclusionSet &exclusions);
 
     static double
     geometryMultiResolutionVisibility(
         ShadowCache *shadowCache,
-        Geometry *geometry,
-        Ray *ray,
+        RpkGeometry *geometry,
+        RpkRay *ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize);
+        float minimumFeatureSize,
+        const RayExclusionSet &exclusions);
 };
 
 #endif

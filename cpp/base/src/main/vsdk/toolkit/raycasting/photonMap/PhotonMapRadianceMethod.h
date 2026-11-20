@@ -29,6 +29,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     photonMapDoScreenNEE(
         Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
     bool
@@ -40,12 +41,14 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     photonMapHandlePath(
         Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
     void
     photonMapTracePath(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         PhotonMapConfig *config,
         char bsdfFlags);
@@ -53,6 +56,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     photonMapTracePaths(
         Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         Background *sceneBackground,
         PhotonMapConfig *config,
         int numberOfPaths,
@@ -62,6 +66,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     photonMapBRRealIteration(
         Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         Background *sceneBackground,
         const RadianceMethod *radianceMethod);
 
@@ -73,7 +78,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;

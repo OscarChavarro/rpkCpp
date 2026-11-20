@@ -2,13 +2,16 @@
 #define PATCH__
 
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
-class RayHit;
+class RpkRayHit;
+
+class FaceColorTable;
 
 class Patch {
   private:
@@ -17,7 +20,6 @@ class Patch {
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     static int patchId;
-    static Patch *excludedPatches[MAX_EXCLUDED_PATCHES];
 
     static void
     pointInTriangle(
@@ -38,29 +40,20 @@ class Patch {
         float v,
         Vector3D &p);
 
-    static void
-    dontIntersectBase(
-        int n,
-        Patch *p0,
-        Patch *p1,
-        Patch *p2,
-        Patch *p3);
-
     static double clipToUnitInterval(double x);
     static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
     static bool quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
     static Vector3D *patchNormal(const Patch *patch, Vector3D *normal);
 
-    unsigned char flags; // Other flags
     Vector3D patchMidPoint; // Patch midpoint
-    Material *material;
+    RpkMaterial *material;
     unsigned id; // Identification number for debugging, ID rendering
+    int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
     Patch *twin; // Twin face (for double-sided surfaces)
     const char numberOfVertices; // Number of vertices: 3 or 4
-    Vertex *const vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
-    AxisAlignedBoundingBox *const boundingBox;
+    RpkVertex *const vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
+    RpkAxisAlignedBoundingBox *const boundingBox;
     float planeTolerance; // Plane tolerance
-    float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph, 1995?).
     // Only determined when asked to do so (see potential.[ch]).
     Vector3D normal;
     float planeConstant;
@@ -74,78 +67,65 @@ class Patch {
     // testing, shaft culling, ... set to FALSE by
     // default. Don't forget to set to FALSE again
     // after you changed it!
-    ColorRgbMutable color; // Color used to flat render the patch
 
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;
-    bool isExcluded() const;
-    bool hitInPatch(RayHit *hit, const Patch *patch) const;
+    bool hitInPatch(RpkRayHit *hit, const Patch *patch) const;
     bool allVerticesHaveANormal() const;
     Vector3D getInterpolatedNormalAtUv(double u, double v) const;
     float computeTolerance() const;
     bool triangleUv(const Vector3D *point, Vector2Dd *uv) const;
     bool isAtLeastPartlyInFront(const Patch *other) const;
-    void connectVertex(Vertex *paramVertex);
+    void connectVertex(RpkVertex *paramVertex);
     void connectVertices();
     float computeRandomWalkRadiosityArea();
     void computeMidpoint(Vector3D *p) const;
 
   public:
-    static void dontIntersect0();
-    static void dontIntersect2(Patch *p0, Patch *p1);
-    static void dontIntersect3(Patch *p0, Patch *p1, Patch *p2);
-    static void dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3);
     static int getNextId();
     static void setNextId(int id);
 
-    Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
+    Patch(int inNumberOfVertices, RpkVertex *v1, RpkVertex *v2, RpkVertex *v3, RpkVertex *v4);
     ~Patch();
 
     void biLinearToUniform(double *u, double *v) const;
-    void computeAndGetBoundingBox(AxisAlignedBoundingBox *bounds);
+    void computeAndGetBoundingBox(RpkAxisAlignedBoundingBox *bounds);
     void computeBoundingBox();
-    void computeVertexColors() const;
+    void computeVertexColors(const FaceColorTable *faceColors) const;
     bool facing(const Patch *other) const;
     float getArea() const;
-    const AxisAlignedBoundingBox *getBoundingBox() const;
-    const ColorRgbMutable &getColor() const;
-    float getDirectPotential() const;
+    const RpkAxisAlignedBoundingBox *getBoundingBox() const;
     char getDominantAxisIndex() const;
-    unsigned char getFlags() const;
     unsigned getId() const;
+    int getFaceIndex() const;
     const Jacobian *getJacobian() const;
-    const Material *getMaterial() const;
+    const RpkMaterial *getMaterial() const;
     const Vector3D &getNormal() const;
     char getNumberOfVertices() const;
     float getPlaneConstant() const;
     Element *getRadianceData() const;
     float getTolerance() const;
     Patch *const &getTwin() const;
-    Vertex *const (&getVertices() const)[MAXIMUM_VERTICES_PER_PATCH];
+    RpkVertex *const (&getVertices() const)[MAXIMUM_VERTICES_PER_PATCH];
     bool hasZeroVertices() const;
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const;
-    RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
+    RpkRayHit *intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
     bool isOmitted() const;
     const Vector3D &midPoint() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
-    void setColor(const ColorRgbMutable &newColor);
-    void setDirectPotential(float newDirectPotential);
     void setDominantAxisIndex(char newIndex);
-    void setFlags(unsigned char newFlags);
     void setId(unsigned newId);
-    void setInvisible();
+    void setFaceIndex(int newFaceIndex);
     void setJacobian(Jacobian *newJacobian);
-    void setMaterial(Material *newMaterial);
+    void setMaterial(RpkMaterial *newMaterial);
     void setOmit(bool shouldOmit);
     void setRadianceData(Element *newRadianceData);
     void setTwin(Patch *newTwin);
-    void setVisible();
     Vector3D textureCoordAtUv(double u, double v) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
     bool uv(const Vector3D *point, double *u, double *v) const;
 
 #ifdef RAYTRACING_ENABLED
-    bool isVisible() const;
     bool uniformUv(const Vector3D *point, double *u, double *v) const;
 #endif
 };
@@ -164,19 +144,9 @@ Patch::getArea() const {
     return area;
 }
 
-inline const AxisAlignedBoundingBox *
+inline const RpkAxisAlignedBoundingBox *
 Patch::getBoundingBox() const {
     return boundingBox;
-}
-
-inline const ColorRgbMutable &
-Patch::getColor() const {
-    return color;
-}
-
-inline float
-Patch::getDirectPotential() const {
-    return directPotential;
 }
 
 inline char
@@ -184,9 +154,14 @@ Patch::getDominantAxisIndex() const {
     return index;
 }
 
-inline unsigned char
-Patch::getFlags() const {
-    return flags;
+inline int
+Patch::getFaceIndex() const {
+    return faceIndex;
+}
+
+inline void
+Patch::setFaceIndex(const int newFaceIndex) {
+    faceIndex = newFaceIndex;
 }
 
 inline unsigned
@@ -199,7 +174,7 @@ Patch::getJacobian() const {
     return jacobian;
 }
 
-inline const Material *
+inline const RpkMaterial *
 Patch::getMaterial() const {
     return material;
 }
@@ -234,7 +209,7 @@ Patch::getTwin() const {
     return twin;
 }
 
-inline Vertex *const (&
+inline RpkVertex *const (&
 Patch::getVertices() const)[MAXIMUM_VERTICES_PER_PATCH] {
     return vertex;
 }
@@ -244,26 +219,9 @@ Patch::isOmitted() const {
     return omit != 0;
 }
 
-#ifdef RAYTRACING_ENABLED
-inline bool
-Patch::isVisible() const {
-    return (flags & PATCH_VISIBILITY) != 0;
-}
-#endif
-
 inline const Vector3D &
 Patch::midPoint() const {
     return patchMidPoint;
-}
-
-inline void
-Patch::setColor(const ColorRgbMutable &newColor) {
-    color = newColor;
-}
-
-inline void
-Patch::setDirectPotential(float newDirectPotential) {
-    directPotential = newDirectPotential;
 }
 
 inline void
@@ -272,18 +230,8 @@ Patch::setDominantAxisIndex(char newIndex) {
 }
 
 inline void
-Patch::setFlags(unsigned char newFlags) {
-    flags = newFlags;
-}
-
-inline void
 Patch::setId(unsigned newId) {
     id = newId;
-}
-
-inline void
-Patch::setInvisible() {
-    flags &= ~PATCH_VISIBILITY;
 }
 
 inline void
@@ -295,7 +243,7 @@ Patch::setJacobian(Jacobian *newJacobian) {
 }
 
 inline void
-Patch::setMaterial(Material *newMaterial) {
+Patch::setMaterial(RpkMaterial *newMaterial) {
     material = newMaterial;
 }
 
@@ -312,11 +260,6 @@ Patch::setRadianceData(Element *newRadianceData) {
 inline void
 Patch::setTwin(Patch *newTwin) {
     twin = newTwin;
-}
-
-inline void
-Patch::setVisible() {
-    flags |= PATCH_VISIBILITY;
 }
 
 #endif

@@ -14,7 +14,7 @@
 class Opengl {
   private:
     static const ToneMappingContext *activeToneMapOptions;
-    static void openGlRenderPatchFlat(const Patch *patch, const RendererConfiguration *renderOptions);
+    static void openGlRenderPatchFlat(const Patch *patch, const ColorRgbMutable &color, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchSmooth(const Patch *patch, const RendererConfiguration *renderOptions);
     static void
     openGlInvokeRenderPatch(
@@ -25,21 +25,21 @@ class Opengl {
     static void
     openGlReallyRenderOctreeLeaf(
         const Camera *camera,
-        const Geometry *geometry,
+        const RpkGeometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatch,
         const RendererConfiguration *renderOptions);
     static void
     openGlRenderOctreeLeaf(
         const Camera *camera,
-        const Geometry *geometry,
+        const RpkGeometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RendererConfiguration *renderOptions);
-    static bool openGlViewCullBounds(const Camera *camera, const AxisAlignedBoundingBox *bounds);
-    static float openGlBoundsDistance2(Vector3D p, const AxisAlignedBoundingBox *boundingBox);
+    static bool openGlViewCullBounds(const Camera *camera, const RpkAxisAlignedBoundingBox *bounds);
+    static float openGlBoundsDistance2(Vector3D p, const RpkAxisAlignedBoundingBox *boundingBox);
     static void
     openGlRenderOctreeNonLeaf(
         Camera *camera,
-        const Geometry *geometry,
+        const RpkGeometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RendererConfiguration *renderOptions);
     static void openGlRenderSetLineWidth(float width);
@@ -70,9 +70,9 @@ class Opengl {
         Vector3D *vertices,
         const ColorRgbMutable *verticesColors,
         const RendererConfiguration *renderOptions);
-    static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions);
+    static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, void *faceColors);
     static void openGlRenderClearWindow(const Camera *camera);
-    static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
+    static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<RpkGeometry *> *sceneGeometries);
     static void openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *debugState);
 
     static void

@@ -78,18 +78,19 @@ lead to this conclusion is added to the shadow cache
 */
 double
 FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-    const java::ArrayList<Geometry *> *geometryOccluderList,
+    const java::ArrayList<RpkGeometry *> *geometryOccluderList,
     ShadowCache *shadowCache,
-    Ray *ray,
+    RpkRay *ray,
     float rcvDist,
     float srcSize,
-    float minimumFeatureSize)
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
 {
     double vis = 1.0;
 
     for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
         double v = FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
-            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
+            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
         if ( v < Numeric::EPSILON ) {
             return 0.0;
         } else {
@@ -103,13 +104,14 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
 double
 FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     ShadowCache *shadowCache,
-    Geometry *geometry,
-    Ray *ray,
+    RpkGeometry *geometry,
+    RpkRay *ray,
     float rcvDist,
     float srcSize,
-    float minimumFeatureSize)
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
 {
-    if ( geometry->isExcluded() ) {
+    if ( exclusions.excludesGeometry(geometry) ) {
         return 1.0;
     }
 
@@ -120,7 +122,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     float fSize = Numeric::HUGE_FLOAT_VALUE;
     float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
-    const AxisAlignedBoundingBox *boundingBox = &geometry->boundingBox;
+    const RpkAxisAlignedBoundingBox *boundingBox = &geometry->boundingBox;
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
@@ -155,20 +157,21 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         return java::Math::exp(-kappa * (tMaximum - tMinimum));
     } else {
         if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+            java::ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
             double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize);
+                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
             delete geometryList;
             return visibility;
         } else {
-            RayHit hitStore;
-            const RayHit *hit = Geometry::patchListIntersect(
-                    Geometry::patchListReference(geometry),
+            RpkRayHit hitStore;
+            const RpkRayHit *hit = RpkGeometry::patchListIntersect(
+                    RpkGeometry::patchListReference(geometry),
                     ray,
                     rcvDist * Numeric::EPSILON_FLOAT,
                     &rcvDist,
                     RayHitFlag::FRONT | RayHitFlag::ANY,
-                    &hitStore);
+                    &hitStore,
+                    exclusions);
 
             if ( hit != nullptr ) {
                 shadowCache->addToShadowCache(hit->getPatch());

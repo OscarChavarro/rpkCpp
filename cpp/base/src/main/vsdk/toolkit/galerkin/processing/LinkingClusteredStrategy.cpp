@@ -24,8 +24,8 @@ LinkingClusteredStrategy::createInitialLinks(
     GalerkinRole role,
     GalerkinState *galerkinState)
 {
-    GalerkinElement *receiverElement;
-    GalerkinElement *sourceElement;
+    GalerkinElement *receiverElement = nullptr;
+    GalerkinElement *sourceElement = nullptr;
 
     switch ( role ) {
         case GalerkinRole::RECEIVER:

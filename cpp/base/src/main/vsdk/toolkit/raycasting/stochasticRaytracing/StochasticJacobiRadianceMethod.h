@@ -21,7 +21,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -39,7 +39,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
 
     static void appendStochasticStatsText(char *buffer, int *offset, const char *format, ...);
     static long stochasticRelaxationRadiosityRandomRound(float x);
-    static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches);
+    static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
     static double stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *elem, double w);
     static ColorRgbMutable *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement *elem, double w);
@@ -53,6 +53,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     static void stochasticRelaxationRadiosityPrintIncrementalImportanceStats();
     static void stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static ColorRgbMutable *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
@@ -60,12 +61,14 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     static void stochasticRelaxationRadiosityPrintRegularStats();
     static void stochasticRelaxationRadiosityDoRegularRadianceIteration(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static float stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityDoRegularImportanceIteration(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static void stochasticRelaxationRadiosityElementDiscardIncremental(Element *element);

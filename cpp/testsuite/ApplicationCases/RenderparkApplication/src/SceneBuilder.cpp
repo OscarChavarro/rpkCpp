@@ -1,3 +1,6 @@
+#ifdef RPK_RAY_CAPTURE
+    #include <cstdlib>
+#endif
 #include <cstring>
 
 #include "java/io/FileInputStream.h"
@@ -133,10 +136,10 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
-Geometry *
+RpkGeometry *
 SceneBuilder::sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
     PatchClusterOctreeNode *rootCluster;
-    Geometry *rootGeometry;
+    RpkGeometry *rootGeometry;
 
     // Create a toplevel cluster containing (references to) all the patches in the scene
     rootCluster = new PatchClusterOctreeNode(patches);
@@ -157,16 +160,16 @@ Builds a linear list of patches making up all the geometries in the list, whethe
 they are primitive or not
 */
 void
-SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
+SceneBuilder::sceneBuilderPatchList(const java::ArrayList<RpkGeometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry * const geometry = geometryList->get(i);
+        RpkGeometry * const geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
             const Compound *compound = static_cast<const Compound *>(geometry);
             SceneBuilder::sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
-            const java::ArrayList<Patch *> *patchesFromNonCompounds = Geometry::patchListReference(geometry);
+            const java::ArrayList<Patch *> *patchesFromNonCompounds = RpkGeometry::patchListReference(geometry);
 
             for ( int j = 0; patchesFromNonCompounds != nullptr && j < patchesFromNonCompounds->size(); j++ ) {
                 Patch * const patch = patchesFromNonCompounds->get(j);
@@ -179,12 +182,12 @@ SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryL
 }
 
 void
-SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList) {
+SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<RpkGeometry *> *geometryList) {
     if ( geometryList == nullptr ) {
         return;
     }
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry * const geometry = geometryList->get(i);
+        RpkGeometry * const geometry = geometryList->get(i);
         if ( geometry == nullptr ) {
             continue;
         }
@@ -201,15 +204,15 @@ SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *
 
 void
 SceneBuilder::sceneBuilderCollectGeometriesRecursive(
-    const java::ArrayList<Geometry *> *source,
-    java::ArrayList<Geometry *> *target)
+    const java::ArrayList<RpkGeometry *> *source,
+    java::ArrayList<RpkGeometry *> *target)
 {
     if ( source == nullptr || target == nullptr ) {
         return;
     }
 
     for ( int i = 0; i < source->size(); i++ ) {
-        Geometry * const geometry = source->get(i);
+        RpkGeometry * const geometry = source->get(i);
         if ( geometry == nullptr ) {
             continue;
         }
@@ -260,7 +263,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext
     mgfContext->currentMaterial = nullptr;
     if ( mgfContext->materials != nullptr && mgfContext->currentMaterialName != nullptr ) {
         for ( int i = 0; i < mgfContext->materials->size(); i++ ) {
-            Material * const material = mgfContext->materials->get(i);
+            RpkMaterial * const material = mgfContext->materials->get(i);
             if ( material != nullptr
                  && material->getName() != nullptr
                  && strcmp(material->getName(), mgfContext->currentMaterialName) == 0 ) {
@@ -274,7 +277,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext
         mgfContext->allGeometries->dispose();
         delete mgfContext->allGeometries;
     }
-    mgfContext->allGeometries = new java::ArrayList<Geometry *>();
+    mgfContext->allGeometries = new java::ArrayList<RpkGeometry *>();
     SceneBuilder::sceneBuilderCollectGeometriesRecursive(mgfModel->currentGeometryList, mgfContext->allGeometries);
     if ( mgfModel->geometries != mgfModel->currentGeometryList ) {
         SceneBuilder::sceneBuilderCollectGeometriesRecursive(mgfModel->geometries, mgfContext->allGeometries);
@@ -282,14 +285,14 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext
 }
 
 void
-SceneBuilder::removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+SceneBuilder::removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, java::ArrayList<RpkGeometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        const Geometry *geometry = geometryList->get(i);
+        const RpkGeometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             const MeshSurface *mesh = static_cast<const MeshSurface *>(geometry);
             if ( mesh->vertices->size() == 0 ) {
                 for ( int j = 0; j < mgfContext->allGeometries->size(); j++ ) {
-                    const Geometry *deletionCandidate = mgfContext->allGeometries->get(j);
+                    const RpkGeometry *deletionCandidate = mgfContext->allGeometries->get(j);
                     if ( deletionCandidate == geometry ) {
                         mgfContext->allGeometries->remove(j);
                         break;
@@ -571,6 +574,9 @@ SceneBuilder::sceneBuilderReadFile(
         Logger::reportMessage("SceneBuilder", Logger::WARNING, "", "Strange clusters for this world ...");
     }
 
+    // Dense face indices in depth-first order of the cluster hierarchy
+    scene->buildFaceTable();
+
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
@@ -578,7 +584,13 @@ SceneBuilder::sceneBuilderReadFile(
     last = t;
 
     // Create the scene level voxel grid
-    scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
+    scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry, scene->getFaceBounds());
+#ifdef RPK_RAY_CAPTURE
+    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
+    scene->visibilityQueryRecorder = new VisibilityQueryRecorder(getenv("RPK_RAY_CAPTURE_FILE"));
+#endif
+    scene->voxelGridWorkspace = new VoxelGridWorkspace(
+        scene->voxelGrid->getNumberOfItems(), scene->visibilityQueryRecorder);
 
     t = java::System::nanoTime();
     java::System::err.printf(

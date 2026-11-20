@@ -50,6 +50,7 @@ MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRu
         default:
             Logger::reportMessage("MgfVertexFaceEntitySupport", Logger::FATAL_ERROR, "mgf.c: doDiscreteConic", java::String::format("Unsupported geometry entity number %d", en));
     }
+    return ParseErrorContext::MGF_ERROR_UNKNOWN_ENTITY; // Not reached: a FATAL_ERROR report throws
 }
 
 Vector3D *
@@ -66,22 +67,22 @@ MgfVertexFaceEntitySupport::installNormal(float x, float y, float z, const Parse
     return norm;
 }
 
-Vertex *
+RpkVertex *
 MgfVertexFaceEntitySupport::installVertex(Vector3D *coord, Vector3D *norm, const ParseRuntimeContext *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-    Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
+    RpkVertex *v = new RpkVertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
     return v;
 }
 
-Vertex *
+RpkVertex *
 MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *context) {
     VertexContext *vp = MgfVertexFaceEntitySupport::getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
     }
 
-    Vertex *theVertex = vp->vertex;
+    RpkVertex *theVertex = vp->vertex;
     if ( !theVertex
          || vp->clock >= 1
          || vp->xid != MgfVertexFaceEntitySupport::transformXid(context->transformContext)
@@ -113,9 +114,9 @@ MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *con
 Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
-Vertex *
-MgfVertexFaceEntitySupport::getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context) {
-    Vertex *back = v->back;
+RpkVertex *
+MgfVertexFaceEntitySupport::getBackFaceVertex(RpkVertex *v, const ParseRuntimeContext *context) {
+    RpkVertex *back = v->back;
 
     if ( !back ) {
         Vector3D *point = v->point;
@@ -132,7 +133,7 @@ MgfVertexFaceEntitySupport::getBackFaceVertex(Vertex *v, const ParseRuntimeConte
 }
 
 Patch *
-MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context) {
+MgfVertexFaceEntitySupport::newFace(RpkVertex *v1, RpkVertex *v2, RpkVertex *v3, RpkVertex *v4, const ParseRuntimeContext *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -160,7 +161,7 @@ MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *
 Computes the normal to the patch plane
 */
 Vector3D *
-MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
+MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, RpkVertex **v, Vector3D *normal) {
     Vector3D cur;
     Vector3D n;
 
@@ -215,7 +216,7 @@ onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
 bool
-MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
+MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, RpkVertex **v, const Vector3D *normal) {
     Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
     Vector2D p;
     Vector2D c;
@@ -358,7 +359,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 void
-MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseRuntimeContext *context) {
+MgfVertexFaceEntitySupport::doComplexFace(int n, RpkVertex **v, Vector3D *normal, RpkVertex **backVertex, ParseRuntimeContext *context) {
     Vector3D center;
 
     center.set(0.0, 0.0, 0.0);
@@ -500,8 +501,8 @@ MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseR
         MgfMaterialEntitySupport::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
     }
 
-    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
-    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
+    RpkVertex *v[MAXIMUM_FACE_VERTICES + 1];
+    RpkVertex *backV[MAXIMUM_FACE_VERTICES + 1];
 
     for ( int i = 0; i < argc - 1; i++ ) {
         v[i] = getVertex(argv[i + 1], context);

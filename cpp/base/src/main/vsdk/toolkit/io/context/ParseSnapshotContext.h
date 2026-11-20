@@ -6,28 +6,28 @@
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class ParseSnapshotContext {
   public:
     // Snapshot of MGF parsing state and outputs (non-owning references).
     ColorContext *currentColor;
     java::ArrayList<Patch *> *currentFaceList;
-    java::ArrayList<Geometry *> *currentGeometryList;
+    java::ArrayList<RpkGeometry *> *currentGeometryList;
     char *currentMaterialName;
     java::ArrayList<Vector3D *> *currentNormalList;
     char *currentObjectName;
     java::ArrayList<Vector3D *> *currentPointList;
-    java::ArrayList<Vertex *> *currentVertexList;
+    java::ArrayList<RpkVertex *> *currentVertexList;
     char *currentVertexName;
-    java::ArrayList<Geometry *> *geometries;
+    java::ArrayList<RpkGeometry *> *geometries;
     int geometryStackHeadIndex;
     bool inComplex;
     bool inSurface;
-    java::ArrayList<Material *> *materials;
+    java::ArrayList<RpkMaterial *> *materials;
     bool monochrome;
     ReaderContext *readerContext;
     TransformStackContext *transformContext;

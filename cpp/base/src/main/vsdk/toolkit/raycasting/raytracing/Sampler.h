@@ -23,6 +23,7 @@ class Sampler {
   protected:
     virtual bool sampleTransfer(
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -40,6 +41,7 @@ public:
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,

@@ -10,6 +10,7 @@ bool
 SpecularSampler::sample(
     Camera */*camera*/,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -103,6 +104,7 @@ SpecularSampler::sample(
     // Transfer
     if ( !sampleTransfer(
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             thisNode,
             newNode,

@@ -21,17 +21,17 @@ LinkingSimpleStrategy::createInitialLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    java::ArrayList<Geometry *> **candidateList,
+    java::ArrayList<RpkGeometry *> **candidateList,
     GalerkinElement *topElement,
-    AxisAlignedBoundingBox *topLevelBoundingBox,
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
     Patch *patch)
 {
     if ( !patch->facing(topElement->patch) ) {
         return;
     }
 
-    GalerkinElement *rcv;
-    GalerkinElement *src;
+    GalerkinElement *rcv = nullptr;
+    GalerkinElement *src = nullptr;
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     switch ( role ) {
         case GalerkinRole::SOURCE:
@@ -46,12 +46,12 @@ LinkingSimpleStrategy::createInitialLink(
             Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLink", "Impossible element role");
     }
 
-    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    java::ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
 
     if ( (galerkinState->exactVisibility
        || galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING)
        && oldCandidateList ) {
-        Shaft shaft;
+        Shaft shaft(scene->getFaceBounds());
 
         if ( galerkinState->exactVisibility ) {
             if ( rcv != nullptr && src != nullptr ) {
@@ -62,14 +62,14 @@ LinkingSimpleStrategy::createInitialLink(
                 shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
             }
         } else {
-            AxisAlignedBoundingBox boundingBox;
-            patch->computeAndGetBoundingBox(&boundingBox);
+            RpkAxisAlignedBoundingBox boundingBox;
+            boundingBox.copyFrom(&scene->getFaceBounds()->get(patch->getFaceIndex()));
             shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         }
 
         shaft.setShaftOmit(topElement->patch);
         shaft.setShaftOmit(patch);
-        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+        java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
         shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
         *candidateList = arr;
 
@@ -109,9 +109,11 @@ LinkingSimpleStrategy::createInitialLink(
 
     bool isSceneGeometry = (*candidateList == scene->geometryList);
     bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
-    const java::ArrayList<Geometry *> *geometryListReferences = *candidateList;
+    const java::ArrayList<RpkGeometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
+        galerkinState->formFactorWorkspace,
         geometryListReferences,
         isSceneGeometry,
         isClusteredGeometry,
@@ -152,10 +154,10 @@ LinkingSimpleStrategy::geometryLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    java::ArrayList<Geometry *> **candidateList,
+    java::ArrayList<RpkGeometry *> **candidateList,
     GalerkinElement *topElement,
-    AxisAlignedBoundingBox *topLevelBoundingBox,
-    Geometry *geometry)
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
+    RpkGeometry *geometry)
 {
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
     if ( geometry->bounded
@@ -166,14 +168,14 @@ LinkingSimpleStrategy::geometryLink(
     // If the geometry is bounded, do shaft culling, reducing the candidate list
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
-    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    java::ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
 
     if ( geometry->bounded && oldCandidateList ) {
-        Shaft shaft;
-        AxisAlignedBoundingBox boundingBox = geometry->getBoundingBox();
+        Shaft shaft(scene->getFaceBounds());
+        RpkAxisAlignedBoundingBox boundingBox = geometry->getBoundingBox();
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         shaft.setShaftOmit(topElement->patch);
-        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+        java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
         shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
         *candidateList = arr;
     }
@@ -181,7 +183,7 @@ LinkingSimpleStrategy::geometryLink(
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        java::ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             LinkingSimpleStrategy::geometryLink(
                 scene,
@@ -194,7 +196,7 @@ LinkingSimpleStrategy::geometryLink(
         }
         delete geometryList;
     } else {
-        const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             LinkingSimpleStrategy::createInitialLink(
                 scene,
@@ -230,10 +232,10 @@ LinkingSimpleStrategy::createInitialLinks(
         Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    AxisAlignedBoundingBox topLevelBoundingBox;
-    topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
+    RpkAxisAlignedBoundingBox topLevelBoundingBox;
+    topLevelBoundingBox.copyFrom(&scene->getFaceBounds()->get(topElement->patch->getFaceIndex()));
 
-    java::ArrayList<Geometry *> *candidateList = scene->clusteredGeometryList;
+    java::ArrayList<RpkGeometry *> *candidateList = scene->clusteredGeometryList;
 
     for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
         LinkingSimpleStrategy::geometryLink(

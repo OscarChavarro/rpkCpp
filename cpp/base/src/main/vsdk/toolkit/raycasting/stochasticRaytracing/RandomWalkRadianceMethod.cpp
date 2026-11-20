@@ -67,7 +67,7 @@ RandomWalkRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 ColorRgbMutable
 RandomWalkRadianceMethod::getRadiance(
     Camera */*camera*/,
-    Patch *patch,
+    const Patch *patch,
     double u,
     double v,
     Vector3D dir,
@@ -301,6 +301,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate(const Patch *P, doub
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks;
@@ -322,6 +323,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfWalks,
         randomWalkRadiosityScalarSourcePower,
         randomWalkRadiosityScalarReflectance,
@@ -444,6 +446,7 @@ Returns true when converged and false if not
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks = StochasticRelaxation::activeState().initialNumberOfRays;
@@ -468,6 +471,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,
+        sceneWorldVoxelGridWorkspace,
         numberOfWalks,
         randomWalkRadiosityPatchArea,
         randomWalkRadiosityScalarReflectance,
@@ -487,13 +491,14 @@ RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination(Stochastic
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
     long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
         StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     java::System::err.printf("First shot (%ld rays):\n", numberOfRays);
-    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }
@@ -515,22 +520,22 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOpti
 
     if ( StochasticRelaxation::activeState().currentIteration == 1
         && StochasticRelaxation::activeState().indirectOnly ) {
-        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
+        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
     }
 
     switch ( StochasticRelaxation::activeState().randomWalkEstimatorType ) {
         case RandomWalkEstimatorType::RW_SHOOTING:
-            randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->patchList);
+            randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
             break;
         case RandomWalkEstimatorType::RW_GATHERING:
-            randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->patchList);
+            randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
             break;
         default:
             Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "randomWalkRadiosityDoStep", java::String::format("Unknown random walk estimator type %d", StochasticRelaxation::activeState().randomWalkEstimatorType));
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        Mcrad::monteCarloRadiosityPatchComputeNewColor(scene->patchList->get(i));
+        Mcrad::monteCarloRadiosityPatchComputeNewColor(scene->patchList->get(i), scene->getFaceColors());
     }
 
     return false; // Never converged

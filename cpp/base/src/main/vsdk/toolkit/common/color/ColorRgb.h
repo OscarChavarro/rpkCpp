@@ -9,7 +9,6 @@ private:
 
 public:
     ColorRgb();
-    ColorRgb(const ColorRgb& c);
     ColorRgb(double r, double g, double b);
     ~ColorRgb();
 

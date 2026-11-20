@@ -6,7 +6,13 @@
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/scene/Camera.h"
+#include "vsdk/toolkit/scene/FaceBoundsTable.h"
+#include "vsdk/toolkit/scene/DirectPotentialTable.h"
+#include "vsdk/toolkit/scene/FaceVisibilityTable.h"
+#include "vsdk/toolkit/scene/FaceColorTable.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
+#include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
   private:
@@ -23,15 +29,28 @@ class Scene {
     void printClusteredGeometries() const;
     void printPatches() const;
     void printVoxelGrid() const;
-    static void printClusterHierarchy(const Geometry *node, int level, int *elementCount);
+    static void printClusterHierarchy(const RpkGeometry *node, int level, int *elementCount);
+
+    // Face table: every patch of the scene, in depth-first order of
+    // clusteredRootGeometry, indexed by Patch::getFaceIndex(). Owned array,
+    // patches not owned. Each geometry and cluster covers a contiguous range.
+    Patch **faceTable;
+    int numberOfFaces;
+    FaceBoundsTable *faceBounds; // Owned; bounds of the faceTable entries
+    DirectPotentialTable *directPotentials; // Owned; direct potential of the faceTable entries
+    FaceVisibilityTable *faceVisibility; // Owned; direct visibility of the faceTable entries
+    FaceColorTable *faceColors; // Owned; display color of the faceTable entries
+    static void collectFaces(const RpkGeometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
 
 public:
     Background *background;
     Camera *camera;
-    java::ArrayList<Geometry *> *geometryList;
-    java::ArrayList<Geometry *> *clusteredGeometryList;
-    Geometry *clusteredRootGeometry;
+    java::ArrayList<RpkGeometry *> *geometryList;
+    java::ArrayList<RpkGeometry *> *clusteredGeometryList;
+    RpkGeometry *clusteredRootGeometry;
     VoxelGrid *voxelGrid;
+    VoxelGridWorkspace *voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
+    VisibilityQueryRecorder *visibilityQueryRecorder; // Ray capture builds only, otherwise null
 
     // The list of all patches in the current scene
     java::ArrayList<Patch *> *patchList;
@@ -43,6 +62,55 @@ public:
     ~Scene();
 
     void print() const;
+
+    /**
+    Assigns the dense face indices and builds the face table and the face
+    bounds. Called once, after the cluster hierarchy exists and before the
+    voxel grid. A patch reachable from two geometries, or a patch of
+    patchList that clusteredRootGeometry does not reach, is a fatal error.
+    */
+    void buildFaceTable();
+    int getNumberOfFaces() const;
+    Patch *getFace(int faceIndex) const;
+    const FaceBoundsTable *getFaceBounds() const;
+    // Per-face solver data: written by Potential::updateDirectPotential, read
+    // by the importance-driven solvers
+    DirectPotentialTable *getDirectPotentials() const;
+    // Written by Potential::updateDirectVisibility, read by the importance-driven
+    // stochastic radiosity
+    FaceVisibilityTable *getFaceVisibility() const;
+    // Written by the radiance methods after each step, read by the displays
+    FaceColorTable *getFaceColors() const;
 };
+
+inline FaceColorTable *
+Scene::getFaceColors() const {
+    return faceColors;
+}
+
+inline FaceVisibilityTable *
+Scene::getFaceVisibility() const {
+    return faceVisibility;
+}
+
+inline DirectPotentialTable *
+Scene::getDirectPotentials() const {
+    return directPotentials;
+}
+
+inline const FaceBoundsTable *
+Scene::getFaceBounds() const {
+    return faceBounds;
+}
+
+inline int
+Scene::getNumberOfFaces() const {
+    return numberOfFaces;
+}
+
+inline Patch *
+Scene::getFace(const int faceIndex) const {
+    return faceTable[faceIndex];
+}
 
 #endif

@@ -17,9 +17,9 @@ class GalerkinRadianceMethod final : public RadianceMethod {
   private:
     static constexpr int STRING_LENGTH = 2000;
     GatheringStrategy *gatheringStrategy;
-    ColorRgbMutable computePatchRadiance(Patch *patch, double u, double v) const;
+    ColorRgbMutable computePatchRadiance(const Patch *patch, double u, double v) const;
 
-    static void patchInit(Patch *patch);
+    static void patchInit(Patch *patch, const DirectPotentialTable *directPotentials, FaceColorTable *faceColors);
     static void updateCpuSecs();
     static java::String formatToString(const char *format, va_list arguments);
     static void writeFormatted(const char *format, ...);
@@ -64,7 +64,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static GalerkinState galerkinState;
     static void freeMemory();
 
-    static void recomputePatchColor(Patch *patch);
+    static void recomputePatchColor(Patch *patch, FaceColorTable *faceColors);
 
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod() final;
@@ -73,7 +73,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *rendererConfiguration) const final;
+    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *rendererConfiguration) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;

@@ -7,19 +7,19 @@
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
-#include "vsdk/toolkit/material/Texture.h"
+#include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/skin/Compound.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/material/MaterialColorFlags.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -48,10 +48,10 @@ BinaryModelDeserializer::read(const char *fileName) {
     java::BufferedInputStream input(&fileInput);
 
     java::ArrayList<Vector3D *> vectors;
-    java::ArrayList<Vertex *> vertices;
+    java::ArrayList<RpkVertex *> vertices;
     java::ArrayList<Patch *> patches;
-    java::ArrayList<Material *> materials;
-    java::ArrayList<Geometry *> geometries;
+    java::ArrayList<RpkMaterial *> materials;
+    java::ArrayList<RpkGeometry *> geometries;
     java::ArrayList<ColorContext *> colorContexts;
     java::ArrayList<ReaderContext *> readerContexts;
     java::ArrayList<TransformSequenceContext *> transformArrays;
@@ -86,10 +86,10 @@ BinaryModelDeserializer::read(const char *fileName) {
         if ( !BinaryModelReadPrimitives::readNonNegativeCount(input, "transform contexts", &transformContextCount) ) goto fail;
 
         if ( !BinaryModelReadPrimitives::initializeArrayList(&vectors, vectorCount, static_cast<Vector3D *>(nullptr), "vectors") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&vertices, vertexCount, static_cast<Vertex *>(nullptr), "vertices") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&vertices, vertexCount, static_cast<RpkVertex *>(nullptr), "vertices") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&patches, patchCount, static_cast<Patch *>(nullptr), "patches") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&materials, materialCount, static_cast<Material *>(nullptr), "materials") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&geometries, geometryCount, static_cast<Geometry *>(nullptr), "geometries") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&materials, materialCount, static_cast<RpkMaterial *>(nullptr), "materials") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&geometries, geometryCount, static_cast<RpkGeometry *>(nullptr), "geometries") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&colorContexts, colorContextCount, static_cast<ColorContext *>(nullptr), "color contexts") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&readerContexts, readerContextCount, static_cast<ReaderContext *>(nullptr), "reader contexts") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&transformArrays, transformArrayCount, static_cast<TransformSequenceContext *>(nullptr), "transform arrays") ) goto fail;
@@ -197,7 +197,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
 
             const char *materialNameCstr = hasMaterialName ? materialNameGuard.get() : "";
-            materials.set(static_cast<long int>(i), new Material(materialNameCstr, edf, bsdf, sided));
+            materials.set(static_cast<long int>(i), new RpkMaterial(materialNameCstr, edf, bsdf, sided));
         }
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "COLR") ) goto fail;
@@ -338,7 +338,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.normalIndex, "vertex.normal", &normal) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.textureCoordinateIndex, "vertex.textureCoordinates", &texCoords) ) goto fail;
 
-            Vertex *vertex = new Vertex(point, normal, texCoords, new java::ArrayList<Patch *>());
+            RpkVertex *vertex = new RpkVertex(point, normal, texCoords, new java::ArrayList<Patch *>());
             vertex->id = record.id;
             vertex->color = record.color;
             vertex->tmp = record.tmp;
@@ -347,9 +347,9 @@ BinaryModelDeserializer::read(const char *fileName) {
         }
 
         for ( int i = 0; i < vertexCount; i++ ) {
-            Vertex *vertex = vertices.get(static_cast<long int>(i));
+            RpkVertex *vertex = vertices.get(static_cast<long int>(i));
             const BinaryModelVertexRecordData &record = vertexRecords[static_cast<long int>(i)];
-            Vertex *back = nullptr;
+            RpkVertex *back = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.backIndex, "vertex.back", &back) ) goto fail;
             vertex->back = back;
         }
@@ -401,10 +401,10 @@ BinaryModelDeserializer::read(const char *fileName) {
                 goto fail;
             }
 
-            Vertex *v1 = nullptr;
-            Vertex *v2 = nullptr;
-            Vertex *v3 = nullptr;
-            Vertex *v4 = nullptr;
+            RpkVertex *v1 = nullptr;
+            RpkVertex *v2 = nullptr;
+            RpkVertex *v3 = nullptr;
+            RpkVertex *v4 = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[0], "patch.vertex[0]", &v1) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[1], "patch.vertex[1]", &v2) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[2], "patch.vertex[2]", &v3) ) goto fail;
@@ -417,12 +417,15 @@ BinaryModelDeserializer::read(const char *fileName) {
             // Plane constant is immutable after construction and recomputed from geometry.
             // Plane tolerance is immutable after construction and recomputed from geometry.
             // Area is immutable after construction and recomputed from geometry.
-            patch->setDirectPotential(record.directPotential);
+            // The direct potential is read and discarded: it is per-face solver data,
+            // held by the scene's DirectPotentialTable, and starts at zero
             patch->setDominantAxisIndex(static_cast<char>(record.dominantIndex));
             patch->setOmit(record.omit);
-            patch->setFlags(record.flags);
-            patch->setColor(record.color);
-            Material *material = nullptr;
+            // The flags byte (direct visibility) is read and discarded: it is per-face
+            // solver data, held by the scene's FaceVisibilityTable, and starts cleared
+            // The display color is read and discarded: it is per-face display data,
+            // held by the scene's FaceColorTable, and starts black
+            RpkMaterial *material = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
             patch->setMaterial(material);
             patch->setRadianceData(nullptr);
@@ -448,7 +451,7 @@ BinaryModelDeserializer::read(const char *fileName) {
         }
 
         for ( int i = 0; i < vertexCount; i++ ) {
-            Vertex *vertex = vertices.get(static_cast<long int>(i));
+            RpkVertex *vertex = vertices.get(static_cast<long int>(i));
             delete vertex->patches;
             java::ArrayList<Patch *> *patchList = nullptr;
             if ( !BinaryModelReadPrimitives::arrayListFromIndices(
@@ -505,7 +508,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         for ( int i = 0; i < geometryCount; i++ ) {
             const BinaryModelGeometryRecordData &record = geometryRecords[static_cast<long int>(i)];
-            Geometry *geometry = nullptr;
+            RpkGeometry *geometry = nullptr;
 
             if ( record.classId == static_cast<int>(GeometryClassId::SURFACE_MESH) ) {
                 char *objectName = nullptr;
@@ -513,9 +516,9 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 java::ArrayList<Vector3D *> *positions = nullptr;
                 java::ArrayList<Vector3D *> *normals = nullptr;
-                java::ArrayList<Vertex *> *surfaceVertices = nullptr;
+                java::ArrayList<RpkVertex *> *surfaceVertices = nullptr;
                 java::ArrayList<Patch *> *faces = nullptr;
-                Material *material = nullptr;
+                RpkMaterial *material = nullptr;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.positions, vectors, "surface.positions", &positions) ) goto fail;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.normals, vectors, "surface.normals", &normals) ) goto fail;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.vertices, vertices, "surface.vertices", &surfaceVertices) ) goto fail;
@@ -534,7 +537,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                 surface->meshId = record.meshId;
                 geometry = surface;
             } else if ( record.classId == static_cast<int>(GeometryClassId::COMPOUND) ) {
-                geometry = new Compound(new java::ArrayList<Geometry *>());
+                geometry = new Compound(new java::ArrayList<RpkGeometry *>());
             } else if ( record.classId == static_cast<int>(GeometryClassId::PATCH_SET) ) {
                 java::ArrayList<Patch *> *patchList = nullptr;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.patchSetPatches, patches, "patchSet.patchList", &patchList) ) goto fail;
@@ -567,7 +570,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( record.classId == static_cast<int>(GeometryClassId::COMPOUND) ) {
                 Compound *compound = static_cast<Compound *>(geometries.get(static_cast<long int>(i)));
                 delete compound->children;
-                java::ArrayList<Geometry *> *children = nullptr;
+                java::ArrayList<RpkGeometry *> *children = nullptr;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.children, geometries, "compound.children", &children) ) goto fail;
                 compound->children = children;
             }
@@ -629,12 +632,12 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         int maxGeometryId = -1;
         for ( long int i = 0; i < geometries.size(); i++ ) {
-            Geometry *geometry = geometries.get(i);
+            RpkGeometry *geometry = geometries.get(i);
             if ( geometry != nullptr && geometry->id > maxGeometryId ) {
                 maxGeometryId = geometry->id;
             }
         }
-        Geometry::nextGeometryId = maxGeometryId + 1;
+        RpkGeometry::nextGeometryId = maxGeometryId + 1;
 
         ok = true;
     } catch (...) {

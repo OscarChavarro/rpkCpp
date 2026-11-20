@@ -35,6 +35,7 @@ class PhotonMapSampler final : public BsdfSampler {
     bool
     fresnelSample(
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         const SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
@@ -46,6 +47,7 @@ class PhotonMapSampler final : public BsdfSampler {
     gdSample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
@@ -62,7 +64,7 @@ class PhotonMapSampler final : public BsdfSampler {
         char flags1,
         char flags2,
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
-        RayHit *hit,
+        RpkRayHit *hit,
         bool doRR,
         double *x,
         float *probabilityDensityFunction,
@@ -78,6 +80,7 @@ class PhotonMapSampler final : public BsdfSampler {
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,

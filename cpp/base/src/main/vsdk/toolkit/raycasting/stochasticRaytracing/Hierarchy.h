@@ -28,7 +28,7 @@ class Hierarchy final {
         const RendererConfiguration *renderOptions);
 
     static void elementHierarchyDefaults();
-    static void elementHierarchyInit(Geometry *clusteredWorldGeometry);
+    static void elementHierarchyInit(RpkGeometry *clusteredWorldGeometry);
     static void elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches);
 
   private:

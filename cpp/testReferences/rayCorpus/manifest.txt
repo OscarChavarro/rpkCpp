@@ -1,0 +1,30 @@
+# Step 1 ray corpus and ray accounting (doc/vitralAlignmentPlan.md, step 1).
+# The .vqc files are not versioned (size); regenerate them with
+#   scripts/captureRays.sh <capture build> testReferences/rayCorpus <image> ...
+# and check them against the sha256 below. Format: VisibilityQueryRecorder.h.
+# The <image>.accounting.txt files are versioned.
+#
+# Pins
+#   RenderPark rpkCpp  d09710f8 plus the uncommitted step 0 tree (images AE=0 vs testReferences)
+#   VITRAL             c8c514e77bea205fd92375593c37fe9c1c63ecb2
+# Build
+#   cmake -S cpp -B <dir>/top -DWITH_RAY_CAPTURE=ON (other options default:
+#   WITH_RAYTRACING=ON WITH_OPENGL=ON WITH_MGF=ON), g++ 11.4.0 (Ubuntu 22.04),
+#   -std=c++11 -Wall -Wextra -pedantic -ffast-math -O3, x86_64
+# Scenes and options: the corpus.sh script of each image, unchanged; every
+# capture produced an image identical (AE=0) to testReferences/<image>.ppm.
+#
+# Findings
+#   With the default shaft culling for refinement, the full-scene index answers
+#   no Galerkin shadow ray in the cube or the corridor; all go to the shadow
+#   cache or a restricted list. Step 6 therefore needs a configuration with
+#   shaft culling off (no command-line option exists yet; step 5 adds one).
+#   Scene 11 (ray casting) issues only Galerkin queries; scenes 12 and 14
+#   supply the raytracer closest-hit and visibility queries.
+#
+# image bytes sha256
+01_cubeJacobi 72933124 5ca24a7722557fc5c3ee6ca65015636e9a6c6bfa05999cefc088841999fc656b
+02_corridor 11685431860 489ee85d2e4303ebb62f20269109fdc17872686a3c26815d9156f43eba36a28c
+11_floorRayCasting 3692379928 99f9975496f426fbf26159323bf04a6a5ee8cc7a549040d35bb7b2c71dd11db0
+12_floorBidirectionalPathTracing 702876436 2de95b711c6f8ca9befc674320a87336aa867d0ed7dcaa7a55f142660c008ab4
+14_floorStochasticRaytracingJacobi 3569239616 cb29d56020d1c11e1e495f58a43bb40e8f5cf375faa68f90ceeaab8a02b3f577

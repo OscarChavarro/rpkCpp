@@ -31,7 +31,7 @@ class SurfaceSampler : public Sampler {
     ColorRgbMutable
     DoBsdfEval(
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
-        RayHit *hit,
+        RpkRayHit *hit,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
         const PhongBidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
@@ -46,6 +46,7 @@ class SurfaceSampler : public Sampler {
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,

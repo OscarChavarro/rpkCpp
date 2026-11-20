@@ -14,8 +14,10 @@ GalerkinState::GalerkinState():
     lastEye(),
     lastClock(),
     cpuSeconds(),
-    toneMapOptions()
+    toneMapOptions(),
+    formFactorWorkspace()
 {
+    formFactorWorkspace = new FormFactorWorkspace();
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
     galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
     relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
@@ -49,4 +51,9 @@ GalerkinState::GalerkinState():
     QuadCubatureRule::setQuadCubatureRules(&receiverQuadCubatureRule, receiverDegree);
     QuadCubatureRule::setQuadCubatureRules(&sourceQuadCubatureRule, sourceDegree);
     clusterRule = QuadCubatureRule::degree1BoxRule();
+}
+
+GalerkinState::~GalerkinState() {
+    delete formFactorWorkspace;
+    formFactorWorkspace = nullptr;
 }

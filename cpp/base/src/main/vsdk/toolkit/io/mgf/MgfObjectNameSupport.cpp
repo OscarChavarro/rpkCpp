@@ -76,7 +76,7 @@ MgfObjectNameSupport::mgfObjectNewSurface(ParseRuntimeContext *context) {
     // should not be deleted from MgfParseSession
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
-    context->currentVertexList = new java::ArrayList<Vertex *>();
+    context->currentVertexList = new java::ArrayList<RpkVertex *>();
     context->currentFaceList = new java::ArrayList<Patch *>();
     context->inSurface = true;
 }
@@ -102,7 +102,7 @@ MgfObjectNameSupport::handleObject2Entity(int ac, const char **av, ParseRuntimeC
 void
 MgfObjectNameSupport::mgfObjectSurfaceDone(ParseRuntimeContext *context) {
     if ( context->currentGeometryList == nullptr ) {
-        context->currentGeometryList = new java::ArrayList<Geometry *>();
+        context->currentGeometryList = new java::ArrayList<RpkGeometry *>();
     }
 
     if ( context->readerContext != nullptr ) {
@@ -122,7 +122,7 @@ MgfObjectNameSupport::mgfObjectSurfaceDone(ParseRuntimeContext *context) {
     }
 
     if ( context->currentFaceList != nullptr && context->currentFaceList->size() > 0 ) {
-        Geometry *newGeometry = new MeshSurface(
+        RpkGeometry *newGeometry = new MeshSurface(
             context->currentObjectName,
             context->currentMaterial,
             context->currentPointList,
@@ -158,7 +158,7 @@ MgfObjectNameSupport::handleObjectEntity(int argc, const char **argv, ParseRunti
         MgfObjectNameSupport::mgfObjectNewSurface(context);
     } else {
         // End of object definition
-        Geometry *newGeometry = nullptr;
+        RpkGeometry *newGeometry = nullptr;
 
         if ( context->inSurface ) {
             MgfObjectNameSupport::mgfObjectSurfaceDone(context);

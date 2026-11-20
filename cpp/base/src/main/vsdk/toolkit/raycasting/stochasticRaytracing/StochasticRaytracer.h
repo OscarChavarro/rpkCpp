@@ -21,6 +21,7 @@ class StochasticRaytracer final : public RayTracer {
     calcPixel(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         int nx,
         int ny,
@@ -28,6 +29,7 @@ class StochasticRaytracer final : public RayTracer {
     static ColorRgbMutable stochasticRaytracerGetScatteredRadiance(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         StochasticRaytracingConfiguration *config,
@@ -37,6 +39,7 @@ class StochasticRaytracer final : public RayTracer {
     static ColorRgbMutable srGetDirectRadiance(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         StochasticRaytracingConfiguration *config,
@@ -44,6 +47,7 @@ class StochasticRaytracer final : public RayTracer {
     static ColorRgbMutable stochasticRaytracerGetRadiance(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         StochasticRaytracingConfiguration *config,

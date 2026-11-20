@@ -262,7 +262,7 @@ GalerkinRadianceMethod::updateCpuSecs() {
 }
 
 void
-GalerkinRadianceMethod::patchInit(Patch *patch) {
+GalerkinRadianceMethod::patchInit(Patch *patch, const DirectPotentialTable *directPotentials, FaceColorTable *faceColors) {
     ColorRgbMutable reflectivity = patch->getRadianceData()->Rd;
     ColorRgbMutable selfEmittanceRadiance = patch->getRadianceData()->Ed;
 
@@ -285,25 +285,25 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         switch ( galerkinState.galerkinIterationMethod ) {
             case GalerkinIterationMethod::GAUSS_SEIDEL:
             case GalerkinIterationMethod::JACOBI:
-                galerkinSetPotential(patch, patch->getDirectPotential());
+                galerkinSetPotential(patch, directPotentials->get(patch->getFaceIndex()));
                 break;
             case GalerkinIterationMethod::SOUTH_WELL:
-                galerkinSetPotential(patch, patch->getDirectPotential());
-                galerkinSetUnShotPotential(patch, patch->getDirectPotential());
+                galerkinSetPotential(patch, directPotentials->get(patch->getFaceIndex()));
+                galerkinSetUnShotPotential(patch, directPotentials->get(patch->getFaceIndex()));
                 break;
             default:
                 Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "patchInit", "Invalid iteration method");
         }
     }
 
-    recomputePatchColor(patch);
+    recomputePatchColor(patch, faceColors);
 }
 
 /**
 Recomputes the color of a patch using ambient radiance term, ... if requested for
 */
 void
-GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
+GalerkinRadianceMethod::recomputePatchColor(Patch *patch, FaceColorTable *faceColors) {
     ColorRgbMutable reflectivity = patch->getRadianceData()->Rd;
     ColorRgbMutable radVis(0.0, 0.0, 0.0);
 
@@ -313,13 +313,13 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
         radVis.add(radVis, galerkinGetRadiance(patch));
         ColorRgbMutable patchColor(0.0, 0.0, 0.0);
         ToneMap::radianceToRgb(radVis, &patchColor, *galerkinState.toneMapOptions);
-        patch->setColor(patchColor);
+        faceColors->set(patch->getFaceIndex(), patchColor);
     } else {
         ColorRgbMutable patchColor(0.0, 0.0, 0.0);
         ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patchColor, *galerkinState.toneMapOptions);
-        patch->setColor(patchColor);
+        faceColors->set(patch->getFaceIndex(), patchColor);
     }
-    patch->computeVertexColors();
+    patch->computeVertexColors(faceColors);
 }
 
 const char *
@@ -360,7 +360,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        patchInit(scene->patchList->get(i));
+        patchInit(scene->patchList->get(i), scene->getDirectPotentials(), scene->getFaceColors());
     }
 
     galerkinState.topCluster = ClusterCreationStrategy::createClusterHierarchy(
@@ -387,7 +387,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOption
     galerkinState.lastClock = java::System::nanoTime();
 
     // And now the real work
-    int done;
+    int done = 1;
 
     switch ( galerkinState.galerkinIterationMethod ) {
         case GalerkinIterationMethod::JACOBI:
@@ -434,7 +434,7 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
 }
 
 ColorRgbMutable
-GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) const
+GalerkinRadianceMethod::computePatchRadiance(const Patch *patch, double u, double v) const
 {
     const GalerkinElement *leaf;
     ColorRgbMutable rad(0.0, 0.0, 0.0);
@@ -462,7 +462,7 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
 ColorRgbMutable
 GalerkinRadianceMethod::getRadiance(
     Camera * /*camera*/,
-    Patch *patch,
+    const Patch *patch,
     double u,
     double v,
     Vector3D /*dir*/,

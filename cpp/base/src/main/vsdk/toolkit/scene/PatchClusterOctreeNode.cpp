@@ -18,7 +18,7 @@ Reference:
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 #include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
 
-java::ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
+java::ArrayList<RpkGeometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
 
 /**
 Creates an empty cluster with initialized bounding box
@@ -64,9 +64,9 @@ PatchClusterOctreeNode::~PatchClusterOctreeNode() {
 }
 
 void
-PatchClusterOctreeNode::addToDeletionCache(Geometry *geometry) {
+PatchClusterOctreeNode::addToDeletionCache(RpkGeometry *geometry) {
     if ( clusterNodeGeometriesToDelete == nullptr ) {
-        clusterNodeGeometriesToDelete = new java::ArrayList<Geometry *>();
+        clusterNodeGeometriesToDelete = new java::ArrayList<RpkGeometry *>();
     }
     clusterNodeGeometriesToDelete->add(geometry);
 }
@@ -77,7 +77,7 @@ PatchClusterOctreeNode::deleteCachedGeometries() {
         return;
     }
     for ( int i = 0; i < clusterNodeGeometriesToDelete->size(); i++ ) {
-        Geometry *geometry = clusterNodeGeometriesToDelete->get(i);
+        RpkGeometry *geometry = clusterNodeGeometriesToDelete->get(i);
         if ( geometry != nullptr ) {
             geometry->isDuplicate = false;
             geometry->radianceData = nullptr; // This was duplicated
@@ -99,7 +99,7 @@ PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
     if ( patch != nullptr ) {
         patches->add(patch);
 
-        AxisAlignedBoundingBox patchBoundingBox{};
+        RpkAxisAlignedBoundingBox patchBoundingBox{};
 
         if ( patch->getBoundingBox() != nullptr ) {
             patchBoundingBox = *patch->getBoundingBox();
@@ -128,7 +128,7 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(patchIndexOnParent);
-    const AxisAlignedBoundingBox *patchBoundingBox = patch->getBoundingBox();
+    const RpkAxisAlignedBoundingBox *patchBoundingBox = patch->getBoundingBox();
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10.0F * Numeric::EPSILON_FLOAT;
@@ -209,15 +209,15 @@ Converts a cluster hierarchy to a regular Geometry tree.
 This lets the standard ray traversal code operate on clusters, including
 operations such as shaft culling, without specialized traversal code.
 */
-Geometry *
+RpkGeometry *
 PatchClusterOctreeNode::convertClusterToGeometry() const {
-    Geometry *parentPatchesGeometry = nullptr;
+    RpkGeometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr && patches->size() > 0) {
         parentPatchesGeometry = new PatchSet(patches);
         addToDeletionCache(parentPatchesGeometry);
     }
 
-    java::ArrayList<Geometry *> *patchesGeometryList = new java::ArrayList<Geometry *>();
+    java::ArrayList<RpkGeometry *> *patchesGeometryList = new java::ArrayList<RpkGeometry *>();
 
     // The patches in the cluster are the first to be tested for intersection with
     if ( parentPatchesGeometry != nullptr ) {
@@ -225,7 +225,7 @@ PatchClusterOctreeNode::convertClusterToGeometry() const {
     }
 
     for ( int i = 0; i < 8; i++ ) {
-        Geometry *child = nullptr;
+        RpkGeometry *child = nullptr;
         if ( children[i] != nullptr ) {
             child = children[i]->convertClusterToGeometry();
         }
@@ -235,7 +235,7 @@ PatchClusterOctreeNode::convertClusterToGeometry() const {
         }
     }
 
-    Geometry *newGeometry = new Compound(patchesGeometryList);
+    RpkGeometry *newGeometry = new Compound(patchesGeometryList);
     addToDeletionCache(newGeometry);
     return newGeometry;
 }

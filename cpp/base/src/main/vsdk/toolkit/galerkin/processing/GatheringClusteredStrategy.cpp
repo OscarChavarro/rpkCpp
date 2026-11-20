@@ -55,7 +55,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
             GalerkinElement *top = static_cast<GalerkinElement *>(patch->getRadianceData());
-            float potentialIncrement = patch->getDirectPotential() - top->directPotential;
+            float potentialIncrement = scene->getDirectPotentials()->get(patch->getFaceIndex()) - top->directPotential;
             GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
         GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
@@ -85,7 +85,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     GalerkinBasis::pushPullRadiance(galerkinState->topCluster, galerkinState);
 
     if ( galerkinState->importanceDriven ) {
-        GatheringStrategy::pushPullPotential(galerkinState->topCluster, 0.0);
+        GatheringStrategy::pushPullPotential(galerkinState->topCluster, 0.0, scene->getDirectPotentials());
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
@@ -93,7 +93,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
 
     // Update the display colors of the patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        GalerkinRadianceMethod::recomputePatchColor(scene->patchList->get(i));
+        GalerkinRadianceMethod::recomputePatchColor(scene->patchList->get(i), scene->getFaceColors());
     }
 
     return false; // Never done

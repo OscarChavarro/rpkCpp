@@ -1,14 +1,14 @@
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 
-PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClassId::PATCH_SET) {
+PatchSet::PatchSet(const java::ArrayList<Patch *> *input): RpkGeometry(GeometryClassId::PATCH_SET) {
     memoryPoolManaged = false;
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
     }
 
-    Geometry::patchListBounds(getPatchList(), &boundingBox);
+    RpkGeometry::patchListBounds(getPatchList(), &boundingBox);
     boundingBox.enlargeTinyBit();
     bounded = true;
 }
@@ -31,19 +31,20 @@ information about the intersection point. See geometry.h for more explanation
 Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
-RayHit *
+RpkRayHit *
 PatchSet::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RpkRayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions) ) {
         return nullptr;
     }
 
-    return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return RpkGeometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }
 
 java::ArrayList<Patch *> *

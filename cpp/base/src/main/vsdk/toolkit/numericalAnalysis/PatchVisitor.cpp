@@ -1,13 +1,13 @@
 #include "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
-#include "vsdk/toolkit/material/ShadingContext.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
+#include "vsdk/toolkit/environment/material/PhongMaterial.h"
 
 int
-PatchVisitor::getNumberOfSamples(Patch *patch) {
+PatchVisitor::getNumberOfSamples(const Patch *patch) {
     int numberOfSamples = 1;
-    if ( patch->getMaterial()->getBsdf() != nullptr && patch->getMaterial()->getBsdf()->splitBsdfIsTextured() ) {
+    if ( patch->getMaterial()->getSurfaceMaterial()->isTextured() ) {
         if ( patch->getVertices()[0]->textureCoordinates == patch->getVertices()[1]->textureCoordinates &&
              patch->getVertices()[0]->textureCoordinates == patch->getVertices()[2]->textureCoordinates &&
              (patch->getNumberOfVertices() == 3 || patch->getVertices()[0]->textureCoordinates == patch->getVertices()[3]->textureCoordinates) &&
@@ -22,13 +22,20 @@ PatchVisitor::getNumberOfSamples(Patch *patch) {
 }
 
 /**
-Use next function (with PatchListIterate) to close any open files of the patch use for recording
-Computes average scattered power and emittance of the Patch
+Average scattered power of the patch's material over the patch, for the
+requested BSDF components: the VITRAL PhongMaterial's integrated reflectance
+and transmittance, sampled at quasi-random points when a texture makes it
+vary over the patch.
+
+The texture coordinate is computed once per hit and then reused by later
+samples, because RpkRayHit::getTexCoord caches it; this is the established
+behavior that the reference images encode.
 */
 ColorRgbMutable
-PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
+PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
     ColorRgbMutable albedo(0.0, 0.0, 0.0);
-    RayHit hit;
+    const PhongMaterial *material = patch->getMaterial()->getSurfaceMaterial();
+    RpkRayHit hit;
 
     hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
@@ -40,29 +47,16 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
-        Vector3D position = hit.getPoint();
-        patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
-        sample.clear();
-        if ( patch->getMaterial()->getBsdf() != nullptr ) {
-            Vector3D normal;
-            hit.shadingNormal(&normal);
+        if ( material->isTextured() ) {
             Vector3D texCoord;
-            unsigned int shFlags = SHCTX_NORMAL;
             if ( hit.getTexCoord(&texCoord) ) {
-                shFlags |= SHCTX_TEXTURE_COORDINATE;
+                const Vector3Df textureCoordinate(texCoord.x, texCoord.y, texCoord.z);
+                sample = material->scatteredPower(components, &textureCoordinate);
             } else {
-                texCoord.set(0.0, 0.0, 0.0);
+                sample = material->scatteredPower(components, nullptr);
             }
-            ShadingContext context(
-                hit.getPoint(),
-                hit.getGeometricNormal(),
-                normal,
-                texCoord,
-                hit.getUv(),
-                hit.getShadingFrame(),
-                hit.getMaterial(),
-                shFlags);
-            sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(context, components);
+        } else {
+            sample = material->scatteredPower(components, nullptr);
         }
         albedo.add(albedo, sample);
     }
@@ -71,46 +65,22 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     return albedo;
 }
 
+/**
+Average emittance of the patch's material for the requested components. The
+emittance does not vary over the patch, but it is still accumulated over the
+same number of samples as the albedo so that the rounding of the result is
+the established one.
+*/
 ColorRgbMutable
-PatchVisitor::averageEmittance(Patch *patch, char components) {
+PatchVisitor::averageEmittance(const Patch *patch, char components) {
     ColorRgbMutable emittance(0.0, 0.0, 0.0);
-    RayHit hit;
-    hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
+    const PhongMaterial *material = patch->getMaterial()->getSurfaceMaterial();
 
     const int numberOfSamples = getNumberOfSamples(patch);
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgbMutable sample(0.0, 0.0, 0.0);
-        const unsigned *xi = Niederreiter31::niederreiter31(i);
-        hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-        hit.setFlags(newFlags);
-        Vector3D position = hit.getPoint();
-        patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
-
-        if ( patch->getMaterial()->getEdf() == nullptr ) {
-            sample.clear();
-        } else {
-            Vector3D normal;
-            hit.shadingNormal(&normal);
-            Vector3D texCoord;
-            unsigned int shFlags = SHCTX_NORMAL;
-            if ( hit.getTexCoord(&texCoord) ) {
-                shFlags |= SHCTX_TEXTURE_COORDINATE;
-            } else {
-                texCoord.set(0.0, 0.0, 0.0);
-            }
-            ShadingContext context(
-                hit.getPoint(),
-                hit.getGeometricNormal(),
-                normal,
-                texCoord,
-                hit.getUv(),
-                hit.getShadingFrame(),
-                hit.getMaterial(),
-                shFlags);
-            sample = patch->getMaterial()->getEdf()->phongEmittance(&context, components);
-        }
+        sample = material->emittance(components);
         emittance.add(emittance, sample);
     }
     emittance.scaleInverse(static_cast<float>(numberOfSamples), emittance);

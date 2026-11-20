@@ -21,6 +21,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     doBptAndSubsequentImages(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
@@ -28,6 +29,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     doBptDensityEstimation(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
@@ -35,6 +37,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     bpCalcPixel(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         int nx,
         int ny,
@@ -73,6 +76,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     handlePathXx(
         Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path);
@@ -81,6 +85,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     handlePath1X(
         Camera *camera,
         const VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path);
 
@@ -88,6 +93,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
     bpCombinePaths(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config);
 

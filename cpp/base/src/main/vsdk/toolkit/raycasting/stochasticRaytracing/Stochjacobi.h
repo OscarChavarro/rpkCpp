@@ -40,6 +40,7 @@ class StochasticJacobi final {
 
     static void doStochasticJacobiIteration(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         long numberOfRays,
         GetRadianceCallback getRadianceCallBack,
         GetImportanceCallback getImportanceCallBack,
@@ -83,14 +84,14 @@ class StochasticJacobi final {
     static void stochasticJacobiPropagateRadianceClusterRecursive(
         StochasticRadiosityElement *currentElement,
         ColorRgbMutable rayPower,
-        Ray *ray,
+        RpkRay *ray,
         float dir,
         double projectedArea,
         double fraction);
     static void stochasticJacobiPropagateRadianceToClusterOriented(
         StochasticRadiosityElement *cluster,
         ColorRgbMutable rayPower,
-        Ray *ray,
+        RpkRay *ray,
         float dir,
         const StochasticRadiosityElement *src,
         double projectedArea,
@@ -105,7 +106,7 @@ class StochasticJacobi final {
         double vr,
         double src_prob,
         double rcv_prob,
-        Ray *ray,
+        RpkRay *ray,
         float dir);
     static void stochasticJacobiPropagateImportance(
         const StochasticRadiosityElement *src,
@@ -116,15 +117,15 @@ class StochasticJacobi final {
         double vr,
         double src_prob,
         double rcv_prob,
-        const Ray *ray,
+        const RpkRay *ray,
         float dir);
     static double stochasticJacobiReceiverProjectedArea(
         const StochasticRadiosityElement *cluster,
-        Ray *ray,
+        RpkRay *ray,
         float dir);
     static void stochasticJacobiReceiverProjectedAreaRecursive(
         const StochasticRadiosityElement *currentElement,
-        Ray *ray,
+        RpkRay *ray,
         float dir,
         double *area);
     static void stochasticJacobiRefineAndPropagateRadiance(
@@ -139,7 +140,7 @@ class StochasticJacobi final {
         double vq,
         double src_prob,
         double rcv_prob,
-        Ray *ray,
+        RpkRay *ray,
         float dir,
         const RendererConfiguration *renderOptions);
     static void stochasticJacobiRefineAndPropagateImportance(
@@ -151,7 +152,7 @@ class StochasticJacobi final {
         double vq,
         double src_prob,
         double rcv_prob,
-        const Ray *ray,
+        const RpkRay *ray,
         float dir);
     static void stochasticJacobiRefineAndPropagate(
         StochasticRadiosityElement *P,
@@ -160,7 +161,7 @@ class StochasticJacobi final {
         StochasticRadiosityElement *Q,
         double uq,
         double vq,
-        Ray *ray,
+        RpkRay *ray,
         const RendererConfiguration *renderOptions);
     static double *stochasticJacobiNextSample(
         StochasticRadiosityElement *elem,
@@ -168,9 +169,10 @@ class StochasticJacobi final {
         NiederreiterIndex mostSignificantBit1,
         NiederreiterIndex rMostSignificantBit2,
         double *zeta);
-    static void stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit);
+    static void stochasticJacobiUniformHitCoordinates(const RpkRayHit *hit, double *uHit, double *vHit);
     static void stochasticJacobiElementShootRay(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         StochasticRadiosityElement *src,
         int nMostSignificantBit,
         NiederreiterIndex mostSignificantBit1,
@@ -178,11 +180,13 @@ class StochasticJacobi final {
         const RendererConfiguration *renderOptions);
     static void stochasticJacobiElementShootRays(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         StochasticRadiosityElement *element,
         int raysThisElem,
         const RendererConfiguration *renderOptions);
     static void stochasticJacobiShootRaysRecursive(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         StochasticRadiosityElement *element,
         double rnd,
         long *rayCount,
@@ -190,6 +194,7 @@ class StochasticJacobi final {
         RendererConfiguration *renderOptions);
     static void stochasticJacobiShootRays(
         VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static void stochasticJacobiUpdateElement(StochasticRadiosityElement *elem);

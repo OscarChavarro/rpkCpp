@@ -44,7 +44,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
 }
 
 ColorRgbMutable
-StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
+StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
     int count = 0;
     ColorRgbMutable radiance(0.0, 0.0, 0.0);
 
@@ -73,7 +73,7 @@ StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
 Same as above but for importance
 */
 float
-StochasticRadiosityElement::vertexImportance(const Vertex *v) {
+StochasticRadiosityElement::vertexImportance(const RpkVertex *v) {
     int count = 0;
     float imp = 0.0;
 
@@ -97,7 +97,7 @@ StochasticRadiosityElement::vertexImportance(const Vertex *v) {
 }
 
 ColorRgbMutable
-StochasticRadiosityElement::vertexColor(Vertex *v) {
+StochasticRadiosityElement::vertexColor(RpkVertex *v) {
     switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
@@ -141,7 +141,7 @@ StochasticRadiosityElement::stochasticRadiosityElementComputeNewVertexColors(Ele
 void
 StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Element *element) {
     const StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
-    Vertex *m[4];
+    RpkVertex *m[4];
     int i;
     int n;
     for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {

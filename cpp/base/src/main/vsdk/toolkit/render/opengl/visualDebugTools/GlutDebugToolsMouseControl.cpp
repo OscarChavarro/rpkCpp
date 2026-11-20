@@ -9,7 +9,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/render/opengl/RenderOpenGL.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
@@ -114,8 +114,8 @@ GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
     }
 
     if ( scene->geometryList != nullptr && scene->geometryList->size() > 0 ) {
-        AxisAlignedBoundingBox sceneBounds;
-        Geometry::listBounds(scene->geometryList, &sceneBounds);
+        RpkAxisAlignedBoundingBox sceneBounds;
+        RpkGeometry::listBounds(scene->geometryList, &sceneBounds);
         return sceneBounds.center();
     }
 
@@ -238,7 +238,7 @@ GlutDebugToolsMouseControl::dollyCameraAlongFront(GlutDebugToolsModel &model, in
 }
 
 void
-GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, Ray *ray) {
+GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, RpkRay *ray) {
     if ( ray == nullptr ) {
         return;
     }
@@ -269,7 +269,7 @@ GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsM
 }
 
 void
-GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x, int y, Ray *ray) {
+GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x, int y, RpkRay *ray) {
     if ( ray == nullptr ) {
         return;
     }
@@ -334,7 +334,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         return false;
     }
 
-    Ray ray;
+    RpkRay ray;
     buildPickRay(model, x, y, &ray);
 
     java::ArrayList<PatchHitCandidate> hitCandidates(model.scene->patchList->size());
@@ -349,13 +349,15 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         }
 
         float maxDistance = Numeric::HUGE_FLOAT_VALUE;
-        RayHit hit;
-        RayHit *intersection = patch->intersect(
+        RpkRayHit hit;
+        const RayExclusionSet noExclusions;
+        RpkRayHit *intersection = patch->intersect(
             &ray,
             Numeric::EPSILON_FLOAT,
             &maxDistance,
             RayHitFlag::FRONT | RayHitFlag::BACK,
-            &hit);
+            &hit,
+            noExclusions);
         if ( intersection != nullptr ) {
             const unsigned int flags = hit.getFlags();
             const bool frontFacing = (flags & RayHitFlag::FRONT) != 0;

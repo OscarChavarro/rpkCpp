@@ -10,6 +10,10 @@ Generate and trace a local line
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Localline.h"
+
+#ifdef RPK_RAY_CAPTURE
+    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
+#endif
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 /**
@@ -34,11 +38,11 @@ Constructs a ray with uniformly chosen origin on patch and cosine distributed
 direction with respect to patch normal. Origin and direction are uniquely determined
 by the 4-dimensional sample vector xi
 */
-Ray
+RpkRay
 Localline::mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     const static Patch *previousPatch = nullptr;
     static CoordinateSystem coordSys;
-    Ray ray;
+    RpkRay ray;
     double pdf;
 
     if ( patch != previousPatch ) {
@@ -69,20 +73,29 @@ Localline::someFeedback() {
 /**
 Determines nearest intersection point and patch
 */
-RayHit *
-Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
+RpkRayHit *
+Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const Patch *P, RpkRay *ray, RpkRayHit *hitStore) {
     float distance = Numeric::HUGE_FLOAT_VALUE;
-    RayHit *hit;
+    RpkRayHit *hit;
 
     // Reject self-intersections
-    Patch::dontIntersect2(P, P->getTwin());
+    const RayExclusionSet exclusions(P, P->getTwin());
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
         Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
         &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
-        hitStore);
-    Patch::dontIntersect0();
+        hitStore,
+        exclusions,
+        sceneWorldVoxelGridWorkspace);
+#ifdef RPK_RAY_CAPTURE
+    if ( sceneWorldVoxelGridWorkspace->getRecorder() != nullptr ) {
+        sceneWorldVoxelGridWorkspace->getRecorder()->recordQuery(
+            VisibilityQueryRecorder::STOCHASTIC_SHOOTING, ray,
+            Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
+            Numeric::HUGE_FLOAT_VALUE, RayHitFlag::FRONT | RayHitFlag::POINT, exclusions, hit, distance);
+    }
+#endif
     someFeedback();
 
     return hit;

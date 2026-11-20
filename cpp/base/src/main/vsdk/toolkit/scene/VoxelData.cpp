@@ -1,24 +1,30 @@
 #include "vsdk/toolkit/scene/VoxelData.h"
 
-VoxelData::VoxelData(Patch *data, unsigned flags) {
-    this->geometry = nullptr;
-    this->patch = data;
-    this->voxelGrid = nullptr;
-    this->flags = flags;
+VoxelData::VoxelData(Patch *data, const unsigned flags, const int inIndex):
+    patch(data),
+    geometry(nullptr),
+    voxelGrid(nullptr),
+    flags(flags),
+    index(inIndex)
+{
 }
 
-VoxelData::VoxelData(Geometry *data, unsigned flags) {
-    this->geometry = data;
-    this->patch = nullptr;
-    this->voxelGrid = nullptr;
-    this->flags = flags;
+VoxelData::VoxelData(RpkGeometry *data, const unsigned flags, const int inIndex):
+    patch(nullptr),
+    geometry(data),
+    voxelGrid(nullptr),
+    flags(flags),
+    index(inIndex)
+{
 }
 
-VoxelData::VoxelData(VoxelGrid *data, unsigned flags) {
-    this->geometry = nullptr;
-    this->patch = nullptr;
-    this->voxelGrid = data;
-    this->flags = flags;
+VoxelData::VoxelData(VoxelGrid *data, const unsigned flags, const int inIndex):
+    patch(nullptr),
+    geometry(nullptr),
+    voxelGrid(data),
+    flags(flags),
+    index(inIndex)
+{
 }
 
 VoxelData::~VoxelData() {

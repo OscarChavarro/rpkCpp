@@ -1,5 +1,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/scene/Scene.h"
 
 const char *Scene::compoundType = "Compound";
@@ -8,20 +9,39 @@ const char *Scene::patchSetType = "PatchSet";
 const char *Scene::unknownType = "<unknown>";
 
 Scene::Scene():
+    faceTable(nullptr),
+    numberOfFaces(0),
+    faceBounds(nullptr),
+    directPotentials(nullptr),
+    faceVisibility(nullptr),
+    faceColors(nullptr),
     background(),
     camera(),
     geometryList(),
     clusteredGeometryList(),
     clusteredRootGeometry(),
     voxelGrid(),
+    voxelGridWorkspace(),
+    visibilityQueryRecorder(),
     patchList(),
     lightSourcePatchList()
 {
     camera = new Camera();
-    clusteredGeometryList = new java::ArrayList<Geometry *>();
+    clusteredGeometryList = new java::ArrayList<RpkGeometry *>();
 }
 
 Scene::~Scene() {
+    delete faceBounds;
+    faceBounds = nullptr;
+    delete directPotentials;
+    directPotentials = nullptr;
+    delete faceVisibility;
+    faceVisibility = nullptr;
+    delete faceColors;
+    faceColors = nullptr;
+    delete[] faceTable;
+    faceTable = nullptr;
+    numberOfFaces = 0;
     if ( lightSourcePatchList != nullptr ) {
         delete lightSourcePatchList;
         lightSourcePatchList = nullptr;
@@ -37,6 +57,14 @@ Scene::~Scene() {
     if ( patchList != nullptr ) {
         delete patchList;
         patchList = nullptr;
+    }
+    if ( voxelGridWorkspace != nullptr ) {
+        delete voxelGridWorkspace;
+        voxelGridWorkspace = nullptr;
+    }
+    if ( visibilityQueryRecorder != nullptr ) {
+        delete visibilityQueryRecorder;
+        visibilityQueryRecorder = nullptr;
     }
     if ( voxelGrid != nullptr ) {
         delete voxelGrid;
@@ -79,7 +107,7 @@ Scene::printCompound(const Compound *compound) {
     if ( compound->children != nullptr ) {
         java::System::out.printf("    . Outer children: %ld\n", compound->children->size());
         for ( int i = 0; i < compound->children->size(); i++ ) {
-            const Geometry *child = compound->children->get(i);
+            const RpkGeometry *child = compound->children->get(i);
             java::System::out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == GeometryClassId::SURFACE_MESH ) {
                 printSurfaceMesh(static_cast<const MeshSurface *>(child), 6);
@@ -113,7 +141,7 @@ Scene::printGeometries() const {
     java::System::out.printf("= geometryList ================================================================\n");
     java::System::out.printf("Geometries on list: %ld\n", geometryList->size());
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        RpkGeometry *geometry = geometryList->get(i);
         java::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, geometryList->size(), printGeometryType(geometry->className));
         java::System::out.printf("    . Id: %d\n", geometry->id);
         java::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
@@ -134,7 +162,7 @@ Scene::printClusteredGeometries() const {
     java::System::out.printf("= clusteredGeometryList ================================================================\n");
     java::System::out.printf("Geometry clusters on list: %ld\n", clusteredGeometryList->size());
     for ( int i = 0; i < clusteredGeometryList->size(); i++ ) {
-        Geometry *geometry = clusteredGeometryList->get(i);
+        RpkGeometry *geometry = clusteredGeometryList->get(i);
         java::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, clusteredGeometryList->size(), printGeometryType(geometry->className));
         java::System::out.printf("    . Id: %d\n", geometry->id);
         java::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
@@ -166,7 +194,7 @@ Scene::printPatches() const {
 }
 
 void
-Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount) {
+Scene::printClusterHierarchy(const RpkGeometry *node, int level, int *elementCount) {
     if ( level == 0 ) {
         java::System::out.printf("= clusteredRootGeometry ================================================================\n");
     }
@@ -230,4 +258,72 @@ Scene::print() const {
     printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
     printVoxelGrid();
     java::System::out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
+}
+
+void
+Scene::collectFaces(const RpkGeometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
+    if ( geometry == nullptr ) {
+        return;
+    }
+    if ( geometry->className == GeometryClassId::COMPOUND ) {
+        const java::ArrayList<RpkGeometry *> *children = static_cast<const Compound *>(geometry)->children;
+        if ( children != nullptr ) {
+            for ( int i = 0; i < children->size(); i++ ) {
+                collectFaces(children->get(i), table, capacity, count, conflicts);
+            }
+        }
+        return;
+    }
+    const java::ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
+    if ( patches == nullptr ) {
+        return;
+    }
+    for ( int i = 0; i < patches->size(); i++ ) {
+        Patch *patch = patches->get(i);
+        if ( patch->getFaceIndex() >= 0 || *count >= capacity ) {
+            (*conflicts)++;
+            continue;
+        }
+        patch->setFaceIndex(*count);
+        table[*count] = patch;
+        (*count)++;
+    }
+}
+
+void
+Scene::buildFaceTable() {
+    delete faceBounds;
+    faceBounds = nullptr;
+    delete directPotentials;
+    directPotentials = nullptr;
+    delete faceVisibility;
+    faceVisibility = nullptr;
+    delete faceColors;
+    faceColors = nullptr;
+    delete[] faceTable;
+    faceTable = nullptr;
+    numberOfFaces = 0;
+    const int capacity = patchList != nullptr ? static_cast<int>(patchList->size()) : 0;
+    for ( int i = 0; i < capacity; i++ ) {
+        patchList->get(i)->setFaceIndex(-1);
+    }
+    faceTable = new Patch *[capacity > 0 ? capacity : 1];
+    int conflicts = 0;
+    collectFaces(clusteredRootGeometry, faceTable, capacity, &numberOfFaces, &conflicts);
+
+    int unreached = 0;
+    for ( int i = 0; i < capacity; i++ ) {
+        if ( patchList->get(i)->getFaceIndex() < 0 ) {
+            unreached++;
+        }
+    }
+    if ( conflicts != 0 || unreached != 0 || numberOfFaces != capacity ) {
+        Logger::reportMessage("Scene", Logger::FATAL_ERROR, "buildFaceTable", java::String::format(
+            "Face table: %d patches, %d indexed, %d reached twice, %d unreachable from the cluster hierarchy",
+            capacity, numberOfFaces, conflicts, unreached));
+    }
+    faceBounds = new FaceBoundsTable(faceTable, numberOfFaces);
+    directPotentials = new DirectPotentialTable(numberOfFaces);
+    faceVisibility = new FaceVisibilityTable(numberOfFaces);
+    faceColors = new FaceColorTable(numberOfFaces);
 }

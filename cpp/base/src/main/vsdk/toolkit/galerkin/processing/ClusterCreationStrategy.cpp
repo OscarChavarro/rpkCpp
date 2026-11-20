@@ -25,7 +25,7 @@ Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list
 given parent cluster
 */
 void
-ClusterCreationStrategy::geomAddClusterChild(Geometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState) {
+ClusterCreationStrategy::geomAddClusterChild(RpkGeometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState) {
     GalerkinElement *cluster = ClusterCreationStrategy::createClusterHierarchy(geometry, galerkinState);
 
     if ( galerkinElement->irregularSubElements == nullptr ) {
@@ -105,7 +105,7 @@ returns the created cluster.
 Note that geometry is always of types Compound or PatchSet.
 */
 GalerkinElement *
-ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState) {
+ClusterCreationStrategy::createClusterHierarchy(RpkGeometry *geometry, GalerkinState *galerkinState) {
     if ( geometry == nullptr ) {
         return nullptr;
     }
@@ -118,13 +118,13 @@ ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinStat
 
     // Recursively creates list of sub-clusters
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        java::ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geomAddClusterChild(geometryList->get(i), newGalerkinElement, galerkinState);
         }
         delete geometryList;
     } else {
-        const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), newGalerkinElement);
         }

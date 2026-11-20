@@ -2,7 +2,7 @@
 #define CLUSTER__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
 class PatchClusterOctreeNode {
   private:
@@ -12,10 +12,10 @@ class PatchClusterOctreeNode {
 
     java::ArrayList<Patch *> *patches;
     PatchClusterOctreeNode *children[8]{}; // Clusters form an octree
-    AxisAlignedBoundingBox boundingBox{}; // Bounding box for the cluster
+    RpkAxisAlignedBoundingBox boundingBox{}; // Bounding box for the cluster
     Vector3D boundingBoxCentroid; // Mid-point of the bounding box
-    static java::ArrayList<Geometry *> *clusterNodeGeometriesToDelete;
-    static void addToDeletionCache(Geometry *geometry);
+    static java::ArrayList<RpkGeometry *> *clusterNodeGeometriesToDelete;
+    static void addToDeletionCache(RpkGeometry *geometry);
 
     PatchClusterOctreeNode();
     bool movePatchToSubOctantCluster(int patchIndexOnParent) const;
@@ -27,7 +27,7 @@ class PatchClusterOctreeNode {
     virtual ~PatchClusterOctreeNode();
 
     void splitCluster();
-    Geometry *convertClusterToGeometry() const;
+    RpkGeometry *convertClusterToGeometry() const;
     static void deleteCachedGeometries();
     void print(int level) const;
 };

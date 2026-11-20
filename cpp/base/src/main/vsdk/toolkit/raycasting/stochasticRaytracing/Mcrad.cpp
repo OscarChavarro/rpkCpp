@@ -82,9 +82,9 @@ Compute new color for the patch: fine if no hierarchical refinement is used, e.g
 in the current random walk radiosity implementation
 */
 void
-Mcrad::monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
-    patch->setColor(StochasticRadiosityElement::stochasticRadiosityElementColor(McradP::topLevelStochasticRadiosityElement(patch)));
-    patch->computeVertexColors();
+Mcrad::monteCarloRadiosityPatchComputeNewColor(const Patch *patch, FaceColorTable *faceColors) {
+    faceColors->set(patch->getFaceIndex(), StochasticRadiosityElement::stochasticRadiosityElementColor(McradP::topLevelStochasticRadiosityElement(patch)));
+    patch->computeVertexColors(faceColors);
 }
 
 /**
@@ -140,19 +140,47 @@ Mcrad::monteCarloRadiosityAccumulateImportances(const StochasticRadiosityElement
 }
 
 /**
+Calls visit on every child of the element, in the order of
+Element::traverseAllChildren, passing the face visibility along. Returns
+false for a leaf element.
+*/
+bool
+Mcrad::monteCarloRadiosityVisitChildren(
+    const Element *element,
+    void (*visit)(Element *, const FaceVisibilityTable *),
+    const FaceVisibilityTable *faceVisibility)
+{
+    if ( element->isCluster() ) {
+        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+            visit(element->irregularSubElements->get(i), faceVisibility);
+        }
+        return true;
+    }
+    if ( element->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            if ( element->regularSubElements[i] != nullptr ) {
+                visit(element->regularSubElements[i], faceVisibility);
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+/**
 Update importance in the element hierarchy starting with the top cluster
 */
  void
-Mcrad::monteCarloRadiosityUpdateImportance(Element *element) {
+Mcrad::monteCarloRadiosityUpdateImportance(Element *element, const FaceVisibilityTable *faceVisibility) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
         return;
     }
 
-    if ( !stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityUpdateImportance) ) {
+    if ( !monteCarloRadiosityVisitChildren(stochasticRadiosityElement, monteCarloRadiosityUpdateImportance, faceVisibility) ) {
         // Leaf element
-        float delta_imp = static_cast<float>(stochasticRadiosityElement->patch->isVisible() ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
+        float delta_imp = static_cast<float>(faceVisibility->isVisible(stochasticRadiosityElement->patch->getFaceIndex()) ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
         stochasticRadiosityElement->importance += delta_imp;
         stochasticRadiosityElement->sourceImportance += delta_imp;
         stochasticRadiosityElement->unShotImportance += delta_imp;
@@ -168,16 +196,16 @@ Mcrad::monteCarloRadiosityUpdateImportance(Element *element) {
 Re-init importance in the element hierarchy starting with the top cluster
 */
  void
-Mcrad::monteCarloRadiosityReInitImportance(Element *element) {
+Mcrad::monteCarloRadiosityReInitImportance(Element *element, const FaceVisibilityTable *faceVisibility) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
         return;
     }
 
-    if ( !stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityReInitImportance) ) {
+    if ( !monteCarloRadiosityVisitChildren(stochasticRadiosityElement, monteCarloRadiosityReInitImportance, faceVisibility) ) {
         // Leaf element
-        stochasticRadiosityElement->importance = (stochasticRadiosityElement->patch->isVisible()) ? 1.0 : 0.0;
+        stochasticRadiosityElement->importance = faceVisibility->isVisible(stochasticRadiosityElement->patch->getFaceIndex()) ? 1.0 : 0.0;
         stochasticRadiosityElement->sourceImportance = stochasticRadiosityElement->importance;
         stochasticRadiosityElement->unShotImportance = stochasticRadiosityElement->importance;
         monteCarloRadiosityAccumulateImportances(stochasticRadiosityElement);
@@ -197,7 +225,7 @@ Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RendererConfi
     StochasticRelaxation::activeState().sourceYmp = 0.0;
     StochasticRelaxation::activeState().unShotYmp = 0.0;
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    monteCarloRadiosityUpdateImportance(ElementHierarchyState::activeState().topCluster);
+    monteCarloRadiosityUpdateImportance(ElementHierarchyState::activeState().topCluster, scene->getFaceVisibility());
 
     if ( StochasticRelaxation::activeState().unShotYmp < StochasticRelaxation::activeState().sourceYmp ) {
         java::System::err.printf("Importance will be recomputed incrementally.\n");
@@ -210,7 +238,7 @@ Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RendererConfi
         StochasticRelaxation::activeState().sourceYmp = 0.0;
         StochasticRelaxation::activeState().unShotYmp = 0.0;
         StochasticRelaxation::activeState().totalYmp = 0.0;
-        monteCarloRadiosityReInitImportance(ElementHierarchyState::activeState().topCluster);
+        monteCarloRadiosityReInitImportance(ElementHierarchyState::activeState().topCluster, scene->getFaceVisibility());
     }
 
     scene->camera->changed = false; // Indicate that direct importance has been computed for this view already
@@ -225,7 +253,7 @@ area in the scene, ignoring the 10% area occupied by the smallest patches
  double
 Mcrad::monteCarloRadiosityDetermineAreaFraction(
     const java::ArrayList<Patch *> *scenePatches,
-    const java::ArrayList<Geometry *> *sceneGeometries)
+    const java::ArrayList<RpkGeometry *> *sceneGeometries)
 {
     float *areas;
     float cumulative;
@@ -283,7 +311,7 @@ Determines elementary ray power for the initial incremental iterations
  void
 Mcrad::monteCarloRadiosityDetermineInitialNrRays(
     const java::ArrayList<Patch *> *scenePatches,
-    const java::ArrayList<Geometry *> *sceneGeometries)
+    const java::ArrayList<RpkGeometry *> *sceneGeometries)
 {
     double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
     StochasticRelaxation::activeState().initialNumberOfRays = static_cast<long>(static_cast<double>(StochasticRelaxation::activeState().rayUnitsPerIt) * areaFrac);
@@ -336,7 +364,7 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *rend
         StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
         StochasticRelaxation::activeState().sourceYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
-        Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
+        Mcrad::monteCarloRadiosityPatchComputeNewColor(patch, scene->getFaceColors());
     }
 
     monteCarloRadiosityDetermineInitialNrRays(scene->patchList, scene->geometryList);
@@ -372,8 +400,8 @@ Mcrad::monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches
 }
 
  ColorRgbMutable
-Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
-    RayHit hit;
+Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u, double v) {
+    RpkRayHit hit;
     Vector3D point;
     patch->uniformPoint(u, v, &point);
     hit.init(patch, &point, &patch->getNormal(), patch->getMaterial());
@@ -395,7 +423,7 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
 }
 
  ColorRgbMutable
-Mcrad::vertexReflectance(const Vertex *v) {
+Mcrad::vertexReflectance(const RpkVertex *v) {
     int count = 0;
     ColorRgbMutable rd(0.0, 0.0, 0.0);
 
@@ -453,7 +481,7 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 ColorRgbMutable
-Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, const RendererConfiguration *renderOptions) {
+Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Vector3D /*dir*/, const RendererConfiguration *renderOptions) {
     ColorRgbMutable TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);

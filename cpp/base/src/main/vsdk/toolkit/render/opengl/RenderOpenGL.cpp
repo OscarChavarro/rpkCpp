@@ -12,11 +12,8 @@ the provided scene geometries, projected onto the camera Z axis.
 Adds a small safety margin and fallback defaults for empty or non-positive ranges.
 */
 void
-RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
-    AxisAlignedBoundingBox bounds;
-    Vector3D minimum;
-    Vector3D maximum;
-    Vector3D d;
+RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<RpkGeometry *> *sceneGeometries) {
+    RpkAxisAlignedBoundingBox bounds;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         camera->far = 10.0F;
@@ -24,49 +21,15 @@ RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *>
         return;
     }
 
-    Geometry::listBounds(sceneGeometries, &bounds);
-
-    minimum.set(bounds.minX(), bounds.minY(), bounds.minZ());
-    maximum.set(bounds.maxX(), bounds.maxY(), bounds.maxZ());
-
-    camera->far = -Numeric::HUGE_FLOAT_VALUE;
-    camera->near = Numeric::HUGE_FLOAT_VALUE;
-    for ( int i = 0; i <= 1; i++ ) {
-        for ( int j = 0; j <= 1; j++ ) {
-            for ( int k = 0; k <= 1; k++ ) {
-                d.set(i ? maximum.x : minimum.x,
-                      j ? maximum.y : minimum.y,
-                      k ? maximum.z : minimum.z);
-
-                d.subtraction(d, camera->eyePosition);
-                float z = d.dotProduct(camera->Z);
-
-                if ( z > camera->far ) {
-                    camera->far = z;
-                }
-                if ( z < camera->near ) {
-                    camera->near = z;
-                }
-            }
-        }
-    }
-
-    // Take 2% extra distance for near as well as far clipping plane
-    camera->far += 0.02F * (camera->far);
-    camera->near -= 0.02F * (camera->near);
-    if ( camera->far < Numeric::EPSILON ) {
-        camera->far = camera->viewDistance;
-    }
-    if ( camera->near < Numeric::EPSILON ) {
-        camera->near = camera->viewDistance / 100.0F;
-    }
+    RpkGeometry::listBounds(sceneGeometries, &bounds);
+    camera->fitClippingPlanes(bounds);
 }
 
 /**
 Renders a bounding box
 */
 void
-RenderOpenGL::renderBoundingBox(AxisAlignedBoundingBox boundingBox) {
+RenderOpenGL::renderBoundingBox(RpkAxisAlignedBoundingBox boundingBox) {
     Vector3D p[8];
 
     const float minX = boundingBox.minX();
@@ -100,15 +63,15 @@ RenderOpenGL::renderBoundingBox(AxisAlignedBoundingBox boundingBox) {
 }
 
 void
-RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
-    const AxisAlignedBoundingBox geometryBoundingBox = geometry->getBoundingBox();
+RenderOpenGL::renderGeomBounds(Camera *camera, const RpkGeometry *geometry) {
+    const RpkAxisAlignedBoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
         RenderOpenGL::renderBoundingBox(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> * const geometryList = Geometry::primitiveListCopy(geometry);
+        java::ArrayList<RpkGeometry *> * const geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             RenderOpenGL::renderGeomBounds(camera, geometryList->get(i));
         }
@@ -120,7 +83,7 @@ RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RendererConfiguration *renderOptions) {
+RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<RpkGeometry *> *sceneGeometries, const RendererConfiguration *renderOptions) {
     const ColorRgb &boundingBoxColor = renderOptions->getBoundingBoxColor();
     Opengl::openGlRenderSetColor(&boundingBoxColor, renderOptions);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
@@ -132,7 +95,7 @@ RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<G
 Renders the cluster hierarchy bounding boxes
 */
 void
-RenderOpenGL::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RendererConfiguration *renderOptions) {
+RenderOpenGL::renderClusterHierarchy(Camera *camera, const java::ArrayList<RpkGeometry *> *clusteredGeometryList, const RendererConfiguration *renderOptions) {
     const ColorRgb &clusterColor = renderOptions->getClusterColor();
     Opengl::openGlRenderSetColor(&clusterColor, renderOptions);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {

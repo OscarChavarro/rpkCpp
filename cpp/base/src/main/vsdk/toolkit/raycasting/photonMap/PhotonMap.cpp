@@ -11,7 +11,7 @@
 #include "vsdk/toolkit/raycasting/photonMap/Photon.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMap.h"
 bool
-PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
+PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RpkRayHit *hit, char flags) {
     ColorRgbMutable color(0.0, 0.0, 0.0);
     bool shctxOk = false;
     ShadingContext shctx = hit->shadingContext(&shctxOk);
@@ -234,7 +234,7 @@ PhotonMap::redistribute(const Photon &photon) const {
 bool
 PhotonMap::DC_AddPhoton(
     Photon &photon,
-    RayHit &hit,
+    RpkRayHit &hit,
     float requiredD,
     short flags)
 {
@@ -342,7 +342,7 @@ PhotonMap::precomputeIrradiance() {
 
 bool
 PhotonMap::irradianceReconstruct(
-    RayHit *hit,
+    RpkRayHit *hit,
     const Vector3D &/*outDir*/,
     const ColorRgbMutable &diffuseAlbedo,
     ColorRgbMutable *result)
@@ -367,7 +367,7 @@ PhotonMap::irradianceReconstruct(
 
 ColorRgbMutable
 PhotonMap::reconstruct(
-    RayHit *hit,
+    RpkRayHit *hit,
     Vector3D &outDir,
     PhongBidirectionalScatteringDistributionFunction *bsdf,
     PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -449,7 +449,7 @@ PhotonMap::reconstruct(
 }
 
 float
-PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
+PhotonMap::getCurrentDensity(RpkRayHit &hit, int nrPhotons) {
     // Find the nearest photons
     if ( nrPhotons == 0 ) {
         nrPhotons = *m_estimate_nrp;
@@ -482,7 +482,7 @@ PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
 Return a color coded density of the photon map
 */
 ColorRgbMutable
-PhotonMap::getDensityColor(RayHit &hit) {
+PhotonMap::getDensityColor(RpkRayHit &hit) {
     float density = getCurrentDensity(hit, 0);
 
     ColorRgbMutable result = PhotonMap::getFalseColor(density, photonMapState);

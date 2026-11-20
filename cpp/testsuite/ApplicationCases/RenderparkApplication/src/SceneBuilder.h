@@ -20,14 +20,14 @@ class SceneBuilder final {
     static void sceneBuilderAddBackgroundToLightSourceList(Scene *scene);
     static void sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch);
     static void sceneBuilderFillLightSourcePatchList(Scene *scene);
-    static Geometry *sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches);
-    static void sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList);
-    static void sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList);
+    static RpkGeometry *sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches);
+    static void sceneBuilderPatchList(const java::ArrayList<RpkGeometry *> *geometryList, java::ArrayList<Patch *> *patchList);
+    static void sceneBuilderFillFacesBackPointers(const java::ArrayList<RpkGeometry *> *geometryList);
     static void sceneBuilderCollectGeometriesRecursive(
-        const java::ArrayList<Geometry *> *source,
-        java::ArrayList<Geometry *> *target);
+        const java::ArrayList<RpkGeometry *> *source,
+        java::ArrayList<RpkGeometry *> *target);
     static void sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext, ParseSnapshotContext *mgfModel);
-    static void removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, java::ArrayList<Geometry *> *geometryList);
+    static void removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, java::ArrayList<RpkGeometry *> *geometryList);
     static bool sceneBuilderHasExtension(const char *fileName, const char *extension);
     static char *sceneBuilderBuildBinaryFallbackPath(const char *mgfFileName);
     static bool sceneBuilderIsReadableRegularFile(const char *fileName);

@@ -21,10 +21,10 @@ class ClusterCreationStrategy {
     addElementToHierarchiesDeletionCache(GalerkinElement *galerkinElement);
 
     static void
-    geomAddClusterChild(Geometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState);
+    geomAddClusterChild(RpkGeometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState);
 
   public:
-    static GalerkinElement *createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState);
+    static GalerkinElement *createClusterHierarchy(RpkGeometry *geometry, GalerkinState *galerkinState);
     static void freeClusterElements();
 };
 

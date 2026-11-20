@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonClass.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonKDTree.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
@@ -91,7 +91,7 @@ class PhotonMap {
 
   public:
     static bool
-    zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
+    zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RpkRayHit *hit, char flags);
 
     // Convert a value val given a maximum into some nice color
     static ColorRgbMutable getFalseColor(float val, const PhotonMapState &photonMapState);
@@ -103,7 +103,7 @@ class PhotonMap {
 
     virtual bool addPhoton(Photon &photon, Vector3D normal, short flags);
 
-    bool DC_AddPhoton(Photon &photon, RayHit &hit,
+    bool DC_AddPhoton(Photon &photon, RpkRayHit &hit,
                       float requiredD, short flags = 0);
 
     void redistribute(const Photon &photon) const;
@@ -118,20 +118,20 @@ class PhotonMap {
     virtual void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon);
 
     // reconstruct
-    virtual ColorRgbMutable reconstruct(RayHit *hit, Vector3D &outDir,
+    virtual ColorRgbMutable reconstruct(RpkRayHit *hit, Vector3D &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool
     irradianceReconstruct(
-        RayHit *hit,
+        RpkRayHit *hit,
         const Vector3D &outDir,
         const ColorRgbMutable &diffuseAlbedo,
         ColorRgbMutable *result);
 
-    virtual float getCurrentDensity(RayHit &hit, int nrPhotons);
+    virtual float getCurrentDensity(RpkRayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
-    virtual ColorRgbMutable getDensityColor(RayHit &hit);
+    virtual ColorRgbMutable getDensityColor(RpkRayHit &hit);
 
     // Sample values: Random values r,s are transformed into new
     // random values so that importance sampling using the photon

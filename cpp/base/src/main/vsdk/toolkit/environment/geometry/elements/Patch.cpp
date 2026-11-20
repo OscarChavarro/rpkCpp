@@ -3,7 +3,7 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 
 static inline double
@@ -12,7 +12,6 @@ vector2DdDeterminant(const Vector2Dd &a, const Vector2Dd &b) {
 }
 
 int Patch::patchId = 1;
-Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
 /**
 This routine returns the ID number the next patch would get
@@ -29,17 +28,6 @@ Note that patch ID 0 is reserved. The smallest patch ID number should be 1
 void
 Patch::setNextId(int id) {
     patchId = id;
-}
-
-bool
-Patch::isExcluded() const {
-    // MAX_EXCLUDED_PATCHES tests!
-    for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        if ( excludedPatches[i] == this ) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool
@@ -197,7 +185,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
 Adds the patch to the list of patches that share the vertex
 */
 void
-Patch::connectVertex(Vertex *paramVertex) {
+Patch::connectVertex(RpkVertex *paramVertex) {
     paramVertex->patches->add(this);
 }
 
@@ -545,7 +533,7 @@ Badouels and Schlicks method from graphics gems: slower, but consumes less stora
 (u,v) parameters as a side result
 */
 bool
-Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
+Patch::hitInPatch(RpkRayHit *hit, const Patch *patch) const {
     unsigned int newFlags = hit->getFlags() | RayHitFlag::UV;
     hit->setFlags(newFlags); // uv parameters computed as a side result
     Vector3D position = hit->getPoint();
@@ -597,28 +585,26 @@ Creates a patch structure for a patch with given vertices
 */
 Patch::Patch(
     int inNumberOfVertices,
-    Vertex *v1,
-    Vertex *v2,
-    Vertex *v3,
-    Vertex *v4):
-    flags(),
+    RpkVertex *v1,
+    RpkVertex *v2,
+    RpkVertex *v3,
+    RpkVertex *v4):
     patchMidPoint(),
     material(),
     id(),
+    faceIndex(-1),
     twin(),
     numberOfVertices(static_cast<char>(inNumberOfVertices)),
     vertex{v1, v2, v3, v4},
-    boundingBox(new AxisAlignedBoundingBox()),
+    boundingBox(new RpkAxisAlignedBoundingBox()),
     planeTolerance(),
-    directPotential(),
     normal(),
     planeConstant(),
     area(),
     jacobian(),
     radianceData(),
     index(),
-    omit(),
-    color()
+    omit()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         Logger::reportMessage("Patch", Logger::ERROR, "Patch::Patch", "Null vertex!");
@@ -668,11 +654,7 @@ Patch::Patch(
     // Tell the vertices that there's a new Patch using them
     connectVertices();
 
-    directPotential = 0.0;
-    color = ColorRgbMutable(0.0, 0.0, 0.0);
-
     omit = false;
-    flags = 0; // Other flags
 
     radianceData = nullptr;
 }
@@ -696,7 +678,7 @@ Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
 void
-Patch::computeAndGetBoundingBox(AxisAlignedBoundingBox *bounds) {
+Patch::computeAndGetBoundingBox(RpkAxisAlignedBoundingBox *bounds) {
     computeBoundingBox();
     bounds->copyFrom(boundingBox);
 }
@@ -704,49 +686,6 @@ Patch::computeAndGetBoundingBox(AxisAlignedBoundingBox *bounds) {
 void
 Patch::computeBoundingBox() {
     // Bounding box is initialized in the constructor and vertices are immutable afterwards.
-}
-
-void
-Patch::dontIntersectBase(
-    int n,
-    Patch *p0,
-    Patch *p1,
-    Patch *p2,
-    Patch *p3)
-{
-    if ( n < 0 || n > MAX_EXCLUDED_PATCHES ) {
-        Logger::reportMessage("Patch", Logger::FATAL_ERROR, "Patch::dontIntersectBase", java::String::format("Invalid number of excluded patches %d (maximum is %d)", n, MAX_EXCLUDED_PATCHES));
-        return;
-    }
-
-    Patch *localPatches[MAX_EXCLUDED_PATCHES] = {p0, p1, p2, p3};
-    int i = 0;
-    for ( ; i < n; i++ ) {
-        excludedPatches[i] = localPatches[i];
-    }
-    for ( ; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        excludedPatches[i] = nullptr;
-    }
-}
-
-void
-Patch::dontIntersect0() {
-    dontIntersectBase(0, nullptr, nullptr, nullptr, nullptr);
-}
-
-void
-Patch::dontIntersect2(Patch *p0, Patch *p1) {
-    dontIntersectBase(2, p0, p1, nullptr, nullptr);
-}
-
-void
-Patch::dontIntersect3(Patch *p0, Patch *p1, Patch *p2) {
-    dontIntersectBase(3, p0, p1, p2, nullptr);
-}
-
-void
-Patch::dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3) {
-    dontIntersectBase(4, p0, p1, p2, p3);
 }
 
 /**
@@ -832,17 +771,18 @@ ignored. The hitFlags determine what information to return about an
 intersection and whether front/back facing patches are to be
 considered and are described in ray.h.
 */
-RayHit *
+RpkRayHit *
 Patch::intersect(
-    const Ray *ray,
+    const RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RpkRayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    RayHit hit;
+    RpkRayHit hit;
 
-    if ( isExcluded() ) {
+    if ( exclusions.excludesPatch(this) ) {
         return nullptr;
     }
 
@@ -1033,9 +973,9 @@ Patch::uv(const Vector3D *point, double *u, double *v) const {
 Computes a vertex color for the vertices of the patch
 */
 void
-Patch::computeVertexColors() const {
+Patch::computeVertexColors(const FaceColorTable *faceColors) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        vertex[i]->computeColor();
+        vertex[i]->computeColor(faceColors);
     }
 }
 

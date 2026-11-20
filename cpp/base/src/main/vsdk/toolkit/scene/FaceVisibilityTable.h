@@ -1,0 +1,42 @@
+#ifndef FACE_VISIBILITY_TABLE__
+#define FACE_VISIBILITY_TABLE__
+
+/**
+Whether each face of a scene is directly visible from the camera, indexed by
+the dense face index (Patch::getFaceIndex()). Every face starts invisible;
+Potential::updateDirectVisibility rewrites the whole table from an ID render
+of the current view, and the importance-driven stochastic radiosity reads it
+as source importance. Owned by the scene.
+*/
+class FaceVisibilityTable {
+  private:
+    bool *visible;
+    const int numberOfFaces;
+
+  public:
+    explicit FaceVisibilityTable(int inNumberOfFaces);
+    ~FaceVisibilityTable();
+    FaceVisibilityTable(const FaceVisibilityTable &) = delete;
+    FaceVisibilityTable &operator=(const FaceVisibilityTable &) = delete;
+
+    int getNumberOfFaces() const;
+    bool isVisible(int faceIndex) const;
+    void setVisible(int faceIndex, bool isFaceVisible);
+};
+
+inline int
+FaceVisibilityTable::getNumberOfFaces() const {
+    return numberOfFaces;
+}
+
+inline bool
+FaceVisibilityTable::isVisible(const int faceIndex) const {
+    return visible[faceIndex];
+}
+
+inline void
+FaceVisibilityTable::setVisible(const int faceIndex, const bool isFaceVisible) {
+    visible[faceIndex] = isFaceVisible;
+}
+
+#endif

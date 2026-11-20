@@ -4,9 +4,6 @@
 ColorRgb::ColorRgb() : r_(0), g_(0), b_(0) {
 }
 
-ColorRgb::ColorRgb(const ColorRgb& c) : r_(c.r_), g_(c.g_), b_(c.b_) {
-}
-
 ColorRgb::ColorRgb(double r, double g, double b) : r_(r), g_(g), b_(b) {
 }
 

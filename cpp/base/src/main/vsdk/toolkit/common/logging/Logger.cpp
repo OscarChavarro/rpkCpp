@@ -58,7 +58,7 @@ void Logger::processFatalError(const java::String& method, const java::String& m
     throw VSDKFatalException(m);
 }
 
-void Logger::reportMessage(const java::String& className, int level, const java::String& method, const java::String& message)
+void Logger::reportMessage(const java::String& /*className*/, int level, const java::String& method, const java::String& message)
 {
     fprintf(stderr, "%s\n", message.c_str());
     if ( level == FATAL_ERROR ) {
@@ -66,7 +66,7 @@ void Logger::reportMessage(const java::String& className, int level, const java:
     }
 }
 
-void Logger::reportMessageWithException(const java::String& className, int level, const java::String& method, const java::String& message, const java::Exception* cause)
+void Logger::reportMessageWithException(const java::String& /*className*/, int level, const java::String& method, const java::String& message, const java::Exception* cause)
 {
     if ( cause != nullptr ) {
         fprintf(stderr, "%s | exception: %s\n", message.c_str(), cause->getMessage().c_str());

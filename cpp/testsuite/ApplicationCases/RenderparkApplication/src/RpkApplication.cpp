@@ -44,7 +44,7 @@
     #include "Raytrace.h"
 #endif
 
-Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
+RpkMaterial RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
 
 #ifndef RAYTRACING_ENABLED
 bool
@@ -113,7 +113,7 @@ RpkApplication::mainInitApplication() {
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
     // different
-    Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
+    RpkVertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 }
 
 void
@@ -248,7 +248,6 @@ RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();
-    VoxelGrid::freeVoxelGridElements();
     if ( mgfContext->radianceMethod != nullptr ) {
         delete mgfContext->radianceMethod;
     }

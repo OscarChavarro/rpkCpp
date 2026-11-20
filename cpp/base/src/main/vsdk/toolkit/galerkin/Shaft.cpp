@@ -35,7 +35,8 @@ Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
     return patchSet;
 }
 
-Shaft::Shaft():
+Shaft::Shaft(const FaceBoundsTable *inFaceBounds):
+    faceBounds(inFaceBounds),
     referenceItem1(),
     referenceItem2(),
     extentBoundingBox(),
@@ -69,7 +70,7 @@ Shaft::setShaftOmit(Patch *patch) {
 Marks a geometry as one not to be opened during shaft culling
 */
 void
-Shaft::setShaftDontOpen(Geometry *geometry) {
+Shaft::setShaftDontOpen(RpkGeometry *geometry) {
     geometryIdsToAvoidOpening[numberOfGeometriesToAvoidOpen++] = geometry->id;
 }
 
@@ -77,7 +78,7 @@ Shaft::setShaftDontOpen(Geometry *geometry) {
 Constructs a shaft for two given bounding boxes
 */
 void
-Shaft::constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlignedBoundingBox *boundingBox2) {
+Shaft::constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAxisAlignedBoundingBox *boundingBox2) {
     numberOfGeometriesToOmit = 0;
     numberOfGeometriesToAvoidOpen = 0;
     cut = false;
@@ -457,7 +458,7 @@ Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
 is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 */
 ShaftPlanePosition
-Shaft::boundingBoxTest(const AxisAlignedBoundingBox *parameterBoundingBox) const {
+Shaft::boundingBoxTest(const RpkAxisAlignedBoundingBox *parameterBoundingBox) const {
     // Test against extent box
     if ( parameterBoundingBox->disjointToOtherBoundingBox(&extentBoundingBox) ) {
         return ShaftPlanePosition::OUTSIDE;
@@ -511,9 +512,9 @@ Shaft::shaftPatchTest(Patch *patch) {
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
-    Ray ray;
+    RpkRay ray;
     float dist;
-    RayHit hitStore;
+    RpkRayHit hitStore;
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
     int someOut = false;
@@ -637,7 +638,8 @@ Shaft::shaftPatchTest(Patch *patch) {
     ray.position = center1;
     ray.direction.subtraction(center2, center1);
     dist = 1.0F - Numeric::EPSILON_FLOAT;
-    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
+    const RayExclusionSet noExclusions;
+    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore, noExclusions) ) {
         cut = true;
         return ShaftPlanePosition::OVERLAP;
     }
@@ -662,7 +664,7 @@ Shaft::patchIsOnOmitSet(const unsigned id) const {
 Returns true if the geometry is not to be opened during shaft culling
 */
 bool
-Shaft::closedGeometry(const Geometry *geometry) const {
+Shaft::closedGeometry(const RpkGeometry *geometry) const {
     for ( int i = 0; i < numberOfGeometriesToAvoidOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( geometryIdsToAvoidOpening[i] == geometry->id ) {
             return true;
@@ -686,11 +688,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Pa
             continue;
         }
 
-        if ( patch->getBoundingBox() == nullptr ) {
-            patch->computeBoundingBox();
-        }
-
-        ShaftPlanePosition boundingBoxSide = boundingBoxTest(patch->getBoundingBox());
+        ShaftPlanePosition boundingBoxSide = boundingBoxTest(&faceBounds->get(patch->getFaceIndex()));
         // Patch bounding box is inside the shaft, or overlaps with it. If it
         // overlaps, do a more expensive, but definitive, test to see whether
         // the patch itself is inside, outside or overlapping the shaft
@@ -707,14 +705,14 @@ Adds the geometry to the candidateList, possibly duplicating if it
 was created during previous shaft culling
 */
 void
-Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+Shaft::keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) {
     if ( geometry->omit ) {
         return;
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
         const PatchSet *oldPatchSet = static_cast<const PatchSet *>(geometry);
-        Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
+        RpkGeometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
         newGeometry->shaftCullGeometry = true;
         newGeometry->isDuplicate = true;
         candidateList->add(newGeometry);
@@ -727,7 +725,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
 Breaks the geometry into it's components and does shaft culling on the components
 */
 void
-Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
+Shaft::shaftCullOpen(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList, ShaftCullStrategy strategy) {
     if ( geometry->omit ) {
         return;
     }
@@ -736,7 +734,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         const Compound *compound = static_cast<const Compound *>(geometry);
         doCulling(compound->children, candidateList, strategy);
     } else {
-        const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
+        const java::ArrayList<Patch *> *geometryPatchesList = RpkGeometry::patchListReference(geometry);
         java::ArrayList<Patch *> culledPatches;
         cullPatches(geometryPatchesList, &culledPatches);
 
@@ -756,8 +754,8 @@ the current shaft culling strategy
 */
 void
 Shaft::cullGeometry(
-    Geometry *geometry,
-    java::ArrayList<Geometry *> *candidateList,
+    RpkGeometry *geometry,
+    java::ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
     if ( geometry->className == GeometryClassId::PATCH_SET ) {
@@ -810,8 +808,8 @@ doCulling - for other kinds of geoms, only a pointer is copied
 */
 void
 Shaft::doCulling(
-    const java::ArrayList<Geometry *> *world,
-    java::ArrayList<Geometry *> *candidateList,
+    const java::ArrayList<RpkGeometry *> *world,
+    java::ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
     for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
@@ -823,11 +821,11 @@ Shaft::doCulling(
 Frees the memory occupied by a candidate list produced by doCulling
 */
 void
-Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
+Shaft::freeCandidateList(java::ArrayList<RpkGeometry *> *candidateList) {
     // Only destroy geometries that were generated for shaft culling
     // free in reverse order to match LIFO allocations in shaft-culling paths
     for ( int i = candidateList != nullptr ? static_cast<int>(candidateList->size()) - 1 : -1; i >= 0; i-- ) {
-        Geometry *geometry = candidateList->get(i);
+        RpkGeometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {
             if ( geometry->className == GeometryClassId::PATCH_SET ) {
                 PatchSet *patchSet = static_cast<PatchSet *>(geometry);
@@ -836,10 +834,10 @@ Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
                     patchSetPool.free(1);
                     Statistics::instance().reader.numberOfGeometries--;
                 } else {
-                    Geometry::destroy(geometry);
+                    RpkGeometry::destroy(geometry);
                 }
             } else {
-                Geometry::destroy(geometry);
+                RpkGeometry::destroy(geometry);
             }
         }
     }

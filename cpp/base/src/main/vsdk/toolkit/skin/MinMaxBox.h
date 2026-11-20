@@ -1,12 +1,12 @@
 #ifndef MIN_MAX_BOX__
 #define MIN_MAX_BOX__
 
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 
 class MinMaxBox {
   private:
-    AxisAlignedBoundingBox boundingBox;
+    RpkAxisAlignedBoundingBox boundingBox;
     static inline bool
     clipAxisSlab(
         float minimumBound,
@@ -18,18 +18,18 @@ class MinMaxBox {
         float *farDistance);
 
   public:
-    inline explicit MinMaxBox(const AxisAlignedBoundingBox *sourceBoundingBox);
+    inline explicit MinMaxBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox);
     inline ~MinMaxBox();
 
     inline MinMaxBox(const MinMaxBox &) = delete;
     inline MinMaxBox &operator=(const MinMaxBox &) = delete;
 
-    void updateFromBoundingBox(const AxisAlignedBoundingBox *sourceBoundingBox);
-    inline bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
-    inline bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
+    void updateFromBoundingBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox);
+    inline bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
+    inline bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
 };
 
-MinMaxBox::MinMaxBox(const AxisAlignedBoundingBox *sourceBoundingBox):
+MinMaxBox::MinMaxBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox):
         boundingBox()
 {
     if ( sourceBoundingBox != nullptr ) {
@@ -75,7 +75,7 @@ MinMaxBox::clipAxisSlab(
 }
 
 inline bool
-MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
+MinMaxBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
     if ( ray == nullptr || tMin == nullptr || tMax == nullptr ) {
         return false;
     }
@@ -125,7 +125,7 @@ MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
 }
 
 inline bool
-MinMaxBox::intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const {
+MinMaxBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
     if ( maximumDistance == nullptr ) {
         return false;
     }

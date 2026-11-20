@@ -8,7 +8,7 @@
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
 #include "vsdk/toolkit/io/context/VertexContext.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class MgfVertexFaceEntitySupport {
   public:
@@ -25,16 +25,16 @@ class MgfVertexFaceEntitySupport {
     static int doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context);
     static Vector3D *installPoint(float x, float y, float z, const ParseRuntimeContext *context);
     static Vector3D *installNormal(float x, float y, float z, const ParseRuntimeContext *context);
-    static Vertex *installVertex(Vector3D *coord, Vector3D *norm, const ParseRuntimeContext *context);
-    static Vertex *getVertex(const char *name, ParseRuntimeContext *context);
-    static Vertex *getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context);
-    static Patch *newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context);
-    static Vector3D *faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal);
+    static RpkVertex *installVertex(Vector3D *coord, Vector3D *norm, const ParseRuntimeContext *context);
+    static RpkVertex *getVertex(const char *name, ParseRuntimeContext *context);
+    static RpkVertex *getBackFaceVertex(RpkVertex *v, const ParseRuntimeContext *context);
+    static Patch *newFace(RpkVertex *v1, RpkVertex *v2, RpkVertex *v3, RpkVertex *v4, const ParseRuntimeContext *context);
+    static Vector3D *faceNormal(int numberOfVertices, RpkVertex **v, Vector3D *normal);
     static void vectorProject(Vector2D &r, const Vector3D &p, CoordinateAxis i);
-    static bool faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal);
+    static bool faceIsConvex(int numberOfVertices, RpkVertex **v, const Vector3D *normal);
     static bool pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3);
     static bool segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4);
-    static void doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseRuntimeContext *context);
+    static void doComplexFace(int n, RpkVertex **v, Vector3D *normal, RpkVertex **backVertex, ParseRuntimeContext *context);
 };
 
 #endif

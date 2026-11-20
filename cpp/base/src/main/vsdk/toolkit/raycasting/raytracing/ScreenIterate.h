@@ -13,7 +13,7 @@ Several functions are provided for different iterating schemes
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterateState.h"
 
-using SCREEN_ITERATE_CALLBACK = ColorRgbMutable (*)(Camera *, VoxelGrid *, Background *, int, int, void *);
+using SCREEN_ITERATE_CALLBACK = ColorRgbMutable (*)(Camera *, VoxelGrid *, VoxelGridWorkspace *, Background *, int, int, void *);
 
 class ScreenIterate {
   public:
@@ -21,6 +21,7 @@ class ScreenIterate {
     sequential(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
         void *data,
@@ -30,6 +31,7 @@ class ScreenIterate {
     progressive(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
         void *data,

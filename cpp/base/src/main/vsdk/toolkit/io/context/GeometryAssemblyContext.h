@@ -3,9 +3,9 @@
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class GeometryAssemblyContext {
   public:
@@ -13,22 +13,22 @@ class GeometryAssemblyContext {
 
     char *currentVertexName;
     int geometryStackHeadIndex;
-    java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+    java::ArrayList<RpkGeometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     // Those lists are transferred to MeshSurface objects and should not be deleted on transfer.
     java::ArrayList<Vector3D *> *currentPointList;
     java::ArrayList<Vector3D *> *currentNormalList;
-    java::ArrayList<Vertex *> *currentVertexList;
+    java::ArrayList<RpkVertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
-    java::ArrayList<Geometry *> *currentGeometryList;
+    java::ArrayList<RpkGeometry *> *currentGeometryList;
     char *currentObjectName;
     bool inSurface;
     bool inComplex;
     bool warpConeEnds;
-    java::ArrayList<Geometry *> *allGeometries;
+    java::ArrayList<RpkGeometry *> *allGeometries;
 
     // Return model geometry output
-    java::ArrayList<Geometry *> *geometries;
+    java::ArrayList<RpkGeometry *> *geometries;
 
     GeometryAssemblyContext();
     ~GeometryAssemblyContext();

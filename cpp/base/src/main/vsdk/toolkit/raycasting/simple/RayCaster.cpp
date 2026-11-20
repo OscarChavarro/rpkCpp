@@ -120,7 +120,7 @@ RayCaster::getRadianceAtPixel(
 
     if ( radianceMethod != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
-        Ray ray;
+        RpkRay ray;
         ray.position = camera->eyePosition;
         ray.direction = screenBuffer->getPixelVector(x, y);
         ray.direction.normalize(Numeric::EPSILON_FLOAT);

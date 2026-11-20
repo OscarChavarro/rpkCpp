@@ -64,14 +64,15 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
           j >= 0;
           j--, ySample += v ) {
         const long rowStart = j * x;
-        for ( long i = 0, xSample = -h * static_cast<float>(x - 1) / 2.0F; i < x; i++, xSample += static_cast<long>(h) ) {
+        float xSample = -h * static_cast<float>(x - 1) / 2.0F;
+        for ( long i = 0; i < x; i++, xSample += h ) {
             const unsigned long the_id = ids[rowStart + i] & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 Vector3D pixDir;
 
                 // Compute direction to center of pixel
-                pixDir.combine3(scene->camera->Z, static_cast<float>(xSample), scene->camera->X, ySample, scene->camera->Y);
+                pixDir.combine3(scene->camera->Z, xSample, scene->camera->X, ySample, scene->camera->Y);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
@@ -95,10 +96,12 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
         Patch * const patch = id2patch[i];
 
         if ( patch != nullptr ) {
-            patch->setDirectPotential(newDirectImportance[i] / patch->getArea());
+            DirectPotentialTable * const directPotentials = scene->getDirectPotentials();
+            const int faceIndex = patch->getFaceIndex();
+            directPotentials->set(faceIndex, static_cast<float>(newDirectImportance[i] / patch->getArea()));
 
-            if ( patch->getDirectPotential() > Statistics::instance().potential.maxDirectPotential ) {
-                Statistics::instance().potential.maxDirectPotential = patch->getDirectPotential();
+            if ( directPotentials->get(faceIndex) > Statistics::instance().potential.maxDirectPotential ) {
+                Statistics::instance().potential.maxDirectPotential = directPotentials->get(faceIndex);
             }
             Statistics::instance().potential.totalDirectPotential += newDirectImportance[i];
             Statistics::instance().potential.averageDirectPotential += newDirectImportance[i];
@@ -116,18 +119,18 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
 }
 
 void
-Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches) {
+Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches, FaceVisibilityTable *faceVisibility) {
     int i;
 
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        scenePatches->get(i)->setInvisible();
+        faceVisibility->setVisible(scenePatches->get(i)->getFaceIndex(), false);
     }
 
     const int pixelCount = sgl->width * sgl->height;
     for ( i = 0; i < pixelCount; i++ ) {
-        Patch * const P = reinterpret_cast<Patch *>(sgl->frameBuffer[i]);
+        Patch * const P = sgl->patchBuffer[i]; // softRenderPatches stores patch pointers there
         if ( P ) {
-            P->setVisible();
+            faceVisibility->setVisible(P->getFaceIndex(), true);
         }
     }
 }
@@ -138,7 +141,7 @@ Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfigur
     SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
     SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
-    Potential::softGetPatchPointers(currentSglContext, scene->patchList);
+    Potential::softGetPatchPointers(currentSglContext, scene->patchList, scene->getFaceVisibility());
     delete currentSglContext;
 
     java::System::err.printf("Determining visible patches in software took %g sec\n",

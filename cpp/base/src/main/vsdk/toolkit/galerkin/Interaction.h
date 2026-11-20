@@ -1,7 +1,7 @@
 #ifndef INTERACTION__
 #define INTERACTION__
 
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
 class GalerkinElement;
 

@@ -26,7 +26,6 @@ private:
 public:
     Vector2Dd() : x(0.0), y(0.0) {}
     Vector2Dd(double x, double y) : x(x), y(y) {}
-    Vector2Dd(const Vector2Dd& other) : x(other.x), y(other.y) {}
 
     static Vector2Dd copyOf(const Vector2Dd& other) { return Vector2Dd(other); }
 

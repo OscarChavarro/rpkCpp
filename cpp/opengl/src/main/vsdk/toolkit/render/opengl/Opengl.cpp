@@ -126,8 +126,8 @@ Opengl::sceneRotationPivot(const Scene *scene) {
     }
 
     if ( scene->geometryList != nullptr && scene->geometryList->size() > 0 ) {
-        AxisAlignedBoundingBox sceneBounds;
-        Geometry::listBounds(scene->geometryList, &sceneBounds);
+        RpkAxisAlignedBoundingBox sceneBounds;
+        RpkGeometry::listBounds(scene->geometryList, &sceneBounds);
         return sceneBounds.center();
     }
 
@@ -194,8 +194,8 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
 }
 
 void
-Opengl::openGlRenderPatchFlat(const Patch *patch, const RendererConfiguration *renderOptions) {
-    Opengl::openGlRenderSetColor(&patch->getColor(), renderOptions);
+Opengl::openGlRenderPatchFlat(const Patch *patch, const ColorRgbMutable &color, const RendererConfiguration *renderOptions) {
+    Opengl::openGlRenderSetColor(&color, renderOptions);
     switch ( patch->getNumberOfVertices() ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -289,11 +289,11 @@ Opengl::openGlInvokeRenderPatch(
 void
 Opengl::openGlReallyRenderOctreeLeaf(
     const Camera *camera,
-    const Geometry *geometry,
+    const RpkGeometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatch,
     const RendererConfiguration *renderOptions)
 {
-    const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+    const java::ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         Opengl::openGlInvokeRenderPatch(renderPatch, patchList->get(i), camera, renderOptions);
     }
@@ -302,7 +302,7 @@ Opengl::openGlReallyRenderOctreeLeaf(
 void
 Opengl::openGlRenderOctreeLeaf(
     const Camera *camera,
-    const Geometry *geometry,
+    const RpkGeometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
     const RendererConfiguration *renderOptions)
 {
@@ -310,7 +310,7 @@ Opengl::openGlRenderOctreeLeaf(
 }
 
 bool
-Opengl::openGlViewCullBounds(const Camera *camera, const AxisAlignedBoundingBox *bounds) {
+Opengl::openGlViewCullBounds(const Camera *camera, const RpkAxisAlignedBoundingBox *bounds) {
     for ( int i = 0; i < Camera::NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
@@ -323,7 +323,7 @@ Opengl::openGlViewCullBounds(const Camera *camera, const AxisAlignedBoundingBox 
 Squared distance to midpoint (avoid taking square root)
 */
 float
-Opengl::openGlBoundsDistance2(Vector3D p, const AxisAlignedBoundingBox *boundingBox) {
+Opengl::openGlBoundsDistance2(Vector3D p, const RpkAxisAlignedBoundingBox *boundingBox) {
     Vector3D mid = boundingBox->center();
     Vector3D d;
     d.subtraction(mid, p);
@@ -338,16 +338,16 @@ clusteredWorldGeom is such a geometry e.g.
 void
 Opengl::openGlRenderOctreeNonLeaf(
     Camera *camera,
-    const Geometry *geometry,
+    const RpkGeometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
     const RendererConfiguration *renderOptions)
 {
     OctreeChild octree_children[8];
-    java::ArrayList<Geometry *> *children = Geometry::primitiveListCopy(geometry);
+    java::ArrayList<RpkGeometry *> *children = RpkGeometry::primitiveListCopy(geometry);
 
     int i = 0;
     for ( int j = 0; children != nullptr && j < children->size(); j++ ) {
-        Geometry *child = children->get(j);
+        RpkGeometry *child = children->get(j);
         if ( child->isCompound() ) {
             if ( i >= 8 ) {
                 Logger::reportMessage("Opengl", Logger::ERROR, "openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
@@ -419,11 +419,15 @@ Opengl::openGlRenderWorldOctree(
 #ifdef OPEN_GL_ENABLED
     OpenGlRenderTraversalCallback callbackContext{};
     if ( renderPatchCallback == nullptr ) {
-        renderPatchCallback = Opengl::openGlRenderPatchCallBack;
+        // Default rendering: flat or smooth with the scene's face display colors
+        callbackContext.callbackWithoutData = nullptr;
+        callbackContext.callbackWithData = Opengl::openGlRenderPatchCallBack;
+        callbackContext.callbackData = scene->getFaceColors();
+    } else {
+        callbackContext.callbackWithoutData = renderPatchCallback;
+        callbackContext.callbackWithData = nullptr;
+        callbackContext.callbackData = nullptr;
     }
-    callbackContext.callbackWithoutData = renderPatchCallback;
-    callbackContext.callbackWithData = nullptr;
-    callbackContext.callbackData = nullptr;
     if ( scene->clusteredRootGeometry->isCompound() ) {
         Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {
@@ -436,13 +440,14 @@ Opengl::openGlRenderWorldOctree(
 Renders the all the patches using default colors
 */
 void
-Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions) {
+Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, void *faceColors) {
 #ifdef OPEN_GL_ENABLED
     if ( !renderOptions->isNoShading() ) {
         if ( renderOptions->isSmoothShading() ) {
             Opengl::openGlRenderPatchSmooth(patch, renderOptions);
         } else {
-            Opengl::openGlRenderPatchFlat(patch, renderOptions);
+            const FaceColorTable *colors = static_cast<const FaceColorTable *>(faceColors);
+            Opengl::openGlRenderPatchFlat(patch, colors->get(patch->getFaceIndex()), renderOptions);
         }
     }
 
@@ -465,7 +470,7 @@ Opengl::openGlRenderSetLineWidth(float width) {
 }
 
 void
-Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
+Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<RpkGeometry *> *sceneGeometries) {
     Opengl::openGlRenderClearWindow(camera);
 
     // Use the full viewport
@@ -529,10 +534,10 @@ Opengl::openGlReallyRender(
             java::System::exit(1);
         }
     } else if ( renderOptions->isFrustumCulling() ) {
-        Opengl::openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);
+        Opengl::openGlRenderWorldOctree(scene, nullptr, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            Opengl::openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
+            Opengl::openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions, scene->getFaceColors());
         }
     }
     glPopMatrix();

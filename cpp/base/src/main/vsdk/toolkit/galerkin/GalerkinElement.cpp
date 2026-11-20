@@ -171,7 +171,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     patch = parameterPatch;
     minimumArea = area = patch->getArea();
     blockerSize = 2.0F * static_cast<float>(java::Math::sqrt(area / M_PI));
-    directPotential = patch->getDirectPotential();
+    directPotential = 0.0F; // Every face starts without direct potential (DirectPotentialTable)
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->getMaterial() != nullptr && patch->getMaterial()->getEdf() != nullptr ) {
@@ -188,7 +188,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState):
+GalerkinElement::GalerkinElement(RpkGeometry *inGeometry, GalerkinState *inGalerkinState):
     GalerkinElement(inGalerkinState)
 {
     geometry = inGeometry;
@@ -290,7 +290,7 @@ and un-shot radiance on the element
 */
 void
 GalerkinElement::reAllocCoefficients() {
-    char localBasisSize;
+    char localBasisSize = 0;
 
     if ( isCluster() ) {
         // We always use a constant basis on cluster elements
@@ -418,7 +418,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
     }
 
     // Have a look at the drawings above to understand what is done exactly
-    Element *childElement;
+    Element *childElement = nullptr;
     double _u = *u;
     double _v = *v;
     switch ( patch->getNumberOfVertices() ) {
@@ -491,7 +491,7 @@ cluster element (8 vertices). The number of vertices is returned
 int
 GalerkinElement::vertices(Vector3D *p) const {
     if ( isCluster() ) {
-        AxisAlignedBoundingBox boundingBox;
+        RpkAxisAlignedBoundingBox boundingBox;
         bounds(&boundingBox);
 
         boundingBox.corners(p);
@@ -572,10 +572,10 @@ GalerkinElement::midPoint() const {
 /**
 Computes a bounding box for the element
 */
-AxisAlignedBoundingBox *
-GalerkinElement::bounds(AxisAlignedBoundingBox *boundingBox) const {
+RpkAxisAlignedBoundingBox *
+GalerkinElement::bounds(RpkAxisAlignedBoundingBox *boundingBox) const {
     if ( isCluster() ) {
-        AxisAlignedBoundingBox copy = geometry->getBoundingBox();
+        RpkAxisAlignedBoundingBox copy = geometry->getBoundingBox();
         boundingBox->copyFrom(&copy);
     } else {
         Vector3D p[4];

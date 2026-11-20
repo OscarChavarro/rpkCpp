@@ -1,0 +1,18 @@
+# Step 1 control: VITRAL RaytracingOfflineExample under both values of
+# --mesh-acceleration (doc/vitralAlignmentPlan.md, step 1).
+# VITRAL c8c514e77bea205fd92375593c37fe9c1c63ecb2, default CMake configuration
+# of cpp/testsuite/OfflineExamples/RaytracingOfflineExample, g++ 11.4.0.
+#   build/RaytracingOfflineExample --mesh-acceleration <method> --stats \
+#     --scene etc/geometry/mitscenes/<scene>.ray --output <scene>_<method>.ppm
+# For each scene both methods give the same image (sha256 below).
+# quadmesh_test does not reach the accelerated path: with wald2007 it still
+# visits no BVH node, because QuadMesh has no acceleration structure; cow and
+# balls_cowobj do reach it.
+#
+# scene method userSeconds primitiveTraversals nodeVisits primitiveTests imageSha256
+cow bruteforce 15.15 665629 0 487858775 098976c03d2baef1bbf0b2b8bc34bbcd5716a773ba28f2298535251952443ab7
+cow wald2007 1.96 665629 2348070 1047033 098976c03d2baef1bbf0b2b8bc34bbcd5716a773ba28f2298535251952443ab7
+balls_cowobj bruteforce 256.53 296434948 0 10002956036 db41f21d4c4ac3b7a3c6d15f39eaa0c0cfc3b27f465c763cc33c450e446c0d33
+balls_cowobj wald2007 10.22 9766129 27057248 10823176 db41f21d4c4ac3b7a3c6d15f39eaa0c0cfc3b27f465c763cc33c450e446c0d33
+quadmesh_test bruteforce 7.18 2542754 0 30513048 e877c0267a89e17d11976da29631107303df6bbe17966b2f2de24c909fdebbdf
+quadmesh_test wald2007 7.44 2542754 0 30513048 e877c0267a89e17d11976da29631107303df6bbe17966b2f2de24c909fdebbdf

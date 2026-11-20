@@ -1,0 +1,16 @@
+01_cubeGaussSiedel 01_cubeGaussSiedel.ppm 0
+01_cubeJacobi 01_cube.ppm 0
+01_cubeSouthwell 01_cubeSouthwell.ppm 0
+02_corridor 02_corridor.ppm 0
+03_hospital 03_hospital.ppm 0
+04_office1 04_office1.ppm 0
+05_office2 05_office2.ppm 0
+06_office3 06_office3.ppm 0
+07_classroom 07_classroom.ppm 0
+10_floorRayMatting 10_floorRayMatting.ppm 0
+11_floorRayCasting 11_floorRayCasting.ppm 0
+12_floorBidirectionalPathTracing 12_floorBidirectionalPathTracing.ppm 0
+13_floorStochasticRaytracingRandomWalk 13_floorStochasticRaytracingRandomWalk.ppm 0
+14_floorStochasticRaytracingJacobi 14_floorStochasticRaytracingJacobi.ppm 0
+21_tonemapWard 21_tonemapWard.ppm 0
+22_tonemapTumblinRushmeier 22_tonemapTumblinRushmeier.ppm 0

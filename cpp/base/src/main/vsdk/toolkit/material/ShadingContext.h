@@ -6,7 +6,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/material/ShadingContextFlag.h"
 
-class Material;
+class RpkMaterial;
 
 /**
 Immutable shading input data used by material evaluation.
@@ -20,7 +20,7 @@ class ShadingContext final {
     const Vector3D texCoord;
     const Vector2Dd uv;
     const CoordinateSystem shadingFrame;
-    const Material * const material;
+    const RpkMaterial * const material;
     const unsigned int flags;
 
   public:
@@ -31,7 +31,7 @@ class ShadingContext final {
         const Vector3D &inTexCoord,
         const Vector2Dd &inUv,
         const CoordinateSystem &inShadingFrame,
-        const Material *inMaterial,
+        const RpkMaterial *inMaterial,
         unsigned int inFlags):
         point(inPoint),
         geometricNormal(inGeometricNormal),
@@ -49,7 +49,7 @@ class ShadingContext final {
     const Vector3D &getTexCoord() const { return texCoord; }
     const Vector2Dd &getUv() const { return uv; }
     const CoordinateSystem &getShadingFrame() const { return shadingFrame; }
-    const Material *getMaterial() const { return material; }
+    const RpkMaterial *getMaterial() const { return material; }
     unsigned int getFlags() const { return flags; }
     bool hasFlag(unsigned int mask) const { return (flags & mask) == mask; }
 };

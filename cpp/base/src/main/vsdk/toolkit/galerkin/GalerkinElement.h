@@ -44,7 +44,7 @@ class GalerkinElement final : public Element {
 
   public:
     Patch *patch;
-    Geometry *geometry;
+    RpkGeometry *geometry;
     float potential; // Total potential of the element
     float receivedPotential; // Potential received during the last iteration
     float unShotPotential; // Un-shot potential (progressive refinement radiosity)
@@ -63,7 +63,7 @@ class GalerkinElement final : public Element {
     GalerkinState *galerkinState;
 
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
-    explicit GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState);
+    explicit GalerkinElement(RpkGeometry *inGeometry, GalerkinState *inGalerkinState);
     ~GalerkinElement() final;
 
     static int getNumberOfElements();
@@ -76,7 +76,7 @@ class GalerkinElement final : public Element {
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     int vertices(Vector3D *p) const;
-    AxisAlignedBoundingBox *bounds(AxisAlignedBoundingBox *boundingBox) const;
+    RpkAxisAlignedBoundingBox *bounds(RpkAxisAlignedBoundingBox *boundingBox) const;
     Vector3D midPoint() const;
     void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();

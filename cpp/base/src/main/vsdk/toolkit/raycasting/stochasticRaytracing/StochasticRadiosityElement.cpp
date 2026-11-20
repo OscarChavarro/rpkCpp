@@ -33,7 +33,7 @@ StochasticRadiosityElement::markCoefficientPoolsInitialized() {
 }
 
 void
-StochasticRadiosityElement::vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
+StochasticRadiosityElement::vertexAttachElement(RpkVertex *v, StochasticRadiosityElement *elem) {
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     if ( v->radianceData == nullptr ) {
         v->radianceData = new java::ArrayList<Element *>();
@@ -145,7 +145,7 @@ StochasticRadiosityElement::~StochasticRadiosityElement() {
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry) {
+StochasticRadiosityElement::monteCarloRadiosityCreateCluster(RpkGeometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
 
     elem->geometry = geometry;
@@ -183,7 +183,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceElementChild(Patch *
 }
 
 void
-StochasticRadiosityElement::monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement *parent) {
+StochasticRadiosityElement::monteCarloRadiosityCreateClusterChild(RpkGeometry *geom, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geom);
     subCluster->parent = parent;
     subCluster->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
@@ -213,16 +213,16 @@ StochasticRadiosityElement::monteCarloRadiosityInitClusterPull(StochasticRadiosi
 
 void
 StochasticRadiosityElement::monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
-    Geometry *geometry = parent->geometry;
+    RpkGeometry *geometry = parent->geometry;
 
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        java::ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             monteCarloRadiosityCreateClusterChild(geometryList->get(i), parent);
         }
         delete geometryList;
     } else {
-        const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             monteCarloRadiosityCreateSurfaceElementChild(patchList->get(i), parent);
         }
@@ -235,7 +235,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateClusterChildren(StochasticR
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world) {
+StochasticRadiosityElement::monteCarloRadiosityCreateClusterHierarchyRecursive(RpkGeometry *world) {
     StochasticRadiosityElement *topCluster = monteCarloRadiosityCreateCluster(world);
     world->radianceData = topCluster;
     monteCarloRadiosityCreateClusterChildren(topCluster);
@@ -243,7 +243,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateClusterHierarchyRecursive(G
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::stochasticRadiosityElementCreateFromGeometry(Geometry *world) {
+StochasticRadiosityElement::stochasticRadiosityElementCreateFromGeometry(RpkGeometry *world) {
     if ( !world ) {
         return nullptr;
     } else {
@@ -397,16 +397,16 @@ StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3D *t
     return t;
 }
 
-Vertex *
+RpkVertex *
 StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-    Vertex *v = new Vertex(coord, norm, texCoord, newPatchList);
+    RpkVertex *v = new RpkVertex(coord, norm, texCoord, newPatchList);
     ElementHierarchyState::activeState().vertices->add(v);
     return v;
 }
 
-Vertex *
-StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, const Vertex *v1, const Vertex *v2) {
+RpkVertex *
+StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, const RpkVertex *v1, const RpkVertex *v2) {
     Vector3D coord;
     Vector3D norm;
     Vector3D texCoord;
@@ -446,8 +446,8 @@ found.
 */
 StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityElementNeighbour(const StochasticRadiosityElement *elem, int edgeNumber) {
-    const Vertex *from = elem->vertices[edgeNumber];
-    const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+    const RpkVertex *from = elem->vertices[edgeNumber];
+    const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
 
     for ( int i = 0; to->radianceData != nullptr && i < to->radianceData->size(); i++ ) {
         Element *element = to->radianceData->get(i);
@@ -472,10 +472,10 @@ StochasticRadiosityElement::monteCarloRadiosityElementNeighbour(const Stochastic
     return nullptr;
 }
 
-Vertex *
+RpkVertex *
 StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *elem, int edgeNumber) {
-    Vertex *v = nullptr;
-    const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+    RpkVertex *v = nullptr;
+    const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
     const StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgeNumber);
 
     if ( neighbour && neighbour->regularSubElements ) {
@@ -542,13 +542,13 @@ StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(const S
     return v;
 }
 
-Vertex *
+RpkVertex *
 StochasticRadiosityElement::monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber) {
-    Vertex *v = StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
+    RpkVertex *v = StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
     if ( v == nullptr ) {
         // First time we split the edge, create the midpoint vertex
-        const Vertex *from = elem->vertices[edgeNumber];
-        const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+        const RpkVertex *from = elem->vertices[edgeNumber];
+        const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
         v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
     }
     return v;
@@ -574,7 +574,7 @@ StochasticRadiosityElement::stochasticRadiosityElementIsTextured(const Stochasti
         Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    const Material *mat = elem->patch->getMaterial();
+    const RpkMaterial *mat = elem->patch->getMaterial();
     return mat->getBsdf() != nullptr
         && (mat->getBsdf()->splitBsdfIsTextured() || PhongEmittanceDistributionFunction::edfIsTextured());
 }
@@ -612,7 +612,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     NiederreiterIndex n;
     ColorRgbMutable albedo(0.0, 0.0, 0.0);
     ColorRgbMutable emittance(0.0, 0.0, 0.0);
-    RayHit hit;
+    RpkRayHit hit;
     hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
     isTextured = StochasticRadiosityElement::stochasticRadiosityElementIsTextured(elem);
@@ -685,10 +685,10 @@ StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
         StochasticRadiosityElement *parent,
         int childNumber,
-        Vertex *v0,
-        Vertex *v1,
-        Vertex *v2,
-        Vertex *v3)
+        RpkVertex *v0,
+        RpkVertex *v1,
+        RpkVertex *v2,
+        RpkVertex *v3)
 {
     StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
     StochasticRadiosityElement *elem = createElement();
@@ -730,12 +730,12 @@ StochasticRadiosityElement **
 StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element, const RendererConfiguration *renderOptions) {
     (void)renderOptions;
 
-    Vertex *v0 = element->vertices[0];
-    Vertex *v1 = element->vertices[1];
-    Vertex *v2 = element->vertices[2];
-    Vertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-    Vertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-    Vertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    RpkVertex *v0 = element->vertices[0];
+    RpkVertex *v1 = element->vertices[1];
+    RpkVertex *v2 = element->vertices[2];
+    RpkVertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    RpkVertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    RpkVertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
 
     monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, m2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, nullptr);
@@ -749,15 +749,15 @@ StochasticRadiosityElement **
 StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, const RendererConfiguration *renderOptions) {
     (void)renderOptions;
 
-    Vertex *v0 = element->vertices[0];
-    Vertex *v1 = element->vertices[1];
-    Vertex *v2 = element->vertices[2];
-    Vertex *v3 = element->vertices[3];
-    Vertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-    Vertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-    Vertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
-    Vertex *m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
-    Vertex *mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
+    RpkVertex *v0 = element->vertices[0];
+    RpkVertex *v1 = element->vertices[1];
+    RpkVertex *v2 = element->vertices[2];
+    RpkVertex *v3 = element->vertices[3];
+    RpkVertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    RpkVertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    RpkVertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    RpkVertex *m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
+    RpkVertex *mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
 
     monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, mm, m3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, mm);

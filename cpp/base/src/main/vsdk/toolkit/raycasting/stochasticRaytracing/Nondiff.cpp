@@ -64,12 +64,12 @@ Nondiff::nextLightSample(const Patch *patch, double *zeta) {
     zeta[3] = xi[3];
 }
 
-Ray
+RpkRay
 Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
-    Ray ray;
+    RpkRay ray;
     do {
         double zeta[4];
-        RayHit hit;
+        RpkRayHit hit;
         nextLightSample(patch, zeta);
 
         patch->uniformPoint(zeta[0], zeta[1], &ray.position);
@@ -100,16 +100,16 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *poin
 }
 
 void
-Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
+Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, LightSourceTable *light, double light_selection_pdf) {
     ColorRgbMutable rad(0.0, 0.0, 0.0);
     double pointSelectionPdf;
     double dirSelectionPdf;
-    Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
-    RayHit hitStore;
-    const RayHit *hit;
+    RpkRay ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
+    RpkRayHit hitStore;
+    const RpkRayHit *hit;
 
     StochasticRelaxation::activeState().tracedRays++;
-    hit = Localline::mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
+    hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->getNormal());
@@ -125,7 +125,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
 }
 
 void
-Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCount) {
+Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, int samplesCount) {
     double rnd = drand48();
     int count = 0;
     double pCumulative = 0.0;
@@ -138,7 +138,7 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCou
                 static_cast<int>(floor((pCumulative + p) * static_cast<double>(Nondiff::numberOfSamples) + rnd)) - count;
 
         for ( int j = 0; j < samples_this_light; j++ ) {
-            sampleLight(sceneWorldVoxelGrid, &lights[i], p);
+            sampleLight(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, &lights[i], p);
         }
 
         pCumulative += p;
@@ -149,7 +149,7 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCou
 }
 
 void
-Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
+Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors) {
     StochasticRelaxation::activeState().unShotFlux.clear();
     StochasticRelaxation::activeState().unShotYmp = 0.0;
     StochasticRelaxation::activeState().totalFlux.clear();
@@ -174,7 +174,7 @@ Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
                 McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
         StochasticRelaxation::activeState().sourceYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
-        Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
+        Mcrad::monteCarloRadiosityPatchComputeNewColor(patch, faceColors);
     }
 }
 
@@ -186,8 +186,9 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
         StochasticRelaxation::activeState().initialLightSourceSamples * numberOfLights);
-    summarize(scene->patchList);
+    summarize(scene->patchList, scene->getFaceColors());
     delete[] lights;
     lights = nullptr;
 }

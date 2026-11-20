@@ -1,10 +1,10 @@
 #include "java/util/ArrayList.txx"
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -19,10 +19,10 @@
 void
 BinaryModelReadCleanup::cleanupPartialModel(
     java::ArrayList<Vector3D *> &vectors,
-    java::ArrayList<Vertex *> &vertices,
+    java::ArrayList<RpkVertex *> &vertices,
     java::ArrayList<Patch *> &patches,
-    java::ArrayList<Material *> &materials,
-    java::ArrayList<Geometry *> &geometries,
+    java::ArrayList<RpkMaterial *> &materials,
+    java::ArrayList<RpkGeometry *> &geometries,
     java::ArrayList<ColorContext *> &colorContexts,
     java::ArrayList<ReaderContext *> &readerContexts,
     java::ArrayList<TransformSequenceContext *> &transformArrays,
@@ -32,7 +32,7 @@ BinaryModelReadCleanup::cleanupPartialModel(
     const bool hasGeometry = geometries.size() > 0;
     bool hasSurfaceGeometry = false;
     for ( long int i = 0; i < geometries.size(); i++ ) {
-        Geometry *geometry = geometries.get(i);
+        RpkGeometry *geometry = geometries.get(i);
         if ( geometry != nullptr && geometry->className == GeometryClassId::SURFACE_MESH ) {
             hasSurfaceGeometry = true;
             break;

@@ -15,7 +15,7 @@ class Coefficientsmcrad;
 class StochasticRadiosityElement final : public Element {
   public:
     Patch *patch;
-    Geometry *geometry;
+    RpkGeometry *geometry;
     NiederreiterIndex rayIndex; // Incremented each time a ray is shot from the element
     float quality; // For merging the result of multiple iterations
     float samplingProbability;
@@ -32,12 +32,12 @@ class StochasticRadiosityElement final : public Element {
     NiederreiterIndex importanceRayIndex; // Ray index for importance propagation
 
     Vector3D midPoint;
-    Vertex *vertices[4]; // Up to 4 vertex pointers for surface elements
+    RpkVertex *vertices[4]; // Up to 4 vertex pointers for surface elements
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices
 
     static StochasticRadiosityElement *stochasticRadiosityElementCreateFromPatch(Patch *patch);
-    static StochasticRadiosityElement *stochasticRadiosityElementCreateFromGeometry(Geometry *world);
+    static StochasticRadiosityElement *stochasticRadiosityElementCreateFromGeometry(RpkGeometry *world);
 
     static void stochasticRadiosityElementDestroy(StochasticRadiosityElement *elem);
     static void stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *top);
@@ -58,7 +58,7 @@ class StochasticRadiosityElement final : public Element {
         StochasticRadiosityElement *top,
         double *u,
         double *v);
-    static Vertex *stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *elem, int edgeNumber);
+    static RpkVertex *stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *elem, int edgeNumber);
 
     static bool stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem);
     static float stochasticRadiosityElementScalarReflectance(const StochasticRadiosityElement *elem);
@@ -102,47 +102,47 @@ class StochasticRadiosityElement final : public Element {
         patch = inPatch;
     }
 
-    Geometry *getGeometry() const {
+    RpkGeometry *getGeometry() const {
         return geometry;
     }
 
-    void setGeometry(Geometry *inGeometry) {
+    void setGeometry(RpkGeometry *inGeometry) {
         geometry = inGeometry;
     }
 
   private:
     static int coefficientPoolsInitialized;
 
-    static void vertexAttachElement(Vertex *vertex, StochasticRadiosityElement *elem);
+    static void vertexAttachElement(RpkVertex *vertex, StochasticRadiosityElement *elem);
     static StochasticRadiosityElement *createElement();
-    static StochasticRadiosityElement *monteCarloRadiosityCreateCluster(Geometry *geometry);
+    static StochasticRadiosityElement *monteCarloRadiosityCreateCluster(RpkGeometry *geometry);
     static void monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent);
-    static void monteCarloRadiosityCreateClusterChild(Geometry *geometry, StochasticRadiosityElement *parent);
+    static void monteCarloRadiosityCreateClusterChild(RpkGeometry *geometry, StochasticRadiosityElement *parent);
     static void monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child);
     static void monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent);
-    static StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world);
+    static StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchyRecursive(RpkGeometry *world);
     static Vector3D galerkinElementMidpoint(StochasticRadiosityElement *elem);
     static Vector3D *monteCarloRadiosityInstallCoordinate(const Vector3D *coord);
     static Vector3D *monteCarloRadiosityInstallNormal(const Vector3D *normal);
     static Vector3D *monteCarloRadiosityInstallTexCoord(const Vector3D *texCoord);
-    static Vertex *monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *normal, Vector3D *texCoord);
-    static Vertex *monteCarloRadiosityNewMidpointVertex(
+    static RpkVertex *monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *normal, Vector3D *texCoord);
+    static RpkVertex *monteCarloRadiosityNewMidpointVertex(
         StochasticRadiosityElement *elem,
-        const Vertex *vertex1,
-        const Vertex *vertex2);
+        const RpkVertex *vertex1,
+        const RpkVertex *vertex2);
     static StochasticRadiosityElement *monteCarloRadiosityElementNeighbour(
         const StochasticRadiosityElement *elem,
         int edgeNumber);
-    static Vertex *monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
+    static RpkVertex *monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
     static void monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadiosityElement *elem);
     static void monteCarloRadiosityInitSurfacePush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child);
     static StochasticRadiosityElement *monteCarloRadiosityCreateSurfaceSubElement(
         StochasticRadiosityElement *parent,
         int childNumber,
-        Vertex *v0,
-        Vertex *v1,
-        Vertex *v2,
-        Vertex *v3);
+        RpkVertex *v0,
+        RpkVertex *v1,
+        RpkVertex *v2,
+        RpkVertex *v3);
     static StochasticRadiosityElement **monteCarloRadiosityRegularSubdivideTriangle(
         StochasticRadiosityElement *element,
         const RendererConfiguration *renderOptions);
@@ -152,9 +152,9 @@ class StochasticRadiosityElement final : public Element {
     static void monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem);
     static void monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem);
     static bool regularChild(const StochasticRadiosityElement *child);
-    static ColorRgbMutable vertexRadiance(const Vertex *vertex);
-    static float vertexImportance(const Vertex *vertex);
-    static ColorRgbMutable vertexColor(Vertex *vertex);
+    static ColorRgbMutable vertexRadiance(const RpkVertex *vertex);
+    static float vertexImportance(const RpkVertex *vertex);
+    static ColorRgbMutable vertexColor(RpkVertex *vertex);
 };
 
 #endif

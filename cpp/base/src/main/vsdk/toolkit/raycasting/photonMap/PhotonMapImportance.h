@@ -19,6 +19,7 @@ class PhotonMapImportance {
     tracePotentialPath(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         PhotonMapState &photonMapState,
         PhotonMapConfig &photonMapConfig);
@@ -28,6 +29,7 @@ class PhotonMapImportance {
     tracePotentialPaths(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         int numberOfPaths,
         PhotonMapState &photonMapState,

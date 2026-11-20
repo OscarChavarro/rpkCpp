@@ -2,9 +2,9 @@
 #define PATCH_LIST__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
-class PatchSet final : public Geometry {
+class PatchSet final : public RpkGeometry {
   private:
     java::ArrayList<Patch *> *patchList;
     bool memoryPoolManaged;
@@ -13,13 +13,14 @@ class PatchSet final : public Geometry {
     explicit PatchSet(const java::ArrayList<Patch *> *input);
     ~PatchSet() final;
 
-    RayHit *
+    RpkRayHit *
     discretizationIntersect(
-        Ray *ray,
+        RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const final;
+        RpkRayHit *hitStore,
+        const RayExclusionSet &exclusions) const final;
 
     java::ArrayList<Patch *> *getPatchList() const;
     bool isMemoryPoolManaged() const;

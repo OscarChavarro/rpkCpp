@@ -19,21 +19,23 @@ or if a shading normal anomaly occurs
 bool
 Sampler::sampleTransfer(
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     Vector3D *dir,
     double pdfDir)
 {
-    Ray ray;
+    RpkRay ray;
     ray.position = thisNode->m_hit.getPoint();
     ray.direction = *dir;
 
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = PathRayType::STOPS;
-    const RayHit *hit = RayTools::findRayIntersection(
+    const RpkRayHit *hit = RayTools::findRayIntersection(
         sceneVoxelGrid,
+        sceneVoxelGridWorkspace,
         &ray,
         thisNode->m_hit.getPatch(),
         newNode->m_inBsdf,
@@ -126,7 +128,7 @@ SurfaceSampler::DetermineRayType(
 ColorRgbMutable
 SurfaceSampler::DoBsdfEval(
     const PhongBidirectionalScatteringDistributionFunction *bsdf,
-    RayHit *hit,
+    RpkRayHit *hit,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
     const PhongBidirectionalScatteringDistributionFunction *outBsdf,
     const Vector3D *in,

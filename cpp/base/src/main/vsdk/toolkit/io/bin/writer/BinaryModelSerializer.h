@@ -12,11 +12,11 @@
 #include "vsdk/toolkit/io/context/ReaderContext.h"
 #include "vsdk/toolkit/io/context/TransformSequenceContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class BinaryModelSerializer {
   public:
@@ -33,7 +33,7 @@ class BinaryModelSerializer {
     static bool writeString(java::OutputStream &output, const char *text);
     static void writeColor(java::OutputStream &output, const ColorRgb &color);
     static void writeVector(java::OutputStream &output, const Vector3D &vector);
-    static void writeBoundingBox(java::OutputStream &output, const AxisAlignedBoundingBox &boundingBox);
+    static void writeBoundingBox(java::OutputStream &output, const RpkAxisAlignedBoundingBox &boundingBox);
 
     template <typename T>
     static bool indexOfPointer(const T *ptr, const java::HashMap<const T *, int> &indices, const char *what, int &result);
@@ -45,7 +45,7 @@ class BinaryModelSerializer {
         const java::HashMap<const T *, int> &indices,
         const char *what);
 
-    static bool writeMaterialRecord(java::OutputStream &output, const Material *material);
+    static bool writeMaterialRecord(java::OutputStream &output, const RpkMaterial *material);
     static void writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext);
     static bool writeReaderContextRecord(
         java::OutputStream &output,
@@ -56,9 +56,9 @@ class BinaryModelSerializer {
         java::OutputStream &output,
         const TransformStackContext *transformContext,
         const BinaryModelSerializationGraph &context);
-    static bool writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelSerializationGraph &context);
+    static bool writeVertexRecord(java::OutputStream &output, const RpkVertex *vertex, const BinaryModelSerializationGraph &context);
     static bool writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelSerializationGraph &context);
-    static bool writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelSerializationGraph &context);
+    static bool writeGeometryRecord(java::OutputStream &output, const RpkGeometry *geometry, const BinaryModelSerializationGraph &context);
     static bool writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelSerializationGraph &context);
 };
 

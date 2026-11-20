@@ -9,27 +9,27 @@
 #include "vsdk/toolkit/io/context/ReaderContext.h"
 #include "vsdk/toolkit/io/context/TransformSequenceContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class BinaryModelSerializationGraph {
   public:
     java::HashMap<const Vector3D *, int> vectorIndices;
     java::ArrayList<const Vector3D *> vectors;
 
-    java::HashMap<const Vertex *, int> vertexIndices;
-    java::ArrayList<const Vertex *> vertices;
+    java::HashMap<const RpkVertex *, int> vertexIndices;
+    java::ArrayList<const RpkVertex *> vertices;
 
     java::HashMap<const Patch *, int> patchIndices;
     java::ArrayList<const Patch *> patches;
 
-    java::HashMap<const Material *, int> materialIndices;
-    java::ArrayList<const Material *> materials;
+    java::HashMap<const RpkMaterial *, int> materialIndices;
+    java::ArrayList<const RpkMaterial *> materials;
 
-    java::HashMap<const Geometry *, int> geometryIndices;
-    java::ArrayList<const Geometry *> geometries;
+    java::HashMap<const RpkGeometry *, int> geometryIndices;
+    java::ArrayList<const RpkGeometry *> geometries;
 
     java::HashMap<const ColorContext *, int> colorContextIndices;
     java::ArrayList<const ColorContext *> colorContexts;
@@ -44,20 +44,20 @@ class BinaryModelSerializationGraph {
     java::ArrayList<const TransformStackContext *> transformContexts;
 
     bool ensureVector(const Vector3D *value);
-    bool ensureMaterial(const Material *value);
-    bool ensureVertex(const Vertex *value);
+    bool ensureMaterial(const RpkMaterial *value);
+    bool ensureVertex(const RpkVertex *value);
     bool ensurePatch(const Patch *value);
-    bool ensureGeometry(const Geometry *value);
+    bool ensureGeometry(const RpkGeometry *value);
     bool ensureColorContext(const ColorContext *value);
     bool ensureReaderContext(const ReaderContext *value);
     bool ensureTransformArray(const TransformSequenceContext *value);
     bool ensureTransformContext(const TransformStackContext *value);
 
     bool collectVectorList(const java::ArrayList<Vector3D *> *list);
-    bool collectVertexList(const java::ArrayList<Vertex *> *list);
+    bool collectVertexList(const java::ArrayList<RpkVertex *> *list);
     bool collectPatchList(const java::ArrayList<Patch *> *list);
-    bool collectMaterialList(const java::ArrayList<Material *> *list);
-    bool collectGeometryList(const java::ArrayList<Geometry *> *list);
+    bool collectMaterialList(const java::ArrayList<RpkMaterial *> *list);
+    bool collectGeometryList(const java::ArrayList<RpkGeometry *> *list);
     bool collectModel(const ParseSnapshotContext *model);
 };
 

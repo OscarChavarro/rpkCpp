@@ -87,7 +87,12 @@ SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RendererConfi
     *x = currentSglContext->width;
     *y = currentSglContext->height;
     unsigned long * const ids = new unsigned long[currentSglContext->width * currentSglContext->height];
-    memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
+    // softRenderPatches renders patch pointers, which the rasterizer stores in
+    // the patch buffer; translate them to patch IDs (0 for the background)
+    for ( long i = 0; i < currentSglContext->width * currentSglContext->height; i++ ) {
+        const Patch * const patch = currentSglContext->patchBuffer[i];
+        ids[i] = patch != nullptr ? patch->getId() : 0;
+    }
 
     delete currentSglContext;
 

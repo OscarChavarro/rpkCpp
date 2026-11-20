@@ -5,7 +5,7 @@ Some utility routines for ray intersections and for statistics
 #ifndef RAY_TOOLS__
 #define RAY_TOOLS__
 
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/Camera.h"
@@ -14,17 +14,19 @@ Some utility routines for ray intersections and for statistics
 
 class RayTools {
   public:
-    static RayHit *
+    static RpkRayHit *
     findRayIntersection(
         const VoxelGrid *sceneWorldVoxelGrid,
-        Ray *ray,
-        Patch *patch,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        RpkRay *ray,
+        const Patch *patch,
         const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
-        RayHit *hitStore);
+        RpkRayHit *hitStore);
 
     static bool
     pathNodesVisible(
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const SimpleRaytracingPathNode *node1,
         const SimpleRaytracingPathNode *node2);
 
@@ -32,6 +34,7 @@ class RayTools {
     eyeNodeVisible(
         const Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
         const SimpleRaytracingPathNode *eyeNode,
         const SimpleRaytracingPathNode *node,
         float *pixX,
@@ -40,14 +43,15 @@ class RayTools {
   private:
     static int pathFrontHitFlags();
 
-    static RayHit *
+    static RpkRayHit *
     traceWorld(
         const VoxelGrid *sceneWorldVoxelGrid,
-        Ray *ray,
-        Patch *patch,
+        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        RpkRay *ray,
+        const Patch *patch,
         unsigned int flags,
-        Patch *extraPatch,
-        RayHit *hitStore);
+        const Patch *extraPatch,
+        RpkRayHit *hitStore);
 };
 
 #endif

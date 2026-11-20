@@ -62,6 +62,7 @@ SimpleRaytracingPathNode *
 SamplerConfig::traceNode(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     double x1,
@@ -78,14 +79,14 @@ SamplerConfig::traceNode(
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-        if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
+        if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
             Logger::reportMessage("SamplerConfig", Logger::WARNING, "SamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
+            if ( !dirSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
                 // No point !
                 lastNode->m_rayType = PathRayType::STOPS;
                 return nullptr;
@@ -100,6 +101,7 @@ SamplerConfig::traceNode(
             if ( !surfaceSampler->sample(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 lastNode->previous(),
                 lastNode,
@@ -130,6 +132,7 @@ SimpleRaytracingPathNode *
 SamplerConfig::tracePath(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     char flags)
@@ -143,7 +146,7 @@ SamplerConfig::tracePath(
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1, x2, flags);
+    nextNode = traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, x1, x2, flags);
 
     bool continueTrace = nextNode != nullptr;
     if ( continueTrace && sceneBackground != nullptr && nextNode->ends() ) {
@@ -154,7 +157,7 @@ SamplerConfig::tracePath(
         nextNode->ensureNext();
 
         // Recursive call
-        tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode->next(), flags);
+        tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode->next(), flags);
     }
 
     return nextNode;

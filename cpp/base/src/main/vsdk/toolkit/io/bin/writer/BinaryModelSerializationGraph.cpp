@@ -2,13 +2,13 @@
 
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/skin/Compound.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -39,7 +39,7 @@ BinaryModelSerializationGraph::ensureVector(const Vector3D *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureMaterial(const Material *value) {
+BinaryModelSerializationGraph::ensureMaterial(const RpkMaterial *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -61,7 +61,7 @@ BinaryModelSerializationGraph::ensureMaterial(const Material *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureVertex(const Vertex *value) {
+BinaryModelSerializationGraph::ensureVertex(const RpkVertex *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -152,7 +152,7 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureGeometry(const Geometry *value) {
+BinaryModelSerializationGraph::ensureGeometry(const RpkGeometry *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -319,7 +319,7 @@ BinaryModelSerializationGraph::collectVectorList(const java::ArrayList<Vector3D 
 }
 
 bool
-BinaryModelSerializationGraph::collectVertexList(const java::ArrayList<Vertex *> *list) {
+BinaryModelSerializationGraph::collectVertexList(const java::ArrayList<RpkVertex *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -345,7 +345,7 @@ BinaryModelSerializationGraph::collectPatchList(const java::ArrayList<Patch *> *
 }
 
 bool
-BinaryModelSerializationGraph::collectMaterialList(const java::ArrayList<Material *> *list) {
+BinaryModelSerializationGraph::collectMaterialList(const java::ArrayList<RpkMaterial *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -358,7 +358,7 @@ BinaryModelSerializationGraph::collectMaterialList(const java::ArrayList<Materia
 }
 
 bool
-BinaryModelSerializationGraph::collectGeometryList(const java::ArrayList<Geometry *> *list) {
+BinaryModelSerializationGraph::collectGeometryList(const java::ArrayList<RpkGeometry *> *list) {
     if ( list == nullptr ) {
         return true;
     }

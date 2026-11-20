@@ -7,7 +7,7 @@
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 
 class BinaryModelReadPrimitives {
   public:
@@ -33,7 +33,7 @@ class BinaryModelReadPrimitives {
     static bool readColor(java::InputStream &input, ColorRgb *color);
     static bool readVector(java::InputStream &input, Vector3D *vector);
     static bool readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]);
-    static bool setBoundingBoxFromCoordinates(AxisAlignedBoundingBox *boundingBox, const float coordinates[6]);
+    static bool setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox *boundingBox, const float coordinates[6]);
     static bool readIndexList(java::InputStream &input, const char *what, BinaryModelIndexListRef *record);
 
     template <typename T>

@@ -57,6 +57,7 @@ class SamplerConfig {
     traceNode(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
         double x1,
@@ -72,6 +73,7 @@ class SamplerConfig {
     tracePath(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
+        VoxelGridWorkspace *sceneVoxelGridWorkspace,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
         char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);

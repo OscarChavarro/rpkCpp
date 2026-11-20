@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/scene/Scene.h"
@@ -28,14 +28,14 @@ class Nondiff final {
         const java::ArrayList<Patch *> *scenePatches,
         const java::ArrayList<Patch *> *lightPatches);
     static void nextLightSample(const Patch *patch, double *zeta);
-    static Ray sampleLightRay(
+    static RpkRay sampleLightRay(
         Patch *patch,
         ColorRgbMutable *emittedRadiance,
         double *pointSelectionPdf,
         double *dirSelectionPdf);
-    static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double lightSelectionPdf);
-    static void sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCount);
-    static void summarize(const java::ArrayList<Patch *> *scenePatches);
+    static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, LightSourceTable *light, double lightSelectionPdf);
+    static void sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, int samplesCount);
+    static void summarize(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
 };
 
 #endif

@@ -10,6 +10,7 @@ bool
 EyeSampler::sample(
     Camera *camera,
     VoxelGrid */*sceneVoxelGrid*/,
+    VoxelGridWorkspace */*sceneVoxelGridWorkspace*/,
     Background */*sceneBackground*/,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -32,7 +33,7 @@ EyeSampler::sample(
     // Choose point on eye : N/A
 
     // Fake a hit record
-    RayHit *hit = &newNode->m_hit;
+    RpkRayHit *hit = &newNode->m_hit;
 
     hit->init(nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->setNormal(&camera->Z);

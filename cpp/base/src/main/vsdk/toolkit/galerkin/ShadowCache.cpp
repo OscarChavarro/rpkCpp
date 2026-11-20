@@ -19,15 +19,16 @@ ShadowCache::~ShadowCache() {
 Test ray against patches in the shadow cache. Returns nullptr if the ray hits
 no patches in the shadow cache, or a pointer to the first hit patch otherwise
 */
-RayHit *
-ShadowCache::cacheHit(const Ray *ray, float *distance, RayHit *hitStore) const {
+RpkRayHit *
+ShadowCache::cacheHit(const RpkRay *ray, float *distance, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const {
     for ( int i = 0; i < numberOfCachedPatches; i++ ) {
-        RayHit *hit = patchCache[i]->intersect(
+        RpkRayHit *hit = patchCache[i]->intersect(
             ray,
             Numeric::EPSILON_FLOAT *(*distance),
             distance,
             RayHitFlag::FRONT | RayHitFlag::ANY,
-            hitStore);
+            hitStore,
+            exclusions);
         if ( hit != nullptr ) {
             return hit;
         }
@@ -39,7 +40,7 @@ ShadowCache::cacheHit(const Ray *ray, float *distance, RayHit *hitStore) const {
 Replace least recently added patch
 */
 void
-ShadowCache::addToShadowCache(Patch *patch) {
+ShadowCache::addToShadowCache(const Patch *patch) {
     patchCache[numberOfCachedPatches % MAX_CACHE] = patch;
     if ( numberOfCachedPatches < MAX_CACHE ) {
         numberOfCachedPatches++;

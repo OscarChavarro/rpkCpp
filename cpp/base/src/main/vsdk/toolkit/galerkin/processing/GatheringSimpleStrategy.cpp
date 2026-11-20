@@ -44,10 +44,10 @@ Converts the accumulated received radiance into exitant radiance, making the
 hierarchical representation consistent and computes a new color for the patch
 */
 void
-GatheringSimpleStrategy::patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState) {
+GatheringSimpleStrategy::patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState, FaceColorTable *faceColors) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
-    GalerkinRadianceMethod::recomputePatchColor(patch);
+    GalerkinRadianceMethod::recomputePatchColor(patch, faceColors);
 }
 
 /**
@@ -93,14 +93,14 @@ GatheringSimpleStrategy::patchGather(
     // The new radiance values are immediately used in subsequent steps of
     // the current iteration
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
-        GatheringSimpleStrategy::patchUpdateRadiance(patch, galerkinState);
+        GatheringSimpleStrategy::patchUpdateRadiance(patch, galerkinState, scene->getFaceColors());
     }
 }
 
 void
-GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
+GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
-    GatheringStrategy::pushPullPotential(topLevelElement, 0.0F);
+    GatheringStrategy::pushPullPotential(topLevelElement, 0.0F, directPotentials);
 }
 
 /**
@@ -143,13 +143,13 @@ GatheringSimpleStrategy::doGatheringIteration(
     // still-to-be-processed patches in the same iteration
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            GatheringSimpleStrategy::patchUpdateRadiance(scene->patchList->get(i), galerkinState);
+            GatheringSimpleStrategy::patchUpdateRadiance(scene->patchList->get(i), galerkinState, scene->getFaceColors());
         }
     }
 
     if ( galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            GatheringSimpleStrategy::patchUpdatePotential(scene->patchList->get(i));
+            GatheringSimpleStrategy::patchUpdatePotential(scene->patchList->get(i), scene->getDirectPotentials());
         }
     }
 

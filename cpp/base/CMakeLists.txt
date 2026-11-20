@@ -3,6 +3,7 @@ project(vitral LANGUAGES C CXX)
 
 option(WITH_RAYCASTING "Enable raycasting modules" ON)
 option(WITH_MGF "Enable MGF reader modules" ON)
+option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
 
 if(UNIX AND NOT APPLE)
     add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
@@ -50,4 +51,8 @@ endif()
 
 if(WITH_MGF)
     target_compile_definitions(vitral PUBLIC MGF_ENABLED=true)
+endif()
+
+if(WITH_RAY_CAPTURE)
+    target_compile_definitions(vitral PUBLIC RPK_RAY_CAPTURE=true)
 endif()

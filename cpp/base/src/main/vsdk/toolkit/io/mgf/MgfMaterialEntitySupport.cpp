@@ -30,10 +30,10 @@ inline bool isBlack(const ColorRgb &c) {
 Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
-Material *
+RpkMaterial *
 MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
-        Material *m = context->materials->get(i);
+        RpkMaterial *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
             return m;
         }
@@ -114,7 +114,7 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 bool
-MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool allSurfacesSided, ParseRuntimeContext *context) {
     ColorRgb Ed(0.0, 0.0, 0.0);
     ColorRgb Es(0.0, 0.0, 0.0);
     ColorRgb Rd(0.0, 0.0, 0.0);
@@ -135,7 +135,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
         return false;
     }
 
-    Material *storedMaterial = MgfMaterialEntitySupport::materialLookup(materialName, context);
+    RpkMaterial *storedMaterial = MgfMaterialEntitySupport::materialLookup(materialName, context);
     if ( storedMaterial != nullptr && currentMaterialContext->clock == 0 ) {
         *material = storedMaterial;
         return true;
@@ -223,7 +223,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     PhongBidirectionalScatteringDistributionFunction *bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
 
-    (*material) = new Material(
+    (*material) = new RpkMaterial(
         materialName,
          edf,
          bsdf,
@@ -247,7 +247,7 @@ MgfMaterialEntitySupport::initMaterialContextTables(ParseRuntimeContext *context
 This routine returns true if the current material has changed
 */
 bool
-MgfMaterialEntitySupport::mgfMaterialChanged(const Material *material, const ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfMaterialChanged(const RpkMaterial *material, const ParseRuntimeContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";

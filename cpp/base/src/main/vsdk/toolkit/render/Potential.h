@@ -10,7 +10,7 @@
 
 class Potential {
   private:
-    static void softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches);
+    static void softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches, FaceVisibilityTable *faceVisibility);
     static void softUpdateDirectVisibility(const Scene *scene, const RendererConfiguration *renderOptions);
 
   public:

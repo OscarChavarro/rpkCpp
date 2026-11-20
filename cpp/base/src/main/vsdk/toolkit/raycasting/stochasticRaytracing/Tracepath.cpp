@@ -40,7 +40,7 @@ Tracepath::clearPath(Path *path) {
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 void
-Tracepath::pathAddNode(Path *path, Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
+Tracepath::pathAddNode(Path *path, const Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
@@ -91,7 +91,8 @@ when no longer needed
 */
 Path *
 Tracepath::tracePath(
-    const VoxelGrid * sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     Patch *origin,
     double birthProb,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -99,11 +100,11 @@ Tracepath::tracePath(
 {
     Vector3D inPoint = {0.0, 0.0, 0.0};
     Vector3D outpoint = {0.0, 0.0, 0.0};
-    Patch *P = origin;
+    const Patch *P = origin;
     double survivalProb;
-    Ray ray;
-    const RayHit *hit;
-    RayHit hitStore;
+    RpkRay ray;
+    const RpkRayHit *hit;
+    RpkRayHit hitStore;
 
     StochasticRelaxation::activeState().tracedPaths++;
     clearPath(path);
@@ -118,7 +119,7 @@ Tracepath::tracePath(
         }
         path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
 
-        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
+        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;
@@ -143,6 +144,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 void
 Tracepath::tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     long numberOfPaths,
     PatchProbabilityCallback birthProbabilityCallBack,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -180,7 +182,7 @@ Tracepath::tracePaths(
         double p = birthProbabilityCallBack(patch) / sumProbabilities;
         long paths_this_patch = static_cast<int>(java::Math::floor((pCumulative + p) * static_cast<double>(numberOfPaths) + rnd)) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, &path);
+            tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, &path);
             scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

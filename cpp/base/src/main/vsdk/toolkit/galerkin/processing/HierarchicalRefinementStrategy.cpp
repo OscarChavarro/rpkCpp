@@ -45,7 +45,7 @@ later (using hierarchicRefinementUnCull())
 void
 HierarchicalRefinementStrategy::hierarchicRefinementCull(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     const GalerkinState *galerkinState)
@@ -56,13 +56,13 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
 
     if ( galerkinState->shaftCullMode == GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT ||
          galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING ) {
-        Shaft shaft;
+        Shaft shaft(scene->getFaceBounds());
         // Keep these temporaries alive during the full culling pass because Shaft
         // stores references used later in cullGeometry/doCulling.
         Polygon rcvPolygon;
         Polygon srcPolygon;
-        AxisAlignedBoundingBox srcBounds;
-        AxisAlignedBoundingBox rcvBounds;
+        RpkAxisAlignedBoundingBox srcBounds;
+        RpkAxisAlignedBoundingBox rcvBounds;
 
         if ( galerkinState->exactVisibility
           && !interaction->receiverElement->isCluster()
@@ -89,11 +89,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         }
 
         if ( isClusteredGeometry ) {
-            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
             shaft.cullGeometry(scene->clusteredRootGeometry, arr, galerkinState->shaftCullStrategy);
             *candidatesList = arr;
         } else {
-            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
             shaft.doCulling(*candidatesList, arr, galerkinState->shaftCullStrategy);
             *candidatesList = arr;
         }
@@ -106,7 +106,7 @@ an argument)
 */
 void
 HierarchicalRefinementStrategy::hierarchicRefinementUnCull(
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     const GalerkinState *galerkinState)
 {
     if ( galerkinState->shaftCullMode == GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT ||
@@ -137,7 +137,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
     const Interaction *interaction,
     const double receiverArea,
     const GalerkinState *galerkinState) {
-    double threshold;
+    double threshold = 0.0;
 
     switch ( galerkinState->errorNorm ) {
         case GalerkinErrorNorm::RADIANCE_ERROR:
@@ -179,7 +179,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
 {
     ColorRgbMutable error(0.0, 0.0, 0.0);
     ColorRgbMutable srcRad(0.0, 0.0, 0.0);
-    double approxError;
+    double approxError = 0.0;
     double approxError2;
 
     switch ( galerkinState->galerkinIterationMethod ) {
@@ -454,7 +454,7 @@ and true is returned. If the elements don't interact, false is returned
 int
 HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     const Scene *scene,
-    const java::ArrayList<Geometry *> *candidatesList,
+    const java::ArrayList<RpkGeometry *> *candidatesList,
     GalerkinElement *receiverElement,
     GalerkinElement *sourceElement,
     Interaction *interaction,
@@ -480,6 +480,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     const bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         scene->voxelGrid,
+        scene->voxelGridWorkspace,
+        galerkinState->formFactorWorkspace,
         candidatesList,
         isSceneGeometry,
         isClusteredGeometry,
@@ -517,12 +519,12 @@ lower level sub-interactions
 void
 HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    java::ArrayList<Geometry *> *backup = *candidatesList;
+    java::ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -577,12 +579,12 @@ Same, but subdivides the receiver element
 void
 HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    java::ArrayList<Geometry *> *backup = *candidatesList;
+    java::ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -637,12 +639,12 @@ which is a cluster
 void
 HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    java::ArrayList<Geometry *> *backup = *candidatesList;
+    java::ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     const GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -708,12 +710,12 @@ which is a cluster
 void
 HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    java::ArrayList<Geometry *> *backup = *candidatesList;
+    java::ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     const GalerkinElement *receiverElement = interaction->receiverElement;
@@ -781,11 +783,11 @@ does not need to be refined, light transport over the interaction is computed
 bool
 HierarchicalRefinementStrategy::refineRecursive(
     const Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     GalerkinState *galerkinState)
 {
-    bool refined;
+    bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == scene->clusteredGeometryList);
     switch ( hierarchicRefinementEvaluateInteraction(interaction, galerkinState) ) {
@@ -829,7 +831,7 @@ HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteractio
     Interaction *interaction,
     GalerkinState *galerkinState)
 {
-    java::ArrayList<Geometry *> *candidateOccluderList = scene->clusteredGeometryList;
+    java::ArrayList<RpkGeometry *> *candidateOccluderList = scene->clusteredGeometryList;
 
     if ( galerkinState->exactVisibility && interaction->visibility == 255 ) {
         candidateOccluderList = nullptr;

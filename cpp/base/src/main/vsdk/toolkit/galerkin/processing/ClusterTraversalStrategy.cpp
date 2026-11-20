@@ -81,7 +81,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the samplePoint point
-                const AxisAlignedBoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
@@ -97,6 +97,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
         default:
             Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "clusterRadianceToSamplePoint", java::String::format("Invalid clustering strategy %d\n", galerkinState->clusteringStrategy));
     }
+    return ColorRgbMutable(0.0, 0.0, 0.0); // Not reached: a FATAL_ERROR report throws
 }
 
 /**
@@ -179,7 +180,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 return receiverElement->area;
             } else {
-                const AxisAlignedBoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
@@ -194,6 +195,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
         default:
             Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "receiverArea", java::String::format("Invalid clustering strategy %d", galerkinState->clusteringStrategy));
     }
+    return 0.0; // Not reached: a FATAL_ERROR report throws
 }
 
 /**
@@ -262,7 +264,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
                         receiverElement,
                         galerkinState);
             } else {
-                const AxisAlignedBoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer

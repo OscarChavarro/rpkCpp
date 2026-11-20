@@ -6,16 +6,16 @@ Surfaces are basically a list of patches representing a simple object with given
 #define SURFACE__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/material/MaterialColorFlags.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
-class MeshSurface final : public Geometry {
+class MeshSurface final : public RpkGeometry {
   private:
     static int nextSurfaceId;
 
-    static void normalizeVertexColor(Vertex *vertex);
+    static void normalizeVertexColor(RpkVertex *vertex);
 
   public:
     int meshId;
@@ -29,7 +29,7 @@ class MeshSurface final : public Geometry {
     and 'normals' list. Different vertices can share the same coordinates and/or
     normals
     */
-    java::ArrayList<Vertex *> *vertices;
+    java::ArrayList<RpkVertex *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
     java::ArrayList<Vector3D *> *positions;
@@ -47,26 +47,27 @@ class MeshSurface final : public Geometry {
     */
     java::ArrayList<Patch *> *faces;
 
-    Material *material;
+    RpkMaterial *material;
 
     MeshSurface(
         char *inObjectName,
-        Material *inMaterial,
+        RpkMaterial *inMaterial,
         java::ArrayList<Vector3D *> *inPoints,
         java::ArrayList<Vector3D *> *inNormals,
         const java::ArrayList<Vector3D *> * /*texCoords*/,
-        java::ArrayList<Vertex *> *inVertices,
+        java::ArrayList<RpkVertex *> *inVertices,
         java::ArrayList<Patch *> *inFaces,
         MaterialColorFlags inFlags);
     ~MeshSurface() final;
 
-    RayHit *
+    RpkRayHit *
     discretizationIntersect(
-        Ray *ray,
+        RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const final;
+        RpkRayHit *hitStore,
+        const RayExclusionSet &exclusions) const final;
 };
 
 #endif

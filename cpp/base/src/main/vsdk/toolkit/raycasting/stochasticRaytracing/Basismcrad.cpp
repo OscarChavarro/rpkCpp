@@ -102,7 +102,7 @@ Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApp
     StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
     GalerkinBasis basis = basisState.quadBasis;
     char desc[100];
-    const char *elem;
+    const char *elem = "";
 
     switch ( et ) {
         case ET_TRIANGLE:

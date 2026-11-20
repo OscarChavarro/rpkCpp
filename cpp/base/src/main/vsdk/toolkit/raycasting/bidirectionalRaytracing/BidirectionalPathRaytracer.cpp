@@ -142,13 +142,14 @@ BidirectionalPathRaytracer::execute(
     }
 
     if ( bidirectionalPathState.saveSubsequentImages ) {
-        doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->background, &config);
+        doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->voxelGridWorkspace, scene->background, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
-        doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
+        doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->voxelGridWorkspace, scene->background, &config);
     } else if ( !bidirectionalPathState.baseConfig.progressiveTracing ) {
         ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
+                scene->voxelGridWorkspace,
                 scene->background,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 &config,
@@ -157,6 +158,7 @@ BidirectionalPathRaytracer::execute(
         ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
+                scene->voxelGridWorkspace,
                 scene->background,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 &config,
@@ -567,6 +569,7 @@ void
 BidirectionalPathRaytracer::handlePathXx(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
+    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
     BiPath *path)
@@ -605,6 +608,7 @@ BidirectionalPathRaytracer::handlePathXx(
         if ( !config->eyeConfig.neSampler->sample(
             camera,
             sceneWorldVoxelGrid,
+            sceneWorldVoxelGridWorkspace,
             sceneBackground,
             nullptr,
             path->m_eyeEndNode,
@@ -625,7 +629,7 @@ BidirectionalPathRaytracer::handlePathXx(
         path->m_lightEndNode = &newLightNode;
     }
 
-    if ( RayTools::pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
+    if ( RayTools::pathNodesVisible(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         float factor = static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
@@ -653,6 +657,7 @@ void
 BidirectionalPathRaytracer::handlePath1X(
     Camera *camera,
     const VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     BidirectionalPathTracingConfiguration *config,
     BiPath *path)
 {
@@ -673,6 +678,7 @@ BidirectionalPathRaytracer::handlePath1X(
     if ( RayTools::eyeNodeVisible(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             path->m_eyeEndNode,
             path->m_lightEndNode,
             &pixX,
@@ -708,6 +714,7 @@ void
 BidirectionalPathRaytracer::bpCombinePaths(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config)
 {
@@ -775,13 +782,13 @@ BidirectionalPathRaytracer::bpCombinePaths(
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-                handlePathXx(camera, sceneVoxelGrid, sceneBackground, config, &path);
+                handlePathXx(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config, &path);
             } else {
                 path.m_eyeSize = eyeSize;
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-                handlePath1X(camera, sceneVoxelGrid, config, &path);
+                handlePath1X(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, config, &path);
             }
 
             if ( lightEndNode->ends() ) {
@@ -805,6 +812,7 @@ ColorRgbMutable
 BidirectionalPathRaytracer::bpCalcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     int nx,
     int ny,
@@ -825,7 +833,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
         config->eyePath = new SimpleRaytracingPathNode;
     }
 
-    config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
+    config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
     static_cast<PixelSampler *>(config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
 
     // Provide a node for the pixel sampling
@@ -857,9 +865,9 @@ BidirectionalPathRaytracer::bpCalcPixel(
             config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1)
             config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2)
 
-            if ( config->eyeConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
+            if ( config->eyeConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
-                config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode);
+                config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode);
             }
         } else {
             config->eyePath->m_rayType = PathRayType::STOPS;
@@ -867,14 +875,14 @@ BidirectionalPathRaytracer::bpCalcPixel(
 
         // Generate a light path
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config->lightPath);
         } else {
             // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;
         }
 
         // Connect all endpoints and compute contribution
-        bpCombinePaths(camera, sceneVoxelGrid, sceneBackground, config);
+        bpCombinePaths(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config);
     }
 
     // Radiance contributions are added to the screen buffer directly
@@ -895,6 +903,7 @@ void
 BidirectionalPathRaytracer::doBptAndSubsequentImages(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config) const
 {
@@ -965,6 +974,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
         ScreenIterate::sequential(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             BidirectionalPathRaytracer::bpCalcPixel,
             config,
@@ -998,6 +1008,7 @@ void
 BidirectionalPathRaytracer::doBptDensityEstimation(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
+    VoxelGridWorkspace *sceneVoxelGridWorkspace,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config) const
 {
@@ -1037,6 +1048,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     ScreenIterate::sequential(
         camera,
         sceneVoxelGrid,
+        sceneVoxelGridWorkspace,
         sceneBackground,
         BidirectionalPathRaytracer::bpCalcPixel,
         config,
@@ -1125,6 +1137,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         ScreenIterate::sequential(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             BidirectionalPathRaytracer::bpCalcPixel,
             config,

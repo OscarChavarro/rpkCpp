@@ -6,29 +6,29 @@ All kind of form factor computations
 #define FORM_FACTOR_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 
 class FormFactorStrategy {
   private:
-    // Global variables used for form factor computation optimisation
-    static GalerkinElement *formFactorLastReceived;
-    static GalerkinElement *formFactorLastSource;
-
-    static RayHit *
+    static RpkRayHit *
     shadowTestDiscretization(
-        Ray *ray,
-        const java::ArrayList<Geometry *> *geometrySceneList,
+        RpkRay *ray,
+        const java::ArrayList<RpkGeometry *> *geometrySceneList,
         const VoxelGrid *voxelGrid,
+        VoxelGridWorkspace *voxelGridWorkspace,
         ShadowCache *shadowCache,
         float minimumDistance,
-        RayHit *hitStore,
+        RpkRayHit *hitStore,
         bool isSceneGeometry,
-        bool isClusteredGeometry);
+        bool isClusteredGeometry,
+        const RayExclusionSet &exclusions);
 
     static void
     determineNodes(
@@ -42,14 +42,16 @@ class FormFactorStrategy {
     evaluatePointsPairKernel(
         ShadowCache *shadowCache,
         const VoxelGrid *sceneWorldVoxelGrid,
+        VoxelGridWorkspace *voxelGridWorkspace,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
         const GalerkinElement *sourceElement,
-        const java::ArrayList<Geometry *> *shadowGeometryList,
+        const java::ArrayList<RpkGeometry *> *shadowGeometryList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
-        const GalerkinState *galerkinState);
+        const GalerkinState *galerkinState,
+        const RayExclusionSet &exclusions);
 
     static void
     doHigherOrderAreaToAreaFormFactor(
@@ -88,7 +90,9 @@ class FormFactorStrategy {
     static void
     computeAreaToAreaFormFactorVisibility(
         const VoxelGrid *sceneWorldVoxelGrid,
-        const java::ArrayList<Geometry *> *geometryShadowList,
+        VoxelGridWorkspace *voxelGridWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
+        const java::ArrayList<RpkGeometry *> *geometryShadowList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         Interaction *link,

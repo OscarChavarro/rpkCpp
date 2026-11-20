@@ -7,12 +7,12 @@ and contain necessary information for raytracing-like algorithms
 #define PATH_NODE__
 
 #include "java/io/PrintStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/raycasting/common/BsdfComp.h"
 #include "vsdk/toolkit/raycasting/common/PathRayType.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 
 // Type definitions used in CPathNode
 
@@ -30,7 +30,7 @@ class SimpleRaytracingPathNode {
         return a * a;
     }
 
-    RayHit m_hit;
+    RpkRayHit m_hit;
     Vector3D m_inDirT; // towards the patch
     Vector3D m_inDirF; // from the patch
     Vector3D m_normal;

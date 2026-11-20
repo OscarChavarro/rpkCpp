@@ -20,10 +20,10 @@
 #include "vsdk/toolkit/io/context/VertexRegistryContext.h"
 #include "vsdk/toolkit/io/context/ObjectScopeContext.h"
 #include "vsdk/toolkit/io/context/TransformScopeContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class ParseRuntimeContext final : public ParseContext {
   public:
@@ -43,14 +43,14 @@ class ParseRuntimeContext final : public ParseContext {
     // migrate to explicit sub-state access.
     using EntityNamesArray = char[TOTAL_NUMBER_OF_ENTITIES][EntityNamingContext::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     using ErrorMessagesArray = const char *[ParseErrorContext::MGF_NUMBER_OF_ERRORS];
-    using GeometryStackArray = java::ArrayList<Geometry *> *[GeometryAssemblyContext::MAXIMUM_GEOMETRY_STACK_DEPTH];
+    using GeometryStackArray = java::ArrayList<RpkGeometry *> *[GeometryAssemblyContext::MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     RadianceMethod *&radianceMethod;
     bool &singleSided;
     char *&currentVertexName;
     int &numberOfQuarterCircleDivisions;
     bool &monochrome;
-    Material *&currentMaterial;
+    RpkMaterial *&currentMaterial;
     EntityNamesArray &entityNames;
     ErrorMessagesArray &errorCodeMessages;
     LookUpTable<char *> &entityLookUpTable;
@@ -61,9 +61,9 @@ class ParseRuntimeContext final : public ParseContext {
     GeometryStackArray &geometryStack;
     java::ArrayList<Vector3D *> *&currentPointList;
     java::ArrayList<Vector3D *> *&currentNormalList;
-    java::ArrayList<Vertex *> *&currentVertexList;
+    java::ArrayList<RpkVertex *> *&currentVertexList;
     java::ArrayList<Patch *> *&currentFaceList;
-    java::ArrayList<Geometry *> *&currentGeometryList;
+    java::ArrayList<RpkGeometry *> *&currentGeometryList;
     char *&currentObjectName;
     TransformStackContext *&transformContext;
     ColorContext *&unNamedColorContext;
@@ -72,9 +72,9 @@ class ParseRuntimeContext final : public ParseContext {
     bool &inComplex;
     bool &warpConeEnds;
     LookUpTable<char *> *&vertexLookUpTable;
-    java::ArrayList<Geometry *> *&allGeometries;
-    java::ArrayList<Geometry *> *&geometries;
-    java::ArrayList<Material *> *&materials;
+    java::ArrayList<RpkGeometry *> *&allGeometries;
+    java::ArrayList<RpkGeometry *> *&geometries;
+    java::ArrayList<RpkMaterial *> *&materials;
 
     ParseRuntimeContext();
     ~ParseRuntimeContext();

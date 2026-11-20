@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/scene/Camera.h"
 
 Camera::Camera(): background() {
@@ -24,6 +24,55 @@ Camera::Camera(): background() {
     pixelHeight = 0.0F;
     pixelWidthTangent = 0.0F;
     pixelHeightTangent = 0.0F;
+}
+
+/**
+Sets the near and far clipping distances from the scene bounds projected onto
+the viewing direction (Z axis), with 2% extra distance on both sides and
+fallbacks when the range is not in front of the eye. Every software and
+hardware renderer needs these before rendering, including the ID renders of
+the importance computations, which run before any image is drawn.
+*/
+void
+Camera::fitClippingPlanes(const RpkAxisAlignedBoundingBox &sceneBounds) {
+    Vector3D minimum;
+    Vector3D maximum;
+    Vector3D d;
+
+    minimum.set(sceneBounds.minX(), sceneBounds.minY(), sceneBounds.minZ());
+    maximum.set(sceneBounds.maxX(), sceneBounds.maxY(), sceneBounds.maxZ());
+
+    far = -Numeric::HUGE_FLOAT_VALUE;
+    near = Numeric::HUGE_FLOAT_VALUE;
+    for ( int i = 0; i <= 1; i++ ) {
+        for ( int j = 0; j <= 1; j++ ) {
+            for ( int k = 0; k <= 1; k++ ) {
+                d.set(i ? maximum.x : minimum.x,
+                      j ? maximum.y : minimum.y,
+                      k ? maximum.z : minimum.z);
+
+                d.subtraction(d, eyePosition);
+                float z = d.dotProduct(Z);
+
+                if ( z > far ) {
+                    far = z;
+                }
+                if ( z < near ) {
+                    near = z;
+                }
+            }
+        }
+    }
+
+    // Take 2% extra distance for near as well as far clipping plane
+    far += 0.02F * (far);
+    near -= 0.02F * (near);
+    if ( far < Numeric::EPSILON ) {
+        far = viewDistance;
+    }
+    if ( near < Numeric::EPSILON ) {
+        near = viewDistance / 100.0F;
+    }
 }
 
 void
@@ -164,9 +213,9 @@ Camera::setFieldOfView(float fieldOfView) {
 
 void
 Camera::transformBoundingBox(
-    const AxisAlignedBoundingBox &sourceBoundingBox,
+    const RpkAxisAlignedBoundingBox &sourceBoundingBox,
     const Matrix4x4 &transform,
-    AxisAlignedBoundingBox *transformedBoundingBox)
+    RpkAxisAlignedBoundingBox *transformedBoundingBox)
 {
     if ( transformedBoundingBox == nullptr ) {
         return;
@@ -175,7 +224,7 @@ Camera::transformBoundingBox(
     Vector3D corners[8];
     sourceBoundingBox.corners(corners);
 
-    *transformedBoundingBox = AxisAlignedBoundingBox{};
+    *transformedBoundingBox = RpkAxisAlignedBoundingBox{};
     for ( int i = 0; i < 8; i++ ) {
         transform.transformPoint3D(corners[i], corners[i]);
         transformedBoundingBox->enlargeToIncludePoint(&corners[i]);
@@ -193,14 +242,14 @@ Camera::transformBoundingBox(
     maxPoint.y += yDelta;
     maxPoint.z += zDelta;
 
-    AxisAlignedBoundingBox expandedBoundingBox;
+    RpkAxisAlignedBoundingBox expandedBoundingBox;
     expandedBoundingBox.enlargeToIncludePoint(&minPoint);
     expandedBoundingBox.enlargeToIncludePoint(&maxPoint);
     transformedBoundingBox->copyFrom(&expandedBoundingBox);
 }
 
 Matrix4x4
-Camera::projectionMatrixFromBoundingBox(const AxisAlignedBoundingBox &boundingBox) {
+Camera::projectionMatrixFromBoundingBox(const RpkAxisAlignedBoundingBox &boundingBox) {
     return Matrix4x4::createOrthogonalViewMatrix(
         boundingBox.minX(),
         boundingBox.maxX(),

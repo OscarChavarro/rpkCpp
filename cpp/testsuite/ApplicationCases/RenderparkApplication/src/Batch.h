@@ -25,6 +25,8 @@ class Batch final {
     static BatchOptions batchOptions;
     static const RayTracer *currentRayTracer;
 
+    static void fitCameraClippingPlanes(Scene *scene);
+
 #ifdef RAYTRACING_ENABLED
     static void batchRayTraceSaveImage(
         const char *fileName,

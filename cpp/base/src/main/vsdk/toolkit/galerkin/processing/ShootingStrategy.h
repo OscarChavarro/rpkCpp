@@ -27,7 +27,7 @@ class ShootingStrategy {
     }
 
     static Patch *
-    chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState);
+    chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState);
 
     static void
     clearUnShotRadianceAndPotential(GalerkinElement *elem);

@@ -8,10 +8,10 @@ Creates a Compound from a list of geometries
 Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
-Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(GeometryClassId::COMPOUND) {
+Compound::Compound(java::ArrayList<RpkGeometry *> *geometryList): RpkGeometry(GeometryClassId::COMPOUND) {
     Statistics::instance().reader.numberOfCompounds++;
     children = geometryList;
-    Geometry::listBounds(children, &boundingBox);
+    RpkGeometry::listBounds(children, &boundingBox);
     boundingBox.enlargeTinyBit();
     bounded = true;
 }
@@ -29,18 +29,19 @@ DiscretizationIntersect returns nullptr is the ray doesn't hit the discretizatio
 of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
 */
-RayHit *
+RpkRayHit *
 Compound::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RpkRayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions) ) {
         return nullptr;
     }
 
-    return Geometry::listDiscretizationIntersect(
-            children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return RpkGeometry::listDiscretizationIntersect(
+            children, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }

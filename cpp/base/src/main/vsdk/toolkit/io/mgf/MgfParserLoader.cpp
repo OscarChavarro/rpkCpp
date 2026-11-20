@@ -658,10 +658,10 @@ MgfParserLoader::readMgf(const char *filename, ParseRuntimeContext *context) {
 
     initMgf(context);
 
-    context->currentGeometryList = new java::ArrayList<Geometry *>();
+    context->currentGeometryList = new java::ArrayList<RpkGeometry *>();
 
     if ( context->materials == nullptr ) {
-        context->materials = new java::ArrayList<Material *>();
+        context->materials = new java::ArrayList<RpkMaterial *>();
     }
 
     context->geometryStackHeadIndex = 0;
@@ -710,7 +710,7 @@ MgfParserLoader::mgfFreeMemory(ParseRuntimeContext *context) {
         long innerCompoundChildren = 0;
         long unknowns = 0;
         for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-            const Geometry *geometry = context->currentGeometryList->get(i);
+            const RpkGeometry *geometry = context->currentGeometryList->get(i);
             if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
                 surfaces++;
             } else if ( geometry->className == GeometryClassId::PATCH_SET ) {

@@ -6,18 +6,18 @@
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
-#include "vsdk/toolkit/material/Texture.h"
+#include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/skin/Compound.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
@@ -114,7 +114,7 @@ BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3D &v
 }
 
 void
-BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const AxisAlignedBoundingBox &boundingBox) {
+BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const RpkAxisAlignedBoundingBox &boundingBox) {
     for ( int i = 0; i < 6; i++ ) {
         vsdk::PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
     }
@@ -171,7 +171,7 @@ BinaryModelSerializer::writeIndexList(
 }
 
 bool
-BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Material *material) {
+BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const RpkMaterial *material) {
     if ( !writeString(output, material->getName()) ) {
         return false;
     }
@@ -335,7 +335,7 @@ BinaryModelSerializer::writeTransformContextRecord(
 }
 
 bool
-BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelSerializationGraph &context) {
+BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const RpkVertex *vertex, const BinaryModelSerializationGraph &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
 
     int pointIndex = -1;
@@ -407,11 +407,17 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
         vsdk::PersistenceElement::writeFloatLE(output, jacobian->C);
     }
 
-    vsdk::PersistenceElement::writeFloatLE(output, patch->getDirectPotential());
+    // Direct potential: per-face solver data, not part of the model; written as
+    // zero, the value every face starts with, so the file format is unchanged
+    vsdk::PersistenceElement::writeFloatLE(output, 0.0F);
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
     vsdk::PersistenceElement::writeBool(output, patch->isOmitted() != 0);
-    vsdk::PersistenceElement::writeByte(output, patch->getFlags());
-    writeColor(output, ColorRgb(patch->getColor()));
+    // Flags byte (direct visibility): per-face solver data, written cleared, the
+    // value every face starts with, so the file format is unchanged
+    vsdk::PersistenceElement::writeByte(output, 0);
+    // Display color: per-face display data, written black, the color every face
+    // starts with, so the file format is unchanged
+    writeColor(output, ColorRgb(0.0, 0.0, 0.0));
 
     int materialIndex = -1;
     if ( !indexOfPointer(patch->getMaterial(), context.materialIndices, "patch.material", materialIndex) ) {
@@ -424,7 +430,7 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
 }
 
 bool
-BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelSerializationGraph &context) {
+BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const RpkGeometry *geometry, const BinaryModelSerializationGraph &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);

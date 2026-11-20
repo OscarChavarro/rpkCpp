@@ -153,6 +153,22 @@ Batch::batchSaveRadianceModel(
     Canvas::canvasPullMode();
 }
 
+/**
+Fits the camera's near and far clipping distances to the scene geometry, the
+same way with or without an OpenGL display
+*/
+void
+Batch::fitCameraClippingPlanes(Scene *scene) {
+    if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
+        scene->camera->far = 10.0F;
+        scene->camera->near = 0.1F;
+        return;
+    }
+    RpkAxisAlignedBoundingBox bounds;
+    RpkGeometry::listBounds(scene->geometryList, &bounds);
+    scene->camera->fitClippingPlanes(bounds);
+}
+
 void
 Batch::batchExecuteRadianceSimulation(
     Scene *scene,
@@ -181,6 +197,9 @@ Batch::batchExecuteRadianceSimulation(
         java::System::out.flush();
         java::System::err.flush();
 
+        // The importance computations render patch IDs during the first step
+        Batch::fitCameraClippingPlanes(scene);
+
         bool done = false;
         for ( int iterationNumber = 0;
               iterationNumber < batchOptions.iterations && !done;
@@ -198,9 +217,7 @@ Batch::batchExecuteRadianceSimulation(
 
             java::System::out.printf("%s", radianceMethod->getStats());
 
-            #ifdef OPEN_GL_ENABLED
-                RenderOpenGL::renderGetNearFar(scene->camera, scene->geometryList);
-            #endif
+            Batch::fitCameraClippingPlanes(scene);
 
             java::System::out.flush();
             java::System::err.flush();

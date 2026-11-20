@@ -2,41 +2,59 @@
 #define VOXEL_DATA__
 
 #include "vsdk/toolkit/scene/VoxelDataFlags.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 class VoxelGrid;
 
+/**
+One item stored in the cells of a VoxelGrid: a patch, a geometry or a sub
+grid. The index is dense over the whole grid hierarchy and addresses the
+per-item scratch of a VoxelGridWorkspace.
+
+Shared, read-only after the grid is built.
+*/
 class VoxelData {
   private:
     Patch *patch;
-    Geometry *geometry;
+    RpkGeometry *geometry;
     VoxelGrid *voxelGrid;
-
-    unsigned flags; // Patch or geometry? last ray id, ...
-
-    VoxelData(VoxelGrid *data, unsigned flags);
-    VoxelData(Patch *data, unsigned flags);
-    VoxelData(Geometry *data, unsigned flags);
-    virtual ~VoxelData();
-    void updateRayId(const unsigned int id);
-    unsigned int lastRayId() const;
-    bool isPatch() const;
-    bool isGeom() const;
-    bool isGrid() const;
+    unsigned flags; // Patch, geometry or grid
+    int index;
 
   public:
-    friend VoxelGrid;
+    VoxelData(VoxelGrid *data, unsigned flags, int inIndex);
+    VoxelData(Patch *data, unsigned flags, int inIndex);
+    VoxelData(RpkGeometry *data, unsigned flags, int inIndex);
+    virtual ~VoxelData();
+
+    inline Patch *getPatch() const;
+    inline RpkGeometry *getGeometry() const;
+    inline VoxelGrid *getVoxelGrid() const;
+    inline int getIndex() const;
+    inline bool isPatch() const;
+    inline bool isGeom() const;
+    inline bool isGrid() const;
 };
 
-inline void
-VoxelData::updateRayId(const unsigned int id) {
-    flags = (flags & ~VOXEL_DATA_RAY_COUNT_MASK) | (id & VOXEL_DATA_RAY_COUNT_MASK);
+inline Patch *
+VoxelData::getPatch() const {
+    return patch;
 }
 
-inline unsigned int
-VoxelData::lastRayId() const {
-    return flags & VOXEL_DATA_RAY_COUNT_MASK;
+inline RpkGeometry *
+VoxelData::getGeometry() const {
+    return geometry;
+}
+
+inline VoxelGrid *
+VoxelData::getVoxelGrid() const {
+    return voxelGrid;
+}
+
+inline int
+VoxelData::getIndex() const {
+    return index;
 }
 
 inline bool

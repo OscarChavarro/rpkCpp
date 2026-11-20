@@ -2,13 +2,13 @@
 #define MATERIAL_STATE__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 
 class MaterialSelectionContext {
   public:
-    Material *currentMaterial;
+    RpkMaterial *currentMaterial;
     char *currentMaterialName;
-    java::ArrayList<Material *> *materials;
+    java::ArrayList<RpkMaterial *> *materials;
 
     MaterialSelectionContext();
 };

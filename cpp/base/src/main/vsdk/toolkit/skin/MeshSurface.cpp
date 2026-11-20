@@ -15,11 +15,11 @@ This routine creates a MeshSurface with given inMaterial, positions
 */
 MeshSurface::MeshSurface(
     char *inObjectName,
-    Material *inMaterial,
+    RpkMaterial *inMaterial,
     java::ArrayList<Vector3D *> *inPoints,
     java::ArrayList<Vector3D *> *inNormals,
     const java::ArrayList<Vector3D *> * /*texCoords*/,
-    java::ArrayList<Vertex *> *inVertices,
+    java::ArrayList<RpkVertex *> *inVertices,
     java::ArrayList<Patch *> *inFaces,
     MaterialColorFlags inFlags)
 {
@@ -51,7 +51,7 @@ MeshSurface::MeshSurface(
     // Compute vertex colors
     if ( colorFlags != VERTEX_COLORS ) {
         for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
-            vertices->get(i)->computeColor();
+            vertices->get(i)->computeColor(nullptr); // No face colors exist while loading
         }
     }
 
@@ -103,7 +103,7 @@ MeshSurface::~MeshSurface() {
 }
 
 void
-MeshSurface::normalizeVertexColor(Vertex *vertex) {
+MeshSurface::normalizeVertexColor(RpkVertex *vertex) {
     long numberOfPatches = 0;
 
     if ( vertex->patches != nullptr ) {
@@ -124,13 +124,14 @@ DiscretizationIntersect returns nullptr is the ray doesn't hit the discretizatio
 of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
 */
-RayHit *
+RpkRayHit *
 MeshSurface::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RpkRayHit *hitStore,
+    const RayExclusionSet &exclusions) const
 {
-    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
 }

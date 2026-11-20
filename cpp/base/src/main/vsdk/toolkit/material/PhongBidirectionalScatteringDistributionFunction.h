@@ -12,7 +12,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/ShadingContext.h"
-#include "vsdk/toolkit/material/Texture.h"
+#include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/material/Xxdf.h"
 
 #ifdef RAYTRACING_ENABLED
