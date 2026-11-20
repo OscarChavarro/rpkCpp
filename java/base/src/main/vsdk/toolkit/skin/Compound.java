@@ -1,5 +1,6 @@
 package vsdk.toolkit.skin;
 
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 import java.util.ArrayList;
@@ -44,11 +45,12 @@ public class Compound extends Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
-        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
+        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
             return null;
         }
 
-        return Geometry.listDiscretizationIntersect(children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return Geometry.listDiscretizationIntersect(children, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
 }

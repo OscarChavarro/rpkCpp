@@ -11,6 +11,7 @@ import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class EyeSampler extends Sampler {
@@ -20,6 +21,7 @@ public class EyeSampler extends Sampler {
     sample(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,

@@ -10,6 +10,7 @@ import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.MinMaxBox;
 import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
@@ -17,15 +18,21 @@ Uniform voxel grid to optimize intersection operations
 
 Ray-grid intersection: [SNYD1987] Snyder & Barr, SIGGRAPH '87, p123, with several
 optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
+
+Shared, read-only after construction: gridIntersect writes only to the
+caller's VoxelGridWorkspace and hit record. The root grid owns every item and
+sub grid of the hierarchy; the item indices are dense over it.
 */
 public class VoxelGrid {
     private static final int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
     private static final float DELTA_BOUND_FACTOR = 1e-4f;
 
-    private static ArrayList<VoxelGrid> subGridsToDelete;
-    private static ArrayList<VoxelData> voxelCellsToDelete;
-    private static int constructorLevel = 0;
-    private static int randomRayCounter = 0;
+    // Owned by the root grid only (null on sub grids)
+    private ArrayList<VoxelGrid> subGrids;
+    private ArrayList<VoxelData> items;
+    private final VoxelGrid root;
+    private final int depth; // Nesting depth, 0 for the root grid
+    private int numberOfLevels; // Root grid only: deepest nesting depth + 1
 
     private short xSize;
     private short ySize;
@@ -36,18 +43,27 @@ public class VoxelGrid {
     private BoundingBox boundingBox;
     private MinMaxBox rayIntersectionBox;
 
-    private static void addToSubGridsDeletionCache(VoxelGrid voxelGrid) {
-        if (subGridsToDelete == null) {
-            subGridsToDelete = new ArrayList<>();
-        }
-        subGridsToDelete.add(voxelGrid);
+    private int nextItemIndex() {
+        return root.items.size();
     }
 
-    private static void addToCellsDeletionCache(VoxelData cell) {
-        if (voxelCellsToDelete == null) {
-            voxelCellsToDelete = new ArrayList<>();
+    private void addItem(VoxelData cell) {
+        root.items.add(cell);
+    }
+
+    private void addSubGrid(VoxelGrid voxelGrid) {
+        root.subGrids.add(voxelGrid);
+        if (voxelGrid.depth + 1 > root.numberOfLevels) {
+            root.numberOfLevels = voxelGrid.depth + 1;
         }
-        voxelCellsToDelete.add(cell);
+    }
+
+    public int getNumberOfItems() {
+        return root.items.size();
+    }
+
+    public int getNumberOfLevels() {
+        return root.numberOfLevels;
     }
 
     private static short clampVoxel(short v, short max) {
@@ -195,9 +211,9 @@ public class VoxelGrid {
             patch.computeAndGetBoundingBox(localBounds);
         }
 
-        VoxelData voxelData = new VoxelData(patch, VoxelDataFlags.VOXEL_DATA_PATCH_MASK);
+        VoxelData voxelData = new VoxelData(patch, VoxelDataFlags.VOXEL_DATA_PATCH_MASK, nextItemIndex());
         putItemInsideVoxelGrid(voxelData, localBounds);
-        addToCellsDeletionCache(voxelData);
+        addItem(voxelData);
     }
 
     private Vector3D toVoxelClamped(Vector3D p) {
@@ -208,9 +224,9 @@ public class VoxelGrid {
     }
 
     private void insertGeometryAsVoxelData(Geometry geometry) {
-        VoxelData voxelData = new VoxelData(geometry, VoxelDataFlags.VOXEL_DATA_GEOMETRY_MASK);
+        VoxelData voxelData = new VoxelData(geometry, VoxelDataFlags.VOXEL_DATA_GEOMETRY_MASK, nextItemIndex());
         putItemInsideVoxelGrid(voxelData, geometry.boundingBox);
-        addToCellsDeletionCache(voxelData);
+        addItem(voxelData);
     }
 
     private void processCompoundGeometry(Geometry geometry) {
@@ -230,13 +246,13 @@ public class VoxelGrid {
     }
 
     private void insertSubGrid(Geometry geometry) {
-        VoxelGrid subGrid = new VoxelGrid(geometry);
-        VoxelData voxelData = new VoxelData(subGrid, VoxelDataFlags.VOXEL_DATA_GRID_MASK);
+        VoxelGrid subGrid = new VoxelGrid(geometry, root, depth + 1);
+        VoxelData voxelData = new VoxelData(subGrid, VoxelDataFlags.VOXEL_DATA_GRID_MASK, nextItemIndex());
 
         putItemInsideVoxelGrid(voxelData, subGrid.boundingBox);
 
-        addToSubGridsDeletionCache(subGrid);
-        addToCellsDeletionCache(voxelData);
+        addSubGrid(subGrid);
+        addItem(voxelData);
     }
 
     /**
@@ -254,9 +270,6 @@ public class VoxelGrid {
         position.sumScaled(ray.position, t0[0], ray.direction);
         if (boundingBox.outOfBounds(position)) {
             t0[0] = maximumDistance;
-            if (rayIntersectionBox == null) {
-                rayIntersectionBox = new MinMaxBox(boundingBox);
-            }
             if (!rayIntersectionBox.intersect(ray, minimumDistance, t0)) {
                 return false;
             }
@@ -403,68 +416,59 @@ public class VoxelGrid {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
+        RayHit hitStore,
+        RayExclusionSet exclusions,
+        VoxelGridWorkspace workspace) {
         RayHit hit = null;
 
         for (int i = 0; items != null && i < items.size(); i++) {
             VoxelData item = items.get(i);
-            if (item.lastRayId() != counter) {
+            final int itemIndex = item.getIndex();
+            if (workspace.lastRayId(itemIndex) != counter) {
                 // Avoid testing objects multiple times
                 RayHit h = null;
                 if (item.isPatch()) {
-                    h = item.patch.intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                    h = item.getPatch().intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
                 }
                 else if (item.isGeom()) {
-                    h = item.geometry.discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                    h = item.getGeometry().discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
                 }
                 else if (item.isGrid()) {
-                    h = item.voxelGrid.gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                    h = item.getVoxelGrid().gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace);
                 }
                 if (h != null) {
                     hit = h;
                 }
 
-                item.updateRayId(counter);
+                workspace.updateRayId(itemIndex, counter);
             }
         }
 
         return hit;
     }
 
-    private static int randomRayId() {
-        randomRayCounter++;
-        return (randomRayCounter & VoxelDataFlags.VOXEL_DATA_RAY_COUNT_MASK);
-    }
-
     /**
     Traces a ray through a voxel grid. Returns nearest intersection or nullptr
     */
-    // Per-instance scratch storage for gridIntersect. The rendering core is
-    // single threaded and recursion only descends into nested sub-grids,
-    // which are distinct VoxelGrid instances, so per-instance reuse is safe.
-    // The C++ port keeps these variables on the stack.
-    private final Vector3D gridIntersectScratchTNext = new Vector3D();
-    private final Vector3D gridIntersectScratchTDelta = new Vector3D();
-    private final Vector3D gridIntersectScratchP = new Vector3D();
-    private final int[] gridIntersectScratchStep = new int[3];
-    private final int[] gridIntersectScratchOut = new int[3];
-    private final int[] gridIntersectScratchG = new int[3];
-    private final float[] gridIntersectScratchT0 = new float[1];
-
     public RayHit gridIntersect(
         Ray ray,
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
-        Vector3D tNext = gridIntersectScratchTNext;
-        Vector3D tDelta = gridIntersectScratchTDelta;
-        Vector3D p = gridIntersectScratchP;
-        int[] step = gridIntersectScratchStep;
-        int[] out = gridIntersectScratchOut;
-        int[] g = gridIntersectScratchG;
+        RayHit hitStore,
+        RayExclusionSet exclusions,
+        VoxelGridWorkspace workspace) {
+        // The traversal variables of this nesting depth (the C++ port keeps
+        // them on the stack)
+        VoxelGridWorkspace.TraversalFrame frame = workspace.frame(depth);
+        Vector3D tNext = frame.tNext;
+        Vector3D tDelta = frame.tDelta;
+        Vector3D p = frame.p;
+        int[] step = frame.step;
+        int[] out = frame.out;
+        int[] g = frame.g;
         RayHit hit = null;
-        float[] t0 = gridIntersectScratchT0;
+        float[] t0 = frame.t0;
         step[0] = 0;
         step[1] = 0;
         step[2] = 0;
@@ -477,12 +481,12 @@ public class VoxelGrid {
         gridTraceSetup(ray, t0[0], p, g, tDelta, tNext, step, out);
 
         // Ray counter in order to avoid testing objects spanning several voxel grid cells multiple times
-        final int counter = randomRayId();
+        final int counter = workspace.nextRayId();
 
         do {
             ArrayList<VoxelData> list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
             if (list != null) {
-                RayHit h = voxelIntersect(list, ray, counter, t0[0], maximumDistance, hitFlags, hitStore);
+                RayHit h = voxelIntersect(list, ray, counter, t0[0], maximumDistance, hitFlags, hitStore, exclusions, workspace);
                 if (h != null) {
                     hit = h;
                 }
@@ -496,6 +500,17 @@ public class VoxelGrid {
     Constructs a recursive grid structure containing the whole geometry
     */
     public VoxelGrid(Geometry geometry) {
+        this(geometry, null, 0);
+    }
+
+    private VoxelGrid(Geometry geometry, VoxelGrid inRoot, int inDepth) {
+        root = inRoot != null ? inRoot : this;
+        depth = inDepth;
+        if (inRoot == null) {
+            subGrids = new ArrayList<>();
+            items = new ArrayList<>();
+            numberOfLevels = 1;
+        }
         boundingBox = new BoundingBox();
         rayIntersectionBox = null;
         xSize = 0;
@@ -507,28 +522,28 @@ public class VoxelGrid {
 
         final double p = Math.pow(geometry.itemCount, 0.33333) + 1;
         final short gridSize = (short)Math.floor(p);
-        System.err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry.itemCount, gridSize, constructorLevel);
-        constructorLevel++;
+        System.err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry.itemCount, gridSize, depth);
 
         putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
-
-        constructorLevel--;
     }
 
-    public static void freeVoxelGridElements() {
-        if (voxelCellsToDelete != null) {
-            voxelCellsToDelete.clear();
-            voxelCellsToDelete = null;
+    /**
+    Releases the items and the sub grid contents of the hierarchy. Root grid only
+    */
+    public void freeVoxelGridElements() {
+        if (items != null) {
+            items.clear();
+            items = null;
         }
 
-        if (subGridsToDelete != null) {
-            for (int i = 0; i < subGridsToDelete.size(); i++) {
-                VoxelGrid subGrid = subGridsToDelete.get(i);
+        if (subGrids != null) {
+            for (int i = 0; i < subGrids.size(); i++) {
+                VoxelGrid subGrid = subGrids.get(i);
                 subGrid.gridItemPool = null;
                 subGrid.volumeListsOfItems = null;
             }
-            subGridsToDelete.clear();
-            subGridsToDelete = null;
+            subGrids.clear();
+            subGrids = null;
         }
     }
 

@@ -39,12 +39,13 @@ public final class PatchSet extends Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
-        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
+        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
             return null;
         }
 
-        return Geometry.patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return Geometry.patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
 
     public ArrayList<Patch> getPatchList() {

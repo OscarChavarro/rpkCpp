@@ -10,6 +10,7 @@ import vsdk.toolkit.raycasting.raytracing.NextEventSampler;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
@@ -59,6 +60,7 @@ public class UniformLightSampler extends NextEventSampler {
     public boolean sample(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,

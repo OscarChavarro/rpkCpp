@@ -22,64 +22,42 @@ import vsdk.toolkit.galerkin.ShadowCache;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class FormFactorStrategy {
-    // Global variables used for form factor computation optimisation.
-    // TODO: To make this re-entrant, should use the class as instanced objects, one per
-    // thread, and move these static fields to usual instance attributes
-    private static GalerkinElement formFactorLastReceived;
-    private static GalerkinElement formFactorLastSource;
-
-    // Very often, the source or receiver element is the same as in the previous call.
-    // These buffers are cached and only recomputed when the receiver or source actually
-    // changed, instead of being reallocated and recomputed on every call
-    private static CubatureRule cachedReceiverCubatureRule;
-    private static CubatureRule cachedSourceCubatureRule;
-    private static final Vector3D[] cachedX = new Vector3D[CubatureRule.MAXIMUM_NODES];
-    private static final Vector3D[] cachedY = new Vector3D[CubatureRule.MAXIMUM_NODES];
-    private static final double[][] cachedGxy = new double[CubatureRule.MAXIMUM_NODES][CubatureRule.MAXIMUM_NODES];
-    private static double cachedMaximumKernelValue;
-    private static int cachedVisibilityCount;
-
-    static {
-        for ( int i = 0; i < CubatureRule.MAXIMUM_NODES; i++ ) {
-            cachedX[i] = new Vector3D();
-            cachedY[i] = new Vector3D();
-        }
-    }
-
-    // Scratch storage reused across shadow ray evaluations (single threaded
-    // rendering core; the C++ port keeps the equivalents on the stack). The
-    // hit records never escape: callers only test the returned value against
-    // null and read the hit patch before the next shadow ray is traced.
-    private static final float[] shadowTestScratchDistance = new float[1];
-    private static final Ray kernelScratchRay = new Ray();
-    private static final RayHit kernelScratchHitStore = new RayHit();
-    private static final float[] kernelScratchDistance = new float[1];
-
-    private static boolean cachedShadowTest(ShadowCache shadowCache, Ray ray, float shortenedDistance) {
-        kernelScratchDistance[0] = shortenedDistance;
-        return shadowCache.cacheHit(ray, kernelScratchDistance, kernelScratchHitStore) != null;
+    private static boolean cachedShadowTest(
+        ShadowCache shadowCache,
+        Ray ray,
+        float shortenedDistance,
+        RayExclusionSet exclusions,
+        FormFactorWorkspace workspace) {
+        float[] distance = workspace.getKernelDistance();
+        distance[0] = shortenedDistance;
+        return shadowCache.cacheHit(ray, distance, workspace.getKernelHitStore(), exclusions) != null;
     }
 
     private static RayHit shadowTestDiscretization(
         Ray ray,
         ArrayList<Geometry> geometrySceneList,
         VoxelGrid voxelGrid,
+        VoxelGridWorkspace voxelGridWorkspace,
         ShadowCache shadowCache,
         float minimumDistance,
         RayHit hitStore,
         boolean isSceneGeometry,
-        boolean isClusteredGeometry)
+        boolean isClusteredGeometry,
+        RayExclusionSet exclusions,
+        FormFactorWorkspace workspace)
     {
         Statistics.instance().shadow.numberOfShadowRays++;
-        float[] dist = shadowTestScratchDistance;
+        float[] dist = workspace.getShadowTestDistance();
         dist[0] = minimumDistance;
-        RayHit hit = shadowCache.cacheHit(ray, dist, hitStore);
+        RayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
         if ( hit != null ) {
             Statistics.instance().shadow.numberOfShadowCacheHits++;
             return hit;
@@ -92,7 +70,8 @@ public class FormFactorStrategy {
                 Numeric.EPSILON_FLOAT * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
-                hitStore);
+                hitStore,
+                exclusions);
         }
         else if ( voxelGrid != null ) {
             hit = voxelGrid.gridIntersect(
@@ -100,7 +79,9 @@ public class FormFactorStrategy {
                 Numeric.EPSILON_FLOAT * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
-                hitStore);
+                hitStore,
+                exclusions,
+                voxelGridWorkspace);
         }
 
         if ( hit != null && hit.getPatch() != null ) {
@@ -183,6 +164,7 @@ relevant for surface elements
     private static double evaluatePointsPairKernel(
         ShadowCache shadowCache,
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace voxelGridWorkspace,
         Vector3D x,
         Vector3D y,
         GalerkinElement receiverElement,
@@ -190,9 +172,11 @@ relevant for surface elements
         ArrayList<Geometry> shadowGeometryList,
         boolean isSceneGeometry,
         boolean isClusteredGeometry,
-        GalerkinState galerkinState)
+        GalerkinState galerkinState,
+        RayExclusionSet exclusions,
+        FormFactorWorkspace workspace)
     {
-        Ray ray = kernelScratchRay;
+        Ray ray = workspace.getKernelRay();
         ray.position.copy(y);
         ray.direction.subtraction(x, y);
         double distance = ray.direction.norm();
@@ -231,19 +215,22 @@ relevant for surface elements
             visibilityFactor = 1.0;
         }
         else if ( galerkinState.multiResolutionVisibility == 0 ) {
-            RayHit hitStore = kernelScratchHitStore;
+            RayHit hitStore = workspace.getKernelHitStore();
             RayHit h = shadowTestDiscretization(
                 ray,
                 shadowGeometryList,
                 sceneWorldVoxelGrid,
+                voxelGridWorkspace,
                 shadowCache,
                 shortenedDistance,
                 hitStore,
                 isSceneGeometry,
-                isClusteredGeometry);
+                isClusteredGeometry,
+                exclusions,
+                workspace);
             visibilityFactor = (h == null) ? 1.0 : 0.0;
         }
-        else if ( cachedShadowTest(shadowCache, ray, shortenedDistance) ) {
+        else if ( cachedShadowTest(shadowCache, ray, shortenedDistance, exclusions, workspace) ) {
             visibilityFactor = 0.0;
         }
         else {
@@ -255,7 +242,8 @@ relevant for surface elements
                 ray,
                 shortenedDistance,
                 sourceElement.blockerSize,
-                minimumFeatureSize);
+                minimumFeatureSize,
+                exclusions);
         }
 
         return formFactorKernelTerm * visibilityFactor;
@@ -263,6 +251,8 @@ relevant for surface elements
 
     public static void computeAreaToAreaFormFactorVisibility(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace voxelGridWorkspace,
+        FormFactorWorkspace formFactorWorkspace,
         ArrayList<Geometry> geometryShadowList,
         boolean isSceneGeometry,
         boolean isClusteredGeometry,
@@ -308,19 +298,26 @@ relevant for surface elements
 
         // If the receiver is another one than before, determine the cubature rule to be
         // used on it and the nodes (positions on the patch); same for the source element
-        if ( receiverElement != formFactorLastReceived ) {
-            CubatureRule[] receiverCubatureRuleRef = new CubatureRule[] {cachedReceiverCubatureRule};
+        // The cubature rules, nodes and kernel values of the last pair are kept
+        // in the form factor workspace
+        Vector3D[] cachedX = formFactorWorkspace.getReceiverNodes();
+        Vector3D[] cachedY = formFactorWorkspace.getSourceNodes();
+        double[][] cachedGxy = formFactorWorkspace.getKernel();
+        final boolean sameReceiver = receiverElement == formFactorWorkspace.getLastReceiver();
+        final boolean sameSource = sourceElement == formFactorWorkspace.getLastSource();
+        if ( !sameReceiver ) {
+            CubatureRule[] receiverCubatureRuleRef = new CubatureRule[] {formFactorWorkspace.getReceiverCubatureRule()};
             determineNodes(receiverElement, GalerkinRole.RECEIVER, galerkinState, receiverCubatureRuleRef, cachedX);
-            cachedReceiverCubatureRule = receiverCubatureRuleRef[0];
+            formFactorWorkspace.setReceiverCubatureRule(receiverCubatureRuleRef[0]);
         }
-        if ( sourceElement != formFactorLastSource ) {
-            CubatureRule[] sourceCubatureRuleRef = new CubatureRule[] {cachedSourceCubatureRule};
+        if ( !sameSource ) {
+            CubatureRule[] sourceCubatureRuleRef = new CubatureRule[] {formFactorWorkspace.getSourceCubatureRule()};
             determineNodes(sourceElement, GalerkinRole.SOURCE, galerkinState, sourceCubatureRuleRef, cachedY);
-            cachedSourceCubatureRule = sourceCubatureRuleRef[0];
+            formFactorWorkspace.setSourceCubatureRule(sourceCubatureRuleRef[0]);
         }
 
-        CubatureRule receiverCubatureRule = cachedReceiverCubatureRule;
-        CubatureRule sourceCubatureRule = cachedSourceCubatureRule;
+        CubatureRule receiverCubatureRule = formFactorWorkspace.getReceiverCubatureRule();
+        CubatureRule sourceCubatureRule = formFactorWorkspace.getSourceCubatureRule();
         if ( receiverCubatureRule == null || sourceCubatureRule == null ) {
             link.deltaK = 0.0f;
             link.numberOfReceiverCubaturePositions = 1;
@@ -330,24 +327,25 @@ relevant for surface elements
 
         // Evaluate the radiosity kernel between each pair of nodes on the source and the
         // receiver element only if at least the receiver or the source changed since last time
-        if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {
+        if ( !sameReceiver || !sameSource ) {
             ShadowCache shadowCache = new ShadowCache();
-            Patch.dontIntersect4(
+            // Exclude the patches in order to avoid immediate self-intersections
+            RayExclusionSet exclusions = new RayExclusionSet(
                 receiverElement.isCluster() ? null : receiverElement.patch,
                 (receiverElement.isCluster() || receiverElement.patch == null) ? null : receiverElement.patch.twin,
                 sourceElement.isCluster() ? null : sourceElement.patch,
-                (sourceElement.isCluster() || sourceElement.patch == null) ? null : sourceElement.patch.twin);
-            Geometry.dontIntersect(
+                (sourceElement.isCluster() || sourceElement.patch == null) ? null : sourceElement.patch.twin,
                 receiverElement.isCluster() ? receiverElement.geometry : null,
                 sourceElement.isCluster() ? sourceElement.geometry : null);
 
-            cachedMaximumKernelValue = 0.0;
-            cachedVisibilityCount = 0;
+            double cachedMaximumKernelValue = 0.0;
+            int cachedVisibilityCount = 0;
             for ( int r = 0; r < receiverCubatureRule.numberOfNodes; r++ ) {
                 for ( int s = 0; s < sourceCubatureRule.numberOfNodes; s++ ) {
                     cachedGxy[r][s] = evaluatePointsPairKernel(
                         shadowCache,
                         sceneWorldVoxelGrid,
+                        voxelGridWorkspace,
                         cachedX[r],
                         cachedY[s],
                         receiverElement,
@@ -355,7 +353,9 @@ relevant for surface elements
                         geometryShadowList,
                         isSceneGeometry,
                         isClusteredGeometry,
-                        galerkinState);
+                        galerkinState,
+                        exclusions,
+                        formFactorWorkspace);
                     if ( cachedGxy[r][s] > cachedMaximumKernelValue ) {
                         cachedMaximumKernelValue = cachedGxy[r][s];
                     }
@@ -365,13 +365,13 @@ relevant for surface elements
                 }
             }
 
-            Patch.dontIntersect0();
-            Geometry.dontIntersect(null, null);
+            formFactorWorkspace.setMaximumKernelValue(cachedMaximumKernelValue);
+            formFactorWorkspace.setVisibilityCount(cachedVisibilityCount);
         }
 
-        double maximumKernelValue = cachedMaximumKernelValue;
+        double maximumKernelValue = formFactorWorkspace.getMaximumKernelValue();
         double[][] Gxy = cachedGxy;
-        int visibilityCount = cachedVisibilityCount;
+        int visibilityCount = formFactorWorkspace.getVisibilityCount();
 
         if ( visibilityCount != 0 ) {
             if ( link.numberOfBasisFunctionsOnReceiver == 1 && link.numberOfBasisFunctionsOnSource == 1 ) {
@@ -400,8 +400,7 @@ relevant for surface elements
             link.deltaK = (float)(maximumKernelValue * sourceElement.area);
             link.numberOfReceiverCubaturePositions = 1;
         }
-        formFactorLastReceived = receiverElement;
-        formFactorLastSource = sourceElement;
+        formFactorWorkspace.setLastPair(receiverElement, sourceElement);
     }
 
     @SuppressWarnings("unused")

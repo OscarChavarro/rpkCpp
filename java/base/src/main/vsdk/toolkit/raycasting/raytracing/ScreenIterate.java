@@ -13,6 +13,7 @@ import vsdk.toolkit.render.SoftIds;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -49,6 +50,7 @@ public class ScreenIterate {
     sequential(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
         Object data,
@@ -71,7 +73,7 @@ public class ScreenIterate {
         // Shoot rays through all the pixels
         for ( int i = 0; i < height; i++ ) {
             for ( int j = 0; j < width; j++ ) {
-                col = callback.call(camera, sceneVoxelGrid, sceneBackground, j, i, data);
+                col = callback.call(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, j, i, data);
                 ToneMap.radianceToRgb(col, rgb[j], toneMapOptions);
                 Statistics.instance().rayTracer.pixelCount++;
             }
@@ -121,6 +123,7 @@ public class ScreenIterate {
     progressive(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
         Object data,
@@ -189,7 +192,7 @@ public class ScreenIterate {
                     }
 
                     if ( !skip || ((ySteps & 1) != 0) || ((xSteps & 1) != 0) ) {
-                        col = callback.call(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
+                        col = callback.call(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, x0, height - y0 - 1, data);
                         ToneMap.radianceToRgb(col, pixelRGB, toneMapOptions);
                         fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 

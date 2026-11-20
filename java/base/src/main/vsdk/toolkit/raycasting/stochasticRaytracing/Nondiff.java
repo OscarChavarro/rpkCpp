@@ -16,6 +16,7 @@ import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
@@ -95,7 +96,7 @@ public final class Nondiff {
         return ray;
     }
 
-    static void sampleLight(VoxelGrid sceneWorldVoxelGrid, LightSourceTable light, double lightSelectionPdf) {
+    static void sampleLight(VoxelGrid sceneWorldVoxelGrid, VoxelGridWorkspace sceneWorldVoxelGridWorkspace, LightSourceTable light, double lightSelectionPdf) {
         ColorRgbMutable rad = new ColorRgbMutable();
         double[] pointSelectionPdf = new double[1];
         double[] dirSelectionPdf = new double[1];
@@ -103,7 +104,7 @@ public final class Nondiff {
         RayHit hitStore = new RayHit();
 
         StochasticRelaxation.activeState().tracedRays++;
-        RayHit hit = Localline.mcrShootRay(sceneWorldVoxelGrid, light.patch, ray, hitStore);
+        RayHit hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, light.patch, ray, hitStore);
         if ( hit != null ) {
             double pdf = lightSelectionPdf * pointSelectionPdf[0] * dirSelectionPdf[0];
             double outCos = ray.direction.dotProduct(light.patch.normal);
@@ -118,7 +119,7 @@ public final class Nondiff {
         }
     }
 
-    static void sampleLightSources(VoxelGrid sceneWorldVoxelGrid, int samplesCount) {
+    static void sampleLightSources(VoxelGrid sceneWorldVoxelGrid, VoxelGridWorkspace sceneWorldVoxelGridWorkspace, int samplesCount) {
         double rnd = Random.drand48();
         int count = 0;
         double pCumulative = 0.0;
@@ -131,7 +132,7 @@ public final class Nondiff {
                 (int)Math.floor((pCumulative + p) * (double)Nondiff.numberOfSamples + rnd) - count;
 
             for ( int j = 0; j < samplesThisLight; j++ ) {
-                sampleLight(sceneWorldVoxelGrid, lights[i], p);
+                sampleLight(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, lights[i], p);
             }
 
             pCumulative += p;
@@ -181,6 +182,7 @@ Initial shooting pass handling non-diffuse light sources
         makeLightSourceTable(scene.patchList, scene.lightSourcePatchList);
         sampleLightSources(
             scene.voxelGrid,
+            scene.voxelGridWorkspace,
             StochasticRelaxation.activeState().initialLightSourceSamples * numberOfLights);
         summarize(scene.patchList);
         lights = null;

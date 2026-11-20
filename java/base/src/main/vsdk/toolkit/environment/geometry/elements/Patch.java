@@ -27,7 +27,6 @@ public class Patch {
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     private static int patchId = 1;
-    private static final Patch[] excludedPatches = new Patch[] {null, null, null, null};
 
     private int flags; // Other flags
 
@@ -68,16 +67,6 @@ public class Patch {
     */
     public static void setNextId(int id) {
         patchId = id;
-    }
-
-    private boolean isExcluded() {
-        // MAX_EXCLUDED_PATCHES tests
-        for (int i = 0; i < MAX_EXCLUDED_PATCHES; i++) {
-            if (excludedPatches[i] == this) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean allVerticesHaveANormal() {
@@ -770,43 +759,6 @@ public class Patch {
         }
     }
 
-    private static void dontIntersectBase(
-        int n,
-        Patch p0,
-        Patch p1,
-        Patch p2,
-        Patch p3) {
-        if (n < 0 || n > MAX_EXCLUDED_PATCHES) {
-            Logger.reportMessage(null, Logger.FATAL_ERROR, "Patch::dontIntersectBase", String.format("Invalid number of excluded patches %d (maximum is %d)", n, MAX_EXCLUDED_PATCHES));
-            return;
-        }
-
-        Patch[] localPatches = new Patch[] {p0, p1, p2, p3};
-        int i = 0;
-        for (; i < n; i++) {
-            excludedPatches[i] = localPatches[i];
-        }
-        for (; i < MAX_EXCLUDED_PATCHES; i++) {
-            excludedPatches[i] = null;
-        }
-    }
-
-    public static void dontIntersect0() {
-        dontIntersectBase(0, null, null, null, null);
-    }
-
-    public static void dontIntersect2(Patch p0, Patch p1) {
-        dontIntersectBase(2, p0, p1, null, null);
-    }
-
-    public static void dontIntersect3(Patch p0, Patch p1, Patch p2) {
-        dontIntersectBase(3, p0, p1, p2, null);
-    }
-
-    public static void dontIntersect4(Patch p0, Patch p1, Patch p2, Patch p3) {
-        dontIntersectBase(4, p0, p1, p2, p3);
-    }
-
     /**
     Computes interpolated (= shading) normal at the point with given parameters
     on the patch.
@@ -901,13 +853,14 @@ public class Patch {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
         RayHit hit = intersectScratchHit;
         hit.setFlags(0);
         hit.setPatch(null);
         hit.setMaterial(null);
 
-        if (isExcluded()) {
+        if (exclusions.excludesPatch(this)) {
             return null;
         }
 

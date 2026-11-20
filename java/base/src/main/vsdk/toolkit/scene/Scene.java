@@ -20,6 +20,7 @@ public class Scene {
     public ArrayList<Geometry> clusteredGeometryList;
     public Geometry clusteredRootGeometry;
     public VoxelGrid voxelGrid;
+    public VoxelGridWorkspace voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
 
     // The list of all patches in the current scene
     public ArrayList<Patch> patchList;
@@ -34,6 +35,7 @@ public class Scene {
         clusteredGeometryList = new ArrayList<>();
         clusteredRootGeometry = null;
         voxelGrid = null;
+        voxelGridWorkspace = null;
         patchList = null;
         lightSourcePatchList = null;
     }
@@ -53,8 +55,10 @@ public class Scene {
             patchList = null;
         }
         if (voxelGrid != null) {
+            voxelGrid.freeVoxelGridElements();
             voxelGrid = null;
         }
+        voxelGridWorkspace = null;
         if (background != null) {
             background = null;
         }

@@ -1,6 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.galerkin.GalerkinElement;
@@ -65,7 +66,8 @@ public class FormFactorClusteredStrategy {
         Ray ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize)
+        float minimumFeatureSize,
+        RayExclusionSet exclusions)
     {
         return 1.0;
     }
@@ -76,7 +78,8 @@ public class FormFactorClusteredStrategy {
         Ray ray,
         float rcvDist,
         float srcSize,
-        float minimumFeatureSize)
+        float minimumFeatureSize,
+        RayExclusionSet exclusions)
     {
         return 1.0;
     }

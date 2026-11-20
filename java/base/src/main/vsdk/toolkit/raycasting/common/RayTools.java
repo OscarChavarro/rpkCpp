@@ -4,6 +4,7 @@ Some utility routines for ray intersections and for statistics
 
 package vsdk.toolkit.raycasting.common;
 
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
@@ -13,6 +14,7 @@ import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
@@ -24,6 +26,7 @@ public class RayTools {
     private static RayHit
     traceWorld(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         Ray ray,
         Patch patch,
         int flags,
@@ -38,15 +41,14 @@ public class RayTools {
         }
 
         dist[0] = Numeric.HUGE_FLOAT_VALUE;
-        Patch.dontIntersect3(patch, patch != null ? patch.twin : null, extraPatch);
-        result = sceneWorldVoxelGrid.gridIntersect(ray, 0.0f, dist, flags, hitStore);
+        RayExclusionSet exclusions = new RayExclusionSet(patch, patch != null ? patch.twin : null, extraPatch);
+        result = sceneWorldVoxelGrid.gridIntersect(ray, 0.0f, dist, flags, hitStore, exclusions, sceneWorldVoxelGridWorkspace);
 
         if (result != null) {
             // Compute shading frame (Z-axis = shading normal) at intersection point
             CoordinateSystem frame = result.getShadingFrame();
             result.setShadingFrame(frame);
         }
-        Patch.dontIntersect0();
 
         return result;
     }
@@ -54,6 +56,7 @@ public class RayTools {
     public static RayHit
     findRayIntersection(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         Ray ray,
         Patch patch,
         PhongBidirectionalScatteringDistributionFunction currentBsdf,
@@ -71,7 +74,7 @@ public class RayTools {
         }
 
         // Trace the ray
-        newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, null, hitStore);
+        newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, null, hitStore);
         Statistics.instance().rayTracer.rayCount++; // statistics
 
         // Robustness test : If a back is hit, check the current
@@ -80,7 +83,7 @@ public class RayTools {
         if (newHit != null && (newHit.getFlags() & RayHitFlag.BACK) != 0 &&
             newHit.getPatch().material.getBsdf() != currentBsdf) {
             // Whoops, intersected with wrong patch (accuracy problem)
-            newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit.getPatch(), hitStore);
+            newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, newHit.getPatch(), hitStore);
             Statistics.instance().rayTracer.rayCount++; // Statistics
         }
 
@@ -93,6 +96,7 @@ pathNodesVisible : send a shadow ray
     public static boolean
     pathNodesVisible(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         SimpleRaytracingPathNode node1,
         SimpleRaytracingPathNode node2)
     {
@@ -165,7 +169,7 @@ pathNodesVisible : send a shadow ray
                 fDistance[0] = (float)dist;
             }
 
-            Patch.dontIntersect3(
+            RayExclusionSet exclusions = new RayExclusionSet(
                 node2.m_hit.getPatch(),
                 node1.m_hit.getPatch(),
                 node1.m_hit.getPatch() != null ? node1.m_hit.getPatch().twin : null);
@@ -174,8 +178,9 @@ pathNodesVisible : send a shadow ray
                 0.0f,
                 fDistance,
                 RayHitFlag.FRONT | RayHitFlag.BACK | RayHitFlag.ANY,
-                hitStore);
-            Patch.dontIntersect0();
+                hitStore,
+                exclusions,
+                sceneWorldVoxelGridWorkspace);
             visible = (hit == null);
 
             Statistics.instance().rayTracer.rayCount++; // Statistics
@@ -194,6 +199,7 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
     eyeNodeVisible(
         Camera camera,
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         SimpleRaytracingPathNode eyeNode,
         SimpleRaytracingPathNode node,
         float[] pixX,
@@ -249,13 +255,13 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 
                     if ((cosRayLight > 0) && (cosRayEye > 0)) {
                         fDistance[0] = (float)dist;
-                        Patch.dontIntersect3(
+                        RayExclusionSet exclusions = new RayExclusionSet(
                             node.m_hit.getPatch(), eyeNode.m_hit.getPatch(),
                             eyeNode.m_hit.getPatch() != null ? eyeNode.m_hit.getPatch().twin : null);
                         hit = sceneWorldVoxelGrid.gridIntersect(ray,
                             0.0f, fDistance,
-                            RayHitFlag.FRONT | RayHitFlag.ANY, hitStore);
-                        Patch.dontIntersect0();
+                            RayHitFlag.FRONT | RayHitFlag.ANY, hitStore,
+                            exclusions, sceneWorldVoxelGridWorkspace);
                         // HIT_BACK removed ! So you can see through back walls with N.E.E
                         visible = (hit == null);
 

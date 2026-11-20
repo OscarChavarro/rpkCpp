@@ -390,6 +390,8 @@ public class HierarchicalRefinementStrategy {
         boolean isClusteredGeometry = (candidatesList == scene.clusteredGeometryList);
         FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
             scene.voxelGrid,
+            scene.voxelGridWorkspace,
+            galerkinState.formFactorWorkspace,
             candidatesList,
             isSceneGeometry,
             isClusteredGeometry,

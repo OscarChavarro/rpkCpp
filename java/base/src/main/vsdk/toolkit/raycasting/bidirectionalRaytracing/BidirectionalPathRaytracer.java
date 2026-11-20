@@ -33,6 +33,7 @@ import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -189,13 +190,14 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         }
 
         if ( bidirectionalPathState.saveSubsequentImages != 0 ) {
-            doBptAndSubsequentImages(scene.camera, scene.voxelGrid, scene.background, config);
+            doBptAndSubsequentImages(scene.camera, scene.voxelGrid, scene.voxelGridWorkspace, scene.background, config);
         } else if ( config.baseConfig.doDensityEstimation != 0 ) {
-            doBptDensityEstimation(scene.camera, scene.voxelGrid, scene.background, config);
+            doBptDensityEstimation(scene.camera, scene.voxelGrid, scene.voxelGridWorkspace, scene.background, config);
         } else if ( bidirectionalPathState.baseConfig.progressiveTracing == 0 ) {
             ScreenIterate.sequential(
                 scene.camera,
                 scene.voxelGrid,
+                scene.voxelGridWorkspace,
                 scene.background,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 config,
@@ -204,6 +206,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             ScreenIterate.progressive(
                 scene.camera,
                 scene.voxelGrid,
+                scene.voxelGridWorkspace,
                 scene.background,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 config,
@@ -620,6 +623,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     handlePathXx(
         Camera camera,
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         Background sceneBackground,
         BidirectionalPathTracingConfiguration config,
         BiPath path)
@@ -664,6 +668,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             if ( !config.eyeConfig.neSampler.sample(
                 camera,
                 sceneWorldVoxelGrid,
+                sceneWorldVoxelGridWorkspace,
                 sceneBackground,
                 null,
                 path.m_eyeEndNode,
@@ -684,7 +689,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             path.m_lightEndNode = newLightNode;
         }
 
-        if ( RayTools.pathNodesVisible(sceneWorldVoxelGrid, path.m_eyeEndNode, path.m_lightEndNode) ) {
+        if ( RayTools.pathNodesVisible(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, path.m_eyeEndNode, path.m_lightEndNode) ) {
             f = computeNeFluxEstimate(camera, config, path, pdf, weight, fRad);
 
             float factor = (float)config.fluxToRadFactor / (float)config.baseConfig.samplesPerPixel;
@@ -712,6 +717,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     handlePath1X(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         BidirectionalPathTracingConfiguration config,
         BiPath path)
     {
@@ -732,6 +738,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         if ( RayTools.eyeNodeVisible(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             path.m_eyeEndNode,
             path.m_lightEndNode,
             pixX,
@@ -767,6 +774,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     bpCombinePaths(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         BidirectionalPathTracingConfiguration config)
     {
@@ -834,13 +842,13 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                     path.m_eyeEndNode = eyeEndNode;
                     path.m_lightSize = lightSize;
                     path.m_lightEndNode = lightEndNode;
-                    handlePathXx(camera, sceneVoxelGrid, sceneBackground, config, path);
+                    handlePathXx(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config, path);
                 } else {
                     path.m_eyeSize = eyeSize;
                     path.m_eyeEndNode = eyeEndNode;
                     path.m_lightSize = lightSize;
                     path.m_lightEndNode = lightEndNode;
-                    handlePath1X(camera, sceneVoxelGrid, config, path);
+                    handlePath1X(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, config, path);
                 }
 
                 if ( lightEndNode.ends() ) {
@@ -864,6 +872,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     bpCalcPixel(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         int nx,
         int ny,
@@ -884,7 +893,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             config.eyePath = new SimpleRaytracingPathNode();
         }
 
-        config.eyeConfig.pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, config.eyePath, 0, 0);
+        config.eyeConfig.pointSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, null, config.eyePath, 0, 0);
         ((PixelSampler)config.eyeConfig.dirSampler).SetPixel(camera, nx, ny, null);
 
         // Provide a node for the pixel sampling
@@ -916,9 +925,9 @@ public final class BidirectionalPathRaytracer extends RayTracer {
                 config.xSample = tmpVec2D.x; // pix_x + (camera.pixelWidth * x1)
                 config.ySample = tmpVec2D.y; // pix_y + (camera.pixelHeight * x2)
 
-                if ( config.eyeConfig.dirSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, config.eyePath, pixNode, x1[0], x2[0]) ) {
+                if ( config.eyeConfig.dirSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, config.eyePath, pixNode, x1[0], x2[0]) ) {
                     pixNode.assignBsdfAndNormal();
-                    config.eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode);
+                    config.eyeConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode);
                 }
             } else {
                 config.eyePath.m_rayType = PathRayType.STOPS;
@@ -926,14 +935,14 @@ public final class BidirectionalPathRaytracer extends RayTracer {
 
             // Generate a light path
             if ( config.lightConfig.maxDepth > 0 ) {
-                config.lightPath = config.lightConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, config.lightPath);
+                config.lightPath = config.lightConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config.lightPath);
             } else {
                 // Normally this is already so, so no delete necessary ?!
                 config.lightPath = null;
             }
 
             // Connect all endpoints and compute contribution
-            bpCombinePaths(camera, sceneVoxelGrid, sceneBackground, config);
+            bpCombinePaths(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config);
         }
 
         // Radiance contributions are added to the screen buffer directly
@@ -956,6 +965,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     doBptAndSubsequentImages(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         BidirectionalPathTracingConfiguration config)
     {
@@ -1020,6 +1030,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             ScreenIterate.sequential(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 config,
@@ -1049,6 +1060,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     doBptDensityEstimation(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         BidirectionalPathTracingConfiguration config)
     {
@@ -1088,6 +1100,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         ScreenIterate.sequential(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             BidirectionalPathRaytracer::bpCalcPixel,
             config,
@@ -1173,6 +1186,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
             ScreenIterate.sequential(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 config,

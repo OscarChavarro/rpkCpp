@@ -11,6 +11,7 @@ import vsdk.toolkit.raycasting.raytracing.SamplerConfig;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 
 /**
 Importon tracing
@@ -61,6 +62,7 @@ Store a importon/poton. Some acceptance tests are performed first
     tracePotentialPath(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         PhotonMapState photonMapState,
         PhotonMapConfig photonMapConfig)
@@ -73,7 +75,7 @@ Store a importon/poton. Some acceptance tests are performed first
         // function arguments right to left: first draw is x2, second is x1.
         double eyeX2 = Random.drand48();
         double eyeX1 = Random.drand48();
-        path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
+        path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
         if ( path == null ) {
             return false;
         }
@@ -105,6 +107,7 @@ Store a importon/poton. Some acceptance tests are performed first
         while ( scfg.traceNode(
             camera,
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             sceneBackground,
             node,
             x1,
@@ -148,6 +151,7 @@ Store a importon/poton. Some acceptance tests are performed first
     tracePotentialPaths(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         int numberOfPaths,
         PhotonMapState photonMapState,
@@ -161,6 +165,7 @@ Store a importon/poton. Some acceptance tests are performed first
             PhotonMapImportance.tracePotentialPath(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 photonMapState,
                 photonMapConfig);

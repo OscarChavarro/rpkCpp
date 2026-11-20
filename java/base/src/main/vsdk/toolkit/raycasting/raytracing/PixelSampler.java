@@ -8,6 +8,7 @@ import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 
 public class PixelSampler extends Sampler {
     private double m_px;
@@ -19,6 +20,7 @@ public class PixelSampler extends Sampler {
     sample(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -51,7 +53,7 @@ public class PixelSampler extends Sampler {
         newNode.m_inBsdf = thisNode.m_outBsdf; // Camera can be placed in a medium
 
         // Transfer
-        if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, dir, pdfDir) ) {
+        if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir) ) {
             thisNode.m_rayType = PathRayType.STOPS;
             return false;
         }

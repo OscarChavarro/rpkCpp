@@ -3,6 +3,7 @@ package vsdk.toolkit.skin;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ contains data that is independent of geometry type.
 */
 public class Geometry {
     public static int nextGeometryId = 0;
-    public static Geometry excludedGeometry1 = null;
-    public static Geometry excludedGeometry2 = null;
 
     public int id; // Unique ID number
     public BoundingBox boundingBox;
@@ -163,23 +162,14 @@ public class Geometry {
         return newPatchSet;
     }
 
-    /**
-    Will avoid intersection testing with geom1 and geom2 (possibly null
-    pointers). Can be used for avoiding immediate self-intersections.
-    */
-    public static void dontIntersect(Geometry geometry1, Geometry geometry2) {
-        excludedGeometry1 = geometry1;
-        excludedGeometry2 = geometry2;
-    }
-
     // Scratch storage reused across pre-test calls (this method runs billions
     // of times per scene on the single threaded rendering core; the C++ port
     // keeps these on the stack)
     private static final Vector3D preTestScratchPoint = new Vector3D();
     private static final float[] preTestScratchDistance = new float[1];
 
-    public boolean discretizationIntersectPreTest(Ray ray, float minimumDistance, float[] maximumDistance) {
-        if (this == excludedGeometry1 || this == excludedGeometry2) {
+    public boolean discretizationIntersectPreTest(Ray ray, float minimumDistance, float[] maximumDistance, RayExclusionSet exclusions) {
+        if (exclusions.excludesGeometry(this)) {
             return false;
         }
 
@@ -210,19 +200,20 @@ public class Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
-        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance)) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
+        if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
             return null;
         }
 
         if (className == GeometryClassId.SURFACE_MESH) {
-            return ((MeshSurface)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            return ((MeshSurface)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         }
         else if (className == GeometryClassId.COMPOUND) {
-            return ((Compound)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            return ((Compound)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         }
         else if (className == GeometryClassId.PATCH_SET) {
-            return ((PatchSet)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            return ((PatchSet)this).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
         }
         return null;
     }
@@ -233,11 +224,12 @@ public class Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
         RayHit hit = null;
 
         for (int i = 0; geometryList != null && i < geometryList.size(); i++) {
-            RayHit h = geometryList.get(i).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            RayHit h = geometryList.get(i).discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
             if (h != null) {
                 if ((hitFlags & RayHitFlag.ANY) != 0) {
                     return h;
@@ -266,10 +258,11 @@ public class Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
         RayHit hit = null;
         for (int i = 0; patchList != null && i < patchList.size(); i++) {
-            RayHit h = patchList.get(i).intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            RayHit h = patchList.get(i).intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
             if (h != null) {
                 if ((hitFlags & RayHitFlag.ANY) != 0) {
                     return h;
@@ -289,9 +282,5 @@ public class Geometry {
         }
 
         return boundingBox;
-    }
-
-    public boolean isExcluded() {
-        return this == excludedGeometry1 || this == excludedGeometry2;
     }
 }

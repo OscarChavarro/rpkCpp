@@ -25,6 +25,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
@@ -586,6 +587,8 @@ Returns true if successful
 
         // Create the scene level voxel grid
         scene.voxelGrid = new VoxelGrid(scene.clusteredRootGeometry);
+        scene.voxelGridWorkspace = new VoxelGridWorkspace(
+            scene.voxelGrid.getNumberOfItems(), scene.voxelGrid.getNumberOfLevels());
 
         t = System.nanoTime();
         System.err.printf(

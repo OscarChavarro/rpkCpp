@@ -15,6 +15,7 @@ import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
@@ -32,6 +33,8 @@ Note: the name "Shaft" can be misleading. From [HAIN1991] it can be seen that th
 a kind of convex envelope.
 */
 public class Shaft {
+    private static final RayExclusionSet NO_EXCLUSIONS = new RayExclusionSet();
+
     private static final MemoryPool<PatchSet> patchSetPool = new MemoryPool<>(() -> new PatchSet(null));
     private static boolean patchSetPoolInitialized = false;
 
@@ -736,7 +739,8 @@ public class Shaft {
             Numeric.EPSILON_FLOAT,
             dist,
             RayHitFlag.FRONT | RayHitFlag.BACK,
-            hitStore) != null) {
+            hitStore,
+            NO_EXCLUSIONS) != null) {
             cut = true;
             return ShaftPlanePosition.OVERLAP;
         }

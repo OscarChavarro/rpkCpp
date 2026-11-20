@@ -1,6 +1,7 @@
 package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.galerkin.processing.FormFactorWorkspace;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
@@ -67,6 +68,9 @@ public class GalerkinState {
 
     public ShaftCullStrategy shaftCullStrategy;
     public ToneMappingContext toneMapOptions;
+
+    // Form factor scratch owned by the solver
+    public final FormFactorWorkspace formFactorWorkspace = new FormFactorWorkspace();
 
     private static final boolean DEFAULT_GAL_HIERARCHICAL = true;
     private static final GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod.JACOBI;

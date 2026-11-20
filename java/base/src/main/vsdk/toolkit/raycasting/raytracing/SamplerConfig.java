@@ -20,6 +20,7 @@ import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 
 public class SamplerConfig {
     public Sampler pointSampler;  // Samples first point
@@ -115,6 +116,7 @@ public class SamplerConfig {
     traceNode(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode nextNode,
         double x1,
@@ -131,14 +133,14 @@ public class SamplerConfig {
 
         if ( lastNode == null ) {
             // Fill in first node
-            if ( !pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2) ) {
+            if ( !pointSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, null, nextNode, x1, x2) ) {
                 Logger.reportMessage(this, Logger.WARNING, "SamplerConfig::traceNode", "Point sampler failed");
                 return null;
             }
         } else if ( lastNode.m_depth == 0 ) {
             // Fill in second node : dir sampler
             if ( (lastNode.m_depth + 1) < maxDepth ) {
-                if ( !dirSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, lastNode, nextNode, x1, x2) ) {
+                if ( !dirSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, lastNode, nextNode, x1, x2) ) {
                     // No point !
                     lastNode.m_rayType = PathRayType.STOPS;
                     return null;
@@ -153,6 +155,7 @@ public class SamplerConfig {
                 if ( !surfaceSampler.sample(
                     camera,
                     sceneVoxelGrid,
+                    sceneVoxelGridWorkspace,
                     sceneBackground,
                     lastNode.previous(),
                     lastNode,
@@ -183,6 +186,7 @@ public class SamplerConfig {
     tracePath(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode nextNode,
         byte flags)
@@ -196,7 +200,7 @@ public class SamplerConfig {
             getRand(nextNode.previous().m_depth + 1, x1, x2);
         }
 
-        nextNode = traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1[0], x2[0], flags);
+        nextNode = traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, x1[0], x2[0], flags);
 
         boolean continueTrace = nextNode != null;
         if ( continueTrace && sceneBackground != null && nextNode.ends() ) {
@@ -207,7 +211,7 @@ public class SamplerConfig {
             nextNode.ensureNext();
 
             // Recursive call
-            tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode.next(), flags);
+            tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode.next(), flags);
         }
 
         return nextNode;
@@ -217,10 +221,11 @@ public class SamplerConfig {
     tracePath(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode nextNode)
     {
-        return tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode, Sampler.BSDF_ALL_COMPONENTS);
+        return tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, Sampler.BSDF_ALL_COMPONENTS);
     }
 
     /**

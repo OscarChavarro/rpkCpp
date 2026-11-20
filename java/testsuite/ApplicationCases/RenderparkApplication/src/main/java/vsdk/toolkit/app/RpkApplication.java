@@ -22,7 +22,6 @@ import vsdk.toolkit.render.jogl.visualDebugTools.GlutDebugToolsModel;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.environment.geometry.elements.Vertex;
 import vsdk.toolkit.environment.geometry.elements.VertexCompareFlags;
 import vsdk.toolkit.tonemap.FerwerdaToneMap;
@@ -187,7 +186,6 @@ Processes command line arguments
         GalerkinRadianceMethod.freeMemory();
         PatchClusterOctreeNode.deleteCachedGeometries();
         ClusterCreationStrategy.freeClusterElements();
-        VoxelGrid.freeVoxelGridElements();
         if ( mgfContext.radianceMethod != null ) {
             mgfContext.radianceMethod = null;
             mgfContext.parserConfig.radianceMethod = null;

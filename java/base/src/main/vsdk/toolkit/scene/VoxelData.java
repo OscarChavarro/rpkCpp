@@ -3,40 +3,58 @@ package vsdk.toolkit.scene;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
+/**
+One item stored in the cells of a VoxelGrid: a patch, a geometry or a sub
+grid. The index is dense over the whole grid hierarchy and addresses the
+per-item scratch of a VoxelGridWorkspace.
+
+Shared, read-only after the grid is built.
+*/
 class VoxelData {
-    Patch patch;
-    Geometry geometry;
-    VoxelGrid voxelGrid;
+    private final Patch patch;
+    private final Geometry geometry;
+    private final VoxelGrid voxelGrid;
+    private final int flags; // Patch, geometry or grid
+    private final int index;
 
-    int flags; // Patch or geometry? last ray id, ...
-
-    VoxelData(VoxelGrid data, int flags) {
+    VoxelData(VoxelGrid data, int flags, int index) {
         this.geometry = null;
         this.patch = null;
         this.voxelGrid = data;
         this.flags = flags;
+        this.index = index;
     }
 
-    VoxelData(Patch data, int flags) {
+    VoxelData(Patch data, int flags, int index) {
         this.geometry = null;
         this.patch = data;
         this.voxelGrid = null;
         this.flags = flags;
+        this.index = index;
     }
 
-    VoxelData(Geometry data, int flags) {
+    VoxelData(Geometry data, int flags, int index) {
         this.geometry = data;
         this.patch = null;
         this.voxelGrid = null;
         this.flags = flags;
+        this.index = index;
     }
 
-    void updateRayId(final int id) {
-        flags = (flags & ~VoxelDataFlags.VOXEL_DATA_RAY_COUNT_MASK) | (id & VoxelDataFlags.VOXEL_DATA_RAY_COUNT_MASK);
+    Patch getPatch() {
+        return patch;
     }
 
-    int lastRayId() {
-        return flags & VoxelDataFlags.VOXEL_DATA_RAY_COUNT_MASK;
+    Geometry getGeometry() {
+        return geometry;
+    }
+
+    VoxelGrid getVoxelGrid() {
+        return voxelGrid;
+    }
+
+    int getIndex() {
+        return index;
     }
 
     boolean isPatch() {

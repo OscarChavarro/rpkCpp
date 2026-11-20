@@ -3,6 +3,7 @@ package vsdk.toolkit.skin;
 import vsdk.toolkit.material.MaterialColorFlags;
 
 import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 import vsdk.toolkit.environment.geometry.elements.Vertex;
 
@@ -171,7 +172,8 @@ public final class MeshSurface extends Geometry {
         float minimumDistance,
         float[] maximumDistance,
         int hitFlags,
-        RayHit hitStore) {
-        return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit hitStore,
+        RayExclusionSet exclusions) {
+        return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
 }

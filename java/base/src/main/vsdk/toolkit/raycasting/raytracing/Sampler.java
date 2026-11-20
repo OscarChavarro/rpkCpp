@@ -20,6 +20,7 @@ import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public abstract class Sampler {
@@ -43,6 +44,7 @@ public abstract class Sampler {
     */
     protected boolean sampleTransfer(
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode thisNode,
         SimpleRaytracingPathNode newNode,
@@ -58,6 +60,7 @@ public abstract class Sampler {
         newNode.m_rayType = PathRayType.STOPS;
         RayHit hit = RayTools.findRayIntersection(
             sceneVoxelGrid,
+            sceneVoxelGridWorkspace,
             ray,
             thisNode.m_hit.getPatch(),
             newNode.m_inBsdf,
@@ -129,6 +132,7 @@ public abstract class Sampler {
     sample(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -142,6 +146,7 @@ public abstract class Sampler {
     sample(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -149,7 +154,7 @@ public abstract class Sampler {
         double x1,
         double x2)
     {
-        return sample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, BSDF_ALL_COMPONENTS);
+        return sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, BSDF_ALL_COMPONENTS);
     }
 
     public abstract double

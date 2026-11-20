@@ -29,6 +29,7 @@ import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -99,6 +100,7 @@ pointed to by 'fp'
             ScreenIterate.sequential(
                 scene.camera,
                 scene.voxelGrid,
+                scene.voxelGridWorkspace,
                 scene.background,
                 StochasticRaytracer::calcPixel,
                 callbackData,
@@ -107,6 +109,7 @@ pointed to by 'fp'
             ScreenIterate.progressive(
                 scene.camera,
                 scene.voxelGrid,
+                scene.voxelGridWorkspace,
                 scene.background,
                 StochasticRaytracer::calcPixel,
                 callbackData,
@@ -145,6 +148,7 @@ pointed to by 'fp'
     private static ColorRgbMutable stochasticRaytracerGetScatteredRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode thisNode,
         StochasticRaytracingConfiguration config,
@@ -219,6 +223,7 @@ pointed to by 'fp'
                     if ( config.samplerConfig.surfaceSampler.sample(
                             camera,
                             sceneVoxelGrid,
+                            sceneVoxelGridWorkspace,
                             sceneBackground,
                             thisNode.previous(),
                             thisNode,
@@ -241,6 +246,7 @@ pointed to by 'fp'
                             radiance = stochasticRaytracerGetRadiance(
                                 camera,
                                 sceneVoxelGrid,
+                                sceneVoxelGridWorkspace,
                                 sceneBackground,
                                 newNode,
                                 config,
@@ -252,6 +258,7 @@ pointed to by 'fp'
                             radiance = stochasticRaytracerGetRadiance(
                                 camera,
                                 sceneVoxelGrid,
+                                sceneVoxelGridWorkspace,
                                 sceneBackground,
                                 newNode,
                                 config,
@@ -289,6 +296,7 @@ pointed to by 'fp'
     private static ColorRgbMutable srGetDirectRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         StochasticRaytracingConfiguration config,
@@ -343,6 +351,7 @@ pointed to by 'fp'
                     if ( config.samplerConfig.neSampler.sample(
                         camera,
                         sceneVoxelGrid,
+                        sceneVoxelGridWorkspace,
                         sceneBackground,
                         prevNode.previous(),
                         prevNode,
@@ -351,7 +360,7 @@ pointed to by 'fp'
                         x2[0],
                         true,
                         (byte)bsdfAll)
-                        && ( RayTools.pathNodesVisible(sceneVoxelGrid, prevNode, lightNode) ) ) {
+                        && ( RayTools.pathNodesVisible(sceneVoxelGrid, sceneVoxelGridWorkspace, prevNode, lightNode) ) ) {
                         // Now connect for all applicable scatter-info's
                         int siCurrent;
                         ScatterInfo si;
@@ -444,6 +453,7 @@ pointed to by 'fp'
     private static ColorRgbMutable stochasticRaytracerGetRadiance(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode thisNode,
         StochasticRaytracingConfiguration config,
@@ -554,13 +564,14 @@ pointed to by 'fp'
                 result.add(result, radiance);
             }
 
-            radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout);
+            radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, config, readout);
             result.add(result, radiance);
 
             // Scattered light
             radiance = stochasticRaytracerGetScatteredRadiance(
                 camera,
                 sceneVoxelGrid,
+                sceneVoxelGridWorkspace,
                 sceneBackground,
                 thisNode,
                 config,
@@ -631,6 +642,7 @@ pointed to by 'fp'
     private static ColorRgbMutable calcPixel(
         Camera camera,
         VoxelGrid sceneVoxelGrid,
+        VoxelGridWorkspace sceneVoxelGridWorkspace,
         Background sceneBackground,
         int nx,
         int ny,
@@ -663,7 +675,7 @@ pointed to by 'fp'
         // Calc pixel data
 
         // Sample eye node
-        config.samplerConfig.pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, eyeNode, 0, 0);
+        config.samplerConfig.pointSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, null, eyeNode, 0, 0);
         ((PixelSampler)config.samplerConfig.dirSampler).SetPixel(camera, nx, ny, null);
 
         eyeNode.attach(pixelNode);
@@ -672,7 +684,7 @@ pointed to by 'fp'
         for ( int i = 0; i < config.samplesPerPixel; i++ ) {
             stratified.sample(x1, x2);
 
-            if ( config.samplerConfig.dirSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, eyeNode, pixelNode, x1[0], x2[0])
+            if ( config.samplerConfig.dirSampler.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, eyeNode, pixelNode, x1[0], x2[0])
                  && ((pixelNode.m_rayType != PathRayType.ENVIRONMENT) || (config.backgroundDirect)) ) {
                 pixelNode.assignBsdfAndNormal();
 
@@ -684,6 +696,7 @@ pointed to by 'fp'
                 col = stochasticRaytracerGetRadiance(
                     camera,
                     sceneVoxelGrid,
+                    sceneVoxelGridWorkspace,
                     sceneBackground,
                     pixelNode,
                     config,

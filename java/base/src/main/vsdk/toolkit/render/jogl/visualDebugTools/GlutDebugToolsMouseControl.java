@@ -14,6 +14,7 @@ import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.environment.geometry.elements.ElementTypes;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class GlutDebugToolsMouseControl {
@@ -299,12 +300,14 @@ public final class GlutDebugToolsMouseControl {
 
             float[] maxDistance = new float[] {Numeric.HUGE_FLOAT_VALUE};
             RayHit hit = new RayHit();
+            final RayExclusionSet noExclusions = new RayExclusionSet();
             RayHit intersection = patch.intersect(
                 ray,
                 Numeric.EPSILON_FLOAT,
                 maxDistance,
                 RayHitFlag.FRONT | RayHitFlag.BACK,
-                hit);
+                hit,
+                noExclusions);
             if ( intersection != null ) {
                 boolean frontFacing = (hit.getFlags() & RayHitFlag.FRONT) != 0;
                 hitCandidates.add(new PatchHitCandidate(i, maxDistance[0], frontFacing));

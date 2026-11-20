@@ -4,6 +4,7 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class ShadowCache {
@@ -25,7 +26,7 @@ Initialize/empty the shadow cache
 Test ray against patches in the shadow cache. Returns nullptr if the ray hits
 no patches in the shadow cache, or a pointer to the first hit patch otherwise
 */
-    public RayHit cacheHit(Ray ray, float[] distance, RayHit hitStore) {
+    public RayHit cacheHit(Ray ray, float[] distance, RayHit hitStore, RayExclusionSet exclusions) {
         for ( int i = 0; i < numberOfCachedPatches; i++ ) {
             if ( patchCache[i] == null ) {
                 continue;
@@ -35,7 +36,8 @@ no patches in the shadow cache, or a pointer to the first hit patch otherwise
                 Numeric.EPSILON_FLOAT * distance[0],
                 distance,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
-                hitStore);
+                hitStore,
+                exclusions);
             if ( hit != null ) {
                 return hit;
             }

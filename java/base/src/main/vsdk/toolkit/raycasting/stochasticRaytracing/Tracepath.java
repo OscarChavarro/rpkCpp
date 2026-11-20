@@ -13,6 +13,7 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
@@ -108,6 +109,7 @@ when no longer needed
 */
     private static Path tracePath(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         Patch origin,
         double birthProb,
         PatchProbabilityCallback survivalProbabilityCallBack,
@@ -134,7 +136,7 @@ when no longer needed
             }
             path.nodes[path.numberOfNodes - 1].outpoint.copy(ray.position);
 
-            hit = Localline.mcrShootRay(sceneWorldVoxelGrid, P, ray, hitStore);
+            hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, ray, hitStore);
             if ( hit == null ) {
                 // Path disappears into background
                 break;
@@ -157,6 +159,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 */
     public static void tracePaths(
         VoxelGrid sceneWorldVoxelGrid,
+        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
         long numberOfPaths,
         PatchProbabilityCallback birthProbabilityCallBack,
         PatchProbabilityCallback survivalProbabilityCallBack,
@@ -194,7 +197,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
             double p = birthProbabilityCallBack.apply(patch) / sumProbabilities;
             long pathsThisPatch = (long)Math.floor((pCumulative + p) * (double)numberOfPaths + rnd) - pathCount;
             for ( int j = 0; j < pathsThisPatch; j++ ) {
-                tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, path);
+                tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, path);
                 scorePathCallBack.apply(path, numberOfPaths, Tracepath::patchNormalisedBirthProbability);
             }
             pCumulative += p;

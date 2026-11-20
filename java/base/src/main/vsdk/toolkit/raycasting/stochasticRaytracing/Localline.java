@@ -4,11 +4,13 @@ Generate and trace a local line
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.VoxelGrid;
+import vsdk.toolkit.scene.VoxelGridWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
@@ -68,18 +70,19 @@ In order to let the user have the impression that the computations are proceedin
     /**
 Determines nearest intersection point and patch
 */
-    public static RayHit mcrShootRay(VoxelGrid sceneWorldVoxelGrid, Patch P, Ray ray, RayHit hitStore) {
+    public static RayHit mcrShootRay(VoxelGrid sceneWorldVoxelGrid, VoxelGridWorkspace sceneWorldVoxelGridWorkspace, Patch P, Ray ray, RayHit hitStore) {
         float[] distance = new float[] {Numeric.HUGE_FLOAT_VALUE};
 
         // Reject self-intersections
-        Patch.dontIntersect2(P, P.twin);
+        RayExclusionSet exclusions = new RayExclusionSet(P, P.twin);
         RayHit hit = sceneWorldVoxelGrid.gridIntersect(
             ray,
             Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
             distance,
             vsdk.toolkit.environment.geometry.elements.RayHitFlag.FRONT | vsdk.toolkit.environment.geometry.elements.RayHitFlag.POINT,
-            hitStore);
-        Patch.dontIntersect0();
+            hitStore,
+            exclusions,
+            sceneWorldVoxelGridWorkspace);
         someFeedback();
 
         return hit;
