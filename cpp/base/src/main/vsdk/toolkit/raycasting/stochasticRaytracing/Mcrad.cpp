@@ -1,4 +1,3 @@
-#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 /**
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
@@ -408,8 +407,6 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u
     patch->uniformPoint(u, v, &point);
     hit.init(patch, &point, &patch->getNormal(), patch->getMaterial());
     hit.setUv(u, v);
-    unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-    hit.setFlags(newFlags);
     ColorRgbMutable result(0.0, 0.0, 0.0);
     result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {

@@ -1,7 +1,6 @@
 #include "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/environment/material/PhongMaterial.h"
 
 int
@@ -27,9 +26,9 @@ requested BSDF components: the VITRAL PhongMaterial's integrated reflectance
 and transmittance, sampled at quasi-random points when a texture makes it
 vary over the patch.
 
-The texture coordinate is computed once per hit and then reused by later
-samples, because RpkRayHit::getTexCoord caches it; this is the established
-behavior that the reference images encode.
+Each sample sets its own (u,v) on the hit record, which invalidates the
+texture coordinate cached for the previous sample, so every sample reads the
+texel at its own position.
 */
 ColorRgbMutable
 PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
@@ -45,8 +44,6 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
         ColorRgbMutable sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-        hit.setFlags(newFlags);
         if ( material->isTextured() ) {
             Vector3D texCoord;
             if ( hit.getTexCoord(&texCoord) ) {

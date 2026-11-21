@@ -1,4 +1,3 @@
-#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -626,10 +625,9 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
         ColorRgbMutable sample(0.0, 0.0, 0.0);
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(static_cast<double>(xi[0]) * Niederreiter::RECIP, static_cast<double>(xi[1]) * Niederreiter::RECIP);
-        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-        hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
+        hit.setPoint(&position);
         if ( patch->getMaterial()->getBsdf() ) {
             sample.clear();
             if ( patch->getMaterial()->getBsdf() != nullptr ) {

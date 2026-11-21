@@ -105,15 +105,24 @@ RpkRayHit::getUv() const {
     return uv;
 }
 
-inline void
-RpkRayHit::setUv(const Vector2Dd *inUv) {
-    uv = *inUv;
-}
-
+/**
+Sets the (u,v) parameters of the hit and marks them as known. Everything
+derived from (u,v) and cached in the record, the texture coordinate and the
+interpolated shading normal and frame, is invalidated, so that a record
+reused for several samples on one patch evaluates each sample at its own
+(u,v) and not at the first one.
+*/
 inline void
 RpkRayHit::setUv(const double inU, const double inV) {
     uv.x = inU;
     uv.y = inV;
+    flags = (flags | RayHitFlag::UV)
+        & ~(RayHitFlag::TEXTURE_COORDINATE | RayHitFlag::NORMAL | RayHitFlag::SHADING_FRAME);
+}
+
+inline void
+RpkRayHit::setUv(const Vector2Dd *inUv) {
+    setUv(inUv->x, inUv->y);
 }
 
 inline unsigned int
