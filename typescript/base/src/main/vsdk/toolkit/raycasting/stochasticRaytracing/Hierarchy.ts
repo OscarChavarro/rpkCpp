@@ -54,12 +54,14 @@ export class Hierarchy {
     StochasticRadiosityElement.stochasticRadiosityElementDestroyClusterHierarchy(ElementHierarchyState.activeState().topCluster);
     ElementHierarchyState.activeState().topCluster = null;
 
-    for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
+    // Destroy surface elements (only bound once the method was initialized)
+    const radianceElements = ElementHierarchyState.activeState().getRadianceElements();
+    for (let i = 0; radianceElements !== null && scenePatches !== null && i < scenePatches.size(); i++) {
       const patch = scenePatches.get(i);
       StochasticRadiosityElement.stochasticRadiosityElementDestroy(
         McradP.topLevelStochasticRadiosityElement(patch) as StochasticRadiosityElement
       );
-      patch.radianceData = null;
+      radianceElements.set(patch.getFaceIndex(), null); // Prevents destroying a 2nd time later
     }
 
     const vertices = ElementHierarchyState.activeState().vertices;
@@ -175,11 +177,11 @@ export class Hierarchy {
     const d = D.norm();
     const f = src.area / (globalThis.Math.PI * d * d + src.area);
     const f2 = 2.0 * f;
-    let c1 = rcv.isCluster() ? 1.0 : globalThis.Math.abs(D.dotProduct(rcv.patch!.normal)) / d;
+    let c1 = rcv.isCluster() ? 1.0 : globalThis.Math.abs(D.dotProduct(rcv.patch!.getNormal())) / d;
     if (c1 < f2) {
       c1 = f2;
     }
-    let c2 = src.isCluster() ? 1.0 : globalThis.Math.abs(D.dotProduct(src.patch!.normal)) / d;
+    let c2 = src.isCluster() ? 1.0 : globalThis.Math.abs(D.dotProduct(src.patch!.getNormal())) / d;
     if (c2 < f2) {
       c2 = f2;
     }

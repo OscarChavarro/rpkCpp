@@ -22,8 +22,8 @@ import { RenderHookList } from "vitral/dist/vsdk/toolkit/render/RenderHookList";
 import { Background } from "vitral/dist/vsdk/toolkit/scene/Background";
 import { PatchClusterOctreeNode } from "vitral/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
 import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { VoxelGrid } from "vitral/dist/vsdk/toolkit/scene/VoxelGrid";
-import { VoxelGridWorkspace } from "vitral/dist/vsdk/toolkit/scene/VoxelGridWorkspace";
+import { VisibilityQueryRecorder } from "vitral/dist/vsdk/toolkit/scene/VisibilityQueryRecorder";
+import { SceneQuery } from "vitral/dist/vsdk/toolkit/scene/SceneQuery";
 import { Compound } from "vitral/dist/vsdk/toolkit/skin/Compound";
 import { Geometry } from "vitral/dist/vsdk/toolkit/skin/Geometry";
 import { GeometryClassId } from "vitral/dist/vsdk/toolkit/skin/GeometryClassId";
@@ -57,10 +57,10 @@ export class SceneBuilder {
     const R = PatchVisitor.averageNormalAlbedo(patch, SceneBuilder.ALL_BSDF_COMPONENTS);
     const power = new ColorRgbMutable();
 
-    Statistics.instance().radiance.totalArea += patch.area;
-    power.scaledCopy(patch.area, E);
+    Statistics.instance().radiance.totalArea += patch.getArea();
+    power.scaledCopy(patch.getArea(), E);
     Statistics.instance().radiance.totalEmittedPower.add(Statistics.instance().radiance.totalEmittedPower, power);
-    Statistics.instance().radiance.averageReflectivity.addScaled(Statistics.instance().radiance.averageReflectivity, patch.area, R);
+    Statistics.instance().radiance.averageReflectivity.addScaled(Statistics.instance().radiance.averageReflectivity, patch.getArea(), R);
     E.scale(1.0 / globalThis.Math.PI);
     Statistics.instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics.instance().radiance.maxSelfEmittedRadiance);
     Statistics.instance().radiance.maxSelfEmittedPower.maximum(power, Statistics.instance().radiance.maxSelfEmittedPower);
@@ -583,21 +583,37 @@ export class SceneBuilder {
 
     scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
-    if (scene.clusteredRootGeometry.className !== GeometryClassId.COMPOUND) {
+    // The top-level clusters, as RenderPark's ClusteredWorld: the children of
+    // the root cluster, or the root itself when it is not a compound
+    if (scene.clusteredRootGeometry.className === GeometryClassId.COMPOUND) {
+      const children = (scene.clusteredRootGeometry as Compound).children;
+      for (let i = 0; children !== null && i < children.length; i++) {
+        scene.clusteredGeometryList!.push(children[i]!);
+      }
+    }
+    else {
+      scene.clusteredGeometryList!.push(scene.clusteredRootGeometry);
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", "Strange clusters for this world ...");
     }
+
+    // Dense face indices in depth-first order of the cluster hierarchy
+    scene.buildFaceTable();
 
     t = process.hrtime.bigint();
     System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
-    // Create the scene level voxel grid
-    scene.voxelGrid = new VoxelGrid(scene.clusteredRootGeometry);
-    scene.voxelGridWorkspace = new VoxelGridWorkspace(
-      scene.voxelGrid.getNumberOfItems(), scene.voxelGrid.getNumberOfLevels());
+    // Create the scene query, over the index the -scene-acceleration option chose.
+    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file,
+    // when RPK_RAY_CAPTURE is set (the C++ WITH_RAY_CAPTURE build)
+    scene.visibilityQueryRecorder = VisibilityQueryRecorder.fromEnvironment();
+    scene.buildSceneQuery();
 
     t = process.hrtime.bigint();
-    System.err.printf("Voxel grid creation took %g secs.\n", Number(t - last) / 1_000_000_000.0);
+    System.err.printf(
+      "Scene index (%s) creation took %g secs.\n",
+      SceneQuery.methodName(scene.getAccelerationMethod()),
+      Number(t - last) / 1_000_000_000.0);
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion

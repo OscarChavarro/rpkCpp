@@ -1,4 +1,5 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
+import type { FaceColorTable } from "../../../scene/FaceColorTable";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { VertexCompareFlags } from "./VertexCompareFlags";
@@ -43,24 +44,33 @@ export class Vertex {
     this.patches = null;
   }
 
-  public computeColor(): void {
+  public computeColor(faceColors: FaceColorTable | null): void {
     this.color.set(0.0, 0.0, 0.0);
     let numberOfPatches = 0;
 
     if (this.patches !== null) {
+      let r = 0.0;
+      let g = 0.0;
+      let b = 0.0;
       for (let i = 0; i < this.patches.length; i++) {
-        const patch = this.patches[i]!;
-        this.color.r += patch.color.r;
-        this.color.g += patch.color.g;
-        this.color.b += patch.color.b;
+        // Before the scene's face table exists (loading) every face is black
+        if (faceColors !== null) {
+          const patchColor = faceColors.get(this.patches[i]!.getFaceIndex());
+          r += patchColor.r;
+          g += patchColor.g;
+          b += patchColor.b;
+        }
       }
+      this.color.set(r, g, b);
       numberOfPatches = this.patches.length;
     }
 
     if (numberOfPatches > 0) {
-      this.color.r /= numberOfPatches;
-      this.color.g /= numberOfPatches;
-      this.color.b /= numberOfPatches;
+      const invPatchCount = 1.0 / numberOfPatches;
+      this.color.set(
+        this.color.r * invPatchCount,
+        this.color.g * invPatchCount,
+        this.color.b * invPatchCount);
     }
   }
 

@@ -14,6 +14,8 @@ import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";
+import type { FaceColorTable } from "../../scene/FaceColorTable";
+import type { FaceVisibilityTable } from "../../scene/FaceVisibilityTable";
 import { Element } from "../../environment/geometry/elements/Element";
 import { ElementTypes } from "../../environment/geometry/elements/ElementTypes";
 import { Geometry } from "../../skin/Geometry";
@@ -81,24 +83,26 @@ For counting how much CPU time was used for the computations
   }
 
   public static monteCarloRadiosityCreatePatchData(patch: Patch): Element {
-    patch.radianceData = StochasticRadiosityElement.stochasticRadiosityElementCreateFromPatch(patch);
-    return patch.radianceData;
+    return StochasticRadiosityElement.stochasticRadiosityElementCreateFromPatch(patch);
   }
 
   public static monteCarloRadiosityDestroyPatchData(patch: Patch): void {
-    if (patch.radianceData !== null) {
-      StochasticRadiosityElement.stochasticRadiosityElementDestroy(McradP.topLevelStochasticRadiosityElement(patch));
+    // Elements are bound once the method has been initialized
+    if (ElementHierarchyState.activeState().getRadianceElements() !== null) {
+      const element = McradP.topLevelStochasticRadiosityElement(patch);
+      if (element !== null && element !== undefined) {
+        StochasticRadiosityElement.stochasticRadiosityElementDestroy(element);
+      }
     }
-    patch.radianceData = null;
   }
 
   /**
 Compute new color for the patch: fine if no hierarchical refinement is used, e.g.
 in the current random walk radiosity implementation
 */
-  public static monteCarloRadiosityPatchComputeNewColor(patch: Patch): void {
-    patch.color = StochasticRadiosityElement.stochasticRadiosityElementColor(McradP.topLevelStochasticRadiosityElement(patch));
-    patch.computeVertexColors();
+  public static monteCarloRadiosityPatchComputeNewColor(patch: Patch, faceColors: FaceColorTable): void {
+    faceColors.set(patch.getFaceIndex(), StochasticRadiosityElement.stochasticRadiosityElementColor(McradP.topLevelStochasticRadiosityElement(patch)));
+    patch.computeVertexColors(faceColors);
   }
 
   /**
@@ -156,24 +160,52 @@ Routines below update/re-initialise importance after a viewing change
   }
 
   /**
+Element.traverseAllChildren, passing the face visibility along. Returns
+false for a leaf element.
+*/
+  private static monteCarloRadiosityVisitChildren(
+    element: Element,
+    visit: (element: Element, faceVisibility: FaceVisibilityTable) => void,
+    faceVisibility: FaceVisibilityTable
+  ): boolean {
+    if (element.isCluster()) {
+      for (let i = 0; element.irregularSubElements !== null && i < element.irregularSubElements.length; i++) {
+        visit(element.irregularSubElements[i]!, faceVisibility);
+      }
+      return true;
+    }
+    if (element.regularSubElements !== null) {
+      for (let i = 0; i < 4; i++) {
+        if (element.regularSubElements[i] !== null && element.regularSubElements[i] !== undefined) {
+          visit(element.regularSubElements[i]!, faceVisibility);
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
 Update importance in the element hierarchy starting with the top cluster
 */
-  private static monteCarloRadiosityUpdateImportance(element: Element): void {
+  private static monteCarloRadiosityUpdateImportance(element: Element, faceVisibility: FaceVisibilityTable): void {
     const stochasticRadiosityElement = element as StochasticRadiosityElement;
 
     if (stochasticRadiosityElement === null) {
       return;
     }
 
-    if (!stochasticRadiosityElement.traverseAllChildren((child) => Mcrad.monteCarloRadiosityUpdateImportance(child))) {
-      const deltaImp = (stochasticRadiosityElement.patch !== null && stochasticRadiosityElement.patch.isVisible() ? 1.0 : 0.0)
-        - stochasticRadiosityElement.sourceImportance;
+    if (!Mcrad.monteCarloRadiosityVisitChildren(stochasticRadiosityElement, Mcrad.monteCarloRadiosityUpdateImportance, faceVisibility)) {
+      // Leaf element
+      const deltaImp = Math.fround((faceVisibility.isVisible(stochasticRadiosityElement.patch!.getFaceIndex()) ? 1.0 : 0.0)
+        - stochasticRadiosityElement.sourceImportance);
       stochasticRadiosityElement.importance += deltaImp;
       stochasticRadiosityElement.sourceImportance += deltaImp;
       stochasticRadiosityElement.unShotImportance += deltaImp;
       Mcrad.monteCarloRadiosityAccumulateImportances(stochasticRadiosityElement);
     }
     else {
+      // Not a leaf element: clear & pull importance
       stochasticRadiosityElement.importance = 0.0;
       stochasticRadiosityElement.sourceImportance = 0.0;
       stochasticRadiosityElement.unShotImportance = 0.0;
@@ -184,27 +216,29 @@ Update importance in the element hierarchy starting with the top cluster
   /**
 Re-init importance in the element hierarchy starting with the top cluster
 */
-  private static monteCarloRadiosityReInitImportance(element: Element): void {
+  private static monteCarloRadiosityReInitImportance(element: Element, faceVisibility: FaceVisibilityTable): void {
     const stochasticRadiosityElement = element as StochasticRadiosityElement;
 
     if (stochasticRadiosityElement === null) {
       return;
     }
 
-    if (!stochasticRadiosityElement.traverseAllChildren((child) => Mcrad.monteCarloRadiosityReInitImportance(child))) {
-      stochasticRadiosityElement.importance =
-        (stochasticRadiosityElement.patch !== null && stochasticRadiosityElement.patch.isVisible() ? 1.0 : 0.0);
+    if (!Mcrad.monteCarloRadiosityVisitChildren(stochasticRadiosityElement, Mcrad.monteCarloRadiosityReInitImportance, faceVisibility)) {
+      // Leaf element
+      stochasticRadiosityElement.importance = faceVisibility.isVisible(stochasticRadiosityElement.patch!.getFaceIndex()) ? 1.0 : 0.0;
       stochasticRadiosityElement.sourceImportance = stochasticRadiosityElement.importance;
       stochasticRadiosityElement.unShotImportance = stochasticRadiosityElement.importance;
       Mcrad.monteCarloRadiosityAccumulateImportances(stochasticRadiosityElement);
     }
     else {
+      // Not a leaf element: clear & pull importance
       stochasticRadiosityElement.importance = 0.0;
       stochasticRadiosityElement.sourceImportance = 0.0;
       stochasticRadiosityElement.unShotImportance = 0.0;
       stochasticRadiosityElement.traverseAllChildren((child) => Mcrad.monteCarloRadiosityPullImportances(child));
     }
   }
+
 
   public static monteCarloRadiosityUpdateViewImportance(scene: Scene, renderOptions: RendererConfiguration): void {
     process.stderr.write("Updating direct visibility ... \n");
@@ -214,7 +248,7 @@ Re-init importance in the element hierarchy starting with the top cluster
     StochasticRelaxation.activeState().sourceYmp = 0.0;
     StochasticRelaxation.activeState().unShotYmp = 0.0;
     StochasticRelaxation.activeState().totalYmp = 0.0;
-    Mcrad.monteCarloRadiosityUpdateImportance(ElementHierarchyState.activeState().topCluster as Element);
+    Mcrad.monteCarloRadiosityUpdateImportance(ElementHierarchyState.activeState().topCluster as Element, scene.getFaceVisibility()!);
 
     if (StochasticRelaxation.activeState().unShotYmp < StochasticRelaxation.activeState().sourceYmp) {
       process.stderr.write("Importance will be recomputed incrementally.\n");
@@ -227,7 +261,7 @@ Re-init importance in the element hierarchy starting with the top cluster
       StochasticRelaxation.activeState().sourceYmp = 0.0;
       StochasticRelaxation.activeState().unShotYmp = 0.0;
       StochasticRelaxation.activeState().totalYmp = 0.0;
-      Mcrad.monteCarloRadiosityReInitImportance(ElementHierarchyState.activeState().topCluster as Element);
+      Mcrad.monteCarloRadiosityReInitImportance(ElementHierarchyState.activeState().topCluster as Element, scene.getFaceVisibility()!);
     }
 
     if (scene.camera !== null) {
@@ -254,7 +288,7 @@ area in the scene, ignoring the 10% area occupied by the smallest patches
     const areas = new Array<number>(numberOfPatchIds).fill(0.0);
     for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
       const patch = scenePatches.get(i);
-      areas[patch.id] = patch.area;
+      areas[patch.id] = patch.getArea();
     }
 
     areas.sort((a, b) => a - b);
@@ -326,24 +360,24 @@ Really initialises: before the first iteration step
       Mcrad.monteCarloRadiosityInitPatch(patch);
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchRad(patch)![0]!
       );
       StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
         StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
-        globalThis.Math.PI * patch.area *
+        globalThis.Math.PI * patch.getArea() *
         (McradP.topLevelStochasticRadiosityElement(patch).importance - McradP.topLevelStochasticRadiosityElement(patch).sourceImportance),
         McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
-      StochasticRelaxation.activeState().unShotYmp += patch.area * globalThis.Math.abs(McradP.topLevelStochasticRadiosityElement(patch).unShotImportance);
-      StochasticRelaxation.activeState().totalYmp += patch.area * McradP.topLevelStochasticRadiosityElement(patch).importance;
-      StochasticRelaxation.activeState().sourceYmp += patch.area * McradP.topLevelStochasticRadiosityElement(patch).sourceImportance;
-      Mcrad.monteCarloRadiosityPatchComputeNewColor(patch);
+      StochasticRelaxation.activeState().unShotYmp += patch.getArea() * globalThis.Math.abs(McradP.topLevelStochasticRadiosityElement(patch).unShotImportance);
+      StochasticRelaxation.activeState().totalYmp += patch.getArea() * McradP.topLevelStochasticRadiosityElement(patch).importance;
+      StochasticRelaxation.activeState().sourceYmp += patch.getArea() * McradP.topLevelStochasticRadiosityElement(patch).sourceImportance;
+      Mcrad.monteCarloRadiosityPatchComputeNewColor(patch, scene.getFaceColors()!);
     }
 
     const sceneGeometries = new ArrayList<Geometry>();
@@ -385,10 +419,8 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
     const hit = new RayHit();
     const point = new Vector3D();
     patch.uniformPoint(u, v, point);
-    hit.init(patch, point, patch.normal, patch.material);
+    hit.init(patch, point, patch.getNormal(), patch.material);
     hit.setUv(u, v);
-    const newFlags = hit.getFlags() | RayHitFlag.UV;
-    hit.setFlags(newFlags);
     let result = new ColorRgbMutable();
     result.clear();
     if (hit.getMaterial() !== null && hit.getMaterial()!.getBsdf() !== null) {

@@ -27,6 +27,7 @@ import { Basismcrad } from "./Basismcrad";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { ElementHierarchyState } from "./ElementHierarchyState";
 import { GalerkinBasis } from "./GalerkinBasis";
+import { McradP } from "./McradP";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
 import { StochasticRelaxation } from "./StochasticRelaxation";
 import { WhatToShow } from "./WhatToShow";
@@ -141,8 +142,8 @@ export class StochasticRadiosityElement extends Element {
     const elem = StochasticRadiosityElement.createElement();
     elem.patch = patch;
     elem.flags = 0x00;
-    elem.area = patch.area;
-    elem.midPoint.copy(patch.midPoint);
+    elem.area = patch.getArea();
+    elem.midPoint.copy(patch.midPoint());
     elem.numberOfVertices = patch.numberOfVertices;
     for (let i = 0; i < elem.numberOfVertices; i++) {
       elem.vertices[i] = patch.vertex[i]!;
@@ -186,7 +187,7 @@ export class StochasticRadiosityElement extends Element {
   }
 
   private static monteCarloRadiosityCreateSurfaceElementChild(patch: Patch, parent: StochasticRadiosityElement): void {
-    const elem = patch.radianceData as StochasticRadiosityElement;
+    const elem = McradP.topLevelStochasticRadiosityElement(patch) as StochasticRadiosityElement; // Created before
     elem.parent = parent;
 
     elem.className = ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY;
@@ -418,7 +419,7 @@ point on the leaf element. 'top' is a surface element, not a cluster
       n = StochasticRadiosityElement.monteCarloRadiosityInstallNormal(norm);
     }
     else {
-      n = elem.patch!.normal;
+      n = elem.patch!.getNormal();
     }
 
     if (v1.textureCoordinates !== null && v2.textureCoordinates !== null) {
@@ -612,7 +613,7 @@ Computes average reflectance and emittance of a surface sub-element
     const albedo = new ColorRgbMutable();
     const emittance = new ColorRgbMutable();
     const hit = new RayHit();
-    hit.init(patch, patch.midPoint, patch.normal, patch.material);
+    hit.init(patch, patch.midPoint(), patch.getNormal(), patch.material);
 
     const isTextured = StochasticRadiosityElement.stochasticRadiosityElementIsTextured(elem);
     const numberOfSamples = isTextured ? 100 : 1;
@@ -627,10 +628,9 @@ Computes average reflectance and emittance of a surface sub-element
         continue;
       }
       hit.setUv(Number(xi[0]!) * Niederreiter.RECIP, Number(xi[1]!) * Niederreiter.RECIP);
-      const newFlags = hit.getFlags() | RayHitFlag.UV;
-      hit.setFlags(newFlags);
       const position = hit.getPoint();
       patch.uniformPoint(hit.getUv().x, hit.getUv().y, position);
+      hit.setPoint(position);
       if (patch.material !== null && patch.material.getBsdf() !== null) {
         sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         albedo.add(albedo, sample);
@@ -783,7 +783,7 @@ done so before. Returns the list of created sub-elements
       return null;
     }
 
-    if (element.patch!.jacobian !== null) {
+    if (element.patch!.getJacobian() !== null) {
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "galerkinElementRegularSubDivide", "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)");
     }
 

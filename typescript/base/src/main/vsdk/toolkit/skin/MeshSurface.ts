@@ -59,7 +59,7 @@ export class MeshSurface extends Geometry {
 
     if (MeshSurface.colorFlags !== MaterialColorFlags.VERTEX_COLORS) {
       for (let i = 0; this.vertices !== null && i < this.vertices.length; i++) {
-        this.vertices[i]!.computeColor();
+        this.vertices[i]!.computeColor(null); // No face colors exist while loading
       }
     }
 
@@ -71,7 +71,6 @@ export class MeshSurface extends Geometry {
     this.shaftCullGeometry = false;
     this.radianceData = null;
     this.itemCount = 0;
-    this.omit = false;
 
     void texCoords;
   }

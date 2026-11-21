@@ -4,8 +4,8 @@ import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "../raytracing/Sampler";
 import { SamplerConfig } from "../raytracing/SamplerConfig";
@@ -61,8 +61,8 @@ Store a importon/poton. Some acceptance tests are performed first
   // Returns whether a valid potential path was returned.
   private static tracePotentialPath(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     photonMapState: PhotonMapState,
     photonMapConfig: PhotonMapConfig
@@ -74,7 +74,7 @@ Store a importon/poton. Some acceptance tests are performed first
     // function arguments right to left: first draw is x2, second is x1.
     const eyeX2 = Random48.drand48();
     const eyeX1 = Random48.drand48();
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
     if (path === null) {
       return false;
     }
@@ -99,8 +99,8 @@ Store a importon/poton. Some acceptance tests are performed first
     while (
       scfg.traceNode(
         camera,
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         sceneBackground,
         node,
         x1,
@@ -137,8 +137,8 @@ Store a importon/poton. Some acceptance tests are performed first
 
   public static tracePotentialPaths(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     numberOfPaths: number,
     photonMapState: PhotonMapState,
@@ -150,8 +150,8 @@ Store a importon/poton. Some acceptance tests are performed first
     for (let i = 0; i < numberOfPaths; i++) {
       PhotonMapImportance.tracePotentialPath(
         camera,
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         sceneBackground,
         photonMapState,
         photonMapConfig

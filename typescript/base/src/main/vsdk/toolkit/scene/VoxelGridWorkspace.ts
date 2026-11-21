@@ -1,4 +1,5 @@
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import type { VisibilityQueryRecorder } from "./VisibilityQueryRecorder";
 import { VoxelDataFlags } from "./VoxelDataFlags";
 
 /**
@@ -22,6 +23,10 @@ spanning several cells are so tested only once per ray.
 Workspace: mutable, owned by one caller and passed explicitly on every
 gridIntersect call. The grid itself is never written during a query.
 
+When ray capture is enabled (RPK_RAY_CAPTURE), the callers of the visibility
+queries report each query to the recorder the workspace carries (null
+otherwise).
+
 TypeScript adaptation: the traversal variables that the C++ port keeps on the
 stack live here too, one frame per grid nesting depth, so a query allocates
 nothing.
@@ -30,8 +35,10 @@ export class VoxelGridWorkspace {
   private readonly lastRayIdByItem: Int32Array;
   private readonly frames: VoxelGridTraversalFrame[];
   private rayCount: number;
+  private readonly recorder: VisibilityQueryRecorder | null;
 
-  public constructor(numberOfItems: number, numberOfLevels: number) {
+  public constructor(numberOfItems: number, numberOfLevels: number, inRecorder: VisibilityQueryRecorder | null = null) {
+    this.recorder = inRecorder;
     this.lastRayIdByItem = new Int32Array(globalThis.Math.max(numberOfItems, 1));
     this.frames = [];
     for (let i = 0; i < globalThis.Math.max(numberOfLevels, 1); i++) {
@@ -59,5 +66,9 @@ export class VoxelGridWorkspace {
 
   public getNumberOfItems(): number {
     return this.lastRayIdByItem.length;
+  }
+
+  public getRecorder(): VisibilityQueryRecorder | null {
+    return this.recorder;
   }
 }

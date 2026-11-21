@@ -67,7 +67,7 @@ export class HierarchicalRefinementStrategy {
 
     if (galerkinState.shaftCullMode === GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT
       || galerkinState.shaftCullMode === GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING) {
-      const shaft = new Shaft();
+      const shaft = new Shaft(scene.getFaceBounds()!);
       const rcvPolygon = new Polygon();
       const srcPolygon = new Polygon();
       const srcBounds = new BoundingBox();
@@ -243,9 +243,9 @@ export class HierarchicalRefinementStrategy {
     }
     else {
       rcvRho.set(
-        interaction.receiverElement.patch!.radianceData!.Rd.r,
-        interaction.receiverElement.patch!.radianceData!.Rd.g,
-        interaction.receiverElement.patch!.radianceData!.Rd.b,
+        galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.r,
+        galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.g,
+        galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.b,
       );
       receiverArea = interaction.receiverElement.area;
     }
@@ -256,9 +256,9 @@ export class HierarchicalRefinementStrategy {
     }
     else {
       srcRho.set(
-        interaction.sourceElement.patch!.radianceData!.Rd.r,
-        interaction.sourceElement.patch!.radianceData!.Rd.g,
-        interaction.sourceElement.patch!.radianceData!.Rd.b,
+        galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.r,
+        galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.g,
+        galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.b,
       );
     }
 
@@ -373,9 +373,9 @@ export class HierarchicalRefinementStrategy {
         }
         else {
           rcvRho.set(
-            interaction.receiverElement.patch!.radianceData!.Rd.r,
-            interaction.receiverElement.patch!.radianceData!.Rd.g,
-            interaction.receiverElement.patch!.radianceData!.Rd.b,
+            galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.r,
+            galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.g,
+            galerkinState.topLevelElement(interaction.receiverElement.patch!).Rd.b,
           );
         }
         interaction.sourceElement.receivedPotential +=
@@ -387,9 +387,9 @@ export class HierarchicalRefinementStrategy {
         }
         else {
           srcRho.set(
-            interaction.sourceElement.patch!.radianceData!.Rd.r,
-            interaction.sourceElement.patch!.radianceData!.Rd.g,
-            interaction.sourceElement.patch!.radianceData!.Rd.b,
+            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.r,
+            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.g,
+            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.b,
           );
         }
         interaction.receiverElement.receivedPotential +=
@@ -426,8 +426,8 @@ export class HierarchicalRefinementStrategy {
     const isSceneGeometry = (candidatesList === scene.geometryList);
     const isClusteredGeometry = (candidatesList === scene.clusteredGeometryList);
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
-      scene.voxelGrid,
-      scene.voxelGridWorkspace,
+      scene.getSceneQuery(),
+      scene.getSceneQueryWorkspace(),
       galerkinState.formFactorWorkspace,
       candidatesList,
       isSceneGeometry,
@@ -573,7 +573,7 @@ export class HierarchicalRefinementStrategy {
         const patch = childElement.patch;
         if (patch !== null && (
           (receiverElement.isCluster() && receiverElement.geometry !== null
-            && receiverElement.geometry.getBoundingBox().behindPlane(patch.normal, patch.planeConstant))
+            && receiverElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.getPlaneConstant()))
           || (!receiverElement.isCluster() && receiverElement.patch !== null
             && !receiverElement.patch.facing(patch))
         )) {
@@ -626,7 +626,7 @@ export class HierarchicalRefinementStrategy {
         const patch = child.patch;
         if (patch !== null && (
           (sourceElement.isCluster() && sourceElement.geometry !== null
-            && sourceElement.geometry.getBoundingBox().behindPlane(patch.normal, patch.planeConstant))
+            && sourceElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.getPlaneConstant()))
           || (!sourceElement.isCluster() && sourceElement.patch !== null
             && !sourceElement.patch.facing(patch))
         )) {

@@ -58,6 +58,54 @@ export class Camera {
     }
   }
 
+  /**
+  Sets the near and far clipping distances from the scene bounds projected onto
+  the viewing direction (Z axis), with 2% extra distance on both sides and
+  fallbacks when the range is not in front of the eye. Every software and
+  hardware renderer needs these before rendering, including the ID renders of
+  the importance computations, which run before any image is drawn.
+  */
+  public fitClippingPlanes(sceneBounds: BoundingBox): void {
+    const f = Math.fround;
+    const minimum = new Vector3D(sceneBounds.minX(), sceneBounds.minY(), sceneBounds.minZ());
+    const maximum = new Vector3D(sceneBounds.maxX(), sceneBounds.maxY(), sceneBounds.maxZ());
+    const d = new Vector3D();
+
+    this.far = f(-Numeric.HUGE_FLOAT_VALUE);
+    this.near = f(Numeric.HUGE_FLOAT_VALUE);
+    for (let i = 0; i <= 1; i++) {
+      for (let j = 0; j <= 1; j++) {
+        for (let k = 0; k <= 1; k++) {
+          d.set(
+            i !== 0 ? maximum.x : minimum.x,
+            j !== 0 ? maximum.y : minimum.y,
+            k !== 0 ? maximum.z : minimum.z
+          );
+
+          d.subtraction(d, this.eyePosition);
+          const z = f(d.dotProduct(this.Z));
+
+          if (z > this.far) {
+            this.far = z;
+          }
+          if (z < this.near) {
+            this.near = z;
+          }
+        }
+      }
+    }
+
+    // Take 2% extra distance for near as well as far clipping plane
+    this.far = f(this.far + f(f(0.02) * this.far));
+    this.near = f(this.near - f(f(0.02) * this.near));
+    if (this.far < Numeric.EPSILON) {
+      this.far = this.viewDistance;
+    }
+    if (this.near < Numeric.EPSILON) {
+      this.near = f(this.viewDistance / 100.0);
+    }
+  }
+
   private computeClippingPlanes(): void {
     const x = this.pixelWidthTangent * this.viewDistance;
     const y = this.pixelHeightTangent * this.viewDistance;

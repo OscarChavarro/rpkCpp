@@ -1,44 +1,15 @@
-import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { BsdfComponent } from "../material/BsdfComponent";
-import { MaterialColorFlags } from "../material/MaterialColorFlags";
 import { MeshSurface } from "../skin/MeshSurface";
 import { Patch } from "../environment/geometry/elements/Patch";
-import { PatchVisitor } from "./PatchVisitor";
 
 export class MeshSurfaceVisitor {
+  /**
+  Fills in the MeshSurface back pointer of the face belonging to the given surface
+  */
   private static surfaceConnectFace(mesh: MeshSurface, face: Patch): void {
     face.material = mesh.material;
-
-    switch (MeshSurface.colorFlags) {
-      case MaterialColorFlags.FACE_COLORS:
-        break;
-      case MaterialColorFlags.VERTEX_COLORS: {
-        face.color.set(0, 0, 0);
-        let i = 0;
-        for (; i < face.numberOfVertices; i++) {
-          const vertex = face.vertex[i];
-          if (vertex === null) {
-            continue;
-          }
-          face.color.r += vertex!.color.r;
-          face.color.g += vertex!.color.g;
-          face.color.b += vertex!.color.b;
-        }
-        if (i > 0) {
-          face.color.r /= i;
-          face.color.g /= i;
-          face.color.b /= i;
-        }
-        break;
-      }
-      default: {
-        const rho: ColorRgbMutable = PatchVisitor.averageNormalAlbedo(
-          face,
-          BsdfComponent.BRDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT
-        );
-        rho.set(face.color.r, face.color.g, face.color.b);
-      }
-    }
+    // Face display colors start black in the scene's FaceColorTable. The color
+    // defaults that used to be derived here never applied: MeshSurface.colorFlags
+    // is reset to NO_COLORS before the faces are connected.
   }
 
   public static initializeFacesDefaults(mesh: MeshSurface | null): void {

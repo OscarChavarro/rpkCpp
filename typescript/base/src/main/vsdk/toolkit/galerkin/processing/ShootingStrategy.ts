@@ -7,6 +7,7 @@ import { GalerkinRadianceMethod } from "../GalerkinRadianceMethod";
 import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Potential } from "../../render/Potential";
+import type { DirectPotentialTable } from "../../scene/DirectPotentialTable";
 import { Scene } from "../../scene/Scene";
 import { Element } from "../../environment/geometry/elements/Element";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
@@ -16,17 +17,22 @@ import { LinkingClusteredStrategy } from "./LinkingClusteredStrategy";
 import { LinkingSimpleStrategy } from "./LinkingSimpleStrategy";
 
 export class ShootingStrategy {
-  private static galerkinGetPotential(patch: Patch): number {
-    return (patch !== null && patch.radianceData instanceof GalerkinElement)
-      ? (patch.radianceData as GalerkinElement).potential : 0.0;
+  private static galerkinGetPotential(galerkinState: GalerkinState, patch: Patch): number {
+    return (patch !== null && galerkinState.boundElement(patch) instanceof GalerkinElement)
+      ? galerkinState.topLevelElement(patch).potential : 0.0;
   }
 
-  private static galerkinGetUnShotPotential(patch: Patch): number {
-    return (patch !== null && patch.radianceData instanceof GalerkinElement)
-      ? (patch.radianceData as GalerkinElement).unShotPotential : 0.0;
+  private static galerkinGetUnShotPotential(galerkinState: GalerkinState, patch: Patch): number {
+    return (patch !== null && galerkinState.boundElement(patch) instanceof GalerkinElement)
+      ? galerkinState.topLevelElement(patch).unShotPotential : 0.0;
   }
 
-  private static chooseRadianceShootingPatch(scenePatches: Patch[] | null, galerkinState: GalerkinState): Patch | null {
+  /**
+  Returns the patch with highest un-shot power, weighted with indirect
+  importance if importance-driven (see Bekaert & Willems, "Importance-driven
+  Progressive refinement radiosity", EGRW'95, Dublin).
+  */
+  private static chooseRadianceShootingPatch(scenePatches: Patch[] | null, directPotentials: DirectPotentialTable, galerkinState: GalerkinState): Patch | null {
     let shootingPatch: Patch | null = null;
     let potentialShootingPatch: Patch | null = null;
     let maximumPower = 0.0;
@@ -34,19 +40,20 @@ export class ShootingStrategy {
 
     for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
       const patch = scenePatches[i]!;
-      if (patch === null || patch.radianceData === null || patch.radianceData.unShotRadiance === null
-        || patch.radianceData.unShotRadiance.length === 0 || patch.radianceData.unShotRadiance[0] === null) {
+      const topLevelElement = patch === null ? null : galerkinState.boundElement(patch);
+      if (topLevelElement === null || topLevelElement.unShotRadiance === null
+        || topLevelElement.unShotRadiance.length === 0 || topLevelElement.unShotRadiance[0] === null) {
         continue;
       }
 
-      const power = globalThis.Math.PI * patch.area * patch.radianceData.unShotRadiance[0]!.sumAbsComponents();
+      const power = globalThis.Math.PI * patch.getArea() * topLevelElement.unShotRadiance[0]!.sumAbsComponents();
       if (power > maximumPower) {
         shootingPatch = patch;
         maximumPower = power;
       }
 
       if (galerkinState.importanceDriven !== 0) {
-        const powerImportance = (ShootingStrategy.galerkinGetPotential(patch) - patch.directPotential) * power;
+        const powerImportance = (ShootingStrategy.galerkinGetPotential(galerkinState, patch) - directPotentials.get(patch.getFaceIndex())) * power;
         if (powerImportance > maximumPowerImportance) {
           potentialShootingPatch = patch;
           maximumPowerImportance = powerImportance;
@@ -96,7 +103,7 @@ export class ShootingStrategy {
       return;
     }
 
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     if (topLevelElement === null) {
       return;
     }
@@ -173,7 +180,7 @@ export class ShootingStrategy {
       return;
     }
 
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     if (topLevelElement === null) {
       return;
     }
@@ -183,12 +190,12 @@ export class ShootingStrategy {
     }
     GalerkinBasis.pushPullRadiance(topLevelElement, galerkinState);
 
-    if (patch.radianceData !== null && patch.radianceData.unShotRadiance !== null
-      && patch.radianceData.unShotRadiance.length > 0 && patch.radianceData.unShotRadiance[0] !== null) {
+    if (topLevelElement.unShotRadiance !== null
+      && topLevelElement.unShotRadiance.length > 0 && topLevelElement.unShotRadiance[0] !== null) {
       galerkinState.ambientRadiance.addScaled(
         galerkinState.ambientRadiance,
-        patch.area,
-        patch.radianceData.unShotRadiance[0]!,
+        patch.getArea(),
+        topLevelElement.unShotRadiance[0]!,
       );
     }
   }
@@ -222,12 +229,12 @@ export class ShootingStrategy {
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!);
+      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!, scene.getFaceColors()!);
     }
   }
 
   private static propagateRadiance(scene: Scene, galerkinState: GalerkinState): boolean {
-    const shootingPatch = ShootingStrategy.chooseRadianceShootingPatch(scene.patchList, galerkinState);
+    const shootingPatch = ShootingStrategy.chooseRadianceShootingPatch(scene.patchList, scene.getDirectPotentials()!, galerkinState);
     if (shootingPatch === null) {
       return true;
     }
@@ -260,7 +267,7 @@ export class ShootingStrategy {
     }
   }
 
-  private static choosePotentialShootingPatch(scenePatches: Patch[] | null): Patch | null {
+  private static choosePotentialShootingPatch(scenePatches: Patch[] | null, galerkinState: GalerkinState): Patch | null {
     let maximumImportance = 0.0;
     let shootingPatch: Patch | null = null;
 
@@ -269,7 +276,7 @@ export class ShootingStrategy {
       if (patch === null) {
         continue;
       }
-      const importance = patch.area * globalThis.Math.abs(ShootingStrategy.galerkinGetUnShotPotential(patch));
+      const importance = patch.getArea() * globalThis.Math.abs(ShootingStrategy.galerkinGetUnShotPotential(galerkinState, patch));
       if (importance > maximumImportance) {
         shootingPatch = patch;
         maximumImportance = importance;
@@ -280,7 +287,7 @@ export class ShootingStrategy {
   }
 
   private static propagatePotential(scene: Scene, galerkinState: GalerkinState): void {
-    const shootingPatch = ShootingStrategy.choosePotentialShootingPatch(scene.patchList);
+    const shootingPatch = ShootingStrategy.choosePotentialShootingPatch(scene.patchList, galerkinState);
     if (shootingPatch !== null) {
       ShootingStrategy.doPropagate(scene, shootingPatch, galerkinState);
     }
@@ -313,11 +320,11 @@ export class ShootingStrategy {
         Potential.updateDirectPotential(scene, renderOptions);
         for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
           const patch = scene.patchList[i]!;
-          const topLevelElement = GalerkinElement.fromPatch(patch);
+          const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
           if (topLevelElement === null) {
             continue;
           }
-          const potentialIncrement = patch.directPotential - topLevelElement.directPotential;
+          const potentialIncrement = Math.fround(scene.getDirectPotentials()!.get(patch.getFaceIndex()) - topLevelElement.directPotential);
           ShootingStrategy.shootingUpdateDirectPotential(topLevelElement, potentialIncrement);
         }
         (scene.camera as NonNullable<Scene["camera"]>).changed = 0;

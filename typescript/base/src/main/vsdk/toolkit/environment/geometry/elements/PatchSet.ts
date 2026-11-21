@@ -1,4 +1,5 @@
 import { Ray } from "../../../common/linealAlgebra/Ray";
+import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
 import type { Patch } from "./Patch";
@@ -9,7 +10,13 @@ export class PatchSet extends Geometry {
   private patchList: Patch[] | null;
   private memoryPoolManaged: boolean;
 
-  public constructor(input: Patch[] | null) {
+  /**
+  A set of the given patches. Without patchBounds the bounds are computed
+  from the patches' vertices; with it, it must be the union of the patch
+  boxes the caller already has (for instance from the scene's
+  FaceBoundsTable)
+  */
+  public constructor(input: Patch[] | null, patchBounds: BoundingBox | null = null) {
     super(GeometryClassId.PATCH_SET);
     this.memoryPoolManaged = false;
     this.patchList = [];
@@ -20,7 +27,12 @@ export class PatchSet extends Geometry {
       }
     }
 
-    Geometry.patchListBounds(this.getPatchList(), this.boundingBox);
+    if (patchBounds === null) {
+      Geometry.patchListBounds(this.getPatchList(), this.boundingBox);
+    }
+    else {
+      this.boundingBox.enlarge(patchBounds);
+    }
     this.boundingBox.enlargeTinyBit();
     this.bounded = true;
   }

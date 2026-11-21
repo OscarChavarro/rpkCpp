@@ -2,8 +2,8 @@ import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "./Sampler";
@@ -11,8 +11,8 @@ import { Sampler } from "./Sampler";
 export class EyeSampler extends Sampler {
   public override sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,
@@ -22,7 +22,7 @@ export class EyeSampler extends Sampler {
     doRR = false,
     flags = Sampler.BSDF_ALL_COMPONENTS
   ): boolean {
-    void sceneVoxelGrid;
+    void sceneQuery;
     void sceneBackground;
     void x1;
     void x2;

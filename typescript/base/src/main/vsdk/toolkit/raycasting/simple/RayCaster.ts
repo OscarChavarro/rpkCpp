@@ -132,8 +132,8 @@ export class RayCaster extends RayTracer {
 
       // Find intersection point of ray with patch
       const point = new Vector3D();
-      let dist = patch.normal.dotProduct(ray.direction);
-      dist = -(patch.normal.dotProduct(ray.position) + patch.planeConstant) / dist;
+      let dist = patch.getNormal().dotProduct(ray.direction);
+      dist = -(patch.getNormal().dotProduct(ray.position) + patch.getPlaneConstant()) / dist;
       point.sumScaled(ray.position, dist, ray.direction);
 
       // Find surface coordinates of hit point on patch

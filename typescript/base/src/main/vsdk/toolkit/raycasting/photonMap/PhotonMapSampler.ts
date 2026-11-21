@@ -16,8 +16,8 @@ import { RefractionIndex } from "../../material/RefractionIndex";
 import { Xxdf } from "../../material/Xxdf";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
@@ -100,8 +100,8 @@ Returns true a component was chosen, false if absorbed
   // When path ends (absorption) the type of thisNode is adjusted to 'Ends'
   public override sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,
@@ -143,11 +143,11 @@ Returns true a component was chosen, false if absorbed
     let ok: boolean;
 
     if (sChosen[0]) {
-      ok = this.fresnelSample(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x2a[0]!, flags);
+      ok = this.fresnelSample(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x2a[0]!, flags);
     }
     else {
       flags = gdFLAGS & flags;
-      ok = this.gdSample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0]!, flags);
+      ok = this.gdSample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0]!, flags);
     }
 
     if (ok) {
@@ -338,8 +338,8 @@ The Fresnel sampler works as follows:
   }
 
   private fresnelSample(
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,
@@ -358,7 +358,7 @@ The Fresnel sampler works as follows:
 
     PhotonMapSampler.DetermineRayType(thisNode, newNode, dir);
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
+    if (!this.sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }
@@ -387,8 +387,8 @@ The Fresnel sampler works as follows:
 
   private gdSample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,
@@ -402,7 +402,7 @@ The Fresnel sampler works as follows:
     const x2Holder = [x2];
 
     if (this.m_photonMap === null) {
-      ok = super.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+      ok = super.sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
       thisNode.m_usedComponents = flags;
       return ok;
     }
@@ -444,8 +444,8 @@ The Fresnel sampler works as follows:
 
     ok = super.sample(
       camera,
-      sceneVoxelGrid,
-      sceneVoxelGridWorkspace,
+      sceneQuery,
+      sceneSceneQueryWorkspace,
       sceneBackground,
       prevNode,
       thisNode,

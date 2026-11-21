@@ -1,4 +1,5 @@
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
+import type { SceneConsumer } from "./SceneConsumer";
 import { GalerkinRadianceMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
 import { ClusterCreationStrategy } from "vitral/dist/vsdk/toolkit/galerkin/processing/ClusterCreationStrategy";
 import { ParseRuntimeContext } from "vitral/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
@@ -202,7 +203,12 @@ export class RpkApplication {
     DkColor.freeBuffer();
   }
 
-  public entryPoint(argc: number, argv: string[]): number {
+  /**
+  Runs the program for the given command line. With a consumer, the scene
+  is built from the command line as for a rendering, handed to the
+  consumer instead of being rendered, and the consumer's status returned.
+  */
+  public entryPoint(argc: number, argv: string[], consumer: SceneConsumer | null = null): number {
     // 1. Default empty scene
     RpkApplication.mainInitApplication();
 
@@ -249,6 +255,13 @@ export class RpkApplication {
     this.selectToneMapByName(initializationToneMapName[0]!); // Note this is used for basic Galerkin model initialization
     SceneBuilder.sceneBuilderCreateModel(argcRef, argv, this.mgfContext, this.scene, this.toneMapOptions);
     this.selectToneMapByName(renderToneMapName[0]!);
+
+    if (consumer !== null) {
+      // The scene goes to the consumer (a test program) instead of the renderer
+      const status = consumer.consume(this.scene);
+      RpkApplication.freeMemory(this.mgfContext);
+      return status;
+    }
 
     // 4. Run main radiosity simulation and export result
     this.executeRendering(

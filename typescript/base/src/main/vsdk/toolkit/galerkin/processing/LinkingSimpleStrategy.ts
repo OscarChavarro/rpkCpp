@@ -76,7 +76,7 @@ export class LinkingSimpleStrategy {
 
     let receiverElement: GalerkinElement;
     let sourceElement: GalerkinElement;
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     if (topLevelElement === null) {
       return;
     }
@@ -99,7 +99,7 @@ export class LinkingSimpleStrategy {
     if ((galerkinState.exactVisibility !== 0
         || galerkinState.shaftCullMode === GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING)
       && oldCandidateList !== null) {
-      const shaft = new Shaft();
+      const shaft = new Shaft(scene.getFaceBounds()!);
 
       if (galerkinState.exactVisibility !== 0) {
         const receiverPolygon = new Polygon();
@@ -110,7 +110,7 @@ export class LinkingSimpleStrategy {
       }
       else {
         const boundingBox = new BoundingBox();
-        patch.computeAndGetBoundingBox(boundingBox);
+        boundingBox.copyFrom(scene.getFaceBounds()!.get(patch.getFaceIndex()));
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, boundingBox);
       }
 
@@ -140,8 +140,8 @@ export class LinkingSimpleStrategy {
     const isClusteredGeometry = candidateList[0] === scene.clusteredGeometryList;
     const geometryListReferences = candidateList[0];
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
-      scene.voxelGrid,
-      scene.voxelGridWorkspace,
+      scene.getSceneQuery(),
+      scene.getSceneQueryWorkspace(),
       galerkinState.formFactorWorkspace,
       geometryListReferences ?? null,
       isSceneGeometry,
@@ -197,13 +197,13 @@ export class LinkingSimpleStrategy {
     }
 
     if (geometry.bounded
-      && geometry.getBoundingBox().behindPlane(topElement.patch.normal, topElement.patch.planeConstant)) {
+      && geometry.getBoundingBox().behindPlane(topElement.patch.getNormal(), topElement.patch.getPlaneConstant())) {
       return;
     }
 
     const oldCandidateList = candidateList[0];
     if (geometry.bounded && oldCandidateList !== null) {
-      const shaft = new Shaft();
+      const shaft = new Shaft(scene.getFaceBounds()!);
       const boundingBox = geometry.getBoundingBox();
       shaft.constructFromBoundingBoxes(topLevelBoundingBox, boundingBox);
       shaft.setShaftOmit(topElement.patch);
@@ -266,7 +266,7 @@ export class LinkingSimpleStrategy {
     }
 
     const topLevelBoundingBox = new BoundingBox();
-    topElement.patch.computeAndGetBoundingBox(topLevelBoundingBox);
+    topLevelBoundingBox.copyFrom(scene.getFaceBounds()!.get(topElement.patch.getFaceIndex()));
 
     const candidateList: Array<Geometry[] | null> = [scene.clusteredGeometryList];
 

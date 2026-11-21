@@ -74,12 +74,7 @@ export class PatchClusterOctreeNode {
       this.patches.push(patch);
 
       const patchBoundingBox = new BoundingBox();
-      if (patch.boundingBox !== null) {
-        patchBoundingBox.copyFrom(patch.boundingBox);
-      }
-      else {
-        patch.computeAndGetBoundingBox(patchBoundingBox);
-      }
+      patch.computeBounds(patchBoundingBox);
       this.boundingBox.enlarge(patchBoundingBox);
     }
   }
@@ -101,8 +96,11 @@ export class PatchClusterOctreeNode {
   }
 
   private movePatchToSubOctantCluster(patchIndexOnParent: number): boolean {
+    // All patches that were added to the top cluster, which is being split now,
+    // have a bounding box computed for them
     const patch = (this.patches as Patch[])[patchIndexOnParent]!;
-    const patchBoundingBox = patch.boundingBox as BoundingBox;
+    const patchBoundingBox = new BoundingBox();
+    patch.computeBounds(patchBoundingBox);
 
     const smallestBoxDimension = 10.0 * Numeric.EPSILON_FLOAT;
     if (

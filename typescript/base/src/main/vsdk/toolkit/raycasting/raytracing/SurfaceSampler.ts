@@ -4,8 +4,8 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../material
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { BsdfComp } from "../common/BsdfComp";
 import { PathRayType } from "../common/PathRayType";
@@ -81,8 +81,8 @@ export abstract class SurfaceSampler extends Sampler {
 
   public abstract override sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,

@@ -32,16 +32,18 @@ export class Radiance {
       radianceMethod.terminate(scene.patchList ?? []);
       // Until we have radiance data convertors, we dispose of the old data and
       // allocate new data for the new method
+      const radianceElements = scene.getRadianceElements()!;
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i];
         if (patch !== null && patch !== undefined) {
           radianceMethod.destroyPatchData(patch!);
+          radianceElements.set(patch!.getFaceIndex(), null);
         }
       }
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i];
         if (patch !== null && patch !== undefined) {
-          patch.radianceData = radianceMethod.createPatchData(patch!);
+          radianceElements.set(patch!.getFaceIndex(), radianceMethod.createPatchData(patch!));
         }
       }
       radianceMethod.initialize(scene, toneMapOptions);

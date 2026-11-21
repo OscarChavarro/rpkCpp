@@ -16,26 +16,34 @@ import type { Compound } from "./Compound";
 export class Geometry {
   public static nextGeometryId = 0;
 
+  // Interval [firstFaceIndex, lastFaceIndex] of Patch.getFaceIndex() values
+  // of the patches below this geometry. Scene.buildFaceTable() numbers the
+  // faces depth-first over the cluster hierarchy, so every geometry of that
+  // hierarchy covers a contiguous interval. Empty (first > last) until the
+  // face table is built.
+  private firstFaceIndex: number;
+  private lastFaceIndex: number;
+
   public id: number;
   public boundingBox: BoundingBox;
   public radianceData: Element | null;
   public itemCount: number;
   public bounded: boolean;
   public shaftCullGeometry: boolean;
-  public omit: boolean;
   public isDuplicate: boolean;
   public className: number;
 
   public constructor();
   public constructor(inClassName: number);
   public constructor(inClassName?: number) {
+    this.firstFaceIndex = 0;
+    this.lastFaceIndex = -1;
     if (inClassName === undefined) {
       this.id = 0;
       this.boundingBox = new BoundingBox();
       this.radianceData = null;
       this.itemCount = 0;
       this.bounded = false;
-      this.omit = false;
       this.isDuplicate = false;
       this.className = GeometryClassId.UNDEFINED;
       this.shaftCullGeometry = false;
@@ -51,7 +59,6 @@ export class Geometry {
     this.shaftCullGeometry = false;
     this.radianceData = null;
     this.itemCount = 0;
-    this.omit = false;
     this.boundingBox = new BoundingBox();
   }
 
@@ -75,6 +82,23 @@ export class Geometry {
 
   public isCompound(): boolean {
     return this.className === GeometryClassId.COMPOUND;
+  }
+
+  public getFirstFaceIndex(): number {
+    return this.firstFaceIndex;
+  }
+
+  public getLastFaceIndex(): number {
+    return this.lastFaceIndex;
+  }
+
+  /**
+  Records the interval of face indices covered by this geometry. Called by
+  Scene.buildFaceTable() only; an empty interval is first > last
+  */
+  public setFaceIndexRange(first: number, last: number): void {
+    this.firstFaceIndex = first;
+    this.lastFaceIndex = last;
   }
 
   private static cloneGeometryList(input: Geometry[] | null): Geometry[] {
@@ -117,9 +141,9 @@ export class Geometry {
     newPatchSet.itemCount = this.itemCount;
     newPatchSet.bounded = this.bounded;
     newPatchSet.shaftCullGeometry = this.shaftCullGeometry;
-    newPatchSet.omit = this.omit;
     newPatchSet.className = this.className;
     newPatchSet.isDuplicate = true;
+    newPatchSet.setFaceIndexRange(this.firstFaceIndex, this.lastFaceIndex);
 
     Statistics.instance().reader.numberOfGeometries++;
     return newPatchSet as unknown as Geometry;
@@ -230,7 +254,7 @@ export class Geometry {
     const currentPatchBoundingBox = new BoundingBox();
 
     for (let i = 0; patchList !== null && i < patchList.length; i++) {
-      patchList[i]!.computeAndGetBoundingBox(currentPatchBoundingBox);
+      patchList[i]!.computeBounds(currentPatchBoundingBox);
       boundingBox.enlarge(currentPatchBoundingBox);
     }
 

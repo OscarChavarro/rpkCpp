@@ -301,15 +301,23 @@ export class RayHit {
 
   public setUv(inUv: Vector2Dd): void;
   public setUv(inU: number, inV: number): void;
+  /**
+  Sets the (u,v) parameters of the hit and marks them as known. Everything
+  derived from (u,v) and cached in the record, the texture coordinate and the
+  interpolated shading normal and frame, is invalidated, so that a record
+  reused for several samples on one patch evaluates each sample at its own
+  (u,v) and not at the first one.
+  */
   public setUv(inUvOrU: Vector2Dd | number, inV?: number): void {
     if (inUvOrU instanceof Vector2Dd) {
-      this.uv.x = inUvOrU.x;
-      this.uv.y = inUvOrU.y;
+      this.setUv(inUvOrU.x, inUvOrU.y);
       return;
     }
 
     this.uv.x = inUvOrU;
     this.uv.y = inV as number;
+    this.flags = (this.flags | RayHitFlag.UV)
+      & ~(RayHitFlag.TEXTURE_COORDINATE | RayHitFlag.NORMAL | RayHitFlag.SHADING_FRAME);
   }
 
   public getFlags(): number {

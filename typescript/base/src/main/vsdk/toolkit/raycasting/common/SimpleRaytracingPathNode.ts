@@ -113,7 +113,7 @@ export class SimpleRaytracingPathNode {
       out.printf("Cos in  %f\n", this.m_normal.dotProduct(this.m_inDirF));
       const patch = this.m_hit.getPatch();
       if (patch !== null) {
-        out.printf("GCos in %f\n", patch.normal.dotProduct(this.m_inDirF));
+        out.printf("GCos in %f\n", patch.getNormal().dotProduct(this.m_inDirF));
       }
     }
     if (this.m_next !== null) {
@@ -123,7 +123,7 @@ export class SimpleRaytracingPathNode {
       out.printf("Cos out %f\n", this.m_normal.dotProduct(this.m_next.m_inDirT));
       const patch = this.m_hit.getPatch();
       if (patch !== null) {
-        out.printf("GCos out %f\n", patch.normal.dotProduct(this.m_next.m_inDirT));
+        out.printf("GCos out %f\n", patch.getNormal().dotProduct(this.m_next.m_inDirT));
       }
     }
   }

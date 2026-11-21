@@ -12,6 +12,7 @@ import { Patch } from "../environment/geometry/elements/Patch";
 import { PatchSet } from "../environment/geometry/elements/PatchSet";
 import { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import { RayHit } from "../environment/geometry/elements/RayHit";
+import type { FaceBoundsTable } from "../scene/FaceBoundsTable";
 import { ShaftCullStrategy } from "./ShaftCullStrategy";
 import { ShaftPlane } from "./ShaftPlane";
 import { ShaftPlanePosition } from "./ShaftPlanePosition";
@@ -19,11 +20,19 @@ import { ShaftPlanePosition } from "./ShaftPlanePosition";
 export class Shaft {
   private static readonly NO_EXCLUSIONS = new RayExclusionSet();
 
-  private static createPatchSetWithPool(patches: Patch[] | null): PatchSet {
-    const p = new PatchSet(patches);
+  private createPatchSetWithPool(patches: Patch[] | null): PatchSet {
+    // The union of the face bounds, from the scene's table: the same box
+    // Geometry.patchListBounds computes from the vertices
+    const patchBounds = new BoundingBox();
+    for (let i = 0; patches !== null && i < patches.length; i++) {
+      patchBounds.enlarge(this.faceBounds.get(patches[i]!.getFaceIndex()));
+    }
+    const p = new PatchSet(patches, patchBounds);
     p.setMemoryPoolManaged(true);
     return p;
   }
+
+  private readonly faceBounds: FaceBoundsTable; // Owned by the scene; bounds of the culled patches
 
   private static readonly MAX_SKIP_ELEMENTS = 2;
   private static readonly SHAFT_MAX_PLANES = 16;
@@ -45,7 +54,8 @@ export class Shaft {
   private readonly center2: Vector3D;
   private cut: boolean;
 
-  public constructor() {
+  public constructor(inFaceBounds: FaceBoundsTable) {
+    this.faceBounds = inFaceBounds;
     this.referenceItem1 = null;
     this.referenceItem2 = null;
     this.extentBoundingBox = new BoundingBox();
@@ -655,15 +665,11 @@ export class Shaft {
     culledPatchList.length = 0;
     for (let i = 0; patchList !== null && i < patchList.length && !this.cut; i++) {
       const patch = patchList[i];
-      if (patch === undefined || patch.omit !== 0 || this.patchIsOnOmitSet(patch.id)) {
+      if (patch === undefined || this.patchIsOnOmitSet(patch.id)) {
         continue;
       }
 
-      if (patch.boundingBox === null) {
-        patch.computeBoundingBox();
-      }
-
-      const boundingBoxSide = this.boundingBoxTest(patch.boundingBox as BoundingBox);
+      const boundingBoxSide = this.boundingBoxTest(this.faceBounds.get(patch.getFaceIndex()));
       if (
         boundingBoxSide !== ShaftPlanePosition.OUTSIDE
         && (boundingBoxSide === ShaftPlanePosition.INSIDE || this.shaftPatchTest(patch) !== ShaftPlanePosition.OUTSIDE)
@@ -673,14 +679,14 @@ export class Shaft {
     }
   }
 
-  private static keep(geometry: Geometry | null, candidateList: Geometry[] | null): void {
-    if (geometry === null || candidateList === null || geometry.omit) {
+  private keep(geometry: Geometry | null, candidateList: Geometry[] | null): void {
+    if (geometry === null || candidateList === null) {
       return;
     }
 
     if (geometry.shaftCullGeometry && geometry.className === GeometryClassId.PATCH_SET) {
       const oldPatchSet = geometry as PatchSet;
-      const newGeometry = Shaft.createPatchSetWithPool(oldPatchSet.getPatchList());
+      const newGeometry = this.createPatchSetWithPool(oldPatchSet.getPatchList());
       newGeometry.shaftCullGeometry = true;
       newGeometry.isDuplicate = true;
       candidateList.push(newGeometry);
@@ -691,7 +697,7 @@ export class Shaft {
   }
 
   private shaftCullOpen(geometry: Geometry | null, candidateList: Geometry[] | null, strategy: ShaftCullStrategy): void {
-    if (geometry === null || candidateList === null || geometry.omit) {
+    if (geometry === null || candidateList === null) {
       return;
     }
 
@@ -705,7 +711,7 @@ export class Shaft {
       this.cullPatches(geometryPatchesList, culledPatches);
 
       if (culledPatches.length > 0) {
-        const newGeometry = Shaft.createPatchSetWithPool(culledPatches);
+        const newGeometry = this.createPatchSetWithPool(culledPatches);
         newGeometry.shaftCullGeometry = true;
         newGeometry.isDuplicate = false;
         candidateList.push(newGeometry);
@@ -719,18 +725,9 @@ export class Shaft {
       return;
     }
 
-    if (geometry.className === GeometryClassId.PATCH_SET) {
-      // The C++ port probes the omit set here through an invalid reinterpret_cast of the
-      // Geometry as a Patch, reading an arbitrary value that in practice never matches an
-      // omitted patch id, so PatchSet geometries are effectively never culled by that test.
-      // Probing with a real patch id (e.g. a hardcoded 1) wrongly discards every PatchSet
-      // occluder for interactions whose receiver or source is that patch, causing light
-      // leaks (see corridor scene, floor patch 1). Only the omit flag is honored.
-      if (geometry.omit) {
-        return;
-      }
-    }
-
+    // The omit set holds patch ids and is honoured for patches by cullPatches;
+    // reading a patch id from a geometry (the former reinterpret_cast of the C++
+    // port) was undefined behaviour
     const side = geometry.bounded ? this.boundingBoxTest(geometry.boundingBox) : ShaftPlanePosition.OVERLAP;
     switch (side) {
       case ShaftPlanePosition.INSIDE:
@@ -738,12 +735,12 @@ export class Shaft {
           this.shaftCullOpen(geometry, candidateList, strategy);
         }
         else {
-          Shaft.keep(geometry, candidateList);
+          this.keep(geometry, candidateList);
         }
         break;
       case ShaftPlanePosition.OVERLAP:
         if (this.closedGeometry(geometry)) {
-          Shaft.keep(geometry, candidateList);
+          this.keep(geometry, candidateList);
         }
         else {
           this.shaftCullOpen(geometry, candidateList, strategy);

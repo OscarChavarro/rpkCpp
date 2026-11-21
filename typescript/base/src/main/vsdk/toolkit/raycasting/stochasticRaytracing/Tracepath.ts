@@ -8,8 +8,8 @@ import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -96,8 +96,8 @@ freePathNodes() should be called in order to dispose of this memory
 when no longer needed
 */
   private static tracePath(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     origin: Patch,
     birthProb: number,
     survivalProbabilityCallBack: (patch: Patch) => number,
@@ -123,7 +123,7 @@ when no longer needed
       }
       path.nodes![path.numberOfNodes - 1]!.outpoint.copy(ray.position);
 
-      hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, ray, hitStore);
+      hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, ray, hitStore);
       if (hit === null) {
         break;
       }
@@ -144,8 +144,8 @@ when no longer needed
 Traces 'numberOfPaths' paths with given birth probabilities
 */
   public static tracePaths(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     numberOfPaths: number,
     birthProbabilityCallBack: (patch: Patch) => number,
     survivalProbabilityCallBack: (patch: Patch) => number,
@@ -182,7 +182,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
       const pathsThisPatch =
         globalThis.Math.floor((pCumulative + p) * numberOfPaths + rnd) - pathCount;
       for (let j = 0; j < pathsThisPatch; j++) {
-        Tracepath.tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, path);
+        Tracepath.tracePath(sceneQuery, sceneWorldSceneQueryWorkspace, patch, p, survivalProbabilityCallBack, path);
         scorePathCallBack(path, numberOfPaths, Tracepath.patchNormalisedBirthProbability);
       }
       pCumulative += p;
@@ -202,12 +202,12 @@ Traces 'numberOfPaths' paths with given birth probabilities
       updateCallBack(patch, numberOfPaths / Tracepath.sumProbabilities);
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchRad(patch)![0]!
       );
     }

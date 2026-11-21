@@ -4,8 +4,6 @@ import { BufferedInputStream } from "../../../../../java/io/BufferedInputStream"
 import { FileInputStream } from "../../../../../java/io/FileInputStream";
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../../../common/logging/Logger";
-import { CoordinateAxis } from "../../../common/linealAlgebra/CoordinateAxis";
-import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
@@ -18,7 +16,6 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../../mater
 import { PhongBidirectionalTransmittanceDistributionFunction } from "../../../material/PhongBidirectionalTransmittanceDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
 import { Texture } from "../../../material/Texture";
-import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { Compound } from "../../../skin/Compound";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
@@ -466,6 +463,10 @@ export class BinaryModelDeserializer {
         record.directPotential = BinaryModelReadPrimitives.readFloatLE(input);
         record.dominantIndex = BinaryModelReadPrimitives.readInt32LE(input);
         record.omit = BinaryModelReadPrimitives.readBool(input);
+        if (record.omit) {
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Patch omit flag is not supported in binary reader"]));
+          throw new ReadFailureException();
+        }
         record.flags = BinaryModelReadPrimitives.readByte(input);
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readColor(input, record.color));
         record.materialIndex = BinaryModelReadPrimitives.readInt32LE(input);
@@ -488,34 +489,39 @@ export class BinaryModelDeserializer {
 
         const patch = new Patch(record.numberOfVertices, v1Out.value, v2Out.value, v3Out.value, v4Out.value);
         patch.id = record.id;
-        patch.normal.copy(record.normal);
-        patch.planeConstant = record.planeConstant;
-        patch.tolerance = record.tolerance;
-        patch.area = record.area;
-        patch.midPoint.copy(record.midPoint);
-        patch.directPotential = record.directPotential;
-        if (record.dominantIndex >= CoordinateAxis.X && record.dominantIndex <= CoordinateAxis.Z) {
-          patch.index = record.dominantIndex as CoordinateAxis;
+        // Plane constant is immutable after construction and recomputed from geometry.
+        // Plane tolerance is immutable after construction and recomputed from geometry.
+        // Area is immutable after construction and recomputed from geometry.
+        // The direct potential is read and discarded: it is per-face solver data,
+        // held by the scene's DirectPotentialTable, and starts at zero
+        // The dominant axis and the Jacobian are derived from the vertices by the
+        // patch's face; the file's values must agree with them bit for bit
+        if (record.dominantIndex !== patch.getDominantAxisIndex()) {
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Patch dominant axis disagrees with its vertices"]));
+          throw new ReadFailureException();
         }
-        patch.omit = record.omit ? 1 : 0;
-        patch.setFlags(record.flags & 0xFF);
-        patch.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
-
+        // The flags byte (direct visibility) is read and discarded: it is per-face
+        // solver data, held by the scene's FaceVisibilityTable, and starts cleared
+        // The display color is read and discarded: it is per-face display data,
+        // held by the scene's FaceColorTable, and starts black
         const materialOut = new BinaryModelReadPrimitives.Out<Material | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));
         patch.material = materialOut.value;
-        patch.radianceData = null;
 
-        patch.jacobian = null;
-        if (record.hasJacobian) {
-          patch.jacobian = new Jacobian(record.jacobianA, record.jacobianB, record.jacobianC);
+        {
+          const jacobian = patch.getJacobian();
+          const jacobianAgrees = record.hasJacobian
+            ? jacobian !== null && jacobian.A === record.jacobianA && jacobian.B === record.jacobianB && jacobian.C === record.jacobianC
+            : jacobian === null;
+          if (!jacobianAgrees) {
+            VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Patch Jacobian disagrees with its vertices"]));
+            throw new ReadFailureException();
+          }
         }
 
-        patch.boundingBox = null;
-        if (record.hasBoundingBox) {
-          patch.boundingBox = new BoundingBox();
-          BinaryModelDeserializer.require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(patch.boundingBox, record.boundingBoxCoordinates));
-        }
+        // Patch bounding box is immutable after construction.
+        // The constructor computes it from vertices.
+        // We keep reading serialized bounding-box payload for format compatibility.
 
         patches[i] = patch;
       }
@@ -557,6 +563,10 @@ export class BinaryModelDeserializer {
         record.bounded = BinaryModelReadPrimitives.readBool(input);
         record.shaftCullGeometry = BinaryModelReadPrimitives.readBool(input);
         record.omit = BinaryModelReadPrimitives.readBool(input);
+        if (record.omit) {
+          VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "BinaryModelDeserializer::read", JavaString.vformat("%s", ["Geometry omit flag is not supported in binary reader"]));
+          throw new ReadFailureException();
+        }
         record.isDuplicate = BinaryModelReadPrimitives.readBool(input);
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readBoundingBoxCoordinates(input, record.boundingBoxCoordinates));
         record.hasRayIntersectionBox = BinaryModelReadPrimitives.readBool(input);
@@ -646,7 +656,6 @@ export class BinaryModelDeserializer {
         geometry.itemCount = record.itemCount;
         geometry.bounded = record.bounded;
         geometry.shaftCullGeometry = record.shaftCullGeometry;
-        geometry.omit = record.omit;
         geometry.isDuplicate = record.isDuplicate;
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(geometry.boundingBox, record.boundingBoxCoordinates));
 

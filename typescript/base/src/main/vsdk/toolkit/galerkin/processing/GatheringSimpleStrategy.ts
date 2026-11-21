@@ -8,6 +8,8 @@ import { GalerkinRadianceMethod } from "../GalerkinRadianceMethod";
 import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Potential } from "../../render/Potential";
+import type { DirectPotentialTable } from "../../scene/DirectPotentialTable";
+import type { FaceColorTable } from "../../scene/FaceColorTable";
 import { Scene } from "../../scene/Scene";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -16,15 +18,19 @@ import { HierarchicalRefinementStrategy } from "./HierarchicalRefinementStrategy
 import { LinkingSimpleStrategy } from "./LinkingSimpleStrategy";
 
 export class GatheringSimpleStrategy extends GatheringStrategy {
-  private static patchUpdatePotential(patch: Patch): void {
-    const topLevelElement = GalerkinElement.fromPatch(patch);
-    GatheringStrategy.pushPullPotential(topLevelElement, 0.0);
+  private static patchUpdatePotential(patch: Patch, directPotentials: DirectPotentialTable, galerkinState: GalerkinState): void {
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
+    GatheringStrategy.pushPullPotential(topLevelElement, 0.0, directPotentials);
   }
 
-  private static patchUpdateRadiance(patch: Patch, galerkinState: GalerkinState): void {
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+  /**
+  Converts the accumulated received radiance into exitant radiance, making the
+  hierarchical representation consistent and computes a new color for the patch
+  */
+  private static patchUpdateRadiance(patch: Patch, galerkinState: GalerkinState, faceColors: FaceColorTable): void {
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     GalerkinBasis.pushPullRadiance(topLevelElement, galerkinState);
-    GalerkinRadianceMethod.recomputePatchColor(patch);
+    GalerkinRadianceMethod.recomputePatchColor(patch, faceColors);
   }
 
   private static patchLazyCreateInteractions(
@@ -32,7 +38,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
     patch: Patch,
     galerkinState: GalerkinState,
   ): void {
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     if (topLevelElement === null) {
       return;
     }
@@ -54,7 +60,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
     scene: Scene,
     galerkinState: GalerkinState,
   ): void {
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
     if (topLevelElement === null) {
       return;
     }
@@ -80,7 +86,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
     HierarchicalRefinementStrategy.refineInteractions(scene, topLevelElement, galerkinState);
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL) {
-      GatheringSimpleStrategy.patchUpdateRadiance(patch, galerkinState);
+      GatheringSimpleStrategy.patchUpdateRadiance(patch, galerkinState, scene.getFaceColors()!);
     }
   }
 
@@ -111,13 +117,13 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList[i]!, galerkinState);
+        GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList[i]!, galerkinState, scene.getFaceColors()!);
       }
     }
 
     if (galerkinState.importanceDriven !== 0) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-        GatheringSimpleStrategy.patchUpdatePotential(scene.patchList[i]!);
+        GatheringSimpleStrategy.patchUpdatePotential(scene.patchList[i]!, scene.getDirectPotentials()!, galerkinState);
       }
     }
 

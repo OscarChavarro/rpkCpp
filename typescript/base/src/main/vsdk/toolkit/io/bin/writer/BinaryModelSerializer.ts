@@ -492,30 +492,39 @@ export class BinaryModelSerializer {
       BinaryModelSerializer.writeInt32LE(output, vertexIndex[0]!);
     }
 
-    BinaryModelSerializer.writeBool(output, patch.boundingBox !== null);
-    if (patch.boundingBox !== null) {
-      BinaryModelSerializer.writeBoundingBox(output, patch.boundingBox);
+    // The format keeps the patch's box; it is derived from the vertices
+    const patchBounds = new BoundingBox();
+    patch.computeBounds(patchBounds);
+    BinaryModelSerializer.writeBool(output, true);
+    BinaryModelSerializer.writeBoundingBox(output, patchBounds);
+
+    BinaryModelSerializer.writeVector(output, patch.getNormal());
+    BinaryModelSerializer.writeFloatLE(output, patch.getPlaneConstant());
+    BinaryModelSerializer.writeFloatLE(output, patch.getTolerance());
+    BinaryModelSerializer.writeFloatLE(output, patch.getArea());
+    BinaryModelSerializer.writeVector(output, patch.midPoint());
+
+    const jacobian = patch.getJacobian();
+    BinaryModelSerializer.writeBool(output, jacobian !== null);
+    if (jacobian !== null) {
+      BinaryModelSerializer.writeFloatLE(output, jacobian.A);
+      BinaryModelSerializer.writeFloatLE(output, jacobian.B);
+      BinaryModelSerializer.writeFloatLE(output, jacobian.C);
     }
 
-    BinaryModelSerializer.writeVector(output, patch.normal);
-    BinaryModelSerializer.writeFloatLE(output, patch.planeConstant);
-    BinaryModelSerializer.writeFloatLE(output, patch.tolerance);
-    BinaryModelSerializer.writeFloatLE(output, patch.area);
-    BinaryModelSerializer.writeVector(output, patch.midPoint);
-
-    BinaryModelSerializer.writeBool(output, patch.jacobian !== null);
-    if (patch.jacobian !== null) {
-      BinaryModelSerializer.writeFloatLE(output, patch.jacobian.A);
-      BinaryModelSerializer.writeFloatLE(output, patch.jacobian.B);
-      BinaryModelSerializer.writeFloatLE(output, patch.jacobian.C);
-    }
-
-    BinaryModelSerializer.writeFloatLE(output, patch.directPotential);
-    const dominantIndex = patch.index === null ? 0 : (patch.index as number);
-    BinaryModelSerializer.writeInt32LE(output, dominantIndex);
-    BinaryModelSerializer.writeBool(output, patch.omit !== 0);
-    BinaryModelSerializer.writeByte(output, patch.getFlags());
-    BinaryModelSerializer.writeColor(output, patch.color);
+    // Direct potential: per-face solver data, not part of the model; written as
+    // zero, the value every face starts with, so the file format is unchanged
+    BinaryModelSerializer.writeFloatLE(output, 0.0);
+    BinaryModelSerializer.writeInt32LE(output, patch.getDominantAxisIndex());
+    // Omit flag: faces are excluded per query by the shaft's omit set, never
+    // by a per-face flag; written false, as it always was
+    BinaryModelSerializer.writeBool(output, false);
+    // Flags byte (direct visibility): per-face solver data, written cleared, the
+    // value every face starts with, so the file format is unchanged
+    BinaryModelSerializer.writeByte(output, 0);
+    // Display color: per-face display data, written black, the color every face
+    // starts with, so the file format is unchanged
+    BinaryModelSerializer.writeColor(output, new ColorRgbMutable(0.0, 0.0, 0.0));
 
     const materialIndex = [0];
     if (!BinaryModelSerializer.indexOfPointer(patch.material, context.materialIndices, "patch.material", materialIndex)) {
@@ -523,7 +532,9 @@ export class BinaryModelSerializer {
     }
     BinaryModelSerializer.writeInt32LE(output, materialIndex[0]!);
 
-    BinaryModelSerializer.writeBool(output, patch.radianceData !== null);
+    // Radiance elements are per-face solver state held by the scene's
+    // RadianceElementTable, never serialized
+    BinaryModelSerializer.writeBool(output, false);
     return true;
   }
 
@@ -537,7 +548,9 @@ export class BinaryModelSerializer {
     BinaryModelSerializer.writeInt32LE(output, geometry.itemCount);
     BinaryModelSerializer.writeBool(output, geometry.bounded);
     BinaryModelSerializer.writeBool(output, geometry.shaftCullGeometry);
-    BinaryModelSerializer.writeBool(output, geometry.omit);
+    // Omit flag: geometries were never omitted at run time (the shaft's omit set
+    // excludes patches per query); written false, as it always was
+    BinaryModelSerializer.writeBool(output, false);
     BinaryModelSerializer.writeBool(output, geometry.isDuplicate);
     BinaryModelSerializer.writeBoundingBox(output, geometry.boundingBox);
     BinaryModelSerializer.writeBool(output, false);

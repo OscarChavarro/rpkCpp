@@ -15,8 +15,8 @@ import { Interaction } from "../Interaction";
 import { ShadowCache } from "../ShadowCache";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -24,6 +24,7 @@ import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusio
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { FormFactorClusteredStrategy } from "./FormFactorClusteredStrategy";
 import type { FormFactorWorkspace } from "./FormFactorWorkspace";
+import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 
 export class FormFactorStrategy {
   private static cachedShadowTest(
@@ -41,8 +42,8 @@ export class FormFactorStrategy {
   private static shadowTestDiscretization(
     ray: Ray,
     geometrySceneList: Geometry[] | null,
-    voxelGrid: VoxelGrid | null,
-    voxelGridWorkspace: VoxelGridWorkspace | null,
+    sceneQuery: SceneQuery | null,
+    sceneQueryWorkspace: SceneQueryWorkspace | null,
     shadowCache: ShadowCache,
     minimumDistance: number,
     hitStore: RayHit,
@@ -57,29 +58,47 @@ export class FormFactorStrategy {
     let hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
     if (hit !== null) {
       Statistics.instance().shadow.numberOfShadowCacheHits++;
+      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
+        sceneQueryWorkspace.getRecorder()!.countCacheResolved();
+      }
       return hit;
     }
+
+    const queryMaximumDistance = dist[0]!;
 
     if (!isClusteredGeometry && !isSceneGeometry) {
       hit = Geometry.listDiscretizationIntersect(
         geometrySceneList,
         ray,
-        Numeric.EPSILON_FLOAT * dist[0]!,
+        Math.fround(Numeric.EPSILON_FLOAT * dist[0]!),
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
         exclusions,
       );
     }
-    else if (voxelGrid !== null) {
-      hit = voxelGrid.gridIntersect(
+    else if (sceneQuery !== null) {
+      hit = sceneQuery.intersect(
         ray,
-        Numeric.EPSILON_FLOAT * dist[0]!,
+        Math.fround(Numeric.EPSILON_FLOAT * dist[0]!),
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
         exclusions,
-        voxelGridWorkspace!,
+        sceneQueryWorkspace!,
+      );
+    }
+    if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
+      sceneQueryWorkspace.getRecorder()!.recordQuery(
+        (!isClusteredGeometry && !isSceneGeometry)
+          ? VisibilityQueryRecorder.GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder.GALERKIN_FULL_SCENE,
+        ray,
+        Math.fround(Numeric.EPSILON_FLOAT * queryMaximumDistance),
+        queryMaximumDistance,
+        RayHitFlag.FRONT | RayHitFlag.ANY,
+        exclusions,
+        hit,
+        dist[0]!,
       );
     }
 
@@ -156,8 +175,8 @@ export class FormFactorStrategy {
 
   private static evaluatePointsPairKernel(
     shadowCache: ShadowCache,
-    sceneWorldVoxelGrid: VoxelGrid | null,
-    voxelGridWorkspace: VoxelGridWorkspace | null,
+    sceneQuery: SceneQuery | null,
+    sceneQueryWorkspace: SceneQueryWorkspace | null,
     x: Vector3D,
     y: Vector3D,
     receiverElement: GalerkinElement,
@@ -183,7 +202,7 @@ export class FormFactorStrategy {
       cosThetaY = 0.25;
     }
     else {
-      cosThetaY = ray.direction.dotProduct((sourceElement.patch as Patch).normal);
+      cosThetaY = ray.direction.dotProduct((sourceElement.patch as Patch).getNormal());
       if (cosThetaY <= 0.0) {
         return 0.0;
       }
@@ -194,7 +213,7 @@ export class FormFactorStrategy {
       cosThetaX = 0.25;
     }
     else {
-      cosThetaX = -ray.direction.dotProduct((receiverElement.patch as Patch).normal);
+      cosThetaX = -ray.direction.dotProduct((receiverElement.patch as Patch).getNormal());
       if (cosThetaX <= 0.0) {
         return 0.0;
       }
@@ -212,8 +231,8 @@ export class FormFactorStrategy {
       const h = FormFactorStrategy.shadowTestDiscretization(
         ray,
         shadowGeometryList,
-        sceneWorldVoxelGrid,
-        voxelGridWorkspace,
+        sceneQuery,
+        sceneQueryWorkspace,
         shadowCache,
         shortenedDistance,
         hitStore,
@@ -225,6 +244,9 @@ export class FormFactorStrategy {
       visibilityFactor = (h === null) ? 1.0 : 0.0;
     }
     else if (FormFactorStrategy.cachedShadowTest(shadowCache, ray, shortenedDistance, exclusions, workspace)) {
+      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
+        sceneQueryWorkspace.getRecorder()!.countCacheResolved();
+      }
       visibilityFactor = 0.0;
     }
     else {
@@ -245,8 +267,8 @@ export class FormFactorStrategy {
   }
 
   public static computeAreaToAreaFormFactorVisibility(
-    sceneWorldVoxelGrid: VoxelGrid | null,
-    voxelGridWorkspace: VoxelGridWorkspace | null,
+    sceneQuery: SceneQuery | null,
+    sceneQueryWorkspace: SceneQueryWorkspace | null,
     formFactorWorkspace: FormFactorWorkspace,
     geometryShadowList: Geometry[] | null,
     isSceneGeometry: boolean,
@@ -334,14 +356,20 @@ export class FormFactorStrategy {
         sourceElement.isCluster() ? sourceElement.geometry : null,
       );
 
+      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null
+        && geometryShadowList !== null && geometryShadowList.length > 0
+        && !isClusteredGeometry && !isSceneGeometry) {
+        sceneQueryWorkspace.getRecorder()!.recordGeometryList(geometryShadowList);
+      }
+
       let cachedMaximumKernelValue = 0.0;
       let cachedVisibilityCount = 0;
       for (let r = 0; r < receiverCubatureRule.numberOfNodes; r++) {
         for (let s = 0; s < sourceCubatureRule.numberOfNodes; s++) {
           cachedGxy[r]![s] = FormFactorStrategy.evaluatePointsPairKernel(
             shadowCache,
-            sceneWorldVoxelGrid,
-            voxelGridWorkspace,
+            sceneQuery,
+            sceneQueryWorkspace,
             cachedX[r]!,
             cachedY[s]!,
             receiverElement,

@@ -6,6 +6,9 @@ import { QuadCubatureRule } from "../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../numericalAnalysis/TriangleCubatureRule";
 import { SglContext } from "../render/sgl/SglContext";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
+import type { Element } from "../environment/geometry/elements/Element";
+import type { Patch } from "../environment/geometry/elements/Patch";
+import type { RadianceElementTable } from "../scene/RadianceElementTable";
 import { GalerkinBasisType } from "./GalerkinBasisType";
 import { GalerkinClusteringStrategy } from "./GalerkinClusteringStrategy";
 import { FormFactorWorkspace } from "./processing/FormFactorWorkspace";
@@ -88,6 +91,36 @@ export class GalerkinState {
   private static readonly DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS = 200;
   private static readonly DEFAULT_GAL_SHAFT_CULL_STRATEGY = ShaftCullStrategy.OVERLAP_OPEN;
   private static readonly DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
+
+  // The scene's table of top-level elements, bound when the method is initialized
+  private radianceElements: RadianceElementTable | null = null;
+
+  public getRadianceElements(): RadianceElementTable | null {
+    return this.radianceElements;
+  }
+
+  public setRadianceElements(inRadianceElements: RadianceElementTable | null): void {
+    this.radianceElements = inRadianceElements;
+  }
+
+  /**
+  Top-level element of a face, without checks (hot path); see
+  GalerkinElement.fromPatch for the checked lookup
+  */
+  public topLevelElement(patch: Patch): GalerkinElement {
+    return this.radianceElements!.get(patch.getFaceIndex()) as GalerkinElement;
+  }
+
+  /**
+  Element bound to a face, of any radiance method, or null when no method is
+  bound or the face has no element (checked lookup for tools)
+  */
+  public boundElement(patch: Patch | null): Element | null {
+    if (this.radianceElements === null || patch === null) {
+      return null;
+    }
+    return this.radianceElements.get(patch.getFaceIndex());
+  }
 
   public constructor() {
     this.constantRadiance = new ColorRgbMutable();

@@ -53,8 +53,8 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
       Potential.updateDirectPotential(scene, renderOptions);
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i]!;
-        const top = patch.radianceData as GalerkinElement;
-        const potentialIncrement = patch.directPotential - top.directPotential;
+        const top = galerkinState.topLevelElement(patch);
+        const potentialIncrement = Math.fround(scene.getDirectPotentials()!.get(patch.getFaceIndex()) - top.directPotential);
         GatheringClusteredStrategy.updateClusterDirectPotential(top, potentialIncrement);
       }
       GatheringClusteredStrategy.updatePotential(galerkinState.topCluster as GalerkinElement);
@@ -78,13 +78,13 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
     GalerkinBasis.pushPullRadiance(galerkinState.topCluster, galerkinState);
 
     if (galerkinState.importanceDriven !== 0) {
-      GatheringStrategy.pushPullPotential(galerkinState.topCluster, 0.0);
+      GatheringStrategy.pushPullPotential(galerkinState.topCluster, 0.0, scene.getDirectPotentials()!);
     }
 
     galerkinState.ambientRadiance.clear();
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!);
+      GalerkinRadianceMethod.recomputePatchColor(scene.patchList[i]!, scene.getFaceColors()!);
     }
     return false;
   }

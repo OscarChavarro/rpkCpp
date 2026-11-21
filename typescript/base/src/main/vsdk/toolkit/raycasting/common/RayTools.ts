@@ -1,4 +1,5 @@
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
+import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -7,8 +8,8 @@ import { Statistics } from "../../common/statistics/Statistics";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { SimpleRaytracingPathNode } from "./SimpleRaytracingPathNode";
@@ -19,8 +20,8 @@ export class RayTools {
   }
 
   private static traceWorld(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     ray: Ray,
     patch: Patch | null,
     flags: number,
@@ -32,7 +33,13 @@ export class RayTools {
     const localHitStore = hitStore === null ? myHitStore : hitStore;
 
     const exclusions = new RayExclusionSet(patch, patch !== null ? patch.twin : null, extraPatch);
-    const result = sceneWorldVoxelGrid.gridIntersect(ray, 0.0, dist, flags, localHitStore, exclusions, sceneWorldVoxelGridWorkspace);
+    const result = sceneQuery.intersect(ray, 0.0, dist, flags, localHitStore, exclusions, sceneWorldSceneQueryWorkspace);
+    const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
+    if (recorder !== null) {
+      recorder.recordQuery(
+        VisibilityQueryRecorder.RAYTRACER_CLOSEST_HIT, ray, 0.0, Numeric.HUGE_FLOAT_VALUE,
+        flags, exclusions, result, dist[0]!);
+    }
 
     if (result !== null) {
       const frame = result.getShadingFrame();
@@ -43,8 +50,8 @@ export class RayTools {
   }
 
   public static findRayIntersection(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     ray: Ray,
     patch: Patch | null,
     currentBsdf: PhongBidirectionalScatteringDistributionFunction | null,
@@ -59,7 +66,7 @@ export class RayTools {
       hitFlags = RayTools.pathFrontHitFlags() | RayHitFlag.BACK;
     }
 
-    let newHit = RayTools.traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, null, hitStore);
+    let newHit = RayTools.traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, null, hitStore);
     Statistics.instance().rayTracer.rayCount++;
 
     if (newHit !== null
@@ -67,7 +74,7 @@ export class RayTools {
       && newHit.getPatch() !== null
       && newHit.getPatch()!.material !== null
       && newHit.getPatch()!.material!.getBsdf() !== currentBsdf) {
-      newHit = RayTools.traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, newHit.getPatch(), hitStore);
+      newHit = RayTools.traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, newHit.getPatch(), hitStore);
       Statistics.instance().rayTracer.rayCount++;
     }
 
@@ -75,8 +82,8 @@ export class RayTools {
   }
 
   public static pathNodesVisible(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     node1: SimpleRaytracingPathNode,
     node2: SimpleRaytracingPathNode
   ): boolean {
@@ -130,23 +137,30 @@ export class RayTools {
         fDistance[0] = Numeric.HUGE_FLOAT_VALUE;
       }
       else {
-        fDistance[0] = dist;
+        fDistance[0] = Math.fround(dist);
       }
 
+      const queryMaximumDistance = fDistance[0]!;
       const exclusions = new RayExclusionSet(
         patch2,
         patch1,
         patch1 !== null ? patch1.twin : null
       );
-      const hit = sceneWorldVoxelGrid.gridIntersect(
+      const hit = sceneQuery.intersect(
         ray,
         0.0,
         fDistance,
         RayHitFlag.FRONT | RayHitFlag.BACK | RayHitFlag.ANY,
         hitStore,
         exclusions,
-        sceneWorldVoxelGridWorkspace
+        sceneWorldSceneQueryWorkspace
       );
+      const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
+      if (recorder !== null) {
+        recorder.recordQuery(
+          VisibilityQueryRecorder.RAYTRACER_VISIBILITY, ray, 0.0, queryMaximumDistance,
+          RayHitFlag.FRONT | RayHitFlag.BACK | RayHitFlag.ANY, exclusions, hit, fDistance[0]!);
+      }
       visible = hit === null;
 
       Statistics.instance().rayTracer.rayCount++;
@@ -160,8 +174,8 @@ export class RayTools {
 
   public static eyeNodeVisible(
     camera: Camera,
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     eyeNode: SimpleRaytracingPathNode,
     node: SimpleRaytracingPathNode,
     pixX: number[] | null,
@@ -200,7 +214,8 @@ export class RayTools {
           const cosRayLight = -dir.dotProduct(node.m_normal);
 
           if (cosRayLight > 0.0 && cosRayEye > 0.0) {
-            fDistance[0] = dist;
+            fDistance[0] = Math.fround(dist);
+            const queryMaximumDistance = fDistance[0]!;
             const nodePatch = node.m_hit.getPatch();
             const eyePatch = eyeNode.m_hit.getPatch();
             const exclusions = new RayExclusionSet(
@@ -208,15 +223,21 @@ export class RayTools {
               eyePatch,
               eyePatch !== null ? eyePatch.twin : null
             );
-            const hit = sceneWorldVoxelGrid.gridIntersect(
+            const hit = sceneQuery.intersect(
               ray,
               0.0,
               fDistance,
               RayHitFlag.FRONT | RayHitFlag.ANY,
               hitStore,
               exclusions,
-              sceneWorldVoxelGridWorkspace
+              sceneWorldSceneQueryWorkspace
             );
+            const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
+            if (recorder !== null) {
+              recorder.recordQuery(
+                VisibilityQueryRecorder.RAYTRACER_VISIBILITY, ray, 0.0, queryMaximumDistance,
+                RayHitFlag.FRONT | RayHitFlag.ANY, exclusions, hit, fDistance[0]!);
+            }
             visible = hit === null;
 
             if (visible) {

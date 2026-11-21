@@ -1,4 +1,6 @@
 import { OutputStream } from "../../../java/io/OutputStream";
+import type { DirectPotentialTable } from "../scene/DirectPotentialTable";
+import type { FaceColorTable } from "../scene/FaceColorTable";
 import { String as JavaString } from "../../../java/lang/String";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
@@ -58,32 +60,44 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
   }
 
-  public static recomputePatchColor(patch: Patch): void {
-    if (patch === null || !(patch.radianceData instanceof GalerkinElement)) {
+  // The scene's display colors, bound when the method is initialized; only
+  // terminate reads it (see there)
+  private static faceColors: FaceColorTable | null = null;
+
+  /**
+  Recomputes the color of a patch using ambient radiance term, ... if requested for
+  */
+  public static recomputePatchColor(patch: Patch, faceColors: FaceColorTable): void {
+    if (patch === null || !(GalerkinRadianceMethod.galerkinState.boundElement(patch) instanceof GalerkinElement)) {
       return;
     }
 
-    const element = patch.radianceData as GalerkinElement;
+    const element = GalerkinRadianceMethod.galerkinState.topLevelElement(patch);
     const reflectivity = element.Rd;
-    const radVis = new ColorRgbMutable();
+    const radVis = new ColorRgbMutable(0.0, 0.0, 0.0);
 
+    // Compute the patches color based on its radiance + ambient radiance if desired
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
       radVis.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       radVis.add(radVis, (element.radiance as ColorRgbMutable[])[0]!);
+      const patchColor = new ColorRgbMutable(0.0, 0.0, 0.0);
       ToneMap.radianceToRgb(
         radVis,
-        patch.color,
+        patchColor,
         GalerkinRadianceMethod.galerkinState.toneMapOptions as ToneMappingContext,
       );
+      faceColors.set(patch.getFaceIndex(), patchColor);
     }
     else {
+      const patchColor = new ColorRgbMutable(0.0, 0.0, 0.0);
       ToneMap.radianceToRgb(
         (element.radiance as ColorRgbMutable[])[0]!,
-        patch.color,
+        patchColor,
         GalerkinRadianceMethod.galerkinState.toneMapOptions as ToneMappingContext,
       );
+      faceColors.set(patch.getFaceIndex(), patchColor);
     }
-    patch.computeVertexColors();
+    patch.computeVertexColors(faceColors);
   }
 
   public constructor() {
@@ -112,12 +126,12 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
   }
 
-  private static patchInit(patch: Patch): void {
-    if (patch === null || !(patch.radianceData instanceof GalerkinElement)) {
+  private static patchInit(patch: Patch, directPotentials: DirectPotentialTable, faceColors: FaceColorTable): void {
+    if (patch === null || !(GalerkinRadianceMethod.galerkinState.boundElement(patch) instanceof GalerkinElement)) {
       return;
     }
 
-    const element = patch.radianceData as GalerkinElement;
+    const element = GalerkinRadianceMethod.galerkinState.topLevelElement(patch);
     const reflectivity = element.Rd;
     const selfEmittanceRadiance = element.Ed;
 
@@ -146,21 +160,23 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       switch (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod) {
         case GalerkinIterationMethod.GAUSS_SEIDEL:
         case GalerkinIterationMethod.JACOBI:
-          element.potential = patch.directPotential;
+          element.potential = directPotentials.get(patch.getFaceIndex());
           break;
         case GalerkinIterationMethod.SOUTH_WELL:
-          element.potential = patch.directPotential;
-          element.unShotPotential = patch.directPotential;
+          element.potential = directPotentials.get(patch.getFaceIndex());
+          element.unShotPotential = directPotentials.get(patch.getFaceIndex());
           break;
         default:
           VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "patchInit", "Invalid iteration method");
       }
     }
 
-    GalerkinRadianceMethod.recomputePatchColor(patch);
+    GalerkinRadianceMethod.recomputePatchColor(patch, faceColors);
   }
 
   public override initialize(scene: Scene, toneMapOptions: ToneMappingContext): void {
+    GalerkinRadianceMethod.galerkinState.setRadianceElements(scene.getRadianceElements());
+    GalerkinRadianceMethod.faceColors = scene.getFaceColors();
     GalerkinRadianceMethod.galerkinState.toneMapOptions = toneMapOptions;
     if (GalerkinRadianceMethod.galerkinState.toneMapOptions === null) {
       VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
@@ -180,7 +196,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      GalerkinRadianceMethod.patchInit(scene.patchList[i]!);
+      GalerkinRadianceMethod.patchInit(scene.patchList[i]!, scene.getDirectPotentials()!, scene.getFaceColors()!);
     }
 
     GalerkinRadianceMethod.galerkinState.topCluster = ClusterCreationStrategy.createClusterHierarchy(
@@ -276,8 +292,8 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     if (scenePatches !== null) {
       for (let i = 0; i < scenePatches.length; i++) {
         const patch = scenePatches[i]!;
-        if (patch !== null) {
-          GalerkinRadianceMethod.recomputePatchColor(patch);
+        if (patch !== null && GalerkinRadianceMethod.faceColors !== null) {
+          GalerkinRadianceMethod.recomputePatchColor(patch, GalerkinRadianceMethod.faceColors);
         }
       }
     }
@@ -304,7 +320,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return black;
     }
 
-    if (patch.jacobian !== null) {
+    if (patch.getJacobian() !== null) {
       const uu = [u];
       const vv = [v];
       patch.biLinearToUniform(uu, vv);
@@ -312,7 +328,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       v = vv[0]!;
     }
 
-    const topLevelElement = GalerkinElement.fromPatch(patch);
+    const topLevelElement = GalerkinElement.fromPatch(GalerkinRadianceMethod.galerkinState, patch);
     if (topLevelElement === null) {
       const black = new ColorRgbMutable();
       black.clear();
@@ -324,7 +340,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     const rad = GalerkinBasis.radianceAtPoint(leaf, leaf.radiance, uu[0]!, vv[0]!);
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
-      const reflectivity = patch.radianceData!.Rd;
+      const reflectivity = GalerkinRadianceMethod.galerkinState.topLevelElement(patch).Rd;
       const ambientRadiance = new ColorRgbMutable();
       ambientRadiance.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       rad.add(rad, ambientRadiance);
@@ -347,15 +363,19 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     return this.computePatchRadiance(patch, u, v);
   }
 
+  /**
+  Radiance data for a Patch is a surface element
+  */
   public override createPatchData(patch: Patch): Element {
-    patch.radianceData = new GalerkinElement(patch, GalerkinRadianceMethod.galerkinState);
-    return patch.radianceData;
+    return new GalerkinElement(patch, GalerkinRadianceMethod.galerkinState);
   }
 
   public override destroyPatchData(patch: Patch): void {
-    if (patch !== null) {
-      patch.radianceData = null;
+    if (patch === null) {
+      return;
     }
+    // Elements are bound once the method has been initialized; the caller
+    // clears the binding in the scene's RadianceElementTable
   }
 
   public override getStats(): string {
@@ -508,7 +528,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     if (GalerkinRadianceMethod.galerkinState.useAmbientRadiance !== 0) {
-      const reflectivity = galerkinElement.patch.radianceData!.Rd;
+      const reflectivity = galerkinElement.galerkinState.topLevelElement(galerkinElement.patch).Rd;
       const ambient = new ColorRgbMutable();
       ambient.scalarProduct(reflectivity, GalerkinRadianceMethod.galerkinState.ambientRadiance);
       for (let i = 0; i < numberOfVertices; i++) {

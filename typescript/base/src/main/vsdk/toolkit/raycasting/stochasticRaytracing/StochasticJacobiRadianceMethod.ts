@@ -14,8 +14,9 @@ import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import type { FaceColorTable } from "../../scene/FaceColorTable";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Element } from "../../environment/geometry/elements/Element";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
@@ -152,9 +153,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
     StochasticRadiosityBasisState.setActiveState(this.stochasticRadiosityBasisState);
-    if (scene === null) {
-      // scene is intentionally unused in C++ implementation.
-    }
+    ElementHierarchyState.activeState().setRadianceElements(scene.getRadianceElements());
     StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
     if (StochasticRelaxation.activeState().toneMapOptions === null) {
       VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
@@ -199,7 +198,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
     return l;
   }
 
-  private static stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches: ArrayList<Patch>): void {
+  private static stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches: ArrayList<Patch>, faceColors: FaceColorTable): void {
     const topElement = ElementHierarchyState.activeState().topCluster as StochasticRadiosityElement;
     if (topElement !== null) {
       topElement.traverseClusterLeafElements(StochasticRadiosityElement.stochasticRadiosityElementComputeNewVertexColors);
@@ -207,7 +206,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
     }
     else {
       for (let i = 0; scenePatches !== null && i < scenePatches.size(); i++) {
-        Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i)!);
+        Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i)!, faceColors);
       }
     }
   }
@@ -307,8 +306,8 @@ Computes quality factor on given leaf element.
       );
 
       StochasticJacobi.doStochasticJacobiIteration(
-        scene.voxelGrid as VoxelGrid,
-        scene.voxelGridWorkspace as VoxelGridWorkspace,
+        scene.getSceneQuery() as SceneQuery,
+        scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
         numberOfRays,
         StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementUnShotRadiance,
         null,
@@ -323,7 +322,8 @@ Computes quality factor on given leaf element.
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
       if (unShotFraction > 0.3) {
         StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityRecomputeDisplayColors(
-          StochasticJacobiRadianceMethod.toArrayList(scene.patchList)
+          StochasticJacobiRadianceMethod.toArrayList(scene.patchList),
+          scene.getFaceColors()!
         );
       }
     }
@@ -361,8 +361,8 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
@@ -400,8 +400,8 @@ Computes quality factor on given leaf element.
       );
 
       StochasticJacobi.doStochasticJacobiIteration(
-        sceneWorldVoxelGrid,
-        sceneWorldVoxelGridWorkspace,
+        sceneQuery,
+        sceneWorldSceneQueryWorkspace,
         numberOfRays,
         null,
         StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementUnShotImportance,
@@ -478,15 +478,15 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityDoRegularRadianceIteration(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
     System.err.printf("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
     StochasticJacobi.doStochasticJacobiIteration(
-      sceneWorldVoxelGrid,
-      sceneWorldVoxelGridWorkspace,
+      sceneQuery,
+      sceneWorldSceneQueryWorkspace,
       StochasticRelaxation.activeState().raysPerIteration,
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementRadiance,
       null,
@@ -517,8 +517,8 @@ Computes quality factor on given leaf element.
   }
 
   private static stochasticRelaxationRadiosityDoRegularImportanceIteration(
-    sceneWorldVoxelGrid: VoxelGrid,
-    sceneWorldVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneWorldSceneQueryWorkspace: SceneQueryWorkspace,
     scenePatches: ArrayList<Patch>,
     renderOptions: RendererConfiguration
   ): void {
@@ -534,8 +534,8 @@ Computes quality factor on given leaf element.
     System.err.printf("Regular importance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
 
     StochasticJacobi.doStochasticJacobiIteration(
-      sceneWorldVoxelGrid,
-      sceneWorldVoxelGridWorkspace,
+      sceneQuery,
+      sceneWorldSceneQueryWorkspace,
       numberOfRays,
       null,
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityElementImportance,
@@ -598,8 +598,8 @@ iteration.
           StochasticRelaxation.activeState().importanceUpdated = 0;
 
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-            scene.voxelGrid as VoxelGrid,
-            scene.voxelGridWorkspace as VoxelGridWorkspace,
+            scene.getSceneQuery() as SceneQuery,
+            scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
             scenePatches,
             renderOptions
           );
@@ -628,8 +628,8 @@ iteration.
           StochasticRelaxation.activeState().importanceUpdated = 0;
 
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-            scene.voxelGrid as VoxelGrid,
-            scene.voxelGridWorkspace as VoxelGridWorkspace,
+            scene.getSceneQuery() as SceneQuery,
+            scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
             scenePatches,
             renderOptions
           );
@@ -640,22 +640,22 @@ iteration.
         }
         else {
           StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoRegularImportanceIteration(
-            scene.voxelGrid as VoxelGrid,
-            scene.voxelGridWorkspace as VoxelGridWorkspace,
+            scene.getSceneQuery() as SceneQuery,
+            scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
             scenePatches,
             renderOptions
           );
         }
       }
       StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityDoRegularRadianceIteration(
-        scene.voxelGrid as VoxelGrid,
-        scene.voxelGridWorkspace as VoxelGridWorkspace,
+        scene.getSceneQuery() as SceneQuery,
+        scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
         scenePatches,
         renderOptions
       );
     }
 
-    StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
+    StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches, scene.getFaceColors()!);
 
     process.stderr.write(`${this.getStats()}\n`);
 

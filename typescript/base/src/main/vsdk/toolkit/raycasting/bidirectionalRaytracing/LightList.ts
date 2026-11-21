@@ -49,7 +49,7 @@ export class LightList extends CircularList<LightInfo> {
         }
         else {
           const lightColor = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
-          info.emittedFlux = lightColor.average() * light.area;
+          info.emittedFlux = lightColor.average() * light.getArea();
         }
 
         this.totalFlux += info.emittedFlux;
@@ -133,7 +133,7 @@ export class LightList extends CircularList<LightInfo> {
     void point;
     const color = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
 
-    return color.average() * light.area / this.totalFlux;
+    return color.average() * light.getArea() / this.totalFlux;
   }
 
   public evalPdf(light: Patch, point: Vector3D): number {
@@ -184,8 +184,8 @@ export class LightList extends CircularList<LightInfo> {
 
     while (!done && tried <= light.numberOfVertices) {
       if (tried === 0) {
-        lightPoint.copy(light.midPoint);
-        lightNormal.copy(light.normal);
+        lightPoint.copy(light.midPoint());
+        lightNormal.copy(light.getNormal());
       }
       else {
         lightPoint.copy(light.vertex[tried - 1]!.point);
@@ -193,7 +193,7 @@ export class LightList extends CircularList<LightInfo> {
           lightNormal.copy(light.vertex[tried - 1]!.normal as Vector3D);
         }
         else {
-          lightNormal.copy(light.normal);
+          lightNormal.copy(light.getNormal());
         }
       }
 

@@ -12,6 +12,7 @@ import { RayHit } from "../environment/geometry/elements/RayHit";
 import { VoxelData } from "./VoxelData";
 import { VoxelDataFlags } from "./VoxelDataFlags";
 import { VoxelGridWorkspace } from "./VoxelGridWorkspace";
+import type { FaceBoundsTable } from "./FaceBoundsTable";
 
 /**
 Uniform voxel grid to optimize intersection operations
@@ -31,6 +32,7 @@ export class VoxelGrid {
   private subGrids: VoxelGrid[] | null;
   private items: VoxelData[] | null;
   private readonly root: VoxelGrid;
+  private readonly faceBounds: FaceBoundsTable; // Owned by the scene; bounds of the patch items
   private readonly depth: number; // Nesting depth, 0 for the root grid
   private numberOfLevels: number; // Root grid only: deepest nesting depth + 1
 
@@ -78,6 +80,27 @@ export class VoxelGrid {
 
   private static shouldSubdivide(geometry: Geometry): boolean {
     return geometry.itemCount >= VoxelGrid.MINIMUM_ELEMENT_COUNT_PER_CELL;
+  }
+
+  /**
+  Number of patches below a geometry, stored in the itemCount of every geometry
+  of the hierarchy (RenderPark's GeomCountItems, called when the top level grid
+  is created): it sizes each grid and decides which geometries get a sub grid
+  */
+  private static countItems(geometry: Geometry): number {
+    let count = 0;
+    if (geometry.isCompound()) {
+      const children = (geometry as Compound).children;
+      for (let i = 0; children !== null && i < children.length; i++) {
+        count += VoxelGrid.countItems(children[i]!);
+      }
+    }
+    else {
+      const patches = Geometry.patchListReference(geometry);
+      count = patches !== null ? patches.length : 0;
+    }
+    geometry.itemCount = count;
+    return count;
   }
 
   private voxel2x(px: number): number {
@@ -195,16 +218,8 @@ export class VoxelGrid {
   }
 
   private putPatchInsideVoxelGrid(patch: Patch): void {
-    const localBounds = new BoundingBox();
-    if (patch.boundingBox !== null) {
-      localBounds.copyFrom(patch.boundingBox);
-    }
-    else {
-      patch.computeAndGetBoundingBox(localBounds);
-    }
-
     const voxelData = new VoxelData(patch, VoxelDataFlags.VOXEL_DATA_PATCH_MASK, this.nextItemIndex());
-    this.putItemInsideVoxelGrid(voxelData, localBounds);
+    this.putItemInsideVoxelGrid(voxelData, this.faceBounds.get(patch.getFaceIndex()));
     this.addItem(voxelData);
   }
 
@@ -237,7 +252,7 @@ export class VoxelGrid {
   }
 
   private insertSubGrid(geometry: Geometry): void {
-    const subGrid = new VoxelGrid(geometry, this.root, this.depth + 1);
+    const subGrid = new VoxelGrid(geometry, this.faceBounds, this.root, this.depth + 1);
     const voxelData = new VoxelData(subGrid, VoxelDataFlags.VOXEL_DATA_GRID_MASK, this.nextItemIndex());
 
     this.putItemInsideVoxelGrid(voxelData, subGrid.boundingBox);
@@ -467,8 +482,9 @@ export class VoxelGrid {
   /**
   Constructs a recursive grid structure containing the whole geometry
   */
-  public constructor(geometry: Geometry, inRoot: VoxelGrid | null = null, inDepth = 0) {
+  public constructor(geometry: Geometry, inFaceBounds: FaceBoundsTable, inRoot: VoxelGrid | null = null, inDepth = 0) {
     this.root = inRoot !== null ? inRoot : this;
+    this.faceBounds = inFaceBounds;
     this.depth = inDepth;
     this.subGrids = inRoot === null ? [] : null;
     this.items = inRoot === null ? [] : null;
@@ -481,6 +497,9 @@ export class VoxelGrid {
     this.voxelSize = new Vector3D();
     this.volumeListsOfItems = null;
     this.gridItemPool = null;
+    if (inRoot === null) {
+      VoxelGrid.countItems(geometry);
+    }
 
     const p = globalThis.Math.pow(geometry.itemCount, 0.33333) + 1;
     const gridSize = globalThis.Math.floor(p);

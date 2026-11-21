@@ -11,8 +11,9 @@ import { Ray } from "../../common/linealAlgebra/Ray";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import type { FaceColorTable } from "../../scene/FaceColorTable";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -43,7 +44,7 @@ export class Nondiff {
     for (let i = 0; lightPatches !== null && i < lightPatches.size(); i++) {
       const light = lightPatches.get(i)!;
       const emittedRadiance = PatchVisitor.averageEmittance(light, 0x01 | 0x02 | 0x04);
-      const flux = globalThis.Math.PI * light.area * emittedRadiance.sumAbsComponents();
+      const flux = globalThis.Math.PI * light.getArea() * emittedRadiance.sumAbsComponents();
       Nondiff.totalFlux += flux;
       Nondiff.lights[i] = new LightSourceTable(light, flux);
     }
@@ -89,7 +90,7 @@ export class Nondiff {
 
       patch.uniformPoint(zeta[0]!, zeta[1]!, ray.position);
 
-      hit.init(patch, ray.position, patch.normal, patch.material);
+      hit.init(patch, ray.position, patch.getNormal(), patch.material);
       dirSelectionPdf[0] = 0.0;
       ray.direction.set(0.0, 0.0, 0.0);
       if (patch.material !== null && patch.material.getEdf() !== null) {
@@ -109,11 +110,11 @@ export class Nondiff {
       }
     } while (dirSelectionPdf[0] === 0.0);
 
-    pointSelectionPdf[0] = 1.0 / patch.area;
+    pointSelectionPdf[0] = 1.0 / patch.getArea();
     return ray;
   }
 
-  public static sampleLight(sceneWorldVoxelGrid: VoxelGrid, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace, light: LightSourceTable, lightSelectionPdf: number): void {
+  public static sampleLight(sceneQuery: SceneQuery, sceneWorldSceneQueryWorkspace: SceneQueryWorkspace, light: LightSourceTable, lightSelectionPdf: number): void {
     const rad = new ColorRgbMutable();
     const pointSelectionPdf = [0.0];
     const dirSelectionPdf = [0.0];
@@ -122,16 +123,16 @@ export class Nondiff {
     const hitStore = new RayHit();
 
     StochasticRelaxation.activeState().tracedRays++;
-    const hit = Localline.mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, lightPatch, ray, hitStore);
+    const hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, lightPatch, ray, hitStore);
     if (hit !== null) {
       const hitPatch = hit.getPatch() as Patch;
       const topPatchRad = McradP.getTopLevelPatchRad(hitPatch)!;
       const topPatchUnShot = McradP.getTopLevelPatchUnShotRad(hitPatch)!;
       const pdf = lightSelectionPdf * pointSelectionPdf[0]! * dirSelectionPdf[0]!;
-      const outCos = ray.direction.dotProduct(lightPatch.normal);
+      const outCos = ray.direction.dotProduct(lightPatch.getNormal());
       const receivedRadiosity = new ColorRgbMutable();
       const rd = McradP.topLevelStochasticRadiosityElement(hitPatch).Rd;
-      receivedRadiosity.scaledCopy(outCos / (globalThis.Math.PI * hitPatch.area * pdf * Nondiff.numberOfSamples), rad);
+      receivedRadiosity.scaledCopy(outCos / (globalThis.Math.PI * hitPatch.getArea() * pdf * Nondiff.numberOfSamples), rad);
       receivedRadiosity.selfScalarProduct(rd);
       topPatchRad[0]!.add(topPatchRad[0]!, receivedRadiosity);
       topPatchUnShot[0]!.add(topPatchUnShot[0]!, receivedRadiosity);
@@ -142,7 +143,7 @@ export class Nondiff {
     }
   }
 
-  public static sampleLightSources(sceneWorldVoxelGrid: VoxelGrid, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace, samplesCount: number): void {
+  public static sampleLightSources(sceneQuery: SceneQuery, sceneWorldSceneQueryWorkspace: SceneQueryWorkspace, samplesCount: number): void {
     let rnd = Random48.drand48();
     let count = 0;
     let pCumulative = 0.0;
@@ -155,7 +156,7 @@ export class Nondiff {
         globalThis.Math.floor((pCumulative + p) * Nondiff.numberOfSamples + rnd) - count;
 
       for (let j = 0; j < samplesThisLight; j++) {
-        Nondiff.sampleLight(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, lights[i]!, p);
+        Nondiff.sampleLight(sceneQuery, sceneWorldSceneQueryWorkspace, lights[i]!, p);
       }
 
       pCumulative += p;
@@ -165,7 +166,7 @@ export class Nondiff {
     process.stderr.write("\n");
   }
 
-  public static summarize(scenePatches: ArrayList<Patch>): void {
+  public static summarize(scenePatches: ArrayList<Patch>, faceColors: FaceColorTable): void {
     StochasticRelaxation.activeState().unShotFlux.clear();
     StochasticRelaxation.activeState().unShotYmp = 0.0;
     StochasticRelaxation.activeState().totalFlux.clear();
@@ -175,26 +176,26 @@ export class Nondiff {
       const patch = scenePatches.get(i)!;
       StochasticRelaxation.activeState().unShotFlux.addScaled(
         StochasticRelaxation.activeState().unShotFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
       StochasticRelaxation.activeState().totalFlux.addScaled(
         StochasticRelaxation.activeState().totalFlux,
-        globalThis.Math.PI * patch.area,
+        globalThis.Math.PI * patch.getArea(),
         McradP.getTopLevelPatchRad(patch)![0]!
       );
       StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
         StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
-        globalThis.Math.PI * patch.area * (McradP.topLevelStochasticRadiosityElement(patch).importance -
+        globalThis.Math.PI * patch.getArea() * (McradP.topLevelStochasticRadiosityElement(patch).importance -
           McradP.topLevelStochasticRadiosityElement(patch).sourceImportance),
         McradP.getTopLevelPatchUnShotRad(patch)![0]!
       );
-      StochasticRelaxation.activeState().unShotYmp += patch.area * globalThis.Math.abs(
+      StochasticRelaxation.activeState().unShotYmp += patch.getArea() * globalThis.Math.abs(
         McradP.topLevelStochasticRadiosityElement(patch).unShotImportance
       );
-      StochasticRelaxation.activeState().totalYmp += patch.area * McradP.topLevelStochasticRadiosityElement(patch).importance;
-      StochasticRelaxation.activeState().sourceYmp += patch.area * McradP.topLevelStochasticRadiosityElement(patch).sourceImportance;
-      Mcrad.monteCarloRadiosityPatchComputeNewColor(patch);
+      StochasticRelaxation.activeState().totalYmp += patch.getArea() * McradP.topLevelStochasticRadiosityElement(patch).importance;
+      StochasticRelaxation.activeState().sourceYmp += patch.getArea() * McradP.topLevelStochasticRadiosityElement(patch).sourceImportance;
+      Mcrad.monteCarloRadiosityPatchComputeNewColor(patch, faceColors);
     }
   }
 
@@ -221,11 +222,11 @@ Initial shooting pass handling non-diffuse light sources
 
     Nondiff.makeLightSourceTable(scenePatches, lightPatches);
     Nondiff.sampleLightSources(
-      scene.voxelGrid as VoxelGrid,
-      scene.voxelGridWorkspace as VoxelGridWorkspace,
+      scene.getSceneQuery() as SceneQuery,
+      scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
       StochasticRelaxation.activeState().initialLightSourceSamples * Nondiff.numberOfLights
     );
-    Nondiff.summarize(scenePatches);
+    Nondiff.summarize(scenePatches, scene.getFaceColors()!);
     Nondiff.lights = null;
   }
 }

@@ -5,8 +5,8 @@ import { BsdfComponent } from "../../material/BsdfComponent";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { PathRayType } from "../common/PathRayType";
 import { RayTools } from "../common/RayTools";
@@ -22,8 +22,8 @@ export abstract class Sampler {
     | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
   protected sampleTransfer(
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     thisNode: SimpleRaytracingPathNode,
     newNode: SimpleRaytracingPathNode,
@@ -37,8 +37,8 @@ export abstract class Sampler {
     newNode.m_depth = thisNode.m_depth + 1;
     newNode.m_rayType = PathRayType.STOPS;
     const hit = RayTools.findRayIntersection(
-      sceneVoxelGrid,
-      sceneVoxelGridWorkspace,
+      sceneQuery,
+      sceneSceneQueryWorkspace,
       ray,
       thisNode.m_hit.getPatch(),
       newNode.m_inBsdf,
@@ -97,8 +97,8 @@ export abstract class Sampler {
 
   public abstract sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,

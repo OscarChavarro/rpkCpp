@@ -1,10 +1,11 @@
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinState } from "../GalerkinState";
+import type { DirectPotentialTable } from "../../scene/DirectPotentialTable";
 import { Scene } from "../../scene/Scene";
 
 export abstract class GatheringStrategy {
-  protected static pushPullPotential(element: GalerkinElement | null, down: number): number {
+  protected static pushPullPotential(element: GalerkinElement | null, down: number, directPotentials: DirectPotentialTable): number {
     if (element === null) {
       return 0.0;
     }
@@ -14,13 +15,13 @@ export abstract class GatheringStrategy {
     let up = 0.0;
 
     if (element.regularSubElements === null && element.irregularSubElements === null) {
-      up = down + (element.patch !== null ? element.patch.directPotential : 0.0);
+      up = down + (element.patch !== null ? directPotentials.get(element.patch.getFaceIndex()) : 0.0);
     }
 
     if (element.regularSubElements !== null) {
       for (let i = 0; i < 4; i++) {
         if (element.regularSubElements[i] instanceof GalerkinElement) {
-          up += 0.25 * GatheringStrategy.pushPullPotential(element.regularSubElements[i] as GalerkinElement, down);
+          up += 0.25 * GatheringStrategy.pushPullPotential(element.regularSubElements[i] as GalerkinElement, down, directPotentials);
         }
       }
     }
@@ -33,7 +34,7 @@ export abstract class GatheringStrategy {
         const subElement = element.irregularSubElements[j] as GalerkinElement;
         const localDown = element.isCluster() ? down : 0.0;
         up += element.area > 0.0
-          ? (subElement.area / element.area) * GatheringStrategy.pushPullPotential(subElement, localDown)
+          ? (subElement.area / element.area) * GatheringStrategy.pushPullPotential(subElement, localDown, directPotentials)
           : 0.0;
       }
     }

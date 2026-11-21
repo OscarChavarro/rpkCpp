@@ -15,8 +15,8 @@ import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { LightList } from "../bidirectionalRaytracing/LightList";
@@ -106,8 +106,8 @@ Raytrace the current scene as seen with the current camera.
     if (this.rayTracingState.progressiveTracing === 0) {
       ScreenIterate.sequential(
         scene.camera as Camera,
-        scene.voxelGrid as VoxelGrid,
-        scene.voxelGridWorkspace as VoxelGridWorkspace,
+        scene.getSceneQuery() as SceneQuery,
+        scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
         scene.background,
         StochasticRaytracer.calcPixel,
         callbackData,
@@ -117,8 +117,8 @@ Raytrace the current scene as seen with the current camera.
     else {
       ScreenIterate.progressive(
         scene.camera as Camera,
-        scene.voxelGrid as VoxelGrid,
-        scene.voxelGridWorkspace as VoxelGridWorkspace,
+        scene.getSceneQuery() as SceneQuery,
+        scene.getSceneQueryWorkspace() as SceneQueryWorkspace,
         scene.background,
         StochasticRaytracer.calcPixel,
         callbackData,
@@ -156,8 +156,8 @@ Raytrace the current scene as seen with the current camera.
 
   private static stochasticRaytracerGetScatteredRadiance(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     thisNode: SimpleRaytracingPathNode,
     config: StochasticRaytracingConfiguration,
@@ -224,8 +224,8 @@ Raytrace the current scene as seen with the current camera.
           if (
             config.samplerConfig.surfaceSampler!.sample(
               camera,
-              sceneVoxelGrid,
-              sceneVoxelGridWorkspace,
+              sceneQuery,
+              sceneSceneQueryWorkspace,
               sceneBackground,
               thisNode.previous(),
               thisNode,
@@ -248,8 +248,8 @@ Raytrace the current scene as seen with the current camera.
             if (siCurrent === -1) {
               radiance = StochasticRaytracer.stochasticRaytracerGetRadiance(
                 camera,
-                sceneVoxelGrid,
-                sceneVoxelGridWorkspace,
+                sceneQuery,
+                sceneSceneQueryWorkspace,
                 sceneBackground,
                 newNode,
                 config,
@@ -262,8 +262,8 @@ Raytrace the current scene as seen with the current camera.
             else {
               radiance = StochasticRaytracer.stochasticRaytracerGetRadiance(
                 camera,
-                sceneVoxelGrid,
-                sceneVoxelGridWorkspace,
+                sceneQuery,
+                sceneSceneQueryWorkspace,
                 sceneBackground,
                 newNode,
                 config,
@@ -298,8 +298,8 @@ Raytrace the current scene as seen with the current camera.
 
   private static srGetDirectRadiance(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode,
     config: StochasticRaytracingConfiguration,
@@ -350,8 +350,8 @@ Raytrace the current scene as seen with the current camera.
           if (
             config.samplerConfig.neSampler!.sample(
               camera,
-              sceneVoxelGrid,
-              sceneVoxelGridWorkspace,
+              sceneQuery,
+              sceneSceneQueryWorkspace,
               sceneBackground,
               prevNode.previous(),
               prevNode,
@@ -361,7 +361,7 @@ Raytrace the current scene as seen with the current camera.
               true,
               bsdfAll
             )
-            && (RayTools.pathNodesVisible(sceneVoxelGrid, sceneVoxelGridWorkspace, prevNode, lightNode))
+            && (RayTools.pathNodesVisible(sceneQuery, sceneSceneQueryWorkspace, prevNode, lightNode))
           ) {
             let siCurrent: number;
             let si: ScatterInfo;
@@ -446,8 +446,8 @@ Raytrace the current scene as seen with the current camera.
 
   private static stochasticRaytracerGetRadiance(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     thisNode: SimpleRaytracingPathNode,
     config: StochasticRaytracingConfiguration,
@@ -561,13 +561,13 @@ Raytrace the current scene as seen with the current camera.
         result.add(result, radiance);
       }
 
-      radiance = StochasticRaytracer.srGetDirectRadiance(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, config, readout);
+      radiance = StochasticRaytracer.srGetDirectRadiance(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, config, readout);
       result.add(result, radiance);
 
       radiance = StochasticRaytracer.stochasticRaytracerGetScatteredRadiance(
         camera,
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         sceneBackground,
         thisNode,
         config,
@@ -638,8 +638,8 @@ Raytrace the current scene as seen with the current camera.
 
   private static calcPixel(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     nx: number,
     ny: number,
@@ -667,7 +667,7 @@ Raytrace the current scene as seen with the current camera.
       config.seedConfig.save(0);
     }
 
-    config.samplerConfig.pointSampler!.sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, null, null as any, eyeNode, 0, 0);
+    config.samplerConfig.pointSampler!.sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, null, null as any, eyeNode, 0, 0);
     (config.samplerConfig.dirSampler as PixelSampler).SetPixel(camera, nx, ny, null);
 
     eyeNode.attach(pixelNode);
@@ -677,8 +677,8 @@ Raytrace the current scene as seen with the current camera.
 
       if (config.samplerConfig.dirSampler!.sample(
         camera,
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         sceneBackground,
         null,
         eyeNode,
@@ -695,8 +695,8 @@ Raytrace the current scene as seen with the current camera.
 
         col = StochasticRaytracer.stochasticRaytracerGetRadiance(
           camera,
-          sceneVoxelGrid,
-          sceneVoxelGridWorkspace,
+          sceneQuery,
+          sceneSceneQueryWorkspace,
           sceneBackground,
           pixelNode,
           config,

@@ -194,7 +194,7 @@ export class GalerkinBasis {
     }
 
     if (element.regularSubElements === null && element.irregularSubElements === null && element.patch !== null) {
-      const rho = element.patch.radianceData!.Rd;
+      const rho = element.galerkinState.topLevelElement(element.patch).Rd;
       for (let i = 0; i < n; i++) {
         bup[i]!.scalarProduct(rho, bdown[i]!);
       }
@@ -203,7 +203,7 @@ export class GalerkinBasis {
         galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       ) {
-        const Ed = element.patch.radianceData!.Ed;
+        const Ed = element.galerkinState.topLevelElement(element.patch).Ed;
         bup[0]!.add(bup[0]!, Ed);
       }
     }

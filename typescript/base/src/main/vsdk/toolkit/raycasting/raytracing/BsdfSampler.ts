@@ -3,8 +3,8 @@ import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "./Sampler";
@@ -13,8 +13,8 @@ import { SurfaceSampler } from "./SurfaceSampler";
 export class BsdfSampler extends SurfaceSampler {
   public override sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode,
@@ -60,7 +60,7 @@ export class BsdfSampler extends SurfaceSampler {
 
     SurfaceSampler.DetermineRayType(thisNode, newNode, dir);
 
-    if (!this.sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
+    if (!this.sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]!)) {
       thisNode.m_rayType = PathRayType.STOPS;
       return false;
     }

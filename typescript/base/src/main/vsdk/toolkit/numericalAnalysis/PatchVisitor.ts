@@ -32,7 +32,7 @@ export class PatchVisitor {
     const albedo = new ColorRgbMutable();
     const hit = new RayHit();
 
-    hit.init(patch, patch.midPoint, patch.normal, patch.material);
+    hit.init(patch, patch.midPoint(), patch.getNormal(), patch.material);
 
     const numberOfSamples = PatchVisitor.getNumberOfSamples(patch);
     albedo.clear();
@@ -40,8 +40,6 @@ export class PatchVisitor {
       let sample: ColorRgbMutable;
       const xi = Niederreiter31.niederreiter31(i);
       hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
-      const newFlags = hit.getFlags() | RayHitFlag.UV;
-      hit.setFlags(newFlags);
       const position: Vector3D = hit.getPoint();
       patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
       sample = new ColorRgbMutable();
@@ -59,7 +57,7 @@ export class PatchVisitor {
   public static averageEmittance(patch: Patch, components: number): ColorRgbMutable {
     const emittance = new ColorRgbMutable();
     const hit = new RayHit();
-    hit.init(patch, patch.midPoint, patch.normal, patch.material);
+    hit.init(patch, patch.midPoint(), patch.getNormal(), patch.material);
 
     const numberOfSamples = PatchVisitor.getNumberOfSamples(patch);
     emittance.clear();
@@ -67,8 +65,6 @@ export class PatchVisitor {
       let sample = new ColorRgbMutable();
       const xi = Niederreiter31.niederreiter31(i);
       hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
-      const newFlags = hit.getFlags() | RayHitFlag.UV;
-      hit.setFlags(newFlags);
       const position: Vector3D = hit.getPoint();
       patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
 

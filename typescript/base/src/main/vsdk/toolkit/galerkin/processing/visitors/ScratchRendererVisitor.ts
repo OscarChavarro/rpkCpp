@@ -24,7 +24,7 @@ export class ScratchRendererVisitor implements ClusterLeafVisitor {
       return;
     }
 
-    if (patch.normal.dotProduct(this.eyePoint) + patch.planeConstant < Numeric.EPSILON) {
+    if (patch.getNormal().dotProduct(this.eyePoint) + patch.getPlaneConstant() < Numeric.EPSILON) {
       return;
     }
 

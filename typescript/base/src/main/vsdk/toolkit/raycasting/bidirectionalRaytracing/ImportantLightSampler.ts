@@ -4,8 +4,8 @@ import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
@@ -23,8 +23,8 @@ export class ImportantLightSampler extends NextEventSampler {
 
   public override sample(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     prevNode: SimpleRaytracingPathNode | null,
     thisNode: SimpleRaytracingPathNode | null,
@@ -35,7 +35,7 @@ export class ImportantLightSampler extends NextEventSampler {
     flags = Sampler.BSDF_ALL_COMPONENTS
   ): boolean {
     void camera;
-    void sceneVoxelGrid;
+    void sceneQuery;
     void sceneBackground;
     void prevNode;
     void doRR;
@@ -107,9 +107,9 @@ export class ImportantLightSampler extends NextEventSampler {
     else {
       light.uniformPoint(x1, x2, point);
 
-      pdfPoint = 1.0 / light.area;
+      pdfPoint = 1.0 / light.getArea();
 
-      newNode.m_hit.init(light, point, light.normal, light.material);
+      newNode.m_hit.init(light, point, light.getNormal(), light.material);
       const normal = new Vector3D();
       newNode.m_hit.shadingNormal(normal);
       newNode.m_hit.setNormal(normal);
@@ -164,8 +164,8 @@ export class ImportantLightSampler extends NextEventSampler {
       localPdf *= pdfDir;
     }
     else {
-      if (localPdf >= Numeric.EPSILON && (newNode.m_hit.getPatch() as Patch).area > Numeric.EPSILON) {
-        localPdf = localPdf / (newNode.m_hit.getPatch() as Patch).area;
+      if (localPdf >= Numeric.EPSILON && (newNode.m_hit.getPatch() as Patch).getArea() > Numeric.EPSILON) {
+        localPdf = localPdf / (newNode.m_hit.getPatch() as Patch).getArea();
       }
       else {
         localPdf = 0.0;

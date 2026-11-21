@@ -47,7 +47,7 @@ export class SoftIds {
     const vertices = new Array<Vector3D>(4);
 
     if (renderOptions.backfaceCulling &&
-      patch.normal.dotProduct(camera.eyePosition) + patch.planeConstant < Numeric.EPSILON) {
+      patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < Numeric.EPSILON) {
       return;
     }
 

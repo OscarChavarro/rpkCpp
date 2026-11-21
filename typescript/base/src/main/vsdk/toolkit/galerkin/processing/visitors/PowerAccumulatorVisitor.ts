@@ -27,14 +27,14 @@ export class PowerAccumulatorVisitor implements ClusterLeafVisitor {
     galerkinState: GalerkinState,
   ): void {
     const dir = new Vector3D();
-    dir.subtraction(this.samplePoint, (galerkinElement.patch as NonNullable<GalerkinElement["patch"]>).midPoint);
+    dir.subtraction(this.samplePoint, (galerkinElement.patch as NonNullable<GalerkinElement["patch"]>).midPoint());
     const dist = dir.norm();
     let srcOs: number;
     if (dist < Numeric.EPSILON) {
       srcOs = 1.0;
     }
     else {
-      srcOs = dir.dotProduct((galerkinElement.patch as NonNullable<GalerkinElement["patch"]>).normal) / dist;
+      srcOs = dir.dotProduct((galerkinElement.patch as NonNullable<GalerkinElement["patch"]>).getNormal()) / dist;
     }
     if (srcOs <= 0.0) {
       return;

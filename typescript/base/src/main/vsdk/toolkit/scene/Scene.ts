@@ -4,10 +4,18 @@ import { GeometryClassId } from "../skin/GeometryClassId";
 import { MeshSurface } from "../skin/MeshSurface";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { PatchSet } from "../environment/geometry/elements/PatchSet";
+import { String as JavaString } from "../../../java/lang/String";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Background } from "./Background";
 import { Camera } from "./Camera";
-import { VoxelGrid } from "./VoxelGrid";
-import type { VoxelGridWorkspace } from "./VoxelGridWorkspace";
+import { DirectPotentialTable } from "./DirectPotentialTable";
+import { FaceBoundsTable } from "./FaceBoundsTable";
+import { FaceColorTable } from "./FaceColorTable";
+import { FaceVisibilityTable } from "./FaceVisibilityTable";
+import { RadianceElementTable } from "./RadianceElementTable";
+import type { VisibilityQueryRecorder } from "./VisibilityQueryRecorder";
+import { SceneAccelerationMethod } from "./SceneAccelerationMethod";
+import { SceneQuery, SceneQueryWorkspace } from "./SceneQuery";
 
 export class Scene {
   private static readonly compoundType = "Compound";
@@ -15,29 +23,73 @@ export class Scene {
   private static readonly patchSetType = "PatchSet";
   private static readonly unknownType = "<unknown>";
 
+  // Face table: every patch of the scene, in depth-first order of
+  // clusteredRootGeometry, indexed by Patch.getFaceIndex(); patches not
+  // owned. Each geometry and cluster covers a contiguous range.
+  private faceTable: Patch[];
+  private numberOfFaces: number;
+  private faceBounds: FaceBoundsTable | null; // Bounds of the faceTable entries
+  private directPotentials: DirectPotentialTable | null; // Direct potential of the faceTable entries
+  private faceVisibility: FaceVisibilityTable | null; // Direct visibility of the faceTable entries
+  private faceColors: FaceColorTable | null; // Display color of the faceTable entries
+  private radianceElements: RadianceElementTable | null; // Top-level radiance element of the faceTable entries
+  private accelerationMethod: SceneAccelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
+  private sceneQuery: SceneQuery | null; // Built by buildSceneQuery
+  private sceneQueryWorkspace: SceneQueryWorkspace | null; // Query scratch of the single-threaded callers
+
   public background: Background | null;
   public camera: Camera | null;
   public geometryList: Geometry[] | null;
   public clusteredGeometryList: Geometry[] | null;
   public clusteredRootGeometry: Geometry | null;
-  public voxelGrid: VoxelGrid | null;
-  public voxelGridWorkspace: VoxelGridWorkspace | null; // Query scratch for voxelGrid, owned by the scene
+  public visibilityQueryRecorder: VisibilityQueryRecorder | null; // Ray capture runs only, otherwise null
   public patchList: Patch[] | null;
   public lightSourcePatchList: Patch[] | null;
 
   public constructor() {
+    this.faceTable = [];
+    this.numberOfFaces = 0;
+    this.faceBounds = null;
+    this.directPotentials = null;
+    this.faceVisibility = null;
+    this.faceColors = null;
+    this.radianceElements = null;
+    this.accelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
+    this.sceneQuery = null;
+    this.sceneQueryWorkspace = null;
     this.background = null;
     this.camera = new Camera();
     this.geometryList = null;
     this.clusteredGeometryList = [];
     this.clusteredRootGeometry = null;
-    this.voxelGrid = null;
-    this.voxelGridWorkspace = null;
+    this.visibilityQueryRecorder = null;
     this.patchList = null;
     this.lightSourcePatchList = null;
   }
 
+  /**
+  Deletes the top-level radiance elements still bound to faces and the table.
+  Radiance methods unbind (and destroy) their elements when they are replaced;
+  the elements of the method in use at teardown are released here, as the
+  faces' destructors did when they held them
+  */
+  private deleteRadianceElements(): void {
+    if (this.radianceElements !== null) {
+      for (let i = 0; i < this.radianceElements.getNumberOfFaces(); i++) {
+        this.radianceElements.set(i, null);
+      }
+    }
+    this.radianceElements = null;
+  }
+
   public destroy(): void {
+    this.faceBounds = null;
+    this.directPotentials = null;
+    this.faceVisibility = null;
+    this.faceColors = null;
+    this.deleteRadianceElements();
+    this.faceTable = [];
+    this.numberOfFaces = 0;
     if (this.lightSourcePatchList !== null) {
       this.lightSourcePatchList = null;
     }
@@ -50,11 +102,15 @@ export class Scene {
     if (this.patchList !== null) {
       this.patchList = null;
     }
-    if (this.voxelGrid !== null) {
-      this.voxelGrid.freeVoxelGridElements();
-      this.voxelGrid = null;
+    this.sceneQueryWorkspace = null;
+    if (this.visibilityQueryRecorder !== null) {
+      this.visibilityQueryRecorder.destroy();
+      this.visibilityQueryRecorder = null;
     }
-    this.voxelGridWorkspace = null;
+    if (this.sceneQuery !== null) {
+      this.sceneQuery.destroy();
+      this.sceneQuery = null;
+    }
     if (this.background !== null) {
       this.background = null;
     }
@@ -169,7 +225,7 @@ export class Scene {
     process.stdout.write(`Patches on top level scene list: ${this.patchList.length}\n`);
     for (let i = 0; i < this.patchList.length; i++) {
       const patch = this.patchList[i]!;
-      process.stdout.write(`  - patch[${i}]: vertices: ${patch.numberOfVertices}, area: ${patch.area.toFixed(3)}\n`);
+      process.stdout.write(`  - patch[${i}]: vertices: ${patch.numberOfVertices}, area: ${patch.getArea().toFixed(3)}\n`);
     }
   }
 
@@ -224,9 +280,147 @@ export class Scene {
     }
   }
 
-  private printVoxelGrid(): void {
-    process.stdout.write("= voxelGrid ================================================================\n");
-    this.voxelGrid!.print();
+  private printSceneQuery(): void {
+    process.stdout.write(`= scene query (${SceneQuery.methodName(this.accelerationMethod)}) ===========================================================\n`);
+    if (this.sceneQuery !== null && this.sceneQuery.getLegacyGrid() !== null) {
+      this.sceneQuery.getLegacyGrid()!.print();
+    }
+  }
+
+  /** The index buildSceneQuery uses; set while the scene is being built */
+  public setAccelerationMethod(method: SceneAccelerationMethod): void {
+    this.accelerationMethod = method;
+  }
+
+  public getAccelerationMethod(): SceneAccelerationMethod {
+    return this.accelerationMethod;
+  }
+
+  /**
+  Builds the scene query over the face table with the acceleration method,
+  and the scene's workspace for it (reporting to visibilityQueryRecorder in
+  ray capture runs). Called once, after buildFaceTable.
+  */
+  public buildSceneQuery(): void {
+    if (this.sceneQuery !== null) {
+      this.sceneQuery.destroy();
+    }
+    this.sceneQuery = new SceneQuery(this, this.accelerationMethod);
+    this.sceneQueryWorkspace = new SceneQueryWorkspace(this.sceneQuery, this.visibilityQueryRecorder);
+  }
+
+  public getSceneQuery(): SceneQuery | null {
+    return this.sceneQuery;
+  }
+
+  public getSceneQueryWorkspace(): SceneQueryWorkspace | null {
+    return this.sceneQueryWorkspace;
+  }
+
+  public getNumberOfFaces(): number {
+    return this.numberOfFaces;
+  }
+
+  public getFace(faceIndex: number): Patch {
+    return this.faceTable[faceIndex]!;
+  }
+
+  public getFaceBounds(): FaceBoundsTable | null {
+    return this.faceBounds;
+  }
+
+  // Per-face solver data: written by Potential.updateDirectPotential, read
+  // by the importance-driven solvers
+  public getDirectPotentials(): DirectPotentialTable | null {
+    return this.directPotentials;
+  }
+
+  // Written by Potential.updateDirectVisibility, read by the importance-driven
+  // stochastic radiosity
+  public getFaceVisibility(): FaceVisibilityTable | null {
+    return this.faceVisibility;
+  }
+
+  // Written by the radiance methods after each step, read by the displays
+  public getFaceColors(): FaceColorTable | null {
+    return this.faceColors;
+  }
+
+  // Filled by Radiance.setRadianceMethod, read by the radiance methods
+  public getRadianceElements(): RadianceElementTable | null {
+    return this.radianceElements;
+  }
+
+  private static collectFaces(geometry: Geometry | null, table: Patch[], capacity: number, count: number[], conflicts: number[]): void {
+    if (geometry === null) {
+      return;
+    }
+    // Faces are numbered depth-first, so the faces below this geometry are
+    // exactly the interval [first, count - 1] once its subtree is visited
+    const first = count[0]!;
+    if (geometry.className === GeometryClassId.COMPOUND) {
+      const children = (geometry as Compound).children;
+      if (children !== null) {
+        for (let i = 0; i < children.length; i++) {
+          Scene.collectFaces(children[i]!, table, capacity, count, conflicts);
+        }
+      }
+      geometry.setFaceIndexRange(first, count[0]! - 1);
+      return;
+    }
+    const patches = Geometry.patchListReference(geometry);
+    for (let i = 0; patches !== null && i < patches.length; i++) {
+      const patch = patches[i]!;
+      if (patch.getFaceIndex() >= 0 || count[0]! >= capacity) {
+        conflicts[0]!++;
+        continue;
+      }
+      patch.setFaceIndex(count[0]!);
+      table[count[0]!] = patch;
+      count[0]!++;
+    }
+    geometry.setFaceIndexRange(first, count[0]! - 1);
+  }
+
+  /**
+  Assigns the dense face indices and builds the face table and the face
+  bounds. Called once, after the cluster hierarchy exists and before the
+  scene query. A patch reachable from two geometries, or a patch of
+  patchList that clusteredRootGeometry does not reach, is a fatal error.
+  */
+  public buildFaceTable(): void {
+    this.faceBounds = null;
+    this.directPotentials = null;
+    this.faceVisibility = null;
+    this.faceColors = null;
+    this.deleteRadianceElements();
+    this.faceTable = [];
+    this.numberOfFaces = 0;
+    const capacity = this.patchList !== null ? this.patchList.length : 0;
+    for (let i = 0; i < capacity; i++) {
+      this.patchList![i]!.setFaceIndex(-1);
+    }
+    const count = [0];
+    const conflicts = [0];
+    Scene.collectFaces(this.clusteredRootGeometry, this.faceTable, capacity, count, conflicts);
+    this.numberOfFaces = count[0]!;
+
+    let unreached = 0;
+    for (let i = 0; i < capacity; i++) {
+      if (this.patchList![i]!.getFaceIndex() < 0) {
+        unreached++;
+      }
+    }
+    if (conflicts[0] !== 0 || unreached !== 0 || this.numberOfFaces !== capacity) {
+      VsdkLogger.reportMessage(this, VsdkLogger.FATAL_ERROR, "buildFaceTable", JavaString.vformat(
+        "Face table: %d patches, %d indexed, %d reached twice, %d unreachable from the cluster hierarchy",
+        [capacity, this.numberOfFaces, conflicts[0]!, unreached]));
+    }
+    this.faceBounds = new FaceBoundsTable(this.faceTable, this.numberOfFaces);
+    this.directPotentials = new DirectPotentialTable(this.numberOfFaces);
+    this.faceVisibility = new FaceVisibilityTable(this.numberOfFaces);
+    this.faceColors = new FaceColorTable(this.numberOfFaces);
+    this.radianceElements = new RadianceElementTable(this.numberOfFaces);
   }
 
   public print(): void {
@@ -235,7 +429,7 @@ export class Scene {
     this.printPatches();
     const elementCount = [0];
     Scene.printClusterHierarchy(this.clusteredRootGeometry as Geometry, 0, elementCount);
-    this.printVoxelGrid();
+    this.printSceneQuery();
     process.stdout.write(`*** Total number of geometry elements on cluster hierarchy: ${elementCount[0]!}\n`);
   }
 }

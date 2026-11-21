@@ -1,5 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Patch } from "../../environment/geometry/elements/Patch";
+import { ElementHierarchyState } from "./ElementHierarchyState";
 import { GalerkinBasis } from "./GalerkinBasis";
 type StochasticRadiosityElement = any;
 
@@ -12,7 +13,7 @@ export class McradP {
   }
 
   public static topLevelStochasticRadiosityElement(patch: Patch): StochasticRadiosityElement {
-    return patch.radianceData as unknown as StochasticRadiosityElement;
+    return ElementHierarchyState.activeState().getRadianceElements()!.get(patch.getFaceIndex()) as unknown as StochasticRadiosityElement;
   }
 
   public static getTopLevelPatchRad(patch: Patch): ColorRgbMutable[] | null {

@@ -137,11 +137,11 @@ export class GalerkinElement extends Element {
       this.patch = inPatch;
       this.geometry = null;
       this.flags &= ~ElementFlags.IS_CLUSTER_MASK;
-      this.area = inPatch === null ? 0.0 : inPatch.area;
+      this.area = inPatch === null ? 0.0 : inPatch.getArea();
       this.minimumArea = this.area;
       this.blockerSize = 2.0 * Math.sqrt(this.area / Math.PI);
       this.numberOfPatches = inPatch === null ? 0 : 1;
-      this.directPotential = inPatch === null ? 0.0 : inPatch.directPotential;
+      this.directPotential = 0.0; // Every face starts without direct potential (DirectPotentialTable)
 
       if (inPatch !== null) {
         this.Rd = PatchVisitor.averageNormalAlbedo(inPatch, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
@@ -150,7 +150,6 @@ export class GalerkinElement extends Element {
           this.Ed = PatchVisitor.averageEmittance(inPatch, XxdfComponentFlag.DIFFUSE_COMPONENT);
           this.Ed.scaleInverse(Math.PI, this.Ed);
         }
-        inPatch.radianceData = this;
       }
 
       this.reAllocCoefficients();
@@ -178,11 +177,17 @@ export class GalerkinElement extends Element {
     return GalerkinElement.numberOfElements - GalerkinElement.numberOfClusters;
   }
 
-  public static fromPatch(patch: Patch | null): GalerkinElement | null {
-    if (patch === null || patch.radianceData === null || !(patch.radianceData instanceof GalerkinElement)) {
+  /**
+  Top-level element of a face, read from the scene's RadianceElementTable
+  bound to the state; null when the face has none or it is not a Galerkin
+  element
+  */
+  public static fromPatch(galerkinState: GalerkinState, patch: Patch | null): GalerkinElement | null {
+    const element = galerkinState.boundElement(patch);
+    if (element === null || !(element instanceof GalerkinElement)) {
       return null;
     }
-    return patch.radianceData as GalerkinElement;
+    return galerkinState.topLevelElement(patch!);
   }
 
   public static initializeBasis(): void {
@@ -459,8 +464,8 @@ export class GalerkinElement extends Element {
       return;
     }
 
-    polygon.normal.set(this.patch.normal.x, this.patch.normal.y, this.patch.normal.z);
-    polygon.planeConstant = this.patch.planeConstant;
+    polygon.normal.set(this.patch.getNormal().x, this.patch.getNormal().y, this.patch.getNormal().z);
+    polygon.planeConstant = this.patch.getPlaneConstant();
     polygon.numberOfVertices = this.vertices(polygon.vertex);
     polygon.bounds = new BoundingBox();
     for (let i = 0; i < polygon.numberOfVertices; i++) {

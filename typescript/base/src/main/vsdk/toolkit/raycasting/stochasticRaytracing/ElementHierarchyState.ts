@@ -5,6 +5,7 @@ import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { HierarchyClusteringMode } from "./HierarchyClusteringMode";
 import { Link } from "./Link";
+import type { RadianceElementTable } from "../../scene/RadianceElementTable";
 
 export type REFINE_ACTION = (
   link: Link,
@@ -36,6 +37,9 @@ export class ElementHierarchyState {
   public normals: ArrayList<Vector3D> | null;
   public texCoords: ArrayList<Vector3D> | null;
   public vertices: ArrayList<Vertex> | null;
+  // The scene's table of top-level elements, bound when the method is initialized;
+  // null while the method has not been initialized (nothing to terminate then)
+  private radianceElements: RadianceElementTable | null;
 
   public constructor() {
     this.epsilon = 0.0;
@@ -51,6 +55,15 @@ export class ElementHierarchyState {
     this.normals = null;
     this.texCoords = null;
     this.vertices = null;
+    this.radianceElements = null;
+  }
+
+  public getRadianceElements(): RadianceElementTable | null {
+    return this.radianceElements;
+  }
+
+  public setRadianceElements(inRadianceElements: RadianceElementTable | null): void {
+    this.radianceElements = inRadianceElements;
   }
 
   public static setActiveState(state: ElementHierarchyState): void {

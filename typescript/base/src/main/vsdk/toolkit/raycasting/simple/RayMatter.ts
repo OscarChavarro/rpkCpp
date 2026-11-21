@@ -19,8 +19,8 @@ import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { RayMatterFilterType } from "./RayMatterFilterType";
@@ -88,7 +88,7 @@ export class RayMatter extends RayTracer {
       this.rayMatterState,
       toneMapOptions
     );
-    RayMatter.rayMatter.doMatting(scene.camera, scene.voxelGrid, scene.voxelGridWorkspace);
+    RayMatter.rayMatter.doMatting(scene.camera, scene.getSceneQuery(), scene.getSceneQueryWorkspace());
     if (ip !== null && RayMatter.rayMatter !== null) {
       RayMatter.rayMatter.save(ip);
     }
@@ -126,8 +126,8 @@ export class RayMatter extends RayTracer {
     }
   }
 
-  public doMatting(camera: Camera | null, sceneWorldVoxelGrid: VoxelGrid | null, sceneWorldVoxelGridWorkspace: VoxelGridWorkspace | null): void {
-    if (camera === null || sceneWorldVoxelGrid === null || sceneWorldVoxelGridWorkspace === null) {
+  public doMatting(camera: Camera | null, sceneQuery: SceneQuery | null, sceneWorldSceneQueryWorkspace: SceneQueryWorkspace | null): void {
+    if (camera === null || sceneQuery === null || sceneWorldSceneQueryWorkspace === null) {
       return;
     }
 
@@ -157,7 +157,7 @@ export class RayMatter extends RayTracer {
           ray.direction.normalize(Numeric.EPSILON_FLOAT);
 
           // Check if hit
-          if (RayTools.findRayIntersection(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, null, null, null) !== null) {
+          if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) !== null) {
             hits++;
           }
         }

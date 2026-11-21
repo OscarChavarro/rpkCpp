@@ -3,8 +3,8 @@ import { Statistics } from "../../common/statistics/Statistics";
 import { SoftIds } from "../../render/SoftIds";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
-import { VoxelGrid } from "../../scene/VoxelGrid";
-import type { VoxelGridWorkspace } from "../../scene/VoxelGridWorkspace";
+import { SceneQuery } from "../../scene/SceneQuery";
+import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { ToneMap } from "../../tonemap/ToneMap";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { SCREEN_ITERATE_CALLBACK } from "./SCREEN_ITERATE_CALLBACK";
@@ -35,8 +35,8 @@ export class ScreenIterate {
 
   public static sequential(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     callback: SCREEN_ITERATE_CALLBACK,
     data: unknown,
@@ -53,7 +53,7 @@ export class ScreenIterate {
 
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        const col = callback(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, j, i, data);
+        const col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, j, i, data);
         ToneMap.radianceToRgb(col, rgb[j]!, toneMapOptions);
         Statistics.instance().rayTracer.pixelCount++;
       }
@@ -103,8 +103,8 @@ export class ScreenIterate {
 
   public static progressive(
     camera: Camera,
-    sceneVoxelGrid: VoxelGrid,
-    sceneVoxelGridWorkspace: VoxelGridWorkspace,
+    sceneQuery: SceneQuery,
+    sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
     callback: SCREEN_ITERATE_CALLBACK,
     data: unknown,
@@ -169,7 +169,7 @@ export class ScreenIterate {
           }
 
           if (!skip || ((ySteps & 1) !== 0) || ((xSteps & 1) !== 0)) {
-            const col = callback(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, x0, height - y0 - 1, data);
+            const col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, x0, height - y0 - 1, data);
             ToneMap.radianceToRgb(col, pixelRGB, toneMapOptions);
             ScreenIterate.fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 

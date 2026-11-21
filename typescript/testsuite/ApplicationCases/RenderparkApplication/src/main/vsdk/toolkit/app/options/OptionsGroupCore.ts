@@ -8,7 +8,11 @@ import { ParseRuntimeContext } from "vitral/dist/vsdk/toolkit/io/context/ParseRu
 import { Background } from "vitral/dist/vsdk/toolkit/scene/Background";
 import { Camera } from "vitral/dist/vsdk/toolkit/scene/Camera";
 import { ConstantColorBackground } from "vitral/dist/vsdk/toolkit/scene/ConstantColorBackground";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
+import { SceneAccelerationMethod } from "vitral/dist/vsdk/toolkit/scene/SceneAccelerationMethod";
+import { SceneQuery } from "vitral/dist/vsdk/toolkit/scene/SceneQuery";
 import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { EnumAppOptions } from "./EnumAppOptions";
 import { EnumBackgroundMode } from "./EnumBackgroundMode";
@@ -28,6 +32,7 @@ export class OptionsGroupCore {
   private static outputImageHeight = 1080;
   private static glutDebugEnabled = 0;
   private static backgroundMode = EnumBackgroundMode.NONE;
+  private static sceneAccelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
   private static backgroundColor = new ColorRgbMutable(
     OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.r,
     OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.g,
@@ -61,6 +66,7 @@ export class OptionsGroupCore {
       imageOutputHeight,
       glutDebugEnabledOut
     );
+    scene.setAccelerationMethod(OptionsGroupCore.sceneAccelerationMethod);
 
     parseSession.singleSided = oneSidedSurfaces[0]!;
     parseSession.parserConfig.singleSided = oneSidedSurfaces[0]!;
@@ -203,6 +209,22 @@ export class OptionsGroupCore {
     OptionsGroupCore.numberOfQuarterCircleDivisions = value.value;
   }
 
+  /**
+  -scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+  the scene query (SceneAccelerationMethod); wald2007 by default
+  */
+  private static sceneAccelerationOption(value: TypedOption.MutableValue<string>): void {
+    const name = value.value;
+    const method = [OptionsGroupCore.sceneAccelerationMethod];
+    if (SceneQuery.methodFromName(name, method)) {
+      OptionsGroupCore.sceneAccelerationMethod = method[0]!;
+    }
+    else {
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat(
+        "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", [name]));
+    }
+  }
+
   private static setIntTrue(value: TypedOption.MutableValue<number>): void {
     value.value = 1;
   }
@@ -287,6 +309,14 @@ export class OptionsGroupCore {
       OptionsGroupCore.setIntTrue,
       null
     );
+    const sceneAccelerationName = TypedOption.valueRef<string | null>(null);
+    const sceneAccelerationOpt = new TypedOption<string | null>(
+      "-scene-acceleration",
+      sceneAccelerationName,
+      1,
+      (v) => OptionsGroupCore.sceneAccelerationOption(v as TypedOption.MutableValue<string>),
+      null
+    );
     const registry: OptionBase[] = [
       TypedOption.REGISTER_OPTION(widthOpt, 5),
       TypedOption.REGISTER_OPTION(heightOpt, 6),
@@ -295,6 +325,7 @@ export class OptionsGroupCore {
       TypedOption.REGISTER_OPTION(dontForceOneSidedOpt, 14),
       TypedOption.REGISTER_OPTION(monochromaticOpt, 5),
       TypedOption.REGISTER_OPTION(glutDebugOpt, 6),
+      TypedOption.REGISTER_OPTION(sceneAccelerationOpt, 8),
     ];
 
     OptionsGroupCore.fileOptionsForceOneSidedSurfaces = OptionsGroupCore.DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
@@ -306,11 +337,12 @@ export class OptionsGroupCore {
       OptionsGroupCore.DEFAULT_BACKGROUND_COLOR.b
     );
     OptionsGroupCore.glutDebugEnabled = appOptions.debug;
+    OptionsGroupCore.sceneAccelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
 
     OptionsGroupCore.commandLineParseBackgroundOption(argc, argv);
 
     const generalGroups = [
-      new OptionGroup("global", registry, 7),
+      new OptionGroup("global", registry, 8),
     ];
     OptionParser.parse(argc, argv, generalGroups, 1);
 

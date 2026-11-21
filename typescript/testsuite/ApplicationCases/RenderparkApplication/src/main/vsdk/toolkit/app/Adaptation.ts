@@ -62,7 +62,7 @@ export class Adaptation {
   private static patchComputeLogAreaLum(patch: Patch): void {
     const brightness = Adaptation.patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
-    Adaptation.logAreaLum += patch.area * globalThis.Math.log(brightness);
+    Adaptation.logAreaLum += patch.getArea() * globalThis.Math.log(brightness);
   }
 
   private static patchFillLumArea(patch: Patch): void {
@@ -70,7 +70,7 @@ export class Adaptation {
 
     const entry = (Adaptation.lumArea as LuminanceArea[])[Adaptation.lumAreaIndex]!;
     entry.luminance = brightness;
-    entry.area = patch.area;
+    entry.area = patch.getArea();
 
     Adaptation.lumMin = globalThis.Math.min(Adaptation.lumMin, entry.luminance);
     Adaptation.lumMax = globalThis.Math.max(Adaptation.lumMax, entry.luminance);

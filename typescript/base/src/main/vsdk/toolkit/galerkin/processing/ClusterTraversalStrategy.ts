@@ -86,13 +86,13 @@ export class ClusterTraversalStrategy {
     const dir = new Vector3D();
     const samplePoint = new Vector3D();
 
-    dir.subtraction(samplePoint, receiverElement.patch.midPoint);
+    dir.subtraction(samplePoint, receiverElement.patch.midPoint());
     const distance = dir.norm();
     if (distance < Numeric.EPSILON) {
       rcvCos = 1.0;
     }
     else {
-      rcvCos = dir.dotProduct(receiverElement.patch.normal) / distance;
+      rcvCos = dir.dotProduct(receiverElement.patch.getNormal()) / distance;
     }
     if (rcvCos <= 0.0) {
       return 0.0;

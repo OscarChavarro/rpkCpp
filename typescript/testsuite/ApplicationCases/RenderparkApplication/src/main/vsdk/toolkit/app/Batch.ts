@@ -1,4 +1,6 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { Geometry } from "vitral/dist/vsdk/toolkit/skin/Geometry";
+import { BoundingBox } from "vitral/dist/vsdk/toolkit/skin/AxisAlignedBoundingBox";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupBatch } from "./options/OptionsGroupBatch";
 import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
@@ -7,7 +9,6 @@ import { FileUncompressWrapper } from "vitral/dist/vsdk/toolkit/io/wrapper/FileU
 import { RayTracer } from "vitral/dist/vsdk/toolkit/raycasting/common/RayTracer";
 import { Canvas } from "vitral/dist/vsdk/toolkit/render/Canvas";
 import { RadianceImageExporter } from "vitral/dist/vsdk/toolkit/render/RadianceImageExporter";
-import { RenderOpenGL } from "vitral/dist/vsdk/toolkit/render/jogl/RenderOpenGL";
 import { RadianceMethod } from "vitral/dist/vsdk/toolkit/scene/RadianceMethod";
 import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
 import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
@@ -29,6 +30,24 @@ export class Batch {
   private static currentRayTracer: RayTracer | null = null;
 
   private constructor() {
+  }
+
+  /**
+  Fits the camera's near and far clipping distances to the scene geometry, the
+  same way with or without an OpenGL display
+  */
+  private static fitCameraClippingPlanes(scene: Scene): void {
+    if (scene.camera === null) {
+      return;
+    }
+    if (scene.geometryList === null || scene.geometryList.length === 0) {
+      scene.camera.far = 10.0;
+      scene.camera.near = Math.fround(0.1);
+      return;
+    }
+    const bounds = new BoundingBox();
+    Geometry.listBounds(scene.geometryList, bounds);
+    scene.camera.fitClippingPlanes(bounds);
   }
 
   public static batchGetOptions(): BatchOptions {
@@ -195,6 +214,9 @@ export class Batch {
     if (radianceMethod !== null) {
       process.stdout.write(`Doing ${radianceMethod.getRadianceMethodName()} ...\n`);
 
+      // The importance computations render patch IDs during the first step
+      Batch.fitCameraClippingPlanes(scene);
+
       let done = false;
       for (
         let iterationNumber = 0;
@@ -213,7 +235,7 @@ export class Batch {
 
         process.stdout.write(`${radianceMethod.getStats()}`);
 
-        RenderOpenGL.renderGetNearFar(scene.camera, scene.geometryList);
+        Batch.fitCameraClippingPlanes(scene);
 
         const wastedStart = process.hrtime.bigint();
 

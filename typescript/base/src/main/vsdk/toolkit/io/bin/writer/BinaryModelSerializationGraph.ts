@@ -148,11 +148,6 @@ export class BinaryModelSerializationGraph {
       return true;
     }
 
-    if (value.radianceData !== null) {
-      Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
-      return false;
-    }
-
     const index = this.patches.length;
     this.patches.push(value);
     this.patchIndices.set(value, index);

@@ -121,12 +121,12 @@ export class RadianceImageExporter {
     const rayDirection = screenBuffer.getPixelVector(x, y);
     rayDirection.normalize(Numeric.EPSILON_FLOAT);
 
-    const denominator = patch.normal.dotProduct(rayDirection);
+    const denominator = patch.getNormal().dotProduct(rayDirection);
     if (denominator <= Numeric.EPSILON_FLOAT && denominator >= -Numeric.EPSILON_FLOAT) {
       return radiance;
     }
 
-    const distance = -(patch.normal.dotProduct(camera.eyePosition) + patch.planeConstant) / denominator;
+    const distance = -(patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant()) / denominator;
     const hitPoint = new Vector3D();
     hitPoint.sumScaled(camera.eyePosition, distance, rayDirection);
 

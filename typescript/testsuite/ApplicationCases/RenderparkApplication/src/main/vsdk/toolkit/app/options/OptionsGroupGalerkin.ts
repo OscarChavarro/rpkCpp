@@ -6,6 +6,7 @@ import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions
 import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
 import { GalerkinIterationMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinIterationMethod";
 import { GalerkinRadianceMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
+import { GalerkinShaftCullMode } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinShaftCullMode";
 import { OptionTextUtils } from "./OptionTextUtils";
 
 export class OptionsGroupGalerkin {
@@ -28,6 +29,22 @@ export class OptionsGroupGalerkin {
     }
     else {
       VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid iteration method '%s'", [name]));
+    }
+  }
+
+  private static shaftCullingOption(value: TypedOption.MutableValue<string>): void {
+    const name = value.value;
+    if (OptionTextUtils.equalsIgnoreCase(name, "never")) {
+      GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING;
+    }
+    else if (OptionTextUtils.equalsIgnoreCase(name, "refinement")) {
+      GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT;
+    }
+    else if (OptionTextUtils.equalsIgnoreCase(name, "always")) {
+      GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING;
+    }
+    else {
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid shaft culling mode '%s' (never, refinement or always)", [name]));
     }
   }
 
@@ -59,6 +76,14 @@ export class OptionsGroupGalerkin {
       iterationMethodName,
       1,
       (v) => OptionsGroupGalerkin.iterationMethodOption(v as TypedOption.MutableValue<string>),
+      null
+    );
+    const shaftCullingName = TypedOption.valueRef<string | null>(null);
+    const shaftCullingOpt = new TypedOption<string | null>(
+      "-gr-shaft-culling",
+      shaftCullingName,
+      1,
+      (v) => OptionsGroupGalerkin.shaftCullingOption(v as TypedOption.MutableValue<string>),
       null
     );
     const grHierarchicalOpt = new TypedOption<number>(
@@ -157,6 +182,7 @@ export class OptionsGroupGalerkin {
     );
     const galerkinOptions: OptionBase[] = [
       TypedOption.REGISTER_OPTION(iterationMethodOpt, 6),
+      TypedOption.REGISTER_OPTION(shaftCullingOpt, 6),
       TypedOption.REGISTER_OPTION(grHierarchicalOpt, 6),
       TypedOption.REGISTER_OPTION(grNotHierarchicalOpt, 10),
       TypedOption.REGISTER_OPTION(grLazyOpt, 6),
@@ -171,7 +197,7 @@ export class OptionsGroupGalerkin {
       TypedOption.REGISTER_OPTION(grMinElemAreaOpt, 6),
     ];
     const galerkinGroups = [
-      new OptionGroup("galerkin", galerkinOptions, 13),
+      new OptionGroup("galerkin", galerkinOptions, 14),
     ];
     OptionParser.parse(argc, argv, galerkinGroups, 1);
   }

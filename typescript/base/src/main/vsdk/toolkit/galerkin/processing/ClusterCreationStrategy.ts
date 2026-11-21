@@ -39,7 +39,7 @@ export class ClusterCreationStrategy {
   }
 
   private static patchAddClusterChild(patch: Patch, galerkinElement: GalerkinElement): void {
-    const surfaceElement = patch === null ? null : GalerkinElement.fromPatch(patch);
+    const surfaceElement = patch === null ? null : GalerkinElement.fromPatch(galerkinElement.galerkinState, patch);
 
     if (galerkinElement.irregularSubElements === null) {
       galerkinElement.irregularSubElements = [];
