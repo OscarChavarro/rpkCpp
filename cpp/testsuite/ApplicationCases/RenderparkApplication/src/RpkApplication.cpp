@@ -255,7 +255,7 @@ RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
 }
 
 int
-RpkApplication::entryPoint(int argc, char *argv[]) {
+RpkApplication::entryPoint(int argc, char *argv[], SceneConsumer *consumer) {
     // 1. Default empty scene
     mainInitApplication();
 
@@ -303,6 +303,13 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
     SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene, toneMapOptions);
     selectToneMapByName(renderToneMapName);
+
+    if ( consumer != nullptr ) {
+        // The scene goes to the consumer (a test program) instead of the renderer
+        const int status = consumer->consume(*scene);
+        freeMemory(mgfContext);
+        return status;
+    }
 
     // 4. Run main radiosity simulation and export result
     executeRendering(

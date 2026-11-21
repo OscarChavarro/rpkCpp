@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/skin/Compound.h"
 #ifdef RPK_RAY_CAPTURE
     #include <cstdlib>
 #endif
@@ -570,7 +571,15 @@ SceneBuilder::sceneBuilderReadFile(
 
     scene->clusteredRootGeometry = SceneBuilder::sceneBuilderCreateClusterHierarchy(scene->patchList);
 
-    if ( scene->clusteredRootGeometry->className != GeometryClassId::COMPOUND ) {
+    // The top-level clusters, as RenderPark's ClusteredWorld: the children of
+    // the root cluster, or the root itself when it is not a compound
+    if ( scene->clusteredRootGeometry->className == GeometryClassId::COMPOUND ) {
+        const java::ArrayList<RpkGeometry *> *children = static_cast<const Compound *>(scene->clusteredRootGeometry)->children;
+        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
+            scene->clusteredGeometryList->add(children->get(i));
+        }
+    } else {
+        scene->clusteredGeometryList->add(scene->clusteredRootGeometry);
         Logger::reportMessage("SceneBuilder", Logger::WARNING, "", "Strange clusters for this world ...");
     }
 

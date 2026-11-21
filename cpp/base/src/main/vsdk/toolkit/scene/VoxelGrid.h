@@ -44,6 +44,7 @@ class VoxelGrid {
     void freeVoxelGridElements();
     static short clampVoxel(short v, short max);
     static bool shouldSubdivide(const RpkGeometry *geometry);
+    static int countItems(RpkGeometry *geometry);
 
     float voxel2x(float px) const;
     float voxel2y(float py) const;

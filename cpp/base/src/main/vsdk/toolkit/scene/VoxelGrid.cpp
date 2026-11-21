@@ -54,6 +54,7 @@ VoxelGrid::VoxelGrid(RpkGeometry *geometry, VoxelGrid *inRoot, const int level, 
     if ( inRoot == nullptr ) {
         subGrids = new java::ArrayList<VoxelGrid *>();
         items = new java::ArrayList<VoxelData *>();
+        countItems(geometry);
     }
 
     const double p = java::Math::pow(geometry->itemCount, 0.33333) + 1;
@@ -132,6 +133,27 @@ VoxelGrid::freeVoxelGridElements() {
         delete subGrids;
         subGrids = nullptr;
     }
+}
+
+/**
+Number of patches below a geometry, stored in the itemCount of every geometry
+of the hierarchy (RenderPark's GeomCountItems, called when the top level grid
+is created): it sizes each grid and decides which geometries get a sub grid
+*/
+int
+VoxelGrid::countItems(RpkGeometry *geometry) {
+    int count = 0;
+    if ( geometry->isCompound() ) {
+        const java::ArrayList<RpkGeometry *> *children = static_cast<const Compound *>(geometry)->children;
+        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
+            count += countItems(children->get(i));
+        }
+    } else {
+        const java::ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
+        count = patches != nullptr ? static_cast<int>(patches->size()) : 0;
+    }
+    geometry->itemCount = count;
+    return count;
 }
 
 bool

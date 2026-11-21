@@ -1,9 +1,12 @@
 # Files of base/src/main that RenderPark takes from VITRAL unchanged (plan D1:
 # a pinned source subset). scripts/vitralSubset.sh --check compares each with
 # a VITRAL checkout byte for byte; --refresh copies them from it.
-# Pin: VITRAL bd5fba8c (includes the environment/material files of plan step 2a:
+# Pin: VITRAL 74312bd0 (includes the environment/material files of plan step 2a:
 # PhongLobe, PhongMaterial, ScatteringComponent, Texture, and their test
-# base/src/test/phong_material_tests.cpp).
+# base/src/test/phong_material_tests.cpp; and, for the step 4 replay, the
+# environment/geometry/spatialIndex contract with its linear and binned SAH
+# indexes, BinnedSahHierarchy, Ray, RaytraceStatistics, Boolean and AtomicLong;
+# their test is base/src/test/spatial_index_tests.cpp).
 # Known local divergence, not listed: vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 # (RenderPark's Logger::reportMessage calls).
 java/io/BufferedInputStream.cpp
@@ -19,6 +22,7 @@ java/io/InputStream.h
 java/io/OutputStream.h
 java/io/PrintStream.cpp
 java/io/PrintStream.h
+java/lang/Boolean.h
 java/lang/Byte.h
 java/lang/Character.cpp
 java/lang/Character.h
@@ -58,6 +62,7 @@ java/util/StringTokenizer.h
 java/util/TreeMap.h
 java/util/TreeMap.txx
 java/util/TreeMapEntry.h
+java/util/concurrent/atomic/AtomicLong.h
 java/util/concurrent/locks/ReentrantLock.h
 vsdk/toolkit/common/VSDK.cpp
 vsdk/toolkit/common/VSDK.h
@@ -79,8 +84,26 @@ vsdk/toolkit/common/logging/Logger.cpp
 vsdk/toolkit/common/logging/Logger.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.txx
+vsdk/toolkit/common/statistics/RaytraceStatistics.cpp
+vsdk/toolkit/common/statistics/RaytraceStatistics.h
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.cpp
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.h
 vsdk/toolkit/environment/geometry/element/PlanarFace.cpp
 vsdk/toolkit/environment/geometry/element/PlanarFace.h
+vsdk/toolkit/environment/geometry/element/Ray.cpp
+vsdk/toolkit/environment/geometry/element/Ray.h
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.h
 vsdk/toolkit/environment/material/Material.h
 vsdk/toolkit/environment/material/PhongLobe.cpp
 vsdk/toolkit/environment/material/PhongLobe.h
