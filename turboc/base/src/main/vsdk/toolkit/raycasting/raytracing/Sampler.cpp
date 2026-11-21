@@ -16,15 +16,15 @@ or if a shading normal anomaly occurs
 */
 bool
 Sampler::sampleTransfer(
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     Vector3D *dir,
     double pdfDir)
 {
-    Ray ray;
+    RpkRay ray;
     ray.position = thisNode->m_hit.getPoint();
     ray.direction = *dir;
 
@@ -32,8 +32,8 @@ Sampler::sampleTransfer(
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = STOPS;
     const RayHit *hit = RayTools::findRayIntersection(
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         &ray,
         thisNode->m_hit.getPatch(),
         newNode->m_inBsdf,

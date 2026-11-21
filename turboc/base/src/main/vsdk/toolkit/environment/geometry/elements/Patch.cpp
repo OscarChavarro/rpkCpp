@@ -591,6 +591,7 @@ Patch::Patch(
     Vertex *v3,
     Vertex *v4):
     flags(),
+    faceIndex(-1),
     id(),
     twin(),
     vertex(),
@@ -793,7 +794,7 @@ considered and are described in ray.h.
 */
 RayHit *
 Patch::intersect(
-    const Ray *ray,
+    const RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
@@ -802,7 +803,7 @@ Patch::intersect(
 {
     RayHit hit;
 
-    if ( exclusions.excludesPatch(this) ) {
+    if ( exclusions.excludesPatch(this) || exclusions.excludesFace(getFaceIndex()) ) {
         return NULL;
     }
 

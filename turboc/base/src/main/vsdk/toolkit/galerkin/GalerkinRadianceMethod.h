@@ -12,7 +12,7 @@
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
 #include "vsdk/toolkit/galerkin/processing/GatheringStrategy.h"

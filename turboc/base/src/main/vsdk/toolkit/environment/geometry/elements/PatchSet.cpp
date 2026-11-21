@@ -30,7 +30,7 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 RayHit *
 PatchSet::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,

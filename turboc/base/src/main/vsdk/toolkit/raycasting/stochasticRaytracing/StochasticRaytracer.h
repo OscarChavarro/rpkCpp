@@ -21,10 +21,10 @@ class StochasticRaytracer: public RayTracer{ private:
     StochasticRayTracingState &rayTracingState;
 
     static ColorRgb
-    calcPixel( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, int nx, int ny, void *data);
-    static ColorRgb stchsRaytrcGetScttrRadn( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
-    static ColorRgb srGetDirectRadiance( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, StochRaytrConfig *config, StorageReadout readout);
-    static ColorRgb stochasticRaytracerGetRadiance( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, int usedScatterSamples, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
+    calcPixel( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, int nx, int ny, void *data);
+    static ColorRgb stchsRaytrcGetScttrRadn( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
+    static ColorRgb srGetDirectRadiance( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, StochRaytrConfig *config, StorageReadout readout);
+    static ColorRgb stochasticRaytracerGetRadiance( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, int usedScatterSamples, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
 
   public:
     StochasticRaytracer( LightList *&inLightList, StochasticRayTracingState &inRayTracingState);

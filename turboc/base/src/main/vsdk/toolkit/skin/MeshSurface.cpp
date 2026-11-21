@@ -65,7 +65,6 @@ MeshSurface::MeshSurface(
     shaftCullGeometry = false;
     radianceData = NULL;
     itemCount = 0;
-    omit = false;
 }
 
 MeshSurface::~MeshSurface() {
@@ -126,7 +125,7 @@ information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
 MeshSurface::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,

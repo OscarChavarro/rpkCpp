@@ -60,15 +60,50 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      `vsdk/toolkit/common/logging/LoggerFormat` wraps it for `Logger::reportMessage` messages
 11. `explicit operator ColorRgb()` in `ColorRgbMutable` -> implicit conversion operator
    - C++98 has no explicit conversion operators
+12. RenderPark's ray class `Ray` -> `RpkRay` (`common/linealAlgebra/RpkRay.h`)
+   - Without namespaces, VITRAL's `Ray` (`environment/geometry/element/Ray.h`,
+     used by the spatial indexes) and RenderPark's ray need distinct names, as in the cpp port
+13. Spatial index support code of the cpp port in the C++98 subset
+   - `BinnedSahSpatialIndex`: VITRAL's turboc `BinnedSahHierarchy` has no `traverse`
+     (the cpp port's stopping traversal), so the index runs that loop itself over the
+     hierarchy's public nodes, primitive order and `RaySlab`
+14. Ray capture and replay (`WITH_RAY_CAPTURE`, `WITH_RAY_REPLAY`,
+    `testsuite/ApplicationCases/RayCorpusReplay`, `scripts/captureRays.sh`,
+    `scripts/replayRays.sh`)
+   - The `.vqc` corpus is the cpp port's format, written and read field by field as
+     32-bit little-endian values instead of host-order `fwrite`/`fread` of `int` (16 bits
+     on Turbo C++ 3.0), so a corpus of either port replays on the other
+   - The cpp port's `long long` counters (and query numbers, limits and strides of the
+     replay) are `double` values holding whole numbers: exact up to 2^53, printed with
+     `%.0f` as the same digits as `%lld`. Turbo C++ 3.0 has no 64-bit integer and C++98
+     has no `long long`
+   - Corpus files are only read and written sequentially: no `fseek`/`ftell`, so no file
+     offset is held in a `long`; the reader skips geometry lists by reading them. The
+     CMake build compiles the recorder and the replay with `_FILE_OFFSET_BITS=64`, so the
+     32-bit build opens files beyond 2 GB (a FAT16 DOS volume caps a file at 2 GB)
+   - No threads: the replay's worker pass runs its workers one after another, each over
+     its own interleaved share of the queries with its own workspaces; timings come from
+     `System::currentTimeMillis`, and a chunk holds 512 queries under Turbo C++
+     (64 KB allocations) instead of 2^20
+   - `captureRays.sh` writes the accounting files to `turboc/doc/rayCorpus`, not to the
+     cpp port's top-level `doc/rayCorpus`
 
 ## VITRAL turboc shared subset
 
 `base/src/main` follows the layout of VITRAL's own turboc port
-(`base/src/main/java` and `base/src/main/vsdk/toolkit`). Every file that also
-exists at the same path in VITRAL's `turboc/base/src/main` is kept
-byte-identical to it; rpk-only adapters live outside those files. The one
-exception is `vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp`, which upstream
-still calls the removed `Logger::error`.
+(`base/src/main/java` and `base/src/main/vsdk/toolkit`). The files listed in
+`scripts/vitralSubset.txt` are kept byte-identical to VITRAL's
+`turboc/base/src/main` (pin and exceptions in that list):
+`scripts/vitralSubset.sh --check|--refresh <VITRAL checkout>` compares or copies
+them. The one exception is `vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp`,
+which upstream still calls the removed `Logger::error`. The spatial index files
+(`environment/geometry/spatialIndex`) were translated from the cpp port's VITRAL
+subset, since VITRAL's turboc port does not carry them yet.
+`scripts/vitralClosure.py <VITRAL checkout> [seeds]` lists the closure of VITRAL
+headers a slice needs and the class names it would collide with, and
+`scripts/classAudit.py` (build target `classAudit`, known debt in
+`scripts/classAudit.allow`) fails the build on a class or include guard name
+defined twice in the link closure.
 
 ## Golden image test and the 4 GB limit
 

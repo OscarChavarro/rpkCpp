@@ -20,7 +20,7 @@ Test ray against patches in the shadow cache. Returns NULL if the ray hits
 no patches in the shadow cache, or a pointer to the first hit patch otherwise
 */
 RayHit *
-ShadowCache::cacheHit(const Ray *ray, float *distance, RayHit *hitStore, const RayExclusionSet &exclusions) const {
+ShadowCache::cacheHit(const RpkRay *ray, float *distance, RayHit *hitStore, const RayExclusionSet &exclusions) const {
     for ( int i = 0; i < numberOfCachedPatches; i++ ) {
         RayHit *hit = patchCache[i]->intersect(
             ray,

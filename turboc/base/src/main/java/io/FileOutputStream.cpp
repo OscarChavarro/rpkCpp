@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 
 #include "java/io/File.h"
 #include "java/io/FileOutputStream.h"
@@ -10,23 +9,17 @@ FileOutputStream::toFileHandle(void *handle) {
 }
 
 FileOutputStream::FileOutputStream(const char *fileName):
-    stream(NULL)
+    stream(NULL), ownsStream(TRUE)
 {
-#ifdef __TURBOC__
-    // DOS has no /dev/stdout nor /dev/stderr
-    if ( fileName != NULL && strcmp(fileName, "/dev/stdout") == 0 ) {
-        stream = stdout;
-        return;
-    }
-    if ( fileName != NULL && strcmp(fileName, "/dev/stderr") == 0 ) {
-        stream = stderr;
-        return;
-    }
-#endif
     if ( fileName != NULL && fileName[0] != '\0' ) {
         const String platformName = File::toPlatformName(fileName);
         stream = ((void *)(fopen(platformName.toCString(), "wb")));
     }
+}
+
+FileOutputStream::FileOutputStream(FILE *openStream):
+    stream((void *)(openStream)), ownsStream(FALSE)
+{
 }
 
 FileOutputStream::~FileOutputStream() {
@@ -69,7 +62,12 @@ FileOutputStream::close() {
     if ( fileHandle == NULL ) {
         return;
     }
-    fclose(fileHandle);
+    if ( ownsStream ) {
+        fclose(fileHandle);
+    }
+    else {
+        fflush(fileHandle);
+    }
     stream = NULL;
 }
 

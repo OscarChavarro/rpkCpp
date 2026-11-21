@@ -7,7 +7,7 @@
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
@@ -45,14 +45,14 @@ class StochasticJacobiRadianceMethod: public RadianceMethod{ public:
     static float stchsRelaxRadElemUnShotImp(const StochasticRadiosityElement *elem);
     static void stchsRelaxRadElemIncrImp(StochasticRadiosityElement *elem, double w);
     static void stchsRelaxRadPrintIncrmImpStats();
-    static void stchsRelaxRadDIncrmImpItrtn( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void stchsRelaxRadDIncrmImpItrtn( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
     static ColorRgbMutable *stchsRelaxRadElemRadn(const StochasticRadiosityElement *elem);
     static void stchsRelaxRadElemUpdRadn(StochasticRadiosityElement *elem, double w);
     static void stchsRelaxRadPrintRegStats();
-    static void stchsRelaxRadDRegRadnItrtn( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void stchsRelaxRadDRegRadnItrtn( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
     static float stchsRelaxRadElemImp(const StochasticRadiosityElement *elem);
     static void stchsRelaxRadElemUpdImp(StochasticRadiosityElement *elem, double w);
-    static void stchsRelaxRadDRegImpItrtn( VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
+    static void stchsRelaxRadDRegImpItrtn( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
     static void stchsRelaxRadElemDscrdIncrm(Element *element);
     static void stchsRelaxRadDscrdIncrm();
 };

@@ -242,6 +242,7 @@ int Double::compare(double d1, double d2)
 
 const double Double::MIN_VALUE = 4.9406564584124654e-324;
 const double Double::MAX_VALUE = 1.7976931348623157e+308;
+const double Double::MIN_NORMAL = 2.2250738585072014e-308;
 const double Double::POSITIVE_INFINITY = HUGE_VAL;
 const double Double::NEGATIVE_INFINITY = -HUGE_VAL;
 const double Double::NaN = Cpp98Support::nan();

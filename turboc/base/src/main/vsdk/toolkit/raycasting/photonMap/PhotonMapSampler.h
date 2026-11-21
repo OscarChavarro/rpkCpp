@@ -25,10 +25,10 @@ class PhotonMapSampler: public BsdfSampler{ private:
     chooseFresnelDirection( SimpleRaytracingPathNode *thisNode, char flags, double x2, Vector3D *dir, double *pdfDir, ColorRgb *scatteringColor, bool *doCosInverse);
 
     bool
-    fresnelSample( VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, const SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x2, char flags);
+    fresnelSample( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, const SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x2, char flags);
 
     bool
-    gdSample( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, char flags);
+    gdSample( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, char flags);
 
     // Randomly choose between 2 scattering components, using
     // scattered power as probabilities.
@@ -43,7 +43,7 @@ class PhotonMapSampler: public BsdfSampler{ private:
     // Return true if the node was filled in, false if path Ends
     // When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     bool
-    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, VoxelGridWorkspace *sceneVoxelGridWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR, char flags);
+    sample( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR, char flags);
 };
 
 #endif

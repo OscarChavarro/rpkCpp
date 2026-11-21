@@ -11,7 +11,7 @@ class Compound: public Geometry{ public:
     ~Compound();
 
     RayHit *
-    discretizationIntersect( Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
+    discretizationIntersect( RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
 };
 
 #endif

@@ -31,7 +31,7 @@ information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
 Compound::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,

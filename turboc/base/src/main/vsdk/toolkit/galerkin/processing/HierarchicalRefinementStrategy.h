@@ -2,7 +2,7 @@
 #define __HIERARCHICAL_REFINE__
 
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
 #include "vsdk/toolkit/galerkin/processing/InteractionEvaluationCode.h"

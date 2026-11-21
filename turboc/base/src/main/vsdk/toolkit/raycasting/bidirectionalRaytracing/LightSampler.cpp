@@ -50,8 +50,8 @@ bool UniformLightSampler::ActivateNextUnit() {
 bool
 UniformLightSampler::sample(
     Camera */*camera*/,
-    VoxelGrid */*sceneVoxelGrid*/,
-    VoxelGridWorkspace */*sceneVoxelGridWorkspace*/,
+    const SceneQuery */*sceneQuery*/,
+    SceneQueryWorkspace */*sceneSceneQueryWorkspace*/,
     Background */*sceneBackground*/,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
@@ -205,8 +205,8 @@ ImportantLightSampler::ImportantLightSampler(LightList *inLightList):
 bool
 ImportantLightSampler::sample(
     Camera */*camera*/,
-    VoxelGrid */*sceneVoxelGrid*/,
-    VoxelGridWorkspace */*sceneVoxelGridWorkspace*/,
+    const SceneQuery */*sceneQuery*/,
+    SceneQueryWorkspace */*sceneSceneQueryWorkspace*/,
     Background */*sceneBackground*/,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,

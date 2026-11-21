@@ -9,6 +9,8 @@ class Double {
   public:
 static const double MIN_VALUE;
 static const double MAX_VALUE;
+/// Smallest positive normal value (2^-1022)
+static const double MIN_NORMAL;
 static const double POSITIVE_INFINITY;
 static const double NEGATIVE_INFINITY;
 

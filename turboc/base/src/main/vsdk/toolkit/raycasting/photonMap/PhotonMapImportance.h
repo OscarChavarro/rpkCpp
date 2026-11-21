@@ -7,7 +7,7 @@
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/scene/Camera.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/raycasting/photonMap/ImportanceMap.h"
 
 class PhotonMapImportance {
@@ -18,8 +18,8 @@ class PhotonMapImportance {
     static bool
     tracePotentialPath(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         PhotonMapState &photonMapState,
         PhotonMapConfig &photonMapConfig);
@@ -28,8 +28,8 @@ class PhotonMapImportance {
     static void
     tracePotentialPaths(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         int numberOfPaths,
         PhotonMapState &photonMapState,

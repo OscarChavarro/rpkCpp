@@ -458,7 +458,9 @@ BinaryModelSerializer::writeGeometryRecord(OutputStream &output, const Geometry 
     PersistenceElement::writeInt32LE(output, geometry->itemCount);
     PersistenceElement::writeBool(output, geometry->bounded != 0);
     PersistenceElement::writeBool(output, geometry->shaftCullGeometry != 0);
-    PersistenceElement::writeBool(output, geometry->omit != 0);
+    // Omit flag: geometries were never omitted at run time (the shaft's omit set
+    // excludes patches per query); written false, as it always was
+    PersistenceElement::writeBool(output, false);
     PersistenceElement::writeBool(output, geometry->isDuplicate);
     writeBoundingBox(output, geometry->boundingBox);
     PersistenceElement::writeBool(output, false);

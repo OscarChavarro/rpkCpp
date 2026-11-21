@@ -82,8 +82,8 @@ PhotonMapSampler::chooseComponent(
 bool
 PhotonMapSampler::sample(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -125,10 +125,10 @@ PhotonMapSampler::sample(
     bool ok;
 
     if ( sChosen ) {
-        ok = fresnelSample(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x2, flags);
+        ok = fresnelSample(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
         flags = ((char)(gdFLAGS & flags));
-        ok = gdSample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, flags);
+        ok = gdSample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, flags);
     }
 
     if ( ok ) {
@@ -329,8 +329,8 @@ PhotonMapSampler::chooseFresnelDirection(
 
 bool
 PhotonMapSampler::fresnelSample(
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     const SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -352,7 +352,7 @@ PhotonMapSampler::fresnelSample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
@@ -389,8 +389,8 @@ PhotonMapSampler::fresnelSample(
 bool
 PhotonMapSampler::gdSample(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -405,7 +405,7 @@ PhotonMapSampler::gdSample(
     if ( m_photonMap == NULL ) {
         // We can just use standard bsdf sampling
         ok = BsdfSampler::sample(
-            camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+            camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -452,8 +452,8 @@ PhotonMapSampler::gdSample(
     // Do real sampling
     ok = BsdfSampler::sample(
         camera,
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         sceneBackground,
         prevNode,
         thisNode,

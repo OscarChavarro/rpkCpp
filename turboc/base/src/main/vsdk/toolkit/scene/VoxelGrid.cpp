@@ -47,6 +47,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
 {
     subGrids = new ArrayList<VoxelGrid *>();
     items = new ArrayList<VoxelData *>();
+    countItems(geometry);
     build(geometry, 0);
 }
 
@@ -144,6 +145,27 @@ VoxelGrid::freeVoxelGridElements() {
         delete subGrids;
         subGrids = NULL;
     }
+}
+
+/**
+Number of patches below a geometry, stored in the itemCount of every geometry
+of the hierarchy (RenderPark's GeomCountItems, called when the top level grid
+is created): it sizes each grid and decides which geometries get a sub grid
+*/
+int
+VoxelGrid::countItems(Geometry *geometry) {
+    int count = 0;
+    if ( geometry->isCompound() ) {
+        const ArrayList<Geometry *> *children = ((const Compound *)(geometry))->children;
+        for ( int i = 0; children != NULL && i < children->size(); i++ ) {
+            count += countItems(children->get(i));
+        }
+    } else {
+        const ArrayList<Patch *> *patches = Geometry::patchListReference(geometry);
+        count = patches != NULL ? ((int)(patches->size())) : 0;
+    }
+    geometry->itemCount = count;
+    return count;
 }
 
 bool
@@ -305,7 +327,7 @@ intersected and false if the ray passes along the voxel grid
 */
 bool
 VoxelGrid::gridBoundsIntersect(
-    const Ray *ray,
+    const RpkRay *ray,
     float minimumDistance,
     float maximumDistance,
     /*OUT*/ float *t0,
@@ -329,7 +351,7 @@ Initializes grid tracing
 */
 void
 VoxelGrid::gridTraceSetup(
-    const Ray *ray,
+    const RpkRay *ray,
     const float t0,
     const Vector3D *P,
     int *g,
@@ -452,7 +474,7 @@ as usual. If there is no intersection, maximumDistance remains unmodified
 RayHit *
 VoxelGrid::voxelIntersect(
     const ArrayList<VoxelData *> *items,
-    Ray *ray,
+    RpkRay *ray,
     const unsigned int counter,
     const float minimumDistance,
     float *maximumDistance,
@@ -492,7 +514,7 @@ Traces a ray through a voxel grid. Returns nearest intersection or NULL
 */
 RayHit *
 VoxelGrid::gridIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,

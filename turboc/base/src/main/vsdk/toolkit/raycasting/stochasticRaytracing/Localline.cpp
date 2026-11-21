@@ -9,6 +9,10 @@ Generate and trace a local line
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Localline.h"
+
+#ifdef RPK_RAY_CAPTURE
+    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
+#endif
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 /**
@@ -33,11 +37,11 @@ Constructs a ray with uniformly chosen origin on patch and cosine distributed
 direction with respect to patch normal. Origin and direction are uniquely determined
 by the 4-dimensional sample vector xi
 */
-Ray
+RpkRay
 Localline::mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     const static Patch *previousPatch = NULL;
     static CoordinateSystem coordSys;
-    Ray ray;
+    RpkRay ray;
     double pdf;
 
     if ( patch != previousPatch ) {
@@ -69,20 +73,28 @@ Localline::someFeedback() {
 Determines nearest intersection point and patch
 */
 RayHit *
-Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Patch *P, Ray *ray, RayHit *hitStore) {
+Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Patch *P, RpkRay *ray, RayHit *hitStore) {
     float distance = Numeric::HUGE_FLOAT_VALUE;
     RayHit *hit;
 
     // Reject self-intersections
     const RayExclusionSet exclusions(P, P->twin);
-    hit = sceneWorldVoxelGrid->gridIntersect(
+    hit = sceneQuery->intersect(
         ray,
         Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
         &distance,
         FRONT | POINT,
         hitStore,
         exclusions,
-        sceneWorldVoxelGridWorkspace);
+        sceneWorldSceneQueryWorkspace);
+#ifdef RPK_RAY_CAPTURE
+    if ( sceneWorldSceneQueryWorkspace->getRecorder() != NULL ) {
+        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
+            VisibilityQueryRecorder::STOCHASTIC_SHOOTING, ray,
+            Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
+            Numeric::HUGE_FLOAT_VALUE, FRONT | POINT, exclusions, hit, distance);
+    }
+#endif
     someFeedback();
 
     return hit;

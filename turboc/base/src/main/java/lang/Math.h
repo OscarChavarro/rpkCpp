@@ -47,6 +47,12 @@ class Math {
     static double max(double a, double b);
     static float sqrt(float a);
     static double sqrt(double a);
+    /**
+    Emulation of `Math.hypot`: sqrt(x^2 + y^2) without intermediate overflow
+    or underflow (the hypot of the C library, also in Turbo C++ 3.0 and libc
+    5).
+    */
+    static double hypot(double x, double y);
     // C++ port note: C99 nextafter is missing in Turbo C++ 3.0 (and in some
     // libc 5 versions): the next binary64 value is found from the bytes of
     // the number (little endian, as every target of the port)
@@ -257,6 +263,11 @@ Math::sqrt(float a) {
 inline double
 Math::sqrt(double a) {
     return ::sqrt(a);
+}
+
+inline double
+Math::hypot(double x, double y) {
+    return ::hypot(x, y);
 }
 
 inline int

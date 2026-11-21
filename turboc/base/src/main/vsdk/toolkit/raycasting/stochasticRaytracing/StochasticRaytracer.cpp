@@ -76,8 +76,8 @@ StochasticRaytracer::execute(
     if ( !rayTracingState.progressiveTracing ) {
         ScreenIterate::sequential(
                 scene->camera,
-                scene->voxelGrid,
-                scene->voxelGridWorkspace,
+                scene->getSceneQuery(),
+                scene->getSceneQueryWorkspace(),
                 scene->background,
                 StochasticRaytracer::calcPixel,
                 &callbackData,
@@ -85,8 +85,8 @@ StochasticRaytracer::execute(
     } else {
         ScreenIterate::progressive(
                 scene->camera,
-                scene->voxelGrid,
-                scene->voxelGridWorkspace,
+                scene->getSceneQuery(),
+                scene->getSceneQueryWorkspace(),
                 scene->background,
                 StochasticRaytracer::calcPixel,
                 &callbackData,
@@ -132,8 +132,8 @@ StochasticRaytracer::terminate() const {
  ColorRgb
 StochasticRaytracer::stchsRaytrcGetScttrRadn(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background * sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochRaytrConfig *config,
@@ -205,8 +205,8 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
                         camera,
-                        sceneVoxelGrid,
-                        sceneVoxelGridWorkspace,
+                        sceneQuery,
+                        sceneSceneQueryWorkspace,
                         sceneBackground,
                         thisNode->previous(),
                         thisNode,
@@ -228,8 +228,8 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                         // Storage bounce
                         radiance = stochasticRaytracerGetRadiance(
                                 camera,
-                                sceneVoxelGrid,
-                                sceneVoxelGridWorkspace,
+                                sceneQuery,
+                                sceneSceneQueryWorkspace,
                                 sceneBackground,
                                 &newNode,
                                 config,
@@ -240,8 +240,8 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                     } else {
                         radiance = stochasticRaytracerGetRadiance(
                                 camera,
-                                sceneVoxelGrid,
-                                sceneVoxelGridWorkspace,
+                                sceneQuery,
+                                sceneSceneQueryWorkspace,
                                 sceneBackground,
                                 &newNode,
                                 config,
@@ -285,8 +285,8 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
  ColorRgb
 StochasticRaytracer::srGetDirectRadiance(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     StochRaytrConfig *config,
@@ -334,8 +334,8 @@ StochasticRaytracer::srGetDirectRadiance(
 
                 if ( config->samplerConfig.neSampler->sample(
                     camera,
-                    sceneVoxelGrid,
-                    sceneVoxelGridWorkspace,
+                    sceneQuery,
+                    sceneSceneQueryWorkspace,
                     sceneBackground,
                     prevNode->previous(),
                     prevNode,
@@ -344,7 +344,7 @@ StochasticRaytracer::srGetDirectRadiance(
                     x2,
                     true,
                     BsdfComponentInfo::BSDF_ALL_COMPONENTS)
-                    && ( RayTools::pathNodesVisible(sceneVoxelGrid, sceneVoxelGridWorkspace, prevNode, &lightNode) ) ) {
+                    && ( RayTools::pathNodesVisible(sceneQuery, sceneSceneQueryWorkspace, prevNode, &lightNode) ) ) {
                     // Now connect for all applicable scatter-info's
                     // If no weighting between reflection sampling and
                     // next event estimation were used, only one connect
@@ -448,8 +448,8 @@ StochasticRaytracer::srGetDirectRadiance(
  ColorRgb
 StochasticRaytracer::stochasticRaytracerGetRadiance(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochRaytrConfig *config,
@@ -572,7 +572,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 result.getB() + radiance.getB());
         }
 
-        radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, config, readout);
+        radiance = srGetDirectRadiance(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, config, readout);
         result = ColorRgb(
             result.getR() + radiance.getR(),
             result.getG() + radiance.getG(),
@@ -581,8 +581,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
         // Scattered light
         radiance = stchsRaytrcGetScttrRadn(
                 camera,
-                sceneVoxelGrid,
-                sceneVoxelGridWorkspace,
+                sceneQuery,
+                sceneSceneQueryWorkspace,
                 sceneBackground,
                 thisNode,
                 config,
@@ -659,8 +659,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
 ColorRgb
 StochasticRaytracer::calcPixel(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     int nx,
     int ny,
@@ -693,7 +693,7 @@ StochasticRaytracer::calcPixel(
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, NULL, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, NULL, NULL, &eyeNode, 0, 0);
     ((PixelSampler *)(config->samplerConfig.dirSampler))->SetPixel(camera, nx, ny, NULL);
 
     eyeNode.attach(&pixelNode);
@@ -702,7 +702,7 @@ StochasticRaytracer::calcPixel(
     for ( int i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, NULL, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 
@@ -713,8 +713,8 @@ StochasticRaytracer::calcPixel(
 
             col = stochasticRaytracerGetRadiance(
                     camera,
-                    sceneVoxelGrid,
-                    sceneVoxelGridWorkspace,
+                    sceneQuery,
+                    sceneSceneQueryWorkspace,
                     sceneBackground,
                     &pixelNode,
                     config,

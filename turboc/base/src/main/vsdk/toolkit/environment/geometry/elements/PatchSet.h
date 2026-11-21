@@ -13,7 +13,7 @@ class PatchSet: public Geometry{ private:
     ~PatchSet();
 
     RayHit *
-    discretizationIntersect( Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
+    discretizationIntersect( RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
 
     ArrayList<Patch *> *getPatchList() const;
     bool isMemoryPoolManaged() const;

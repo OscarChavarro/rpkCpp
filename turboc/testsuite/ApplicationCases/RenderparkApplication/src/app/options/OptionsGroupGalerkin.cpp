@@ -24,6 +24,19 @@ OptionsGroupGalerkin::iterationMethodOption(char *&name) {
 }
 
 void
+OptionsGroupGalerkin::shaftCullingOption(char *&name) {
+    if ( strcasecmp(name, "never") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.shaftCullMode = NEVER_DO_SHAFT_CULLING;
+    } else if ( strcasecmp(name, "refinement") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.shaftCullMode = DO_SHAFT_CULLING_FOR_REFINEMENT;
+    } else if ( strcasecmp(name, "always") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.shaftCullMode = ALWAYS_DO_SHAFT_CULLING;
+    } else {
+        Logger::reportMessage("OptionsGroupGalerkin", Logger::ERROR, "", LoggerFormat::format("Invalid shaft culling mode '%s' (never, refinement or always)", name));
+    }
+}
+
+void
 OptionsGroupGalerkin::hierarchicalOption(int &yesno) {
     if ( yesno != 0 ) {
         GalerkinRadianceMethod::galerkinState.hierarchical = true;
@@ -56,6 +69,8 @@ void
 OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     char *iterationMethodName = NULL;
     TypedOption<char *> iterationMethodOpt("-gr-iteration-method", &iterationMethodName, 1, OptionsGroupGalerkin::iterationMethodOption, NULL);
+    char *shaftCullingName = NULL;
+    TypedOption<char *> shaftCullingOpt("-gr-shaft-culling", &shaftCullingName, 1, OptionsGroupGalerkin::shaftCullingOption, NULL);
     TypedOption<int> grHierarchicalOpt("-gr-hierarchical", &trueValue, 0, OptionsGroupGalerkin::hierarchicalOption, NULL);
     TypedOption<int> grNotHierarchicalOpt("-gr-not-hierarchical", &falseValue, 0, OptionsGroupGalerkin::hierarchicalOption, NULL);
     TypedOption<int> grLazyOpt("-gr-lazy-linking", &trueValue, 0, OptionsGroupGalerkin::lazyOption, NULL);
@@ -70,6 +85,7 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     TypedOption<float> grMinElemAreaOpt("-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, NULL, NULL);
     OptionBase galerkinOptions[] = {
         REGISTER_OPTION(char *, iterationMethodOpt, 6),
+        REGISTER_OPTION(char *, shaftCullingOpt, 6),
         REGISTER_OPTION(int, grHierarchicalOpt, 6),
         REGISTER_OPTION(int, grNotHierarchicalOpt, 10),
         REGISTER_OPTION(int, grLazyOpt, 6),
@@ -84,7 +100,7 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(float, grMinElemAreaOpt, 6)
     };
     OptionGroup galerkinGroups[] = {
-        OptionGroup("galerkin", galerkinOptions, 13)
+        OptionGroup("galerkin", galerkinOptions, 14)
     };
     OptionParser<OptionBase>::parse(argc, argv, galerkinGroups, 1);
 }

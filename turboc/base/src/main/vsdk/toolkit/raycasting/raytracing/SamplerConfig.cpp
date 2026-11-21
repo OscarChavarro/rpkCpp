@@ -61,8 +61,8 @@ RETURNS:
 SimpleRaytracingPathNode *
 SamplerConfig::traceNode(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     double x1,
@@ -79,14 +79,14 @@ SamplerConfig::traceNode(
 
     if ( lastNode == NULL ) {
         // Fill in first node
-        if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, NULL, nextNode, x1, x2) ) {
+        if ( !pointSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, NULL, NULL, nextNode, x1, x2) ) {
             Logger::reportMessage("SamplerConfig", Logger::WARNING, "SamplerConfig::traceNode", "Point sampler failed");
             return NULL;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, NULL, lastNode, nextNode, x1, x2) ) {
+            if ( !dirSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, NULL, lastNode, nextNode, x1, x2) ) {
                 // No point !
                 lastNode->m_rayType = STOPS;
                 return NULL;
@@ -100,8 +100,8 @@ SamplerConfig::traceNode(
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->sample(
                 camera,
-                sceneVoxelGrid,
-                sceneVoxelGridWorkspace,
+                sceneQuery,
+                sceneSceneQueryWorkspace,
                 sceneBackground,
                 lastNode->previous(),
                 lastNode,
@@ -131,8 +131,8 @@ SamplerConfig::traceNode(
 SimpleRaytracingPathNode *
 SamplerConfig::tracePath(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     char flags)
@@ -146,7 +146,7 @@ SamplerConfig::tracePath(
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode, x1, x2, flags);
+    nextNode = traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, nextNode, x1, x2, flags);
 
     bool continueTrace = nextNode != NULL;
     if ( continueTrace && sceneBackground != NULL && nextNode->ends() ) {
@@ -157,7 +157,7 @@ SamplerConfig::tracePath(
         nextNode->ensureNext();
 
         // Recursive call
-        tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, nextNode->next(), flags);
+        tracePath(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, nextNode->next(), flags);
     }
 
     return nextNode;

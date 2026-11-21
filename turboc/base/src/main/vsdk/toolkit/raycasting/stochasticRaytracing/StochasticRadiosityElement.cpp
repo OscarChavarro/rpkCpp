@@ -626,10 +626,9 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
         ColorRgbMutable sample;
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(((double)(xi[0])) * RECIP, ((double)(xi[1])) * RECIP);
-        unsigned int newFlags = hit.getFlags() | UV;
-        hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
+        hit.setPoint(&position);
         if ( patch->material->getBsdf() ) {
             sample.clear();
             if ( patch->material->getBsdf() != NULL ) {

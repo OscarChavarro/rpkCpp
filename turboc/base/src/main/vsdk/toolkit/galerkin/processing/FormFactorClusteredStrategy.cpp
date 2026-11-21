@@ -79,7 +79,7 @@ double
 FormFactorClusteredStrategy::geomListMultiResVis(
     const ArrayList<Geometry *> *geometryOccluderList,
     ShadowCache *shadowCache,
-    Ray *ray,
+    RpkRay *ray,
     float rcvDist,
     float srcSize,
     float minimumFeatureSize,
@@ -104,7 +104,7 @@ double
 FormFactorClusteredStrategy::geomMultiResVis(
     ShadowCache *shadowCache,
     Geometry *geometry,
-    Ray *ray,
+    RpkRay *ray,
     float rcvDist,
     float srcSize,
     float minimumFeatureSize,

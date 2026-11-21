@@ -6,7 +6,7 @@
 #define __PATCH__
 
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
@@ -44,6 +44,7 @@ class Patch {
     // order to make a unique Patch id
     static int patchId;
     unsigned char flags; // Other flags
+    int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
 
     static double clipToUnitInterval(double x);
     static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
@@ -99,6 +100,9 @@ class Patch {
     void setInvisible();
     void setFlags(unsigned char newFlags);
     unsigned char getFlags() const;
+    int getFaceIndex() const;
+    void setFaceIndex(int newFaceIndex);
+    float getTolerance() const;
     bool hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
@@ -110,7 +114,7 @@ class Patch {
     bool facing(const Patch *other) const;
     void computeBoundingBox();
     void computeAndGetBoundingBox(BoundingBox *bounds);
-    RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions);
+    RayHit *intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions);
 
 #ifdef RAYTRACING_ENABLED
     bool isVisible() const;
@@ -147,6 +151,21 @@ Patch::setFlags(unsigned char newFlags) {
 inline unsigned char
 Patch::getFlags() const {
     return flags;
+}
+
+inline int
+Patch::getFaceIndex() const {
+    return faceIndex;
+}
+
+inline void
+Patch::setFaceIndex(const int newFaceIndex) {
+    faceIndex = newFaceIndex;
+}
+
+inline float
+Patch::getTolerance() const {
+    return tolerance;
 }
 
 #ifdef RAYTRACING_ENABLED

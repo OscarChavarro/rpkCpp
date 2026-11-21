@@ -2,7 +2,7 @@
 #define __BOUNDING_BOX__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/skin/BoundingBoxCoordinateIndex.h"
 
 /**
@@ -63,8 +63,8 @@ class BoundingBox {
     const float *rawCoordinates() const;
     float valueAt(int idx) const;
     void corners(Vector3D out[8]) const;
-    bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
-    bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
+    bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
+    bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
 };
 
 inline bool
@@ -102,7 +102,7 @@ BoundingBox::clipAxisSlab(
 }
 
 inline bool
-BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
+BoundingBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
     if ( ray == NULL || tMin == NULL || tMax == NULL ) {
         return false;
     }
@@ -151,7 +151,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
 }
 
 inline bool
-BoundingBox::intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const {
+BoundingBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
     if ( maximumDistance == NULL ) {
         return false;
     }

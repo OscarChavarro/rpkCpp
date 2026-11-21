@@ -110,8 +110,8 @@ LinkingSimpleStrategy::createInitialLink(
     bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
     const ArrayList<Geometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::cmptAreaTAreaFormFactorVis(
-        scene->voxelGrid,
-        scene->voxelGridWorkspace,
+        scene->getSceneQuery(),
+        scene->getSceneQueryWorkspace(),
         galerkinState->formFactorWorkspace,
         geometryListReferences,
         isSceneGeometry,

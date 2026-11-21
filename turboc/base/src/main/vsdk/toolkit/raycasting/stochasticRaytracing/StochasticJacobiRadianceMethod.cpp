@@ -283,8 +283,8 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmRadnItrtn(
                 stepNumber, 100. * unShotFraction);
 
         StochasticJacobi::doStochasticJacobiIteration(
-            scene->voxelGrid,
-            scene->voxelGridWorkspace,
+            scene->getSceneQuery(),
+            scene->getSceneQueryWorkspace(),
             numberOfRays,
             stchsRelaxRadElemUnShotRadn,
             NULL,
@@ -325,8 +325,8 @@ StochasticJacobiRadianceMethod::stchsRelaxRadPrintIncrmImpStats() {
 
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmImpItrtn(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
@@ -362,8 +362,8 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmImpItrtn(
                 stepNumber, 100.0 * unShotFraction);
 
         StochasticJacobi::doStochasticJacobiIteration(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             numberOfRays,
             NULL,
             stchsRelaxRadElemUnShotImp,
@@ -443,15 +443,15 @@ StochasticJacobiRadianceMethod::stchsRelaxRadPrintRegStats() {
 
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDRegRadnItrtn(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     System::err.printf("Regular radiance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
     StochasticJacobi::doStochasticJacobiIteration(
-        sceneWorldVoxelGrid,
-        sceneWorldVoxelGridWorkspace,
+        sceneQuery,
+        sceneWorldSceneQueryWorkspace,
         StochasticRelaxation::activeState().raysPerIteration,
         stchsRelaxRadElemRadn,
         NULL,
@@ -479,8 +479,8 @@ StochasticJacobiRadianceMethod::stchsRelaxRadElemUpdImp(StochasticRadiosityEleme
 
 void
 StochasticJacobiRadianceMethod::stchsRelaxRadDRegImpItrtn(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
@@ -496,8 +496,8 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDRegImpItrtn(
     System::err.printf("Regular importance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
 
     StochasticJacobi::doStochasticJacobiIteration(
-        sceneWorldVoxelGrid,
-        sceneWorldVoxelGridWorkspace,
+        sceneQuery,
+        sceneWorldSceneQueryWorkspace,
         numberOfRays,
         NULL,
         stchsRelaxRadElemImp,
@@ -560,7 +560,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
                     StochasticRelaxation::activeState().importanceUpdated = false;
 
                     // Propagate importance changes
-                    stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
+                    stchsRelaxRadDIncrmImpItrtn(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
                     if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                         StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                     }
@@ -581,15 +581,15 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
                 StochasticRelaxation::activeState().importanceUpdated = false;
 
                 // Propagate importance changes
-                stchsRelaxRadDIncrmImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
+                stchsRelaxRadDIncrmImpItrtn(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
                 if ( StochasticRelaxation::activeState().importanceUpdatedFromScratch ) {
                     StochasticRelaxation::activeState().importanceRaysPerIteration = StochasticRelaxation::activeState().importanceTracedRays;
                 }
             } else {
-                stchsRelaxRadDRegImpItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
+                stchsRelaxRadDRegImpItrtn(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
             }
         }
-        stchsRelaxRadDRegRadnItrtn(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
+        stchsRelaxRadDRegRadnItrtn(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
     }
 
     stchsRelaxRadRecompDispClrs(scene->patchList);

@@ -19,6 +19,7 @@
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
+#include "app/SceneConsumer.h"
 
 class RpkApplication {
   private:
@@ -63,7 +64,12 @@ class RpkApplication {
     RpkApplication();
     ~RpkApplication();
 
-    int entryPoint(int argc, char *argv[]);
+    /**
+    Runs the program for the given command line. With a consumer, the scene
+    is built from the command line as for a rendering, handed to the
+    consumer instead of being rendered, and the consumer's status returned.
+    */
+    int entryPoint(int argc, char *argv[], SceneConsumer *consumer = NULL);
 };
 
 #endif

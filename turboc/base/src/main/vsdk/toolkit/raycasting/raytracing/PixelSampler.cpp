@@ -8,8 +8,8 @@
 bool
 PixelSampler::sample(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
@@ -42,7 +42,7 @@ PixelSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // Camera can be placed in a medium
 
     // Transfer
-    if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

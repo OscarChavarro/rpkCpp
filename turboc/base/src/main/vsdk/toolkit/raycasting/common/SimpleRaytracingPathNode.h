@@ -7,7 +7,7 @@ and contain necessary information for raytracing-like algorithms
 #define __PATH_NODE__
 
 #include "java/io/PrintStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"

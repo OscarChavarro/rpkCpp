@@ -1,7 +1,7 @@
 #ifndef __MIN_MAX_BOX__
 #define __MIN_MAX_BOX__
 
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
 
 class MinMaxBox {
@@ -25,8 +25,8 @@ class MinMaxBox {
     inline MinMaxBox &operator=(const MinMaxBox &);
 
     void updateFromBoundingBox(const BoundingBox *sourceBoundingBox);
-    inline bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
-    inline bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
+    inline bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
+    inline bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
 };
 
 MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
@@ -75,7 +75,7 @@ MinMaxBox::clipAxisSlab(
 }
 
 inline bool
-MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
+MinMaxBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
     if ( ray == NULL || tMin == NULL || tMax == NULL ) {
         return false;
     }
@@ -125,7 +125,7 @@ MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
 }
 
 inline bool
-MinMaxBox::intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const {
+MinMaxBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
     if ( maximumDistance == NULL ) {
         return false;
     }

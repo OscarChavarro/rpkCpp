@@ -382,8 +382,6 @@ Mcrad::mntCarloRadDffsReflAPnt(Patch *patch, double u, double v) {
     patch->uniformPoint(u, v, &point);
     hit.init(patch, &point, &patch->normal, patch->material);
     hit.setUv(u, v);
-    unsigned int newFlags = hit.getFlags() | UV;
-    hit.setFlags(newFlags);
     ColorRgb result;
     result = ColorRgb(0.0f, 0.0f, 0.0f);
     if ( hit.getMaterial()->getBsdf() != NULL ) {

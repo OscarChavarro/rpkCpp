@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/Geometry.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"

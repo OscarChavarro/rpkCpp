@@ -5,6 +5,10 @@
 #include "vsdk/toolkit/galerkin/processing/FormFactorClusteredStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorStrategy.h"
 
+#ifdef RPK_RAY_CAPTURE
+    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
+#endif
+
 /**
 References:
 - [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
@@ -22,10 +26,10 @@ further away than minimumDistance are ignored.
 */
 RayHit *
 FormFactorStrategy::shadowTestDiscretization(
-    Ray *ray,
+    RpkRay *ray,
     const ArrayList<Geometry *> *geometrySceneList,
-    const VoxelGrid *voxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     ShadowCache *shadowCache,
     float minimumDistance,
     RayHit *hitStore,
@@ -37,7 +41,15 @@ FormFactorStrategy::shadowTestDiscretization(
     RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore, exclusions);
     if ( hit != NULL ) {
         Statistics::instance().shadow.numberOfShadowCacheHits++;
+#ifdef RPK_RAY_CAPTURE
+        if ( sceneQueryWorkspace != NULL && sceneQueryWorkspace->getRecorder() != NULL ) {
+            sceneQueryWorkspace->getRecorder()->countCacheResolved();
+        }
+#endif
     } else {
+#ifdef RPK_RAY_CAPTURE
+        const float queryMaximumDistance = minimumDistance;
+#endif
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = Geometry::listDiscretizationIntersect(
                 geometrySceneList,
@@ -48,15 +60,29 @@ FormFactorStrategy::shadowTestDiscretization(
                 hitStore,
                 exclusions);
         } else {
-            hit = voxelGrid->gridIntersect(
+            hit = sceneQuery->intersect(
                 ray,
                 Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 FRONT | ANY,
                 hitStore,
                 exclusions,
-                voxelGridWorkspace);
+                sceneQueryWorkspace);
         }
+#ifdef RPK_RAY_CAPTURE
+        if ( sceneQueryWorkspace != NULL && sceneQueryWorkspace->getRecorder() != NULL ) {
+            sceneQueryWorkspace->getRecorder()->recordQuery(
+                (!isClusteredGeometry && !isSceneGeometry) ?
+                    VisibilityQueryRecorder::GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder::GALERKIN_FULL_SCENE,
+                ray,
+                Numeric::EPSILON_FLOAT * queryMaximumDistance,
+                queryMaximumDistance,
+                FRONT | ANY,
+                exclusions,
+                hit,
+                minimumDistance);
+        }
+#endif
         if ( hit != NULL ) {
             shadowCache->addToShadowCache(hit->getPatch());
         }
@@ -147,8 +173,8 @@ as part of the kernel.
 double
 FormFactorStrategy::evaluatePointsPairKernel(
     ShadowCache *shadowCache,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     const Vector3D *x,
     const Vector3D *y,
     const GalerkinElement *receiverElement,
@@ -160,7 +186,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     const RayExclusionSet &exclusions)
 {
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
-    Ray ray;
+    RpkRay ray;
     ray.position = *y;
     ray.direction.subtraction(*x, *y);
     double distance = ray.direction.norm();
@@ -210,8 +236,8 @@ FormFactorStrategy::evaluatePointsPairKernel(
         if ( shadowTestDiscretization(
                 &ray,
                 shadowGeometryList,
-                sceneWorldVoxelGrid,
-                voxelGridWorkspace,
+                sceneQuery,
+                sceneQueryWorkspace,
                 shadowCache,
                 shortenedDistance,
                 &hitStore,
@@ -225,6 +251,11 @@ FormFactorStrategy::evaluatePointsPairKernel(
             visibilityFactor = 0.0;
         }
     } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore, exclusions) ) {
+#ifdef RPK_RAY_CAPTURE
+        if ( sceneQueryWorkspace != NULL && sceneQueryWorkspace->getRecorder() != NULL ) {
+            sceneQueryWorkspace->getRecorder()->countCacheResolved();
+        }
+#endif
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
@@ -474,8 +505,8 @@ is used, see [SILL1995b].
 */
 void
 FormFactorStrategy::cmptAreaTAreaFormFactorVis(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     FormFactorWorkspace *formFactorWorkspace,
     const ArrayList<Geometry *> *geometryShadowList,
     const bool isSceneGeometry,
@@ -580,14 +611,22 @@ FormFactorStrategy::cmptAreaTAreaFormFactorVis(
             receiverElement->isCluster() ? receiverElement->geometry : NULL,
             sourceElement->isCluster() ? sourceElement->geometry : NULL);
 
+#ifdef RPK_RAY_CAPTURE
+        if ( sceneQueryWorkspace != NULL && sceneQueryWorkspace->getRecorder() != NULL
+          && geometryShadowList != NULL && geometryShadowList->size() > 0
+          && !isClusteredGeometry && !isSceneGeometry ) {
+            sceneQueryWorkspace->getRecorder()->recordGeometryList(geometryShadowList);
+        }
+#endif
+
         double maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
         unsigned visibilityCount = 0; // Count the number of rays that "pass" occluders
         for ( int r = 0; receiveCubatureRule != NULL && r < receiveCubatureRule->numberOfNodes; r++ ) {
             for ( int s = 0; sourceCubatureRule != NULL && s < sourceCubatureRule->numberOfNodes; s++ ) {
                 Gxy[r][s] = evaluatePointsPairKernel(
                     &shadowCache,
-                    sceneWorldVoxelGrid,
-                    voxelGridWorkspace,
+                    sceneQuery,
+                    sceneQueryWorkspace,
                     &x[r],
                     &y[s],
                     receiverElement,

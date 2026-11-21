@@ -12,6 +12,13 @@ source and receiver of a form factor (and their twins), to avoid immediate
 self-intersections. The value is built by the caller and passed down every
 intersect call, so two queries never see each other's exclusions.
 
+An excluded geometry (a source or receiver cluster) excludes every face
+below it, wherever the spatial index stores that face: as part of the
+geometry, of a sub-geometry, or as a loose patch. Since faces are numbered
+depth-first over the cluster hierarchy (Scene::buildFaceTable()), the faces
+below a geometry are a contiguous interval of face indices, so the face test
+is two comparisons per excluded geometry and needs no pointers.
+
 Shared, read-only: it has no setters, and every query is const.
 */
 class RayExclusionSet {
@@ -19,12 +26,17 @@ class RayExclusionSet {
     const Patch *excludedPatch[MAX_EXCLUDED_PATCHES];
     const Geometry *excludedGeometry1;
     const Geometry *excludedGeometry2;
+    // Face index intervals of the excluded geometries, empty when first > last
+    int excludedFirstFace1;
+    int excludedLastFace1;
+    int excludedFirstFace2;
+    int excludedLastFace2;
 
   public:
     inline RayExclusionSet();
     inline RayExclusionSet(const Patch *p0, const Patch *p1);
     inline RayExclusionSet(const Patch *p0, const Patch *p1, const Patch *p2);
-    inline RayExclusionSet(
+    RayExclusionSet(
         const Patch *p0,
         const Patch *p1,
         const Patch *p2,
@@ -34,13 +46,21 @@ class RayExclusionSet {
 
     inline bool excludesPatch(const Patch *patch) const;
     inline bool excludesGeometry(const Geometry *geometry) const;
+    inline bool excludesFace(int faceIndex) const;
+    inline const Patch *getExcludedPatch(int index) const;
+    inline const Geometry *getExcludedGeometry1() const;
+    inline const Geometry *getExcludedGeometry2() const;
 };
 
 inline
 RayExclusionSet::RayExclusionSet():
     excludedPatch(),
     excludedGeometry1(NULL),
-    excludedGeometry2(NULL)
+    excludedGeometry2(NULL),
+    excludedFirstFace1(0),
+    excludedLastFace1(-1),
+    excludedFirstFace2(0),
+    excludedLastFace2(-1)
 {
     for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
         excludedPatch[i] = NULL;
@@ -51,7 +71,11 @@ inline
 RayExclusionSet::RayExclusionSet(const Patch *p0, const Patch *p1):
     excludedPatch(),
     excludedGeometry1(NULL),
-    excludedGeometry2(NULL)
+    excludedGeometry2(NULL),
+    excludedFirstFace1(0),
+    excludedLastFace1(-1),
+    excludedFirstFace2(0),
+    excludedLastFace2(-1)
 {
     excludedPatch[0] = p0;
     excludedPatch[1] = p1;
@@ -63,30 +87,16 @@ inline
 RayExclusionSet::RayExclusionSet(const Patch *p0, const Patch *p1, const Patch *p2):
     excludedPatch(),
     excludedGeometry1(NULL),
-    excludedGeometry2(NULL)
+    excludedGeometry2(NULL),
+    excludedFirstFace1(0),
+    excludedLastFace1(-1),
+    excludedFirstFace2(0),
+    excludedLastFace2(-1)
 {
     excludedPatch[0] = p0;
     excludedPatch[1] = p1;
     excludedPatch[2] = p2;
     excludedPatch[3] = NULL;
-}
-
-inline
-RayExclusionSet::RayExclusionSet(
-    const Patch *p0,
-    const Patch *p1,
-    const Patch *p2,
-    const Patch *p3,
-    const Geometry *geometry1,
-    const Geometry *geometry2):
-    excludedPatch(),
-    excludedGeometry1(geometry1),
-    excludedGeometry2(geometry2)
-{
-    excludedPatch[0] = p0;
-    excludedPatch[1] = p1;
-    excludedPatch[2] = p2;
-    excludedPatch[3] = p3;
 }
 
 inline bool
@@ -102,6 +112,30 @@ RayExclusionSet::excludesPatch(const Patch *patch) const {
 inline bool
 RayExclusionSet::excludesGeometry(const Geometry *geometry) const {
     return geometry == excludedGeometry1 || geometry == excludedGeometry2;
+}
+
+/**
+True when the face lies below one of the excluded geometries
+*/
+inline bool
+RayExclusionSet::excludesFace(const int faceIndex) const {
+    return (faceIndex >= excludedFirstFace1 && faceIndex <= excludedLastFace1)
+        || (faceIndex >= excludedFirstFace2 && faceIndex <= excludedLastFace2);
+}
+
+inline const Patch *
+RayExclusionSet::getExcludedPatch(const int index) const {
+    return excludedPatch[index];
+}
+
+inline const Geometry *
+RayExclusionSet::getExcludedGeometry1() const {
+    return excludedGeometry1;
+}
+
+inline const Geometry *
+RayExclusionSet::getExcludedGeometry2() const {
+    return excludedGeometry2;
 }
 
 #endif

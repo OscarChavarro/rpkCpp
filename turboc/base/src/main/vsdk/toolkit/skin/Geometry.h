@@ -2,7 +2,7 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Ray.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
@@ -23,6 +23,14 @@ contains data that is independent of geometry type.
 
 class Geometry {
   private:
+    // Interval [firstFaceIndex, lastFaceIndex] of Patch::getFaceIndex()
+    // values of the patches below this geometry. Scene::buildFaceTable()
+    // numbers the faces depth-first over the cluster hierarchy, so every
+    // geometry of that hierarchy covers a contiguous interval. Empty
+    // (first > last) until the face table is built.
+    int firstFaceIndex;
+    int lastFaceIndex;
+
     static ArrayList<Geometry *> *
     cloneGeometryList(const ArrayList<Geometry *> *input);
 
@@ -33,7 +41,7 @@ class Geometry {
 
     bool
     discretizationIntersectPreTest(
-        const Ray *ray,
+        const RpkRay *ray,
         float minimumDistance,
         const float *maximumDistance,
         const RayExclusionSet &exclusions
@@ -46,9 +54,6 @@ class Geometry {
     int itemCount;
     char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
     char shaftCullGeometry; // Generated during shaft culling
-    char omit; // Indicates that the Geometry should not be considered for a number of things,
-               // such as intersection testing. Set to false by default, don't forget
-               // to set to false again after you changed it!
     bool isDuplicate;
 
     GeometryClassId className;
@@ -57,10 +62,13 @@ class Geometry {
     virtual ~Geometry();
 
     bool isCompound() const;
+    int getFirstFaceIndex() const;
+    int getLastFaceIndex() const;
+    void setFaceIndexRange(int first, int last);
 
     virtual RayHit *
     discretizationIntersect(
-        Ray *ray,
+        RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
@@ -70,7 +78,7 @@ class Geometry {
     static RayHit *
     patchListIntersect(
         const ArrayList<Patch *> *patchList,
-        const Ray *ray,
+        const RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
@@ -88,7 +96,7 @@ class Geometry {
     static RayHit *
     listDiscretizationIntersect(
         const ArrayList<Geometry *> *geometryList,
-        Ray *ray,
+        RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,

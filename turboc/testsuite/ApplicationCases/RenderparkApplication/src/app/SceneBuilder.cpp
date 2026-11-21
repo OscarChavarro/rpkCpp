@@ -1,3 +1,6 @@
+#ifdef RPK_RAY_CAPTURE
+    #include <stdlib.h>
+#endif
 #include <string.h>
 
 #include "java/io/FileInputStream.h"
@@ -598,9 +601,20 @@ SceneBuilder::sceneBuilderReadFile(
 
     scene->clusteredRootGeometry = SceneBuilder::sceneBldCreateClustHier(scene->patchList);
 
-    if ( scene->clusteredRootGeometry->className != COMPOUND ) {
+    // The top-level clusters, as RenderPark's ClusteredWorld: the children of
+    // the root cluster, or the root itself when it is not a compound
+    if ( scene->clusteredRootGeometry->className == COMPOUND ) {
+        const ArrayList<Geometry *> *children = ((const Compound *)(scene->clusteredRootGeometry))->children;
+        for ( int i = 0; children != NULL && i < children->size(); i++ ) {
+            scene->clusteredGeometryList->add(children->get(i));
+        }
+    } else {
+        scene->clusteredGeometryList->add(scene->clusteredRootGeometry);
         Logger::reportMessage("SceneBuilder", Logger::WARNING, "", "Strange clusters for this world ...");
     }
+
+    // Dense face indices in depth-first order of the cluster hierarchy
+    scene->buildFaceTable();
 
     t = System::nanoTime();
     System::err.printf(
@@ -608,13 +622,17 @@ SceneBuilder::sceneBuilderReadFile(
         ((float)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
-    // Create the scene level voxel grid
-    scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
-    scene->voxelGridWorkspace = new VoxelGridWorkspace(scene->voxelGrid->getNumberOfItems());
+    // Create the scene query, over the index the -scene-acceleration option chose
+#ifdef RPK_RAY_CAPTURE
+    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
+    scene->visibilityQueryRecorder = new VisibilityQueryRecorder(getenv("RPK_RAY_CAPTURE_FILE"));
+#endif
+    scene->buildSceneQuery();
 
     t = System::nanoTime();
     System::err.printf(
-        "Voxel grid creation took %g secs.\n",
+        "Scene index (%s) creation took %g secs.\n",
+        SceneQuery::methodName(scene->getAccelerationMethod()),
         ((float)(((double)(t - last)) / 1000000000.0)));
     last = t;
 

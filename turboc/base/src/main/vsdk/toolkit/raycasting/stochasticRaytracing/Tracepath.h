@@ -22,11 +22,11 @@ class Tracepath{ public:
     static void clearPath(Path *path);
     static void pathAddNode(Path *path, Patch *patch, double probability, Vector3D inPoint, Vector3D outpoint);
     static void freePathNodes(Path *path);
-    static Path *tracePath( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, Patch *origin, double birthProb, PatchProbabilityCallback survivalProbabilityCallBack, Path *path);
+    static Path *tracePath( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Patch *origin, double birthProb, PatchProbabilityCallback survivalProbabilityCallBack, Path *path);
     static double patchNormalisedBirthProbability(const Patch *patch);
 
   public:
-    static void tracePaths( const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, long numberOfPaths, PatchProbabilityCallback birthProbabilityCallBack, PatchProbabilityCallback survivalProbabilityCallBack, ScorePathCallback scorePathCallBack, UpdatePatchCallback updateCallBack, const ArrayList<Patch *> *scenePatches);
+    static void tracePaths( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, long numberOfPaths, PatchProbabilityCallback birthProbabilityCallBack, PatchProbabilityCallback survivalProbabilityCallBack, ScorePathCallback scorePathCallBack, UpdatePatchCallback updateCallBack, const ArrayList<Patch *> *scenePatches);
 };
 
 #endif

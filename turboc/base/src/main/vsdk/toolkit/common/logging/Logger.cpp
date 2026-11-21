@@ -36,7 +36,7 @@ void Logger::processFatalError(const String& method, const String& message, cons
     throw VSDKFatalException(m);
 }
 
-void Logger::reportMessage(const String& className, int level, const String& method, const String& message)
+void Logger::reportMessage(const String& /*className*/, int level, const String& method, const String& message)
 {
     fprintf(stderr, "%s\n", message.c_str());
     if ( level == FATAL_ERROR ) {
@@ -44,7 +44,7 @@ void Logger::reportMessage(const String& className, int level, const String& met
     }
 }
 
-void Logger::reportMessageWithException(const String& className, int level, const String& method, const String& message, const Throwable* cause)
+void Logger::reportMessageWithException(const String& /*className*/, int level, const String& method, const String& message, const Throwable* cause)
 {
     if ( cause != NULL ) {
         fprintf(stderr, "%s | exception: %s\n", message.c_str(), cause->getMessage().c_str());

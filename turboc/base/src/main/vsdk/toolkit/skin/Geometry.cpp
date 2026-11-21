@@ -9,12 +9,13 @@
 int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():
+    firstFaceIndex(0),
+    lastFaceIndex(-1),
     id(),
     boundingBox(),
     radianceData(),
     itemCount(),
     bounded(),
-    omit(),
     isDuplicate(),
     className(UNDEFINED)
 {
@@ -26,7 +27,9 @@ This function is used to create a new geometry with given specific data and
 methods
 */
 Geometry::Geometry(
-    GeometryClassId inClassName)
+    GeometryClassId inClassName):
+    firstFaceIndex(0),
+    lastFaceIndex(-1)
 {
     Statistics::instance().reader.numberOfGeometries++;
     id = nextGeometryId;
@@ -37,7 +40,6 @@ Geometry::Geometry(
     shaftCullGeometry = false;
     radianceData = NULL;
     itemCount = 0;
-    omit = false;
 }
 
 Geometry::~Geometry() {
@@ -79,6 +81,26 @@ simpler geometries
 bool
 Geometry::isCompound() const {
     return className == COMPOUND;
+}
+
+int
+Geometry::getFirstFaceIndex() const {
+    return firstFaceIndex;
+}
+
+int
+Geometry::getLastFaceIndex() const {
+    return lastFaceIndex;
+}
+
+/**
+Records the interval of face indices covered by this geometry. Called by
+Scene::buildFaceTable() only; an empty interval is first > last
+*/
+void
+Geometry::setFaceIndexRange(const int first, const int last) {
+    firstFaceIndex = first;
+    lastFaceIndex = last;
 }
 
 ArrayList<Geometry *> *
@@ -132,9 +154,9 @@ Geometry::clone() const {
     newPatchSet->itemCount = itemCount;
     newPatchSet->bounded = bounded;
     newPatchSet->shaftCullGeometry = shaftCullGeometry;
-    newPatchSet->omit = omit;
     newPatchSet->className = className;
     newPatchSet->isDuplicate = true;
+    newPatchSet->setFaceIndexRange(firstFaceIndex, lastFaceIndex);
 
     Statistics::instance().reader.numberOfGeometries++;
 
@@ -143,7 +165,7 @@ Geometry::clone() const {
 
 bool
 Geometry::discretizationIntersectPreTest(
-    const Ray *ray,
+    const RpkRay *ray,
     float minimumDistance,
     const float *maximumDistance,
     const RayExclusionSet &exclusions) const
@@ -181,7 +203,7 @@ properties) to return.
 */
 RayHit *
 Geometry::discretizationIntersect(
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
@@ -205,7 +227,7 @@ Geometry::discretizationIntersect(
 RayHit *
 Geometry::listDiscretizationIntersect(
     const ArrayList<Geometry *> *geometryList,
-    Ray *ray,
+    RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
@@ -249,7 +271,7 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 RayHit *
 Geometry::patchListIntersect(
     const ArrayList<Patch *> *patchList,
-    const Ray *ray,
+    const RpkRay *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,

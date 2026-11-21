@@ -1,5 +1,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/scene/Scene.h"
 
 const char *Scene::compoundType = "Compound";
@@ -8,13 +10,18 @@ const char *Scene::patchSetType = "PatchSet";
 const char *Scene::unknownType = "<unknown>";
 
 Scene::Scene():
+    faceTable(NULL),
+    numberOfFaces(0),
+    faceBounds(NULL),
+    accelerationMethod(WALD2007_ACCELERATION),
+    sceneQuery(NULL),
+    sceneQueryWorkspace(NULL),
     background(),
     camera(),
     geometryList(),
     clusteredGeometryList(),
     clusteredRootGeometry(),
-    voxelGrid(),
-    voxelGridWorkspace(),
+    visibilityQueryRecorder(),
     patchList(),
     lightSourcePatchList()
 {
@@ -39,14 +46,18 @@ Scene::~Scene() {
         delete patchList;
         patchList = NULL;
     }
-    if ( voxelGridWorkspace != NULL ) {
-        delete voxelGridWorkspace;
-        voxelGridWorkspace = NULL;
+    delete sceneQueryWorkspace;
+    sceneQueryWorkspace = NULL;
+    if ( visibilityQueryRecorder != NULL ) {
+        delete visibilityQueryRecorder;
+        visibilityQueryRecorder = NULL;
     }
-    if ( voxelGrid != NULL ) {
-        delete voxelGrid;
-        voxelGrid = NULL;
-    }
+    delete sceneQuery;
+    sceneQuery = NULL;
+    delete faceBounds;
+    faceBounds = NULL;
+    delete[] faceTable;
+    faceTable = NULL;
     if ( background != NULL ) {
         delete background;
         background = NULL;
@@ -221,9 +232,25 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
 }
 
 void
-Scene::printVoxelGrid() const {
-    System::out.printf("= voxelGrid ================================================================\n");
-    voxelGrid->print();
+Scene::printSceneQuery() const {
+    System::out.printf("= scene query (%s) ===========================================================\n",
+        SceneQuery::methodName(accelerationMethod));
+    if ( sceneQuery != NULL && sceneQuery->getLegacyGrid() != NULL ) {
+        sceneQuery->getLegacyGrid()->print();
+    }
+}
+
+void
+Scene::setAccelerationMethod(const SceneAccelerationMethod method) {
+    accelerationMethod = method;
+}
+
+void
+Scene::buildSceneQuery() {
+    delete sceneQueryWorkspace;
+    delete sceneQuery;
+    sceneQuery = new SceneQuery(this, accelerationMethod);
+    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery, visibilityQueryRecorder);
 }
 
 void
@@ -233,6 +260,68 @@ Scene::print() const {
     printPatches();
     int elementCount = 0;
     printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
-    printVoxelGrid();
+    printSceneQuery();
     System::out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
+}
+
+void
+Scene::collectFaces(Geometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
+    if ( geometry == NULL ) {
+        return;
+    }
+    // Faces are numbered depth-first, so the faces below this geometry are
+    // exactly the interval [first, *count - 1] once its subtree is visited
+    const int first = *count;
+    if ( geometry->className == COMPOUND ) {
+        const ArrayList<Geometry *> *children = ((const Compound *)(geometry))->children;
+        if ( children != NULL ) {
+            for ( int i = 0; i < children->size(); i++ ) {
+                collectFaces(children->get(i), table, capacity, count, conflicts);
+            }
+        }
+        geometry->setFaceIndexRange(first, *count - 1);
+        return;
+    }
+    const ArrayList<Patch *> *patches = Geometry::patchListReference(geometry);
+    for ( int i = 0; patches != NULL && i < patches->size(); i++ ) {
+        Patch *patch = patches->get(i);
+        if ( patch->getFaceIndex() >= 0 || *count >= capacity ) {
+            (*conflicts)++;
+            continue;
+        }
+        patch->setFaceIndex(*count);
+        table[*count] = patch;
+        (*count)++;
+    }
+    geometry->setFaceIndexRange(first, *count - 1);
+}
+
+void
+Scene::buildFaceTable() {
+    delete faceBounds;
+    faceBounds = NULL;
+    delete[] faceTable;
+    faceTable = NULL;
+    numberOfFaces = 0;
+    const int capacity = patchList != NULL ? ((int)(patchList->size())) : 0;
+    int i;
+    for ( i = 0; i < capacity; i++ ) {
+        patchList->get(i)->setFaceIndex(-1);
+    }
+    faceTable = new Patch *[capacity > 0 ? capacity : 1];
+    int conflicts = 0;
+    collectFaces(clusteredRootGeometry, faceTable, capacity, &numberOfFaces, &conflicts);
+
+    int unreached = 0;
+    for ( i = 0; i < capacity; i++ ) {
+        if ( patchList->get(i)->getFaceIndex() < 0 ) {
+            unreached++;
+        }
+    }
+    if ( conflicts != 0 || unreached != 0 || numberOfFaces != capacity ) {
+        Logger::reportMessage("Scene", Logger::FATAL_ERROR, "buildFaceTable", LoggerFormat::format(
+            "Face table: %d patches, %d indexed, %d reached twice, %d unreachable from the cluster hierarchy",
+            capacity, numberOfFaces, conflicts, unreached));
+    }
+    faceBounds = new FaceBoundsTable(faceTable, numberOfFaces);
 }

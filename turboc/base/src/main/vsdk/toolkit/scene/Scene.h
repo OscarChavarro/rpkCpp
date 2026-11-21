@@ -6,8 +6,9 @@
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/scene/Camera.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
-#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
+#include "vsdk/toolkit/scene/FaceBoundsTable.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
+#include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
   private:
@@ -23,8 +24,18 @@ class Scene {
     void printGeometries() const;
     void printClusteredGeometries() const;
     void printPatches() const;
-    void printVoxelGrid() const;
+    void printSceneQuery() const;
     static void printClusterHierarchy(const Geometry *node, int level, int *elementCount);
+
+    // Face table: every patch of the scene, in depth-first order of
+    // clusteredRootGeometry, indexed by Patch::getFaceIndex()
+    Patch **faceTable;
+    int numberOfFaces;
+    FaceBoundsTable *faceBounds; // Owned; bounds of the faceTable entries
+    SceneAccelerationMethod accelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
+    SceneQuery *sceneQuery; // Owned; built by buildSceneQuery
+    SceneQueryWorkspace *sceneQueryWorkspace; // Owned; query scratch of the single-threaded callers
+    static void collectFaces(Geometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
 
 public:
     Background *background;
@@ -32,8 +43,7 @@ public:
     ArrayList<Geometry *> *geometryList;
     ArrayList<Geometry *> *clusteredGeometryList;
     Geometry *clusteredRootGeometry;
-    VoxelGrid *voxelGrid;
-    VoxelGridWorkspace *voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
+    VisibilityQueryRecorder *visibilityQueryRecorder; // Ray capture builds only, otherwise null
 
     // The list of all patches in the current scene
     ArrayList<Patch *> *patchList;
@@ -45,6 +55,60 @@ public:
     ~Scene();
 
     void print() const;
+
+    /**
+    Assigns the dense face indices and builds the face table and the face
+    bounds. Called once, after the cluster hierarchy exists and before the
+    scene query. A patch reachable from two geometries, or a patch of
+    patchList that clusteredRootGeometry does not reach, is a fatal error.
+    */
+    void buildFaceTable();
+    int getNumberOfFaces() const;
+    Patch *getFace(int faceIndex) const;
+    const FaceBoundsTable *getFaceBounds() const;
+
+    /** The index buildSceneQuery uses; set while the scene is being built */
+    void setAccelerationMethod(SceneAccelerationMethod method);
+    SceneAccelerationMethod getAccelerationMethod() const;
+
+    /**
+    Builds the scene query over the face table with the acceleration method,
+    and the scene's workspace for it (reporting to visibilityQueryRecorder in
+    ray capture builds). Called once, after buildFaceTable.
+    */
+    void buildSceneQuery();
+    const SceneQuery *getSceneQuery() const;
+    SceneQueryWorkspace *getSceneQueryWorkspace() const;
 };
+
+inline const FaceBoundsTable *
+Scene::getFaceBounds() const {
+    return faceBounds;
+}
+
+inline SceneAccelerationMethod
+Scene::getAccelerationMethod() const {
+    return accelerationMethod;
+}
+
+inline const SceneQuery *
+Scene::getSceneQuery() const {
+    return sceneQuery;
+}
+
+inline SceneQueryWorkspace *
+Scene::getSceneQueryWorkspace() const {
+    return sceneQueryWorkspace;
+}
+
+inline int
+Scene::getNumberOfFaces() const {
+    return numberOfFaces;
+}
+
+inline Patch *
+Scene::getFace(const int faceIndex) const {
+    return faceTable[faceIndex];
+}
 
 #endif

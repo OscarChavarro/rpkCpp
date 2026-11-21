@@ -47,6 +47,7 @@ class VoxelGrid {
     void freeVoxelGridElements();
     static short clampVoxel(short v, short max);
     static bool shouldSubdivide(const Geometry *geometry);
+    static int countItems(Geometry *geometry);
 
     float voxel2x(float px) const;
     float voxel2y(float py) const;
@@ -68,7 +69,7 @@ class VoxelGrid {
 
     void
     gridTraceSetup(
-        const Ray *ray,
+        const RpkRay *ray,
         float t0,
         const Vector3D *P,
         int *g,
@@ -79,7 +80,7 @@ class VoxelGrid {
 
     bool
     gridBoundsIntersect(
-        const Ray *ray,
+        const RpkRay *ray,
         float minimumDistance,
         float maximumDistance,
         /*OUT*/ float *t0,
@@ -88,7 +89,7 @@ class VoxelGrid {
     static RayHit *
     voxelIntersect(
         const ArrayList<VoxelData *> *items,
-        Ray *ray,
+        RpkRay *ray,
         unsigned int counter,
         float minimumDistance,
         float *maximumDistance,
@@ -106,7 +107,7 @@ class VoxelGrid {
 
     RayHit *
     gridIntersect(
-        Ray *ray,
+        RpkRay *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,

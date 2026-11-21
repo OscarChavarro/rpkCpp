@@ -91,8 +91,8 @@ when no longer needed
 */
 Path *
 Tracepath::tracePath(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     Patch *origin,
     double birthProb,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -102,7 +102,7 @@ Tracepath::tracePath(
     Vector3D outpoint(0.0, 0.0, 0.0);
     Patch *P = origin;
     double survivalProb;
-    Ray ray;
+    RpkRay ray;
     const RayHit *hit;
     RayHit hitStore;
 
@@ -119,7 +119,7 @@ Tracepath::tracePath(
         }
         path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
 
-        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, P, &ray, &hitStore);
+        hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;
@@ -143,8 +143,8 @@ Traces 'numberOfPaths' paths with given birth probabilities
 */
 void
 Tracepath::tracePaths(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     long numberOfPaths,
     PatchProbabilityCallback birthProbabilityCallBack,
     PatchProbabilityCallback survivalProbabilityCallBack,
@@ -182,7 +182,7 @@ Tracepath::tracePaths(
         double p = birthProbabilityCallBack(patch) / sumProbabilities;
         long paths_this_patch = ((int)(Math::floor((pCumulative + p) * ((double)(numberOfPaths)) + rnd))) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, patch, p, survivalProbabilityCallBack, &path);
+            tracePath(sceneQuery, sceneWorldSceneQueryWorkspace, patch, p, survivalProbabilityCallBack, &path);
             scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

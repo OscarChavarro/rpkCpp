@@ -484,7 +484,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
-    Ray ray;
+    RpkRay ray;
     float dist;
     RayHit hitStore;
 
@@ -682,10 +682,6 @@ was created during previous shaft culling
 */
 void
 Shaft::keep(Geometry *geometry, ArrayList<Geometry *> *candidateList) {
-    if ( geometry->omit ) {
-        return;
-    }
-
     if ( geometry->shaftCullGeometry && geometry->className == PATCH_SET ) {
         const PatchSet *oldPatchSet = ((const PatchSet *)(geometry));
         Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
@@ -702,10 +698,6 @@ Breaks the geometry into it's components and does shaft culling on the component
 */
 void
 Shaft::shaftCullOpen(Geometry *geometry, ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
-    if ( geometry->omit ) {
-        return;
-    }
-
     if ( geometry->isCompound() ) {
         const Compound *compound = ((const Compound *)(geometry));
         doCulling(compound->children, candidateList, strategy);
@@ -746,7 +738,7 @@ Shaft::cullGeometry(
         // const PatchSet* patchSet = (PatchSet *)geometry;
         // const unsigned patchSetId = patchSet->radianceData->id;
 
-        if ( geometry->omit || patchIsOnOmitSet(patchId) ) { // Cull by cache algorithm not being used
+        if ( patchIsOnOmitSet(patchId) ) { // Cull by cache algorithm not being used
             // TODO: Looks like original authors wanted to implement an efficiency improvement by
             // implementing a omitted patches cache. Nevertheless, this was damaged on the transformation
             // process from C to C++, or the algorithm never worked.
