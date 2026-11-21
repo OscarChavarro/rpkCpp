@@ -111,8 +111,8 @@ LinkingSimpleStrategy::createInitialLink(
     bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
     const java::ArrayList<RpkGeometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
-        scene->voxelGrid,
-        scene->voxelGridWorkspace,
+        scene->getSceneQuery(),
+        scene->getSceneQueryWorkspace(),
         galerkinState->formFactorWorkspace,
         geometryListReferences,
         isSceneGeometry,

@@ -311,8 +311,8 @@ does not give correct display
 void
 PhotonMapRadianceMethod::photonMapDoScreenNEE(
     Camera *camera,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     PhotonMapConfig *config,
     const RadianceMethod *radianceMethod)
 {
@@ -331,8 +331,8 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
     // the camera. At the same time the pixel hit is computed
     if ( RayTools::eyeNodeVisible(
             camera,
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             bp->m_eyeEndNode,
             bp->m_lightEndNode,
             &pixX,
@@ -412,8 +412,8 @@ Handle one path : store at all end positions and for testing, connect to the eye
 void
 PhotonMapRadianceMethod::photonMapHandlePath(
     Camera *camera,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     PhotonMapConfig *config,
     const RadianceMethod *radianceMethod)
 {
@@ -444,7 +444,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
             if ( bp->m_lightSize > 1 && photonMapDoPhotonStore(camera, currentNode, accPower) ) {
                 // Screen next event estimation for testing
                 bp->m_lightEndNode = currentNode;
-                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
+                photonMapDoScreenNEE(camera, sceneQuery, sceneWorldSceneQueryWorkspace, config, radianceMethod);
             }
         } else {
             // Caustic map...
@@ -453,7 +453,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
                 // Screen next event estimation for testing
 
                 bp->m_lightEndNode = currentNode;
-                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
+                photonMapDoScreenNEE(camera, sceneQuery, sceneWorldSceneQueryWorkspace, config, radianceMethod);
             }
         }
 
@@ -473,12 +473,12 @@ PhotonMapRadianceMethod::photonMapHandlePath(
 void
 PhotonMapRadianceMethod::photonMapTracePath(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     PhotonMapConfig *config,
     char bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, config->biPath.m_eyePath);
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -487,7 +487,7 @@ PhotonMapRadianceMethod::photonMapTracePath(
     double x1 = drand48(); // nrs[0] * RECIP
     double x2 = drand48(); // nrs[1] * RECIP
 
-    path = config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, x1, x2, bsdfFlags);
+    path = config->lightConfig.traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -501,18 +501,18 @@ PhotonMapRadianceMethod::photonMapTracePath(
     x1 = drand48(); // nrs[2] * RECIP
     x2 = drand48(); // nrs[3] * RECIP // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, node, x1, x2, bsdfFlags) ) {
+    if ( config->lightConfig.traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
-        config->lightConfig.tracePath(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, node->next(), bsdfFlags);
+        config->lightConfig.tracePath(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, node->next(), bsdfFlags);
     }
 }
 
 void
 PhotonMapRadianceMethod::photonMapTracePaths(
     Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     Background *sceneBackground,
     PhotonMapConfig *config,
     int numberOfPaths,
@@ -521,16 +521,16 @@ PhotonMapRadianceMethod::photonMapTracePaths(
 {
     // Fill in config structures
     for ( int i = 0; i < numberOfPaths; i++ ) {
-        photonMapTracePath(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, sceneBackground, config, bsdfFlags);
-        photonMapHandlePath(camera, sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, config, radianceMethod);
+        photonMapTracePath(camera, sceneQuery, sceneWorldSceneQueryWorkspace, sceneBackground, config, bsdfFlags);
+        photonMapHandlePath(camera, sceneQuery, sceneWorldSceneQueryWorkspace, config, radianceMethod);
     }
 }
 
 void
 PhotonMapRadianceMethod::photonMapBRRealIteration(
     Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     Background *sceneBackground,
     const RadianceMethod *radianceMethod)
 {
@@ -553,8 +553,8 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 
         PhotonMapImportance::tracePotentialPaths(
             camera,
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             sceneBackground,
             static_cast<int>(photonMapState.iPathsPerIteration),
             photonMapState,
@@ -577,8 +577,8 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 
         photonMapTracePaths(
                 camera,
-                sceneWorldVoxelGrid,
-                sceneWorldVoxelGridWorkspace,
+                sceneQuery,
+                sceneWorldSceneQueryWorkspace,
                 sceneBackground,
                 &photonMapConfig,
                 static_cast<int>(photonMapState.gPathsPerIteration),
@@ -601,8 +601,8 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 
         photonMapTracePaths(
             camera,
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             sceneBackground,
             &photonMapConfig,
             static_cast<int>(photonMapState.cPathsPerIteration),
@@ -623,7 +623,7 @@ bool
 PhotonMapRadianceMethod::doStep(Scene *scene, RendererConfiguration */*renderOptions*/) {
     photonMapState.lastClock = java::System::nanoTime();
 
-    photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->voxelGridWorkspace, scene->background, this);
+    photonMapBRRealIteration(scene->camera, scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->background, this);
     photonMapRadiosityUpdateCpuSecs();
 
     photonMapState.runStopNumber++;

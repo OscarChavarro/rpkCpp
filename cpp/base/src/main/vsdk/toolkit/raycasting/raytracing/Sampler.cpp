@@ -18,8 +18,8 @@ or if a shading normal anomaly occurs
 */
 bool
 Sampler::sampleTransfer(
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
@@ -34,8 +34,8 @@ Sampler::sampleTransfer(
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = PathRayType::STOPS;
     const RpkRayHit *hit = RayTools::findRayIntersection(
-        sceneVoxelGrid,
-        sceneVoxelGridWorkspace,
+        sceneQuery,
+        sceneSceneQueryWorkspace,
         &ray,
         thisNode->m_hit.getPatch(),
         newNode->m_inBsdf,

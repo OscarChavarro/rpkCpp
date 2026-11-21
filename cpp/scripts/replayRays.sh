@@ -13,9 +13,11 @@
 # summary) and output/<image>.replayReport.txt (every disagreement with its
 # ray). RPK_RAY_REPLAY_THREADS, RPK_RAY_REPLAY_LINEAR_STRIDE and
 # RPK_RAY_REPLAY_LIMIT pass through (see the program's Main.cpp). Only the
-# corpora with full-scene queries have something to replay: today 12 and 14;
-# the Galerkin scenes answer every shadow ray from the cache or a restricted
-# list. Run from a directory whose parent holds etc/, like the other scripts.
+# corpora with full-scene queries have something to replay: 12 and 14
+# (raytracers) and 16 and 18 (Galerkin with shaft culling off); with shaft
+# culling the Galerkin scenes answer every shadow ray from the cache or a
+# restricted list. Run from a directory whose parent holds etc/, like the
+# other scripts.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)

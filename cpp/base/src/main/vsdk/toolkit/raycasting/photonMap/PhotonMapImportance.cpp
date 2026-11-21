@@ -52,8 +52,8 @@ PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathN
 bool
 PhotonMapImportance::tracePotentialPath(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     PhotonMapState &photonMapState,
     PhotonMapConfig &photonMapConfig)
@@ -62,7 +62,7 @@ PhotonMapImportance::tracePotentialPath(
     const SamplerConfig &scfg = photonMapConfig.eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, drand48(), drand48(), BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, path, drand48(), drand48(), BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -91,8 +91,8 @@ PhotonMapImportance::tracePotentialPath(
 
     while ( scfg.traceNode(
             camera,
-            sceneVoxelGrid,
-            sceneVoxelGridWorkspace,
+            sceneQuery,
+            sceneSceneQueryWorkspace,
             sceneBackground,
             node,
             x1,
@@ -135,8 +135,8 @@ PhotonMapImportance::tracePotentialPath(
 void
 PhotonMapImportance::tracePotentialPaths(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     int numberOfPaths,
     PhotonMapState &photonMapState,
@@ -149,8 +149,8 @@ PhotonMapImportance::tracePotentialPaths(
     for ( int i = 0; i < numberOfPaths; i++ ) {
         PhotonMapImportance::tracePotentialPath(
             camera,
-            sceneVoxelGrid,
-            sceneVoxelGridWorkspace,
+            sceneQuery,
+            sceneSceneQueryWorkspace,
             sceneBackground,
             photonMapState,
             photonMapConfig);

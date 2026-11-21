@@ -28,8 +28,8 @@ RpkRayHit *
 FormFactorStrategy::shadowTestDiscretization(
     RpkRay *ray,
     const java::ArrayList<RpkGeometry *> *geometrySceneList,
-    const VoxelGrid *voxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     ShadowCache *shadowCache,
     float minimumDistance,
     RpkRayHit *hitStore,
@@ -42,8 +42,8 @@ FormFactorStrategy::shadowTestDiscretization(
     if ( hit != nullptr ) {
         Statistics::instance().shadow.numberOfShadowCacheHits++;
 #ifdef RPK_RAY_CAPTURE
-        if ( voxelGridWorkspace != nullptr && voxelGridWorkspace->getRecorder() != nullptr ) {
-            voxelGridWorkspace->getRecorder()->countCacheResolved();
+        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
+            sceneQueryWorkspace->getRecorder()->countCacheResolved();
         }
 #endif
     } else {
@@ -60,18 +60,18 @@ FormFactorStrategy::shadowTestDiscretization(
                 hitStore,
                 exclusions);
         } else {
-            hit = voxelGrid->gridIntersect(
+            hit = sceneQuery->intersect(
                 ray,
                 Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore,
                 exclusions,
-                voxelGridWorkspace);
+                sceneQueryWorkspace);
         }
 #ifdef RPK_RAY_CAPTURE
-        if ( voxelGridWorkspace != nullptr && voxelGridWorkspace->getRecorder() != nullptr ) {
-            voxelGridWorkspace->getRecorder()->recordQuery(
+        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
+            sceneQueryWorkspace->getRecorder()->recordQuery(
                 (!isClusteredGeometry && !isSceneGeometry) ?
                     VisibilityQueryRecorder::GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder::GALERKIN_FULL_SCENE,
                 ray,
@@ -173,8 +173,8 @@ as part of the kernel.
 double
 FormFactorStrategy::evaluatePointsPairKernel(
     ShadowCache *shadowCache,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     const Vector3D *x,
     const Vector3D *y,
     const GalerkinElement *receiverElement,
@@ -236,8 +236,8 @@ FormFactorStrategy::evaluatePointsPairKernel(
         if ( shadowTestDiscretization(
                 &ray,
                 shadowGeometryList,
-                sceneWorldVoxelGrid,
-                voxelGridWorkspace,
+                sceneQuery,
+                sceneQueryWorkspace,
                 shadowCache,
                 shortenedDistance,
                 &hitStore,
@@ -252,8 +252,8 @@ FormFactorStrategy::evaluatePointsPairKernel(
         }
     } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore, exclusions) ) {
 #ifdef RPK_RAY_CAPTURE
-        if ( voxelGridWorkspace != nullptr && voxelGridWorkspace->getRecorder() != nullptr ) {
-            voxelGridWorkspace->getRecorder()->countCacheResolved();
+        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
+            sceneQueryWorkspace->getRecorder()->countCacheResolved();
         }
 #endif
         visibilityFactor = 0.0;
@@ -505,8 +505,8 @@ is used, see [SILL1995b].
 */
 void
 FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *voxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneQueryWorkspace,
     FormFactorWorkspace *formFactorWorkspace,
     const java::ArrayList<RpkGeometry *> *geometryShadowList,
     const bool isSceneGeometry,
@@ -612,10 +612,10 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             sourceElement->isCluster() ? sourceElement->geometry : nullptr);
 
 #ifdef RPK_RAY_CAPTURE
-        if ( voxelGridWorkspace != nullptr && voxelGridWorkspace->getRecorder() != nullptr
+        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr
           && geometryShadowList != nullptr && geometryShadowList->size() > 0
           && !isClusteredGeometry && !isSceneGeometry ) {
-            voxelGridWorkspace->getRecorder()->recordGeometryList(geometryShadowList);
+            sceneQueryWorkspace->getRecorder()->recordGeometryList(geometryShadowList);
         }
 #endif
 
@@ -625,8 +625,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             for ( int s = 0; sourceCubatureRule != nullptr && s < sourceCubatureRule->numberOfNodes; s++ ) {
                 Gxy[r][s] = evaluatePointsPairKernel(
                     &shadowCache,
-                    sceneWorldVoxelGrid,
-                    voxelGridWorkspace,
+                    sceneQuery,
+                    sceneQueryWorkspace,
                     &x[r],
                     &y[s],
                     receiverElement,

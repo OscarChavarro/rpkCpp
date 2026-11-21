@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "java/lang/System.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/scene/ConstantColorBackground.h"
 #include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
 #include "vsdk/toolkit/common/commandLineOptions/TypedOption.h"
@@ -43,6 +44,19 @@ int OptionsGroupCore::outputImageHeight = 1080;
 int OptionsGroupCore::glutDebugEnabled = false;
 EnumBackgroundMode OptionsGroupCore::backgroundMode = EnumBackgroundMode::NONE;
 ColorRgbMutable OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BACKGROUND_COLOR;
+SceneAccelerationMethod OptionsGroupCore::sceneAccelerationMethod = SceneAccelerationMethod::WALD2007_ACCELERATION;
+
+/**
+-scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+the scene query (SceneAccelerationMethod); wald2007 by default
+*/
+void
+OptionsGroupCore::sceneAccelerationOption(char *&name) {
+    if ( !SceneQuery::methodFromName(name, &sceneAccelerationMethod) ) {
+        Logger::reportMessage("OptionsGroupCore", Logger::ERROR, "", java::String::format(
+            "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", name));
+    }
+}
 
 void
 OptionsGroupCore::parse(
@@ -65,6 +79,7 @@ OptionsGroupCore::parse(
         &imageOutputWidth,
         &imageOutputHeight,
         &glutDebugEnabled);
+    scene.setAccelerationMethod(sceneAccelerationMethod);
 
     OptionsGroupRender::renderParseOptions(argc, argv, &renderOptions);
     OptionsGroupToneMapping::toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions);
@@ -213,6 +228,8 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
     TypedOption<int> dontForceOneSidedOpt = {"-dont-force-onesided", &appOptions.noValue, 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
     TypedOption<int> monochromaticOpt = {"-monochromatic", &appOptions.yesValue, 0, OptionsGroupCore::mainMonochromeOption, nullptr};
     TypedOption<int> glutDebugOpt = {"-glutDebug", &appOptions.debug, 0, OptionsGroupCore::setIntTrue, nullptr};
+    char *sceneAccelerationName = nullptr;
+    TypedOption<char *> sceneAccelerationOpt = {"-scene-acceleration", &sceneAccelerationName, 1, OptionsGroupCore::sceneAccelerationOption, nullptr};
     OptionBase registry[] = {
         REGISTER_OPTION(int, widthOpt, 5),
         REGISTER_OPTION(int, heightOpt, 6),
@@ -220,7 +237,8 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
         REGISTER_OPTION(int, forceOneSidedOpt, 10),
         REGISTER_OPTION(int, dontForceOneSidedOpt, 14),
         REGISTER_OPTION(int, monochromaticOpt, 5),
-        REGISTER_OPTION(int, glutDebugOpt, 6)
+        REGISTER_OPTION(int, glutDebugOpt, 6),
+        REGISTER_OPTION(char *, sceneAccelerationOpt, 8)
     };
 
     fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
@@ -228,9 +246,10 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
     backgroundMode = EnumBackgroundMode::NONE;
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
     glutDebugEnabled = appOptions.debug;
+    sceneAccelerationMethod = SceneAccelerationMethod::WALD2007_ACCELERATION;
     OptionsGroupCore::commandLineParseBackgroundOption(argc, argv);
     OptionGroup generalGroups[] = {
-        OptionGroup("global", registry, 7)
+        OptionGroup("global", registry, 8)
     };
     OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
 

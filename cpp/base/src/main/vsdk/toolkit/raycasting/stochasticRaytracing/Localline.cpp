@@ -74,23 +74,23 @@ Localline::someFeedback() {
 Determines nearest intersection point and patch
 */
 RpkRayHit *
-Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, const Patch *P, RpkRay *ray, RpkRayHit *hitStore) {
+Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const Patch *P, RpkRay *ray, RpkRayHit *hitStore) {
     float distance = Numeric::HUGE_FLOAT_VALUE;
     RpkRayHit *hit;
 
     // Reject self-intersections
     const RayExclusionSet exclusions(P, P->getTwin());
-    hit = sceneWorldVoxelGrid->gridIntersect(
+    hit = sceneQuery->intersect(
         ray,
         Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
         &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore,
         exclusions,
-        sceneWorldVoxelGridWorkspace);
+        sceneWorldSceneQueryWorkspace);
 #ifdef RPK_RAY_CAPTURE
-    if ( sceneWorldVoxelGridWorkspace->getRecorder() != nullptr ) {
-        sceneWorldVoxelGridWorkspace->getRecorder()->recordQuery(
+    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
+        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
             VisibilityQueryRecorder::STOCHASTIC_SHOOTING, ray,
             Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
             Numeric::HUGE_FLOAT_VALUE, RayHitFlag::FRONT | RayHitFlag::POINT, exclusions, hit, distance);

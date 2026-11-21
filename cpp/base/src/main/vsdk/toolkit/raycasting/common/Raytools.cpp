@@ -17,8 +17,8 @@ RayTools::pathFrontHitFlags() {
 
 RpkRayHit *
 RayTools::traceWorld(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     RpkRay *ray,
     const Patch *patch,
     unsigned int flags,
@@ -34,10 +34,10 @@ RayTools::traceWorld(
 
     dist = Numeric::HUGE_FLOAT_VALUE;
     const RayExclusionSet exclusions(patch, patch ? patch->getTwin() : nullptr, extraPatch);
-    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore, exclusions, sceneWorldVoxelGridWorkspace);
+    result = sceneQuery->intersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore, exclusions, sceneWorldSceneQueryWorkspace);
 #ifdef RPK_RAY_CAPTURE
-    if ( sceneWorldVoxelGridWorkspace->getRecorder() != nullptr ) {
-        sceneWorldVoxelGridWorkspace->getRecorder()->recordQuery(
+    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
+        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
             VisibilityQueryRecorder::RAYTRACER_CLOSEST_HIT, ray, 0.0F, Numeric::HUGE_FLOAT_VALUE,
             static_cast<int>(flags), exclusions, result, dist);
     }
@@ -54,8 +54,8 @@ RayTools::traceWorld(
 
 RpkRayHit *
 RayTools::findRayIntersection(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     RpkRay *ray,
     const Patch *patch,
     const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
@@ -72,7 +72,7 @@ RayTools::findRayIntersection(
     }
 
     // Trace the ray
-    newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, nullptr, hitStore);
+    newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, nullptr, hitStore);
     Statistics::instance().rayTracer.rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
@@ -81,7 +81,7 @@ RayTools::findRayIntersection(
     if ( newHit != nullptr && (newHit->getFlags() & RayHitFlag::BACK) &&
          newHit->getPatch()->getMaterial()->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
-        newHit = traceWorld(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, patch, hitFlags, newHit->getPatch(), hitStore);
+        newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, newHit->getPatch(), hitStore);
         Statistics::instance().rayTracer.rayCount++; // Statistics
     }
 
@@ -93,8 +93,8 @@ pathNodesVisible : send a shadow ray
 */
 bool
 RayTools::pathNodesVisible(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const SimpleRaytracingPathNode *node1,
     const SimpleRaytracingPathNode *node2)
 {
@@ -170,17 +170,17 @@ RayTools::pathNodesVisible(
             node2->m_hit.getPatch(),
             node1->m_hit.getPatch(),
             node1->m_hit.getPatch() != nullptr ? node1->m_hit.getPatch()->getTwin() : nullptr);
-        hit = sceneWorldVoxelGrid->gridIntersect(
+        hit = sceneQuery->intersect(
             &ray,
             0.0,
             &fDistance,
             RayHitFlag::FRONT | RayHitFlag::BACK | RayHitFlag::ANY,
             &hitStore,
             exclusions,
-            sceneWorldVoxelGridWorkspace);
+            sceneWorldSceneQueryWorkspace);
 #ifdef RPK_RAY_CAPTURE
-        if ( sceneWorldVoxelGridWorkspace->getRecorder() != nullptr ) {
-            sceneWorldVoxelGridWorkspace->getRecorder()->recordQuery(
+        if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
+            sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
                 VisibilityQueryRecorder::RAYTRACER_VISIBILITY, &ray, 0.0F, queryMaximumDistance,
                 RayHitFlag::FRONT | RayHitFlag::BACK | RayHitFlag::ANY, exclusions, hit, fDistance);
         }
@@ -201,8 +201,8 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 bool
 RayTools::eyeNodeVisible(
     const Camera *camera,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const SimpleRaytracingPathNode *eyeNode,
     const SimpleRaytracingPathNode *node,
     float *pixX,
@@ -264,13 +264,13 @@ RayTools::eyeNodeVisible(
                     const RayExclusionSet exclusions(
                         node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
                         eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->getTwin() : nullptr);
-                    hit = sceneWorldVoxelGrid->gridIntersect(&ray,
+                    hit = sceneQuery->intersect(&ray,
                                                              0.0, &fDistance,
                                                              RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore,
-                                                             exclusions, sceneWorldVoxelGridWorkspace);
+                                                             exclusions, sceneWorldSceneQueryWorkspace);
 #ifdef RPK_RAY_CAPTURE
-                    if ( sceneWorldVoxelGridWorkspace->getRecorder() != nullptr ) {
-                        sceneWorldVoxelGridWorkspace->getRecorder()->recordQuery(
+                    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
+                        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
                             VisibilityQueryRecorder::RAYTRACER_VISIBILITY, &ray, 0.0F, queryMaximumDistance,
                             RayHitFlag::FRONT | RayHitFlag::ANY, exclusions, hit, fDistance);
                     }

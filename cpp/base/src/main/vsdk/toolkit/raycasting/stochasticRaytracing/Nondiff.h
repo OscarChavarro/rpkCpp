@@ -7,7 +7,7 @@
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/LightSourceTable.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
@@ -33,8 +33,8 @@ class Nondiff final {
         ColorRgbMutable *emittedRadiance,
         double *pointSelectionPdf,
         double *dirSelectionPdf);
-    static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, LightSourceTable *light, double lightSelectionPdf);
-    static void sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, VoxelGridWorkspace *sceneWorldVoxelGridWorkspace, int samplesCount);
+    static void sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, LightSourceTable *light, double lightSelectionPdf);
+    static void sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, int samplesCount);
     static void summarize(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
 };
 

@@ -17,13 +17,14 @@ Scene::Scene():
     faceVisibility(nullptr),
     faceColors(nullptr),
     radianceElements(nullptr),
+    accelerationMethod(SceneAccelerationMethod::WALD2007_ACCELERATION),
+    sceneQuery(nullptr),
+    sceneQueryWorkspace(nullptr),
     background(),
     camera(),
     geometryList(),
     clusteredGeometryList(),
     clusteredRootGeometry(),
-    voxelGrid(),
-    voxelGridWorkspace(),
     visibilityQueryRecorder(),
     patchList(),
     lightSourcePatchList()
@@ -61,18 +62,14 @@ Scene::~Scene() {
         delete patchList;
         patchList = nullptr;
     }
-    if ( voxelGridWorkspace != nullptr ) {
-        delete voxelGridWorkspace;
-        voxelGridWorkspace = nullptr;
-    }
+    delete sceneQueryWorkspace;
+    sceneQueryWorkspace = nullptr;
     if ( visibilityQueryRecorder != nullptr ) {
         delete visibilityQueryRecorder;
         visibilityQueryRecorder = nullptr;
     }
-    if ( voxelGrid != nullptr ) {
-        delete voxelGrid;
-        voxelGrid = nullptr;
-    }
+    delete sceneQuery;
+    sceneQuery = nullptr;
     if ( background != nullptr ) {
         delete background;
         background = nullptr;
@@ -247,9 +244,25 @@ Scene::printClusterHierarchy(const RpkGeometry *node, int level, int *elementCou
 }
 
 void
-Scene::printVoxelGrid() const {
-    java::System::out.printf("= voxelGrid ================================================================\n");
-    voxelGrid->print();
+Scene::printSceneQuery() const {
+    java::System::out.printf("= scene query (%s) ===========================================================\n",
+        SceneQuery::methodName(accelerationMethod));
+    if ( sceneQuery != nullptr && sceneQuery->getLegacyGrid() != nullptr ) {
+        sceneQuery->getLegacyGrid()->print();
+    }
+}
+
+void
+Scene::setAccelerationMethod(const SceneAccelerationMethod method) {
+    accelerationMethod = method;
+}
+
+void
+Scene::buildSceneQuery() {
+    delete sceneQueryWorkspace;
+    delete sceneQuery;
+    sceneQuery = new SceneQuery(this, accelerationMethod);
+    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery, visibilityQueryRecorder);
 }
 
 void
@@ -259,15 +272,18 @@ Scene::print() const {
     printPatches();
     int elementCount = 0;
     printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
-    printVoxelGrid();
+    printSceneQuery();
     java::System::out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
 }
 
 void
-Scene::collectFaces(const RpkGeometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
+Scene::collectFaces(RpkGeometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
     if ( geometry == nullptr ) {
         return;
     }
+    // Faces are numbered depth-first, so the faces below this geometry are
+    // exactly the interval [first, *count - 1] once its subtree is visited
+    const int first = *count;
     if ( geometry->className == GeometryClassId::COMPOUND ) {
         const java::ArrayList<RpkGeometry *> *children = static_cast<const Compound *>(geometry)->children;
         if ( children != nullptr ) {
@@ -275,13 +291,11 @@ Scene::collectFaces(const RpkGeometry *geometry, Patch **table, const int capaci
                 collectFaces(children->get(i), table, capacity, count, conflicts);
             }
         }
+        geometry->setFaceIndexRange(first, *count - 1);
         return;
     }
     const java::ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
-    if ( patches == nullptr ) {
-        return;
-    }
-    for ( int i = 0; i < patches->size(); i++ ) {
+    for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
         Patch *patch = patches->get(i);
         if ( patch->getFaceIndex() >= 0 || *count >= capacity ) {
             (*conflicts)++;
@@ -291,6 +305,7 @@ Scene::collectFaces(const RpkGeometry *geometry, Patch **table, const int capaci
         table[*count] = patch;
         (*count)++;
     }
+    geometry->setFaceIndexRange(first, *count - 1);
 }
 
 /**

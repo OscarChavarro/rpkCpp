@@ -555,8 +555,8 @@ hit patch (and back for bidirectional transfers)
 */
 void
 StochasticJacobi::stochasticJacobiElementShootRay(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     StochasticRadiosityElement *src,
     int nMostSignificantBit,
     NiederreiterIndex mostSignificantBit1,
@@ -576,7 +576,7 @@ StochasticJacobi::stochasticJacobiElementShootRay(
                                stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
     RpkRayHit hitStore;
-    const RpkRayHit *hit = Localline::mcrShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, src->patch, &ray, &hitStore);
+    const RpkRayHit *hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, src->patch, &ray, &hitStore);
 
     if ( hit ) {
         double uHit = 0.0;
@@ -606,8 +606,8 @@ Determines nr of rays to shoot from element and shoots this number of rays
 */
 void
 StochasticJacobi::stochasticJacobiElementShootRays(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     StochasticRadiosityElement *element,
     int raysThisElem,
     const RendererConfiguration *renderOptions)
@@ -621,7 +621,7 @@ StochasticJacobi::stochasticJacobiElementShootRays(
 
     // Shoot the rays
     for ( int i = 0; i < raysThisElem; i++ ) {
-        stochasticJacobiElementShootRay(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, element, sampleRange, mostSignificantBit1, rMostSignificantBit2, renderOptions);
+        stochasticJacobiElementShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, element, sampleRange, mostSignificantBit1, rMostSignificantBit2, renderOptions);
     }
 
     if ( element != nullptr && !element->isLeaf() ) {
@@ -632,8 +632,8 @@ StochasticJacobi::stochasticJacobiElementShootRays(
 
 void
 StochasticJacobi::stochasticJacobiShootRaysRecursive(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     StochasticRadiosityElement *element,
     double rnd,
     long *rayCount,
@@ -646,7 +646,7 @@ StochasticJacobi::stochasticJacobiShootRaysRecursive(
                 static_cast<long>(java::Math::floor((*cumulative + p) * static_cast<double>(numberOfRaysToShoot) + rnd)) - *rayCount;
 
         if ( rays_this_leaf > 0 ) {
-            stochasticJacobiElementShootRays(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, element, static_cast<int>(rays_this_leaf), renderOptions);
+            stochasticJacobiElementShootRays(sceneQuery, sceneWorldSceneQueryWorkspace, element, static_cast<int>(rays_this_leaf), renderOptions);
         }
 
         *cumulative += p;
@@ -655,8 +655,8 @@ StochasticJacobi::stochasticJacobiShootRaysRecursive(
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
             stochasticJacobiShootRaysRecursive(
-                sceneWorldVoxelGrid,
-                sceneWorldVoxelGridWorkspace,
+                sceneQuery,
+                sceneWorldSceneQueryWorkspace,
                 static_cast<StochasticRadiosityElement *>(element->regularSubElements[i]),
                 rnd,
                 rayCount,
@@ -671,8 +671,8 @@ Fire off rays from the leaf elements, propagate radiance/importance
 */
 void
 StochasticJacobi::stochasticJacobiShootRays(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
@@ -683,8 +683,8 @@ StochasticJacobi::stochasticJacobiShootRays(
     // Loop over all leaf elements in the element hierarchy
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         stochasticJacobiShootRaysRecursive(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             McradP::topLevelStochasticRadiosityElement(scenePatches->get(i)),
             rnd,
             &rayCount,
@@ -862,8 +862,8 @@ propagation of importance and radiance does not work yet.
 */
 void
 StochasticJacobi::doStochasticJacobiIteration(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     long numberOfRays,
     GetRadianceCallback getRadianceCallBack,
     GetImportanceCallback getImportanceCallBack,
@@ -876,7 +876,7 @@ StochasticJacobi::doStochasticJacobiIteration(
     if ( !stochasticJacobiSetup(scenePatches) ) {
         return;
     }
-    stochasticJacobiShootRays(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, scenePatches, renderOptions);
+    stochasticJacobiShootRays(sceneQuery, sceneWorldSceneQueryWorkspace, scenePatches, renderOptions);
     stochasticJacobiPushUpdatePullSweep();
 }
 

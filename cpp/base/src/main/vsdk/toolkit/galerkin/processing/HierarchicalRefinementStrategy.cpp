@@ -479,8 +479,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     const bool isSceneGeometry = (candidatesList == scene->geometryList);
     const bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
-        scene->voxelGrid,
-        scene->voxelGridWorkspace,
+        scene->getSceneQuery(),
+        scene->getSceneQueryWorkspace(),
         galerkinState->formFactorWorkspace,
         candidatesList,
         isSceneGeometry,

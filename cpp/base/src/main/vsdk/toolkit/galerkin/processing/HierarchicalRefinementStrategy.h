@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/common/memoryManagement/MemoryPool.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
 #include "vsdk/toolkit/galerkin/processing/InteractionEvaluationCode.h"

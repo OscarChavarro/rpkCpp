@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Path.h"
@@ -52,8 +52,8 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
         double (*birthProbability)(const Patch *patch));
     static void randomWalkRadiosityShootingUpdate(const Patch *patch, double w);
     static void randomWalkRadiosityDoShootingIteration(
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches);
     static ColorRgbMutable randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches);
     static void randomWalkRadiosityCollisionGatheringScore(
@@ -62,13 +62,13 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
         double (*birthProbability)(const Patch *patch));
     static void randomWalkRadiosityGatheringUpdate(const Patch *patch, double w);
     static void randomWalkRadiosityDoGatheringIteration(
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches);
     static void randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, double w);
     static void randomWalkRadiosityDoFirstShot(
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
 };

@@ -11,8 +11,8 @@ sample : newNode gets filled, others may change
 bool
 LightDirSampler::sample(
     Camera */*camera*/,
-    VoxelGrid *sceneVoxelGrid,
-    VoxelGridWorkspace *sceneVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
@@ -52,7 +52,7 @@ LightDirSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // Light can be placed in a medium
 
     // Transfer
-    if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = PathRayType::STOPS;
         return false;
     }

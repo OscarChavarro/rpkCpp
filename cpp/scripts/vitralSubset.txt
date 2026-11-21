@@ -6,7 +6,8 @@
 # base/src/test/phong_material_tests.cpp; and, for the step 4 replay, the
 # environment/geometry/spatialIndex contract with its linear and binned SAH
 # indexes, BinnedSahHierarchy, Ray, RaytraceStatistics, Boolean and AtomicLong;
-# their test is base/src/test/spatial_index_tests.cpp).
+# their test is base/src/test/spatial_index_tests.cpp), plus the grid port of
+# step 4 item 3 (GridSpatialIndex, SpatialGroupTree), not yet committed in VITRAL.
 # Known local divergence, not listed: vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 # (RenderPark's Logger::reportMessage calls).
 java/io/BufferedInputStream.cpp
@@ -94,10 +95,14 @@ vsdk/toolkit/environment/geometry/element/Ray.cpp
 vsdk/toolkit/environment/geometry/element/Ray.h
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.cpp

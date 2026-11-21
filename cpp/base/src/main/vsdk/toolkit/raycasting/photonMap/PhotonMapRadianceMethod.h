@@ -28,8 +28,8 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void
     photonMapDoScreenNEE(
         Camera *camera,
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
     bool
@@ -40,23 +40,23 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void
     photonMapHandlePath(
         Camera *camera,
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
     void
     photonMapTracePath(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         PhotonMapConfig *config,
         char bsdfFlags);
     void
     photonMapTracePaths(
         Camera *camera,
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         Background *sceneBackground,
         PhotonMapConfig *config,
         int numberOfPaths,
@@ -65,8 +65,8 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void
     photonMapBRRealIteration(
         Camera *camera,
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         Background *sceneBackground,
         const RadianceMethod *radianceMethod);
 

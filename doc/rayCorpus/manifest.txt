@@ -2,7 +2,8 @@
 # The .vqc files are not versioned (size); regenerate them with
 #   scripts/captureRays.sh <capture build> testReferences/rayCorpus <image> ...
 # and check them against the sha256 below. Format: VisibilityQueryRecorder.h.
-# The <image>.accounting.txt files are versioned.
+# The <image>.accounting.txt files, next to this manifest in doc/rayCorpus,
+# are versioned; captureRays.sh writes them there.
 #
 # Pins
 #   RenderPark rpkCpp  f14cfb91 plus the uncommitted step 3 tree with the face
@@ -28,8 +29,13 @@
 # Findings
 #   With the default shaft culling for refinement, the full-scene index answers
 #   no Galerkin shadow ray in the cube or the corridor; all go to the shadow
-#   cache or a restricted list. Step 6 therefore needs a configuration with
-#   shaft culling off (no command-line option exists yet; step 5 adds one).
+#   cache or a restricted list. Entries 16 and 18 (the cube and the corridor
+#   with -gr-shaft-culling never) supply the Galerkin full-scene queries; they
+#   were captured from the rpkCpp a4d00720 tree plus the face-index exclusion
+#   ranges (D5, alternative A), with images AE=0 against
+#   their testReferences. Entries 12 and 14 were captured again from the same
+#   tree: once the voxel grid subdivides (plan step 4), any-hit queries may
+#   return another blocker than in the earlier capture (visibility unchanged).
 #   Scene 11 (ray casting) issues only Galerkin queries; scenes 12 and 14
 #   supply the raytracer closest-hit and visibility queries.
 #
@@ -37,5 +43,7 @@
 01_cubeJacobi 72958636 7b3e9f2cec4a23fec02a250fc07ac29845185e55f0f4eeef3e629f7f6c2c64d5
 02_corridor 11685637520 f18432ac1be939ed53bb4ab29886332a1dbc9381dc8cb2c40de73cbcb1cff635
 11_floorRayCasting 3692374332 5c5c7c73a3024d7a3e46ab29a7772ce56c2c123369ac1849692a45d6aaa1f58e
-12_floorBidirectionalPathTracing 702876284 9e2f7c75130fb515e427ed48c725de68bfb5caf51df806003da8b3eebe44b5e6
-14_floorStochasticRaytracingJacobi 3569239388 a607923efc5b98d86c092487faaceb3cb14891b90a56a497aba0a52dd95245cb
+12_floorBidirectionalPathTracing 702876284 152b00ce957c9e4cbccca60da89a33401b02c4bc710c4d02a8631d5a865b1d9c
+14_floorStochasticRaytracingJacobi 3569239388 8b60508d7269d5e0b6d671b74c120ec2d6417458d879a14d7b5f5616016d7b18
+16_cubeJacobiNoShaftCulling 165409984 cebf5788fac9aefcce7286b0b8621e5b39f8e426bf59541db62a11dad9a48dde
+18_corridorNoShaftCulling 14302980676 6179740c8c4a9c44910bb9d62a123ae2c4841f804236edbd03a4db2856b60253

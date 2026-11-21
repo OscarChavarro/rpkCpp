@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
@@ -52,23 +52,23 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     static void stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintIncrementalImportanceStats();
     static void stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static ColorRgbMutable *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintRegularStats();
     static void stochasticRelaxationRadiosityDoRegularRadianceIteration(
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static float stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityDoRegularImportanceIteration(
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
     static void stochasticRelaxationRadiosityElementDiscardIncremental(Element *element);

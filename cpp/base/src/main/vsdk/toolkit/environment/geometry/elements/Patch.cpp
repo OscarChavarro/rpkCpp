@@ -305,7 +305,7 @@ Patch::intersect(
 {
     RpkRayHit hit;
 
-    if ( exclusions.excludesPatch(this) ) {
+    if ( exclusions.excludesPatch(this) || exclusions.excludesFace(getFaceIndex()) ) {
         return nullptr;
     }
 

@@ -300,8 +300,8 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate(const Patch *P, doub
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks;
@@ -322,8 +322,8 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
                                                                (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
-        sceneWorldVoxelGrid,
-        sceneWorldVoxelGridWorkspace,
+        sceneQuery,
+        sceneWorldSceneQueryWorkspace,
         numberOfWalks,
         randomWalkRadiosityScalarSourcePower,
         randomWalkRadiosityScalarReflectance,
@@ -445,8 +445,8 @@ Returns true when converged and false if not
 */
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks = StochasticRelaxation::activeState().initialNumberOfRays;
@@ -470,8 +470,8 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
         numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
-        sceneWorldVoxelGrid,
-        sceneWorldVoxelGridWorkspace,
+        sceneQuery,
+        sceneWorldSceneQueryWorkspace,
         numberOfWalks,
         randomWalkRadiosityPatchArea,
         randomWalkRadiosityScalarReflectance,
@@ -490,15 +490,15 @@ RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination(Stochastic
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
-    VoxelGrid *sceneWorldVoxelGrid,
-    VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+    const SceneQuery *sceneQuery,
+    SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const java::ArrayList<Patch *> *scenePatches,
     RendererConfiguration *renderOptions)
 {
     long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
         StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     java::System::err.printf("First shot (%ld rays):\n", numberOfRays);
-    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+    StochasticJacobi::doStochasticJacobiIteration(sceneQuery, sceneWorldSceneQueryWorkspace, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }
@@ -520,15 +520,15 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOpti
 
     if ( StochasticRelaxation::activeState().currentIteration == 1
         && StochasticRelaxation::activeState().indirectOnly ) {
-        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList, renderOptions);
+        randomWalkRadiosityDoFirstShot(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
     }
 
     switch ( StochasticRelaxation::activeState().randomWalkEstimatorType ) {
         case RandomWalkEstimatorType::RW_SHOOTING:
-            randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
+            randomWalkRadiosityDoShootingIteration(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList);
             break;
         case RandomWalkEstimatorType::RW_GATHERING:
-            randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->voxelGridWorkspace, scene->patchList);
+            randomWalkRadiosityDoGatheringIteration(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList);
             break;
         default:
             Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "randomWalkRadiosityDoStep", java::String::format("Unknown random walk estimator type %d", StochasticRelaxation::activeState().randomWalkEstimatorType));

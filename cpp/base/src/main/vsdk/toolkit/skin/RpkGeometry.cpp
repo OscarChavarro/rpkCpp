@@ -10,6 +10,8 @@
 int RpkGeometry::nextGeometryId = 0;
 
 RpkGeometry::RpkGeometry():
+    firstFaceIndex(0),
+    lastFaceIndex(-1),
     id(),
     boundingBox(),
     radianceData(),
@@ -27,7 +29,9 @@ This function is used to create a new geometry with given specific data and
 methods
 */
 RpkGeometry::RpkGeometry(
-    GeometryClassId inClassName)
+    GeometryClassId inClassName):
+    firstFaceIndex(0),
+    lastFaceIndex(-1)
 {
     Statistics::instance().reader.numberOfGeometries++;
     id = nextGeometryId;
@@ -79,6 +83,26 @@ simpler geometries
 bool
 RpkGeometry::isCompound() const {
     return className == GeometryClassId::COMPOUND;
+}
+
+int
+RpkGeometry::getFirstFaceIndex() const {
+    return firstFaceIndex;
+}
+
+int
+RpkGeometry::getLastFaceIndex() const {
+    return lastFaceIndex;
+}
+
+/**
+Records the interval of face indices covered by this geometry. Called by
+Scene::buildFaceTable() only; an empty interval is first > last
+*/
+void
+RpkGeometry::setFaceIndexRange(const int first, const int last) {
+    firstFaceIndex = first;
+    lastFaceIndex = last;
 }
 
 java::ArrayList<RpkGeometry *> *
@@ -134,6 +158,7 @@ RpkGeometry::clone() const {
     newPatchSet->shaftCullGeometry = shaftCullGeometry;
     newPatchSet->className = className;
     newPatchSet->isDuplicate = true;
+    newPatchSet->setFaceIndexRange(firstFaceIndex, lastFaceIndex);
 
     Statistics::instance().reader.numberOfGeometries++;
 

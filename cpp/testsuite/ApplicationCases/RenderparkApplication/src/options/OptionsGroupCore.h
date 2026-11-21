@@ -47,6 +47,7 @@ class OptionsGroupCore final {
     static int glutDebugEnabled;
     static EnumBackgroundMode backgroundMode;
     static ColorRgbMutable backgroundColor;
+    static SceneAccelerationMethod sceneAccelerationMethod;
 
     static bool commandLineParseFloat(const char *text, float *value);
     static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgbMutable *color);
@@ -56,6 +57,7 @@ class OptionsGroupCore final {
     static void mainForceOneSidedOption(int &value);
     static void mainMonochromeOption(int &value);
     static void setIntTrue(int &value);
+    static void sceneAccelerationOption(char *&name);
 };
 
 #endif

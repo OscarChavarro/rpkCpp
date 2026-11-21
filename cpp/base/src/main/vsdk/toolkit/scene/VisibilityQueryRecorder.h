@@ -40,7 +40,7 @@ shooting. Patch identifiers are Patch::getId() (from 1), geometry
 identifiers Geometry::id, both deterministic for a given scene and options.
 
 Workspace role: owned by the scene, reached through the caller's
-VoxelGridWorkspace; one per worker if ever used concurrently.
+SceneQueryWorkspace; one per worker if ever used concurrently.
 */
 class VisibilityQueryRecorder {
   public:

@@ -81,6 +81,17 @@ cmake --build build -j
 
 If a binary compiled without OpenGL support is run with `-glutDebug`, the program exits with an error message asking to recompile with `-DOPEN_GL_ENABLED=ON`.
 
+## Selecting the scene index (C++ port)
+
+The C++ port answers every visibility and ray-casting query of the scene through one scene query, whose spatial index is chosen with `-scene-acceleration`:
+
+- `wald2007` (default): VITRAL's binned SAH hierarchy (`BinnedSahSpatialIndex`).
+- `voxel`: VITRAL's port of RenderPark's hierarchical voxel grid (`GridSpatialIndex`).
+- `legacy`: RenderPark's original voxel grid, kept for comparison until it is retired.
+- `bruteforce`: every face tested, as a reference.
+
+Every index only prunes; RenderPark's exact face test decides each hit, so the images are the same with every choice (see `doc/vitralAlignmentPlan.md`, step 5).
+
 ## Selecting Niederreiter variant (31-bit vs 63-bit)
 
 The quasi-Monte-Carlo Niederreiter implementation provides:
@@ -131,6 +142,39 @@ To check a change, run the test corpus and then the image gate (ImageMagick `com
 With no option the script runs both checks. Port references and statistics fingerprints are captured
 from an unchanged tree with `--capture-references`; the golden images and their bounds change only by
 decision of the project owner. Failed comparisons leave difference images in `./output/diff`.
+
+### Rebuilding the C++ test references
+
+`cpp/testReferences` is not versioned (the ray corpus alone takes more than 30 GB), so a fresh clone
+does not have it. Rebuild it locally, from `cpp/`, on a tree whose outputs you trust:
+
+```bash
+./scripts/compile.sh
+./scripts/runCorpus.sh
+./scripts/testReviewResults.sh --capture-references   # <image>.ppm, fingerprints/<image>.txt and manifest.txt
+./scripts/testReviewResults.sh --record-bounds        # goldenBounds.txt: RMSE of each output against ../doc/testBaseImages
+```
+
+Both commands accept image or script names to rebuild only part of the corpus. Recording the bounds
+anew accepts the current distance to the golden images, so it is a decision of the project owner.
+
+The ray corpus files (`testReferences/rayCorpus/<image>.vqc`) need a build configured with
+`-DWITH_RAY_CAPTURE=ON`; the exact `cmake` command is in the header of `scripts/captureRays.sh`. Only
+the replay of `scripts/replayRays.sh` uses them, so nothing else depends on this folder:
+
+```bash
+./scripts/captureRays.sh <capture build directory> testReferences/rayCorpus 01_cubeJacobi 02_corridor \
+  11_floorRayCasting 12_floorBidirectionalPathTracing 14_floorStochasticRaytracingJacobi \
+  16_cubeJacobiNoShaftCulling 18_corridorNoShaftCulling
+```
+
+The notes of the ray corpus are versioned in `doc/rayCorpus`: `captureRays.sh` writes the ray
+accounting of each scene there (`<image>.accounting.txt`), and `manifest.txt`, written by hand at each
+capture, records the pins, the build and the sha256 to check the regenerated `.vqc` files against.
+
+`testReferences/vitralMeshAcceleration.txt` (VITRAL `RaytracingOfflineExample` control runs) is also
+written by hand and no script regenerates it. Until 2026-11-21 it was versioned, so the last committed
+copy can be recovered with `git show a4d00720:cpp/testReferences/vitralMeshAcceleration.txt`.
 
 ## Running program on old hardware
 

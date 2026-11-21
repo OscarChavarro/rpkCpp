@@ -4,6 +4,7 @@
 #include <cstdio>
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
+#include "vsdk/toolkit/scene/VoxelGrid.h"
 #include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 #include "SceneConsumer.h"
 #include "FaceAncestry.h"
@@ -21,7 +22,11 @@ RenderPark's exact face test deciding each hit:
 - the legacy VoxelGrid, which must reproduce the captured answer bit for
   bit (this checks the replay itself: same scene, same arithmetic);
 - VITRAL's LinearSpatialIndex, the reference (every face, in face order);
-- VITRAL's BinnedSahSpatialIndex (WALD2007).
+- VITRAL's BinnedSahSpatialIndex (WALD2007);
+- VITRAL's GridSpatialIndex, the port of the voxel grid, built from the
+  cluster hierarchy as the legacy grid is. Beyond visibility, its blocker
+  and distance are compared with the legacy grid's for every query, ANY-flag
+  ones included, since it follows the legacy any-hit order.
 
 Visibility must agree for every query. For closest-hit queries the blocker
 and distance must agree too; a different blocker at the same distance is
@@ -33,9 +38,9 @@ sequential one bit for bit.
 
 Restricted-list queries (path 0) are counted and skipped: they do not reach
 a scene index, and the shaft culling patch sets they name exist only during
-the run that wrote them. Geometry exclusions (Galerkin full-scene path) map to
-faces and are counted as unsupported (only the Galerkin full-scene path
-issues them; no stored corpus has one).
+the run that wrote them. Geometry exclusions (Galerkin full-scene path) are
+mapped to the geometries of the cluster hierarchy (FaceAncestry); a query
+naming one the scene does not have is counted as unsupported.
 
 Every disagreement is written, with its ray, to the report file, for the
 owner to decide (plan decision D5). The exit status is non-zero on any
@@ -48,7 +53,8 @@ class RayCorpusReplay final : public SceneConsumer {
         LEGACY_VOXEL_GRID = 0,
         LINEAR_REFERENCE = 1,
         BINNED_SAH = 2,
-        NUMBER_OF_IMPLEMENTATIONS = 3
+        PORTED_GRID = 3,
+        NUMBER_OF_IMPLEMENTATIONS = 4
     };
 
   private:
@@ -63,8 +69,10 @@ class RayCorpusReplay final : public SceneConsumer {
     const Scene *scene;
     java::ArrayList<const Patch *> patchById;
     FaceAncestry *ancestry;
+    VoxelGrid *legacyGrid;
     SpatialIndex *linearIndex;
     SpatialIndex *binnedIndex;
+    SpatialIndex *gridIndex;
     FILE *report;
 
     long long queriesByPath[NUMBER_OF_PATHS];
@@ -76,6 +84,7 @@ class RayCorpusReplay final : public SceneConsumer {
     long long closestDisagreements[NUMBER_OF_IMPLEMENTATIONS];
     long long closestTies[NUMBER_OF_IMPLEMENTATIONS];
     long long binnedVersusLinear;
+    long long gridBlockerDifferences;
     long long threadMismatches;
     long long reportedLines;
     long long primitiveTests[NUMBER_OF_IMPLEMENTATIONS];

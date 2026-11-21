@@ -23,6 +23,14 @@ contains data that is independent of geometry type.
 
 class RpkGeometry {
   private:
+    // Interval [firstFaceIndex, lastFaceIndex] of Patch::getFaceIndex()
+    // values of the patches below this geometry. Scene::buildFaceTable()
+    // numbers the faces depth-first over the cluster hierarchy, so every
+    // geometry of that hierarchy covers a contiguous interval. Empty
+    // (first > last) until the face table is built.
+    int firstFaceIndex;
+    int lastFaceIndex;
+
     static java::ArrayList<RpkGeometry *> *
     cloneGeometryList(const java::ArrayList<RpkGeometry *> *input);
 
@@ -54,6 +62,9 @@ class RpkGeometry {
     virtual ~RpkGeometry();
 
     bool isCompound() const;
+    int getFirstFaceIndex() const;
+    int getLastFaceIndex() const;
+    void setFaceIndexRange(int first, int last);
 
     virtual RpkRayHit *
     discretizationIntersect(

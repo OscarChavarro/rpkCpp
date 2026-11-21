@@ -7,8 +7,8 @@ All kind of form factor computations
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
-#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
@@ -21,8 +21,8 @@ class FormFactorStrategy {
     shadowTestDiscretization(
         RpkRay *ray,
         const java::ArrayList<RpkGeometry *> *geometrySceneList,
-        const VoxelGrid *voxelGrid,
-        VoxelGridWorkspace *voxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneQueryWorkspace,
         ShadowCache *shadowCache,
         float minimumDistance,
         RpkRayHit *hitStore,
@@ -41,8 +41,8 @@ class FormFactorStrategy {
     static double
     evaluatePointsPairKernel(
         ShadowCache *shadowCache,
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *voxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneQueryWorkspace,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
@@ -89,8 +89,8 @@ class FormFactorStrategy {
   public:
     static void
     computeAreaToAreaFormFactorVisibility(
-        const VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *voxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
         const java::ArrayList<RpkGeometry *> *geometryShadowList,
         bool isSceneGeometry,

@@ -592,18 +592,17 @@ SceneBuilder::sceneBuilderReadFile(
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
-    // Create the scene level voxel grid
-    scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry, scene->getFaceBounds());
+    // Create the scene query, over the index the -scene-acceleration option chose
 #ifdef RPK_RAY_CAPTURE
     // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
     scene->visibilityQueryRecorder = new VisibilityQueryRecorder(getenv("RPK_RAY_CAPTURE_FILE"));
 #endif
-    scene->voxelGridWorkspace = new VoxelGridWorkspace(
-        scene->voxelGrid->getNumberOfItems(), scene->visibilityQueryRecorder);
+    scene->buildSceneQuery();
 
     t = java::System::nanoTime();
     java::System::err.printf(
-        "Voxel grid creation took %g secs.\n",
+        "Scene index (%s) creation took %g secs.\n",
+        SceneQuery::methodName(scene->getAccelerationMethod()),
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 

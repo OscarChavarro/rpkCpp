@@ -11,8 +11,7 @@
 #include "vsdk/toolkit/scene/FaceVisibilityTable.h"
 #include "vsdk/toolkit/scene/FaceColorTable.h"
 #include "vsdk/toolkit/scene/RadianceElementTable.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
-#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
+#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
@@ -30,7 +29,7 @@ class Scene {
     void printGeometries() const;
     void printClusteredGeometries() const;
     void printPatches() const;
-    void printVoxelGrid() const;
+    void printSceneQuery() const;
     static void printClusterHierarchy(const RpkGeometry *node, int level, int *elementCount);
 
     // Face table: every patch of the scene, in depth-first order of
@@ -43,7 +42,10 @@ class Scene {
     FaceVisibilityTable *faceVisibility; // Owned; direct visibility of the faceTable entries
     FaceColorTable *faceColors; // Owned; display color of the faceTable entries
     RadianceElementTable *radianceElements; // Owned table; top-level radiance element of the faceTable entries
-    static void collectFaces(const RpkGeometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
+    SceneAccelerationMethod accelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
+    SceneQuery *sceneQuery; // Owned; built by buildSceneQuery
+    SceneQueryWorkspace *sceneQueryWorkspace; // Owned; query scratch of the single-threaded callers
+    static void collectFaces(RpkGeometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
 
 public:
     Background *background;
@@ -51,8 +53,6 @@ public:
     java::ArrayList<RpkGeometry *> *geometryList;
     java::ArrayList<RpkGeometry *> *clusteredGeometryList;
     RpkGeometry *clusteredRootGeometry;
-    VoxelGrid *voxelGrid;
-    VoxelGridWorkspace *voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
     VisibilityQueryRecorder *visibilityQueryRecorder; // Ray capture builds only, otherwise null
 
     // The list of all patches in the current scene
@@ -69,13 +69,26 @@ public:
     /**
     Assigns the dense face indices and builds the face table and the face
     bounds. Called once, after the cluster hierarchy exists and before the
-    voxel grid. A patch reachable from two geometries, or a patch of
+    scene query. A patch reachable from two geometries, or a patch of
     patchList that clusteredRootGeometry does not reach, is a fatal error.
     */
     void buildFaceTable();
     int getNumberOfFaces() const;
     Patch *getFace(int faceIndex) const;
     const FaceBoundsTable *getFaceBounds() const;
+
+    /** The index buildSceneQuery uses; set while the scene is being built */
+    void setAccelerationMethod(SceneAccelerationMethod method);
+    SceneAccelerationMethod getAccelerationMethod() const;
+
+    /**
+    Builds the scene query over the face table with the acceleration method,
+    and the scene's workspace for it (reporting to visibilityQueryRecorder in
+    ray capture builds). Called once, after buildFaceTable.
+    */
+    void buildSceneQuery();
+    const SceneQuery *getSceneQuery() const;
+    SceneQueryWorkspace *getSceneQueryWorkspace() const;
     // Per-face solver data: written by Potential::updateDirectPotential, read
     // by the importance-driven solvers
     DirectPotentialTable *getDirectPotentials() const;
@@ -111,6 +124,21 @@ Scene::getDirectPotentials() const {
 inline const FaceBoundsTable *
 Scene::getFaceBounds() const {
     return faceBounds;
+}
+
+inline SceneAccelerationMethod
+Scene::getAccelerationMethod() const {
+    return accelerationMethod;
+}
+
+inline const SceneQuery *
+Scene::getSceneQuery() const {
+    return sceneQuery;
+}
+
+inline SceneQueryWorkspace *
+Scene::getSceneQueryWorkspace() const {
+    return sceneQueryWorkspace;
 }
 
 inline int

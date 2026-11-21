@@ -20,24 +20,24 @@ class BidirectionalPathRaytracer final : public RayTracer {
     void
     doBptAndSubsequentImages(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
     void
     doBptDensityEstimation(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
     static ColorRgbMutable
     bpCalcPixel(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         int nx,
         int ny,
@@ -75,8 +75,8 @@ class BidirectionalPathRaytracer final : public RayTracer {
     static void
     handlePathXx(
         Camera *camera,
-        VoxelGrid *sceneWorldVoxelGrid,
-        VoxelGridWorkspace *sceneWorldVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path);
@@ -84,16 +84,16 @@ class BidirectionalPathRaytracer final : public RayTracer {
     static void
     handlePath1X(
         Camera *camera,
-        const VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path);
 
     static void
     bpCombinePaths(
         Camera *camera,
-        VoxelGrid *sceneVoxelGrid,
-        VoxelGridWorkspace *sceneVoxelGridWorkspace,
+        const SceneQuery *sceneQuery,
+        SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config);
 
