@@ -21,8 +21,9 @@ import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.ShadowCache;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
+import vsdk.toolkit.scene.VisibilityQueryRecorder;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -44,8 +45,8 @@ public class FormFactorStrategy {
     private static RayHit shadowTestDiscretization(
         Ray ray,
         ArrayList<Geometry> geometrySceneList,
-        VoxelGrid voxelGrid,
-        VoxelGridWorkspace voxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneQueryWorkspace,
         ShadowCache shadowCache,
         float minimumDistance,
         RayHit hitStore,
@@ -60,9 +61,13 @@ public class FormFactorStrategy {
         RayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
         if ( hit != null ) {
             Statistics.instance().shadow.numberOfShadowCacheHits++;
+            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
+                sceneQueryWorkspace.getRecorder().countCacheResolved();
+            }
             return hit;
         }
 
+        final float queryMaximumDistance = dist[0];
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = Geometry.listDiscretizationIntersect(
                 geometrySceneList,
@@ -73,15 +78,27 @@ public class FormFactorStrategy {
                 hitStore,
                 exclusions);
         }
-        else if ( voxelGrid != null ) {
-            hit = voxelGrid.gridIntersect(
+        else if ( sceneQuery != null ) {
+            hit = sceneQuery.intersect(
                 ray,
                 Numeric.EPSILON_FLOAT * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
                 hitStore,
                 exclusions,
-                voxelGridWorkspace);
+                sceneQueryWorkspace);
+        }
+        if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
+            sceneQueryWorkspace.getRecorder().recordQuery(
+                (!isClusteredGeometry && !isSceneGeometry) ?
+                    VisibilityQueryRecorder.GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder.GALERKIN_FULL_SCENE,
+                ray,
+                Numeric.EPSILON_FLOAT * queryMaximumDistance,
+                queryMaximumDistance,
+                RayHitFlag.FRONT | RayHitFlag.ANY,
+                exclusions,
+                hit,
+                dist[0]);
         }
 
         if ( hit != null && hit.getPatch() != null ) {
@@ -163,8 +180,8 @@ relevant for surface elements
 
     private static double evaluatePointsPairKernel(
         ShadowCache shadowCache,
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace voxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneQueryWorkspace,
         Vector3D x,
         Vector3D y,
         GalerkinElement receiverElement,
@@ -219,8 +236,8 @@ relevant for surface elements
             RayHit h = shadowTestDiscretization(
                 ray,
                 shadowGeometryList,
-                sceneWorldVoxelGrid,
-                voxelGridWorkspace,
+                sceneQuery,
+                sceneQueryWorkspace,
                 shadowCache,
                 shortenedDistance,
                 hitStore,
@@ -231,6 +248,9 @@ relevant for surface elements
             visibilityFactor = (h == null) ? 1.0 : 0.0;
         }
         else if ( cachedShadowTest(shadowCache, ray, shortenedDistance, exclusions, workspace) ) {
+            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
+                sceneQueryWorkspace.getRecorder().countCacheResolved();
+            }
             visibilityFactor = 0.0;
         }
         else {
@@ -250,8 +270,8 @@ relevant for surface elements
     }
 
     public static void computeAreaToAreaFormFactorVisibility(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace voxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneQueryWorkspace,
         FormFactorWorkspace formFactorWorkspace,
         ArrayList<Geometry> geometryShadowList,
         boolean isSceneGeometry,
@@ -338,14 +358,20 @@ relevant for surface elements
                 receiverElement.isCluster() ? receiverElement.geometry : null,
                 sourceElement.isCluster() ? sourceElement.geometry : null);
 
+            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null
+              && geometryShadowList != null && !geometryShadowList.isEmpty()
+              && !isClusteredGeometry && !isSceneGeometry ) {
+                sceneQueryWorkspace.getRecorder().recordGeometryList(geometryShadowList);
+            }
+
             double cachedMaximumKernelValue = 0.0;
             int cachedVisibilityCount = 0;
             for ( int r = 0; r < receiverCubatureRule.numberOfNodes; r++ ) {
                 for ( int s = 0; s < sourceCubatureRule.numberOfNodes; s++ ) {
                     cachedGxy[r][s] = evaluatePointsPairKernel(
                         shadowCache,
-                        sceneWorldVoxelGrid,
-                        voxelGridWorkspace,
+                        sceneQuery,
+                        sceneQueryWorkspace,
                         cachedX[r],
                         cachedY[s],
                         receiverElement,

@@ -10,8 +10,8 @@ import vsdk.toolkit.raycasting.raytracing.Sampler;
 import vsdk.toolkit.raycasting.raytracing.SamplerConfig;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 
 /**
 Importon tracing
@@ -61,8 +61,8 @@ Store a importon/poton. Some acceptance tests are performed first
     private static boolean
     tracePotentialPath(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         PhotonMapState photonMapState,
         PhotonMapConfig photonMapConfig)
@@ -75,7 +75,7 @@ Store a importon/poton. Some acceptance tests are performed first
         // function arguments right to left: first draw is x2, second is x1.
         double eyeX2 = Random.drand48();
         double eyeX1 = Random.drand48();
-        path = scfg.traceNode(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
+        path = scfg.traceNode(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, path, eyeX1, eyeX2, Sampler.BSDF_ALL_COMPONENTS);
         if ( path == null ) {
             return false;
         }
@@ -106,8 +106,8 @@ Store a importon/poton. Some acceptance tests are performed first
 
         while ( scfg.traceNode(
             camera,
-            sceneVoxelGrid,
-            sceneVoxelGridWorkspace,
+            sceneQuery,
+            sceneSceneQueryWorkspace,
             sceneBackground,
             node,
             x1,
@@ -150,8 +150,8 @@ Store a importon/poton. Some acceptance tests are performed first
     public static void
     tracePotentialPaths(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         int numberOfPaths,
         PhotonMapState photonMapState,
@@ -164,8 +164,8 @@ Store a importon/poton. Some acceptance tests are performed first
         for ( int i = 0; i < numberOfPaths; i++ ) {
             PhotonMapImportance.tracePotentialPath(
                 camera,
-                sceneVoxelGrid,
-                sceneVoxelGridWorkspace,
+                sceneQuery,
+                sceneSceneQueryWorkspace,
                 sceneBackground,
                 photonMapState,
                 photonMapConfig);

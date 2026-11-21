@@ -27,24 +27,32 @@ contains data that is independent of geometry type.
 public class Geometry {
     public static int nextGeometryId = 0;
 
+    // Interval [firstFaceIndex, lastFaceIndex] of Patch.getFaceIndex()
+    // values of the patches below this geometry. Scene.buildFaceTable()
+    // numbers the faces depth-first over the cluster hierarchy, so every
+    // geometry of that hierarchy covers a contiguous interval. Empty
+    // (first > last) until the face table is built.
+    private int firstFaceIndex;
+    private int lastFaceIndex;
+
     public int id; // Unique ID number
     public BoundingBox boundingBox;
     public Element radianceData; // Data specific to the radiance algorithm being used
     public int itemCount;
     public boolean bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
     public boolean shaftCullGeometry; // Generated during shaft culling
-    public boolean omit; // Indicates that the Geometry should not be considered for some tasks.
     public boolean isDuplicate;
 
     public int className;
 
     public Geometry() {
+        firstFaceIndex = 0;
+        lastFaceIndex = -1;
         id = 0;
         boundingBox = new BoundingBox();
         radianceData = null;
         itemCount = 0;
         bounded = false;
-        omit = false;
         isDuplicate = false;
         className = GeometryClassId.UNDEFINED;
         shaftCullGeometry = false;
@@ -55,6 +63,8 @@ public class Geometry {
     methods.
     */
     public Geometry(int inClassName) {
+        firstFaceIndex = 0;
+        lastFaceIndex = -1;
         Statistics.instance().reader.numberOfGeometries++;
         id = nextGeometryId;
         nextGeometryId++;
@@ -64,7 +74,6 @@ public class Geometry {
         shaftCullGeometry = false;
         radianceData = null;
         itemCount = 0;
-        omit = false;
         boundingBox = new BoundingBox();
     }
 
@@ -103,6 +112,23 @@ public class Geometry {
     */
     public boolean isCompound() {
         return className == GeometryClassId.COMPOUND;
+    }
+
+    public int getFirstFaceIndex() {
+        return firstFaceIndex;
+    }
+
+    public int getLastFaceIndex() {
+        return lastFaceIndex;
+    }
+
+    /**
+    Records the interval of face indices covered by this geometry. Called by
+    Scene.buildFaceTable() only; an empty interval is first > last
+    */
+    public void setFaceIndexRange(int first, int last) {
+        firstFaceIndex = first;
+        lastFaceIndex = last;
     }
 
     private static ArrayList<Geometry> cloneGeometryList(ArrayList<Geometry> input) {
@@ -153,9 +179,9 @@ public class Geometry {
         newPatchSet.itemCount = itemCount;
         newPatchSet.bounded = bounded;
         newPatchSet.shaftCullGeometry = shaftCullGeometry;
-        newPatchSet.omit = omit;
         newPatchSet.className = className;
         newPatchSet.isDuplicate = true;
+        newPatchSet.setFaceIndexRange(firstFaceIndex, lastFaceIndex);
 
         Statistics.instance().reader.numberOfGeometries++;
 

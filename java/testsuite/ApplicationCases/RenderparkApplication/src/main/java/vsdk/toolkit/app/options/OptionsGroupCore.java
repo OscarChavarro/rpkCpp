@@ -1,6 +1,7 @@
 package vsdk.toolkit.app.options;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
@@ -10,6 +11,8 @@ import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.ConstantColorBackground;
 import vsdk.toolkit.scene.Scene;
+import vsdk.toolkit.scene.SceneAccelerationMethod;
+import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public final class OptionsGroupCore {
@@ -29,8 +32,24 @@ public final class OptionsGroupCore {
         DEFAULT_BACKGROUND_COLOR.getR(),
         DEFAULT_BACKGROUND_COLOR.getG(),
         DEFAULT_BACKGROUND_COLOR.getB());
+    private static SceneAccelerationMethod sceneAccelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
 
     private OptionsGroupCore() {
+    }
+
+    /**
+    -scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+    the scene query (SceneAccelerationMethod); wald2007 by default
+    */
+    private static void sceneAccelerationOption(TypedOption.MutableValue<String> value) {
+        SceneAccelerationMethod method = SceneQuery.methodFromName(value.value);
+        if ( method == null ) {
+            Logger.reportMessage(null, Logger.ERROR, "", String.format(
+                "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", value.value));
+        }
+        else {
+            sceneAccelerationMethod = method;
+        }
     }
 
     public static void parse(
@@ -56,6 +75,7 @@ public final class OptionsGroupCore {
             imageOutputWidth,
             imageOutputHeight,
             glutDebugEnabledOut);
+        scene.setAccelerationMethod(sceneAccelerationMethod);
 
         parseSession.singleSided = oneSidedSurfaces[0];
         parseSession.parserConfig.singleSided = oneSidedSurfaces[0];
@@ -262,6 +282,13 @@ public final class OptionsGroupCore {
             1,
             OptionsGroupCore::mainNativeRNGOption,
             null);
+        TypedOption.ValueRef<String> sceneAccelerationName = TypedOption.valueRef((String)null);
+        TypedOption<String> sceneAccelerationOpt = new TypedOption<>(
+            "-scene-acceleration",
+            sceneAccelerationName,
+            1,
+            OptionsGroupCore::sceneAccelerationOption,
+            null);
         OptionBase[] registry = new OptionBase[] {
             TypedOption.REGISTER_OPTION(widthOpt, 5),
             TypedOption.REGISTER_OPTION(heightOpt, 6),
@@ -270,7 +297,8 @@ public final class OptionsGroupCore {
             TypedOption.REGISTER_OPTION(dontForceOneSidedOpt, 14),
             TypedOption.REGISTER_OPTION(monochromaticOpt, 5),
             TypedOption.REGISTER_OPTION(glutDebugOpt, 6),
-            TypedOption.REGISTER_OPTION(nativeRNGOpt, 9)
+            TypedOption.REGISTER_OPTION(nativeRNGOpt, 9),
+            TypedOption.REGISTER_OPTION(sceneAccelerationOpt, 8)
         };
 
         fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
@@ -282,11 +310,12 @@ public final class OptionsGroupCore {
             DEFAULT_BACKGROUND_COLOR.getB());
         glutDebugEnabled = appOptions.debug;
         nativeRandomNumberGeneratorEnabled = appOptions.nativeRNG;
+        sceneAccelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
 
         OptionsGroupCore.commandLineParseBackgroundOption(argc, argv);
 
         OptionGroup[] generalGroups = new OptionGroup[] {
-            new OptionGroup("global", registry, 8)
+            new OptionGroup("global", registry, 9)
         };
         OptionParser.parse(argc, argv, generalGroups, 1);
 

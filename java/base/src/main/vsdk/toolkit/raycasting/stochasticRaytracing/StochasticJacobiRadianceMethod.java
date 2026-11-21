@@ -16,8 +16,8 @@ import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -291,8 +291,8 @@ distribution
                 stepNumber, 100.0 * unShotFraction);
 
             StochasticJacobi.doStochasticJacobiIteration(
-                scene.voxelGrid,
-                scene.voxelGridWorkspace,
+                scene.getSceneQuery(),
+                scene.getSceneQueryWorkspace(),
                 numberOfRays,
                 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUnShotRadiance,
                 null,
@@ -341,8 +341,8 @@ distribution
     }
 
     private static void stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
         RenderOptions renderOptions)
     {
@@ -378,8 +378,8 @@ distribution
                 stepNumber, 100.0 * unShotFraction);
 
             StochasticJacobi.doStochasticJacobiIteration(
-                sceneWorldVoxelGrid,
-                sceneWorldVoxelGridWorkspace,
+                sceneQuery,
+                sceneWorldSceneQueryWorkspace,
                 numberOfRays,
                 null,
                 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUnShotImportance,
@@ -455,15 +455,15 @@ distribution
     }
 
     private static void stochasticRelaxationRadiosityDoRegularRadianceIteration(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
         RenderOptions renderOptions)
     {
         System.err.printf("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
         StochasticJacobi.doStochasticJacobiIteration(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             StochasticRelaxation.activeState().raysPerIteration,
             StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementRadiance,
             null,
@@ -492,8 +492,8 @@ distribution
     }
 
     private static void stochasticRelaxationRadiosityDoRegularImportanceIteration(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
         RenderOptions renderOptions)
     {
@@ -509,8 +509,8 @@ distribution
         System.err.printf("Regular importance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
 
         StochasticJacobi.doStochasticJacobiIteration(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             numberOfRays,
             null,
             StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementImportance,
@@ -573,7 +573,7 @@ required for some of the experimental stuff to work
 
                     // Propagate importance changes
                     stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-                        scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList, renderOptions);
+                        scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
                     if ( StochasticRelaxation.activeState().importanceUpdatedFromScratch != 0 ) {
                         StochasticRelaxation.activeState().importanceRaysPerIteration =
                             StochasticRelaxation.activeState().importanceTracedRays;
@@ -597,17 +597,17 @@ required for some of the experimental stuff to work
 
                     // Propagate importance changes
                     stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
-                        scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList, renderOptions);
+                        scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
                     if ( StochasticRelaxation.activeState().importanceUpdatedFromScratch != 0 ) {
                         StochasticRelaxation.activeState().importanceRaysPerIteration =
                             StochasticRelaxation.activeState().importanceTracedRays;
                     }
                 } else {
                     stochasticRelaxationRadiosityDoRegularImportanceIteration(
-                        scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList, renderOptions);
+                        scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
                 }
             }
-            stochasticRelaxationRadiosityDoRegularRadianceIteration(scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList, renderOptions);
+            stochasticRelaxationRadiosityDoRegularRadianceIteration(scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
         }
 
         stochasticRelaxationRadiosityRecomputeDisplayColors(scene.patchList);

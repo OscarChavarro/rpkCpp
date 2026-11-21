@@ -1,6 +1,7 @@
 package vsdk.toolkit.scene;
 
 import java.util.ArrayList;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
@@ -14,13 +15,21 @@ public class Scene {
     private static final String patchSetType = "PatchSet";
     private static final String unknownType = "<unknown>";
 
+    // Face table: every patch of the scene, in depth-first order of
+    // clusteredRootGeometry; faceTable[i].getFaceIndex() == i
+    private Patch[] faceTable;
+    private int numberOfFaces;
+    private FaceBoundsTable faceBounds; // Owned; bounds of the faceTable entries
+    private SceneAccelerationMethod accelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
+    private SceneQuery sceneQuery; // Owned; built by buildSceneQuery
+    private SceneQueryWorkspace sceneQueryWorkspace; // Owned; query scratch of the single-threaded callers
+
     public Background background;
     public Camera camera;
     public ArrayList<Geometry> geometryList;
     public ArrayList<Geometry> clusteredGeometryList;
     public Geometry clusteredRootGeometry;
-    public VoxelGrid voxelGrid;
-    public VoxelGridWorkspace voxelGridWorkspace; // Query scratch for voxelGrid, owned by the scene
+    public VisibilityQueryRecorder visibilityQueryRecorder; // Ray capture runs only, otherwise null
 
     // The list of all patches in the current scene
     public ArrayList<Patch> patchList;
@@ -34,8 +43,13 @@ public class Scene {
         geometryList = null;
         clusteredGeometryList = new ArrayList<>();
         clusteredRootGeometry = null;
-        voxelGrid = null;
-        voxelGridWorkspace = null;
+        visibilityQueryRecorder = null;
+        faceTable = null;
+        numberOfFaces = 0;
+        faceBounds = null;
+        accelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
+        sceneQuery = null;
+        sceneQueryWorkspace = null;
         patchList = null;
         lightSourcePatchList = null;
     }
@@ -54,11 +68,18 @@ public class Scene {
         if (patchList != null) {
             patchList = null;
         }
-        if (voxelGrid != null) {
-            voxelGrid.freeVoxelGridElements();
-            voxelGrid = null;
+        sceneQueryWorkspace = null;
+        if (sceneQuery != null) {
+            sceneQuery.destroy();
+            sceneQuery = null;
         }
-        voxelGridWorkspace = null;
+        if (visibilityQueryRecorder != null) {
+            visibilityQueryRecorder.close();
+            visibilityQueryRecorder = null;
+        }
+        faceBounds = null;
+        faceTable = null;
+        numberOfFaces = 0;
         if (background != null) {
             background = null;
         }
@@ -230,9 +251,119 @@ public class Scene {
         }
     }
 
-    private void printVoxelGrid() {
-        System.out.printf("= voxelGrid ================================================================\n");
-        voxelGrid.print();
+    private void printSceneQuery() {
+        System.out.printf("= scene query (%s) ===========================================================\n",
+            SceneQuery.methodName(accelerationMethod));
+        if (sceneQuery != null && sceneQuery.getLegacyGrid() != null) {
+            sceneQuery.getLegacyGrid().print();
+        }
+    }
+
+    /** The index buildSceneQuery uses; set while the scene is being built */
+    public void setAccelerationMethod(SceneAccelerationMethod method) {
+        accelerationMethod = method;
+    }
+
+    public SceneAccelerationMethod getAccelerationMethod() {
+        return accelerationMethod;
+    }
+
+    /**
+    Builds the scene query over the face table with the acceleration method,
+    and the scene's workspace for it (reporting to visibilityQueryRecorder in
+    ray capture runs). Called once, after buildFaceTable.
+    */
+    public void buildSceneQuery() {
+        if (sceneQuery != null) {
+            sceneQuery.destroy();
+        }
+        sceneQuery = new SceneQuery(this, accelerationMethod);
+        sceneQueryWorkspace = new SceneQueryWorkspace(sceneQuery, visibilityQueryRecorder);
+    }
+
+    public SceneQuery getSceneQuery() {
+        return sceneQuery;
+    }
+
+    public SceneQueryWorkspace getSceneQueryWorkspace() {
+        return sceneQueryWorkspace;
+    }
+
+    private static void collectFaces(Geometry geometry, Patch[] table, int capacity, int[] count, int[] conflicts) {
+        if (geometry == null) {
+            return;
+        }
+        // Faces are numbered depth-first, so the faces below this geometry are
+        // exactly the interval [first, count[0] - 1] once its subtree is visited
+        final int first = count[0];
+        if (geometry.className == GeometryClassId.COMPOUND) {
+            ArrayList<Geometry> children = ((Compound)geometry).children;
+            if (children != null) {
+                for (int i = 0; i < children.size(); i++) {
+                    collectFaces(children.get(i), table, capacity, count, conflicts);
+                }
+            }
+            geometry.setFaceIndexRange(first, count[0] - 1);
+            return;
+        }
+        ArrayList<Patch> patches = Geometry.patchListReference(geometry);
+        for (int i = 0; patches != null && i < patches.size(); i++) {
+            Patch patch = patches.get(i);
+            if (patch.getFaceIndex() >= 0 || count[0] >= capacity) {
+                conflicts[0]++;
+                continue;
+            }
+            patch.setFaceIndex(count[0]);
+            table[count[0]] = patch;
+            count[0]++;
+        }
+        geometry.setFaceIndexRange(first, count[0] - 1);
+    }
+
+    /**
+    Assigns the dense face indices and builds the face table and the face
+    bounds. Called once, after the cluster hierarchy exists and before the
+    scene query. A patch reachable from two geometries, or a patch of
+    patchList that clusteredRootGeometry does not reach, is a fatal error.
+    */
+    public void buildFaceTable() {
+        faceBounds = null;
+        faceTable = null;
+        numberOfFaces = 0;
+        final int capacity = patchList != null ? patchList.size() : 0;
+        for (int i = 0; i < capacity; i++) {
+            patchList.get(i).setFaceIndex(-1);
+        }
+        faceTable = new Patch[capacity > 0 ? capacity : 1];
+        int[] count = new int[] {0};
+        int[] conflicts = new int[] {0};
+        collectFaces(clusteredRootGeometry, faceTable, capacity, count, conflicts);
+        numberOfFaces = count[0];
+
+        int unreached = 0;
+        for (int i = 0; i < capacity; i++) {
+            if (patchList.get(i).getFaceIndex() < 0) {
+                unreached++;
+            }
+        }
+        if (conflicts[0] != 0 || unreached != 0 || numberOfFaces != capacity) {
+            Logger.reportMessage(this, Logger.FATAL_ERROR, "buildFaceTable", String.format(
+                "Face table: %d patches, %d indexed, %d reached twice, %d unreachable from the cluster hierarchy",
+                capacity, numberOfFaces, conflicts[0], unreached));
+        }
+        faceBounds = new FaceBoundsTable(faceTable, numberOfFaces);
+    }
+
+    public int getNumberOfFaces() {
+        return numberOfFaces;
+    }
+
+    public Patch getFace(int faceIndex) {
+        return faceTable[faceIndex];
+    }
+
+    public FaceBoundsTable getFaceBounds() {
+        return faceBounds;
     }
 
     public void print() {
@@ -241,7 +372,7 @@ public class Scene {
         printPatches();
         int[] elementCount = new int[] {0};
         printClusterHierarchy(clusteredRootGeometry, 0, elementCount);
-        printVoxelGrid();
+        printSceneQuery();
         System.out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount[0]);
     }
 }

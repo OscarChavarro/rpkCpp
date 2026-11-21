@@ -24,8 +24,8 @@ import vsdk.toolkit.render.RenderHookList;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.VisibilityQueryRecorder;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
@@ -574,9 +574,21 @@ Returns true if successful
 
         scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
-        if ( scene.clusteredRootGeometry.className != GeometryClassId.COMPOUND ) {
+        // The top-level clusters, as RenderPark's ClusteredWorld: the children of
+        // the root cluster, or the root itself when it is not a compound
+        if ( scene.clusteredRootGeometry.className == GeometryClassId.COMPOUND ) {
+            ArrayList<Geometry> children = ((Compound)scene.clusteredRootGeometry).children;
+            for ( int i = 0; children != null && i < children.size(); i++ ) {
+                scene.clusteredGeometryList.add(children.get(i));
+            }
+        }
+        else {
+            scene.clusteredGeometryList.add(scene.clusteredRootGeometry);
             Logger.reportMessage(null, Logger.WARNING, "", "Strange clusters for this world ...");
         }
+
+        // Dense face indices in depth-first order of the cluster hierarchy
+        scene.buildFaceTable();
 
         t = System.nanoTime();
         System.err.printf(
@@ -585,15 +597,20 @@ Returns true if successful
             (double)(t - last) / 1000000000.0);
         last = t;
 
-        // Create the scene level voxel grid
-        scene.voxelGrid = new VoxelGrid(scene.clusteredRootGeometry);
-        scene.voxelGridWorkspace = new VoxelGridWorkspace(
-            scene.voxelGrid.getNumberOfItems(), scene.voxelGrid.getNumberOfLevels());
+        // Create the scene query, over the index the -scene-acceleration option chose
+        if ( VisibilityQueryRecorder.captureEnabled() ) {
+            // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
+            final VisibilityQueryRecorder recorder = new VisibilityQueryRecorder(System.getenv("RPK_RAY_CAPTURE_FILE"));
+            scene.visibilityQueryRecorder = recorder;
+            Runtime.getRuntime().addShutdownHook(new Thread(recorder::close));
+        }
+        scene.buildSceneQuery();
 
         t = System.nanoTime();
         System.err.printf(
             Locale.US,
-            "Voxel grid creation took %g secs.\n",
+            "Scene index (%s) creation took %g secs.\n",
+            SceneQuery.methodName(scene.getAccelerationMethod()),
             (double)(t - last) / 1000000000.0);
         last = t;
 

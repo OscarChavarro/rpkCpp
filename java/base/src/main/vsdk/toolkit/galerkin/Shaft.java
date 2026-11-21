@@ -127,8 +127,9 @@ public class Shaft {
     }
 
     /**
-    Marks a geometry as to be omitted during shaft culling: it will not be added to the
-    candidate list, even if the geometry overlaps or is inside the shaft.
+    Marks a patch as to be omitted during shaft culling (the source or receiver of
+    the interaction): cullPatches will not add it to the culled patch list, even if
+    it overlaps or is inside the shaft
     */
     public void setShaftOmit(Patch patch) {
         if (patch == null || numberOfGeometriesToOmit >= MAX_SKIP_ELEMENTS) {
@@ -802,7 +803,7 @@ public class Shaft {
     Adds geometry to candidate list, duplicating if it was created during previous shaft culling.
     */
     private static void keep(Geometry geometry, ArrayList<Geometry> candidateList) {
-        if (geometry == null || candidateList == null || geometry.omit) {
+        if (geometry == null || candidateList == null) {
             return;
         }
 
@@ -822,7 +823,7 @@ public class Shaft {
     Breaks geometry into components and does shaft culling on components.
     */
     private void shaftCullOpen(Geometry geometry, ArrayList<Geometry> candidateList, ShaftCullStrategy strategy) {
-        if (geometry == null || candidateList == null || geometry.omit) {
+        if (geometry == null || candidateList == null) {
             return;
         }
 
@@ -854,18 +855,10 @@ public class Shaft {
             return;
         }
 
-        if (geometry.className == GeometryClassId.PATCH_SET) {
-            // The C++ port probes the omit set here through an invalid reinterpret_cast of the
-            // Geometry as a Patch, reading an arbitrary value that in practice never matches an
-            // omitted patch id, so PatchSet geometries are effectively never culled by that test.
-            // Probing with a real patch id (e.g. a hardcoded 1) wrongly discards every PatchSet
-            // occluder for interactions whose receiver or source is that patch, causing light
-            // leaks (see corridor scene, floor patch 1). Only the omit flag is honored.
-            if (geometry.omit) {
-                return;
-            }
-        }
-
+        // The omit set holds patch ids and is honoured for patches by cullPatches;
+        // reading a patch id from a geometry (the former C++ reinterpret_cast) was
+        // undefined behaviour
+        // Unbounded geoms always overlap the shaft
         ShaftPlanePosition side = geometry.bounded ? boundingBoxTest(geometry.boundingBox) : ShaftPlanePosition.OVERLAP;
         switch (side) {
             case INSIDE:

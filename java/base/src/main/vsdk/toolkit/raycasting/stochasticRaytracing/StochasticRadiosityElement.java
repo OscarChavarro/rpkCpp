@@ -15,7 +15,6 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter;
@@ -606,10 +605,9 @@ Computes average reflectance and emittance of a surface sub-element
             ColorRgbMutable sample;
             long[] xi = Niederreiter.NextNiedInRange(n, +1, nbits[0], msb1[0], rMostSignificantBit2[0]);
             hit.setUv((double)xi[0] * Niederreiter.RECIP, (double)xi[1] * Niederreiter.RECIP);
-            int newFlags = hit.getFlags() | RayHitFlag.UV;
-            hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
             patch.uniformPoint(hit.getUv().x, hit.getUv().y, position);
+            hit.setPoint(position);
             if ( patch.material.getBsdf() != null ) {
                 sample = new ColorRgbMutable(patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
                 albedo.add(albedo, sample);

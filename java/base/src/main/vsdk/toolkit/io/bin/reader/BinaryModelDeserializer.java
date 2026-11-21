@@ -497,6 +497,10 @@ public class BinaryModelDeserializer {
                 record.bounded = BinaryModelReadPrimitives.readBool(input);
                 record.shaftCullGeometry = BinaryModelReadPrimitives.readBool(input);
                 record.omit = BinaryModelReadPrimitives.readBool(input);
+                if (record.omit) {
+                    Logger.reportMessage(null, Logger.ERROR, "BinaryModelDeserializer::read", String.format("%s", "Geometry omit flag is not supported in binary reader"));
+                    throw new ReadFailureException();
+                }
                 record.isDuplicate = BinaryModelReadPrimitives.readBool(input);
                 require(BinaryModelReadPrimitives.readBoundingBoxCoordinates(input, record.boundingBoxCoordinates));
                 record.hasRayIntersectionBox = BinaryModelReadPrimitives.readBool(input);
@@ -585,7 +589,6 @@ public class BinaryModelDeserializer {
                 geometry.itemCount = record.itemCount;
                 geometry.bounded = record.bounded;
                 geometry.shaftCullGeometry = record.shaftCullGeometry;
-                geometry.omit = record.omit;
                 geometry.isDuplicate = record.isDuplicate;
                 require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(geometry.boundingBox, record.boundingBoxCoordinates));
 

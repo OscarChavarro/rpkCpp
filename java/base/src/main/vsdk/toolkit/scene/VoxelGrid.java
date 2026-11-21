@@ -510,6 +510,7 @@ public class VoxelGrid {
             subGrids = new ArrayList<>();
             items = new ArrayList<>();
             numberOfLevels = 1;
+            countItems(geometry);
         }
         boundingBox = new BoundingBox();
         rayIntersectionBox = null;
@@ -525,6 +526,27 @@ public class VoxelGrid {
         System.err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry.itemCount, gridSize, depth);
 
         putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
+    }
+
+    /**
+    Number of patches below a geometry, stored in the itemCount of every geometry
+    of the hierarchy (RenderPark's GeomCountItems, called when the top level grid
+    is created): it sizes each grid and decides which geometries get a sub grid
+    */
+    private static int countItems(Geometry geometry) {
+        int count = 0;
+        if (geometry.isCompound()) {
+            ArrayList<Geometry> children = ((Compound)geometry).children;
+            for (int i = 0; children != null && i < children.size(); i++) {
+                count += countItems(children.get(i));
+            }
+        }
+        else {
+            ArrayList<Patch> patches = Geometry.patchListReference(geometry);
+            count = patches != null ? patches.size() : 0;
+        }
+        geometry.itemCount = count;
+        return count;
     }
 
     /**

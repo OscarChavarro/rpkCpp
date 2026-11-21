@@ -109,7 +109,6 @@ public final class MeshSurface extends Geometry {
         shaftCullGeometry = false;
         radianceData = null;
         itemCount = 0;
-        omit = false;
 
         // texCoords is intentionally ignored in this C++ layer implementation.
     }

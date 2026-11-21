@@ -492,7 +492,9 @@ public class BinaryModelSerializer {
         writeInt32LE(output, geometry.itemCount);
         writeBool(output, geometry.bounded);
         writeBool(output, geometry.shaftCullGeometry);
-        writeBool(output, geometry.omit);
+        // Omit flag: geometries were never omitted at run time (the shaft's omit set
+        // excludes patches per query); written false, as it always was
+        writeBool(output, false);
         writeBool(output, geometry.isDuplicate);
         writeBoundingBox(output, geometry.boundingBox);
         writeBool(output, false);

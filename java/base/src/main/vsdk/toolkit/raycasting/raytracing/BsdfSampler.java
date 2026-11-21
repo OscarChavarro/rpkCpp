@@ -12,8 +12,8 @@ import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 
 public class BsdfSampler extends SurfaceSampler {
     // Sample : newNode gets filled, others may change
@@ -23,8 +23,8 @@ public class BsdfSampler extends SurfaceSampler {
     public boolean
     sample(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -72,7 +72,7 @@ public class BsdfSampler extends SurfaceSampler {
         DetermineRayType(thisNode, newNode, dir);
 
         // Transfer
-        if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]) ) {
+        if ( !sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]) ) {
             thisNode.m_rayType = PathRayType.STOPS;
             return false;
         }

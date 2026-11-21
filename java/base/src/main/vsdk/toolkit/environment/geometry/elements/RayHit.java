@@ -273,14 +273,22 @@ public class RayHit {
         return uv;
     }
 
-    public void setUv(Vector2Dd inUv) {
-        uv.x = inUv.x;
-        uv.y = inUv.y;
-    }
-
+    /**
+    Sets the (u,v) parameters of the hit and marks them as known. Everything
+    derived from (u,v) and cached in the record, the texture coordinate and the
+    interpolated shading normal and frame, is invalidated, so that a record
+    reused for several samples on one patch evaluates each sample at its own
+    (u,v) and not at the first one.
+    */
     public void setUv(double inU, double inV) {
         uv.x = inU;
         uv.y = inV;
+        flags = (flags | RayHitFlag.UV)
+            & ~(RayHitFlag.TEXTURE_COORDINATE | RayHitFlag.NORMAL | RayHitFlag.SHADING_FRAME);
+    }
+
+    public void setUv(Vector2Dd inUv) {
+        setUv(inUv.x, inUv.y);
     }
 
     public int getFlags() {

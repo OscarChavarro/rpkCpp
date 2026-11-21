@@ -2,7 +2,6 @@ package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;
@@ -46,8 +45,6 @@ public class PatchVisitor {
             ColorRgbMutable sample;
             long[] xi = Niederreiter31.niederreiter31(i);
             hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
-            int newFlags = hit.getFlags() | RayHitFlag.UV;
-            hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
             patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
             sample = new ColorRgbMutable();
@@ -72,8 +69,6 @@ public class PatchVisitor {
             ColorRgbMutable sample = new ColorRgbMutable();
             long[] xi = Niederreiter31.niederreiter31(i);
             hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
-            int newFlags = hit.getFlags() | RayHitFlag.UV;
-            hit.setFlags(newFlags);
             Vector3D position = hit.getPoint();
             patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
 

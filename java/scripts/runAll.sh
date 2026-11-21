@@ -1,35 +1,20 @@
 #!/bin/bash
-nohup bash scripts/01_runCubeJacobi.sh &> output/01_jacobi.log &
+# Starts the test corpus (scripts/runCorpus.sh) in the background and returns
+# at once; the runs go on after the terminal is closed. With no arguments it
+# also starts the scenes outside the corpus (08 soda). Arguments select corpus
+# entries by image or script name, as in runCorpus.sh.
+# The corpus runs write output/<image>.ppm, output/<log>.log and
+# output/<log>.err, the files testReviewResults.sh reads; runCorpus.sh's own
+# messages and exit status go to output/runCorpus.log.
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$SCRIPT_DIR/.." || exit 1
+mkdir -p output
+
+nohup sh -c "sh '$SCRIPT_DIR/runCorpus.sh' \"\$@\"; echo \"runCorpus.sh exit status: \$?\"" runCorpus "$@" > output/runCorpus.log 2>&1 &
 disown
-nohup bash scripts/01_runCubeGaussSiedel.sh &> output/01_gaussSiedel.log &
-disown
-nohup bash scripts/01_runCubeSouthwell.sh &> output/01_southwell.log &
-disown
-nohup bash scripts/02_runCorridor.sh &> output/02.log &
-disown
-nohup bash scripts/03_runHospital.sh &> output/03.log &
-disown
-nohup bash scripts/04_runOffice1.sh &> output/04.log &
-disown
-nohup bash scripts/05_runOffice2.sh &> output/05.log &
-disown
-nohup bash scripts/06_runOffice3.sh &> output/06.log &
-disown
-nohup bash scripts/07_runSalonDeClase.sh &> output/07.log &
-disown
-nohup bash scripts/08_runSoda.sh &> output/08.log &
-disown
-nohup bash scripts/10_floorRayMatting.sh &> output/10.log &
-disown
-nohup bash scripts/11_floorRayCasting.sh &> output/11.log &
-disown
-nohup bash scripts/12_floorBidirectionalPathTracing.sh &> output/12.log &
-disown
-nohup bash scripts/13_floorStochasticRaytracingRandomWalk.sh &> output/13.log &
-disown
-nohup bash scripts/14_floorStochasticRaytracingJacobi.sh &> output/14.log &
-disown
-nohup bash scripts/21_tonemap_Ward.sh &> output/21.log &
-disown
-nohup bash scripts/22_tonemap_TumblinRushmeier.sh &> output/22.log &
-disown
+
+if [ $# -eq 0 ]; then
+    nohup bash "$SCRIPT_DIR/08_runSoda.sh" > output/08.log 2> output/08.err &
+    disown
+fi

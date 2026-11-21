@@ -2,3 +2,4 @@ rootProject.name = "rpkJava"
 
 include(":base")
 include(":testsuite:ApplicationCases:RenderparkApplication")
+include(":testsuite:ApplicationCases:RayCorpusReplay")

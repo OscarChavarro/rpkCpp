@@ -130,8 +130,8 @@ public class LinkingSimpleStrategy {
         boolean isClusteredGeometry = candidateList[0] == scene.clusteredGeometryList;
         ArrayList<Geometry> geometryListReferences = candidateList[0];
         FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
-            scene.voxelGrid,
-            scene.voxelGridWorkspace,
+            scene.getSceneQuery(),
+            scene.getSceneQueryWorkspace(),
             galerkinState.formFactorWorkspace,
             geometryListReferences,
             isSceneGeometry,

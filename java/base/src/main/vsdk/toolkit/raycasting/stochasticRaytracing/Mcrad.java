@@ -12,7 +12,6 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.render.Potential;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.environment.geometry.elements.Element;
@@ -356,8 +355,6 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
         patch.uniformPoint(u, v, point);
         hit.init(patch, point, patch.normal, patch.material);
         hit.setUv(u, v);
-        int newFlags = hit.getFlags() | RayHitFlag.UV;
-        hit.setFlags(newFlags);
         ColorRgbMutable result = new ColorRgbMutable();
         result.clear();
         if ( hit.getMaterial().getBsdf() != null ) {

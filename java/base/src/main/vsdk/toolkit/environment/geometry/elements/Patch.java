@@ -31,6 +31,7 @@ public class Patch {
     private int flags; // Other flags
 
     public int id; // Identification number for debugging, ID rendering
+    private int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
     public Patch twin; // Twin face (for double-sided surfaces)
     public Vertex[] vertex; // Pointers to the vertices
     public byte numberOfVertices; // Number of vertices: 3 or 4
@@ -680,6 +681,7 @@ public class Patch {
         twin = null;
         id = patchId;
         patchId++;
+        faceIndex = -1;
 
         material = null;
 
@@ -733,6 +735,14 @@ public class Patch {
         flags = 0; // Other flags
 
         radianceData = null;
+    }
+
+    public int getFaceIndex() {
+        return faceIndex;
+    }
+
+    public void setFaceIndex(int newFaceIndex) {
+        faceIndex = newFaceIndex;
     }
 
     public void destroy() {
@@ -860,7 +870,7 @@ public class Patch {
         hit.setPatch(null);
         hit.setMaterial(null);
 
-        if (exclusions.excludesPatch(this)) {
+        if (exclusions.excludesPatch(this) || exclusions.excludesFace(faceIndex)) {
             return null;
         }
 

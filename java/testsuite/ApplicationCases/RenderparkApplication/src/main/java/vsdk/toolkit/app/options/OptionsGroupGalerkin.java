@@ -7,6 +7,7 @@ import vsdk.toolkit.common.commandLineOptions.OptionParser;
 import vsdk.toolkit.common.commandLineOptions.TypedOption;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
+import vsdk.toolkit.galerkin.GalerkinShaftCullMode;
 
 public final class OptionsGroupGalerkin {
     private static int trueValue = 1;
@@ -28,6 +29,22 @@ public final class OptionsGroupGalerkin {
         }
         else {
             Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid iteration method '%s'", name));
+        }
+    }
+
+    private static void shaftCullingOption(TypedOption.MutableValue<String> value) {
+        String name = value.value;
+        if ( "never".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING;
+        }
+        else if ( "refinement".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT;
+        }
+        else if ( "always".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.shaftCullMode = GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING;
+        }
+        else {
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid shaft culling mode '%s' (never, refinement or always)", name));
         }
     }
 
@@ -59,6 +76,13 @@ public final class OptionsGroupGalerkin {
             iterationMethodName,
             1,
             OptionsGroupGalerkin::iterationMethodOption,
+            null);
+        TypedOption.ValueRef<String> shaftCullingName = TypedOption.valueRef((String)null);
+        TypedOption<String> shaftCullingOpt = new TypedOption<>(
+            "-gr-shaft-culling",
+            shaftCullingName,
+            1,
+            OptionsGroupGalerkin::shaftCullingOption,
             null);
         TypedOption<Integer> grHierarchicalOpt = new TypedOption<>(
             "-gr-hierarchical",
@@ -138,6 +162,7 @@ public final class OptionsGroupGalerkin {
             null);
         OptionBase[] galerkinOptions = new OptionBase[] {
             TypedOption.REGISTER_OPTION(iterationMethodOpt, 6),
+            TypedOption.REGISTER_OPTION(shaftCullingOpt, 6),
             TypedOption.REGISTER_OPTION(grHierarchicalOpt, 6),
             TypedOption.REGISTER_OPTION(grNotHierarchicalOpt, 10),
             TypedOption.REGISTER_OPTION(grLazyOpt, 6),
@@ -152,7 +177,7 @@ public final class OptionsGroupGalerkin {
             TypedOption.REGISTER_OPTION(grMinElemAreaOpt, 6)
         };
         OptionGroup[] galerkinGroups = new OptionGroup[] {
-            new OptionGroup("galerkin", galerkinOptions, 13)
+            new OptionGroup("galerkin", galerkinOptions, 14)
         };
         OptionParser.parse(argc, argv, galerkinGroups, 1);
     }

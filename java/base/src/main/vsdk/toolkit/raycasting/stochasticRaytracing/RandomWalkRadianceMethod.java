@@ -15,8 +15,8 @@ import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -332,8 +332,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
     }
 
     private static void randomWalkRadiosityDoShootingIteration(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches)
     {
         long numberOfWalks = StochasticRelaxation.activeState().initialNumberOfRays;
@@ -354,8 +354,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
             (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
 
         Tracepath.tracePaths(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             numberOfWalks,
             RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower,
             RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance,
@@ -497,8 +497,8 @@ Determines control radiosity value for collision gathering estimator
     }
 
     private static void randomWalkRadiosityDoGatheringIteration(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches)
     {
         long numberOfWalks = StochasticRelaxation.activeState().initialNumberOfRays;
@@ -527,8 +527,8 @@ Determines control radiosity value for collision gathering estimator
             (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
 
         Tracepath.tracePaths(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             numberOfWalks,
             RandomWalkRadianceMethod::randomWalkRadiosityPatchArea,
             RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance,
@@ -548,8 +548,8 @@ Determines control radiosity value for collision gathering estimator
     }
 
     private static void randomWalkRadiosityDoFirstShot(
-        VoxelGrid sceneWorldVoxelGrid,
-        VoxelGridWorkspace sceneWorldVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
         RenderOptions renderOptions)
     {
@@ -558,8 +558,8 @@ Determines control radiosity value for collision gathering estimator
                 .approxDesc[StochasticRelaxation.activeState().approximationOrderType.ordinal()].basis_size;
         System.err.printf("First shot (%d rays):\n", numberOfRays);
         StochasticJacobi.doStochasticJacobiIteration(
-            sceneWorldVoxelGrid,
-            sceneWorldVoxelGridWorkspace,
+            sceneQuery,
+            sceneWorldSceneQueryWorkspace,
             numberOfRays,
             RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance,
             null,
@@ -586,15 +586,15 @@ Determines control radiosity value for collision gathering estimator
 
         if ( StochasticRelaxation.activeState().currentIteration == 1
             && StochasticRelaxation.activeState().indirectOnly != 0 ) {
-            randomWalkRadiosityDoFirstShot(scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList, renderOptions);
+            randomWalkRadiosityDoFirstShot(scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
         }
 
         switch ( StochasticRelaxation.activeState().randomWalkEstimatorType ) {
             case RW_SHOOTING:
-                randomWalkRadiosityDoShootingIteration(scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList);
+                randomWalkRadiosityDoShootingIteration(scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList);
                 break;
             case RW_GATHERING:
-                randomWalkRadiosityDoGatheringIteration(scene.voxelGrid, scene.voxelGridWorkspace, scene.patchList);
+                randomWalkRadiosityDoGatheringIteration(scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList);
                 break;
             default:
                 Logger.reportMessage(this, Logger.FATAL_ERROR, "randomWalkRadiosityDoStep", String.format("Unknown random walk estimator type %d", StochasticRelaxation.activeState().randomWalkEstimatorType.ordinal()));

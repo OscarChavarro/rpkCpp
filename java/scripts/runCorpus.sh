@@ -23,8 +23,11 @@ fi
 
 pids=""
 for line in $selection; do
+    image=$(echo "$line" | cut -d'|' -f1)
     script=$(echo "$line" | cut -d'|' -f2)
     log=$(echo "$line" | cut -d'|' -f3)
+    # A run that crashes must not leave the previous run's image to be compared
+    rm -f "output/$image.ppm" "output/$log.log" "output/$log.err"
     sh -c "bash '$SCRIPT_DIR/$script.sh' > 'output/$log.log' 2> 'output/$log.err'" &
     pids="$pids $!"
 done

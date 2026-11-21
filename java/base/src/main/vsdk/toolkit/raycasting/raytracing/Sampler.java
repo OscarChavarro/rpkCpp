@@ -19,8 +19,8 @@ import vsdk.toolkit.raycasting.common.RayTools;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public abstract class Sampler {
@@ -43,8 +43,8 @@ public abstract class Sampler {
     or if a shading normal anomaly occurs
     */
     protected boolean sampleTransfer(
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode thisNode,
         SimpleRaytracingPathNode newNode,
@@ -59,8 +59,8 @@ public abstract class Sampler {
         newNode.m_depth = thisNode.m_depth + 1;
         newNode.m_rayType = PathRayType.STOPS;
         RayHit hit = RayTools.findRayIntersection(
-            sceneVoxelGrid,
-            sceneVoxelGridWorkspace,
+            sceneQuery,
+            sceneSceneQueryWorkspace,
             ray,
             thisNode.m_hit.getPatch(),
             newNode.m_inBsdf,
@@ -131,8 +131,8 @@ public abstract class Sampler {
     public abstract boolean
     sample(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -145,8 +145,8 @@ public abstract class Sampler {
     public boolean
     sample(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -154,7 +154,7 @@ public abstract class Sampler {
         double x1,
         double x2)
     {
-        return sample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, BSDF_ALL_COMPONENTS);
+        return sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, BSDF_ALL_COMPONENTS);
     }
 
     public abstract double

@@ -23,8 +23,8 @@ import vsdk.toolkit.render.ScreenBuffer;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -89,7 +89,7 @@ public final class RayMatter extends RayTracer {
             scene.camera,
             rayMatterState,
             toneMapOptions);
-        rayMatter.doMatting(scene.camera, scene.voxelGrid, scene.voxelGridWorkspace);
+        rayMatter.doMatting(scene.camera, scene.getSceneQuery(), scene.getSceneQueryWorkspace());
         if (ip != null && rayMatter != null) {
             rayMatter.save(ip);
         }
@@ -129,7 +129,7 @@ public final class RayMatter extends RayTracer {
         }
     }
 
-    public void doMatting(Camera camera, VoxelGrid sceneWorldVoxelGrid, VoxelGridWorkspace sceneWorldVoxelGridWorkspace) {
+    public void doMatting(Camera camera, SceneQuery sceneQuery, SceneQueryWorkspace sceneWorldSceneQueryWorkspace) {
         long t = System.nanoTime();
 
         createFilter();
@@ -156,7 +156,7 @@ public final class RayMatter extends RayTracer {
                     ray.direction.normalize(Numeric.EPSILON_FLOAT);
 
                     // Check if hit
-                    if (RayTools.findRayIntersection(sceneWorldVoxelGrid, sceneWorldVoxelGridWorkspace, ray, null, null, null) != null) {
+                    if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) != null) {
                         hits++;
                     }
                 }

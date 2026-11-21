@@ -21,8 +21,8 @@ import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.raycasting.raytracing.BsdfSampler;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.scene.VoxelGridWorkspace;
+import vsdk.toolkit.scene.SceneQuery;
+import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
@@ -106,8 +106,8 @@ Returns true a component was chosen, false if absorbed
     public boolean
     sample(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -151,10 +151,10 @@ Returns true a component was chosen, false if absorbed
         boolean ok;
 
         if ( sChosen[0] ) {
-            ok = fresnelSample(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x2a[0], flags);
+            ok = fresnelSample(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x2a[0], flags);
         } else {
             flags = (byte)(gdFLAGS & flags);
-            ok = gdSample(camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0], flags);
+            ok = gdSample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2a[0], flags);
         }
 
         if ( ok ) {
@@ -349,8 +349,8 @@ Returns true a component was chosen, false if absorbed
 
     private boolean
     fresnelSample(
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -372,7 +372,7 @@ Returns true a component was chosen, false if absorbed
         DetermineRayType(thisNode, newNode, dir);
 
         // Transfer
-        if ( !sampleTransfer(sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]) ) {
+        if ( !sampleTransfer(sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, newNode, dir, pdfDir[0]) ) {
             thisNode.m_rayType = PathRayType.STOPS;
             return false;
         }
@@ -405,8 +405,8 @@ Returns true a component was chosen, false if absorbed
     private boolean
     gdSample(
         Camera camera,
-        VoxelGrid sceneVoxelGrid,
-        VoxelGridWorkspace sceneVoxelGridWorkspace,
+        SceneQuery sceneQuery,
+        SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
         SimpleRaytracingPathNode prevNode,
         SimpleRaytracingPathNode thisNode,
@@ -423,7 +423,7 @@ Returns true a component was chosen, false if absorbed
         if ( m_photonMap == null ) {
             // We can just use standard bsdf sampling
             ok = super.sample(
-                camera, sceneVoxelGrid, sceneVoxelGridWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+                camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
             thisNode.m_usedComponents = flags;
             return ok;
         }
@@ -470,8 +470,8 @@ Returns true a component was chosen, false if absorbed
         // Do real sampling
         ok = super.sample(
             camera,
-            sceneVoxelGrid,
-            sceneVoxelGridWorkspace,
+            sceneQuery,
+            sceneSceneQueryWorkspace,
             sceneBackground,
             prevNode,
             thisNode,
