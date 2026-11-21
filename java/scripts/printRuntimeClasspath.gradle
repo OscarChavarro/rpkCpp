@@ -1,0 +1,12 @@
+// Gradle init script used by corpusPrepare.sh: prints the runtime classpath of
+// a project, so that the corpus runs can start the JVM themselves (and be
+// measured with /usr/bin/time) instead of going through the Gradle daemon.
+allprojects {
+    tasks.register("printRuntimeClasspath") {
+        doLast {
+            if ( project.plugins.hasPlugin("java") ) {
+                println(project.sourceSets.main.runtimeClasspath.asPath)
+            }
+        }
+    }
+}

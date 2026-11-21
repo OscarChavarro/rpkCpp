@@ -39,11 +39,19 @@
 #   Scene 11 (ray casting) issues only Galerkin queries; scenes 12 and 14
 #   supply the raytracer closest-hit and visibility queries.
 #
+# Shaft culling off by default (2026-11-21, owner decision): 01 and 02 now run
+# with -gr-shaft-culling never, the options of the former entries
+# 16_cubeJacobiNoShaftCulling and 18_corridorNoShaftCulling, which were
+# removed as duplicates (images AE=0 against 01 and 02 in all four ports).
+# Their captures became the 01 and 02 entries below (renamed, not captured
+# again: the file holds no scene name). The 01 and 02 captures with shaft
+# culling for refinement, which had no full-scene Galerkin query, were:
+#   01_cubeJacobi 72958636 7b3e9f2cec4a23fec02a250fc07ac29845185e55f0f4eeef3e629f7f6c2c64d5
+#   02_corridor 11685637520 f18432ac1be939ed53bb4ab29886332a1dbc9381dc8cb2c40de73cbcb1cff635
+#
 # image bytes sha256
-01_cubeJacobi 72958636 7b3e9f2cec4a23fec02a250fc07ac29845185e55f0f4eeef3e629f7f6c2c64d5
-02_corridor 11685637520 f18432ac1be939ed53bb4ab29886332a1dbc9381dc8cb2c40de73cbcb1cff635
+01_cubeJacobi 165409984 cebf5788fac9aefcce7286b0b8621e5b39f8e426bf59541db62a11dad9a48dde
+02_corridor 14302980676 6179740c8c4a9c44910bb9d62a123ae2c4841f804236edbd03a4db2856b60253
 11_floorRayCasting 3692374332 5c5c7c73a3024d7a3e46ab29a7772ce56c2c123369ac1849692a45d6aaa1f58e
 12_floorBidirectionalPathTracing 702876284 152b00ce957c9e4cbccca60da89a33401b02c4bc710c4d02a8631d5a865b1d9c
 14_floorStochasticRaytracingJacobi 3569239388 8b60508d7269d5e0b6d671b74c120ec2d6417458d879a14d7b5f5616016d7b18
-16_cubeJacobiNoShaftCulling 165409984 cebf5788fac9aefcce7286b0b8621e5b39f8e426bf59541db62a11dad9a48dde
-18_corridorNoShaftCulling 14302980676 6179740c8c4a9c44910bb9d62a123ae2c4841f804236edbd03a4db2856b60253

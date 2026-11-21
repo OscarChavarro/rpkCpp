@@ -59,6 +59,21 @@ export class BinnedSahHierarchy {
     private readonly nodes: ArrayList<BinnedSahHierarchyNode> = new ArrayList<BinnedSahHierarchyNode>();
     private readonly primitiveOrder: ArrayList<number> = new ArrayList<number>();
 
+    // Typed-array copy of `nodes` and `primitiveOrder` read by the traversal
+    // (TypeScript only: object nodes behind ArrayList.get cost a third of the
+    // CPU time of a Galerkin run). Refreshed by `pack` after every build and
+    // whenever the node count no longer matches.
+    /** Per node: minimum x, y, z, maximum x, y, z */
+    private packedBounds: Float64Array = new Float64Array(0);
+    /** Per node: leftOrFirst, count */
+    private packedLinks: Int32Array = new Int32Array(0);
+    private packedOrder: Int32Array = new Int32Array(0);
+    /** Traversal stacks reused across queries, one pair per nesting level
+    (a visitor may start another traversal of this hierarchy) */
+    private readonly nodeStacks: Int32Array[] = [];
+    private readonly distanceStacks: Float64Array[] = [];
+    private traversalDepth = 0;
+
     public constructor();
     /** Deep copy (cpp copies the hierarchy by value) */
     public constructor(other: BinnedSahHierarchy);
@@ -70,6 +85,29 @@ export class BinnedSahHierarchy {
             this.nodes.add(new BinnedSahHierarchyNode(other.nodes.get(i)));
         }
         this.primitiveOrder.addAll(other.primitiveOrder);
+        this.pack();
+    }
+
+    /** Copies `nodes` and `primitiveOrder` into the typed arrays of the
+    traversal */
+    private pack(): void {
+        const nodeCount = this.nodes.size();
+        this.packedBounds = new Float64Array(6 * nodeCount);
+        this.packedLinks = new Int32Array(2 * nodeCount);
+        for (let i = 0; i < nodeCount; i++) {
+            const node = this.nodes.get(i);
+            for (let a = 0; a < 3; a++) {
+                this.packedBounds[6 * i + a] = node.minimum[a]!;
+                this.packedBounds[6 * i + 3 + a] = node.maximum[a]!;
+            }
+            this.packedLinks[2 * i] = node.leftOrFirst;
+            this.packedLinks[2 * i + 1] = node.count;
+        }
+        const primitiveCount = this.primitiveOrder.size();
+        this.packedOrder = new Int32Array(primitiveCount);
+        for (let i = 0; i < primitiveCount; i++) {
+            this.packedOrder[i] = this.primitiveOrder.get(i);
+        }
     }
 
     private static setNodeBounds(node: BinnedSahHierarchyNode, box: _BinnedSahBox): void {
@@ -214,6 +252,7 @@ export class BinnedSahHierarchy {
         this.nodes.add(BinnedSahHierarchy.emptyNode());
         if (primitiveCount === 0) {
             // One empty leaf: its negative box never passes the slab test.
+            this.pack();
             return;
         }
 
@@ -325,6 +364,7 @@ export class BinnedSahHierarchy {
             leftTask.depth = task.depth + 1;
             stack.add(leftTask);
         }
+        this.pack();
     }
 
     /**
@@ -341,60 +381,178 @@ export class BinnedSahHierarchy {
         nodeVisits: number[],
         entryTests: number[],
     ): boolean {
-        const slab = new BinnedSahHierarchy.RaySlab(ray);
-        const rootDistance = slab.entry(this.nodes.get(0), inOutBestT[0]!);
+        if (this.packedLinks.length !== 2 * this.nodes.size() || this.packedOrder.length !== this.primitiveOrder.size()) {
+            this.pack();
+        }
+        const bounds = this.packedBounds;
+        const links = this.packedLinks;
+        const order = this.packedOrder;
+
+        // Slab entry parameters (RaySlab), kept in locals
+        const o = ray.getOrigin();
+        const d = ray.getDirection();
+        const ox = o.x();
+        const oy = o.y();
+        const oz = o.z();
+        const dx = d.x();
+        const dy = d.y();
+        const dz = d.z();
+        const px = dx === 0.0;
+        const py = dy === 0.0;
+        const pz = dz === 0.0;
+        const ix = px ? 0.0 : 1.0 / dx;
+        const iy = py ? 0.0 : 1.0 / dy;
+        const iz = pz ? 0.0 : 1.0 / dz;
+        // Entry parameter of the ray in the box of node n clipped to
+        // [0, tMax], or -1 on a miss or an empty box (RaySlab.entry)
+        const entry = (n: number, tMax: number): number => {
+            const b = 6 * n;
+            let tNear = 0.0;
+            let tFar = tMax;
+            let lo = bounds[b]!;
+            let hi = bounds[b + 3]!;
+            if (lo > hi) {
+                return -1.0;
+            }
+            if (px) {
+                if (ox < lo || ox > hi) {
+                    return -1.0;
+                }
+            } else {
+                let t0 = (lo - ox) * ix;
+                let t1 = (hi - ox) * ix;
+                if (t0 > t1) {
+                    const swap = t0;
+                    t0 = t1;
+                    t1 = swap;
+                }
+                tNear = t0 > tNear ? t0 : tNear;
+                tFar = t1 < tFar ? t1 : tFar;
+                if (tNear > tFar) {
+                    return -1.0;
+                }
+            }
+            lo = bounds[b + 1]!;
+            hi = bounds[b + 4]!;
+            if (lo > hi) {
+                return -1.0;
+            }
+            if (py) {
+                if (oy < lo || oy > hi) {
+                    return -1.0;
+                }
+            } else {
+                let t0 = (lo - oy) * iy;
+                let t1 = (hi - oy) * iy;
+                if (t0 > t1) {
+                    const swap = t0;
+                    t0 = t1;
+                    t1 = swap;
+                }
+                tNear = t0 > tNear ? t0 : tNear;
+                tFar = t1 < tFar ? t1 : tFar;
+                if (tNear > tFar) {
+                    return -1.0;
+                }
+            }
+            lo = bounds[b + 2]!;
+            hi = bounds[b + 5]!;
+            if (lo > hi) {
+                return -1.0;
+            }
+            if (pz) {
+                if (oz < lo || oz > hi) {
+                    return -1.0;
+                }
+            } else {
+                let t0 = (lo - oz) * iz;
+                let t1 = (hi - oz) * iz;
+                if (t0 > t1) {
+                    const swap = t0;
+                    t0 = t1;
+                    t1 = swap;
+                }
+                tNear = t0 > tNear ? t0 : tNear;
+                tFar = t1 < tFar ? t1 : tFar;
+                if (tNear > tFar) {
+                    return -1.0;
+                }
+            }
+            return tNear;
+        };
+
+        const rootDistance = entry(0, inOutBestT[0]!);
         if (rootDistance < 0.0) {
             return true;
         }
-        const nodeStack = new Int32Array(BinnedSahHierarchy.STACK_SIZE);
-        const distanceStack = new Float64Array(BinnedSahHierarchy.STACK_SIZE);
-        let sp = 0;
-        nodeStack[sp] = 0;
-        distanceStack[sp] = rootDistance;
-        sp++;
-        while (sp > 0) {
-            sp--;
-            if (distanceStack[sp]! > inOutBestT[0]!) {
-                continue;
-            }
-            const node = this.nodes.get(nodeStack[sp]!);
-            nodeVisits[0]!++;
-            if (node.count > 0) {
-                for (let i = node.leftOrFirst; i < node.leftOrFirst + node.count; i++) {
-                    if (visit(this.primitiveOrder.get(i), inOutBestT)) {
-                        entryTests[0] = entryTests[0]! + i - node.leftOrFirst + 1;
-                        return true;
-                    }
+        const level = this.traversalDepth;
+        if (level === this.nodeStacks.length) {
+            this.nodeStacks.push(new Int32Array(BinnedSahHierarchy.STACK_SIZE));
+            this.distanceStacks.push(new Float64Array(BinnedSahHierarchy.STACK_SIZE));
+        }
+        const nodeStack = this.nodeStacks[level]!;
+        const distanceStack = this.distanceStacks[level]!;
+        this.traversalDepth++;
+        try {
+            let visits = 0;
+            let tests = 0;
+            let sp = 0;
+            nodeStack[sp] = 0;
+            distanceStack[sp] = rootDistance;
+            sp++;
+            while (sp > 0) {
+                sp--;
+                if (distanceStack[sp]! > inOutBestT[0]!) {
+                    continue;
                 }
-                entryTests[0] = entryTests[0]! + node.count;
-                continue;
+                const node = nodeStack[sp]!;
+                visits++;
+                const first = links[2 * node]!;
+                const count = links[2 * node + 1]!;
+                if (count > 0) {
+                    for (let i = first; i < first + count; i++) {
+                        if (visit(order[i]!, inOutBestT)) {
+                            nodeVisits[0] = nodeVisits[0]! + visits;
+                            entryTests[0] = entryTests[0]! + tests + i - first + 1;
+                            return true;
+                        }
+                    }
+                    tests += count;
+                    continue;
+                }
+                let left = first;
+                let right = left + 1;
+                let dl = entry(left, inOutBestT[0]!);
+                let dr = entry(right, inOutBestT[0]!);
+                // Push the farther child first, so the nearer one is visited first.
+                if (dl >= 0.0 && dr >= 0.0 && dl < dr) {
+                    const swapNode = left;
+                    left = right;
+                    right = swapNode;
+                    const swapDistance = dl;
+                    dl = dr;
+                    dr = swapDistance;
+                }
+                if (sp + 2 > BinnedSahHierarchy.STACK_SIZE) {
+                    nodeVisits[0] = nodeVisits[0]! + visits;
+                    entryTests[0] = entryTests[0]! + tests;
+                    return false;
+                }
+                if (dl >= 0.0) {
+                    nodeStack[sp] = left;
+                    distanceStack[sp] = dl;
+                    sp++;
+                }
+                if (dr >= 0.0) {
+                    nodeStack[sp] = right;
+                    distanceStack[sp] = dr;
+                    sp++;
+                }
             }
-            let left = node.leftOrFirst;
-            let right = left + 1;
-            let dl = slab.entry(this.nodes.get(left), inOutBestT[0]!);
-            let dr = slab.entry(this.nodes.get(right), inOutBestT[0]!);
-            // Push the farther child first, so the nearer one is visited first.
-            if (dl >= 0.0 && dr >= 0.0 && dl < dr) {
-                const swapNode = left;
-                left = right;
-                right = swapNode;
-                const swapDistance = dl;
-                dl = dr;
-                dr = swapDistance;
-            }
-            if (sp + 2 > BinnedSahHierarchy.STACK_SIZE) {
-                return false;
-            }
-            if (dl >= 0.0) {
-                nodeStack[sp] = left;
-                distanceStack[sp] = dl;
-                sp++;
-            }
-            if (dr >= 0.0) {
-                nodeStack[sp] = right;
-                distanceStack[sp] = dr;
-                sp++;
-            }
+            nodeVisits[0] = nodeVisits[0]! + visits;
+            entryTests[0] = entryTests[0]! + tests;
+        } finally {
+            this.traversalDepth--;
         }
         return true;
     }

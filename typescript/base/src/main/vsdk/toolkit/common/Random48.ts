@@ -25,6 +25,22 @@ export class Random48 {
         Random48.state = ((high << 16n) | 0x330en) & Random48.MASK_48;
     }
 
+    /**
+    erand48: the drand48 step on a caller-owned state xsubi[3] (unsigned
+    16-bit words, low word first), which is advanced in place
+    */
+    public static erand48(xsubi: number[]): number {
+        let x =
+            (BigInt((xsubi[2] ?? 0) & 0xffff) << 32n) |
+            (BigInt((xsubi[1] ?? 0) & 0xffff) << 16n) |
+            BigInt((xsubi[0] ?? 0) & 0xffff);
+        x = (Random48.MULTIPLIER * x + Random48.ADDEND) & Random48.MASK_48;
+        xsubi[0] = Number(x & 0xffffn);
+        xsubi[1] = Number((x >> 16n) & 0xffffn);
+        xsubi[2] = Number((x >> 32n) & 0xffffn);
+        return Number(x) / Random48.TWO_POW_48;
+    }
+
     public static drand48(): number {
         Random48.state = (Random48.MULTIPLIER * Random48.state + Random48.ADDEND) & Random48.MASK_48;
         return Number(Random48.state) / Random48.TWO_POW_48;

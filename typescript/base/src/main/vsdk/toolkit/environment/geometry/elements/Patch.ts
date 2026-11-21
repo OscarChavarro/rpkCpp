@@ -375,9 +375,13 @@ export class Patch {
 
     // Side, plane hit, hit point and (u, v) in one call into the face
     const faceHit = Patch.intersectScratchFaceHit;
-    const inside = this.face.rayHit(
-      Patch.toFace(ray.position),
-      Patch.toFace(ray.direction),
+    const inside = this.face.rayHitComponents(
+      f(ray.position.x),
+      f(ray.position.y),
+      f(ray.position.z),
+      f(ray.direction.x),
+      f(ray.direction.y),
+      f(ray.direction.z),
       (hitFlags & RayHitFlag.FRONT) !== 0,
       (hitFlags & RayHitFlag.BACK) !== 0,
       f(minimumDistance),

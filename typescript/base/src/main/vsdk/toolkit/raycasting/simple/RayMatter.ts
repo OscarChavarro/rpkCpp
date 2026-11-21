@@ -13,6 +13,7 @@ import { BoxFilter } from "../common/BoxFilter";
 import { NormalFilter } from "../common/NormalFilter";
 import { PixelFilter } from "../common/PixelFilter";
 import { RayTools } from "../common/RayTools";
+import { Random48 } from "../../common/Random48";
 import { RayTracer } from "../common/RayTracer";
 import { TentFilter } from "../common/TentFilter";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
@@ -132,6 +133,8 @@ export class RayMatter extends RayTracer {
     }
 
     const t = process.hrtime.bigint();
+    // Fixed erand48 state, as the C++ port: reproducible runs
+    const rayMatterRngState = [0x1234, 0x5678, 0x9abc];
 
     this.createFilter();
 
@@ -142,8 +145,8 @@ export class RayMatter extends RayTracer {
 
         for (let i = 0; i < this.rayMatterState.samplesPerPixel; i++) {
           // Uniform random var
-          const dx = [globalThis.Math.random()];
-          const dy = [globalThis.Math.random()];
+          const dx = [Random48.erand48(rayMatterRngState)];
+          const dy = [Random48.erand48(rayMatterRngState)];
 
           // Insert non-uniform sampling here
           if (this.pixelFilter !== null) {

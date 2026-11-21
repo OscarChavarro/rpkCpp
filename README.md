@@ -90,7 +90,21 @@ The C++ port answers every visibility and ray-casting query of the scene through
 - `legacy`: RenderPark's original voxel grid, kept for comparison until it is retired.
 - `bruteforce`: every face tested, as a reference.
 
-Every index only prunes; RenderPark's exact face test decides each hit, so the images are the same with every choice (see `doc/vitralAlignmentPlan.md`, step 5).
+Every index only prunes; RenderPark's exact face test decides each hit, so with a given shaft culling mode the images are the same with every choice (see `doc/vitralAlignmentPlan.md`, step 5). The one exception seen is a face-index tie: two eye rays of scene 13 (out of 547 million queries) hit the shared edge of two faces at exactly the same distance, and `wald2007` picks the other face, which moves one pixel by one unit.
+
+## Shaft culling off by default (Galerkin)
+
+RenderPark's Galerkin radiosity culls the candidate occluders of each interaction with a shaft (`-gr-shaft-culling refinement`, RenderPark's default), so that a shadow ray is tested against a short list instead of the whole scene. With a fast scene index this no longer pays: building a candidate list per interaction costs more than sending every shadow ray to the whole-scene query, which the WALD2007 hierarchy answers in logarithmic time. Measured on the C++ port (CPU time, `/usr/bin/time`, 2026-11-21):
+
+| Scene | `wald2007` + shaft culling | `wald2007`, no shaft culling | Change |
+| --- | --- | --- | --- |
+| 08 soda (11 iterations) | 3079 s, 4.8 GB | 1249 s, 4.7 GB | 2.5x faster |
+| 02 corridor | 245 s | 202 s | -18 % |
+
+Without shaft culling more shadow rays are traced (soda: 1.53 against 1.40 billion), but each one is cheap. The default is therefore `-scene-acceleration wald2007` with `-gr-shaft-culling never`, in all four ports; `-gr-shaft-culling refinement` (or `always`) and `-scene-acceleration legacy` give back RenderPark's original method.
+
+The results are not bit-identical to the original method. In the `refinement` mode the shaft also enters the error estimate that decides which interactions are refined, so the element and interaction counts differ slightly from the first iteration on (soda after 11 iterations: 320,451 against 321,619 elements, 21,928,099 against 21,938,082 interactions), and so do the images: for soda, 8,925 of 2,073,600 pixels differ, RMSE 0.00015 (normalized). The golden images in `doc/testBaseImages` and the port references are still those of the original method, so until they are captured again with the new default (an owner decision, pending on 2026-11-21) the golden and exact tests report these differences. The corpus entries `16_cubeJacobiNoShaftCulling` and `18_corridorNoShaftCulling`, which ran the cube and the corridor with `-gr-shaft-culling never`, were removed: with the new default they repeat `01_cubeJacobi` and `02_corridor` (identical images in all four ports). The corpus has therefore no scene with shaft culling; the mode stays available through the option. Shaft culling still pays in small scenes refined very finely: the cube of `21_tonemapWard` takes 33 s with `refinement` and 129 s with `never` (C++, CPU time), because the shaft spares 186 million of its 298 million shadow rays.
+
 
 ## Selecting Niederreiter variant (31-bit vs 63-bit)
 
@@ -131,6 +145,13 @@ files on `./output` folder.
 ./scripts/runAll.sh
 ```
 
+`runAll.sh` runs the same test corpus as `runCorpus.sh`, with the same outputs and logs, so its results
+can be checked with `testReviewResults.sh`. The difference is that it starts the runs in the background
+and returns at once, and the runs go on after the terminal is closed. With no arguments it also runs
+`08_runSoda.sh`, which is not part of the corpus; with arguments it runs only the corpus entries they name.
+`output/runCorpus.log` ends with the line `runCorpus.sh exit status: N` when every corpus run has finished.
+The script is the same in every port.
+
 To check a change, run the test corpus and then the image gate (ImageMagick `compare`):
 
 ```bash
@@ -164,8 +185,7 @@ the replay of `scripts/replayRays.sh` uses them, so nothing else depends on this
 
 ```bash
 ./scripts/captureRays.sh <capture build directory> testReferences/rayCorpus 01_cubeJacobi 02_corridor \
-  11_floorRayCasting 12_floorBidirectionalPathTracing 14_floorStochasticRaytracingJacobi \
-  16_cubeJacobiNoShaftCulling 18_corridorNoShaftCulling
+  11_floorRayCasting 12_floorBidirectionalPathTracing 14_floorStochasticRaytracingJacobi
 ```
 
 The notes of the ray corpus are versioned in `doc/rayCorpus`: `captureRays.sh` writes the ray

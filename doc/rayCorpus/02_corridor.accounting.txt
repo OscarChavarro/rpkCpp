@@ -1,7 +1,7 @@
-shadow rays resolved by the shadow cache: 50890756
-Galerkin restricted list queries: 141085097, with hit: 36121508
-Galerkin full-scene index queries: 0, with hit: 0
+shadow rays resolved by the shadow cache: 49170937
+Galerkin restricted list queries: 0, with hit: 0
+Galerkin full-scene index queries: 188197114, with hit: 38227119
 raytracer closest hit queries: 0, with hit: 0
 raytracer visibility queries: 0, with hit: 0
 stochastic shooting queries: 0, with hit: 0
-restricted geometry lists: 3942477
+restricted geometry lists: 0

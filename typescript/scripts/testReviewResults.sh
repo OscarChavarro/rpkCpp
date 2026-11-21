@@ -16,7 +16,9 @@
 #   --record-bounds       record the current RMSE against each golden as its bound
 #
 # Images may be selected by image or script name; the default is the whole
-# corpus. Difference images of failed comparisons go to output/diff/.
+# corpus plus the scenes outside it (corpus.sh OPTIONAL_TABLE) whose run has
+# finished, as output/<log>.status shows; an unfinished one is reported as
+# NOT COMPARED, a failed run as a failure. Difference images of failed comparisons go to output/diff/.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
@@ -45,6 +47,10 @@ if ! command -v compare >/dev/null 2>&1; then
 fi
 
 selection=$(corpusSelect "$@")
+# With no image named, the finished scenes outside the corpus are checked too
+if [ $# -eq 0 ]; then
+    selection=$(printf '%s\n%s\n' "$selection" "$OPTIONAL_TABLE")
+fi
 if [ -z "$selection" ]; then
     echo "No corpus entry matches: $*"
     exit 2
@@ -205,10 +211,28 @@ recordBound() {
     echo "BOUND: $image $rmse"
 }
 
+# A scene outside the corpus is compared only once its run has finished
+optionalReady() {
+    image="$1"
+    log="$2"
+    if [ ! -f "output/$log.status" ]; then
+        echo "NOT COMPARED: $image: its run has not finished (no output/$log.status); this scene was not compared"
+        return 1
+    fi
+    if [ "$(cat "output/$log.status")" != "0" ]; then
+        fail "$image: its run ended with exit status $(cat "output/$log.status") (see output/$log.err)"
+        return 1
+    fi
+    return 0
+}
+
 for line in $selection; do
     image=$(echo "$line" | cut -d'|' -f1)
     log=$(echo "$line" | cut -d'|' -f3)
     golden=$(echo "$line" | cut -d'|' -f4)
+    if isOptional "$line" && ! optionalReady "$image" "$log"; then
+        continue
+    fi
     case "$mode" in
         exact) checkExact "$image" "$log" ;;
         golden) checkGolden "$image" "$golden" ;;

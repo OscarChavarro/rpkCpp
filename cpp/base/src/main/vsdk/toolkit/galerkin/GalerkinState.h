@@ -101,7 +101,7 @@ class GalerkinState {
     static constexpr CubatureDegree DEFAULT_GAL_RCV_CUBATURE_DEGREE = CubatureDegree::DEGREE_5;
     static constexpr CubatureDegree DEFAULT_GAL_SRC_CUBATURE_DEGREE = CubatureDegree::DEGREE_4;
     static constexpr GalerkinClusteringStrategy DEFAULT_GAL_CLUSTERING_STRATEGY = GalerkinClusteringStrategy::ISOTROPIC;
-    static constexpr GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT;
+    static constexpr GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode::NEVER_DO_SHAFT_CULLING;
     static constexpr GalerkinErrorNorm DEFAULT_GAL_ERROR_NORM = GalerkinErrorNorm::POWER_ERROR;
     static constexpr GalerkinBasisType DEFAULT_GAL_BASIS_TYPE = GalerkinBasisType::GALERKIN_LINEAR;
     static constexpr bool DEFAULT_GAL_CONSTANT_RADIANCE = false;

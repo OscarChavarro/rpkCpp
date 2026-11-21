@@ -83,7 +83,7 @@ public class GalerkinState {
     private static final CubatureDegree DEFAULT_GAL_RCV_CUBATURE_DEGREE = CubatureDegree.DEGREE_5;
     private static final CubatureDegree DEFAULT_GAL_SRC_CUBATURE_DEGREE = CubatureDegree.DEGREE_4;
     private static final GalerkinClusteringStrategy DEFAULT_GAL_CLUSTERING_STRATEGY = GalerkinClusteringStrategy.ISOTROPIC;
-    private static final GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT;
+    private static final GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING;
     private static final GalerkinErrorNorm DEFAULT_GAL_ERROR_NORM = GalerkinErrorNorm.POWER_ERROR;
     private static final GalerkinBasisType DEFAULT_GAL_BASIS_TYPE = GalerkinBasisType.GALERKIN_LINEAR;
     private static final boolean DEFAULT_GAL_CONSTANT_RADIANCE = false;

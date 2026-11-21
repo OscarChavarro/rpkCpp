@@ -449,54 +449,75 @@ export class PlanarFace extends FundamentalEntity {
     Gems I, p390
     */
     private triangleParameters(point: Vector3Df, uv: Vector2Dd): boolean {
-        let pointA: number;
-        let pointB: number;
-        switch (this.dominantAxis) {
-            case 0:
-                pointA = point.y();
-                pointB = point.z();
-                break;
-            case 1:
-                pointA = point.x();
-                pointB = point.z();
-                break;
-            default:
-                pointA = point.x();
-                pointB = point.y();
-                break;
-        }
-        const u0 = [0];
-        const v0 = [0];
-        this.projectedPosition(0, u0, v0);
-        const a1 = [0];
-        const b1 = [0];
-        const a2 = [0];
-        const b2 = [0];
-        this.projectedPosition(1, a1, b1);
-        this.projectedPosition(2, a2, b2);
-        const p0 = new Vector2Dd(pointA - u0[0]!, pointB - v0[0]!);
-        const p1 = new Vector2Dd(a1[0]! - u0[0]!, b1[0]! - v0[0]!);
-        const p2 = new Vector2Dd(a2[0]! - u0[0]!, b2[0]! - v0[0]!);
+        const inside = this.parametersOfProjected(this.projectedA(point), this.projectedB(point), PlanarFace.parameterScratch);
+        uv.x = PlanarFace.parameterScratch[0]!;
+        uv.y = PlanarFace.parameterScratch[1]!;
+        return inside;
+    }
+
+    // Coordinates of a point projected along the dominant axis
+    private projectedA(point: Vector3Df): number {
+        return this.dominantAxis === 0 ? point.y() : point.x();
+    }
+
+    private projectedB(point: Vector3Df): number {
+        return this.dominantAxis === 2 ? point.y() : point.z();
+    }
+
+    // (u, v) of a projected point written to uv[0], uv[1] by
+    // triangleParametersOfProjected or quadrilateralParametersOfProjected,
+    // scalars only (TypeScript: the Vector2Dd temporaries of the source were a
+    // large share of the face test's time). Returns whether it is inside.
+    private parametersOfProjected(pointA: number, pointB: number, uv: Float64Array): boolean {
+        return this.numberOfVertices === 3
+            ? this.triangleParametersOfProjected(pointA, pointB, uv)
+            : this.quadrilateralParametersOfProjected(pointA, pointB, uv);
+    }
+
+    private static readonly parameterScratch = new Float64Array(2);
+
+    // Projected position of vertex i, first and second coordinate
+    private vertexA(i: number): number {
+        return this.dominantAxis === 0 ? this.positionY[i]! : this.positionX[i]!;
+    }
+
+    private vertexB(i: number): number {
+        return this.dominantAxis === 2 ? this.positionY[i]! : this.positionZ[i]!;
+    }
+
+    private triangleParametersOfProjected(pointA: number, pointB: number, uv: Float64Array): boolean {
+        // (0, 0) when the point is rejected early, as the fresh Vector2Dd of
+        // the source
+        uv[0] = 0.0;
+        uv[1] = 0.0;
+        const u0 = this.vertexA(0);
+        const v0 = this.vertexB(0);
+        const p0x = pointA - u0;
+        const p0y = pointB - v0;
+        const p1x = this.vertexA(1) - u0;
+        const p1y = this.vertexB(1) - v0;
+        const p2x = this.vertexA(2) - u0;
+        const p2y = this.vertexB(2) - v0;
 
         let alpha: number;
         let beta: number;
-        if (p1.x < -PlanarFace.EPSILON || p1.x > PlanarFace.EPSILON) {
-            beta = (p0.y * p1.x - p0.x * p1.y) / (p2.y * p1.x - p2.x * p1.y);
+        if (p1x < -PlanarFace.EPSILON || p1x > PlanarFace.EPSILON) {
+            beta = (p0y * p1x - p0x * p1y) / (p2y * p1x - p2x * p1y);
             if (beta >= 0.0 && beta <= 1.0) {
-                alpha = (p0.x - beta * p2.x) / p1.x;
+                alpha = (p0x - beta * p2x) / p1x;
             } else {
                 return false;
             }
         } else {
-            beta = p0.x / p2.x;
+            beta = p0x / p2x;
             if (beta >= 0.0 && beta <= 1.0) {
-                alpha = (p0.y - beta * p2.y) / p1.y;
+                alpha = (p0y - beta * p2y) / p1y;
             } else {
                 return false;
             }
         }
-        uv.x = alpha;
-        uv.y = beta;
+        uv[0] = alpha;
+        uv[1] = beta;
         return !(alpha < 0.0 || alpha + beta > 1.0);
     }
 
@@ -506,47 +527,40 @@ export class PlanarFace extends FundamentalEntity {
     Triangles", Graphics Gems V, pages 232-241
     */
     private quadrilateralParameters(point: Vector3Df, uv: Vector2Dd): boolean {
-        const ax = [0];
-        const ay = [0];
-        const bx = [0];
-        const by = [0];
-        const cx = [0];
-        const cy = [0];
-        const dx = [0];
-        const dy = [0];
-        this.projectedPosition(0, ax, ay);
-        this.projectedPosition(1, bx, by);
-        this.projectedPosition(2, cx, cy);
-        this.projectedPosition(3, dx, dy);
-        const A = new Vector2Dd(ax[0]!, ay[0]!);
-        const B = new Vector2Dd(bx[0]!, by[0]!);
-        const C = new Vector2Dd(cx[0]!, cy[0]!);
-        const D = new Vector2Dd(dx[0]!, dy[0]!);
-        let pointA: number;
-        let pointB: number;
-        switch (this.dominantAxis) {
-            case 0:
-                pointA = point.y();
-                pointB = point.z();
-                break;
-            case 1:
-                pointA = point.x();
-                pointB = point.z();
-                break;
-            default:
-                pointA = point.x();
-                pointB = point.y();
-                break;
-        }
-        const M = new Vector2Dd(pointA, pointB);
+        const inside = this.quadrilateralParametersOfProjected(
+            this.projectedA(point),
+            this.projectedB(point),
+            PlanarFace.parameterScratch,
+        );
+        uv.x = PlanarFace.parameterScratch[0]!;
+        uv.y = PlanarFace.parameterScratch[1]!;
+        return inside;
+    }
 
-        const AB = new Vector2Dd(B.x - A.x, B.y - A.y);
-        const BC = new Vector2Dd(C.x - B.x, C.y - B.y);
-        const CD = new Vector2Dd(D.x - C.x, D.y - C.y);
-        const AD = new Vector2Dd(D.x - A.x, D.y - A.y);
-        let AE = new Vector2Dd(CD.x + AB.x, CD.y + AB.y);
-        AE = new Vector2Dd(-AE.x, -AE.y);
-        const AM = new Vector2Dd(M.x - A.x, M.y - A.y);
+    private quadrilateralParametersOfProjected(pointA: number, pointB: number, uv: Float64Array): boolean {
+        const Ax = this.vertexA(0);
+        const Ay = this.vertexB(0);
+        const Bx = this.vertexA(1);
+        const By = this.vertexB(1);
+        const Cx = this.vertexA(2);
+        const Cy = this.vertexB(2);
+        const Dx = this.vertexA(3);
+        const Dy = this.vertexB(3);
+
+        const ABx = Bx - Ax;
+        const ABy = By - Ay;
+        const BCx = Cx - Bx;
+        const BCy = Cy - By;
+        const CDx = Dx - Cx;
+        const CDy = Dy - Cy;
+        const ADx = Dx - Ax;
+        const ADy = Dy - Ay;
+        const AEx = -(CDx + ABx);
+        const AEy = -(CDy + ABy);
+        const AMx = pointA - Ax;
+        const AMy = pointB - Ay;
+        // determinant(a, b) = a.x * b.y - a.y * b.x
+        const det = (ax: number, ay: number, bx: number, by: number): number => ax * by - ay * bx;
 
         let u = -1.0;
         let v = -1.0;
@@ -555,31 +569,33 @@ export class PlanarFace extends FundamentalEntity {
         let b: number;
         let c: number;
 
-        if (Math.abs(PlanarFace.determinant(AB, CD)) < PlanarFace.EPSILON) {
+        if (Math.abs(det(ABx, ABy, CDx, CDy)) < PlanarFace.EPSILON) {
             // AB parallel to CD
-            const vector = new Vector2Dd(AB.x - CD.x, AB.y - CD.y);
-            v = PlanarFace.determinant(AM, vector) / PlanarFace.determinant(AD, vector);
+            const vx = ABx - CDx;
+            const vy = ABy - CDy;
+            v = det(AMx, AMy, vx, vy) / det(ADx, ADy, vx, vy);
             if (v >= 0.0 && v <= 1.0) {
-                b = PlanarFace.determinant(AB, AD) - PlanarFace.determinant(AM, AE);
-                c = PlanarFace.determinant(AM, AD);
+                b = det(ABx, ABy, ADx, ADy) - det(AMx, AMy, AEx, AEy);
+                c = det(AMx, AMy, ADx, ADy);
                 u = Math.abs(b) < PlanarFace.EPSILON ? -1 : c / b;
                 isInside = u >= 0.0 && u <= 1.0;
             }
-        } else if (Math.abs(PlanarFace.determinant(BC, AD)) < PlanarFace.EPSILON) {
+        } else if (Math.abs(det(BCx, BCy, ADx, ADy)) < PlanarFace.EPSILON) {
             // AD parallel to BC
-            const vector = new Vector2Dd(AD.x + BC.x, AD.y + BC.y);
-            u = PlanarFace.determinant(AM, vector) / PlanarFace.determinant(AB, vector);
+            const vx = ADx + BCx;
+            const vy = ADy + BCy;
+            u = det(AMx, AMy, vx, vy) / det(ABx, ABy, vx, vy);
             if (u >= 0.0 && u <= 1.0) {
-                b = PlanarFace.determinant(AD, AB) - PlanarFace.determinant(AM, AE);
-                c = PlanarFace.determinant(AM, AB);
+                b = det(ADx, ADy, ABx, ABy) - det(AMx, AMy, AEx, AEy);
+                c = det(AMx, AMy, ABx, ABy);
                 v = Math.abs(b) < PlanarFace.EPSILON ? -1 : c / b;
                 isInside = v >= 0.0 && v <= 1.0;
             }
         } else {
             // General case
-            a = PlanarFace.determinant(AB, AE);
-            c = -PlanarFace.determinant(AM, AD);
-            b = PlanarFace.determinant(AB, AD) - PlanarFace.determinant(AM, AE);
+            a = det(ABx, ABy, AEx, AEy);
+            c = -det(AMx, AMy, ADx, ADy);
+            b = det(ABx, ABy, ADx, ADy) - det(AMx, AMy, AEx, AEy);
             a = -0.5 / a;
             b *= a;
             c *= a + a;
@@ -592,11 +608,11 @@ export class PlanarFace extends FundamentalEntity {
                     u = b + sqrtDelta;
                 }
                 if (u >= 0.0 && u <= 1.0) {
-                    v = AD.x + u * AE.x;
+                    v = ADx + u * AEx;
                     if (Math.abs(v) < PlanarFace.EPSILON) {
-                        v = (AM.y - u * AB.y) / (AD.y + u * AE.y);
+                        v = (AMy - u * ABy) / (ADy + u * AEy);
                     } else {
-                        v = (AM.x - u * AB.x) / v;
+                        v = (AMx - u * ABx) / v;
                     }
                     isInside = v >= 0.0 && v <= 1.0;
                 }
@@ -605,8 +621,8 @@ export class PlanarFace extends FundamentalEntity {
             }
         }
 
-        uv.x = PlanarFace.clipToUnitInterval(u);
-        uv.y = PlanarFace.clipToUnitInterval(v);
+        uv[0] = PlanarFace.clipToUnitInterval(u);
+        uv[1] = PlanarFace.clipToUnitInterval(v);
         return isInside;
     }
 
@@ -778,8 +794,49 @@ export class PlanarFace extends FundamentalEntity {
         maximumDistance: number,
         hit: PlanarFace.RayHit,
     ): boolean {
-        const normalDotDirection = [0];
-        const side = this.sideFacing(direction, normalDotDirection);
+        return this.rayHitComponents(
+            origin.x(),
+            origin.y(),
+            origin.z(),
+            direction.x(),
+            direction.y(),
+            direction.z(),
+            acceptFront,
+            acceptBack,
+            minimumDistance,
+            maximumDistance,
+            hit,
+        );
+    }
+
+    /**
+    rayHit with the origin and direction given by their float components
+    (TypeScript only: spares the caller two Vector3Df per ray). The
+    components must already be floats (Math.fround).
+    */
+    public rayHitComponents(
+        ox: number,
+        oy: number,
+        oz: number,
+        dx: number,
+        dy: number,
+        dz: number,
+        acceptFront: boolean,
+        acceptBack: boolean,
+        minimumDistance: number,
+        maximumDistance: number,
+        hit: PlanarFace.RayHit,
+    ): boolean {
+        // sideFacing
+        const normalDotDirection = f(f(f(this.normalX * dx) + f(this.normalY * dy)) + f(this.normalZ * dz));
+        let side: PlanarFace.Side;
+        if (normalDotDirection > PlanarFace.EPSILON) {
+            side = PlanarFace.Side.BACK;
+        } else if (normalDotDirection < -PlanarFace.EPSILON) {
+            side = PlanarFace.Side.FRONT;
+        } else {
+            side = PlanarFace.Side.PARALLEL;
+        }
         if (
             side === PlanarFace.Side.PARALLEL ||
             (side === PlanarFace.Side.FRONT && !acceptFront) ||
@@ -787,7 +844,11 @@ export class PlanarFace extends FundamentalEntity {
         ) {
             return false;
         }
-        const distance = this.planeHitParameter(origin, normalDotDirection[0]!);
+        // planeHitParameter
+        const distance = f(
+            -f(f(f(f(this.normalX * ox) + f(this.normalY * oy)) + f(this.normalZ * oz)) + this.planeConstant) /
+                normalDotDirection,
+        );
         if (distance > maximumDistance || distance < minimumDistance) {
             return false;
         }
@@ -795,14 +856,17 @@ export class PlanarFace extends FundamentalEntity {
         // the source; the bracket access is TypeScript's equivalent
         hit["side"] = side;
         hit["distance"] = distance;
-        hit["pointX"] = f(origin.x() + f(distance * direction.x()));
-        hit["pointY"] = f(origin.y() + f(distance * direction.y()));
-        hit["pointZ"] = f(origin.z() + f(distance * direction.z()));
-        const u = [0];
-        const v = [0];
-        const inside = this.parameters(new Vector3Df(hit["pointX"], hit["pointY"], hit["pointZ"]), u, v);
-        hit["u"] = u[0]!;
-        hit["v"] = v[0]!;
+        hit["pointX"] = f(ox + f(distance * dx));
+        hit["pointY"] = f(oy + f(distance * dy));
+        hit["pointZ"] = f(oz + f(distance * dz));
+        const uv = PlanarFace.parameterScratch;
+        const inside = this.parametersOfProjected(
+            this.dominantAxis === 0 ? hit["pointY"] : hit["pointX"],
+            this.dominantAxis === 2 ? hit["pointY"] : hit["pointZ"],
+            uv,
+        );
+        hit["u"] = uv[0]!;
+        hit["v"] = uv[1]!;
         return inside;
     }
 }
