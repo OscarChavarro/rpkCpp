@@ -47,14 +47,14 @@ ColorRgbMutable OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BA
 SceneAccelerationMethod OptionsGroupCore::sceneAccelerationMethod = SceneAccelerationMethod::WALD2007_ACCELERATION;
 
 /**
--scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+-scene-acceleration voxel|wald2007|bruteforce: the spatial index of
 the scene query (SceneAccelerationMethod); wald2007 by default
 */
 void
 OptionsGroupCore::sceneAccelerationOption(char *&name) {
     if ( !SceneQuery::methodFromName(name, &sceneAccelerationMethod) ) {
         Logger::reportMessage("OptionsGroupCore", Logger::ERROR, "", java::String::format(
-            "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", name));
+            "Invalid scene acceleration '%s' (voxel, wald2007 or bruteforce)", name));
     }
 }
 

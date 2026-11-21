@@ -4,8 +4,6 @@
 #include <cstdio>
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
-#include "vsdk/toolkit/scene/VoxelGridWorkspace.h"
 #include "SceneConsumer.h"
 #include "FaceAncestry.h"
 #include "ReplayAnswer.h"
@@ -17,22 +15,24 @@ class Patch;
 Plan step 4, item 4 (doc/vitralAlignmentPlan.md): replays the full-scene
 visibility queries of a step 1 ray corpus (paths 1 to 4 of
 VisibilityQueryRecorder) through every scene index implementation, with
-RenderPark's exact face test deciding each hit:
+RenderPark's exact face test deciding each hit, and compares them with the
+captured answers:
 
-- the legacy VoxelGrid, which must reproduce the captured answer bit for
-  bit (this checks the replay itself: same scene, same arithmetic);
 - VITRAL's LinearSpatialIndex, the reference (every face, in face order);
 - VITRAL's BinnedSahSpatialIndex (WALD2007);
-- VITRAL's GridSpatialIndex, the port of the voxel grid, built from the
-  cluster hierarchy as the legacy grid is. Beyond visibility, its blocker
-  and distance are compared with the legacy grid's for every query, ANY-flag
-  ones included, since it follows the legacy any-hit order.
+- VITRAL's GridSpatialIndex, the port of RenderPark's voxel grid, built from
+  the cluster hierarchy as the original grid was. Its closest-hit answers
+  must reproduce the capture bit for bit (this checks the replay itself:
+  same scene, same arithmetic; the stored corpora were captured with the
+  original grid, whose closest-hit answers the port reproduced on every
+  query, and scripts/captureRays.sh now captures with the port).
 
-Visibility must agree for every query. For closest-hit queries the blocker
-and distance must agree too; a different blocker at the same distance is
-counted as a tie (a characterization, not a failure). ANY-flag queries are
-answered by the indexes in ANY_HIT mode, so only their visibility is
-compared. The replay is then repeated from several threads sharing the scene
+Visibility must agree with the capture for every query. For closest-hit
+queries the blocker and distance must agree too; a different blocker at the
+same distance is counted as a tie (a characterization, not a failure).
+ANY-flag queries are answered by the indexes in ANY_HIT mode, so only their
+visibility is compared; the ported grid's any-hit blockers other than the
+captured ones are counted as a characterization. The replay is then repeated from several threads sharing the scene
 and the indexes, one workspace each, and every answer must equal the
 sequential one bit for bit.
 
@@ -50,11 +50,10 @@ unsupported query.
 class RayCorpusReplay final : public SceneConsumer {
   public:
     enum Implementation {
-        LEGACY_VOXEL_GRID = 0,
-        LINEAR_REFERENCE = 1,
-        BINNED_SAH = 2,
-        PORTED_GRID = 3,
-        NUMBER_OF_IMPLEMENTATIONS = 4
+        LINEAR_REFERENCE = 0,
+        BINNED_SAH = 1,
+        PORTED_GRID = 2,
+        NUMBER_OF_IMPLEMENTATIONS = 3
     };
 
   private:
@@ -69,7 +68,6 @@ class RayCorpusReplay final : public SceneConsumer {
     const Scene *scene;
     java::ArrayList<const Patch *> patchById;
     FaceAncestry *ancestry;
-    VoxelGrid *legacyGrid;
     SpatialIndex *linearIndex;
     SpatialIndex *binnedIndex;
     SpatialIndex *gridIndex;
@@ -94,7 +92,6 @@ class RayCorpusReplay final : public SceneConsumer {
     void buildIndexes();
     bool isSupported(const VisibilityQueryRecord &record) const;
     bool usesLinear(long long queryNumber) const;
-    ReplayAnswer answerLegacy(const VisibilityQueryRecord &record, VoxelGridWorkspace &workspace) const;
     ReplayAnswer answerIndex(
         const SpatialIndex &index,
         const VisibilityQueryRecord &record,

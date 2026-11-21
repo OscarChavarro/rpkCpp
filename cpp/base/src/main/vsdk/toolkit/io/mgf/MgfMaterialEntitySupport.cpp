@@ -200,33 +200,36 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
         Ts = ColorRgb(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
-    PhongEmittanceDistributionFunction* edf = nullptr;
+    // The lobes keep their exponents in single precision
+    const PhongLobe *emission = nullptr;
     if ( !isBlack(Ed) || !isBlack(Es) ) {
         constexpr double Ne = 0.0;
-        edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
+        emission = new PhongLobe(Ed, Es, static_cast<float>(Ne));
     }
 
-    PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
+    const PhongLobe *reflection = nullptr;
     if ( !isBlack(Rd) || !isBlack(Rs) ) {
-        brdf = new PhongBidirectionalReflectanceDistributionFunction(&Rd, &Rs, Nr);
+        reflection = new PhongLobe(Rd, Rs, static_cast<float>(Nr));
     }
 
-    PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
+    const PhongLobe *transmission = nullptr;
+    float refractionIndexReal = 1.0F;
+    float refractionIndexImaginary = 0.0F;
     if ( !isBlack(Td) || !isBlack(Ts) ) {
-        btdf = new PhongBidirectionalTransmittanceDistributionFunction(
-            &Td,
-            &Ts,
-            Nt,
-            currentMaterialContext->nr,
-            currentMaterialContext->ni);
+        transmission = new PhongLobe(Td, Ts, static_cast<float>(Nt));
+        refractionIndexReal = static_cast<float>(currentMaterialContext->nr);
+        refractionIndexImaginary = static_cast<float>(currentMaterialContext->ni);
     }
-
-    PhongBidirectionalScatteringDistributionFunction *bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
 
     (*material) = new RpkMaterial(
         materialName,
-         edf,
-         bsdf,
+        emission,
+        true,
+        reflection,
+        transmission,
+        nullptr,
+        refractionIndexReal,
+        refractionIndexImaginary,
         allSurfacesSided || currentMaterialContext->sided);
 
     context->materials->add((*material));

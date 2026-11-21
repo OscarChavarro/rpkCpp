@@ -1,8 +1,8 @@
 #!/bin/sh
 # Step 4 replay (doc/vitralAlignmentPlan.md, step 4 item 4): replays the step 1
-# ray corpus of each image through the legacy voxel grid, VITRAL's linear
-# reference and VITRAL's binned SAH index, sequentially and from several
-# threads, over the scene its own corpus.sh script builds.
+# ray corpus of each image through VITRAL's linear reference, binned SAH index
+# and ported voxel grid, compared with the captured answers, sequentially and
+# from several threads, over the scene its own corpus.sh script builds.
 #
 #   replayRays.sh <corpus directory> image ...
 #

@@ -1,57 +1,56 @@
 #include <cstring>
-
+#include "java/lang/Math.h"
+#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
+
+namespace {
+
+bool
+isBlack(const ColorRgb &c) {
+    return java::Math::abs(c.getR()) < Numeric::EPSILON
+        && java::Math::abs(c.getG()) < Numeric::EPSILON
+        && java::Math::abs(c.getB()) < Numeric::EPSILON;
+}
+
+}
 
 RpkMaterial::RpkMaterial(
     const char *inName,
-    PhongEmittanceDistributionFunction *inEdf,
-    PhongBidirectionalScatteringDistributionFunction *inBsdf,
-    const bool inSided)
+    const PhongLobe *emission,
+    const bool hasBsdf,
+    const PhongLobe *reflection,
+    const PhongLobe *transmission,
+    Texture *inTexture,
+    const float refractionIndexReal,
+    const float refractionIndexImaginary,
+    const bool inSided):
+    name(nullptr),
+    sided(inSided),
+    texture(inTexture),
+    surfaceMaterial(nullptr),
+    edf(nullptr),
+    bsdf(nullptr)
 {
     name = new char[strlen(inName) + 1];
     strcpy(name, inName);
-    sided = inSided;
-    edf = inEdf;
-    bsdf = inBsdf;
-    surfaceMaterial = buildSurfaceMaterial(inName, inEdf, inBsdf, inSided);
+    surfaceMaterial = new PhongMaterial(
+        inName, reflection, transmission, emission, texture, inSided, refractionIndexReal, refractionIndexImaginary);
+    if ( emission != nullptr ) {
+        if ( !isBlack(emission->getNonDiffuse()) ) {
+            Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
+        }
+        edf = new PhongEmittanceDistributionFunction(surfaceMaterial);
+    }
+    if ( hasBsdf ) {
+        bsdf = new PhongBidirectionalScatteringDistributionFunction(surfaceMaterial);
+    }
 }
 
 RpkMaterial::~RpkMaterial() {
-    delete surfaceMaterial;
-    delete[] name;
     delete bsdf;
     delete edf;
-}
-
-/**
-Conversion boundary to the VITRAL material: the colors are the same ColorRgb
-values and the exponents the same floats, so the integrated quantities are
-bit-identical to the ones of the Phong EDF and BSDF.
-*/
-const PhongMaterial *
-RpkMaterial::buildSurfaceMaterial(
-    const char *name,
-    const PhongEmittanceDistributionFunction *edf,
-    const PhongBidirectionalScatteringDistributionFunction *bsdf,
-    const bool sided)
-{
-    const PhongLobe *reflection = nullptr;
-    const PhongLobe *transmission = nullptr;
-    const Texture *texture = nullptr;
-    if ( bsdf != nullptr ) {
-        const PhongBidirectionalReflectanceDistributionFunction *brdf = bsdf->getBrdf();
-        if ( brdf != nullptr ) {
-            reflection = new PhongLobe(brdf->getKd(), brdf->getKs(), brdf->getNs());
-        }
-        const PhongBidirectionalTransmittanceDistributionFunction *btdf = bsdf->getBtdf();
-        if ( btdf != nullptr ) {
-            transmission = new PhongLobe(btdf->getKd(), btdf->getKs(), btdf->getNs());
-        }
-        texture = bsdf->getTexture();
-    }
-    const PhongLobe *emission = nullptr;
-    if ( edf != nullptr ) {
-        emission = new PhongLobe(edf->getKd(), edf->getKs(), edf->getNs());
-    }
-    return new PhongMaterial(name, reflection, transmission, emission, texture, sided);
+    delete surfaceMaterial;
+    delete texture;
+    delete[] name;
 }

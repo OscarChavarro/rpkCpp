@@ -18,15 +18,3 @@ SceneFaceRayTest::SceneFaceRayTest(
 
 SceneFaceRayTest::~SceneFaceRayTest() {
 }
-
-bool
-SceneFaceRayTest::test(const int primitive, const double minimumT, const double maximumT, double *hitT) {
-    float distance = static_cast<float>(maximumT);
-    const RpkRayHit *hit = scene.getFace(primitive)->intersect(
-        ray, static_cast<float>(minimumT), &distance, hitFlags, hitStore, exclusions);
-    if ( hit == nullptr ) {
-        return false;
-    }
-    *hitT = distance;
-    return true;
-}

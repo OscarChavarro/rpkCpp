@@ -1,13 +1,13 @@
 # Files of base/src/main that RenderPark takes from VITRAL unchanged (plan D1:
 # a pinned source subset). scripts/vitralSubset.sh --check compares each with
 # a VITRAL checkout byte for byte; --refresh copies them from it.
-# Pin: VITRAL 74312bd0 (includes the environment/material files of plan step 2a:
+# Pin: VITRAL 1fb3bd24 (includes the environment/material files of plan step 2a:
 # PhongLobe, PhongMaterial, ScatteringComponent, Texture, and their test
 # base/src/test/phong_material_tests.cpp; and, for the step 4 replay, the
 # environment/geometry/spatialIndex contract with its linear and binned SAH
 # indexes, BinnedSahHierarchy, Ray, RaytraceStatistics, Boolean and AtomicLong;
-# their test is base/src/test/spatial_index_tests.cpp), plus the grid port of
-# step 4 item 3 (GridSpatialIndex, SpatialGroupTree), not yet committed in VITRAL.
+# their test is base/src/test/spatial_index_tests.cpp), and the grid port of
+# step 4 item 3, GridSpatialIndex and SpatialGroupTree, committed in 1fb3bd24).
 # Known local divergence, not listed: vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 # (RenderPark's Logger::reportMessage calls).
 java/io/BufferedInputStream.cpp
@@ -97,6 +97,7 @@ vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.txx
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.cpp
@@ -115,6 +116,9 @@ vsdk/toolkit/environment/material/PhongLobe.h
 vsdk/toolkit/environment/material/PhongMaterial.cpp
 vsdk/toolkit/environment/material/PhongMaterial.h
 vsdk/toolkit/environment/material/ScatteringComponent.h
+vsdk/toolkit/environment/material/ScatteringFrame.cpp
+vsdk/toolkit/environment/material/ScatteringFrame.h
+vsdk/toolkit/environment/material/SurfaceShadingPoint.h
 vsdk/toolkit/environment/material/Texture.cpp
 vsdk/toolkit/environment/material/Texture.h
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.h

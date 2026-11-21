@@ -2,6 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
+#include "vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h"
 #include "vsdk/toolkit/scene/Scene.h"
 
 const char *Scene::compoundType = "Compound";
@@ -247,8 +248,10 @@ void
 Scene::printSceneQuery() const {
     java::System::out.printf("= scene query (%s) ===========================================================\n",
         SceneQuery::methodName(accelerationMethod));
-    if ( sceneQuery != nullptr && sceneQuery->getLegacyGrid() != nullptr ) {
-        sceneQuery->getLegacyGrid()->print();
+    if ( sceneQuery != nullptr && accelerationMethod == SceneAccelerationMethod::VOXEL_ACCELERATION ) {
+        const GridSpatialIndex *grid = static_cast<const GridSpatialIndex *>(sceneQuery->getIndex());
+        java::System::out.printf("%d items in %d grids, %d cells per axis in the top grid\n",
+            grid->getNumberOfItems(), grid->getNumberOfGrids(), grid->getResolution(0));
     }
 }
 

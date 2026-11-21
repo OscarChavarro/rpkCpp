@@ -86,9 +86,10 @@ If a binary compiled without OpenGL support is run with `-glutDebug`, the progra
 The C++ port answers every visibility and ray-casting query of the scene through one scene query, whose spatial index is chosen with `-scene-acceleration`:
 
 - `wald2007` (default): VITRAL's binned SAH hierarchy (`BinnedSahSpatialIndex`).
-- `voxel`: VITRAL's port of RenderPark's hierarchical voxel grid (`GridSpatialIndex`).
-- `legacy`: RenderPark's original voxel grid, kept for comparison until it is retired.
+- `voxel`: VITRAL's port of RenderPark's hierarchical voxel grid (`GridSpatialIndex`, after Snyder and Barr 1987, `doc/references/[SNYD1987]_*.pdf`).
 - `bruteforce`: every face tested, as a reference.
+
+RenderPark's original voxel grid (`VoxelGrid`, option `legacy`) was retired from the C++ port in step 6 of the alignment plan: `wald2007` is 32 % faster on the corridor, and `voxel` gives the same answers. The Java, TypeScript and Turbo C++ ports still have `legacy` until they are synchronized.
 
 Every index only prunes; RenderPark's exact face test decides each hit, so with a given shaft culling mode the images are the same with every choice (see `doc/vitralAlignmentPlan.md`, step 5). The one exception seen is a face-index tie: two eye rays of scene 13 (out of 547 million queries) hit the shared edge of two faces at exactly the same distance, and `wald2007` picks the other face, which moves one pixel by one unit.
 
@@ -101,9 +102,9 @@ RenderPark's Galerkin radiosity culls the candidate occluders of each interactio
 | 08 soda (11 iterations) | 3079 s, 4.8 GB | 1249 s, 4.7 GB | 2.5x faster |
 | 02 corridor | 245 s | 202 s | -18 % |
 
-Without shaft culling more shadow rays are traced (soda: 1.53 against 1.40 billion), but each one is cheap. The default is therefore `-scene-acceleration wald2007` with `-gr-shaft-culling never`, in all four ports; `-gr-shaft-culling refinement` (or `always`) and `-scene-acceleration legacy` give back RenderPark's original method.
+Without shaft culling more shadow rays are traced (soda: 1.53 against 1.40 billion), but each one is cheap. The default is therefore `-scene-acceleration wald2007` with `-gr-shaft-culling never`, in all four ports; `-gr-shaft-culling refinement` (or `always`) gives back RenderPark's original method (with `-scene-acceleration voxel` for its grid traversal; `legacy` in the ports that still have it).
 
-The results are not bit-identical to the original method. In the `refinement` mode the shaft also enters the error estimate that decides which interactions are refined, so the element and interaction counts differ slightly from the first iteration on (soda after 11 iterations: 320,451 against 321,619 elements, 21,928,099 against 21,938,082 interactions), and so do the images: for soda, 8,925 of 2,073,600 pixels differ, RMSE 0.00015 (normalized). The golden images in `doc/testBaseImages` and the port references are still those of the original method, so until they are captured again with the new default (an owner decision, pending on 2026-11-21) the golden and exact tests report these differences. The corpus entries `16_cubeJacobiNoShaftCulling` and `18_corridorNoShaftCulling`, which ran the cube and the corridor with `-gr-shaft-culling never`, were removed: with the new default they repeat `01_cubeJacobi` and `02_corridor` (identical images in all four ports). The corpus has therefore no scene with shaft culling; the mode stays available through the option. Shaft culling still pays in small scenes refined very finely: the cube of `21_tonemapWard` takes 33 s with `refinement` and 129 s with `never` (C++, CPU time), because the shaft spares 186 million of its 298 million shadow rays.
+The results are not bit-identical to the original method. In the `refinement` mode the shaft also enters the error estimate that decides which interactions are refined, so the element and interaction counts differ slightly from the first iteration on (soda after 11 iterations: 320,451 against 321,619 elements, 21,928,099 against 21,938,082 interactions), and so do the images: for soda, 8,925 of 2,073,600 pixels differ, RMSE 0.00015 (normalized). The golden images in `doc/testBaseImages` and the C++ references were captured again with the new default (2026-11-21), so the golden tests check the new method from now on; the other ports record their bounds against them when they are synchronized. The corpus entries `16_cubeJacobiNoShaftCulling` and `18_corridorNoShaftCulling`, which ran the cube and the corridor with `-gr-shaft-culling never`, were removed: with the new default they repeat `01_cubeJacobi` and `02_corridor` (identical images in all four ports). The corpus has therefore no scene with shaft culling; the mode stays available through the option. Shaft culling still pays in small scenes refined very finely: the cube of `21_tonemapWard` takes 33 s with `refinement` and 129 s with `never` (C++, CPU time), because the shaft spares 186 million of its 298 million shadow rays.
 
 
 ## Selecting Niederreiter variant (31-bit vs 63-bit)
@@ -203,8 +204,13 @@ Newer compilers uses specific machine instructions that are available only on ne
 such optimizations by removing the following line on `CMakeLists.txt`:
 
 ```bash
-add_compile_options(-ffast-math -O3)
+add_compile_options(-O3)
 ```
+
+Floating point is IEEE 754 in every build: each `CMakeLists.txt` adds `-fno-fast-math -ffp-contract=off`
+(GCC and Clang) and none enables `-ffast-math`. Under fast-math the compiler reassociated sums
+differently each time code moved between files, so a refactor changed the images in the last bits
+(owner decision 2026-11-21, plan step 2b). Keep it that way: the references assume it.
 
 ## Running under profiler control (linux + gprof)
 

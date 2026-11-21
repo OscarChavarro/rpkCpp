@@ -6,6 +6,7 @@
 #include "vsdk/toolkit/environment/material/Material.h"
 #include "vsdk/toolkit/environment/material/PhongLobe.h"
 #include "vsdk/toolkit/environment/material/ScatteringComponent.h"
+#include "vsdk/toolkit/environment/material/SurfaceShadingPoint.h"
 #include "vsdk/toolkit/environment/material/Texture.h"
 
 /**
@@ -16,7 +17,19 @@ and a sidedness (one-sided surfaces scatter and emit on their front only).
 
 It answers the integrated quantities a radiosity solver consumes:
 scatteredPower (reflectance plus transmittance by component) and emittance
-by component. Directional evaluation and sampling are not part of it yet.
+by component, and the directional ones a raytracer consumes: evaluation,
+sampling from supplied variates and the density of a direction, for the
+scattering (reflection, transmission and the texture, which scatters as a
+diffuse reflector whose albedo is the texture color) and for the emission
+(diffuse only). Their conventions are PhongLobe's; the arithmetic is
+RenderPark's, so results are bit-identical to its split BSDF and Phong EDF.
+
+Media. Transmission needs the refraction index on both sides of the
+surface: the directional scattering functions take the materials of the
+medium the ray comes from (inMedium) and of the one beyond (outMedium), and
+read their getRefractionIndex(). A null medium in evaluation and sampling
+has the index 0 (RenderPark's unset index); in densityOf it has the vacuum
+index 1. A material without transmission lobe has the vacuum index.
 
 Ownership and copies. The material owns its lobes and its name; the texture
 is shared, read-only and owned by whoever loaded it, and must outlive every
@@ -34,6 +47,18 @@ class PhongMaterial : public Material {
     const PhongLobe *transmission;
     const PhongLobe *emission;
     const Texture *texture;
+    const float refractionIndexReal;
+    const float refractionIndexImaginary;
+
+    ColorRgb textureColor(const SurfaceShadingPoint &point) const;
+    void samplingProbabilities(
+        const SurfaceShadingPoint &point,
+        int components,
+        double *texturePart,
+        double *reflectionPart,
+        double *transmissionPart,
+        int *reflectionComponents,
+        int *transmissionComponents) const;
 
   public:
     /**
@@ -49,6 +74,17 @@ class PhongMaterial : public Material {
         const PhongLobe *inEmission,
         const Texture *inTexture,
         bool inSided);
+
+    /** As above, with the complex refraction index of the transmission lobe */
+    PhongMaterial(
+        const char *inName,
+        const PhongLobe *inReflection,
+        const PhongLobe *inTransmission,
+        const PhongLobe *inEmission,
+        const Texture *inTexture,
+        bool inSided,
+        float inRefractionIndexReal,
+        float inRefractionIndexImaginary);
     virtual ~PhongMaterial();
     PhongMaterial(const PhongMaterial &) = delete;
     PhongMaterial &operator=(const PhongMaterial &) = delete;
@@ -78,6 +114,104 @@ class PhongMaterial : public Material {
     DIFFUSE, GLOSSY, SPECULAR), black when the material does not emit.
     */
     ColorRgb emittance(int components) const;
+
+    /**
+    Real part of the refraction index seen by a ray that crosses the
+    surface: the transmission lobe's, 1 (vacuum) without one
+    */
+    float getRefractionIndex() const;
+
+    /** Imaginary part of the transmission lobe's refraction index, 0 without one */
+    float getRefractionIndexImaginary() const;
+
+    /** Stored refraction index, also without transmission lobe (for persistence) */
+    float getStoredRefractionIndexReal() const;
+    float getStoredRefractionIndexImaginary() const;
+
+    /**
+    Scattering (BSDF) value for the requested components (ScatteringComponent
+    mask over both lobes). The transmission part is added only when the
+    material has a reflection lobe, as RenderPark does.
+    */
+    ColorRgb scatteringEvaluate(
+        const SurfaceShadingPoint &point,
+        const PhongMaterial *inMedium,
+        const PhongMaterial *outMedium,
+        const Vector3Df &in,
+        const Vector3Df &out,
+        int components) const;
+
+    /**
+    Samples a scattered direction: the first variate chooses the texture,
+    the reflection or the transmission in proportion to their average
+    albedos (and absorption, with Russian roulette), then the chosen part
+    samples the direction; *density is the density of the direction summed
+    over all parts, 0 when no direction was produced
+    */
+    Vector3Df scatteringSample(
+        const SurfaceShadingPoint &point,
+        const PhongMaterial *inMedium,
+        const PhongMaterial *outMedium,
+        const Vector3Df &in,
+        bool russianRoulette,
+        int components,
+        double x1,
+        double x2,
+        double *density) const;
+
+    /**
+    Density with which scatteringSample (without Russian roulette)
+    produces `out`, and the survival probability of the roulette
+    */
+    void scatteringDensity(
+        const SurfaceShadingPoint &point,
+        const PhongMaterial *inMedium,
+        const PhongMaterial *outMedium,
+        const Vector3Df &in,
+        const Vector3Df &out,
+        int components,
+        double *density,
+        double *survival) const;
+
+    /**
+    scatteringEvaluate of each requested component on its own, into
+    componentValues[i] for component 1 << i (black for the others, six
+    entries); returns their sum
+    */
+    ColorRgb scatteringEvaluateComponents(
+        const SurfaceShadingPoint &point,
+        const PhongMaterial *inMedium,
+        const PhongMaterial *outMedium,
+        const Vector3Df &in,
+        const Vector3Df &out,
+        int components,
+        ColorRgb *componentValues) const;
+
+    /**
+    Emitted radiance into `out` of the requested emission components (only
+    the diffuse one emits: Kd / pi), and, when density is not null, the
+    density of `out` under emissionSample. Black when the point or its
+    normal is unknown (reported), or `out` is below the surface.
+    */
+    ColorRgb emissionEvaluate(
+        const SurfaceShadingPoint *point,
+        const Vector3Df &out,
+        int components,
+        double *density) const;
+
+    /**
+    Samples an emitted direction (cosine distributed around the normal when
+    the diffuse component is requested; (0, 0, 1) otherwise or when the
+    normal is unknown); the radiance along it and its density go to the
+    non-null pointers
+    */
+    Vector3Df emissionSample(
+        const SurfaceShadingPoint *point,
+        int components,
+        double xi1,
+        double xi2,
+        ColorRgb *radiance,
+        double *density) const;
 
     virtual Material *copy() const;
     virtual Material *translate(Vector3Dd *vector);
@@ -123,6 +257,26 @@ PhongMaterial::getEmission() const {
 inline const Texture *
 PhongMaterial::getTexture() const {
     return texture;
+}
+
+inline float
+PhongMaterial::getRefractionIndex() const {
+    return transmission != nullptr ? refractionIndexReal : 1.0F;
+}
+
+inline float
+PhongMaterial::getRefractionIndexImaginary() const {
+    return transmission != nullptr ? refractionIndexImaginary : 0.0F;
+}
+
+inline float
+PhongMaterial::getStoredRefractionIndexReal() const {
+    return refractionIndexReal;
+}
+
+inline float
+PhongMaterial::getStoredRefractionIndexImaginary() const {
+    return refractionIndexImaginary;
 }
 
 #endif

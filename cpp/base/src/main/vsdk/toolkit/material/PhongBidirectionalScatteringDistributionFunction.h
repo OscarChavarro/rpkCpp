@@ -1,80 +1,33 @@
-/**
-A simple combination of brdf and btdf.
-Handles evaluation and sampling and also
-functions that relate to brdf or btdf like reflectance etc.
-*/
-
 #ifndef PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 #define PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/environment/material/PhongMaterial.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
-#include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/ShadingContext.h"
-#include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/material/Xxdf.h"
 
-#ifdef RAYTRACING_ENABLED
-    #include "vsdk/toolkit/material/SplitBSDFSamplingMode.h"
-#endif
+/**
+RenderPark's view of the scattering of a material (its split BSDF: the
+reflection, the transmission and the texture): the evaluation, sampling and
+density functions the raytracers call, with RenderPark's argument types.
+Every function converts its arguments (Vector3D to Vector3Df, the shading
+context to a SurfaceShadingPoint, the media to their VITRAL materials) and
+answers through the VITRAL PhongMaterial; the scattering model itself lives
+in VITRAL (plan step 2b). The material and the media are the ones of the
+RpkMaterials that own these views, so a view identifies its material.
 
+Read-only after construction; does not own the PhongMaterial.
+*/
 class PhongBidirectionalScatteringDistributionFunction {
   private:
-    static constexpr int TEXTURED_COMPONENT = BRDF_DIFFUSE_COMPONENT;
-    PhongBidirectionalReflectanceDistributionFunction *brdf;
-    PhongBidirectionalTransmittanceDistributionFunction *btdf;
-    Texture *texture;
+    const PhongMaterial *material;
 
-    static ColorRgb splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context);
-
-#ifdef RAYTRACING_ENABLED
-    static Vector3D
-    texturedScattererSample(
-        const Vector3D * /*in*/,
-        const Vector3D *normal,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction);
-
-    static void
-    texturedScattererEvalPdf(
-        const Vector3D * /*in*/,
-        const Vector3D *out,
-        const Vector3D *normal,
-        double *probabilityDensityFunction);
-
-    void
-    splitBsdfProbabilities(
-        const ShadingContext &context,
-        char flags,
-        double *texture,
-        double *reflection,
-        double *transmission,
-        char *brdfFlags,
-        char *btdfFlags) const;
-
-    static SplitBSDFSamplingMode
-    splitBsdfSamplingMode(
-        double texture,
-        double reflection,
-        double transmission,
-        double *x1);
-
-    static double
-    texturedScattererEval(
-        const Vector3D * /*in*/,
-        const Vector3D * /*out*/,
-        const Vector3D * /*normal*/);
-#endif
-
-public:
-    explicit PhongBidirectionalScatteringDistributionFunction(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, Texture *texture);
+  public:
+    explicit PhongBidirectionalScatteringDistributionFunction(const PhongMaterial *inMaterial);
     virtual ~PhongBidirectionalScatteringDistributionFunction();
 
-    const PhongBidirectionalReflectanceDistributionFunction *getBrdf() const;
-    const PhongBidirectionalTransmittanceDistributionFunction *getBtdf() const;
-    const Texture *getTexture() const;
+    const PhongMaterial *getMaterial() const;
 
     static bool bsdfShadingFrame(
         const ShadingContext &context,
@@ -129,24 +82,12 @@ public:
         const Vector3D *out,
         char flags,
         ColorRgb *colArray) const;
-
 #endif
-
 };
 
-inline const PhongBidirectionalReflectanceDistributionFunction *
-PhongBidirectionalScatteringDistributionFunction::getBrdf() const {
-    return brdf;
-}
-
-inline const PhongBidirectionalTransmittanceDistributionFunction *
-PhongBidirectionalScatteringDistributionFunction::getBtdf() const {
-    return btdf;
-}
-
-inline const Texture *
-PhongBidirectionalScatteringDistributionFunction::getTexture() const {
-    return texture;
+inline const PhongMaterial *
+PhongBidirectionalScatteringDistributionFunction::getMaterial() const {
+    return material;
 }
 
 #endif

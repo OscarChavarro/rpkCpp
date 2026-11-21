@@ -14,7 +14,8 @@ refinement — all defaults from `GalerkinState.h`).
 ## 1. Baseline measurements
 
 Measured on the development machine (Linux 6.2, 72 cores — only 1 used), build flags
-`-O3 -ffast-math` (`base/CMakeLists.txt:15`):
+`-O3 -ffast-math` (`base/CMakeLists.txt:15`; since 2026-11-21 every build is IEEE, `-O3 -fno-fast-math
+-ffp-contract=off`, so these numbers are historical):
 
 | Metric (corridor, 21 iterations)          | Value        |
 |-------------------------------------------|--------------|

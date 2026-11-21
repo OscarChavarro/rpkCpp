@@ -2,6 +2,7 @@
 //= [SNYD1987] Snyder, John M. and Barr, Alan H. "Ray Tracing Complex       =
 //=     Models Containing Surface Tessellations". SIGGRAPH '87, Computer    =
 //=     Graphics 21(4), 1987, pp. 119-128.                                  =
+//=     PDF: doc/references/[SNYD1987]_*.pdf                                =
 
 #ifndef __GRID_SPATIAL_INDEX__
 #define __GRID_SPATIAL_INDEX__
@@ -37,6 +38,24 @@ the one RenderPark's grid returns, not necessarily the first accepted one.
 
 Traversal arithmetic is in double precision and prunes only; the test of the
 caller decides every hit and receives the query's minimum parameter.
+
+Correspondence with [SNYD1987]:
+- section 3.1: a grid is a box divided in cells, each non-empty cell with
+  the list of the objects inside it; section 3.2: lists and grids nest, a
+  grid or list being an object of another one (here a sub grid or a group
+  item);
+- Figure 6 (generic object engrid): an item goes to every cell its box
+  overlaps. The clipping of a primitive's box to each cell (Figure 7) is not
+  done;
+- Figures 9 and 10 (ray / 3D grid): the cell walk, with the parameters of
+  the next boundary along each axis and their increments, stepping along the
+  smallest; double precision, as the paper's implementation (section 5.2);
+- Figure 11 (an object in several cells): the paper accepts a hit only if it
+  lies inside the current cell; here the walk instead goes on until it
+  enters a cell beyond the closest hit, which gives the same closest hit;
+- not in the paper: the resolution floor(count^(1/3) + 1) (the paper's
+  modeller chooses the divisions; this one is RenderPark's); the cell list
+  box flags and the ray box cull of Figures 12 and 13 are not done.
 
 Shared, read-only after construction: the index keeps its own copy of the
 tree data it needs, and a query writes only to the workspace and the test
@@ -84,12 +103,16 @@ class GridSpatialIndex final : public SpatialIndex {
     bool fitsInCell(const SpatialGroupTree &tree, int grid, int group) const;
 
     bool segmentEntry(const double *box, const Ray &ray, double minimumT, double maximumT, double *entryT) const;
+    // Query steps, templates over the exact test (GridSpatialIndex.txx)
+    template <class Test>
     bool testItem(int item, const Ray &ray, double minimumT, double &inOutBestT, bool anyHit,
-        PrimitiveRayTest &test, SpatialIndexWorkspace &workspace, SpatialQueryResult &result, long int &tests) const;
+        Test &test, SpatialIndexWorkspace &workspace, SpatialQueryResult &result, long int &tests) const;
+    template <class Test>
     bool testGroup(int group, const Ray &ray, double minimumT, double &inOutBestT, bool anyHit,
-        PrimitiveRayTest &test, SpatialQueryResult &result, long int &tests) const;
+        Test &test, SpatialQueryResult &result, long int &tests) const;
+    template <class Test>
     bool traverseGrid(int grid, const Ray &ray, double minimumT, double &inOutBestT, bool anyHit,
-        PrimitiveRayTest &test, SpatialIndexWorkspace &workspace, SpatialQueryResult &result,
+        Test &test, SpatialIndexWorkspace &workspace, SpatialQueryResult &result,
         long int &tests, long int &visits) const;
 
   public:
@@ -116,6 +139,22 @@ class GridSpatialIndex final : public SpatialIndex {
         SpatialQueryMode mode,
         PrimitiveRayTest &test,
         SpatialIndexWorkspace &workspace) const final;
+
+    /**
+    `query` with the exact test given by its own type: the same traversal,
+    in GridSpatialIndex.txx, which the caller includes. With a final test
+    class the compiler can inline its `test` into the cell loop instead of a
+    virtual call per candidate; `query` is this template for
+    `PrimitiveRayTest`.
+    */
+    template <class Test>
+    SpatialQueryResult queryWith(
+        const Ray &ray,
+        double minimumT,
+        double maximumT,
+        SpatialQueryMode mode,
+        Test &test,
+        SpatialIndexWorkspace &workspace) const;
 };
 
 #endif

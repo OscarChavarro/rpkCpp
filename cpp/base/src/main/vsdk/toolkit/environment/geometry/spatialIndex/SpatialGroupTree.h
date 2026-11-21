@@ -1,3 +1,9 @@
+//= References:                                                             =
+//= [SNYD1987] Snyder, John M. and Barr, Alan H. "Ray Tracing Complex       =
+//=     Models Containing Surface Tessellations". SIGGRAPH '87, Computer    =
+//=     Graphics 21(4), 1987, pp. 119-128.                                  =
+//=     PDF: doc/references/[SNYD1987]_*.pdf                                =
+
 #ifndef __SPATIAL_GROUP_TREE__
 #define __SPATIAL_GROUP_TREE__
 
@@ -8,7 +14,9 @@ Groups over the primitives of a spatial index, for the indexes that keep the
 caller's grouping (`GridSpatialIndex`): a tree whose root is group 0, in
 which every group has a box and an ordered list of members, each one a
 sub-group or a primitive. A primitive is a member of at most one group; a
-primitive that is a member of no group is not indexed.
+primitive that is a member of no group is not indexed. The groups play the
+role of the lists of [SNYD1987] section 3.2: a model built bottom up from
+lists and grids, each with its bounding box.
 
 Built by the caller (`addGroup`, `addPrimitive`) before an index is built
 from it, and only read afterwards. An index copies what it needs, so the

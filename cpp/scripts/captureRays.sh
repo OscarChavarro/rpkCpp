@@ -12,9 +12,11 @@
 # the other scripts; images go to its output/. For each image the corpus
 # directory receives <image>.vqc (format in VisibilityQueryRecorder.h), and
 # doc/rayCorpus receives <image>.accounting.txt, which is versioned.
-# The runs use -scene-acceleration legacy (through a wrapper of the program in
-# output/), so that a corpus holds the answers of RenderPark's original voxel
-# grid, which the replay requires the legacy grid to reproduce bit for bit.
+# The runs use -scene-acceleration voxel (through a wrapper of the program in
+# output/), so that a corpus holds the answers of the ported voxel grid, whose
+# closest hits the replay requires to be reproduced bit for bit. The stored
+# corpora were captured with RenderPark's original grid (retired in plan step
+# 6), whose closest-hit answers the port reproduced on every query.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
@@ -32,7 +34,7 @@ if [ ! -x "$BUILD_DIR/rpk/rpk" ]; then
 fi
 
 wrapper="$(pwd)/output/captureRpk.sh"
-printf '#!/bin/sh\nexec "%s" "$@" -scene-acceleration legacy\n' "$BUILD_DIR/rpk/rpk" >"$wrapper"
+printf '#!/bin/sh\nexec "%s" "$@" -scene-acceleration voxel\n' "$BUILD_DIR/rpk/rpk" >"$wrapper"
 chmod +x "$wrapper"
 
 selection=$(corpusSelect "$@")

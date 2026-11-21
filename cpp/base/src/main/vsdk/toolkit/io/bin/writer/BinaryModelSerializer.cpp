@@ -7,9 +7,7 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
-#include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
 #include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/skin/Compound.h"
@@ -177,39 +175,39 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Rpk
     }
     vsdk::PersistenceElement::writeBool(output, material->isSided());
 
-    const PhongEmittanceDistributionFunction *edf = material->getEdf();
-    vsdk::PersistenceElement::writeBool(output, edf != nullptr);
-    if ( edf != nullptr ) {
-        writeColor(output, edf->getKd());
-        writeColor(output, edf->getKs());
-        vsdk::PersistenceElement::writeFloatLE(output, edf->getNs());
+    const PhongMaterial *surfaceMaterial = material->getSurfaceMaterial();
+    const PhongLobe *emission = material->getEdf() != nullptr ? surfaceMaterial->getEmission() : nullptr;
+    vsdk::PersistenceElement::writeBool(output, emission != nullptr);
+    if ( emission != nullptr ) {
+        writeColor(output, emission->getDiffuse());
+        writeColor(output, emission->getNonDiffuse());
+        vsdk::PersistenceElement::writeFloatLE(output, emission->getExponent());
     }
 
-    const PhongBidirectionalScatteringDistributionFunction *bsdf = material->getBsdf();
-    vsdk::PersistenceElement::writeBool(output, bsdf != nullptr);
-    if ( bsdf == nullptr ) {
+    vsdk::PersistenceElement::writeBool(output, material->getBsdf() != nullptr);
+    if ( material->getBsdf() == nullptr ) {
         return true;
     }
 
-    const PhongBidirectionalReflectanceDistributionFunction *brdf = bsdf->getBrdf();
-    vsdk::PersistenceElement::writeBool(output, brdf != nullptr);
-    if ( brdf != nullptr ) {
-        writeColor(output, brdf->getKd());
-        writeColor(output, brdf->getKs());
-        vsdk::PersistenceElement::writeFloatLE(output, brdf->getNs());
+    const PhongLobe *reflection = surfaceMaterial->getReflection();
+    vsdk::PersistenceElement::writeBool(output, reflection != nullptr);
+    if ( reflection != nullptr ) {
+        writeColor(output, reflection->getDiffuse());
+        writeColor(output, reflection->getNonDiffuse());
+        vsdk::PersistenceElement::writeFloatLE(output, reflection->getExponent());
     }
 
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf = bsdf->getBtdf();
-    vsdk::PersistenceElement::writeBool(output, btdf != nullptr);
-    if ( btdf != nullptr ) {
-        writeColor(output, btdf->getKd());
-        writeColor(output, btdf->getKs());
-        vsdk::PersistenceElement::writeFloatLE(output, btdf->getNs());
-        vsdk::PersistenceElement::writeFloatLE(output, btdf->getRefractionIndex().getNr());
-        vsdk::PersistenceElement::writeFloatLE(output, btdf->getRefractionIndex().getNi());
+    const PhongLobe *transmission = surfaceMaterial->getTransmission();
+    vsdk::PersistenceElement::writeBool(output, transmission != nullptr);
+    if ( transmission != nullptr ) {
+        writeColor(output, transmission->getDiffuse());
+        writeColor(output, transmission->getNonDiffuse());
+        vsdk::PersistenceElement::writeFloatLE(output, transmission->getExponent());
+        vsdk::PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexReal());
+        vsdk::PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexImaginary());
     }
 
-    const Texture *texture = bsdf->getTexture();
+    const Texture *texture = surfaceMaterial->getTexture();
     vsdk::PersistenceElement::writeBool(output, texture != nullptr);
     if ( texture != nullptr ) {
         const int width = texture->getWidth();

@@ -5,8 +5,8 @@
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h"
-
-class Scene;
+#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
+#include "vsdk/toolkit/scene/Scene.h"
 
 /**
 RenderPark's exact face test as the PrimitiveRayTest of a VITRAL
@@ -40,5 +40,19 @@ class SceneFaceRayTest final : public PrimitiveRayTest {
 
     bool test(int primitive, double minimumT, double maximumT, double *hitT) final;
 };
+
+// Inline, so an index query templated on this class (GridSpatialIndex::
+// queryWith) calls Patch::intersect directly
+inline bool
+SceneFaceRayTest::test(const int primitive, const double minimumT, const double maximumT, double *hitT) {
+    float distance = static_cast<float>(maximumT);
+    const RpkRayHit *hit = scene.getFace(primitive)->intersect(
+        ray, static_cast<float>(minimumT), &distance, hitFlags, hitStore, exclusions);
+    if ( hit == nullptr ) {
+        return false;
+    }
+    *hitT = distance;
+    return true;
+}
 
 #endif

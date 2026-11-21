@@ -8,7 +8,6 @@
 #include "vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h"
 #include "vsdk/toolkit/scene/SceneFaceRayTest.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
-#include "vsdk/toolkit/scene/VoxelGrid.h"
 #include "RayCorpusReader.h"
 #include "RayCorpusReplay.h"
 
@@ -19,7 +18,6 @@ static const int CHUNK_SIZE = 1 << 20;
 static const long long MAXIMUM_REPORTED_LINES = 100000;
 
 static const char *IMPLEMENTATION_NAMES[RayCorpusReplay::NUMBER_OF_IMPLEMENTATIONS] = {
-    "legacy voxel grid",
     "linear reference",
     "binned SAH (WALD2007)",
     "ported voxel grid"
@@ -44,7 +42,6 @@ RayCorpusReplay::RayCorpusReplay(
     scene(nullptr),
     patchById(),
     ancestry(nullptr),
-    legacyGrid(nullptr),
     linearIndex(nullptr),
     binnedIndex(nullptr),
     gridIndex(nullptr),
@@ -79,8 +76,6 @@ RayCorpusReplay::RayCorpusReplay(
 }
 
 RayCorpusReplay::~RayCorpusReplay() {
-    delete legacyGrid;
-    legacyGrid = nullptr;
     delete linearIndex;
     linearIndex = nullptr;
     delete binnedIndex;
@@ -96,15 +91,13 @@ RayCorpusReplay::~RayCorpusReplay() {
 }
 
 /**
-The legacy grid as the scene builder built it before the scene query, and
-the VITRAL indexes as the scene query builds them (SceneQuery::buildIndex):
+The VITRAL indexes as the scene query builds them (SceneQuery::buildIndex):
 primitive i is face i of the scene's face table.
 */
 void
 RayCorpusReplay::buildIndexes() {
     const int numberOfFaces = scene->getNumberOfFaces();
     ancestry = new FaceAncestry(*scene);
-    legacyGrid = new VoxelGrid(scene->clusteredRootGeometry, scene->getFaceBounds());
     linearIndex = SceneQuery::buildIndex(*scene, SceneAccelerationMethod::BRUTE_FORCE_ACCELERATION);
     binnedIndex = SceneQuery::buildIndex(*scene, SceneAccelerationMethod::WALD2007_ACCELERATION);
     gridIndex = SceneQuery::buildIndex(*scene, SceneAccelerationMethod::VOXEL_ACCELERATION);
@@ -173,20 +166,6 @@ recordExclusions(
 }
 
 ReplayAnswer
-RayCorpusReplay::answerLegacy(const VisibilityQueryRecord &record, VoxelGridWorkspace &workspace) const {
-    RpkRay ray = recordRay(record);
-    const RayExclusionSet exclusions = recordExclusions(record, patchById, *ancestry);
-    RpkRayHit hitStore;
-    float distance = record.getMaximumDistance();
-    const RpkRayHit *hit = legacyGrid->gridIntersect(
-        &ray, record.getMinimumDistance(), &distance, record.getHitFlags(), &hitStore, exclusions, &workspace);
-    if ( hit == nullptr ) {
-        return ReplayAnswer(0, record.getMaximumDistance());
-    }
-    return ReplayAnswer(static_cast<int>(hit->getPatch()->getId()), distance);
-}
-
-ReplayAnswer
 RayCorpusReplay::answerIndex(
     const SpatialIndex &index,
     const VisibilityQueryRecord &record,
@@ -226,13 +205,11 @@ RayCorpusReplay::answerRange(
     const int step,
     ReplayAnswer *answers) const
 {
-    VoxelGridWorkspace gridWorkspace(legacyGrid->getNumberOfItems());
     SpatialIndexWorkspace linearWorkspace(linearIndex->getWorkspaceSize());
     SpatialIndexWorkspace binnedWorkspace(binnedIndex->getWorkspaceSize());
     SpatialIndexWorkspace portedWorkspace(gridIndex->getWorkspaceSize());
     for ( int i = first; i < numberOfRecords; i += step ) {
         ReplayAnswer *answer = &answers[NUMBER_OF_IMPLEMENTATIONS * i];
-        answer[LEGACY_VOXEL_GRID] = answerLegacy(records[i], gridWorkspace);
         answer[BINNED_SAH] = answerIndex(*binnedIndex, records[i], binnedWorkspace);
         answer[PORTED_GRID] = answerIndex(*gridIndex, records[i], portedWorkspace);
         if ( usesLinear(firstQueryNumber + i) ) {
@@ -281,8 +258,8 @@ RayCorpusReplay::reportLine(
 }
 
 /**
-Compares the sequential answers of one query: the legacy grid with the
-capture, then each index with the legacy grid, and the binned index with the
+Compares the sequential answers of one query: each index with the capture
+(the ported grid's closest hit bit for bit), and the binned index with the
 linear reference.
 */
 void
@@ -292,12 +269,12 @@ RayCorpusReplay::compare(
     const ReplayAnswer *answers)
 {
     const ReplayAnswer captured(record.getBlockerPatchId(), record.getBlockerDistance());
-    const ReplayAnswer &legacy = answers[LEGACY_VOXEL_GRID];
-    if ( !legacy.identical(captured) ) {
-        captureMismatches++;
-        reportLine("capture mismatch", record, LEGACY_VOXEL_GRID, captured, legacy);
-    }
     const bool closest = (record.getHitFlags() & RayHitFlag::ANY) == 0;
+    const ReplayAnswer &ported = answers[PORTED_GRID];
+    if ( closest && !ported.identical(captured) ) {
+        captureMismatches++;
+        reportLine("capture mismatch", record, PORTED_GRID, captured, ported);
+    }
     const bool linear = usesLinear(queryNumber);
     for ( int implementation = LINEAR_REFERENCE; implementation < NUMBER_OF_IMPLEMENTATIONS; implementation++ ) {
         if ( implementation == LINEAR_REFERENCE && !linear ) {
@@ -305,25 +282,24 @@ RayCorpusReplay::compare(
         }
         const ReplayAnswer &other = answers[implementation];
         const Implementation which = static_cast<Implementation>(implementation);
-        if ( other.hasHit() != legacy.hasHit() ) {
+        if ( other.hasHit() != captured.hasHit() ) {
             visibilityDisagreements[implementation]++;
-            reportLine("visibility", record, which, legacy, other);
-        } else if ( closest && !other.identical(legacy) ) {
-            if ( other.hasHit() && other.sameDistance(legacy) ) {
+            reportLine("visibility", record, which, captured, other);
+        } else if ( closest && !other.identical(captured) ) {
+            if ( other.hasHit() && other.sameDistance(captured) ) {
                 closestTies[implementation]++;
-                reportLine("tie", record, which, legacy, other);
+                reportLine("tie", record, which, captured, other);
             } else {
                 closestDisagreements[implementation]++;
-                reportLine("closest hit", record, which, legacy, other);
+                reportLine("closest hit", record, which, captured, other);
             }
         }
     }
-    // The ported grid follows the legacy traversal order, any-hit included
-    if ( !answers[PORTED_GRID].identical(legacy) ) {
+    // Any-hit blockers of the ported grid other than the captured ones: the
+    // capture's grid and its port may accept another valid blocker first
+    if ( !closest && ported.hasHit() == captured.hasHit() && !ported.identical(captured) ) {
         gridBlockerDifferences++;
-        if ( answers[PORTED_GRID].hasHit() == legacy.hasHit() && (closest ? answers[PORTED_GRID].sameDistance(legacy) : true) ) {
-            reportLine("ported grid blocker", record, PORTED_GRID, legacy, answers[PORTED_GRID]);
-        }
+        reportLine("ported grid any-hit blocker", record, PORTED_GRID, captured, ported);
     }
     if ( linear ) {
         const ReplayAnswer &reference = answers[LINEAR_REFERENCE];
@@ -346,15 +322,8 @@ RayCorpusReplay::replayChunk(
 
     // Sequential pass, one implementation at a time for the timings
     {
-        VoxelGridWorkspace gridWorkspace(legacyGrid->getNumberOfItems());
-        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-        for ( int i = 0; i < numberOfRecords; i++ ) {
-            sequential[NUMBER_OF_IMPLEMENTATIONS * i + LEGACY_VOXEL_GRID] = answerLegacy(records[i], gridWorkspace);
-        }
-        seconds[LEGACY_VOXEL_GRID] += secondsSince(start);
-
         SpatialIndexWorkspace binnedWorkspace(binnedIndex->getWorkspaceSize());
-        start = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         for ( int i = 0; i < numberOfRecords; i++ ) {
             sequential[NUMBER_OF_IMPLEMENTATIONS * i + BINNED_SAH] = answerIndex(*binnedIndex, records[i], binnedWorkspace);
         }
@@ -420,20 +389,20 @@ RayCorpusReplay::replayChunk(
 void
 RayCorpusReplay::printSummary() const {
     fprintf(stdout, "Ray corpus replay: %s\n", corpusFileName);
-    fprintf(stdout, "  faces %d, voxel grid items %d, threads %d, linear reference on 1 query in %lld\n",
-        scene->getFaceBounds()->getNumberOfFaces(), legacyGrid->getNumberOfItems(), numberOfThreads, linearStride);
+    fprintf(stdout, "  faces %d, threads %d, linear reference on 1 query in %lld\n",
+        scene->getFaceBounds()->getNumberOfFaces(), numberOfThreads, linearStride);
     for ( int path = 0; path < NUMBER_OF_PATHS; path++ ) {
         fprintf(stdout, "  queries of path %d: %lld%s\n", path, queriesByPath[path], path == 0 ? " (restricted list, not replayed)" : "");
     }
     fprintf(stdout, "  replayed %lld (linear reference %lld), unsupported %lld\n", replayed, linearReplayed, unsupported);
-    fprintf(stdout, "  legacy voxel grid against the capture: %lld mismatches\n", captureMismatches);
-    for ( int implementation = LINEAR_REFERENCE; implementation < NUMBER_OF_IMPLEMENTATIONS; implementation++ ) {
-        fprintf(stdout, "  %s against the legacy grid: visibility %lld, closest hit %lld, ties %lld\n",
+    fprintf(stdout, "  ported voxel grid closest hits against the capture: %lld mismatches\n", captureMismatches);
+    for ( int implementation = 0; implementation < NUMBER_OF_IMPLEMENTATIONS; implementation++ ) {
+        fprintf(stdout, "  %s against the capture: visibility %lld, closest hit %lld, ties %lld\n",
             IMPLEMENTATION_NAMES[implementation], visibilityDisagreements[implementation],
             closestDisagreements[implementation], closestTies[implementation]);
     }
     fprintf(stdout, "  binned SAH against the linear reference: %lld disagreements\n", binnedVersusLinear);
-    fprintf(stdout, "  ported voxel grid: %d items, %d grids; blocker or distance other than the legacy grid's (any query): %lld\n",
+    fprintf(stdout, "  ported voxel grid: %d items, %d grids; any-hit blockers other than the captured ones: %lld\n",
         static_cast<const GridSpatialIndex *>(gridIndex)->getNumberOfItems(),
         static_cast<const GridSpatialIndex *>(gridIndex)->getNumberOfGrids(), gridBlockerDifferences);
     fprintf(stdout, "  threaded against sequential: %lld mismatches\n", threadMismatches);
@@ -448,7 +417,7 @@ RayCorpusReplay::printSummary() const {
 bool
 RayCorpusReplay::passed() const {
     bool ok = replayed > 0 && unsupported == 0 && captureMismatches == 0 && binnedVersusLinear == 0 && threadMismatches == 0;
-    for ( int implementation = LINEAR_REFERENCE; implementation < NUMBER_OF_IMPLEMENTATIONS; implementation++ ) {
+    for ( int implementation = 0; implementation < NUMBER_OF_IMPLEMENTATIONS; implementation++ ) {
         ok = ok && visibilityDisagreements[implementation] == 0 && closestDisagreements[implementation] == 0;
     }
     return ok;

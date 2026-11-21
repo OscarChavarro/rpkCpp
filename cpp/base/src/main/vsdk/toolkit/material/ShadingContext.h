@@ -4,13 +4,14 @@
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
+#include "vsdk/toolkit/environment/material/SurfaceShadingPoint.h"
 #include "vsdk/toolkit/material/ShadingContextFlag.h"
 
 class RpkMaterial;
 
 /**
 Immutable shading input data used by material evaluation.
-Phase 1: introduced but not yet wired into BSDF/EDF APIs.
+The material views convert it to VITRAL's SurfaceShadingPoint (toShadingPoint).
 */
 class ShadingContext final {
   private:
@@ -52,6 +53,13 @@ class ShadingContext final {
     const RpkMaterial *getMaterial() const { return material; }
     unsigned int getFlags() const { return flags; }
     bool hasFlag(unsigned int mask) const { return (flags & mask) == mask; }
+
+    /** What the VITRAL material functions read: the shading normal and the texture coordinate */
+    SurfaceShadingPoint toShadingPoint() const {
+        return SurfaceShadingPoint(
+            Vector3Df(shadingNormal.x, shadingNormal.y, shadingNormal.z), hasFlag(SHCTX_NORMAL),
+            Vector3Df(texCoord.x, texCoord.y, texCoord.z), hasFlag(SHCTX_TEXTURE_COORDINATE));
+    }
 };
 
 #endif

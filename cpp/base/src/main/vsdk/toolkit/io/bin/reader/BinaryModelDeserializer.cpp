@@ -8,9 +8,7 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
-#include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
 #include "vsdk/toolkit/environment/material/Texture.h"
 #include "vsdk/toolkit/skin/Compound.h"
@@ -117,7 +115,12 @@ BinaryModelDeserializer::read(const char *fileName) {
             materialNameGuard.reset(materialName);
             const bool sided = BinaryModelReadPrimitives::readBool(input);
 
-            PhongEmittanceDistributionFunction *edf = nullptr;
+            const PhongLobe *emission = nullptr;
+            const PhongLobe *reflection = nullptr;
+            const PhongLobe *transmission = nullptr;
+            float refractionIndexReal = 1.0F;
+            float refractionIndexImaginary = 0.0F;
+            Texture *texture = nullptr;
             const bool hasEdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasEdf ) {
                 ColorRgb kd(0.0, 0.0, 0.0);
@@ -125,15 +128,11 @@ BinaryModelDeserializer::read(const char *fileName) {
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                 const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                edf = new PhongEmittanceDistributionFunction(&kd, &ks, ns);
+                emission = new PhongLobe(kd, ks, ns);
             }
 
-            PhongBidirectionalScatteringDistributionFunction *bsdf = nullptr;
             const bool hasBsdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasBsdf ) {
-                PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
-                PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
-                Texture *texture = nullptr;
 
                 const bool hasBrdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBrdf ) {
@@ -142,7 +141,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                    brdf = new PhongBidirectionalReflectanceDistributionFunction(&kd, &ks, ns);
+                    reflection = new PhongLobe(kd, ks, ns);
                 }
 
                 const bool hasBtdf = BinaryModelReadPrimitives::readBool(input);
@@ -154,7 +153,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
                     const float nr = BinaryModelReadPrimitives::readFloatLE(input);
                     const float ni = BinaryModelReadPrimitives::readFloatLE(input);
-                    btdf = new PhongBidirectionalTransmittanceDistributionFunction(&kd, &ks, ns, nr, ni);
+                    transmission = new PhongLobe(kd, ks, ns);
+                    refractionIndexReal = nr;
+                    refractionIndexImaginary = ni;
                 }
 
                 const bool hasTexture = BinaryModelReadPrimitives::readBool(input);
@@ -192,12 +193,12 @@ BinaryModelDeserializer::read(const char *fileName) {
                         channels,
                         textureData.get());
                 }
-
-                bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, texture);
             }
 
             const char *materialNameCstr = hasMaterialName ? materialNameGuard.get() : "";
-            materials.set(static_cast<long int>(i), new RpkMaterial(materialNameCstr, edf, bsdf, sided));
+            materials.set(static_cast<long int>(i), new RpkMaterial(
+                materialNameCstr, emission, hasBsdf, reflection, transmission, texture,
+                refractionIndexReal, refractionIndexImaginary, sided));
         }
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "COLR") ) goto fail;

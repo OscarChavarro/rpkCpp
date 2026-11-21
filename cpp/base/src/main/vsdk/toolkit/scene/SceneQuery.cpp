@@ -8,6 +8,7 @@
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h"
+#include "vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.txx"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h"
 #include "vsdk/toolkit/skin/Compound.h"
@@ -27,7 +28,7 @@ boxValues(const RpkAxisAlignedBoundingBox &box, double *values) {
 
 /**
 Adds the members of a geometry of the cluster hierarchy to its group, in the
-order the legacy grid visits them: the children of a compound, the patches
+order RenderPark's original grid visited them: the children of a compound, the patches
 (as their face indices) of any other geometry
 */
 static void
@@ -51,19 +52,11 @@ addMembers(SpatialGroupTree *tree, const int group, const RpkGeometry *geometry)
 SceneQuery::SceneQuery(const Scene *inScene, const SceneAccelerationMethod inMethod):
     scene(inScene),
     method(inMethod),
-    legacyGrid(nullptr),
-    index(nullptr)
+    index(buildIndex(*inScene, inMethod))
 {
-    if ( method == SceneAccelerationMethod::LEGACY_VOXEL_ACCELERATION ) {
-        legacyGrid = new VoxelGrid(scene->clusteredRootGeometry, scene->getFaceBounds());
-    } else {
-        index = buildIndex(*scene, method);
-    }
 }
 
 SceneQuery::~SceneQuery() {
-    delete legacyGrid;
-    legacyGrid = nullptr;
     delete index;
     index = nullptr;
 }
@@ -122,8 +115,6 @@ SceneQuery::buildIndex(const Scene &scene, const SceneAccelerationMethod method)
 const char *
 SceneQuery::methodName(const SceneAccelerationMethod method) {
     switch ( method ) {
-        case SceneAccelerationMethod::LEGACY_VOXEL_ACCELERATION:
-            return "legacy";
         case SceneAccelerationMethod::VOXEL_ACCELERATION:
             return "voxel";
         case SceneAccelerationMethod::WALD2007_ACCELERATION:
@@ -137,7 +128,6 @@ SceneQuery::methodName(const SceneAccelerationMethod method) {
 bool
 SceneQuery::methodFromName(const char *name, SceneAccelerationMethod *method) {
     static const SceneAccelerationMethod METHODS[] = {
-        SceneAccelerationMethod::LEGACY_VOXEL_ACCELERATION,
         SceneAccelerationMethod::VOXEL_ACCELERATION,
         SceneAccelerationMethod::WALD2007_ACCELERATION,
         SceneAccelerationMethod::BRUTE_FORCE_ACCELERATION
@@ -145,7 +135,7 @@ SceneQuery::methodFromName(const char *name, SceneAccelerationMethod *method) {
     if ( name == nullptr ) {
         return false;
     }
-    for ( int i = 0; i < 4; i++ ) {
+    for ( int i = 0; i < 3; i++ ) {
         if ( strcmp(name, methodName(METHODS[i])) == 0 ) {
             *method = METHODS[i];
             return true;
@@ -164,19 +154,18 @@ SceneQuery::intersect(
     const RayExclusionSet &exclusions,
     SceneQueryWorkspace *workspace) const
 {
-    if ( legacyGrid != nullptr ) {
-        return legacyGrid->gridIntersect(
-            ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace->getLegacyWorkspace());
-    }
-
     SceneFaceRayTest test(*scene, ray, hitFlags, exclusions, hitStore);
     const Ray indexRay = Ray::fromAffine(
         Vector3Dd(ray->position.x, ray->position.y, ray->position.z),
         Vector3Dd(ray->direction.x, ray->direction.y, ray->direction.z));
     const SpatialQueryMode mode = (hitFlags & RayHitFlag::ANY) != 0
         ? SpatialQueryMode::ANY_HIT : SpatialQueryMode::CLOSEST_HIT;
-    const SpatialQueryResult result = index->query(
-        indexRay, minimumDistance, *maximumDistance, mode, test, *workspace->getIndexWorkspace());
+    // The ported grid takes the face test by its type, so the compiler can
+    // inline it into the cell loop (no virtual call per candidate face)
+    const SpatialQueryResult result = method == SceneAccelerationMethod::VOXEL_ACCELERATION
+        ? static_cast<const GridSpatialIndex *>(index)->queryWith(
+            indexRay, minimumDistance, *maximumDistance, mode, test, *workspace->getIndexWorkspace())
+        : index->query(indexRay, minimumDistance, *maximumDistance, mode, test, *workspace->getIndexWorkspace());
     if ( !result.hasHit() ) {
         return nullptr;
     }
@@ -185,20 +174,12 @@ SceneQuery::intersect(
 }
 
 SceneQueryWorkspace::SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder):
-    legacyWorkspace(nullptr),
-    indexWorkspace(nullptr),
+    indexWorkspace(new SpatialIndexWorkspace(query.getIndex()->getWorkspaceSize())),
     recorder(inRecorder)
 {
-    if ( query.getLegacyGrid() != nullptr ) {
-        legacyWorkspace = new VoxelGridWorkspace(query.getLegacyGrid()->getNumberOfItems(), inRecorder);
-    } else {
-        indexWorkspace = new SpatialIndexWorkspace(query.getIndex()->getWorkspaceSize());
-    }
 }
 
 SceneQueryWorkspace::~SceneQueryWorkspace() {
-    delete legacyWorkspace;
-    legacyWorkspace = nullptr;
     delete indexWorkspace;
     indexWorkspace = nullptr;
 }
