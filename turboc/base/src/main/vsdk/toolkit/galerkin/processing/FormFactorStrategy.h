@@ -22,6 +22,7 @@ class FormFactorStrategy {
         const ArrayList<Geometry *> *geometrySceneList,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
         ShadowCache *shadowCache,
         float minimumDistance,
         RayHit *hitStore,
@@ -42,6 +43,7 @@ class FormFactorStrategy {
         ShadowCache *shadowCache,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
@@ -86,6 +88,12 @@ class FormFactorStrategy {
         Interaction *twoPatchesInteraction);
 
   public:
+    /**
+    Warns that two cubature nodes of an element pair are too close to interact
+    */
+    static void
+    reportNodesTooClose(const GalerkinElement *receiverElement, const GalerkinElement *sourceElement);
+
     static void
     cmptAreaTAreaFormFactorVis(
         const SceneQuery *sceneQuery,

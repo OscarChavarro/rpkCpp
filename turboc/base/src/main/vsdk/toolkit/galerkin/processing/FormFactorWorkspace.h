@@ -2,6 +2,7 @@
 #define __FORM_FACTOR_WORKSPACE__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
+#include "vsdk/toolkit/common/statistics/ShadowStatistics.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 
 class GalerkinElement;
@@ -12,8 +13,11 @@ receiver element is the same as in the previous computation, so the cubature
 rules, nodes and kernel values of the last element pair are kept here and
 reused.
 
-Workspace: mutable, owned by the solver (one per worker later) and passed
-explicitly to FormFactorStrategy.
+Workspace: mutable, owned by the solver and passed explicitly to
+FormFactorStrategy.
+It also tells where the shadow rays are counted (the global statistics).
+Serial Turbo C++ port: the cpp port's deferred "nodes too close" warnings of
+parallel Jacobi workers are left out, the warning is always reported at once.
 */
 class FormFactorWorkspace {
   private:
@@ -26,13 +30,14 @@ class FormFactorWorkspace {
     double kernel[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
     double maximumKernelValue;
     unsigned visibilityCount; // Number of rays that "pass" occluders
+    ShadowStatistics *shadowStatistics; // Not owned
 
     // Not copyable
     FormFactorWorkspace(const FormFactorWorkspace &);
     FormFactorWorkspace &operator=(const FormFactorWorkspace &);
 
   public:
-    FormFactorWorkspace();
+    FormFactorWorkspace(ShadowStatistics *inShadowStatistics);
 
     inline const GalerkinElement *getLastReceiver() const;
     inline const GalerkinElement *getLastSource() const;
@@ -50,6 +55,7 @@ class FormFactorWorkspace {
     inline void setMaximumKernelValue(double value);
     inline unsigned getVisibilityCount() const;
     inline void setVisibilityCount(unsigned value);
+    inline ShadowStatistics *getShadowStatistics() const;
 };
 
 inline const GalerkinElement *
@@ -120,6 +126,11 @@ FormFactorWorkspace::getVisibilityCount() const {
 inline void
 FormFactorWorkspace::setVisibilityCount(const unsigned value) {
     visibilityCount = value;
+}
+
+inline ShadowStatistics *
+FormFactorWorkspace::getShadowStatistics() const {
+    return shadowStatistics;
 }
 
 #endif

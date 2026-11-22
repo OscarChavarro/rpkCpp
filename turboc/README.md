@@ -87,6 +87,24 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      (64 KB allocations) instead of 2^20
    - `captureRays.sh` writes the accounting files to `turboc/doc/rayCorpus`, not to the
      cpp port's top-level `doc/rayCorpus`
+15. Galerkin refinement stays serial: no parallel Jacobi
+   - The cpp port's `-gr-iteration-method parallel-jacobi` (`PARALLEL_JACOBI`) and
+     `-gr-threads` are not offered: Turbo C++ 3.0 under DOS has no threads
+   - The serial structure of the cpp port is kept: light transport split into
+     `receiverLightTransport` and `sourceLightTransport`, the four subdivisions calling
+     `refineSubInteraction`, `RefinementWorkspace` passed down the refinement,
+     `FormFactorWorkspace` telling where shadow rays are counted,
+     `FormFactorStrategy::reportNodesTooClose`, `Interaction::countCreated` and
+     `GalerkinState::isJacobi` (true for `JACOBI` only)
+   - `RefinementWorkspace` keeps only the query, form factor and coefficient scratch.
+     The parts used only by parallel Jacobi workers are left out, being null for the
+     cpp serial solver: the record of events committed later in the serial order
+     (`RefinementRecord`, `RefinementEvent`), the subdivision lock and the task
+     scheduler (`RefinementTask`, `RefinementScheduler`), and with them
+     `regularSubDivide`, `refineOrForkSubInteraction` and the store and light
+     transport branches taken when a record is present,
+     `Interaction::uncountedDuplicate`, the deferred "nodes too close" warnings of
+     `FormFactorWorkspace` and the parallel refinement and commit functions
 
 ## VITRAL turboc shared subset
 

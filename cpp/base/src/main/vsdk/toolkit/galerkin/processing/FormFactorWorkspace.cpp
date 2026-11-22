@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 
-FormFactorWorkspace::FormFactorWorkspace():
+FormFactorWorkspace::FormFactorWorkspace(ShadowStatistics *inShadowStatistics):
     lastReceiver(nullptr),
     lastSource(nullptr),
     receiverCubatureRule(nullptr),
@@ -9,7 +9,9 @@ FormFactorWorkspace::FormFactorWorkspace():
     sourceNodes(),
     kernel(),
     maximumKernelValue(0.0),
-    visibilityCount(0)
+    visibilityCount(0),
+    shadowStatistics(inShadowStatistics),
+    deferredNodesTooClose(nullptr)
 {
     for ( int i = 0; i < CubatureRule::MAXIMUM_NODES; i++ ) {
         for ( int j = 0; j < CubatureRule::MAXIMUM_NODES; j++ ) {

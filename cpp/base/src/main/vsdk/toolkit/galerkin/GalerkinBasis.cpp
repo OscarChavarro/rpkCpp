@@ -87,7 +87,7 @@ GalerkinBasis::pushPullRadianceRecursive(
             Bup[i].scalarProduct(rho, Bdown[i]);
         }
 
-        if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI
+        if ( galerkinState->isJacobi()
           || galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
             // add this leaf element
@@ -144,7 +144,7 @@ GalerkinBasis::pushPullRadianceRecursive(
         }
     }
 
-    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI
+    if ( galerkinState->isJacobi()
       || galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
         // Gathering method: Bup is new approximation of the total radiance at this level of detail
         ColorRgbMutable::arrayCopy(element->radiance, Bup, element->basisSize);

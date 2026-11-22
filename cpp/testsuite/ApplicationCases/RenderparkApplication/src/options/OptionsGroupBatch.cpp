@@ -43,6 +43,7 @@ OptionsGroupBatch::batchParseOptions(
     TypedOption<const char *> radianceImageOpt = {"-radiance-image-savefile", &batchOptionsState.radianceImageFileNameFormat, 1, nullptr, nullptr};
     TypedOption<const char *> radianceModelOpt = {"-radiance-model-savefile", &batchOptionsState.radianceModelFileNameFormat, 1, nullptr, nullptr};
     TypedOption<int> saveModuloOpt = {"-save-modulo", &batchOptionsState.saveModulo, 1, nullptr, nullptr};
+    TypedOption<int> saveLastOnlyOpt = {"-save-last-only", &batchOptionsState.saveLastOnly, 0, OptionsGroupBatch::setIntTrue, nullptr};
     TypedOption<const char *> raytracingImageOpt = {"-raytracing-image-savefile", &batchOptionsState.raytracingImageFileName, 1, nullptr, nullptr};
     TypedOption<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, OptionsGroupBatch::setIntTrue, nullptr};
     OptionBase batchCommandLineOptions[] = {
@@ -52,11 +53,12 @@ OptionsGroupBatch::batchParseOptions(
         REGISTER_OPTION(const char *, radianceImageOpt, 12),
         REGISTER_OPTION(const char *, radianceModelOpt, 12),
         REGISTER_OPTION(int, saveModuloOpt, 8),
+        REGISTER_OPTION(int, saveLastOnlyOpt, 8),
         REGISTER_OPTION(const char *, raytracingImageOpt, 14),
         REGISTER_OPTION(int, timingsOpt, 3)
     };
     OptionGroup batchGroups[] = {
-        OptionGroup("batch", batchCommandLineOptions, 8)
+        OptionGroup("batch", batchCommandLineOptions, 9)
     };
 
     batchOptionsState = *options;

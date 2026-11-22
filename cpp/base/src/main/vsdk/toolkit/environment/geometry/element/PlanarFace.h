@@ -47,9 +47,9 @@ class PlanarFace {
     };
 
     // Result of rayHit: the side the ray arrives at, the ray parameter of the
-    // plane hit, the hit point and its (u, v) parameters. Only rayHit fills it
+    // plane hit, the hit point and its (u, v) parameters. rayHit fills it
+    // through the setters
     class RayHit {
-        friend class PlanarFace;
       private:
         Side side;
         float distance;
@@ -67,6 +67,10 @@ class PlanarFace {
         float getPointZ() const { return pointZ; }
         double getU() const { return u; }
         double getV() const { return v; }
+        void setSide(const Side inSide) { side = inSide; }
+        void setDistance(const float inDistance) { distance = inDistance; }
+        void setPoint(const float x, const float y, const float z) { pointX = x; pointY = y; pointZ = z; }
+        void setParameters(const double inU, const double inV) { u = inU; v = inV; }
     };
 
   private:

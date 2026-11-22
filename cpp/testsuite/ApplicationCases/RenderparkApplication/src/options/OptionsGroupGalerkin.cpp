@@ -17,6 +17,8 @@ OptionsGroupGalerkin::iterationMethodOption(char *&name) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::GAUSS_SEIDEL;
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
+    } else if ( strncasecmp(name, "parallel-jacobi", 2) == 0 ) {
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::PARALLEL_JACOBI;
     } else {
         Logger::reportMessage("OptionsGroupGalerkin", Logger::ERROR, "", java::String::format("Invalid iteration method '%s'", name));
     }
@@ -82,6 +84,7 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     TypedOption<int> grNoAmbientOpt = {"-gr-no-ambient", &falseValue, 0, OptionsGroupGalerkin::ambientOption, nullptr};
     TypedOption<float> grLinkErrorOpt = {"-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, nullptr, nullptr};
     TypedOption<float> grMinElemAreaOpt = {"-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, nullptr, nullptr};
+    TypedOption<int> grThreadsOpt = {"-gr-threads", &GalerkinRadianceMethod::galerkinState.numberOfThreads, 1, nullptr, nullptr};
     OptionBase galerkinOptions[] = {
         REGISTER_OPTION(char *, iterationMethodOpt, 6),
         REGISTER_OPTION(char *, shaftCullingOpt, 6),
@@ -96,10 +99,11 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(int, grAmbientOpt, 6),
         REGISTER_OPTION(int, grNoAmbientOpt, 10),
         REGISTER_OPTION(float, grLinkErrorOpt, 6),
-        REGISTER_OPTION(float, grMinElemAreaOpt, 6)
+        REGISTER_OPTION(float, grMinElemAreaOpt, 6),
+        REGISTER_OPTION(int, grThreadsOpt, 6)
     };
     OptionGroup galerkinGroups[] = {
-        OptionGroup("galerkin", galerkinOptions, 14)
+        OptionGroup("galerkin", galerkinOptions, 15)
     };
     OptionParser<OptionBase>::parse(argc, argv, galerkinGroups, 1);
 }

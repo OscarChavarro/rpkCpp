@@ -41,6 +41,7 @@ java/lang/Object.cpp
 java/lang/Object.h
 java/lang/ProcessBuilder.cpp
 java/lang/ProcessBuilder.h
+java/lang/Runnable.h
 java/lang/RuntimeException.h
 java/lang/Short.h
 java/lang/String.cpp
@@ -49,6 +50,8 @@ java/lang/StringBuilder.cpp
 java/lang/StringBuilder.h
 java/lang/System.cpp
 java/lang/System.h
+java/lang/Thread.cpp
+java/lang/Thread.h
 java/lang/Throwable.h
 java/util/ArrayList.h
 java/util/ArrayList.txx
@@ -64,7 +67,9 @@ java/util/TreeMap.h
 java/util/TreeMap.txx
 java/util/TreeMapEntry.h
 java/util/concurrent/atomic/AtomicLong.h
+java/util/concurrent/locks/Condition.h
 java/util/concurrent/locks/ReentrantLock.h
+java/util/function/_LambdaHolder.h
 vsdk/toolkit/common/VSDK.cpp
 vsdk/toolkit/common/VSDK.h
 vsdk/toolkit/common/VSDKFatalException.h

@@ -1,5 +1,6 @@
 #include "vsdk/toolkit/numericalAnalysis/QuadCubatureRule.h"
 #include "vsdk/toolkit/numericalAnalysis/TriangleCubatureRule.h"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
 
 GalerkinState::GalerkinState():
@@ -17,7 +18,7 @@ GalerkinState::GalerkinState():
     toneMapOptions(),
     formFactorWorkspace()
 {
-    formFactorWorkspace = new FormFactorWorkspace();
+    formFactorWorkspace = new FormFactorWorkspace(&Statistics::instance().shadow);
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
     galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
     relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;

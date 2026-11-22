@@ -4,8 +4,6 @@ source "$(dirname "$0")/renderpark_env.sh"
 mkdir -p output
 
 "${RPK_BIN}" ../etc/office2/office2.mgf \
-    -obf output/05_office2.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
-    -radiance-model-savefile output/05_office2.wrl \
     -eyepoint 1.43 5.89 2 -center 4.11 -3.7 0.7 \
-    -raycast -radiance-image-savefile ./output/05_office2.ppm
+    -raycast -save-last-only -radiance-image-savefile ./output/05_office2.ppm

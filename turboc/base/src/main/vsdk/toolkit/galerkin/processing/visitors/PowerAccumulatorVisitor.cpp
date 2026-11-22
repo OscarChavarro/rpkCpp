@@ -46,7 +46,7 @@ PowerAccumulatorVisitor::visit(
     }
 
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
-         galerkinState->galerkinIterationMethod == JACOBI ) {
+         galerkinState->isJacobi() ) {
         rad = galerkinElement->radiance[0];
     } else {
         rad = galerkinElement->unShotRadiance[0];

@@ -207,7 +207,14 @@ Batch::batchExecuteRadianceSimulation(
 
             wasted_start = System::nanoTime();
 
-            if ( (!(iterationNumber % batchOptions.saveModulo)) && *batchOptions.radianceImageFileNameFormat ) {
+            // With -save-last-only, the image and the model are saved only
+            // after the last iteration (the last one asked for, or the one
+            // after which the method is done)
+            const bool lastIteration = done || iterationNumber == batchOptions.iterations - 1;
+            const bool saveImage = batchOptions.saveLastOnly ? lastIteration : !(iterationNumber % batchOptions.saveModulo);
+            const bool saveModel = !batchOptions.saveLastOnly || lastIteration;
+
+            if ( saveImage && *batchOptions.radianceImageFileNameFormat ) {
                 int n = ((int)(strlen(batchOptions.radianceImageFileNameFormat))) + 1;
                 char *fileName = new char[n];
                 Formatter::format(
@@ -226,7 +233,7 @@ Batch::batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            if ( *batchOptions.radianceModelFileNameFormat ) {
+            if ( saveModel && *batchOptions.radianceModelFileNameFormat ) {
                 int n = ((int)(strlen(batchOptions.radianceModelFileNameFormat))) + 1;
                 char *fileName = new char[n];
                 Formatter::format(

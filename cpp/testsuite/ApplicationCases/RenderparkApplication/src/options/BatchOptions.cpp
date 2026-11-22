@@ -9,6 +9,7 @@ BatchOptions::BatchOptions() {
     radianceImageFileNameFormat = "";
     radianceModelFileNameFormat = "";
     saveModulo = 10;
+    saveLastOnly = false;
     raytracingImageFileName = "";
     timings = false;
 }

@@ -83,6 +83,9 @@ class GalerkinState {
     GalerkinState();
     ~GalerkinState();
 
+    /** Jacobi iterations: gathering with the radiance of the previous iteration */
+    inline bool isJacobi() const;
+
   private:
     // Not copyable
     GalerkinState(const GalerkinState &);
@@ -109,5 +112,14 @@ class GalerkinState {
     #define DEFAULT_GAL_SHAFT_CULL_STRATEGY OVERLAP_OPEN
     #define DF_GAL_ITRTN_NOT_INTLZ -1
 };
+
+/**
+The cpp port's PARALLEL_JACOBI is Jacobi too; the serial Turbo C++ port has
+JACOBI only
+*/
+inline bool
+GalerkinState::isJacobi() const {
+    return galerkinIterationMethod == JACOBI;
+}
 
 #endif

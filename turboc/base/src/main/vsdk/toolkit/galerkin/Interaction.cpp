@@ -56,15 +56,23 @@ Interaction::Interaction(
     }
     deltaK = inDeltaK;
 
+    countCreated(this);
+}
+
+/**
+Adds the interaction to the interaction counters
+*/
+void
+Interaction::countCreated(const Interaction *interaction) {
     totalInteractions++;
-    if ( inReceiverElement->isCluster() ) {
-        if ( inSourceElement->isCluster() ) {
+    if ( interaction->receiverElement->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             ccInteractions++;
         } else {
             scInteractions++;
         }
     } else {
-        if ( inSourceElement->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             csInteractions++;
         } else {
             ssInteractions++;

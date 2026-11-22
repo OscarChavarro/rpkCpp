@@ -8,7 +8,6 @@ All kind of form factor computations
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
-#include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
@@ -23,6 +22,7 @@ class FormFactorStrategy {
         const java::ArrayList<RpkGeometry *> *geometrySceneList,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
         ShadowCache *shadowCache,
         float minimumDistance,
         RpkRayHit *hitStore,
@@ -43,6 +43,7 @@ class FormFactorStrategy {
         ShadowCache *shadowCache,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
+        FormFactorWorkspace *formFactorWorkspace,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
@@ -87,6 +88,12 @@ class FormFactorStrategy {
         Interaction *twoPatchesInteraction);
 
   public:
+    /**
+    Warns that two cubature nodes of an element pair are too close to interact
+    */
+    static void
+    reportNodesTooClose(const GalerkinElement *receiverElement, const GalerkinElement *sourceElement);
+
     static void
     computeAreaToAreaFormFactorVisibility(
         const SceneQuery *sceneQuery,

@@ -30,6 +30,7 @@ FormFactorStrategy::shadowTestDiscretization(
     const java::ArrayList<RpkGeometry *> *geometrySceneList,
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneQueryWorkspace,
+    FormFactorWorkspace *formFactorWorkspace,
     ShadowCache *shadowCache,
     float minimumDistance,
     RpkRayHit *hitStore,
@@ -37,10 +38,11 @@ FormFactorStrategy::shadowTestDiscretization(
     bool isClusteredGeometry,
     const RayExclusionSet &exclusions)
 {
-    Statistics::instance().shadow.numberOfShadowRays++;
+    ShadowStatistics *shadowStatistics = formFactorWorkspace->getShadowStatistics();
+    shadowStatistics->numberOfShadowRays++;
     RpkRayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore, exclusions);
     if ( hit != nullptr ) {
-        Statistics::instance().shadow.numberOfShadowCacheHits++;
+        shadowStatistics->numberOfShadowCacheHits++;
 #ifdef RPK_RAY_CAPTURE
         if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
             sceneQueryWorkspace->getRecorder()->countCacheResolved();
@@ -89,6 +91,11 @@ FormFactorStrategy::shadowTestDiscretization(
     }
 
     return hit;
+}
+
+void
+FormFactorStrategy::reportNodesTooClose(const GalerkinElement *receiverElement, const GalerkinElement *sourceElement) {
+    Logger::reportMessage("FormFactorStrategy", Logger::WARNING, "evaluatePointsPairKernel", java::String::format("Nodes too close too each other (receiver id %d, source id %d)", receiverElement->id, sourceElement->id));
 }
 
 /**
@@ -175,6 +182,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     ShadowCache *shadowCache,
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneQueryWorkspace,
+    FormFactorWorkspace *formFactorWorkspace,
     const Vector3D *x,
     const Vector3D *y,
     const GalerkinElement *receiverElement,
@@ -194,7 +202,9 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Don't allow too nearby nodes to interact
     if ( distance < Numeric::EPSILON ) {
-        Logger::reportMessage("FormFactorStrategy", Logger::WARNING, "evaluatePointsPairKernel", java::String::format("Nodes too close too each other (receiver id %d, source id %d)", receiverElement->id, sourceElement->id));
+        if ( !formFactorWorkspace->deferNodesTooClose(receiverElement, sourceElement) ) {
+            reportNodesTooClose(receiverElement, sourceElement);
+        }
         return 0.0;
     }
 
@@ -238,6 +248,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
                 shadowGeometryList,
                 sceneQuery,
                 sceneQueryWorkspace,
+                formFactorWorkspace,
                 shadowCache,
                 shortenedDistance,
                 &hitStore,
@@ -627,6 +638,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
                     &shadowCache,
                     sceneQuery,
                     sceneQueryWorkspace,
+                    formFactorWorkspace,
                     &x[r],
                     &y[s],
                     receiverElement,

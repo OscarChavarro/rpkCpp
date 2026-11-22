@@ -111,7 +111,7 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
             if ( elementBase != NULL ) {
                 const GalerkinElement *element = ((const GalerkinElement *)(elementBase));
                 if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
-                     galerkinState->galerkinIterationMethod == JACOBI ) {
+                     galerkinState->isJacobi() ) {
                     rad.add(rad, element->radiance[0]);
                 } else {
                     rad.add(rad, element->unShotRadiance[0]);

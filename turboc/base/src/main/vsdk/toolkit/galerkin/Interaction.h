@@ -46,6 +46,7 @@ class Interaction {
     static int getNumOSurfTSurfInters();
     static void interactionDestroy(Interaction *interaction);
     static Interaction *interactionDuplicate(Interaction *interaction);
+    static void countCreated(const Interaction *interaction);
 };
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"

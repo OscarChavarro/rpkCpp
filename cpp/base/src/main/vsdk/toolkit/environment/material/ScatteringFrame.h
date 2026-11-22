@@ -67,9 +67,9 @@ RenderPark computes it.
 */
 class ScatteringFrame {
   private:
-    const Vector3Df xAxis;
-    const Vector3Df yAxis;
-    const Vector3Df zAxis;
+    const Vector3Df x;
+    const Vector3Df y;
+    const Vector3Df z;
 
     static Vector3Df horizontalAxis(const Vector3Df &unitZ);
     static Vector3Df completingAxis(const Vector3Df &unitZ, const Vector3Df &unitX);
@@ -124,17 +124,17 @@ class ScatteringFrame {
 
 inline const Vector3Df &
 ScatteringFrame::getX() const {
-    return xAxis;
+    return x;
 }
 
 inline const Vector3Df &
 ScatteringFrame::getY() const {
-    return yAxis;
+    return y;
 }
 
 inline const Vector3Df &
 ScatteringFrame::getZ() const {
-    return zAxis;
+    return z;
 }
 
 #endif

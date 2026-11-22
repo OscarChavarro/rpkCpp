@@ -47,6 +47,10 @@ set_source_files_properties(
 
 add_library(vitral SHARED ${VITRAL_SRC})
 
+# java::Thread runs over POSIX threads (parallel Jacobi, plan step 7)
+find_package(Threads REQUIRED)
+target_link_libraries(vitral PUBLIC Threads::Threads)
+
 target_include_directories(vitral
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main

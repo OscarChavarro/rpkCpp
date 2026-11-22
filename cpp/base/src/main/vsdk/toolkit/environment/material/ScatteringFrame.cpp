@@ -33,9 +33,9 @@ ScatteringFrame::completingAxis(const Vector3Df &unitZ, const Vector3Df &unitX) 
 }
 
 ScatteringFrame::ScatteringFrame(const Vector3Df &unitZ) :
-    xAxis(horizontalAxis(unitZ)),
-    yAxis(completingAxis(unitZ, xAxis)),
-    zAxis(unitZ)
+    x(horizontalAxis(unitZ)),
+    y(completingAxis(unitZ, x)),
+    z(unitZ)
 {
 }
 
@@ -48,9 +48,9 @@ ScatteringFrame::sampleCosine(const double xi1, const double xi2, double *densit
     const float cosTheta = static_cast<float>(java::Math::sqrt(1.0 - xi2));
     const float sinTheta = static_cast<float>(java::Math::sqrt(xi2));
 
-    const Vector3Df planar = combine(cosPhi, xAxis, sinPhi, yAxis);
+    const Vector3Df planar = combine(cosPhi, x, sinPhi, y);
     *density = cosTheta / M_PI;
-    return combine(sinTheta, planar, cosTheta, zAxis);
+    return combine(sinTheta, planar, cosTheta, z);
 }
 
 Vector3Df
@@ -62,9 +62,9 @@ ScatteringFrame::samplePhong(const double n, const double xi1, const double xi2,
     const float cosTheta = static_cast<float>(java::Math::pow(xi2, 1.0 / (n + 1)));
     const float sinTheta = static_cast<float>(java::Math::sqrt(1.0 - cosTheta * cosTheta));
 
-    const Vector3Df planar = combine(cosPhi, xAxis, sinPhi, yAxis);
+    const Vector3Df planar = combine(cosPhi, x, sinPhi, y);
     *density = (n + 1.0) * java::Math::pow(static_cast<double>(cosTheta), n) / (2.0 * M_PI);
-    return combine(sinTheta, planar, cosTheta, zAxis);
+    return combine(sinTheta, planar, cosTheta, z);
 }
 
 Vector3Df

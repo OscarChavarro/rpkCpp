@@ -56,20 +56,60 @@ Interaction::Interaction(
     }
     deltaK = inDeltaK;
 
+    countCreated(this);
+}
+
+/**
+Adds the interaction to the interaction counters
+*/
+void
+Interaction::countCreated(const Interaction *interaction) {
     totalInteractions++;
-    if ( inReceiverElement->isCluster() ) {
-        if ( inSourceElement->isCluster() ) {
+    if ( interaction->receiverElement->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             ccInteractions++;
         } else {
             scInteractions++;
         }
     } else {
-        if ( inSourceElement->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             csInteractions++;
         } else {
             ssInteractions++;
         }
     }
+}
+
+/**
+Same as interactionDuplicate, but the copy is not counted: for threads that
+create interactions which a single thread counts later (countCreated)
+*/
+Interaction *
+Interaction::uncountedDuplicate(const Interaction *interaction) {
+    Interaction *newInteraction = new Interaction();
+    newInteraction->receiverElement = interaction->receiverElement;
+    newInteraction->sourceElement = interaction->sourceElement;
+    newInteraction->numberOfBasisFunctionsOnReceiver = interaction->numberOfBasisFunctionsOnReceiver;
+    newInteraction->numberOfBasisFunctionsOnSource = interaction->numberOfBasisFunctionsOnSource;
+    newInteraction->numberOfReceiverCubaturePositions = interaction->numberOfReceiverCubaturePositions;
+    newInteraction->visibility = interaction->visibility;
+    if ( interaction->numberOfBasisFunctionsOnReceiver == 1 && interaction->numberOfBasisFunctionsOnSource == 1 ) {
+        newInteraction->k0 = *interaction->K;
+        newInteraction->K = &newInteraction->k0;
+        newInteraction->ownsK = false;
+    } else {
+        const int size = interaction->numberOfBasisFunctionsOnReceiver * interaction->numberOfBasisFunctionsOnSource;
+        newInteraction->K = new float[size];
+        for ( int i = 0; i < size; i++ ) {
+            newInteraction->K[i] = interaction->K[i];
+        }
+        newInteraction->ownsK = true;
+    }
+    if ( interaction->numberOfReceiverCubaturePositions > 1 ) {
+        Logger::reportMessage("Interaction", Logger::FATAL_ERROR, "interactionCreate", "Not yet implemented for higher order approximations");
+    }
+    newInteraction->deltaK = interaction->deltaK;
+    return newInteraction;
 }
 
 Interaction::~Interaction() {

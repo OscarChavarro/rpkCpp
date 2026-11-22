@@ -1,7 +1,9 @@
 #ifndef FORM_FACTOR_WORKSPACE__
 #define FORM_FACTOR_WORKSPACE__
 
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
+#include "vsdk/toolkit/common/statistics/ShadowStatistics.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 
 class GalerkinElement;
@@ -12,8 +14,12 @@ receiver element is the same as in the previous computation, so the cubature
 rules, nodes and kernel values of the last element pair are kept here and
 reused.
 
-Workspace: mutable, owned by the solver (one per worker later) and passed
-explicitly to FormFactorStrategy.
+Workspace: mutable, owned by the solver (the serial one) or by a parallel
+Jacobi worker, and passed explicitly to FormFactorStrategy.
+It also tells where the shadow rays are counted (the global statistics, or the
+counters of a worker, added to them afterwards) and whether the "nodes too
+close" warnings are reported at once or kept, as element pairs, for a later
+report in the serial order.
 */
 class FormFactorWorkspace {
   private:
@@ -26,9 +32,11 @@ class FormFactorWorkspace {
     double kernel[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES];
     double maximumKernelValue;
     unsigned visibilityCount; // Number of rays that "pass" occluders
+    ShadowStatistics *shadowStatistics; // Not owned
+    java::ArrayList<const GalerkinElement *> *deferredNodesTooClose; // Not owned; nullptr to report at once
 
   public:
-    FormFactorWorkspace();
+    explicit FormFactorWorkspace(ShadowStatistics *inShadowStatistics);
     FormFactorWorkspace(const FormFactorWorkspace &) = delete;
     FormFactorWorkspace &operator=(const FormFactorWorkspace &) = delete;
 
@@ -48,6 +56,9 @@ class FormFactorWorkspace {
     inline void setMaximumKernelValue(double value);
     inline unsigned getVisibilityCount() const;
     inline void setVisibilityCount(unsigned value);
+    inline ShadowStatistics *getShadowStatistics() const;
+    inline void setDeferredNodesTooClose(java::ArrayList<const GalerkinElement *> *pairs);
+    inline bool deferNodesTooClose(const GalerkinElement *receiver, const GalerkinElement *source);
 };
 
 inline const GalerkinElement *
@@ -118,6 +129,32 @@ FormFactorWorkspace::getVisibilityCount() const {
 inline void
 FormFactorWorkspace::setVisibilityCount(const unsigned value) {
     visibilityCount = value;
+}
+
+inline ShadowStatistics *
+FormFactorWorkspace::getShadowStatistics() const {
+    return shadowStatistics;
+}
+
+/**
+@param pairs list receiving (receiver, source) pairs, or nullptr to report the warning at once
+*/
+inline void
+FormFactorWorkspace::setDeferredNodesTooClose(java::ArrayList<const GalerkinElement *> *pairs) {
+    deferredNodesTooClose = pairs;
+}
+
+/**
+@return true when the warning was kept for a later report, false when it is to be reported now
+*/
+inline bool
+FormFactorWorkspace::deferNodesTooClose(const GalerkinElement *receiver, const GalerkinElement *source) {
+    if ( deferredNodesTooClose == nullptr ) {
+        return false;
+    }
+    deferredNodesTooClose->add(receiver);
+    deferredNodesTooClose->add(source);
+    return true;
 }
 
 #endif

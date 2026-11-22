@@ -12,7 +12,8 @@ class BatchOptions {
     int iterations; // Radiance method iterations
     const char *radianceImageFileNameFormat;
     const char *radianceModelFileNameFormat;
-    int saveModulo; // Every n-th iteration, surface model and image will be saved
+    int saveModulo; // Every n-th iteration the image will be saved (the model at every iteration)
+    int saveLastOnly; // Image and model saved only after the last iteration (overrides saveModulo)
     const char *raytracingImageFileName;
     int timings;
 

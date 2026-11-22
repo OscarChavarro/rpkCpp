@@ -285,6 +285,7 @@ GalerkinRadianceMethod::patchInit(Patch *patch, const DirectPotentialTable *dire
         switch ( galerkinState.galerkinIterationMethod ) {
             case GalerkinIterationMethod::GAUSS_SEIDEL:
             case GalerkinIterationMethod::JACOBI:
+            case GalerkinIterationMethod::PARALLEL_JACOBI:
                 galerkinSetPotential(patch, directPotentials->get(patch->getFaceIndex()));
                 break;
             case GalerkinIterationMethod::SOUTH_WELL:
@@ -392,6 +393,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOption
 
     switch ( galerkinState.galerkinIterationMethod ) {
         case GalerkinIterationMethod::JACOBI:
+        case GalerkinIterationMethod::PARALLEL_JACOBI:
         case GalerkinIterationMethod::GAUSS_SEIDEL:
             done = gatheringStrategy->doGatheringIteration(scene, &galerkinState, renderOptions);
             break;

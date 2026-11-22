@@ -655,10 +655,15 @@ PlanarFace::rayHit(
     if ( distance > maximumDistance || distance < minimumDistance ) {
         return false;
     }
-    hit->side = side;
-    hit->distance = distance;
-    hit->pointX = origin.x() + distance * direction.x();
-    hit->pointY = origin.y() + distance * direction.y();
-    hit->pointZ = origin.z() + distance * direction.z();
-    return parameters(Vector3Df(hit->pointX, hit->pointY, hit->pointZ), &hit->u, &hit->v);
+    const float pointX = origin.x() + distance * direction.x();
+    const float pointY = origin.y() + distance * direction.y();
+    const float pointZ = origin.z() + distance * direction.z();
+    hit->setSide(side);
+    hit->setDistance(distance);
+    hit->setPoint(pointX, pointY, pointZ);
+    double u;
+    double v;
+    const bool inside = parameters(Vector3Df(pointX, pointY, pointZ), &u, &v);
+    hit->setParameters(u, v);
+    return inside;
 }

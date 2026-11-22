@@ -141,7 +141,7 @@ GatheringSimpleStrategy::doGatheringIteration(
     // Update the radiosity after gathering to all patches with Jacobi, immediately
     // update with Gauss-Seidel so the new radiosity are already used for the
     // still-to-be-processed patches in the same iteration
-    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
+    if ( galerkinState->isJacobi() ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             GatheringSimpleStrategy::patchUpdateRadiance(scene->patchList->get(i), galerkinState, scene->getFaceColors());
         }

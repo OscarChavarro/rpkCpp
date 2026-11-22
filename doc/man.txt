@@ -56,7 +56,10 @@ Object-space radiance computation options:
 	         PMAP                 PhotonMap 
 
 Galerkin radiosity options:
--gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell 
+-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell, Parallel-Jacobi
+	(Jacobi refined and with form factors computed by several threads, with the
+	result of Jacobi bit for bit; clustered gathering only)
+-gr-threads <n>      	: threads of Parallel-Jacobi (default = 0: one per online processor)
 -gr-hierarchical    	: do hierarchical refinement 
 -gr-not-hierarchical	: don't do hierarchical refinement 
 -gr-lazy-linking    	: do lazy linking 
@@ -174,7 +177,9 @@ Batch processing options:
 	first '%d' will be substituted by iteration number (default = '')
 -radiance-model-savefile <filename>	: radiance VRML model savefile name,
 	first '%d' will be substituted by iteration number (default = '')
--save-modulo <integer>	: save every n-th iteration (default = 10)
+-save-modulo <integer>	: save the radiance image every n-th iteration (default = 10;
+	the model is saved at every iteration)
+-save-last-only	: save the radiance image and model only after the last iteration
 -raytracing-image-savefile <filename>	: raytracing PPM savefile name (default = '')
 -timings	: print timings for world-space radiance and raytracing methods 
 

@@ -46,6 +46,8 @@ class Interaction {
     static int getNumberOfSurfaceToSurfaceInteractions();
     static void interactionDestroy(Interaction *interaction);
     static Interaction *interactionDuplicate(Interaction *interaction);
+    static Interaction *uncountedDuplicate(const Interaction *interaction);
+    static void countCreated(const Interaction *interaction);
 };
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"

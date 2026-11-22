@@ -24,6 +24,7 @@ class GalerkinState {
     int importanceDriven; // Set true for potential-driven comp
     int clustered; // Set true for clustering
     GalerkinIterationMethod galerkinIterationMethod; // How to solve the resulting linear set
+    int numberOfThreads; // Threads of PARALLEL_JACOBI; 0 for one per online processor
     int lazyLinking; // Set true for lazy linking
     int exactVisibility; // For more exact treatment of visibility
     int multiResolutionVisibility; // For multi-resolution visibility determination
@@ -81,6 +82,9 @@ class GalerkinState {
     ~GalerkinState();
     GalerkinState(const GalerkinState &) = delete;
     GalerkinState &operator=(const GalerkinState &) = delete;
+
+    /** Jacobi iterations, serial or parallel: both gather with the radiance of the previous iteration */
+    bool isJacobi() const;
 
     const RadianceElementTable *getRadianceElements() const;
     GalerkinElement *topLevelElement(const Patch *patch) const;
@@ -141,6 +145,12 @@ GalerkinState::boundElement(const Patch *patch) const {
         return nullptr;
     }
     return radianceElements->get(patch->getFaceIndex());
+}
+
+inline bool
+GalerkinState::isJacobi() const {
+    return galerkinIterationMethod == GalerkinIterationMethod::JACOBI
+        || galerkinIterationMethod == GalerkinIterationMethod::PARALLEL_JACOBI;
 }
 
 #endif

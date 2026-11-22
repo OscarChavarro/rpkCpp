@@ -6,13 +6,14 @@
 # are versioned; captureRays.sh writes them there.
 #
 # Pins
-#   RenderPark rpkCpp  f14cfb91 plus the uncommitted step 3 tree with the face
-#                      geometry in VITRAL (images AE=0 vs testReferences)
-#   VITRAL             c8c514e77bea205fd92375593c37fe9c1c63ecb2
+#   RenderPark rpkCpp  f0e731d5 (IEEE floating point in every build, plan
+#                      step 2b; images AE=0 vs the IEEE testReferences)
+#   VITRAL             bdbd6bbd2b47081e0805eae594c53d323855e1a7
 # Build
 #   cmake -S cpp -B <dir>/top -DWITH_RAY_CAPTURE=ON (other options default:
 #   WITH_RAYTRACING=ON WITH_OPENGL=ON WITH_MGF=ON), g++ 11.4.0 (Ubuntu 22.04),
-#   -std=c++11 -Wall -Wextra -pedantic -ffast-math -O3, x86_64
+#   -std=c++11 -Wall -Wextra -pedantic -O3 -fno-fast-math -ffp-contract=off,
+#   x86_64
 # Scenes and options: the corpus.sh script of each image, unchanged; every
 # capture produced an image identical (AE=0) to testReferences/<image>.ppm.
 #
@@ -49,9 +50,18 @@
 #   01_cubeJacobi 72958636 7b3e9f2cec4a23fec02a250fc07ac29845185e55f0f4eeef3e629f7f6c2c64d5
 #   02_corridor 11685637520 f18432ac1be939ed53bb4ab29886332a1dbc9381dc8cb2c40de73cbcb1cff635
 #
+# IEEE build (2026-11-22, owner decision of plan step 2b): every entry was
+# captured again with the IEEE capture build; 01 is byte for byte the former
+# capture, the others moved with the rounding of the -ffast-math build. The
+# fast-math captures were:
+#   02_corridor 14302980676 6179740c8c4a9c44910bb9d62a123ae2c4841f804236edbd03a4db2856b60253
+#   11_floorRayCasting 3692374332 5c5c7c73a3024d7a3e46ab29a7772ce56c2c123369ac1849692a45d6aaa1f58e
+#   12_floorBidirectionalPathTracing 702876284 152b00ce957c9e4cbccca60da89a33401b02c4bc710c4d02a8631d5a865b1d9c
+#   14_floorStochasticRaytracingJacobi 3569239388 8b60508d7269d5e0b6d671b74c120ec2d6417458d879a14d7b5f5616016d7b18
+#
 # image bytes sha256
 01_cubeJacobi 165409984 cebf5788fac9aefcce7286b0b8621e5b39f8e426bf59541db62a11dad9a48dde
-02_corridor 14302980676 6179740c8c4a9c44910bb9d62a123ae2c4841f804236edbd03a4db2856b60253
-11_floorRayCasting 3692374332 5c5c7c73a3024d7a3e46ab29a7772ce56c2c123369ac1849692a45d6aaa1f58e
-12_floorBidirectionalPathTracing 702876284 152b00ce957c9e4cbccca60da89a33401b02c4bc710c4d02a8631d5a865b1d9c
-14_floorStochasticRaytracingJacobi 3569239388 8b60508d7269d5e0b6d671b74c120ec2d6417458d879a14d7b5f5616016d7b18
+02_corridor 14302980220 7260cb446e71124c47dd0c8f2ffaa28ba86e5a5f65dd2d286612ec1a7135feb6
+11_floorRayCasting 3635063748 88824fe18b6052673dad558f43181ea9941dd0b1da95cde3a1248128971a4b25
+12_floorBidirectionalPathTracing 702876740 d6b0cb33ced16d1848b7bd5e9d7ce2831cf452b4e3d74a11359e7db3872f748d
+14_floorStochasticRaytracingJacobi 3569239388 b6674fa5dcef2dc19ebe828a71d56812739500a5fc817924474f3d891837ddf3
