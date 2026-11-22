@@ -1,8 +1,8 @@
-import { Logger as VsdkLogger } from "../logging/Logger.js";
-import { Numeric } from "../linealAlgebra/Numeric.js";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { BalancedKDTreeNode } from "./BalancedKDTreeNode.js";
 import { KDQuery } from "./KDQuery.js";
 import { KDTreeNode } from "./KDTreeNode.js";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export type NodeCallback = (userData: unknown, nodeData: unknown) => void;
 
@@ -579,8 +579,8 @@ export class KDTree {
     }
 
     private static bestDiscriminator(broot: BalancedKDTreeNode[], low: number, high: number): number {
-        const bMin = [Numeric.HUGE_FLOAT_VALUE, Numeric.HUGE_FLOAT_VALUE, Numeric.HUGE_FLOAT_VALUE];
-        const bMax = [-Numeric.HUGE_FLOAT_VALUE, -Numeric.HUGE_FLOAT_VALUE, -Numeric.HUGE_FLOAT_VALUE];
+        const bMin = [Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE];
+        const bMax = [-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE];
 
         for (let i = low; i <= high; i++) {
             let tmp = KDTree.bkdval(broot, i, 0);

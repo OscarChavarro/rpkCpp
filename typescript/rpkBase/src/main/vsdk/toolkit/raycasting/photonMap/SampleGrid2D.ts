@@ -3,8 +3,8 @@ Class for doing multidimensional discrete sampling.
 Grid values are doubles. Grid domain is [0,1]^dim
 */
 
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { DiscreteSampling } from "./DiscreteSampling";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class SampleGrid2D {
   private xSections: number;
@@ -80,7 +80,7 @@ export class SampleGrid2D {
     const xPdf = [0.0];
     const yPdf = [0.0];
 
-    if (this.totalSum < Numeric.EPSILON) {
+    if (this.totalSum < VSDK.EPSILON) {
       probabilityDensityFunction[0] = 1.0;
       return;
     }

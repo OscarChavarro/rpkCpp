@@ -1,13 +1,13 @@
 import { Random48 } from "../../common/Random48";
-import { OutputStream } from "../../../../java/io/OutputStream";
-import { String as JavaString } from "../../../../java/lang/String";
-import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -283,7 +283,7 @@ Adapted from bi-directional path, this is a bit overkill for here
       bp.m_dirEL
     );
 
-    bp.m_dirLE.scaledCopy(-1.0, bp.m_dirEL);
+    bp.m_dirLE = bp.m_dirEL.multiply(-1.0);
 
     const f = bp.evalRadiance();
     const factor = 1.0 / bp.evalPdfAcc();
@@ -703,21 +703,21 @@ Returns the radiance emitted in the node related direction
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3D,
+    dir: Vector3Df,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     void renderOptions;
 
     const hit = new RayHit();
-    const point = new Vector3D();
     const bsdf = patch.material !== null ? patch.material.getBsdf() : null;
     let radiance = new ColorRgbMutable();
     let density: number;
 
-    patch.pointBarycentricMapping(u, v, point);
+    const point = patch.pointBarycentricMapping(u, v) ?? new Vector3Df();
     hit.init(patch, point, patch.getNormal(), patch.material);
-    const normal = hit.getNormal();
-    hit.shadingNormal(normal);
+    const normalHolder = [hit.getNormal()];
+    hit.shadingNormal(normalHolder);
+    const normal = normalHolder[0]!;
     hit.setNormal(normal);
 
     if (PhotonMap.zeroAlbedo(

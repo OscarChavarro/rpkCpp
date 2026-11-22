@@ -3,7 +3,7 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 */
 
 import { KDTree, NodeCallback } from "../../common/dataStructures/KDTree";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { IrrPhoton } from "./IrrPhoton";
 import { NormalQuery } from "./NormalQuery";
 import { Photon } from "./Photon";
@@ -17,7 +17,7 @@ class NodeData {
     this.photon = photon;
     this.flags = flags;
     const p = photon.pos();
-    this.point = [p.x, p.y, p.z];
+    this.point = [p.x(), p.y(), p.z()];
   }
 }
 
@@ -143,14 +143,14 @@ export class PhotonKDTree extends KDTree {
   }
 
   public normalPhotonQuery(
-    position: Vector3D,
-    normal: Vector3D,
+    position: Vector3Df,
+    normal: Vector3Df,
     threshold: number,
     maxR2: number
   ): IrrPhoton | null {
     PhotonKDTree.qdat_s.photon = null;
-    PhotonKDTree.qdat_s.normal = new Vector3D(normal.x, normal.y, normal.z);
-    PhotonKDTree.qdat_s.point = [position.x, position.y, position.z];
+    PhotonKDTree.qdat_s.normal = new Vector3Df(normal.x(), normal.y(), normal.z());
+    PhotonKDTree.qdat_s.point = [position.x(), position.y(), position.z()];
     PhotonKDTree.qdat_s.threshold = threshold;
     PhotonKDTree.qdat_s.maximumDistance = maxR2;
 

@@ -1,9 +1,9 @@
-import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
-import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
+import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
 
 export class OptionsGroupRender {
   private static trueValue = 1;

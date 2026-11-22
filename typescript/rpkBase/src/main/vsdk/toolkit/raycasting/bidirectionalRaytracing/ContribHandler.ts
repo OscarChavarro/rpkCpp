@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { BiPath } from "./BiPath";
 import { FlagChain } from "./FlagChain";

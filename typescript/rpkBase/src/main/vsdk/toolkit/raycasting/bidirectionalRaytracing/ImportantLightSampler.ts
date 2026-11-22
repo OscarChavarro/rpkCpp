@@ -1,5 +1,4 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
@@ -12,6 +11,7 @@ import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { NextEventSampler } from "../raytracing/NextEventSampler";
 import { Sampler } from "../raytracing/Sampler";
 import { LightList } from "./LightList";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ImportantLightSampler extends NextEventSampler {
   private lightList: LightList | null;
@@ -43,7 +43,7 @@ export class ImportantLightSampler extends NextEventSampler {
     let pdfLight: number;
     let pdfPoint: number;
     let light: Patch | null;
-    const point = new Vector3D();
+    let point = new Vector3Df();
 
     newNode.m_depth = 0;
     newNode.m_rayType = PathRayType.STOPS;
@@ -60,9 +60,9 @@ export class ImportantLightSampler extends NextEventSampler {
     const outPdfLight = [0.0];
     if ((thisNode.m_hit.getFlags() & RayHitFlag.BACK) !== 0) {
       if (thisNode.m_outBsdf === null) {
-        const invNormal = new Vector3D();
+        let invNormal = new Vector3Df();
 
-        invNormal.scaledCopy(-1.0, thisNode.m_normal);
+        invNormal = thisNode.m_normal.multiply(-1.0);
 
         const position = thisNode.m_hit.getPoint();
         light = this.lightList.sampleImportant(position, invNormal, localX1, outPdfLight);
@@ -88,32 +88,32 @@ export class ImportantLightSampler extends NextEventSampler {
 
     if (light.hasZeroVertices()) {
       const pdf = [0.0];
-      let dir = new Vector3D(0.0, 0.0, 0.0);
+      let dir = new Vector3Df(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null) {
         dir = light.material.getEdf()!.phongEdfSample(null, flags, x1, x2, null, pdf);
       }
 
-      point.addition(thisNode.m_hit.getPoint(), dir);
+      point = thisNode.m_hit.getPoint().add(dir);
 
       newNode.m_hit.init(light, point, null, light.material);
 
-      newNode.m_inDirT.scaledCopy(-1.0, dir);
-      newNode.m_inDirF.copy(dir);
-      newNode.m_normal.copy(dir);
+      newNode.m_inDirT = dir.multiply(-1.0);
+      newNode.m_inDirF = dir;
+      newNode.m_normal = dir;
 
       pdfPoint = pdf[0]!;
     }
     else {
-      light.uniformPoint(x1, x2, point);
+      point = light.uniformPoint(x1, x2)!;
 
       pdfPoint = 1.0 / light.getArea();
 
       newNode.m_hit.init(light, point, light.getNormal(), light.material);
-      const normal = new Vector3D();
+      const normal = [new Vector3Df()];
       newNode.m_hit.shadingNormal(normal);
-      newNode.m_hit.setNormal(normal);
-      newNode.m_normal.copy(newNode.m_hit.getNormal());
+      newNode.m_hit.setNormal(normal[0]!);
+      newNode.m_normal = newNode.m_hit.getNormal();
     }
 
     newNode.m_pdfFromPrev = pdfLight * pdfPoint;
@@ -164,7 +164,7 @@ export class ImportantLightSampler extends NextEventSampler {
       localPdf *= pdfDir;
     }
     else {
-      if (localPdf >= Numeric.EPSILON && (newNode.m_hit.getPatch() as Patch).getArea() > Numeric.EPSILON) {
+      if (localPdf >= VSDK.EPSILON && (newNode.m_hit.getPatch() as Patch).getArea() > VSDK.EPSILON) {
         localPdf = localPdf / (newNode.m_hit.getPatch() as Patch).getArea();
       }
       else {

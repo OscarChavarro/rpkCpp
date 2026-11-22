@@ -1,8 +1,7 @@
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
@@ -16,6 +15,7 @@ import { PowerAccumulatorVisitor } from "./visitors/PowerAccumulatorVisitor";
 import { ProjectedAreaAccumulatorVisitor } from "./visitors/ProjectedAreaAccumulatorVisitor";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { ScratchVisibilityStrategy } from "./ScratchVisibilityStrategy";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ClusterTraversalStrategy {
   public static traverseAllLeafElements(
@@ -43,7 +43,7 @@ export class ClusterTraversalStrategy {
 
   public static clusterRadianceToSamplePoint(
     sourceElement: GalerkinElement,
-    samplePoint: Vector3D,
+    samplePoint: Vector3Df,
     galerkinState: GalerkinState,
   ): ColorRgbMutable {
     if (sourceElement === null || galerkinState === null) {
@@ -83,12 +83,12 @@ export class ClusterTraversalStrategy {
       return 0.0;
     }
     let rcvCos: number;
-    const dir = new Vector3D();
-    const samplePoint = new Vector3D();
+    let dir = new Vector3Df();
+    const samplePoint = new Vector3Df();
 
-    dir.subtraction(samplePoint, receiverElement.patch.midPoint());
-    const distance = dir.norm();
-    if (distance < Numeric.EPSILON) {
+    dir = samplePoint.subtract(receiverElement.patch.midPoint());
+    const distance = dir.length();
+    if (distance < VSDK.EPSILON) {
       rcvCos = 1.0;
     }
     else {

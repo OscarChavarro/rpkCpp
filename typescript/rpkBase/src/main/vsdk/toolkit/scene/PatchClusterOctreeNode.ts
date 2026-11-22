@@ -1,5 +1,5 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
@@ -13,13 +13,13 @@ export class PatchClusterOctreeNode {
   private patches: Patch[] | null;
   private children: Array<PatchClusterOctreeNode | null>;
   private boundingBox: BoundingBox;
-  private boundingBoxCentroid: Vector3D;
+  private boundingBoxCentroid: Vector3Df;
   private static clusterNodeGeometriesToDelete: Geometry[] | null = null;
 
   public constructor(inPatches?: Patch[] | null) {
     this.boundingBox = new BoundingBox();
-    this.boundingBoxCentroid = new Vector3D();
-    this.boundingBoxCentroid.set(0.0, 0.0, 0.0);
+    this.boundingBoxCentroid = new Vector3Df();
+    this.boundingBoxCentroid = new Vector3Df(0.0, 0.0, 0.0);
     this.patches = [];
 
     this.children = new Array<PatchClusterOctreeNode | null>(8);
@@ -79,17 +79,17 @@ export class PatchClusterOctreeNode {
     }
   }
 
-  private octantIndex(p: Vector3D): number {
+  private octantIndex(p: Vector3Df): number {
     const c = this.boundingBox.center();
     let index = 0;
 
-    if (p.x > c.x) {
+    if (p.x() > c.x()) {
       index |= 1;
     }
-    if (p.y > c.y) {
+    if (p.y() > c.y()) {
       index |= 2;
     }
-    if (p.z > c.z) {
+    if (p.z() > c.z()) {
       index |= 4;
     }
     return index;

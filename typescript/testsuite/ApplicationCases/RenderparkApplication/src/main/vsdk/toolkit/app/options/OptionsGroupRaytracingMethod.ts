@@ -1,7 +1,7 @@
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
 
 export class OptionsGroupRaytracingMethod {
   private static raytracingMethodsString: string | null = null;

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useDefineForClassFields": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "src/main",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "paths": {
+      "@vitral/base/*": ["../base/dist/*"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["ambient.d.ts", "src/main/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}

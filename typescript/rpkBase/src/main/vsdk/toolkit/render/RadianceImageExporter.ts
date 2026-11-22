@@ -1,9 +1,9 @@
-import { OutputStream } from "../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger } from "../common/logging/Logger";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { Camera } from "../scene/Camera";
 import { RadianceMethod } from "../scene/RadianceMethod";
@@ -12,6 +12,7 @@ import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { ScreenBuffer } from "./ScreenBuffer";
 import { SoftIdsWrapper } from "./SoftIdsWrapper";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class RadianceImageExporter {
   private constructor() {
@@ -80,25 +81,25 @@ export class RadianceImageExporter {
   }
 
   private static clipUv(numberOfVertices: number, u: number[], v: number[]): void {
-    if (u[0]! > 1.0 - Numeric.EPSILON) {
-      u[0]! = 1.0 - Numeric.EPSILON;
+    if (u[0]! > 1.0 - VSDK.EPSILON) {
+      u[0]! = 1.0 - VSDK.EPSILON;
     }
-    if (v[0]! > 1.0 - Numeric.EPSILON) {
-      v[0]! = 1.0 - Numeric.EPSILON;
+    if (v[0]! > 1.0 - VSDK.EPSILON) {
+      v[0]! = 1.0 - VSDK.EPSILON;
     }
-    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - Numeric.EPSILON) {
+    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - VSDK.EPSILON) {
       if (u[0]! > v[0]!) {
-        u[0]! = 1.0 - v[0]! - Numeric.EPSILON;
+        u[0]! = 1.0 - v[0]! - VSDK.EPSILON;
       }
       else {
-        v[0]! = 1.0 - u[0]! - Numeric.EPSILON;
+        v[0]! = 1.0 - u[0]! - VSDK.EPSILON;
       }
     }
-    if (u[0]! < Numeric.EPSILON) {
-      u[0]! = Numeric.EPSILON;
+    if (u[0]! < VSDK.EPSILON) {
+      u[0]! = VSDK.EPSILON;
     }
-    if (v[0]! < Numeric.EPSILON) {
-      v[0]! = Numeric.EPSILON;
+    if (v[0]! < VSDK.EPSILON) {
+      v[0]! = VSDK.EPSILON;
     }
   }
 
@@ -118,8 +119,8 @@ export class RadianceImageExporter {
       return radiance;
     }
 
-    const rayDirection = screenBuffer.getPixelVector(x, y);
-    rayDirection.normalize(Numeric.EPSILON_FLOAT);
+    let rayDirection = screenBuffer.getPixelVector(x, y);
+    rayDirection = rayDirection.normalized(Numeric.EPSILON_FLOAT);
 
     const denominator = patch.getNormal().dotProduct(rayDirection);
     if (denominator <= Numeric.EPSILON_FLOAT && denominator >= -Numeric.EPSILON_FLOAT) {
@@ -127,15 +128,15 @@ export class RadianceImageExporter {
     }
 
     const distance = -(patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant()) / denominator;
-    const hitPoint = new Vector3D();
-    hitPoint.sumScaled(camera.eyePosition, distance, rayDirection);
+    let hitPoint = new Vector3Df();
+    hitPoint = camera.eyePosition.add(rayDirection.multiply(distance));
 
     const u = [0.0];
     const v = [0.0];
     patch.uv(hitPoint, u, v);
     RadianceImageExporter.clipUv(patch.numberOfVertices, u, v);
 
-    const eyeDirection = new Vector3D(-rayDirection.x, -rayDirection.y, -rayDirection.z);
+    const eyeDirection = new Vector3Df(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
     return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, eyeDirection, renderOptions);
   }
 }

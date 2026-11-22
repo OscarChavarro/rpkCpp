@@ -3,11 +3,10 @@ Random walk generation
 */
 
 import { Random48 } from "../../common/Random48";
-import { ArrayList } from "../../../../java/util/ArrayList";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { SceneQuery } from "../../scene/SceneQuery";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -19,6 +18,7 @@ import { Path } from "./Path";
 import { Sample4d } from "./Sample4d";
 import { StochasticRaytracingPathNode } from "./StochasticRaytracingPathNode";
 import { StochasticRelaxation } from "./StochasticRelaxation";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class Tracepath {
   private static birthProbability: ((patch: Patch) => number) | null = null;
@@ -46,7 +46,7 @@ Sets numberOfNodes to zero (forgets old path, but does not free the memory for t
   /**
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
-  private static pathAddNode(path: Path, patch: Patch, prob: number, inPoint: Vector3D, outpoint: Vector3D): void {
+  private static pathAddNode(path: Path, patch: Patch, prob: number, inPoint: Vector3Df, outpoint: Vector3Df): void {
     if (path.numberOfNodes >= path.nodesAllocated) {
       const newNodes = new Array<StochasticRaytracingPathNode>(path.nodesAllocated + 20);
       for (let i = 0; i < newNodes.length; i++) {
@@ -58,8 +58,8 @@ Adds a node to the path. Re-allocates more space for the nodes if necessary
           const src = path.nodes[i]!;
           dst.patch = src.patch;
           dst.probability = src.probability;
-          dst.inPoint.copy(src.inPoint);
-          dst.outpoint.copy(src.outpoint);
+          dst.inPoint = src.inPoint;
+          dst.outpoint = src.outpoint;
         }
       }
       path.nodes = newNodes;
@@ -69,8 +69,8 @@ Adds a node to the path. Re-allocates more space for the nodes if necessary
     const node = path.nodes![path.numberOfNodes]!;
     node.patch = patch;
     node.probability = prob;
-    node.inPoint.copy(inPoint);
-    node.outpoint.copy(outpoint);
+    node.inPoint = inPoint;
+    node.outpoint = outpoint;
     path.numberOfNodes++;
   }
 
@@ -103,8 +103,8 @@ when no longer needed
     survivalProbabilityCallBack: (patch: Patch) => number,
     path: Path
   ): Path {
-    const inPoint = new Vector3D(0.0, 0.0, 0.0);
-    const outpoint = new Vector3D(0.0, 0.0, 0.0);
+    const inPoint = new Vector3Df(0.0, 0.0, 0.0);
+    const outpoint = new Vector3Df(0.0, 0.0, 0.0);
     let P = origin;
     let survivalProb: number;
     let ray: Ray;
@@ -119,9 +119,9 @@ when no longer needed
       ray = Localline.mcrGenerateLocalLine(P, Sample4d.sample4D((McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex));
       (McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex++;
       if (path.numberOfNodes > 1 && StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-        ray.position.copy(path.nodes![path.numberOfNodes - 1]!.inPoint);
+        ray.position = path.nodes![path.numberOfNodes - 1]!.inPoint;
       }
-      path.nodes![path.numberOfNodes - 1]!.outpoint.copy(ray.position);
+      path.nodes![path.numberOfNodes - 1]!.outpoint = ray.position;
 
       hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, ray, hitStore);
       if (hit === null) {
@@ -167,7 +167,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
       Tracepath.sumProbabilities += birthProbabilityCallBack(patch);
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
     }
-    if (Tracepath.sumProbabilities < Numeric.EPSILON) {
+    if (Tracepath.sumProbabilities < VSDK.EPSILON) {
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "tracePaths", "No sources");
       return;
     }

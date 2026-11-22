@@ -1,4 +1,4 @@
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { IrrPhoton } from "./IrrPhoton";
 
 // Importon: identical to IrrPhoton, but with some extra functions
@@ -17,23 +17,23 @@ export class Importon extends IrrPhoton {
 
   public constructor();
   public constructor(
-    pos: Vector3D,
+    pos: Vector3Df,
     importance: number,
     potential: number,
     footprint: number,
-    dir: Vector3D
+    dir: Vector3Df
   );
   public constructor(
-    pos?: Vector3D,
+    pos?: Vector3Df,
     importance?: number,
     potential?: number,
     footprint?: number,
-    dir?: Vector3D
+    dir?: Vector3Df
   ) {
     super();
     if (pos !== undefined && importance !== undefined && potential !== undefined && footprint !== undefined && dir !== undefined) {
-      this.m_pos = new Vector3D(pos.x, pos.y, pos.z);
-      this.m_dir = new Vector3D(dir.x, dir.y, dir.z);
+      this.m_pos = new Vector3Df(pos.x(), pos.y(), pos.z());
+      this.m_dir = new Vector3Df(dir.x(), dir.y(), dir.z());
       this.SetAll(importance, potential, footprint);
     }
   }

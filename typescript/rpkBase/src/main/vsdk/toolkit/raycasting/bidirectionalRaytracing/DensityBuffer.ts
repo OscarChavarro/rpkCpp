@@ -1,11 +1,11 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector2D } from "../../common/linealAlgebra/Vector2D";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { BidirectionalPathRaytracerConfig } from "./BidirectionalPathRaytracerConfig";
 import { DensityHit } from "./DensityHit";
 import { DensityHitList } from "./DensityHitList";
 import { Kernel2D } from "./Kernel2D";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class DensityBuffer {
   private static readonly DHA_X_RES = 50;
@@ -59,7 +59,7 @@ export class DensityBuffer {
     const factor = this.screenBuffer.getPixXSize() * this.screenBuffer.getPixYSize() * this.baseConfig.totalSamples;
     const tmpCol = new ColorRgbMutable();
 
-    if (color.average() > Numeric.EPSILON) {
+    if (color.average() > VSDK.EPSILON) {
       tmpCol.scaledCopy(factor, color);
 
       const hit = new DensityHit(x, y, tmpCol);
@@ -77,7 +77,7 @@ export class DensityBuffer {
     this.screenBuffer.scaleRadiance(0.0);
 
     const kernel = new Kernel2D();
-    const center = new Vector2D();
+    let center = new Vector2Df();
 
     kernel.SetH(h);
 
@@ -88,8 +88,8 @@ export class DensityBuffer {
         for (let k = 0; k < maxK; k++) {
           const hit = this.hitGrid[i]![j]!.get(k);
 
-          center.x = hit.m_x;
-          center.y = hit.m_y;
+          center = center.withX(hit.m_x);
+          center = center.withY(hit.m_y);
 
           kernel.cover(center, 1.0 / this.baseConfig.totalSamples, hit.color, this.screenBuffer);
         }
@@ -103,7 +103,7 @@ export class DensityBuffer {
     dest.scaleRadiance(0.0);
 
     const kernel = new Kernel2D();
-    const center = new Vector2D();
+    let center = new Vector2Df();
 
     for (let i = 0; i < DensityBuffer.DHA_X_RES; i++) {
       for (let j = 0; j < DensityBuffer.DHA_Y_RES; j++) {
@@ -112,8 +112,8 @@ export class DensityBuffer {
         for (let k = 0; k < maxK; k++) {
           const hit = this.hitGrid[i]![j]!.get(k);
 
-          center.x = hit.m_x;
-          center.y = hit.m_y;
+          center = center.withX(hit.m_x);
+          center = center.withY(hit.m_y);
 
           kernel.varCover(
             center,

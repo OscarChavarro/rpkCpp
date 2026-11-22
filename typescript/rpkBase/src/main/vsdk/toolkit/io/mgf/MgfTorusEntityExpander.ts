@@ -1,4 +1,3 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";
@@ -7,6 +6,7 @@ import { VertexContext } from "../context/VertexContext";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfTessellationMath } from "./MgfTessellationMath";
 import { MgfVertexFaceEntitySupport } from "./MgfVertexFaceEntitySupport";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class MgfTorusEntityExpander {
   private constructor() {
@@ -56,14 +56,14 @@ export class MgfTorusEntityExpander {
     if (vertexContext === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if (MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
+    if (MgfTessellationMath.isNull(vertexContext.n, VSDK.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if (!TokenValidationContext.isFloat(argumentValues[2]!) || !TokenValidationContext.isFloat(argumentValues[3]!)) {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
     let minRadius = Number.parseFloat(argumentValues[2]!);
-    if (minRadius <= Numeric.EPSILON && minRadius >= -Numeric.EPSILON) {
+    if (minRadius <= VSDK.EPSILON && minRadius >= -VSDK.EPSILON) {
       minRadius = 0.0;
     }
     const maxRadius = Number.parseFloat(argumentValues[3]!);

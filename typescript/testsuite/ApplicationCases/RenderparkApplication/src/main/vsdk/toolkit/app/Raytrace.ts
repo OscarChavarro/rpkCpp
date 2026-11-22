@@ -1,25 +1,25 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
-import { System } from "vitral/dist/java/lang/System";
+import { System } from "rpk-base/dist/java/lang/System";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { OptionsGroupRaytracing } from "./options/OptionsGroupRaytracing";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
-import { ImageOutputHandle } from "vitral/dist/vsdk/toolkit/io/image/ImageOutputHandle";
-import { BidirectionalPathRaytracer } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer";
-import { BidirectionalPathTracingState } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
-import { LightList } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
-import { RayTracer } from "vitral/dist/vsdk/toolkit/raycasting/common/RayTracer";
-import { RayCaster } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayCaster";
-import { RayMatter } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatter";
-import { RayMatterState } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
-import { StochasticRaytracer } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracer";
-import { StochasticRayTracingState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
-import { Canvas } from "vitral/dist/vsdk/toolkit/render/Canvas";
-import { RadianceMethod } from "vitral/dist/vsdk/toolkit/scene/RadianceMethod";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { Patch } from "vitral/dist/vsdk/toolkit/environment/geometry/elements/Patch";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
+import { ImageOutputHandle } from "rpk-base/dist/vsdk/toolkit/io/image/ImageOutputHandle";
+import { BidirectionalPathRaytracer } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer";
+import { BidirectionalPathTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
+import { LightList } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
+import { RayTracer } from "rpk-base/dist/vsdk/toolkit/raycasting/common/RayTracer";
+import { RayCaster } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayCaster";
+import { RayMatter } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatter";
+import { RayMatterState } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
+import { StochasticRaytracer } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracer";
+import { StochasticRayTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
+import { Canvas } from "rpk-base/dist/vsdk/toolkit/render/Canvas";
+import { RadianceMethod } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethod";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { Patch } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/Patch";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 
 export class Raytrace {
   private constructor() {

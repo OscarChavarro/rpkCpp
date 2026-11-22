@@ -1,9 +1,9 @@
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { RayMatterFilterType } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatterFilterType";
-import { RayMatterState } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { RayMatterFilterType } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatterFilterType";
+import { RayMatterState } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
 import { EnumDesc } from "./EnumDesc";
 import { OptionTextUtils } from "./OptionTextUtils";
 

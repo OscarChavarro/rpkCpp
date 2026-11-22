@@ -1,9 +1,9 @@
-import { OutputStream } from "../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger } from "../common/logging/Logger";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector2D } from "../common/linealAlgebra/Vector2D";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { FileUncompressWrapper } from "../io/wrapper/FileUncompressWrapper";
 import { Camera } from "../scene/Camera";
@@ -29,9 +29,9 @@ export class ScreenBuffer {
 
     const target = new Camera();
 
-    target.eyePosition.copy(source.eyePosition);
-    target.lookPosition.copy(source.lookPosition);
-    target.upDirection.copy(source.upDirection);
+    target.eyePosition = source.eyePosition;
+    target.lookPosition = source.lookPosition;
+    target.upDirection = source.upDirection;
     target.viewDistance = source.viewDistance;
     target.fieldOfVision = source.fieldOfVision;
     target.horizontalFov = source.horizontalFov;
@@ -40,9 +40,9 @@ export class ScreenBuffer {
     target.far = source.far;
     target.xSize = source.xSize;
     target.ySize = source.ySize;
-    target.X.copy(source.X);
-    target.Y.copy(source.Y);
-    target.Z.copy(source.Z);
+    target.X = source.X;
+    target.Y = source.Y;
+    target.Z = source.Z;
     target.background.set(source.background.r, source.background.g, source.background.b);
     target.changed = source.changed;
     target.pixelWidth = source.pixelWidth;
@@ -50,7 +50,7 @@ export class ScreenBuffer {
     target.pixelWidthTangent = source.pixelWidthTangent;
     target.pixelHeightTangent = source.pixelHeightTangent;
     for (let i = 0; i < Camera.NUMBER_OF_VIEW_PLANES; i++) {
-      target.viewPlanes[i]!.normal.copy(source.viewPlanes[i]!.normal);
+      target.viewPlanes[i]!.normal = source.viewPlanes[i]!.normal;
       target.viewPlanes[i]!.d = source.viewPlanes[i]!.d;
     }
 
@@ -329,16 +329,16 @@ export class ScreenBuffer {
     return this.camera.pixelHeight;
   }
 
-  public getPixelPoint(nx: number, ny: number, xOffset: number, yOffset: number): Vector2D;
-  public getPixelPoint(nx: number, ny: number): Vector2D;
-  public getPixelPoint(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector2D {
-    return new Vector2D(
+  public getPixelPoint(nx: number, ny: number, xOffset: number, yOffset: number): Vector2Df;
+  public getPixelPoint(nx: number, ny: number): Vector2Df;
+  public getPixelPoint(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector2Df {
+    return new Vector2Df(
       this.getScreenXMin() + (nx + xOffset) * this.getPixXSize(),
       this.getScreenYMin() + (ny + yOffset) * this.getPixYSize()
     );
   }
 
-  public getPixelCenter(nx: number, ny: number): Vector2D {
+  public getPixelCenter(nx: number, ny: number): Vector2Df {
     return this.getPixelPoint(nx, ny, 0.5, 0.5);
   }
 
@@ -359,12 +359,12 @@ export class ScreenBuffer {
     }
   }
 
-  public getPixelVector(nx: number, ny: number, xOffset: number, yOffset: number): Vector3D;
-  public getPixelVector(nx: number, ny: number): Vector3D;
-  public getPixelVector(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector3D {
+  public getPixelVector(nx: number, ny: number, xOffset: number, yOffset: number): Vector3Df;
+  public getPixelVector(nx: number, ny: number): Vector3Df;
+  public getPixelVector(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector3Df {
     const pix = this.getPixelPoint(nx, ny, xOffset, yOffset);
-    const dir = new Vector3D();
-    dir.combine3(this.camera.Z, pix.x, this.camera.X, pix.y, this.camera.Y);
+    let dir = new Vector3Df();
+    dir = this.camera.Z.add(this.camera.X.multiply(pix.x())).add(this.camera.Y.multiply(pix.y()));
     return dir;
   }
 
@@ -377,7 +377,7 @@ export class ScreenBuffer {
   }
 
   public static computeFluxToRadFactor(camera: Camera, pixX: number, pixY: number): number {
-    const dir = new Vector3D();
+    let dir = new Vector3Df();
     const h = camera.pixelWidth;
     const v = camera.pixelHeight;
 
@@ -387,10 +387,10 @@ export class ScreenBuffer {
     const xSample = x + h * 0.5;
     const ySample = y + v * 0.5;
 
-    dir.combine3(camera.Z, xSample, camera.X, ySample, camera.Y);
-    const distPixel2 = dir.norm2();
+    dir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
+    const distPixel2 = dir.lengthSquared();
     const distPixel = globalThis.Math.sqrt(distPixel2);
-    dir.inverseScaledCopy(distPixel, dir, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(distPixel, Numeric.EPSILON_FLOAT);
 
     let factor = 1.0 / (h * v);
     factor *= distPixel2;
@@ -412,7 +412,7 @@ export class ScreenBuffer {
     const ny0v = [0];
     let nx1: number;
     let ny1: number;
-    let center: Vector2D;
+    let center: Vector2Df;
     const color = new ColorRgbMutable();
 
     this.getPixel(x, y, nx0v, ny0v);
@@ -420,8 +420,8 @@ export class ScreenBuffer {
     const ny0 = ny0v[0]!;
     center = this.getPixelCenter(nx0, ny0);
 
-    x = (x - center.x) / this.getPixXSize();
-    y = (y - center.y) / this.getPixYSize();
+    x = (x - center.x()) / this.getPixXSize();
+    y = (y - center.y()) / this.getPixYSize();
 
     if (x < 0) {
       x = -x;

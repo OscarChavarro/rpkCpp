@@ -9,8 +9,11 @@ rm -rf dist
 rm -rf node_modules
 rm -rf base/dist
 rm -rf base/node_modules
+rm -rf rpkBase/dist
+rm -rf rpkBase/node_modules
 rm -rf testsuite/ApplicationCases/RenderparkApplication/dist
 rm -rf testsuite/ApplicationCases/RenderparkApplication/node_modules
 rm -f package-lock.json
 rm -f base/package-lock.json
+rm -f rpkBase/package-lock.json
 rm -f testsuite/ApplicationCases/RenderparkApplication/package-lock.json

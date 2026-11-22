@@ -1,7 +1,7 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { ToneMappingContext } from "./ToneMappingContext";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export abstract class ToneMap {
   private static activeToneMap: ToneMap | null = null;
@@ -11,7 +11,7 @@ export abstract class ToneMap {
   }
 
   private static recomputeGammaTable(toneMapOptions: ToneMappingContext, index: number, gamma: number): void {
-    if (gamma <= Numeric.EPSILON) {
+    if (gamma <= VSDK.EPSILON) {
       gamma = 1.0;
     }
     for (let i = 0; i <= (1 << ToneMappingContext.GAMMA_TABLE_BITS); i++) {

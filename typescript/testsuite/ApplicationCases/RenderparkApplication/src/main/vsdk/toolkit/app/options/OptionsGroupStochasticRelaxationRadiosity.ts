@@ -1,13 +1,13 @@
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { ElementHierarchyState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
-import { HierarchyClusteringMode } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/HierarchyClusteringMode";
-import { Sampler4DSequence } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/Sampler4DSequence";
-import { StochasticRaytracingApproximation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingApproximation";
-import { StochasticRelaxation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
-import { WhatToShow } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/WhatToShow";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { ElementHierarchyState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
+import { HierarchyClusteringMode } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/HierarchyClusteringMode";
+import { Sampler4DSequence } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/Sampler4DSequence";
+import { StochasticRaytracingApproximation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingApproximation";
+import { StochasticRelaxation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
+import { WhatToShow } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/WhatToShow";
 import { EnumDesc } from "./EnumDesc";
 import { OptionTextUtils } from "./OptionTextUtils";
 

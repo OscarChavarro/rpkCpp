@@ -2,13 +2,13 @@
 Monte Carlo radiosity element type
 */
 
-import { String as JavaString } from "../../../../java/lang/String";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -31,6 +31,7 @@ import { McradP } from "./McradP";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
 import { StochasticRelaxation } from "./StochasticRelaxation";
 import { WhatToShow } from "./WhatToShow";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class StochasticRadiosityElement extends Element {
   public patch: Patch | null;
@@ -49,7 +50,7 @@ export class StochasticRadiosityElement extends Element {
   public sourceImportance: number;
   public importanceRayIndex: number;
 
-  public midPoint: Vector3D;
+  public midPoint: Vector3Df;
   public vertices: Array<Vertex | null>;
   public childNumber: number;
   public numberOfVertices: number;
@@ -72,7 +73,7 @@ export class StochasticRadiosityElement extends Element {
     this.receivedImportance = 0.0;
     this.sourceImportance = 0.0;
     this.importanceRayIndex = 0;
-    this.midPoint = new Vector3D();
+    this.midPoint = new Vector3Df();
     this.vertices = [null, null, null, null];
     this.childNumber = -1;
     this.numberOfVertices = 0;
@@ -120,7 +121,7 @@ export class StochasticRadiosityElement extends Element {
     elem.sourceImportance = 0.0;
     elem.importanceRayIndex = 0;
 
-    elem.midPoint.set(0.0, 0.0, 0.0);
+    elem.midPoint = new Vector3Df(0.0, 0.0, 0.0);
     elem.vertices[0] = null;
     elem.vertices[1] = null;
     elem.vertices[2] = null;
@@ -143,7 +144,7 @@ export class StochasticRadiosityElement extends Element {
     elem.patch = patch;
     elem.flags = 0x00;
     elem.area = patch.getArea();
-    elem.midPoint.copy(patch.midPoint());
+    elem.midPoint = patch.midPoint();
     elem.numberOfVertices = patch.numberOfVertices;
     for (let i = 0; i < elem.numberOfVertices; i++) {
       elem.vertices[i] = patch.vertex[i]!;
@@ -378,25 +379,25 @@ point on the leaf element. 'top' is a surface element, not a cluster
     return leaf;
   }
 
-  private static monteCarloRadiosityInstallCoordinate(coord: Vector3D): Vector3D {
-    const v = new Vector3D(coord.x, coord.y, coord.z);
+  private static monteCarloRadiosityInstallCoordinate(coord: Vector3Df): Vector3Df {
+    const v = new Vector3Df(coord.x(), coord.y(), coord.z());
     ElementHierarchyState.activeState().coords!.add(v);
     return v;
   }
 
-  private static monteCarloRadiosityInstallNormal(normal: Vector3D): Vector3D {
-    const v = new Vector3D(normal.x, normal.y, normal.z);
+  private static monteCarloRadiosityInstallNormal(normal: Vector3Df): Vector3Df {
+    const v = new Vector3Df(normal.x(), normal.y(), normal.z());
     ElementHierarchyState.activeState().normals!.add(v);
     return v;
   }
 
-  private static monteCarloRadiosityInstallTexCoord(texCoord: Vector3D): Vector3D {
-    const t = new Vector3D(texCoord.x, texCoord.y, texCoord.z);
+  private static monteCarloRadiosityInstallTexCoord(texCoord: Vector3Df): Vector3Df {
+    const t = new Vector3Df(texCoord.x(), texCoord.y(), texCoord.z());
     ElementHierarchyState.activeState().texCoords!.add(t);
     return t;
   }
 
-  private static monteCarloRadiosityInstallVertex(coord: Vector3D, normal: Vector3D, texCoord: Vector3D | null): Vertex {
+  private static monteCarloRadiosityInstallVertex(coord: Vector3Df, normal: Vector3Df, texCoord: Vector3Df | null): Vertex {
     const newPatchList: Patch[] = [];
     const v = new Vertex(coord, normal, texCoord, newPatchList);
     ElementHierarchyState.activeState().vertices!.add(v);
@@ -404,18 +405,18 @@ point on the leaf element. 'top' is a surface element, not a cluster
   }
 
   private static monteCarloRadiosityNewMidpointVertex(elem: StochasticRadiosityElement, v1: Vertex, v2: Vertex): Vertex {
-    const coord = new Vector3D();
-    const norm = new Vector3D();
-    const texCoord = new Vector3D();
-    let p: Vector3D;
-    let n: Vector3D;
-    let t: Vector3D | null;
+    let coord = new Vector3Df();
+    let norm = new Vector3Df();
+    let texCoord = new Vector3Df();
+    let p: Vector3Df;
+    let n: Vector3Df;
+    let t: Vector3Df | null;
 
-    coord.midPoint(v1.point, v2.point);
+    coord = v1.point.add(v2.point).multiply(0.5);
     p = StochasticRadiosityElement.monteCarloRadiosityInstallCoordinate(coord);
 
     if (v1.normal !== null && v2.normal !== null) {
-      norm.midPoint(v1.normal, v2.normal);
+      norm = v1.normal.add(v2.normal).multiply(0.5);
       n = StochasticRadiosityElement.monteCarloRadiosityInstallNormal(norm);
     }
     else {
@@ -423,7 +424,7 @@ point on the leaf element. 'top' is a surface element, not a cluster
     }
 
     if (v1.textureCoordinates !== null && v2.textureCoordinates !== null) {
-      texCoord.midPoint(v1.textureCoordinates, v2.textureCoordinates);
+      texCoord = v1.textureCoordinates.add(v2.textureCoordinates).multiply(0.5);
       t = StochasticRadiosityElement.monteCarloRadiosityInstallTexCoord(texCoord);
     }
     else {
@@ -560,12 +561,12 @@ found.
     return v;
   }
 
-  private static galerkinElementMidpoint(elem: StochasticRadiosityElement): Vector3D {
-    elem.midPoint.set(0.0, 0.0, 0.0);
+  private static galerkinElementMidpoint(elem: StochasticRadiosityElement): Vector3Df {
+    elem.midPoint = new Vector3Df(0.0, 0.0, 0.0);
     for (let i = 0; i < elem.numberOfVertices; i++) {
-      elem.midPoint.addition(elem.midPoint, elem.vertices[i]!.point);
+      elem.midPoint = elem.midPoint.add(elem.vertices[i]!.point);
     }
-    elem.midPoint.inverseScaledCopy(elem.numberOfVertices, elem.midPoint, Numeric.EPSILON_FLOAT);
+    elem.midPoint = elem.midPoint.multiplyByInverse(elem.numberOfVertices, Numeric.EPSILON_FLOAT);
 
     return elem.midPoint;
   }
@@ -595,7 +596,7 @@ Uses elem->Rd for surface elements
     }
 
     rd = elem.Rd.maximumComponent();
-    if (rd < Numeric.EPSILON) {
+    if (rd < VSDK.EPSILON) {
       rd = Numeric.EPSILON_FLOAT;
     }
     return rd;
@@ -628,8 +629,7 @@ Computes average reflectance and emittance of a surface sub-element
         continue;
       }
       hit.setUv(Number(xi[0]!) * Niederreiter.RECIP, Number(xi[1]!) * Niederreiter.RECIP);
-      const position = hit.getPoint();
-      patch.uniformPoint(hit.getUv().x, hit.getUv().y, position);
+      const position = patch.uniformPoint(hit.getUv().x, hit.getUv().y) ?? hit.getPoint();
       hit.setPoint(position);
       if (patch.material !== null && patch.material.getBsdf() !== null) {
         sample = patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT);
@@ -783,7 +783,7 @@ done so before. Returns the list of created sub-elements
       return null;
     }
 
-    if (element.patch!.getJacobian() !== null) {
+    if (element.patch!.getFace().hasJacobian()) {
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "galerkinElementRegularSubDivide", "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)");
     }
 

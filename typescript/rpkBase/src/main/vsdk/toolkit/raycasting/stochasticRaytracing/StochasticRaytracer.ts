@@ -1,11 +1,10 @@
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { Random48 } from "../../common/Random48";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
@@ -38,6 +37,7 @@ import { StochasticRayTracingState } from "./StochasticRayTracingState";
 import { StochasticRaytracerCallbackData } from "./StochasticRaytracerCallbackData";
 import { StochasticRaytracingConfiguration } from "./StochasticRaytracingConfiguration";
 import { StorageReadout } from "./StorageReadout";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class StochasticRaytracer extends RayTracer {
   private static readonly PHOTON_MAP_MIN_DIST = 0.02;
@@ -205,7 +205,7 @@ Raytrace the current scene as seen with the current camera.
         if (thisNode.m_useBsdf !== null) {
           albedo = thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags);
         }
-        if (albedo.average() < Numeric.EPSILON) {
+        if (albedo.average() < VSDK.EPSILON) {
           numberOfSamples = 0;
         }
       }
@@ -308,7 +308,7 @@ Raytrace the current scene as seen with the current camera.
     const result = new ColorRgbMutable();
     const radiance = new ColorRgbMutable();
     result.clear();
-    const dirEL = new Vector3D();
+    const dirEL = new Vector3Df();
 
     if (readout === StorageReadout.READ_NOW && config.radMode === RayTracingRadMode.STORED_PHOTON_MAP) {
       return result;
@@ -503,7 +503,7 @@ Raytrace the current scene as seen with the current camera.
         if (radianceMethod.className === RadianceMethodAlgorithm.PHOTON_MAP) {
           const photonMapMethod = radianceMethod as PhotonMapRadianceMethod;
           if (config.radMode === RayTracingRadMode.STORED_PHOTON_MAP) {
-            const dist2 = thisNode.m_hit.getPoint().distance2(thisNode.previous()!.m_hit.getPoint());
+            const dist2 = thisNode.m_hit.getPoint().distanceSquared(thisNode.previous()!.m_hit.getPoint());
 
             if (dist2 > StochasticRaytracer.PHOTON_MAP_MIN_DIST2) {
               radiance = photonMapMethod.getNodeGRadiance(thisNode);

@@ -1,4 +1,4 @@
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 
 export class MgfTessellationMath {
   public static readonly MGF_PV_SIZE = 24;

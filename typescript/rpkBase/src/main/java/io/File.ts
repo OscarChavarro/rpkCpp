@@ -1,4 +1,4 @@
-import { String as JavaString } from "../lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 
 const fs = require("node:fs");
 const pathModule = require("node:path");

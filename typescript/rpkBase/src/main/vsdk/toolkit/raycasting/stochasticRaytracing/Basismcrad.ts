@@ -2,11 +2,11 @@
 Higher order approximations for Galerkin radiosity
 */
 
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
-import { Vector2D } from "../../common/linealAlgebra/Vector2D";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 import { QuadCubatureRule } from "../../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../../numericalAnalysis/TriangleCubatureRule";
@@ -79,9 +79,9 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
       for (let b = 0; b < childSize; b++) {
         let x = 0.0;
         for (let k = 0; k < cr.numberOfNodes; k++) {
-          const up = new Vector2D(cr.u[k], cr.v[k]);
-          upxfm.transformPoint2D(up, up);
-          x += cr.w[k]! * parentBasis.function![a]!(up.x, up.y) * childBasis.function![b]!(cr.u[k]!, cr.v[k]!);
+          let up = new Vector2Df(cr.u[k]!, cr.v[k]!);
+          up = upxfm.transformPoint(up);
+          x += cr.w[k]! * parentBasis.function![a]!(up.x(), up.y()) * childBasis.function![b]!(cr.u[k]!, cr.v[k]!);
         }
         filter[a]![b] = x;
       }

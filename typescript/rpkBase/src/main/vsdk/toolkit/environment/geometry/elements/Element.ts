@@ -1,7 +1,7 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../../material/RendererConfiguration";
-import { Matrix2x2 } from "../../../common/linealAlgebra/Matrix2x2";
+import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
 import { ElementFlags } from "./ElementFlags";
 
 export class Element {
@@ -44,18 +44,19 @@ export class Element {
     return (this.flags & ElementFlags.IS_CLUSTER_MASK) !== 0;
   }
 
-  public topTransform(transform: Matrix2x2): Matrix2x2 | null {
+  public topTransform(): Matrix2x2 | null {
+    // The C++ `Matrix2x2 *transform` output is the returned transform
     if (this.transformToParent === null) {
       return null;
     }
 
     let windowElement: Element | null = this;
-    Element.copyMatrix(windowElement.transformToParent as Matrix2x2, transform);
+    let transform: Matrix2x2 = windowElement.transformToParent as Matrix2x2;
 
     do {
       windowElement = windowElement.parent;
       if (windowElement !== null && windowElement.transformToParent !== null) {
-        windowElement.transformToParent.matrix2DPreConcatTransform(transform, transform);
+        transform = windowElement.transformToParent.multiply(transform);
       }
     } while (windowElement !== null && windowElement.transformToParent !== null);
 
@@ -142,14 +143,5 @@ export class Element {
       return true;
     }
     return false;
-  }
-
-  private static copyMatrix(source: Matrix2x2, target: Matrix2x2): void {
-    target.m[0][0] = source.m[0][0];
-    target.m[0][1] = source.m[0][1];
-    target.m[1][0] = source.m[1][0];
-    target.m[1][1] = source.m[1][1];
-    target.t[0] = source.t[0];
-    target.t[1] = source.t[1];
   }
 }

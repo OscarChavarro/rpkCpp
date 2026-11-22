@@ -1,5 +1,4 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { RayHit } from "../environment/geometry/elements/RayHit";
@@ -40,8 +39,7 @@ export class PatchVisitor {
       let sample: ColorRgbMutable;
       const xi = Niederreiter31.niederreiter31(i);
       hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
-      const position: Vector3D = hit.getPoint();
-      patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
+      hit.setPoint(patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y) ?? hit.getPoint());
       sample = new ColorRgbMutable();
       sample.clear();
       if (patch.material !== null && patch.material.getBsdf() !== null) {
@@ -65,8 +63,7 @@ export class PatchVisitor {
       let sample = new ColorRgbMutable();
       const xi = Niederreiter31.niederreiter31(i);
       hit.setUv(xi[0]! * Niederreiter31.RECIP, xi[1]! * Niederreiter31.RECIP);
-      const position: Vector3D = hit.getPoint();
-      patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y, position);
+      hit.setPoint(patch.pointBarycentricMapping(hit.getUv().x, hit.getUv().y) ?? hit.getPoint());
 
       if (patch.material === null || patch.material.getEdf() === null) {
         sample.clear();

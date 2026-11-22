@@ -6,6 +6,6 @@ What a `SpatialIndex` query looks for:
   rays); which blocker is returned depends on the index.
 */
 export enum SpatialQueryMode {
-  CLOSEST_HIT = 0,
-  ANY_HIT = 1
+    CLOSEST_HIT = 0,
+    ANY_HIT = 1,
 }

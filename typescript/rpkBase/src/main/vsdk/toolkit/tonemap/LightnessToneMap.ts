@@ -1,7 +1,7 @@
-import { String as JavaString } from "../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Cie } from "../common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Statistics } from "../common/statistics/Statistics";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";

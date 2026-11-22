@@ -1,36 +1,36 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { File } from "vitral/dist/java/io/File";
-import { FileInputStream } from "vitral/dist/java/io/FileInputStream";
-import { System } from "vitral/dist/java/lang/System";
+import { File } from "rpk-base/dist/java/io/File";
+import { FileInputStream } from "rpk-base/dist/java/io/FileInputStream";
+import { System } from "rpk-base/dist/java/lang/System";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
-import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
+import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
+import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Statistics } from "vitral/dist/vsdk/toolkit/common/statistics/Statistics";
-import { BinaryModelDeserializer } from "vitral/dist/vsdk/toolkit/io/bin/reader/BinaryModelDeserializer";
-import { BinaryModelSerializer } from "vitral/dist/vsdk/toolkit/io/bin/writer/BinaryModelSerializer";
-import { ParseRuntimeContext } from "vitral/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
-import { ParseSnapshotContext } from "vitral/dist/vsdk/toolkit/io/context/ParseSnapshotContext";
-import { MgfParserLoader } from "vitral/dist/vsdk/toolkit/io/mgf/MgfParserLoader";
-import { BsdfComponent } from "vitral/dist/vsdk/toolkit/material/BsdfComponent";
-import { Material } from "vitral/dist/vsdk/toolkit/material/Material";
-import { XxdfComponentFlag } from "vitral/dist/vsdk/toolkit/material/XxdfComponentFlag";
-import { MeshSurfaceVisitor } from "vitral/dist/vsdk/toolkit/numericalAnalysis/MeshSurfaceVisitor";
-import { PatchVisitor } from "vitral/dist/vsdk/toolkit/numericalAnalysis/PatchVisitor";
-import { RenderHookList } from "vitral/dist/vsdk/toolkit/render/RenderHookList";
-import { Background } from "vitral/dist/vsdk/toolkit/scene/Background";
-import { PatchClusterOctreeNode } from "vitral/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { VisibilityQueryRecorder } from "vitral/dist/vsdk/toolkit/scene/VisibilityQueryRecorder";
-import { SceneQuery } from "vitral/dist/vsdk/toolkit/scene/SceneQuery";
-import { Compound } from "vitral/dist/vsdk/toolkit/skin/Compound";
-import { Geometry } from "vitral/dist/vsdk/toolkit/skin/Geometry";
-import { GeometryClassId } from "vitral/dist/vsdk/toolkit/skin/GeometryClassId";
-import { MeshSurface } from "vitral/dist/vsdk/toolkit/skin/MeshSurface";
-import { Patch } from "vitral/dist/vsdk/toolkit/environment/geometry/elements/Patch";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
-import { Vector3D } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3D";
+import { Statistics } from "rpk-base/dist/vsdk/toolkit/common/statistics/Statistics";
+import { BinaryModelDeserializer } from "rpk-base/dist/vsdk/toolkit/io/bin/reader/BinaryModelDeserializer";
+import { BinaryModelSerializer } from "rpk-base/dist/vsdk/toolkit/io/bin/writer/BinaryModelSerializer";
+import { ParseRuntimeContext } from "rpk-base/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
+import { ParseSnapshotContext } from "rpk-base/dist/vsdk/toolkit/io/context/ParseSnapshotContext";
+import { MgfParserLoader } from "rpk-base/dist/vsdk/toolkit/io/mgf/MgfParserLoader";
+import { BsdfComponent } from "rpk-base/dist/vsdk/toolkit/material/BsdfComponent";
+import { Material } from "rpk-base/dist/vsdk/toolkit/material/Material";
+import { XxdfComponentFlag } from "rpk-base/dist/vsdk/toolkit/material/XxdfComponentFlag";
+import { MeshSurfaceVisitor } from "rpk-base/dist/vsdk/toolkit/numericalAnalysis/MeshSurfaceVisitor";
+import { PatchVisitor } from "rpk-base/dist/vsdk/toolkit/numericalAnalysis/PatchVisitor";
+import { RenderHookList } from "rpk-base/dist/vsdk/toolkit/render/RenderHookList";
+import { Background } from "rpk-base/dist/vsdk/toolkit/scene/Background";
+import { PatchClusterOctreeNode } from "rpk-base/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { VisibilityQueryRecorder } from "rpk-base/dist/vsdk/toolkit/scene/VisibilityQueryRecorder";
+import { SceneQuery } from "rpk-base/dist/vsdk/toolkit/scene/SceneQuery";
+import { Compound } from "rpk-base/dist/vsdk/toolkit/skin/Compound";
+import { Geometry } from "rpk-base/dist/vsdk/toolkit/skin/Geometry";
+import { GeometryClassId } from "rpk-base/dist/vsdk/toolkit/skin/GeometryClassId";
+import { MeshSurface } from "rpk-base/dist/vsdk/toolkit/skin/MeshSurface";
+import { Patch } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/Patch";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Adaptation } from "./Adaptation";
 import { Batch } from "./Batch";
 import { Radiance } from "./Radiance";
@@ -67,12 +67,12 @@ export class SceneBuilder {
   }
 
   private static sceneBuilderComputeStats(scene: Scene): void {
-    const zero = new Vector3D();
+    let zero = new Vector3Df();
     const one = new ColorRgbMutable();
     const averageAbsorption = new ColorRgbMutable();
 
     one.setMonochrome(1.0);
-    zero.set(0, 0, 0);
+    zero = new Vector3Df(0, 0, 0);
 
     // Initialize
     Statistics.instance().radiance.totalEmittedPower.clear();

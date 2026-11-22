@@ -3,10 +3,10 @@ Constant Control Radiosity
 */
 
 import { System } from "../../../../java/lang/System";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { McradP } from "./McradP";
 import { StochasticRadiosityElement } from "./StochasticRadiosityElement";

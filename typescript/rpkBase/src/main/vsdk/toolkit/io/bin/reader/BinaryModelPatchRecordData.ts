@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
-import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Patch } from "../../../environment/geometry/elements/Patch";
 
 export class BinaryModelPatchRecordData {
@@ -9,11 +9,11 @@ export class BinaryModelPatchRecordData {
   public vertexIndices: number[];
   public hasBoundingBox: boolean;
   public boundingBoxCoordinates: number[];
-  public normal: Vector3D;
+  public normal: Vector3Df;
   public planeConstant: number;
   public tolerance: number;
   public area: number;
-  public midPoint: Vector3D;
+  public midPoint: Vector3Df;
   public hasJacobian: boolean;
   public jacobianA: number;
   public jacobianB: number;
@@ -33,11 +33,11 @@ export class BinaryModelPatchRecordData {
     this.vertexIndices = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(-1);
     this.hasBoundingBox = false;
     this.boundingBoxCoordinates = new Array<number>(6).fill(0.0);
-    this.normal = new Vector3D();
+    this.normal = new Vector3Df();
     this.planeConstant = 0.0;
     this.tolerance = 0.0;
     this.area = 0.0;
-    this.midPoint = new Vector3D();
+    this.midPoint = new Vector3Df();
     this.hasJacobian = false;
     this.jacobianA = 0.0;
     this.jacobianB = 0.0;

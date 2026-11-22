@@ -1,8 +1,8 @@
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { PhotonMapState } from "vitral/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { PhotonMapState } from "rpk-base/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
 import { OptionTextUtils } from "./OptionTextUtils";
 
 export class OptionsGroupPhotonMap {

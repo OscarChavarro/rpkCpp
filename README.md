@@ -153,6 +153,21 @@ and returns at once, and the runs go on after the terminal is closed. With no ar
 `output/runCorpus.log` ends with the line `runCorpus.sh exit status: N` when every corpus run has finished.
 The script is the same in every port.
 
+For parallel Jacobi, `scripts/runAllParallel.sh` in the C++, Java and TypeScript
+ports accepts `--threads N` and an optional `--cpu-groups` argument. CPU groups
+are semicolon-separated Linux `taskset` CPU lists; successive scene processes
+are assigned to the groups in round-robin order, and their children inherit the
+affinity. For example, on a machine whose two sockets use CPUs 0–17 and 18–35:
+
+```bash
+./scripts/runAllParallel.sh --threads 18 --cpu-groups '0-17;18-35'
+```
+
+The script starts multiple scenes concurrently. The thread count is per scene,
+not a global limit. Affinity needs `taskset` and `flock`; omit `--cpu-groups`
+to leave affinity unchanged. The actual CPU numbers depend on the machine.
+Positional image or script names after the options select corpus entries.
+
 To check a change, run the test corpus and then the image gate (ImageMagick `compare`):
 
 ```bash

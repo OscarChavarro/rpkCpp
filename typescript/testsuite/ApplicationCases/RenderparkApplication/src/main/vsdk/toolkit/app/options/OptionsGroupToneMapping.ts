@@ -1,15 +1,15 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
+import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
+import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { Vector3D } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3D";
-import { ToneMap } from "vitral/dist/vsdk/toolkit/tonemap/ToneMap";
-import { ToneMapAdaptationMethod } from "vitral/dist/vsdk/toolkit/tonemap/ToneMapAdaptationMethod";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { ToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMap";
+import { ToneMapAdaptationMethod } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMapAdaptationMethod";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { OptionTextUtils } from "./OptionTextUtils";
 
 export class OptionsGroupToneMapping {
@@ -54,13 +54,13 @@ export class OptionsGroupToneMapping {
     );
   }
 
-  private static redChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
+  private static redChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xr = value.value.x;
-    OptionsGroupToneMapping.toneMapOptions.yr = value.value.y;
+    OptionsGroupToneMapping.toneMapOptions.xr = value.value.x();
+    OptionsGroupToneMapping.toneMapOptions.yr = value.value.y();
     Cie.computeColorConversionTransforms(
       OptionsGroupToneMapping.toneMapOptions.xr,
       OptionsGroupToneMapping.toneMapOptions.yr,
@@ -73,13 +73,13 @@ export class OptionsGroupToneMapping {
     );
   }
 
-  private static greenChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
+  private static greenChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xg = value.value.x;
-    OptionsGroupToneMapping.toneMapOptions.yg = value.value.y;
+    OptionsGroupToneMapping.toneMapOptions.xg = value.value.x();
+    OptionsGroupToneMapping.toneMapOptions.yg = value.value.y();
     Cie.computeColorConversionTransforms(
       OptionsGroupToneMapping.toneMapOptions.xr,
       OptionsGroupToneMapping.toneMapOptions.yr,
@@ -92,13 +92,13 @@ export class OptionsGroupToneMapping {
     );
   }
 
-  private static blueChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
+  private static blueChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xb = value.value.x;
-    OptionsGroupToneMapping.toneMapOptions.yb = value.value.y;
+    OptionsGroupToneMapping.toneMapOptions.xb = value.value.x();
+    OptionsGroupToneMapping.toneMapOptions.yb = value.value.y();
     Cie.computeColorConversionTransforms(
       OptionsGroupToneMapping.toneMapOptions.xr,
       OptionsGroupToneMapping.toneMapOptions.yr,
@@ -111,13 +111,13 @@ export class OptionsGroupToneMapping {
     );
   }
 
-  private static whiteChromaOption(value: TypedOption.MutableValue<Vector3D>): void {
+  private static whiteChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xw = value.value.x;
-    OptionsGroupToneMapping.toneMapOptions.yw = value.value.y;
+    OptionsGroupToneMapping.toneMapOptions.xw = value.value.x();
+    OptionsGroupToneMapping.toneMapOptions.yw = value.value.y();
     Cie.computeColorConversionTransforms(
       OptionsGroupToneMapping.toneMapOptions.xr,
       OptionsGroupToneMapping.toneMapOptions.yr,
@@ -163,10 +163,10 @@ export class OptionsGroupToneMapping {
   ): void {
     const toneMapMethodName = TypedOption.valueRef<string | null>(null);
     const adaptMethodName = TypedOption.valueRef<string | null>(null);
-    const redChromaticityValue = new Vector3D(0.0, 0.0, 0.0);
-    const greenChromaticityValue = new Vector3D(0.0, 0.0, 0.0);
-    const blueChromaticityValue = new Vector3D(0.0, 0.0, 0.0);
-    const whiteChromaticityValue = new Vector3D(0.0, 0.0, 0.0);
+    const redChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
+    const greenChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
+    const blueChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
+    const whiteChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
 
     const toneMappingOpt = new TypedOption<string | null>(
       "-tonemapping",
@@ -254,28 +254,28 @@ export class OptionsGroupToneMapping {
       null,
       OptionsGroupToneMapping.parseColor3
     );
-    const redOpt = new TypedOption<Vector3D>(
+    const redOpt = new TypedOption<Vector3Df>(
       "-red",
       TypedOption.valueRef(redChromaticityValue),
       2,
       OptionsGroupToneMapping.redChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const greenOpt = new TypedOption<Vector3D>(
+    const greenOpt = new TypedOption<Vector3Df>(
       "-green",
       TypedOption.valueRef(greenChromaticityValue),
       2,
       OptionsGroupToneMapping.greenChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const blueOpt = new TypedOption<Vector3D>(
+    const blueOpt = new TypedOption<Vector3Df>(
       "-blue",
       TypedOption.valueRef(blueChromaticityValue),
       2,
       OptionsGroupToneMapping.blueChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const whiteOpt = new TypedOption<Vector3D>(
+    const whiteOpt = new TypedOption<Vector3Df>(
       "-white",
       TypedOption.valueRef(whiteChromaticityValue),
       2,
@@ -332,7 +332,7 @@ export class OptionsGroupToneMapping {
   private static parseCieXy(
     argc: number,
     argv: string[] | null,
-    value: TypedOption.MutableValue<Vector3D>
+    value: TypedOption.MutableValue<Vector3Df>
   ): boolean {
     if (argc < 2 || argv === null || argv[0] === null || argv[1] === null) {
       return false;
@@ -342,9 +342,9 @@ export class OptionsGroupToneMapping {
     if (Number.isNaN(x) || Number.isNaN(y)) {
       return false;
     }
-    value.value.x = x;
-    value.value.y = y;
-    value.value.z = 0.0;
+    value.value = value.value.withX(x);
+    value.value = value.value.withY(y);
+    value.value = value.value.withZ(0.0);
     return true;
   }
 }

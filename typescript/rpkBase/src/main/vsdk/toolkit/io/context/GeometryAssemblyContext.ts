@@ -1,4 +1,4 @@
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { Vertex } from "../../environment/geometry/elements/Vertex";
@@ -10,8 +10,8 @@ export class GeometryAssemblyContext {
   public geometryStackHeadIndex: number;
   public geometryStack: Array<Geometry[] | null>;
 
-  public currentPointList: Vector3D[] | null;
-  public currentNormalList: Vector3D[] | null;
+  public currentPointList: Vector3Df[] | null;
+  public currentNormalList: Vector3Df[] | null;
   public currentVertexList: Vertex[] | null;
   public currentFaceList: Patch[] | null;
   public currentGeometryList: Geometry[] | null;

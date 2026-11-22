@@ -1,35 +1,33 @@
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
-import type { SceneConsumer } from "./SceneConsumer";
-import { GalerkinRadianceMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
-import { ClusterCreationStrategy } from "vitral/dist/vsdk/toolkit/galerkin/processing/ClusterCreationStrategy";
-import { ParseRuntimeContext } from "vitral/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
-import { DkColor } from "vitral/dist/vsdk/toolkit/io/image/DkColor";
-import { BidirectionalPathTracingState } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
-import { LightList } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
-import { RayTracer } from "vitral/dist/vsdk/toolkit/raycasting/common/RayTracer";
-import { PhotonMapConfig } from "vitral/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapConfig";
-import { PhotonMapState } from "vitral/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
-import { RayMatterState } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
-import { ElementHierarchyState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
-import { StochasticRadiosityBasisState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityBasisState";
-import { StochasticRayTracingState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
-import { StochasticRelaxation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
-import { PatchClusterOctreeNode } from "vitral/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
-import { RadianceMethod } from "vitral/dist/vsdk/toolkit/scene/RadianceMethod";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { VoxelGrid } from "vitral/dist/vsdk/toolkit/scene/VoxelGrid";
-import { Vertex } from "vitral/dist/vsdk/toolkit/environment/geometry/elements/Vertex";
-import { VertexCompareFlags } from "vitral/dist/vsdk/toolkit/environment/geometry/elements/VertexCompareFlags";
-import { FerwerdaToneMap } from "vitral/dist/vsdk/toolkit/tonemap/FerwerdaToneMap";
-import { LightnessToneMap } from "vitral/dist/vsdk/toolkit/tonemap/LightnessToneMap";
-import { RevisedTumblinRushmeierToneMap } from "vitral/dist/vsdk/toolkit/tonemap/RevisedTumblinRushmeierToneMap";
-import { ToneMap } from "vitral/dist/vsdk/toolkit/tonemap/ToneMap";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
-import { TumblinRushmeierToneMap } from "vitral/dist/vsdk/toolkit/tonemap/TumblinRushmeierToneMap";
-import { WardToneMap } from "vitral/dist/vsdk/toolkit/tonemap/WardToneMap";
-import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
-import { Material } from "vitral/dist/vsdk/toolkit/material/Material";
-import { MgfParserLoader } from "vitral/dist/vsdk/toolkit/io/mgf/MgfParserLoader";
+import { GalerkinRadianceMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
+import { ClusterCreationStrategy } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/ClusterCreationStrategy";
+import { ParseRuntimeContext } from "rpk-base/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
+import { DkColor } from "rpk-base/dist/vsdk/toolkit/io/image/DkColor";
+import { BidirectionalPathTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
+import { LightList } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
+import { RayTracer } from "rpk-base/dist/vsdk/toolkit/raycasting/common/RayTracer";
+import { PhotonMapConfig } from "rpk-base/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapConfig";
+import { PhotonMapState } from "rpk-base/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
+import { RayMatterState } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
+import { ElementHierarchyState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
+import { StochasticRadiosityBasisState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityBasisState";
+import { StochasticRayTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
+import { StochasticRelaxation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
+import { PatchClusterOctreeNode } from "rpk-base/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
+import { RadianceMethod } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethod";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { Vertex } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/Vertex";
+import { VertexCompareFlags } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/VertexCompareFlags";
+import { FerwerdaToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/FerwerdaToneMap";
+import { LightnessToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/LightnessToneMap";
+import { RevisedTumblinRushmeierToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/RevisedTumblinRushmeierToneMap";
+import { ToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMap";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { TumblinRushmeierToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/TumblinRushmeierToneMap";
+import { WardToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/WardToneMap";
+import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
+import { Material } from "rpk-base/dist/vsdk/toolkit/material/Material";
+import { MgfParserLoader } from "rpk-base/dist/vsdk/toolkit/io/mgf/MgfParserLoader";
 import { Batch } from "./Batch";
 import { Radiance } from "./Radiance";
 import { Raytrace } from "./Raytrace";
@@ -204,11 +202,9 @@ export class RpkApplication {
   }
 
   /**
-  Runs the program for the given command line. With a consumer, the scene
-  is built from the command line as for a rendering, handed to the
-  consumer instead of being rendered, and the consumer's status returned.
+  Runs the program for the given command line
   */
-  public entryPoint(argc: number, argv: string[], consumer: SceneConsumer | null = null): number {
+  public entryPoint(argc: number, argv: string[]): number {
     // 1. Default empty scene
     RpkApplication.mainInitApplication();
 
@@ -255,13 +251,6 @@ export class RpkApplication {
     this.selectToneMapByName(initializationToneMapName[0]!); // Note this is used for basic Galerkin model initialization
     SceneBuilder.sceneBuilderCreateModel(argcRef, argv, this.mgfContext, this.scene, this.toneMapOptions);
     this.selectToneMapByName(renderToneMapName[0]!);
-
-    if (consumer !== null) {
-      // The scene goes to the consumer (a test program) instead of the renderer
-      const status = consumer.consume(this.scene);
-      RpkApplication.freeMemory(this.mgfContext);
-      return status;
-    }
 
     // 4. Run main radiosity simulation and export result
     this.executeRendering(

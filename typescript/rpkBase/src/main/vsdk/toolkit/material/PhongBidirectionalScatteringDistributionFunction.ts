@@ -1,8 +1,7 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "./BsdfComponent";
 import { BsdfComponentFlag } from "./BsdfComponentFlag";
 import { BsdfComponentInfo } from "./BsdfComponent";
@@ -13,6 +12,7 @@ import { ShadingContext } from "./ShadingContext";
 import { ShadingContextFlag } from "./ShadingContextFlag";
 import { SplitBSDFSamplingMode } from "./SplitBSDFSamplingMode";
 import { Texture } from "./Texture";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class PhongBidirectionalScatteringDistributionFunction {
   private static readonly TEXTURED_COMPONENT = BsdfComponent.BRDF_DIFFUSE_COMPONENT;
@@ -43,7 +43,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return this.texture;
   }
 
-  public static bsdfShadingFrame(context: ShadingContext, X: Vector3D | null, Y: Vector3D | null, Z: Vector3D | null): boolean {
+  public static bsdfShadingFrame(context: ShadingContext, X: Vector3Df[] | null, Y: Vector3Df[] | null, Z: Vector3Df[] | null): boolean {
     void context;
     void X;
     void Y;
@@ -64,7 +64,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
       return col;
     }
     const texCoord = context.getTexCoord();
-    return texture.evaluateColor(texCoord.x, texCoord.y);
+    return texture.evaluateColor(texCoord.x(), texCoord.y());
   }
 
   public splitBsdfScatteredPower(context: ShadingContext, flags: number): ColorRgbMutable {
@@ -98,12 +98,12 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   private static texturedScattererSample(
-    inDirection: Vector3D,
-    normal: Vector3D,
+    inDirection: Vector3Df,
+    normal: Vector3Df,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3D {
+  ): Vector3Df {
     void inDirection;
     const coord = new CoordinateSystem();
     coord.setFromZAxis(normal);
@@ -111,9 +111,9 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   private static texturedScattererEvalPdf(
-    inDirection: Vector3D,
-    out: Vector3D,
-    normal: Vector3D,
+    inDirection: Vector3Df,
+    out: Vector3Df,
+    normal: Vector3Df,
     probabilityDensityFunction: number[] | null
   ): void {
     void inDirection;
@@ -190,23 +190,23 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3D,
+    inDirection: Vector3Df,
     doRussianRoulette: number,
     flags: number,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3D {
-    const normal = new Vector3D();
-    let out = new Vector3D();
+  ): Vector3Df {
+    let normal = new Vector3Df();
+    let out = new Vector3Df();
 
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "sample", "Couldn't determine shading normal");
-      out.set(0.0, 0.0, 1.0);
+      out = new Vector3Df(0.0, 0.0, 1.0);
       return out;
     }
-    normal.copy(context.getShadingNormal());
+    normal = context.getShadingNormal();
 
     const localTexture = [0.0];
     const reflection = [0.0];
@@ -217,7 +217,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     this.splitBsdfProbabilities(context, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
 
     const scattering = localTexture[0]! + reflection[0]! + transmission[0]!;
-    if (scattering < Numeric.EPSILON) {
+    if (scattering < VSDK.EPSILON) {
       return out;
     }
 
@@ -250,7 +250,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
           inDirection, normal, localX1[0]!, x2, pTexture
         );
         p = pTexture[0]!;
-        if (p < Numeric.EPSILON) {
+        if (p < VSDK.EPSILON) {
           return out;
         }
         PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, localTexture[0]! * p);
@@ -265,7 +265,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
           out = this.brdf.sample(inDirection, normal, 0, brdfFlags[0]!, localX1[0]!, x2, pReflection);
           p = pReflection[0]!;
         }
-        if (p < Numeric.EPSILON) {
+        if (p < VSDK.EPSILON) {
           return out;
         }
         PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, reflection[0]! * p);
@@ -274,16 +274,16 @@ export class PhongBidirectionalScatteringDistributionFunction {
       case SplitBSDFSamplingMode.SAMPLE_TRANSMISSION: {
         if (this.btdf === null) {
           p = 0.0;
-          out.x = 0.0;
-          out.y = 0.0;
-          out.z = 0.0;
+          out = out.withX(0.0);
+          out = out.withY(0.0);
+          out = out.withZ(0.0);
         }
         else {
           const pTransmission = [0.0];
           out = this.btdf.sample(inIndex, outIndex, inDirection, normal, 0, btdfFlags[0]!, localX1[0]!, x2, pTransmission);
           p = pTransmission[0]!;
         }
-        if (p < Numeric.EPSILON) {
+        if (p < VSDK.EPSILON) {
           return out;
         }
         PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, transmission[0]! * p);
@@ -337,7 +337,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return out;
   }
 
-  private static texturedScattererEval(inDirection: Vector3D, out: Vector3D, normal: Vector3D): number {
+  private static texturedScattererEval(inDirection: Vector3Df, out: Vector3Df, normal: Vector3Df): number {
     void inDirection;
     void out;
     void normal;
@@ -348,19 +348,19 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3D,
-    out: Vector3D,
+    inDirection: Vector3Df,
+    out: Vector3Df,
     flags: number
   ): ColorRgbMutable {
     const result = new ColorRgbMutable();
-    const normal = new Vector3D();
+    let normal = new Vector3Df();
 
     result.clear();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "evaluate", "Couldn't determine shading normal");
       return result;
     }
-    normal.copy(context.getShadingNormal());
+    normal = context.getShadingNormal();
 
     if (this.texture !== null && (flags & PhongBidirectionalScatteringDistributionFunction.TEXTURED_COMPONENT) !== 0) {
       const textureBsdf = PhongBidirectionalScatteringDistributionFunction.texturedScattererEval(inDirection, out, normal);
@@ -404,8 +404,8 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3D,
-    out: Vector3D,
+    inDirection: Vector3Df,
+    out: Vector3Df,
     flags: number,
     probabilityDensityFunction: number[] | null,
     probabilityDensityFunctionRR: number[] | null
@@ -413,12 +413,12 @@ export class PhongBidirectionalScatteringDistributionFunction {
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
 
-    const normal = new Vector3D();
+    let normal = new Vector3Df();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
       return;
     }
-    normal.copy(context.getShadingNormal());
+    normal = context.getShadingNormal();
 
     const pTexture = [0.0];
     const pReflection = [0.0];
@@ -429,7 +429,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     this.splitBsdfProbabilities(context, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
 
     const pScattering = pTexture[0]! + pReflection[0]! + pTransmission[0]!;
-    if (pScattering < Numeric.EPSILON) {
+    if (pScattering < VSDK.EPSILON) {
       return;
     }
 
@@ -489,8 +489,8 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3D,
-    out: Vector3D,
+    inDirection: Vector3Df,
+    out: Vector3Df,
     flags: number,
     colArray: ColorRgbMutable[]
   ): ColorRgbMutable {

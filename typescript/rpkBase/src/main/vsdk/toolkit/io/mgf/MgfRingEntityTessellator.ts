@@ -1,5 +1,5 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";
@@ -8,6 +8,7 @@ import { VertexContext } from "../context/VertexContext";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfTessellationMath } from "./MgfTessellationMath";
 import { MgfVertexFaceEntitySupport } from "./MgfVertexFaceEntitySupport";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class MgfRingEntityTessellator {
   private constructor() {
@@ -79,14 +80,14 @@ export class MgfRingEntityTessellator {
     if (vertexContext === null) {
       return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if (MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
+    if (MgfTessellationMath.isNull(vertexContext.n, VSDK.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if (!TokenValidationContext.isFloat(argumentValues[2]!) || !TokenValidationContext.isFloat(argumentValues[3]!)) {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
     let minRadius = Number.parseFloat(argumentValues[2]!);
-    if (minRadius <= Numeric.EPSILON && minRadius >= -Numeric.EPSILON) {
+    if (minRadius <= VSDK.EPSILON && minRadius >= -VSDK.EPSILON) {
       minRadius = 0.0;
     }
     const maxRadius = Number.parseFloat(argumentValues[3]!);
@@ -97,7 +98,7 @@ export class MgfRingEntityTessellator {
     // Initialize
     const uHolder: Vector3Dd[] = [];
     const vHolder: Vector3Dd[] = [];
-    MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, vertexContext.n, Numeric.EPSILON);
+    MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, vertexContext.n, VSDK.EPSILON);
     const u = uHolder[0]!;
     const v = vHolder[0]!;
     MgfTessellationMath.formatFloat(p3x, 24, vertexContext.p.x() + maxRadius * u.x());
@@ -115,7 +116,7 @@ export class MgfRingEntityTessellator {
       return errorCode;
     }
 
-    if (Numeric.doubleEqual(minRadius, 0.0, Numeric.EPSILON)) {
+    if (Numeric.doubleEqual(minRadius, 0.0, VSDK.EPSILON)) {
       // Closed
       v1Entity[3] = argumentValues[1]!;
       errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 4, v1Entity as string[], context);

@@ -1,8 +1,8 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { ShadingContext } from "./ShadingContext";
 import { ShadingContextFlag } from "./ShadingContextFlag";
 import { Xxdf } from "./Xxdf";
@@ -45,7 +45,7 @@ export class PhongEmittanceDistributionFunction {
     return false;
   }
 
-  public static edfShadingFrame(context: ShadingContext, X: Vector3D | null, Y: Vector3D | null, Z: Vector3D | null): boolean {
+  public static edfShadingFrame(context: ShadingContext, X: Vector3Df[] | null, Y: Vector3Df[] | null, Z: Vector3Df[] | null): boolean {
     void context;
     void X;
     void Y;
@@ -76,11 +76,11 @@ export class PhongEmittanceDistributionFunction {
 
   public phongEdfEval(
     context: ShadingContext | null,
-    out: Vector3D,
+    out: Vector3Df,
     flags: number,
     probabilityDensityFunction: number[] | null
   ): ColorRgbMutable {
-    const normal = new Vector3D();
+    let normal = new Vector3Df();
     const result = new ColorRgbMutable();
     result.clear();
     PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
@@ -89,7 +89,7 @@ export class PhongEmittanceDistributionFunction {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
       return result;
     }
-    normal.copy(context.getShadingNormal());
+    normal = context.getShadingNormal();
 
     const cosL = out.dotProduct(normal);
     if (cosL < 0.0) {
@@ -115,21 +115,21 @@ export class PhongEmittanceDistributionFunction {
     xi2: number,
     selfEmittedRadiance: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
-  ): Vector3D {
+  ): Vector3Df {
     if (selfEmittedRadiance !== null) {
       selfEmittedRadiance.clear();
     }
     PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
 
-    let dir = new Vector3D(0.0, 0.0, 1.0);
+    let dir = new Vector3Df(0.0, 0.0, 1.0);
     if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) {
       const coord = new CoordinateSystem();
-      const normal = new Vector3D();
+      let normal = new Vector3Df();
       if (context === null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
         VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
         return dir;
       }
-      normal.copy(context.getShadingNormal());
+      normal = context.getShadingNormal();
 
       coord.setFromZAxis(normal);
       const sampledPdf = [0.0];

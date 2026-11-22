@@ -1,5 +1,4 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";
@@ -9,6 +8,7 @@ import { VertexContext } from "../context/VertexContext";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfTessellationMath } from "./MgfTessellationMath";
 import { MgfVertexFaceEntitySupport } from "./MgfVertexFaceEntitySupport";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class MgfPrismEntityTessellator {
   private constructor() {
@@ -53,7 +53,7 @@ export class MgfPrismEntityTessellator {
       return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
     }
     const length = Number.parseFloat(argumentValues[argumentCount - 1]!);
-    if (length <= Numeric.EPSILON && length >= -Numeric.EPSILON) {
+    if (length <= VSDK.EPSILON && length >= -VSDK.EPSILON) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
@@ -73,7 +73,7 @@ export class MgfPrismEntityTessellator {
         return ParseErrorContext.MGF_ERROR_UNDEFINED_REFERENCE;
       }
 
-      if (!MgfTessellationMath.isNull(vertexContext.n, Numeric.EPSILON)) {
+      if (!MgfTessellationMath.isNull(vertexContext.n, VSDK.EPSILON)) {
         hasNormal++;
       }
 
@@ -83,7 +83,7 @@ export class MgfPrismEntityTessellator {
       v1 = v2;
     }
     const normalHolder: Vector3Dd[] = [normal];
-    if (MgfTessellationMath.normalizeAndGivePreviousNorm(normalHolder, Numeric.EPSILON) === 0.0) {
+    if (MgfTessellationMath.normalizeAndGivePreviousNorm(normalHolder, VSDK.EPSILON) === 0.0) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     normal = normalHolder[0]!;

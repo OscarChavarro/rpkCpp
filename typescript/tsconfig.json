@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./base" },
+    { "path": "./rpkBase" },
     { "path": "./testsuite/ApplicationCases/RenderparkApplication" }
   ]
 }

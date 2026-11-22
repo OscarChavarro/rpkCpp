@@ -1,6 +1,6 @@
-import { FileOutputStream } from "../io/FileOutputStream.js";
-import { IllegalArgumentException } from "./IllegalArgumentException.js";
-import { PrintStream } from "../io/PrintStream.js";
+import { FileOutputStream } from "../io/FileOutputStream";
+import { IllegalArgumentException } from "vitral/dist/java/lang/IllegalArgumentException";
+import { PrintStream } from "vitral/dist/java/io/PrintStream";
 
 export class System {
     private static readonly standardOutput = new FileOutputStream("/dev/stdout");

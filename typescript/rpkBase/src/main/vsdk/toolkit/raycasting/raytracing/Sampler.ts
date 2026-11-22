@@ -1,6 +1,5 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
@@ -11,6 +10,7 @@ import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { PathRayType } from "../common/PathRayType";
 import { RayTools } from "../common/RayTools";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export abstract class Sampler {
   public static readonly BSDF_ALL_COMPONENTS =
@@ -27,12 +27,12 @@ export abstract class Sampler {
     sceneBackground: Background | null,
     thisNode: SimpleRaytracingPathNode,
     newNode: SimpleRaytracingPathNode,
-    dir: Vector3D,
+    dir: Vector3Df,
     pdfDir: number
   ): boolean {
     const ray = new Ray();
     ray.position = thisNode.m_hit.getPoint();
-    ray.direction.copy(dir);
+    ray.direction = dir;
 
     newNode.m_depth = thisNode.m_depth + 1;
     newNode.m_rayType = PathRayType.STOPS;
@@ -48,8 +48,8 @@ export abstract class Sampler {
     if (hit === null) {
       if (sceneBackground !== null) {
         newNode.m_hit.init(sceneBackground.bkgPatch, null, dir, null);
-        newNode.m_inDirT.copy(dir);
-        newNode.m_inDirF.set(dir.x, dir.y, dir.z);
+        newNode.m_inDirT = dir;
+        newNode.m_inDirF = new Vector3Df(dir.x(), dir.y(), dir.z());
         newNode.m_pdfFromPrev = pdfDir;
         newNode.m_G = globalThis.Math.abs(thisNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
         newNode.m_inBsdf = thisNode.m_outBsdf;
@@ -65,26 +65,26 @@ export abstract class Sampler {
     }
 
     if ((hit.getFlags() & RayHitFlag.BACK) !== 0) {
-      const normal = new Vector3D();
-      normal.scaledCopy(-1.0, newNode.m_hit.getNormal());
+      let normal = new Vector3Df();
+      normal = newNode.m_hit.getNormal().multiply(-1.0);
       newNode.m_hit.setNormal(normal);
     }
 
-    newNode.m_inDirT.copy(ray.direction);
-    newNode.m_inDirF.scaledCopy(-1.0, newNode.m_inDirT);
+    newNode.m_inDirT = ray.direction;
+    newNode.m_inDirF = newNode.m_inDirT.multiply(-1.0);
 
     if (newNode.m_hit.getNormal().dotProduct(newNode.m_inDirF) < 0.0) {
       return false;
     }
 
-    const tmpVec = new Vector3D();
+    let tmpVec = new Vector3Df();
 
     const cosA = globalThis.Math.abs(thisNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
     const cosB = globalThis.Math.abs(newNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
-    tmpVec.subtraction(newNode.m_hit.getPoint(), thisNode.m_hit.getPoint());
-    const dist2 = tmpVec.norm2();
+    tmpVec = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
+    const dist2 = tmpVec.lengthSquared();
 
-    if (dist2 < Numeric.EPSILON) {
+    if (dist2 < VSDK.EPSILON) {
       return false;
     }
 

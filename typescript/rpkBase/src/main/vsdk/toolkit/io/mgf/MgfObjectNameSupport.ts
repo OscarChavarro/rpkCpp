@@ -1,4 +1,4 @@
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { GeometryAssemblyContext } from "../context/GeometryAssemblyContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";

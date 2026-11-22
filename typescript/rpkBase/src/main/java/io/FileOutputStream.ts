@@ -1,4 +1,4 @@
-import { OutputStream } from "./OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 
 const fs = require("node:fs");
 

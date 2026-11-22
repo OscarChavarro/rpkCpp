@@ -1,6 +1,5 @@
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { BoundingBox } from "./AxisAlignedBoundingBox";
@@ -152,7 +151,6 @@ export class Geometry {
   // Scratch storage reused across pre-test calls (this method runs billions
   // of times per scene on the single threaded rendering core; the C++ port
   // keeps these on the stack)
-  private static readonly preTestScratchPoint = new Vector3D();
   private static readonly preTestScratchDistance = [0.0];
 
   public discretizationIntersectPreTest(ray: Ray, minimumDistance: number, maximumDistance: number[], exclusions: RayExclusionSet): boolean {
@@ -161,8 +159,7 @@ export class Geometry {
     }
 
     if (this.bounded) {
-      const vTmp = Geometry.preTestScratchPoint;
-      vTmp.sumScaled(ray.position, minimumDistance, ray.direction);
+      const vTmp = ray.position.add(ray.direction.multiply(minimumDistance));
       if (this.boundingBox.outOfBounds(vTmp)) {
         const nMaximumDistance = Geometry.preTestScratchDistance;
         nMaximumDistance[0] = maximumDistance[0]!;

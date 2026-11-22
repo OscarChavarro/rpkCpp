@@ -1,4 +1,4 @@
-import { OutputStream } from "../../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { CppReAlloc } from "../../common/memoryManagement/CppReAlloc";
 

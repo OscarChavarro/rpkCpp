@@ -1,7 +1,7 @@
-import { Logger as VsdkLogger } from "../../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../../../common/linealAlgebra/CoordinateSystem";
-import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd";
-import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Material } from "../../../material/Material";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../../material/PhongBidirectionalScatteringDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
@@ -11,20 +11,25 @@ import { RayHitFlag } from "./RayHitFlag";
 import type { Patch } from "./Patch";
 
 export class RayHit {
-  private point: Vector3D;
+  // Immutable constants shared by every hit (TypeScript only: they spare an
+  // allocation per initialised hit)
+  private static readonly ZERO_VECTOR = new Vector3Df(0.0, 0.0, 0.0);
+  private static readonly UNIT_Z_VECTOR = new Vector3Df(0.0, 0.0, 1.0);
+
+  private point: Vector3Df;
   private patch: Patch | null;
-  private texCoord: Vector3D;
-  private geometricNormal: Vector3D;
+  private texCoord: Vector3Df;
+  private geometricNormal: Vector3Df;
   private material: Material | null;
   private shadingFrame: CoordinateSystem;
   private uv: Vector2Dd;
   private flags: number;
 
   public constructor() {
-    this.point = new Vector3D();
+    this.point = new Vector3Df();
     this.patch = null;
-    this.texCoord = new Vector3D();
-    this.geometricNormal = new Vector3D();
+    this.texCoord = new Vector3Df();
+    this.geometricNormal = new Vector3Df();
     this.material = null;
     this.shadingFrame = new CoordinateSystem();
     this.uv = new Vector2Dd();
@@ -61,7 +66,10 @@ export class RayHit {
     return false;
   }
 
-  private pointShadingFrame(inX: Vector3D | null, inY: Vector3D | null, inZ: Vector3D | null): boolean {
+  /**
+  @param inX, inY, inZ one-element holders (C++ `Vector3Df *`), or null
+  */
+  private pointShadingFrame(inX: Vector3Df[] | null, inY: Vector3Df[] | null, inZ: Vector3Df[] | null): boolean {
     let success = false;
 
     if (!this.hitInitialised()) {
@@ -98,20 +106,10 @@ export class RayHit {
     }
 
     if (!success && this.computeUv(this.uv) && this.patch !== null) {
-      const x = inX !== null ? inX : new Vector3D();
-      const y = inY !== null ? inY : new Vector3D();
-      const z = inZ !== null ? inZ : new Vector3D();
+      const x = inX !== null ? inX : [new Vector3Df()];
+      const y = inY !== null ? inY : [new Vector3Df()];
+      const z = inZ !== null ? inZ : [new Vector3Df()];
       this.patch.interpolatedFrameAtUv(this.uv.x, this.uv.y, x, y, z);
-
-      if (inX !== null) {
-        inX.copy(x);
-      }
-      if (inY !== null) {
-        inY.copy(y);
-      }
-      if (inZ !== null) {
-        inZ.copy(z);
-      }
       success = true;
     }
 
@@ -120,8 +118,8 @@ export class RayHit {
 
   public init(
     inPatch: Patch | null,
-    inPoint: Vector3D | null,
-    inGeometryNormal: Vector3D | null,
+    inPoint: Vector3Df | null,
+    inGeometryNormal: Vector3Df | null,
     inMaterial: Material | null
   ): boolean {
     this.flags = 0;
@@ -131,12 +129,12 @@ export class RayHit {
     }
 
     if (inPoint !== null) {
-      this.point.copy(inPoint);
+      this.point = inPoint;
       this.flags |= RayHitFlag.POINT;
     }
 
     if (inGeometryNormal !== null) {
-      this.geometricNormal.copy(inGeometryNormal);
+      this.geometricNormal = inGeometryNormal;
       this.flags |= RayHitFlag.GEOMETRIC_NORMAL;
     }
 
@@ -144,9 +142,8 @@ export class RayHit {
     this.flags |= RayHitFlag.MATERIAL;
     this.flags |= RayHitFlag.DISTANCE;
 
-    const localNormal = new Vector3D();
-    localNormal.set(0.0, 0.0, 0.0);
-    this.texCoord.copy(localNormal);
+    const localNormal = RayHit.ZERO_VECTOR;
+    this.texCoord = localNormal;
     this.shadingFrame.setX(localNormal);
     this.shadingFrame.setY(localNormal);
     this.shadingFrame.setZ(localNormal);
@@ -156,9 +153,12 @@ export class RayHit {
     return this.hitInitialised();
   }
 
-  public getTexCoord(outTexCoord: Vector3D): boolean {
+  /**
+  @param outTexCoord one-element holder (C++ `Vector3Df *`)
+  */
+  public getTexCoord(outTexCoord: Vector3Df[]): boolean {
     if ((this.flags & RayHitFlag.TEXTURE_COORDINATE) !== 0) {
-      outTexCoord.copy(this.texCoord);
+      outTexCoord[0] = this.texCoord;
       return true;
     }
 
@@ -168,7 +168,7 @@ export class RayHit {
 
     if ((this.flags & RayHitFlag.PATCH) !== 0 && this.patch !== null) {
       this.texCoord = this.patch.textureCoordAtUv(this.uv.x, this.uv.y);
-      outTexCoord.copy(this.texCoord);
+      outTexCoord[0] = this.texCoord;
       this.flags |= RayHitFlag.TEXTURE_COORDINATE;
       return true;
     }
@@ -176,43 +176,48 @@ export class RayHit {
     return false;
   }
 
-  public shadingNormal(inNormal: Vector3D): boolean {
+  /**
+  @param inNormal one-element holder (C++ `Vector3Df *`)
+  */
+  public shadingNormal(inNormal: Vector3Df[]): boolean {
     if (((this.flags & RayHitFlag.SHADING_FRAME) !== 0) || ((this.flags & RayHitFlag.NORMAL) !== 0)) {
-      inNormal.copy(this.shadingFrame.getZ());
+      inNormal[0] = this.shadingFrame.getZ();
       return true;
     }
 
-    const localNormal = this.shadingFrame.getZ();
+    const localNormal = [this.shadingFrame.getZ()];
     if (!this.pointShadingFrame(null, null, localNormal)) {
       return false;
     }
 
     this.flags |= RayHitFlag.NORMAL;
-    this.shadingFrame.setZ(localNormal);
-    inNormal.copy(this.shadingFrame.getZ());
+    this.shadingFrame.setZ(localNormal[0]!);
+    inNormal[0] = this.shadingFrame.getZ();
     return true;
   }
 
   public shadingContext(ok: boolean[] | null = null): ShadingContext {
-    const normal = new Vector3D();
-    const texCoord = new Vector3D();
+    const normalHolder = [RayHit.ZERO_VECTOR];
+    const texCoordHolder = [RayHit.ZERO_VECTOR];
     let localFlags = 0;
     let localOk = true;
 
-    if (!this.shadingNormal(normal)) {
+    if (!this.shadingNormal(normalHolder)) {
       localOk = false;
-      normal.set(0.0, 0.0, 1.0);
+      normalHolder[0] = RayHit.UNIT_Z_VECTOR;
     }
     else {
       localFlags |= ShadingContextFlag.SHCTX_NORMAL;
     }
 
-    if (this.getTexCoord(texCoord)) {
+    if (this.getTexCoord(texCoordHolder)) {
       localFlags |= ShadingContextFlag.SHCTX_TEXTURE_COORDINATE;
     }
     else {
-      texCoord.set(0.0, 0.0, 0.0);
+      texCoordHolder[0] = RayHit.ZERO_VECTOR;
     }
+    const normal = normalHolder[0]!;
+    const texCoord = texCoordHolder[0]!;
 
     if (ok !== null && ok.length > 0) {
       ok[0] = localOk;
@@ -231,11 +236,11 @@ export class RayHit {
   }
 
   public setShadingFrame(frame: CoordinateSystem): boolean;
-  public setShadingFrame(inX: Vector3D, inY: Vector3D, inZ: Vector3D): void;
+  public setShadingFrame(inX: Vector3Df, inY: Vector3Df, inZ: Vector3Df): void;
   public setShadingFrame(
-    frameOrX: CoordinateSystem | Vector3D,
-    inY?: Vector3D,
-    inZ?: Vector3D
+    frameOrX: CoordinateSystem | Vector3Df,
+    inY?: Vector3Df,
+    inZ?: Vector3Df
   ): boolean | void {
     if (frameOrX instanceof CoordinateSystem) {
       const frame = frameOrX;
@@ -246,17 +251,17 @@ export class RayHit {
         return true;
       }
 
-      const shadingX = this.shadingFrame.getX();
-      const shadingY = this.shadingFrame.getY();
-      const shadingZ = this.shadingFrame.getZ();
+      const shadingX = [this.shadingFrame.getX()];
+      const shadingY = [this.shadingFrame.getY()];
+      const shadingZ = [this.shadingFrame.getZ()];
 
       if (!this.pointShadingFrame(shadingX, shadingY, shadingZ)) {
         return false;
       }
 
-      this.shadingFrame.setX(shadingX);
-      this.shadingFrame.setY(shadingY);
-      this.shadingFrame.setZ(shadingZ);
+      this.shadingFrame.setX(shadingX[0]!);
+      this.shadingFrame.setY(shadingY[0]!);
+      this.shadingFrame.setZ(shadingZ[0]!);
       this.flags |= RayHitFlag.SHADING_FRAME | RayHitFlag.NORMAL;
 
       frame.setX(this.shadingFrame.getX());
@@ -266,8 +271,8 @@ export class RayHit {
     }
 
     this.shadingFrame.setX(frameOrX);
-    this.shadingFrame.setY(inY as Vector3D);
-    this.shadingFrame.setZ(inZ as Vector3D);
+    this.shadingFrame.setY(inY as Vector3Df);
+    this.shadingFrame.setZ(inZ as Vector3Df);
     return;
   }
 
@@ -279,16 +284,16 @@ export class RayHit {
     this.patch = inPatch;
   }
 
-  public getPoint(): Vector3D {
+  public getPoint(): Vector3Df {
     return this.point;
   }
 
-  public setPoint(position: Vector3D): void {
-    this.point.copy(position);
+  public setPoint(position: Vector3Df): void {
+    this.point = position;
   }
 
-  public setGeometricNormal(inNormal: Vector3D): void {
-    this.geometricNormal.copy(inNormal);
+  public setGeometricNormal(inNormal: Vector3Df): void {
+    this.geometricNormal = inNormal;
   }
 
   public setMaterial(inMaterial: Material | null): void {
@@ -328,11 +333,11 @@ export class RayHit {
     this.flags = inFlags;
   }
 
-  public getNormal(): Vector3D {
+  public getNormal(): Vector3Df {
     return this.shadingFrame.getZ();
   }
 
-  public setNormal(n: Vector3D): void {
+  public setNormal(n: Vector3Df): void {
     this.shadingFrame.setZ(n);
   }
 
@@ -344,7 +349,7 @@ export class RayHit {
     return this.material;
   }
 
-  public getGeometricNormal(): Vector3D {
+  public getGeometricNormal(): Vector3Df {
     return this.geometricNormal;
   }
 
@@ -360,10 +365,10 @@ export class RayHit {
       return;
     }
 
-    this.point.copy(other.point);
+    this.point = other.point;
     this.patch = other.patch;
-    this.texCoord.copy(other.texCoord);
-    this.geometricNormal.copy(other.geometricNormal);
+    this.texCoord = other.texCoord;
+    this.geometricNormal = other.geometricNormal;
     this.material = other.material;
     this.shadingFrame.setX(other.shadingFrame.getX());
     this.shadingFrame.setY(other.shadingFrame.getY());

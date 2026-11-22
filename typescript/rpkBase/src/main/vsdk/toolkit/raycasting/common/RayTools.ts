@@ -3,7 +3,7 @@ import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -13,6 +13,8 @@ import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { SimpleRaytracingPathNode } from "./SimpleRaytracingPathNode";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class RayTools {
   private static pathFrontHitFlags(): number {
@@ -29,7 +31,7 @@ export class RayTools {
     hitStore: RayHit | null
   ): RayHit | null {
     const myHitStore = new RayHit();
-    const dist = [Numeric.HUGE_FLOAT_VALUE];
+    const dist = [Float.MAX_VALUE];
     const localHitStore = hitStore === null ? myHitStore : hitStore;
 
     const exclusions = new RayExclusionSet(patch, patch !== null ? patch.twin : null, extraPatch);
@@ -37,7 +39,7 @@ export class RayTools {
     const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
     if (recorder !== null) {
       recorder.recordQuery(
-        VisibilityQueryRecorder.RAYTRACER_CLOSEST_HIT, ray, 0.0, Numeric.HUGE_FLOAT_VALUE,
+        VisibilityQueryRecorder.RAYTRACER_CLOSEST_HIT, ray, 0.0, Float.MAX_VALUE,
         flags, exclusions, result, dist[0]!);
     }
 
@@ -93,21 +95,21 @@ export class RayTools {
       return false;
     }
 
-    const dir = new Vector3D();
+    let dir = new Vector3Df();
     const ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
 
-    dir.subtraction(node2.m_hit.getPoint(), node1.m_hit.getPoint());
+    dir = node2.m_hit.getPoint().subtract(node1.m_hit.getPoint());
 
-    const dist2 = dir.norm2();
+    const dist2 = dir.lengthSquared();
     let dist = globalThis.Math.sqrt(dist2);
-    dir.inverseScaledCopy(dist, dir, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
 
-    dist = dist * (1.0 - Numeric.EPSILON);
+    dist = dist * (1.0 - VSDK.EPSILON);
 
     ray.position = node1.m_hit.getPoint();
-    ray.direction.copy(dir);
+    ray.direction = dir;
 
     const cosRay1 = dir.dotProduct(node1.m_normal);
     const cosRay2 = -dir.dotProduct(node2.m_normal);
@@ -134,7 +136,7 @@ export class RayTools {
     let visible: boolean;
     if (doTest) {
       if (patch2 !== null && patch2.hasZeroVertices()) {
-        fDistance[0] = Numeric.HUGE_FLOAT_VALUE;
+        fDistance[0] = Float.MAX_VALUE;
       }
       else {
         fDistance[0] = Math.fround(dist);
@@ -181,17 +183,17 @@ export class RayTools {
     pixX: number[] | null,
     pixY: number[] | null
   ): boolean {
-    const dir = new Vector3D();
+    let dir = new Vector3Df();
     const ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
 
-    dir.subtraction(node.m_hit.getPoint(), eyeNode.m_hit.getPoint());
+    dir = node.m_hit.getPoint().subtract(eyeNode.m_hit.getPoint());
 
-    const dist2 = dir.norm2();
+    const dist2 = dir.lengthSquared();
     let dist = globalThis.Math.sqrt(dist2);
 
-    dir.inverseScaledCopy(dist, dir, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
 
     const z = dir.dotProduct(camera.Z);
 
@@ -205,10 +207,10 @@ export class RayTools {
         const yz = y / z;
 
         if (globalThis.Math.abs(yz) < camera.pixelHeightTangent) {
-          dist = dist * (1.0 - Numeric.EPSILON);
+          dist = dist * (1.0 - VSDK.EPSILON);
 
           ray.position = eyeNode.m_hit.getPoint();
-          ray.direction.copy(dir);
+          ray.direction = dir;
 
           const cosRayEye = dir.dotProduct(eyeNode.m_normal);
           const cosRayLight = -dir.dotProduct(node.m_normal);

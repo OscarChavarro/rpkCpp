@@ -1,0 +1,98 @@
+# Files of typescript/base/src/main that the TypeScript port takes from VITRAL's
+# TypeScript port unchanged (plan D1: a pinned source subset). base/ holds
+# exactly these files and nothing else: RenderPark's own classes live in
+# rpkBase/. scripts/vitralSubset.sh --check compares each with a VITRAL checkout
+# (its typescript/base/src/main) byte for byte and fails on any file of
+# base/src/main missing from this list; --refresh copies them from it.
+# Pin: VITRAL 789030e1 plus the TypeScript changes made for this split (the
+# GeometryRay contract in its own module, so that Ray does not bring in
+# Geometry; the scalar parameter code and the RayHit accessors of PlanarFace;
+# the packed traversal arrays of BinnedSahHierarchy).
+# The list is the Java-like layer (java/) and the closure, by imports, of the
+# VITRAL classes RenderPark uses: the single precision lineal algebra
+# (Vector2Df, Vector3Df, Vector4Df, Matrix4x4f, Matrix2x2), ColorRgb, Logger,
+# PersistenceElement, RaytraceStatistics, PlanarFace, Ray, the spatial indexes
+# with BinnedSahHierarchy, and the io/wrapper printers.
+# Not here, although C++ takes them from VITRAL: java/io/File,
+# FileInputStream and FileOutputStream (VITRAL keeps its Node file classes in
+# the separate @vitral/fs package, with another API), java/lang/System (it
+# needs FileOutputStream), MemoryPool and the io/wrapper pipe classes (VITRAL's
+# TypeScript port does not have them). They are RenderPark's, in rpkBase/.
+java/concurrent/WorkerProtocol.ts
+java/io/BufferedInputStream.ts
+java/io/InputStream.ts
+java/io/OutputStream.ts
+java/io/PrintStream.ts
+java/lang/Boolean.ts
+java/lang/Byte.ts
+java/lang/Character.ts
+java/lang/Double.ts
+java/lang/Exception.ts
+java/lang/Float.ts
+java/lang/IllegalArgumentException.ts
+java/lang/IllegalStateException.ts
+java/lang/IndexOutOfBoundsException.ts
+java/lang/Integer.ts
+java/lang/Long.ts
+java/lang/Math.ts
+java/lang/Object.ts
+java/lang/ProcessBuilder.ts
+java/lang/RuntimeException.ts
+java/lang/Short.ts
+java/lang/String.ts
+java/lang/StringBuilder.ts
+java/lang/Throwable.ts
+java/util/ArrayList.ts
+java/util/Formatter.ts
+java/util/HashMap.ts
+java/util/HashMapEntry.ts
+java/util/Iterator.ts
+java/util/NoSuchElementException.ts
+java/util/Random.ts
+java/util/StringTokenizer.ts
+java/util/concurrent/atomic/AtomicLong.ts
+vsdk/toolkit/common/Entity.ts
+vsdk/toolkit/common/EntityEvent.ts
+vsdk/toolkit/common/EntityListener.ts
+vsdk/toolkit/common/FundamentalEntity.ts
+vsdk/toolkit/common/ModelElement.ts
+vsdk/toolkit/common/VSDK.ts
+vsdk/toolkit/common/VSDKFatalException.ts
+vsdk/toolkit/common/VSDKRuntimeSettings.ts
+vsdk/toolkit/common/color/ColorRgb.ts
+vsdk/toolkit/common/linealAlgebra/Matrix2x2.ts
+vsdk/toolkit/common/linealAlgebra/Matrix4x4d.ts
+vsdk/toolkit/common/linealAlgebra/Matrix4x4f.ts
+vsdk/toolkit/common/linealAlgebra/Quaterniond.ts
+vsdk/toolkit/common/linealAlgebra/Quaternionf.ts
+vsdk/toolkit/common/linealAlgebra/Vector2Dd.ts
+vsdk/toolkit/common/linealAlgebra/Vector2Df.ts
+vsdk/toolkit/common/linealAlgebra/Vector3Dd.ts
+vsdk/toolkit/common/linealAlgebra/Vector3Df.ts
+vsdk/toolkit/common/linealAlgebra/Vector4Dd.ts
+vsdk/toolkit/common/linealAlgebra/Vector4Df.ts
+vsdk/toolkit/common/linealAlgebra/package-info.ts
+vsdk/toolkit/common/logging/Logger.ts
+vsdk/toolkit/common/package-info.ts
+vsdk/toolkit/common/statistics/RaytraceStatistics.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchyNode.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahLeafVisitor.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahStoppingLeafVisitor.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBox.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBuildTask.ts
+vsdk/toolkit/environment/geometry/element/GeometryRay.ts
+vsdk/toolkit/environment/geometry/element/PlanarFace.ts
+vsdk/toolkit/environment/geometry/element/Ray.ts
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.ts
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.ts
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.ts
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.ts
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.ts
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.ts
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.ts
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.ts
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.ts
+vsdk/toolkit/io/PersistenceElement.ts
+vsdk/toolkit/io/wrapper/Matrix2x2Printer.ts
+vsdk/toolkit/io/wrapper/Vector3DPrinter.ts

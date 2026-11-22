@@ -1,5 +1,5 @@
-import type { WorkerExecutor, WorkerTransferValue } from "../../../../java/concurrent/WorkerProtocol";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import type { WorkerExecutor, WorkerTransferValue } from "vitral/dist/java/concurrent/WorkerProtocol";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import type { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 
 /**

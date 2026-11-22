@@ -4,10 +4,11 @@
   "private": true,
   "workspaces": [
     "base",
+    "rpkBase",
     "testsuite/ApplicationCases/RenderparkApplication"
   ],
   "scripts": {
-    "build": "npm run -w vitral build && npm run -w renderpark-application build",
+    "build": "npm run -w vitral build && npm run -w rpk-base build && npm run -w renderpark-application build",
     "run": "npm run -w renderpark-application run",
     "run:help": "npm run -w renderpark-application run:help",
     "clean_all": "bash scripts/clean_all.sh"

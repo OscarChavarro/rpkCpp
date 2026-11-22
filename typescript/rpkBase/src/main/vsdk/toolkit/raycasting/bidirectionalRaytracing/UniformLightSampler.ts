@@ -1,6 +1,5 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -13,6 +12,7 @@ import { NextEventSampler } from "../raytracing/NextEventSampler";
 import { Sampler } from "../raytracing/Sampler";
 import { LightList } from "./LightList";
 import { LightListIterator } from "./LightListIterator";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class UniformLightSampler extends NextEventSampler {
   private lightList: LightList | null;
@@ -73,7 +73,7 @@ export class UniformLightSampler extends NextEventSampler {
     let pdfLight: number;
     let pdfPoint: number;
     let light: Patch | null;
-    const point = new Vector3D();
+    let point = new Vector3Df();
 
     newNode.m_depth = 0;
     newNode.m_rayType = PathRayType.STOPS;
@@ -112,7 +112,7 @@ export class UniformLightSampler extends NextEventSampler {
 
     if (light.hasZeroVertices()) {
       const pdf = [0.0];
-      let dir = new Vector3D(0.0, 0.0, 0.0);
+      let dir = new Vector3Df(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null && thisNode !== null) {
         const thisContextOk = [false];
@@ -123,25 +123,25 @@ export class UniformLightSampler extends NextEventSampler {
         dir = light.material.getEdf()!.phongEdfSample(thisContext, flags, x1, x2, null, pdf);
       }
 
-      point.subtraction(thisNode!.m_hit.getPoint(), dir);
+      point = thisNode!.m_hit.getPoint().subtract(dir);
 
       newNode.m_hit.init(light, point, null, light.material);
 
-      newNode.m_inDirT.scaledCopy(-1.0, dir);
-      newNode.m_inDirF.copy(dir);
-      newNode.m_normal.copy(dir);
+      newNode.m_inDirT = dir.multiply(-1.0);
+      newNode.m_inDirF = dir;
+      newNode.m_normal = dir;
 
       pdfPoint = pdf[0]!;
     }
     else {
-      light.uniformPoint(x1, x2, point);
+      point = light.uniformPoint(x1, x2)!;
       pdfPoint = 1.0 / light.getArea();
 
       newNode.m_hit.init(light, point, light.getNormal(), light.material);
-      const normal = new Vector3D();
+      const normal = [new Vector3Df()];
       newNode.m_hit.shadingNormal(normal);
-      newNode.m_hit.setNormal(normal);
-      newNode.m_normal.copy(newNode.m_hit.getNormal());
+      newNode.m_hit.setNormal(normal[0]!);
+      newNode.m_normal = newNode.m_hit.getNormal();
     }
 
     newNode.m_pdfFromPrev = pdfLight * pdfPoint;
@@ -196,7 +196,7 @@ export class UniformLightSampler extends NextEventSampler {
       localPdf *= pdfDir;
     }
     else {
-      if (localPdf >= Numeric.EPSILON && (newNode.m_hit.getPatch() as Patch).getArea() > Numeric.EPSILON) {
+      if (localPdf >= VSDK.EPSILON && (newNode.m_hit.getPatch() as Patch).getArea() > VSDK.EPSILON) {
         localPdf = localPdf / (newNode.m_hit.getPatch() as Patch).getArea();
       }
       else {

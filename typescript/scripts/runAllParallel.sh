@@ -8,6 +8,8 @@
 # output/ as with runAll.sh, are checked against the same references:
 #   scripts/runAllParallel.sh; (wait for output/runCorpus.log and 08.status)
 #   scripts/testReviewResults.sh
+# Options: --threads N and --cpu-groups "LIST;LIST" (round-robin per scene).
+# Each LIST is a taskset CPU list, for example "0-17;18-35".
 # Arguments select corpus entries as in runAll.sh (soda runs only with none).
 #
 # TypeScript: every parallel Jacobi thread is a replica of the program, with
@@ -23,6 +25,9 @@ cd "$SCRIPT_DIR/.." || exit 1
 mkdir -p output
 
 threads="${RPK_THREADS:-4}"
+. "$SCRIPT_DIR/../../scripts/parallelAffinity.sh"
+rpk_parallel_options "$@" || exit $?
+set -- "${RPK_PARALLEL_ARGS[@]}"
 node="$(command -v node)"
 if [ -z "$node" ]; then
     echo "node is not installed"
@@ -33,7 +38,8 @@ wrapperDir="$(pwd)/output/parallelJacobiBin"
 mkdir -p "$wrapperDir"
 wrapper="$wrapperDir/node"
 cat > "$wrapper" <<EOF
-#!/bin/sh
+#!/bin/bash
+. "$SCRIPT_DIR/../../scripts/parallelAffinity.sh"
 case "\$1" in
     *runNodeProgram.mjs) ;;
     *) exec "$node" "\$@" ;;
@@ -47,16 +53,16 @@ for argument in "\$@"; do
     fi
     if [ "\$previous" = "-gr-iteration-method" ]; then
         case "\$argument" in
-            ja*|JA*|Ja*) jacobi=1 ;;
+            ja*|JA*|Ja*|parallel-jacobi) jacobi=1 ;;
             *) jacobi=0 ;;
         esac
     fi
     previous="\$argument"
 done
 if [ \$galerkin -eq 1 ] && [ \$jacobi -eq 1 ]; then
-    exec "$node" "\$@" -gr-iteration-method parallel-jacobi -gr-threads $threads
+    rpk_parallel_exec "$node" "\$@" -gr-iteration-method parallel-jacobi -gr-threads $threads
 fi
-exec "$node" "\$@"
+rpk_parallel_exec "$node" "\$@"
 EOF
 chmod +x "$wrapper"
 

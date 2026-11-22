@@ -2,8 +2,8 @@
 The real importance map storage
 */
 
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Camera } from "../../scene/Camera";
 import { Importon } from "./Importon";
 import { IrrPhoton } from "./IrrPhoton";
@@ -28,11 +28,11 @@ export class ImportanceMap extends PhotonMap {
     this.m_impScalePtr = impScalePtr;
   }
 
-  public override addPhoton(photon: Photon, normal: Vector3D, flags: number): boolean {
+  public override addPhoton(photon: Photon, normal: Vector3Df, flags: number): boolean {
     return super.addPhoton(photon, normal, flags);
   }
 
-  public reconstructImportance(pos: Vector3D, normal: Vector3D): number {
+  public reconstructImportance(pos: Vector3Df, normal: Vector3Df): number {
     const maxDistance = this.m_distances[0]!;
     let result = 0.0;
 
@@ -57,13 +57,13 @@ export class ImportanceMap extends PhotonMap {
     return result;
   }
 
-  public getImpReqDensity(camera: Camera, pos: Vector3D, normal: Vector3D): number {
+  public getImpReqDensity(camera: Camera, pos: Vector3Df, normal: Vector3Df): number {
     let density = this.reconstructImportance(pos, normal);
     density /= camera.pixelWidth * camera.pixelHeight;
     return density;
   }
 
-  public getRequiredDensity(camera: Camera, pos: Vector3D, normal: Vector3D): number {
+  public getRequiredDensity(camera: Camera, pos: Vector3Df, normal: Vector3Df): number {
     if (this.m_nrPhotons === 0) {
       return this.photonMapState.constantRD;
     }
@@ -120,8 +120,8 @@ export class ImportanceMap extends PhotonMap {
 
   protected ComputeAllRequiredDensities(
     camera: Camera,
-    pos: Vector3D,
-    normal: Vector3D,
+    pos: Vector3Df,
+    normal: Vector3Df,
     imp: number[],
     pot: number[],
     diff: number[]

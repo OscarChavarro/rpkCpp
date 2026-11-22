@@ -1,5 +1,5 @@
-import { OutputStream } from "../../../../java/io/OutputStream";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { RadianceMethod } from "../../scene/RadianceMethod";

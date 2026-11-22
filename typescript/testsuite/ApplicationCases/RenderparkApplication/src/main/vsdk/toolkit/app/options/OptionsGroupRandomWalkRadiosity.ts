@@ -1,12 +1,12 @@
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { RandomWalkEstimatorKind } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorKind";
-import { RandomWalkEstimatorType } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorType";
-import { Sampler4DSequence } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/Sampler4DSequence";
-import { StochasticRaytracingApproximation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingApproximation";
-import { StochasticRelaxation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { RandomWalkEstimatorKind } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorKind";
+import { RandomWalkEstimatorType } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorType";
+import { Sampler4DSequence } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/Sampler4DSequence";
+import { StochasticRaytracingApproximation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingApproximation";
+import { StochasticRelaxation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
 import { EnumDesc } from "./EnumDesc";
 import { OptionTextUtils } from "./OptionTextUtils";
 

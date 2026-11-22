@@ -1,5 +1,5 @@
-import { ArrayList } from "../../../../java/util/ArrayList";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { Camera } from "../../scene/Camera";

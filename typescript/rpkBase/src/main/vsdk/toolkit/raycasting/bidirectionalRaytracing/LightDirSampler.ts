@@ -1,6 +1,6 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
@@ -10,6 +10,7 @@ import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "../raytracing/Sampler";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class LightDirSampler extends Sampler {
   public override sample(
@@ -35,7 +36,7 @@ export class LightDirSampler extends Sampler {
       return false;
     }
 
-    let dir = new Vector3D(0.0, 0.0, 0.0);
+    let dir = new Vector3Df(0.0, 0.0, 0.0);
     const lightContextOk = [false];
     const lightContext = thisNode.m_hit.shadingContext(lightContextOk);
     if (!lightContextOk[0]) {
@@ -50,7 +51,7 @@ export class LightDirSampler extends Sampler {
       pdfDir
     );
 
-    if (pdfDir[0]! < Numeric.EPSILON) {
+    if (pdfDir[0]! < VSDK.EPSILON) {
       return false;
     }
 
@@ -90,12 +91,12 @@ export class LightDirSampler extends Sampler {
       return 0.0;
     }
 
-    const outDir = new Vector3D();
+    let outDir = new Vector3Df();
 
-    outDir.subtraction(newNode.m_hit.getPoint(), thisNode.m_hit.getPoint());
-    const dist2 = outDir.norm2();
+    outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
+    const dist2 = outDir.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    outDir.inverseScaledCopy(dist, outDir, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
 
     const outPdf = [0.0];
     thisNode.m_hit.getMaterial()!.getEdf()!.phongEdfEval(

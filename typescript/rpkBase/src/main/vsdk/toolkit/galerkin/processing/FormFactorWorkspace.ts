@@ -1,5 +1,5 @@
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import type { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 import type { GalerkinElement } from "../GalerkinElement";
@@ -24,8 +24,8 @@ export class FormFactorWorkspace {
   private lastSource: GalerkinElement | null = null;
   private receiverCubatureRule: CubatureRule | null = null;
   private sourceCubatureRule: CubatureRule | null = null;
-  private readonly receiverNodes: Vector3D[];
-  private readonly sourceNodes: Vector3D[];
+  private readonly receiverNodes: Vector3Df[];
+  private readonly sourceNodes: Vector3Df[];
   private readonly kernel: number[][];
   private maximumKernelValue = 0.0;
   private visibilityCount = 0; // Number of rays that "pass" occluders
@@ -42,8 +42,8 @@ export class FormFactorWorkspace {
     this.sourceNodes = [];
     this.kernel = [];
     for (let i = 0; i < CubatureRule.MAXIMUM_NODES; i++) {
-      this.receiverNodes.push(new Vector3D());
-      this.sourceNodes.push(new Vector3D());
+      this.receiverNodes.push(new Vector3Df());
+      this.sourceNodes.push(new Vector3Df());
       this.kernel.push(new Array<number>(CubatureRule.MAXIMUM_NODES).fill(0.0));
     }
   }
@@ -77,11 +77,11 @@ export class FormFactorWorkspace {
     this.sourceCubatureRule = rule;
   }
 
-  public getReceiverNodes(): Vector3D[] {
+  public getReceiverNodes(): Vector3Df[] {
     return this.receiverNodes;
   }
 
-  public getSourceNodes(): Vector3D[] {
+  public getSourceNodes(): Vector3Df[] {
     return this.sourceNodes;
   }
 

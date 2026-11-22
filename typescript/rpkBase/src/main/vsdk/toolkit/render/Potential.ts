@@ -1,7 +1,7 @@
-import { String as JavaString } from "../../../java/lang/String";
-import { Logger } from "../common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../common/statistics/Statistics";
 import { SglContext } from "../render/sgl/SglContext";
 import type { FaceVisibilityTable } from "../scene/FaceVisibilityTable";
@@ -68,8 +68,8 @@ export class Potential {
         const theId = ids[rowStart + i]! & 0x00ffffff;
 
         if (theId > 0 && theId <= maximumPatchId) {
-          const pixDir = new Vector3D();
-          pixDir.combine3(camera.Z, xSample, camera.X, ySample, camera.Y);
+          let pixDir = new Vector3Df();
+          pixDir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
 
           // Delta_importance = (cosine of the angle between the direction to
           // the pixel and the viewing direction, over the distance from the

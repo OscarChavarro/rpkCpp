@@ -1,10 +1,10 @@
 import { File } from "../../../../java/io/File";
 import { FileOutputStream } from "../../../../java/io/FileOutputStream";
-import { OutputStream } from "../../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { DkColor } from "./DkColor";
 import { ImageOutputHandle } from "./ImageOutputHandle";
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 
 export class PicOutputHandle extends ImageOutputHandle {
   private outputStream: OutputStream | null;

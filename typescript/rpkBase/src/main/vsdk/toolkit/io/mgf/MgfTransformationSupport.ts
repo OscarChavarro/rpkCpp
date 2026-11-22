@@ -1,5 +1,5 @@
-import { Matrix4x4d } from "../../common/linealAlgebra/Matrix4x4d";
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Matrix4x4d } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4d";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";

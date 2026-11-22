@@ -381,7 +381,10 @@ export class BinnedSahHierarchy {
         nodeVisits: number[],
         entryTests: number[],
     ): boolean {
-        if (this.packedLinks.length !== 2 * this.nodes.size() || this.packedOrder.length !== this.primitiveOrder.size()) {
+        if (
+            this.packedLinks.length !== 2 * this.nodes.size() ||
+            this.packedOrder.length !== this.primitiveOrder.size()
+        ) {
             this.pack();
         }
         const bounds = this.packedBounds;

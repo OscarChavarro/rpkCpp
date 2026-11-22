@@ -1,53 +1,54 @@
 import { Numeric } from "./Numeric.js";
-import { Vector3D } from "./Vector3D.js";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class CoordinateSystem {
-    private x: Vector3D = new Vector3D();
-    private y: Vector3D = new Vector3D();
-    private z: Vector3D = new Vector3D();
+    private x: Vector3Df = new Vector3Df();
+    private y: Vector3Df = new Vector3Df();
+    private z: Vector3Df = new Vector3Df();
 
-    public getX(): Vector3D {
+    public getX(): Vector3Df {
         return this.x;
     }
 
-    public getY(): Vector3D {
+    public getY(): Vector3Df {
         return this.y;
     }
 
-    public getZ(): Vector3D {
+    public getZ(): Vector3Df {
         return this.z;
     }
 
-    public setX(inX: Vector3D): void {
-        this.x.copy(inX);
+    public setX(inX: Vector3Df): void {
+        this.x = inX;
     }
 
-    public setY(inY: Vector3D): void {
-        this.y.copy(inY);
+    public setY(inY: Vector3Df): void {
+        this.y = inY;
     }
 
-    public setZ(inZ: Vector3D): void {
-        this.z.copy(inZ);
+    public setZ(inZ: Vector3Df): void {
+        this.z = inZ;
     }
 
-    public setFromZAxis(inZ: Vector3D): void {
-        this.z.copy(inZ);
+    public setFromZAxis(inZ: Vector3Df): void {
+        this.z = inZ;
 
-        const zz = globalThis.Math.sqrt(1.0 - inZ.z * inZ.z);
-        if (zz < Numeric.EPSILON) {
-            this.x.x = 1.0;
-            this.x.y = 0.0;
-            this.x.z = 0.0;
+        const zz = globalThis.Math.sqrt(1.0 - inZ.z() * inZ.z());
+        if (zz < VSDK.EPSILON) {
+            this.x = this.x.withX(1.0);
+            this.x = this.x.withY(0.0);
+            this.x = this.x.withZ(0.0);
         } else {
-            this.x.x = inZ.y / zz;
-            this.x.y = -inZ.x / zz;
-            this.x.z = 0.0;
+            this.x = this.x.withX(inZ.y() / zz);
+            this.x = this.x.withY(-inZ.x() / zz);
+            this.x = this.x.withZ(0.0);
         }
 
-        this.y.crossProduct(this.z, this.x);
+        this.y = this.z.crossProduct(this.x);
     }
 
-    public rectangularToSphericalCoord(cIn: Vector3D, phi: number[], theta: number[]): void {
+    public rectangularToSphericalCoord(cIn: Vector3Df, phi: number[], theta: number[]): void {
         if (phi === null || phi.length === 0 || theta === null || theta.length === 0) {
             throw new Error("phi/theta output arrays must have length >= 1");
         }
@@ -62,9 +63,9 @@ export class CoordinateSystem {
 
         theta[0] = globalThis.Math.acos(z);
 
-        const c = new Vector3D();
-        c.sumScaled(cIn, -z, this.z);
-        c.normalize(Numeric.EPSILON_FLOAT);
+        let c = new Vector3Df();
+        c = cIn.add(this.z.multiply(-z));
+        c = c.normalized(Numeric.EPSILON_FLOAT);
 
         let x = c.dotProduct(this.x);
         const y = c.dotProduct(this.y);
@@ -82,16 +83,16 @@ export class CoordinateSystem {
         }
     }
 
-    public sampleHemisphereCosTheta(xi1: number, xi2: number, probabilityDensityFunction: number[] | null): Vector3D {
+    public sampleHemisphereCosTheta(xi1: number, xi2: number, probabilityDensityFunction: number[] | null): Vector3Df {
         const phi = 2.0 * globalThis.Math.PI * xi1;
         const cosPhi = globalThis.Math.cos(phi);
         const sinPhi = globalThis.Math.sin(phi);
         const cosTheta = globalThis.Math.sqrt(1.0 - xi2);
         const sinTheta = globalThis.Math.sqrt(xi2);
 
-        const dir = new Vector3D();
-        dir.combine(cosPhi, this.x, sinPhi, this.y);
-        dir.combine(sinTheta, dir, cosTheta, this.z);
+        let dir = new Vector3Df();
+        dir = this.x.multiply(cosPhi).add(this.y.multiply(sinPhi));
+        dir = dir.multiply(sinTheta).add(this.z.multiply(cosTheta));
 
         if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = cosTheta / globalThis.Math.PI;
@@ -105,16 +106,16 @@ export class CoordinateSystem {
         xi1: number,
         xi2: number,
         probabilityDensityFunction: number[] | null,
-    ): Vector3D {
+    ): Vector3Df {
         const phi = 2.0 * globalThis.Math.PI * xi1;
         const cosPhi = globalThis.Math.cos(phi);
         const sinPhi = globalThis.Math.sin(phi);
         const cosTheta = globalThis.Math.pow(xi2, 1.0 / (n + 1.0));
         const sinTheta = globalThis.Math.sqrt(1.0 - cosTheta * cosTheta);
 
-        const dir = new Vector3D();
-        dir.combine(cosPhi, this.x, sinPhi, this.y);
-        dir.combine(sinTheta, dir, cosTheta, this.z);
+        let dir = new Vector3Df();
+        dir = this.x.multiply(cosPhi).add(this.y.multiply(sinPhi));
+        dir = dir.multiply(sinTheta).add(this.z.multiply(cosTheta));
 
         if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
             probabilityDensityFunction[0] = ((n + 1.0) * globalThis.Math.pow(cosTheta, n)) / (2.0 * globalThis.Math.PI);

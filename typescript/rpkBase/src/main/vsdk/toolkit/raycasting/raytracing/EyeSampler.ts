@@ -1,4 +1,4 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -44,7 +44,7 @@ export class EyeSampler extends Sampler {
     hit.setFlags(newFlags);
     hit.setShadingFrame(camera.X, camera.Y, camera.Z);
 
-    newNode.m_normal.copy(newNode.m_hit.getNormal());
+    newNode.m_normal = newNode.m_hit.getNormal();
     newNode.m_G = 1.0;
 
     newNode.m_pdfFromPrev = 1.0;

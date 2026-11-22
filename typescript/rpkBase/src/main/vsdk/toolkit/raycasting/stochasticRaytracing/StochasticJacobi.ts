@@ -8,15 +8,14 @@ sampling positions on shooters with higher order radiosity approximation
 TODO: lines and line bundles.
 */
 
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Random48 } from "../../common/Random48";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";
 import { SceneQuery } from "../../scene/SceneQuery";
@@ -37,6 +36,7 @@ import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
 import { StochasticRadiosityElement } from "./StochasticRadiosityElement";
 import { StochasticRaytracingApproximation } from "./StochasticRaytracingApproximation";
 import { StochasticRelaxation } from "./StochasticRelaxation";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class StochasticJacobi {
   private constructor() {
@@ -189,7 +189,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
     StochasticJacobi.sumOfProbabilities = 0.0;
     StochasticJacobi.stochasticJacobiElementSetup(ElementHierarchyState.activeState().topCluster as Element);
 
-    if (StochasticJacobi.sumOfProbabilities < Numeric.EPSILON * Numeric.EPSILON) {
+    if (StochasticJacobi.sumOfProbabilities < VSDK.EPSILON * VSDK.EPSILON) {
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "Iteration", "No sources");
       return false;
     }
@@ -347,7 +347,7 @@ Transfer radiance from src to rcv.
     const weight = StochasticJacobi.sumOfProbabilities / srcProb;
     const fraction = srcProb / (srcProb + rcvProb);
 
-    if (srcProb < Numeric.EPSILON * Numeric.EPSILON || fraction < Numeric.EPSILON) {
+    if (srcProb < VSDK.EPSILON * VSDK.EPSILON || fraction < VSDK.EPSILON) {
       return;
     }
 
@@ -370,7 +370,7 @@ Transfer radiance from src to rcv.
           break;
         case HierarchyClusteringMode.ORIENTED_CLUSTERING:
           area = StochasticJacobi.stochasticJacobiReceiverProjectedArea(rcv, ray, dir);
-          if (area > Numeric.EPSILON) {
+          if (area > VSDK.EPSILON) {
             StochasticJacobi.stochasticJacobiPropagateRadianceToClusterOriented(
               rcv,
               rayPower,
@@ -572,26 +572,26 @@ Determines uniform (u,v) parameters of hit point on hit patch
     if ((hit.getFlags() & RayHitFlag.UV) !== 0) {
       uHit[0] = hit.getUv().x;
       vHit[0] = hit.getUv().y;
-      if (hit.getPatch()!.getJacobian() !== null) {
+      if (hit.getPatch()!.getFace().hasJacobian()) {
         hit.getPatch()!.biLinearToUniform(uHit, vHit);
       }
     }
     else {
-      const position: Vector3D = hit.getPoint();
+      const position: Vector3Df = hit.getPoint();
       hit.getPatch()!.uniformUv(position, uHit, vHit);
     }
 
-    if (uHit[0]! < Numeric.EPSILON) {
-      uHit[0]! = Numeric.EPSILON;
+    if (uHit[0]! < VSDK.EPSILON) {
+      uHit[0]! = VSDK.EPSILON;
     }
-    if (vHit[0]! < Numeric.EPSILON) {
-      vHit[0]! = Numeric.EPSILON;
+    if (vHit[0]! < VSDK.EPSILON) {
+      vHit[0]! = VSDK.EPSILON;
     }
-    if (uHit[0]! > 1.0 - Numeric.EPSILON) {
-      uHit[0]! = 1.0 - Numeric.EPSILON;
+    if (uHit[0]! > 1.0 - VSDK.EPSILON) {
+      uHit[0]! = 1.0 - VSDK.EPSILON;
     }
-    if (vHit[0]! > 1.0 - Numeric.EPSILON) {
-      vHit[0]! = 1.0 - Numeric.EPSILON;
+    if (vHit[0]! > 1.0 - VSDK.EPSILON) {
+      vHit[0]! = 1.0 - VSDK.EPSILON;
     }
   }
 

@@ -1,8 +1,8 @@
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { File } from "../../../../java/io/File";
 import { FileInputStream } from "../../../../java/io/FileInputStream";
-import { InputStream } from "../../../../java/io/InputStream";
-import { Logger } from "../../common/logging/Logger";
+import { InputStream } from "vitral/dist/java/io/InputStream";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { FilePositionContext } from "../context/FilePositionContext";

@@ -1,17 +1,17 @@
 import { OptionsGroupRadiance } from "./options/OptionsGroupRadiance";
-import { GalerkinRadianceMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
-import { BidirectionalPathTracingState } from "vitral/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
-import { PhotonMapConfig } from "vitral/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapConfig";
-import { PhotonMapState } from "vitral/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
-import { RayMatterState } from "vitral/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
-import { ElementHierarchyState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
-import { StochasticRadiosityBasisState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityBasisState";
-import { StochasticRayTracingState } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
-import { StochasticRelaxation } from "vitral/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
-import { RadianceMethod } from "vitral/dist/vsdk/toolkit/scene/RadianceMethod";
-import { RadianceMethodAlgorithm } from "vitral/dist/vsdk/toolkit/scene/RadianceMethodAlgorithm";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { GalerkinRadianceMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
+import { BidirectionalPathTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
+import { PhotonMapConfig } from "rpk-base/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapConfig";
+import { PhotonMapState } from "rpk-base/dist/vsdk/toolkit/raycasting/photonMap/PhotonMapState";
+import { RayMatterState } from "rpk-base/dist/vsdk/toolkit/raycasting/simple/RayMatterState";
+import { ElementHierarchyState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState";
+import { StochasticRadiosityBasisState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityBasisState";
+import { StochasticRayTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState";
+import { StochasticRelaxation } from "rpk-base/dist/vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation";
+import { RadianceMethod } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethod";
+import { RadianceMethodAlgorithm } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethodAlgorithm";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 
 /**
 Stuff common to all radiance methods

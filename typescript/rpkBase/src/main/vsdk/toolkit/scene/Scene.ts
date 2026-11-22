@@ -4,8 +4,8 @@ import { GeometryClassId } from "../skin/GeometryClassId";
 import { MeshSurface } from "../skin/MeshSurface";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { PatchSet } from "../environment/geometry/elements/PatchSet";
-import { String as JavaString } from "../../../java/lang/String";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Background } from "./Background";
 import { Camera } from "./Camera";
 import { DirectPotentialTable } from "./DirectPotentialTable";
@@ -282,9 +282,6 @@ export class Scene {
 
   private printSceneQuery(): void {
     process.stdout.write(`= scene query (${SceneQuery.methodName(this.accelerationMethod)}) ===========================================================\n`);
-    if (this.sceneQuery !== null && this.sceneQuery.getLegacyGrid() !== null) {
-      this.sceneQuery.getLegacyGrid()!.print();
-    }
   }
 
   /** The index buildSceneQuery uses; set while the scene is being built */

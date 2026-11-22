@@ -1,19 +1,19 @@
-import { String as JavaString } from "../../../../../java/lang/String";
-import { Logger as VsdkLogger } from "../../../common/logging/Logger";
-import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../../../common/linealAlgebra/Numeric";
 import { Ray } from "../../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
-import { Vector3Df } from "../../../common/linealAlgebra/Vector3Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { Material } from "../../../material/Material";
 import type { FaceColorTable } from "../../../scene/FaceColorTable";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
-import { PlanarFace } from "../element/PlanarFace";
+import { PlanarFace } from "vitral/dist/vsdk/toolkit/environment/geometry/element/PlanarFace";
 import type { RayExclusionSet } from "./RayExclusionSet";
 import { RayHitFlag } from "./RayHitFlag";
 import { RayHit } from "./RayHit";
 import { Vertex } from "./Vertex";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 // Single precision rounding of the source's float stores and operations
 const f = Math.fround;
@@ -28,10 +28,11 @@ export class Patch {
 
   // Geometry of the face: positions, plane, area, parametrization; immutable
   private readonly face: PlanarFace;
-  private readonly normal: Vector3D; // face.getNormal(), in the type RPK's callers use
-  private readonly patchMidPoint: Vector3D; // face.getMidPoint(), in the type RPK's callers use
+  // face.getNormal() and face.getMidPoint(), kept here (TypeScript only: the
+  // face builds a new vector on every call, and these are read in inner loops)
+  private readonly normal: Vector3Df;
+  private readonly patchMidPoint: Vector3Df;
   private faceIndex: number; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
-  private readonly jacobian: Jacobian | null; // face's Jacobian coefficients, for irregular quadrilaterals only
 
   public id: number; // Identification number for debugging, ID rendering
   public twin: Patch | null; // Twin face (for double-sided surfaces)
@@ -45,14 +46,6 @@ export class Patch {
 
   public static setNextId(id: number): void {
     Patch.patchId = id;
-  }
-
-  private static toFace(v: Vector3D): Vector3Df {
-    return new Vector3Df(v.x, v.y, v.z);
-  }
-
-  private static fromFace(v: Vector3Df): Vector3D {
-    return new Vector3D(v.x(), v.y(), v.z());
   }
 
   private allVerticesHaveANormal(): boolean {
@@ -69,51 +62,51 @@ export class Patch {
   Point IN Triangle: barycentric parametrisation, in single precision
   */
   private static pointInTriangle(
-    v0: Vector3D,
-    v1: Vector3D,
-    v2: Vector3D,
+    v0: Vector3Df,
+    v1: Vector3Df,
+    v2: Vector3Df,
     u: number,
-    v: number,
-    p: Vector3D
-  ): void {
-    p.x = f(f(v0.x + f(u * f(v1.x - v0.x))) + f(v * f(v2.x - v0.x)));
-    p.y = f(f(v0.y + f(u * f(v1.y - v0.y))) + f(v * f(v2.y - v0.y)));
-    p.z = f(f(v0.z + f(u * f(v1.z - v0.z))) + f(v * f(v2.z - v0.z)));
+    v: number
+  ): Vector3Df {
+    return new Vector3Df(
+      f(f(v0.x() + f(u * f(v1.x() - v0.x()))) + f(v * f(v2.x() - v0.x()))),
+      f(f(v0.y() + f(u * f(v1.y() - v0.y()))) + f(v * f(v2.y() - v0.y()))),
+      f(f(v0.z() + f(u * f(v1.z() - v0.z()))) + f(v * f(v2.z() - v0.z()))));
   }
 
   /**
   Point IN Quadrilateral: bi-linear parametrisation, in single precision
   */
   private static pointInQuadrilateral(
-    v0: Vector3D,
-    v1: Vector3D,
-    v2: Vector3D,
-    v3: Vector3D,
+    v0: Vector3Df,
+    v1: Vector3Df,
+    v2: Vector3Df,
+    v3: Vector3Df,
     u: number,
-    v: number,
-    p: Vector3D
-  ): void {
+    v: number
+  ): Vector3Df {
     const c = f(u * v);
     const b = f(u - c);
     const d = f(v - c);
-    p.x = f(f(f(v0.x + f(b * f(v1.x - v0.x))) + f(c * f(v2.x - v0.x))) + f(d * f(v3.x - v0.x)));
-    p.y = f(f(f(v0.y + f(b * f(v1.y - v0.y))) + f(c * f(v2.y - v0.y))) + f(d * f(v3.y - v0.y)));
-    p.z = f(f(f(v0.z + f(b * f(v1.z - v0.z))) + f(c * f(v2.z - v0.z))) + f(d * f(v3.z - v0.z)));
+    return new Vector3Df(
+      f(f(f(v0.x() + f(b * f(v1.x() - v0.x()))) + f(c * f(v2.x() - v0.x()))) + f(d * f(v3.x() - v0.x()))),
+      f(f(f(v0.y() + f(b * f(v1.y() - v0.y()))) + f(c * f(v2.y() - v0.y()))) + f(d * f(v3.y() - v0.y()))),
+      f(f(f(v0.z() + f(b * f(v1.z() - v0.z()))) + f(c * f(v2.z() - v0.z()))) + f(d * f(v3.z() - v0.z()))));
   }
 
-  private getInterpolatedNormalAtUv(u: number, v: number): Vector3D {
-    const localNormal = new Vector3D();
-    const v1 = this.vertex[0]?.normal as Vector3D;
-    const v2 = this.vertex[1]?.normal as Vector3D;
-    const v3 = this.vertex[2]?.normal as Vector3D;
+  private getInterpolatedNormalAtUv(u: number, v: number): Vector3Df {
+    let localNormal = new Vector3Df();
+    const v1 = this.vertex[0]?.normal as Vector3Df;
+    const v2 = this.vertex[1]?.normal as Vector3Df;
+    const v3 = this.vertex[2]?.normal as Vector3Df;
 
     switch (this.numberOfVertices) {
       case 3:
-        Patch.pointInTriangle(v1, v2, v3, f(u), f(v), localNormal);
+        localNormal = Patch.pointInTriangle(v1, v2, v3, f(u), f(v));
         break;
       case 4: {
-        const v4 = this.vertex[3]?.normal as Vector3D;
-        Patch.pointInQuadrilateral(v1, v2, v3, v4, f(u), f(v), localNormal);
+        const v4 = this.vertex[3]?.normal as Vector3Df;
+        localNormal = Patch.pointInQuadrilateral(v1, v2, v3, v4, f(u), f(v));
         break;
       }
       default:
@@ -121,7 +114,7 @@ export class Patch {
         break;
     }
 
-    localNormal.normalize(Numeric.EPSILON_FLOAT);
+    localNormal = localNormal.normalized(Numeric.EPSILON_FLOAT);
     return localNormal;
   }
 
@@ -161,7 +154,6 @@ export class Patch {
     this.numberOfVertices = inNumberOfVertices;
     this.vertex = [v1, v2, v3, v4];
     this.material = null;
-    this.jacobian = null;
 
     if (v1 === null || v2 === null || v3 === null || (inNumberOfVertices === 4 && v4 === null)) {
       VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Patch::Patch", "Null vertex!");
@@ -183,10 +175,10 @@ export class Patch {
 
     // Face geometry: normal, area and Jacobian, midpoint, plane, dominant axis
     const positions: Vector3Df[] = [
-      Patch.toFace(v1!.point),
-      Patch.toFace(v2!.point),
-      Patch.toFace(v3!.point),
-      inNumberOfVertices === 4 ? Patch.toFace(v4!.point) : new Vector3Df()
+      v1!.point,
+      v2!.point,
+      v3!.point,
+      inNumberOfVertices === 4 ? v4!.point : new Vector3Df()
     ];
     this.face = new PlanarFace(inNumberOfVertices, positions);
     if (!this.face.isValid()) {
@@ -195,12 +187,9 @@ export class Patch {
       VsdkLogger.reportMessage(this, VsdkLogger.ERROR, "Patch::Patch", "Error computing patch normal");
       process.exit(3);
     }
-    this.normal = Patch.fromFace(this.face.getNormal());
-    this.patchMidPoint = Patch.fromFace(this.face.getMidPoint());
-    if (this.face.hasJacobian()) {
-      this.jacobian = new Jacobian(this.face.getJacobianA(), this.face.getJacobianB(), this.face.getJacobianC());
-    }
-    if (this.face.getArea() < Numeric.EPSILON * Numeric.EPSILON) {
+    this.normal = this.face.getNormal();
+    this.patchMidPoint = this.face.getMidPoint();
+    if (this.face.getArea() < VSDK.EPSILON * VSDK.EPSILON) {
       process.stderr.write(JavaString.vformat("Warning: very small patch id %d area = %g\n", [this.id, this.face.getArea()]));
     }
 
@@ -232,11 +221,7 @@ export class Patch {
     this.faceIndex = newFaceIndex;
   }
 
-  public getJacobian(): Jacobian | null {
-    return this.jacobian;
-  }
-
-  public getNormal(): Vector3D {
+  public getNormal(): Vector3Df {
     return this.normal;
   }
 
@@ -248,7 +233,7 @@ export class Patch {
     return this.face.getTolerance();
   }
 
-  public midPoint(): Vector3D {
+  public midPoint(): Vector3Df {
     return this.patchMidPoint;
   }
 
@@ -268,7 +253,7 @@ export class Patch {
   Computes interpolated (= shading) normal at the point with given parameters
   on the patch
   */
-  private interpolatedNormalAtUv(u: number, v: number): Vector3D {
+  private interpolatedNormalAtUv(u: number, v: number): Vector3Df {
     if (!this.allVerticesHaveANormal()) {
       return this.normal;
     }
@@ -284,18 +269,22 @@ export class Patch {
   normal The X is determined by Z and the projection of the patch by
   the dominant axis (patch.getDominantAxisIndex())
   */
-  public interpolatedFrameAtUv(u: number, v: number, X: Vector3D | null, Y: Vector3D | null, Z: Vector3D): void {
-    Z.copy(this.interpolatedNormalAtUv(u, v));
+  public interpolatedFrameAtUv(u: number, v: number, X: Vector3Df[] | null, Y: Vector3Df[] | null, Z: Vector3Df[]): void {
+    // X, Y, Z: one-element holders (C++ `Vector3Df *`)
+    const zAxis = this.interpolatedNormalAtUv(u, v);
+    Z[0] = zAxis;
 
     if (X !== null && Y !== null) {
-      const zz = globalThis.Math.sqrt(f(1.0 - f(Z.z * Z.z)));
-      if (zz < Numeric.EPSILON) {
-        X.set(1.0, 0.0, 0.0);
+      const zz = globalThis.Math.sqrt(f(1.0 - f(zAxis.z() * zAxis.z())));
+      let xAxis: Vector3Df;
+      if (zz < VSDK.EPSILON) {
+        xAxis = new Vector3Df(1.0, 0.0, 0.0);
       }
       else {
-        X.set(f(Z.y / zz), f(-Z.x / zz), 0.0);
+        xAxis = new Vector3Df(f(zAxis.y() / zz), f(-zAxis.x() / zz), 0.0);
       }
-      Y.crossProduct(Z, X);
+      X[0] = xAxis;
+      Y[0] = zAxis.crossProduct(xAxis);
     }
   }
 
@@ -303,9 +292,9 @@ export class Patch {
   Returns texture coordinates determined from vertex texture coordinates and
   given u and v bi-linear of barycentric coordinates on the patch
   */
-  public textureCoordAtUv(u: number, v: number): Vector3D {
-    const texCoord = new Vector3D();
-    texCoord.set(0.0, 0.0, 0.0);
+  public textureCoordAtUv(u: number, v: number): Vector3Df {
+    let texCoord = new Vector3Df();
+    texCoord = new Vector3Df(0.0, 0.0, 0.0);
 
     const t0 = this.vertex[0]?.textureCoordinates ?? null;
     const t1 = this.vertex[1]?.textureCoordinates ?? null;
@@ -314,19 +303,19 @@ export class Patch {
     switch (this.numberOfVertices) {
       case 3:
         if (t0 === null || t1 === null || t2 === null) {
-          texCoord.set(f(u), f(v), 0.0);
+          texCoord = new Vector3Df(f(u), f(v), 0.0);
         }
         else {
-          Patch.pointInTriangle(t0, t1, t2, f(u), f(v), texCoord);
+          texCoord = Patch.pointInTriangle(t0, t1, t2, f(u), f(v));
         }
         break;
       case 4: {
         const t3 = this.vertex[3]?.textureCoordinates ?? null;
         if (t0 === null || t1 === null || t2 === null || t3 === null) {
-          texCoord.set(f(u), f(v), 0.0);
+          texCoord = new Vector3Df(f(u), f(v), 0.0);
         }
         else {
-          Patch.pointInQuadrilateral(t0, t1, t2, t3, f(u), f(v), texCoord);
+          texCoord = Patch.pointInQuadrilateral(t0, t1, t2, t3, f(u), f(v));
         }
         break;
       }
@@ -342,7 +331,6 @@ export class Patch {
   // scratch objects never escape this method.
   private static readonly intersectScratchHit = new RayHit();
   private static readonly intersectScratchFaceHit = new PlanarFace.RayHit();
-  private static readonly intersectScratchPosition = new Vector3D();
   private static readonly intersectScratchU = [0.0];
   private static readonly intersectScratchV = [0.0];
 
@@ -375,13 +363,9 @@ export class Patch {
 
     // Side, plane hit, hit point and (u, v) in one call into the face
     const faceHit = Patch.intersectScratchFaceHit;
-    const inside = this.face.rayHitComponents(
-      f(ray.position.x),
-      f(ray.position.y),
-      f(ray.position.z),
-      f(ray.direction.x),
-      f(ray.direction.y),
-      f(ray.direction.z),
+    const inside = this.face.rayHit(
+      ray.position,
+      ray.direction,
       (hitFlags & RayHitFlag.FRONT) !== 0,
       (hitFlags & RayHitFlag.BACK) !== 0,
       f(minimumDistance),
@@ -389,8 +373,7 @@ export class Patch {
       faceHit);
     if (inside) {
       const distance = faceHit.getDistance();
-      const position = Patch.intersectScratchPosition;
-      position.set(faceHit.getPointX(), faceHit.getPointY(), faceHit.getPointZ());
+      let position = new Vector3Df(faceHit.getPointX(), faceHit.getPointY(), faceHit.getPointZ());
       hit.setPoint(position);
       hit.setUv(faceHit.getU(), faceHit.getV());
       hit.setFlags(hit.getFlags()
@@ -407,7 +390,7 @@ export class Patch {
         | RayHitFlag.DISTANCE;
       hit.setFlags(newFlags);
       if ((hitFlags & RayHitFlag.UV) !== 0 && (hit.getFlags() & RayHitFlag.UV) === 0) {
-        position.copy(hit.getPoint());
+        position = hit.getPoint();
         const u = Patch.intersectScratchU;
         const v = Patch.intersectScratchV;
         hit.getPatch()!.uv(position, u, v);
@@ -435,12 +418,12 @@ export class Patch {
   u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
   (1-u) and (1-v) are used instead
   */
-  public pointBarycentricMapping(u: number, v: number, point: Vector3D): Vector3D | null {
+  public pointBarycentricMapping(u: number, v: number): Vector3Df | null {
+    // The C++ `Vector3Df *point` output is the returned vector
     if (this.hasZeroVertices()) {
       return null;
     }
-    point.copy(Patch.fromFace(this.face.pointAt(u, v)));
-    return point;
+    return this.face.pointAt(u, v);
   }
 
   /**
@@ -450,12 +433,12 @@ export class Patch {
   only once for which this routine will yield other positions than the above
   routine)
   */
-  public uniformPoint(u: number, v: number, point: Vector3D): Vector3D | null {
+  public uniformPoint(u: number, v: number): Vector3Df | null {
+    // The C++ `Vector3Df *point` output is the returned vector
     if (this.hasZeroVertices()) {
       return null;
     }
-    point.copy(Patch.fromFace(this.face.uniformPointAt(u, v)));
-    return point;
+    return this.face.uniformPointAt(u, v);
   }
 
   /**
@@ -463,8 +446,16 @@ export class Patch {
   for an irregular quadrilateral (see PlanarFace.biLinearToUniform)
   */
   public biLinearToUniform(u: number[], v: number[]): void {
-    this.face.biLinearToUniform(u, v);
+    const uv = Patch.parameterScratch;
+    uv.x = u[0]!;
+    uv.y = v[0]!;
+    this.face.biLinearToUniform(uv);
+    u[0] = uv.x;
+    v[0] = uv.y;
   }
+
+  // Holder of the (u, v) the face writes; never escapes a method
+  private static readonly parameterScratch = new Vector2Dd();
 
   /**
   Computes (u, v) parameters of the point on the patch (barycentric or bi-linear
@@ -473,8 +464,12 @@ export class Patch {
   WARNING: The (u, v) coordinates are correctly computed only for positions inside
   the patch. For positions outside, they can be garbage!
   */
-  public uv(point: Vector3D, u: number[], v: number[]): boolean {
-    return this.face.parameters(Patch.toFace(point), u, v);
+  public uv(point: Vector3Df, u: number[], v: number[]): boolean {
+    const uv = Patch.parameterScratch;
+    const inside = this.face.parameters(point, uv);
+    u[0] = uv.x;
+    v[0] = uv.y;
+    return inside;
   }
 
   /**
@@ -497,7 +492,11 @@ export class Patch {
   /**
   Like 'uv', but returns uniform coordinates (inverse of uniformPoint())
   */
-  public uniformUv(point: Vector3D, u: number[], v: number[]): boolean {
-    return this.face.uniformParameters(Patch.toFace(point), u, v);
+  public uniformUv(point: Vector3Df, u: number[], v: number[]): boolean {
+    const uv = Patch.parameterScratch;
+    const inside = this.face.uniformParameters(point, uv);
+    u[0] = uv.x;
+    v[0] = uv.y;
+    return inside;
   }
 }

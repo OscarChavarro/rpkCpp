@@ -1,12 +1,12 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { GalerkinIterationMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinIterationMethod";
-import { GalerkinRadianceMethod } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
-import { GalerkinShaftCullMode } from "vitral/dist/vsdk/toolkit/galerkin/GalerkinShaftCullMode";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { GalerkinIterationMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinIterationMethod";
+import { GalerkinRadianceMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
+import { GalerkinShaftCullMode } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinShaftCullMode";
 import { OptionTextUtils } from "./OptionTextUtils";
 
 export class OptionsGroupGalerkin {

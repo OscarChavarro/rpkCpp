@@ -1,4 +1,4 @@
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Material } from "../../material/Material";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -12,9 +12,9 @@ export class ParseSnapshotContext {
   public currentFaceList: Patch[] | null;
   public currentGeometryList: Geometry[] | null;
   public currentMaterialName: string | null;
-  public currentNormalList: Vector3D[] | null;
+  public currentNormalList: Vector3Df[] | null;
   public currentObjectName: string | null;
-  public currentPointList: Vector3D[] | null;
+  public currentPointList: Vector3Df[] | null;
   public currentVertexList: Vertex[] | null;
   public currentVertexName: string | null;
   public geometries: Geometry[] | null;

@@ -1,7 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
@@ -32,6 +31,8 @@ import {
   RefinementTask,
   RefinementWorkspace,
 } from "./RefinementWorkspace";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class HierarchicalRefinementStrategy {
   private static readonly hierarchicalKPool: number[][] = [];
@@ -160,7 +161,7 @@ export class HierarchicalRefinementStrategy {
       && (galerkinState.isJacobi()
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL)) {
       const maxDirect = galerkinState.refinementMaxDirectPotential;
-      if (maxDirect > Numeric.EPSILON) {
+      if (maxDirect > VSDK.EPSILON) {
         threshold /= 2.0 * interaction.receiverElement.potential / maxDirect;
       }
     }
@@ -212,17 +213,17 @@ export class HierarchicalRefinementStrategy {
       return 0.0;
     }
 
-    const rcVertices: Vector3D[] = [
-      new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(),
-      new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(),
+    const rcVertices: Vector3Df[] = [
+      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
+      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
     ];
     const numberOfReceiverVertices = interaction.receiverElement.vertices(rcVertices);
 
     const minimumSourceRadiance = new ColorRgbMutable();
     const maximumSourceRadiance = new ColorRgbMutable();
     const error = new ColorRgbMutable();
-    minimumSourceRadiance.setMonochrome(Numeric.HUGE_FLOAT_VALUE);
-    maximumSourceRadiance.setMonochrome(-Numeric.HUGE_FLOAT_VALUE);
+    minimumSourceRadiance.setMonochrome(Float.MAX_VALUE);
+    maximumSourceRadiance.setMonochrome(-Float.MAX_VALUE);
 
     for (let i = 0; i < numberOfReceiverVertices; i++) {
       const radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(

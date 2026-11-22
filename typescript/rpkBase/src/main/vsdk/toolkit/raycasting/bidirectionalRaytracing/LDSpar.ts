@@ -1,4 +1,4 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Spar } from "./Spar";
 import { SparConfig } from "./SparConfig";

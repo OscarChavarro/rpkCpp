@@ -1,14 +1,13 @@
 import { Random48 } from "../../common/Random48";
-import { OutputStream } from "../../../../java/io/OutputStream";
-import { String as JavaString } from "../../../../java/lang/String";
-import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
@@ -31,6 +30,7 @@ import { StochasticRadiosityElement } from "./StochasticRadiosityElement";
 import { StochasticRaytracingApproximation } from "./StochasticRaytracingApproximation";
 import { StochasticRaytracingMethod } from "./StochasticRaytracingMethod";
 import { StochasticRelaxation } from "./StochasticRelaxation";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 /**
 Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
@@ -119,7 +119,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3D,
+    dir: Vector3Df,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
@@ -372,7 +372,7 @@ Computes quality factor on given leaf element.
     const clustering = ElementHierarchyState.activeState().clustering;
     const weightedSampling = StochasticRelaxation.activeState().weightedSampling;
 
-    if (StochasticRelaxation.activeState().sourceYmp < Numeric.EPSILON) {
+    if (StochasticRelaxation.activeState().sourceYmp < VSDK.EPSILON) {
       process.stderr.write("No source importance!!\n");
       return;
     }
@@ -430,13 +430,13 @@ Computes quality factor on given leaf element.
 
     if (StochasticRelaxation.activeState().naiveMerging === 0) {
       const quality = StochasticJacobiRadianceMethod.stochasticRelaxationRadiosityQualityFactor(elem, w);
-      if (elem.quality < Numeric.EPSILON) {
+      if (elem.quality < VSDK.EPSILON) {
         k = 0.0;
       }
-      else if (quality < Numeric.EPSILON) {
+      else if (quality < VSDK.EPSILON) {
         k = 1.0;
       }
-      else if (elem.quality + quality > Numeric.EPSILON) {
+      else if (elem.quality + quality > VSDK.EPSILON) {
         k = elem.quality / (elem.quality + quality);
       }
       else {

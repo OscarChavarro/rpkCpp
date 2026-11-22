@@ -1,4 +1,4 @@
-import { OutputStream } from "../../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ImageOutputHandle } from "./ImageOutputHandle";
 
 export class PPMOutputHandle extends ImageOutputHandle {

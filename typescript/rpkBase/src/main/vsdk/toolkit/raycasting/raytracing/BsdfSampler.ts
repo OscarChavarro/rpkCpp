@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { SceneQuery } from "../../scene/SceneQuery";
@@ -9,6 +9,7 @@ import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { Sampler } from "./Sampler";
 import { SurfaceSampler } from "./SurfaceSampler";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class BsdfSampler extends SurfaceSampler {
   public override sample(
@@ -27,7 +28,7 @@ export class BsdfSampler extends SurfaceSampler {
     void camera;
     const pdfDir = [0.0];
 
-    let dir = new Vector3D(0.0, 0.0, 0.0);
+    let dir = new Vector3Df(0.0, 0.0, 0.0);
 
     if (thisNode.m_useBsdf !== null) {
       const thisContext = thisNode.m_hit.shadingContext();
@@ -44,7 +45,7 @@ export class BsdfSampler extends SurfaceSampler {
       );
     }
 
-    if (pdfDir[0]! <= Numeric.EPSILON) {
+    if (pdfDir[0]! <= VSDK.EPSILON) {
       return false;
     }
 
@@ -119,12 +120,12 @@ export class BsdfSampler extends SurfaceSampler {
     const outPdf = pdf ?? pdfH;
     const outPdfRR = pdfRR ?? pdfRRH;
 
-    const outDir = new Vector3D();
+    let outDir = new Vector3Df();
 
-    outDir.subtraction(newNode.m_hit.getPoint(), thisNode.m_hit.getPoint());
-    const dist2 = outDir.norm2();
+    outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
+    const dist2 = outDir.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    outDir.inverseScaledCopy(dist, outDir, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
 
     const pdfDir = [0.0];
     outPdfRR[0] = 0.0;
@@ -159,13 +160,13 @@ export class BsdfSampler extends SurfaceSampler {
     void newNode;
     const pdfH = [0.0];
     const pdfRRH = [0.0];
-    const outDir = new Vector3D();
+    let outDir = new Vector3Df();
 
     const outPdf = pdf ?? pdfH;
     const outPdfRR = pdfRR ?? pdfRRH;
 
-    outDir.subtraction(prevNode.m_hit.getPoint(), thisNode.m_hit.getPoint());
-    outDir.normalize(Numeric.EPSILON_FLOAT);
+    outDir = prevNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
+    outDir = outDir.normalized(Numeric.EPSILON_FLOAT);
 
     const pdfDir = [0.0];
     outPdfRR[0] = 0.0;

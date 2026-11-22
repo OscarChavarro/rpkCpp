@@ -1,5 +1,5 @@
-import { String as JavaString } from "../../../java/lang/String";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CubatureDegree } from "./CubatureDegree";
 import { CubatureRule } from "./CubatureRule";
 

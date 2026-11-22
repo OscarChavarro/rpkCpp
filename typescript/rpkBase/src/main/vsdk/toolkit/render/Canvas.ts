@@ -1,5 +1,5 @@
-import { String as JavaString } from "../../../java/lang/String";
-import { Logger } from "../common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 
 export class Canvas {
   private static readonly CANVAS_MODE_STACK_SIZE = 5;

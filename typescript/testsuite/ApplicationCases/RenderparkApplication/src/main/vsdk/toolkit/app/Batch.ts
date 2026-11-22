@@ -1,17 +1,17 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
-import { Geometry } from "vitral/dist/vsdk/toolkit/skin/Geometry";
-import { BoundingBox } from "vitral/dist/vsdk/toolkit/skin/AxisAlignedBoundingBox";
+import { Geometry } from "rpk-base/dist/vsdk/toolkit/skin/Geometry";
+import { BoundingBox } from "rpk-base/dist/vsdk/toolkit/skin/AxisAlignedBoundingBox";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupBatch } from "./options/OptionsGroupBatch";
-import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
-import { ImageOutputHandle } from "vitral/dist/vsdk/toolkit/io/image/ImageOutputHandle";
-import { FileUncompressWrapper } from "vitral/dist/vsdk/toolkit/io/wrapper/FileUncompressWrapper";
-import { RayTracer } from "vitral/dist/vsdk/toolkit/raycasting/common/RayTracer";
-import { Canvas } from "vitral/dist/vsdk/toolkit/render/Canvas";
-import { RadianceImageExporter } from "vitral/dist/vsdk/toolkit/render/RadianceImageExporter";
-import { RadianceMethod } from "vitral/dist/vsdk/toolkit/scene/RadianceMethod";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
+import { ImageOutputHandle } from "rpk-base/dist/vsdk/toolkit/io/image/ImageOutputHandle";
+import { FileUncompressWrapper } from "rpk-base/dist/vsdk/toolkit/io/wrapper/FileUncompressWrapper";
+import { RayTracer } from "rpk-base/dist/vsdk/toolkit/raycasting/common/RayTracer";
+import { Canvas } from "rpk-base/dist/vsdk/toolkit/render/Canvas";
+import { RadianceImageExporter } from "rpk-base/dist/vsdk/toolkit/render/RadianceImageExporter";
+import { RadianceMethod } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethod";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { Raytrace } from "./Raytrace";
 
 type ProcessFileCallback = (

@@ -196,12 +196,12 @@ export class VisibilityQueryRecorder {
     this.writeInt(2);
     this.writeInt(path);
     this.writeInt(hitFlags);
-    this.writeFloat(ray.position.x);
-    this.writeFloat(ray.position.y);
-    this.writeFloat(ray.position.z);
-    this.writeFloat(ray.direction.x);
-    this.writeFloat(ray.direction.y);
-    this.writeFloat(ray.direction.z);
+    this.writeFloat(ray.position.x());
+    this.writeFloat(ray.position.y());
+    this.writeFloat(ray.position.z());
+    this.writeFloat(ray.direction.x());
+    this.writeFloat(ray.direction.y());
+    this.writeFloat(ray.direction.z());
     this.writeFloat(minimumDistance);
     this.writeFloat(maximumDistance);
     for (let i = 0; i < RayExclusionSet.MAX_EXCLUDED_PATCHES; i++) {

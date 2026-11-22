@@ -1,6 +1,6 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { ParseErrorContext } from "./ParseErrorContext";
 import { TokenValidationContext } from "./TokenValidationContext";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ColorContext {
   public static readonly COLOR_MINIMUM_WAVE_LENGTH = 380;
@@ -216,7 +216,7 @@ export class ColorContext {
     boxPos = 0.0;
     boxStep = 1.0;
     if (wlStep < ColorContext.colorWaveLengthDeltaI()) {
-      imax = Math.round((wlMaximum - wlMinimum) / ColorContext.colorWaveLengthDeltaI() + (1 - Numeric.EPSILON));
+      imax = Math.round((wlMaximum - wlMinimum) / ColorContext.colorWaveLengthDeltaI() + (1 - VSDK.EPSILON));
       boxPos = (wlMinimum - ColorContext.COLOR_MINIMUM_WAVE_LENGTH) / ColorContext.colorWaveLengthDeltaI();
       boxStep = wlStep / ColorContext.colorWaveLengthDeltaI();
       wlStep = ColorContext.colorWaveLengthDeltaI();
@@ -248,7 +248,7 @@ export class ColorContext {
       }
     }
 
-    if (scale <= Numeric.EPSILON) {
+    if (scale <= VSDK.EPSILON) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
@@ -266,11 +266,11 @@ export class ColorContext {
         this.straightSamples[i] = 0;
       }
       else {
-        while (wl0 + wlStep < wl + Numeric.EPSILON) {
+        while (wl0 + wlStep < wl + VSDK.EPSILON) {
           wl0 += wlStep;
           pos++;
         }
-        if (wl + Numeric.EPSILON >= wl0 && wl - Numeric.EPSILON <= wl0) {
+        if (wl + VSDK.EPSILON >= wl0 && wl - VSDK.EPSILON <= wl0) {
           this.straightSamples[i] = Math.round(scale * va[pos]! + 0.5);
         }
         else {

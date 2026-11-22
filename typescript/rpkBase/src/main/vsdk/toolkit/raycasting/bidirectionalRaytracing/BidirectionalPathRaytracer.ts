@@ -1,11 +1,10 @@
 import { Random48 } from "../../common/Random48";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector2D } from "../../common/linealAlgebra/Vector2D";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
@@ -43,6 +42,7 @@ import { LightDirSampler } from "./LightDirSampler";
 import { LightList } from "./LightList";
 import { SparList } from "./SparList";
 import { UniformLightSampler } from "./UniformLightSampler";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class BidirectionalPathRaytracer extends RayTracer {
   private static readonly STRINGS_SIZE = 300;
@@ -324,15 +324,15 @@ export class BidirectionalPathRaytracer extends RayTracer {
         db.add(pixX, pixY, f);
       }
       else {
-        const center = new Vector2D();
+        let center = new Vector2Df();
         const g = new ColorRgbMutable();
 
-        center.x = pixX;
-        center.y = pixY;
+        center = center.withX(pixX);
+        center = center.withY(pixY);
 
         const factor = rs.getPixXSize() * rs.getPixYSize() * config.baseConfig.totalSamples;
 
-        if (f.average() > Numeric.EPSILON) {
+        if (f.average() > VSDK.EPSILON) {
           g.scaledCopy(factor, f);
 
           config.kernel.varCover(
@@ -605,7 +605,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
       path.m_dirEL
     );
 
-    path.m_dirLE.scaledCopy(-1.0, path.m_dirEL);
+    path.m_dirLE = path.m_dirEL.multiply(-1.0);
 
     let f: ColorRgbMutable;
 
@@ -978,8 +978,8 @@ export class BidirectionalPathRaytracer extends RayTracer {
         config.eyePath.m_rayType = PathRayType.STARTS;
 
         const tmpVec2D = config.screen.getPixelCenter(globalThis.Math.trunc(x1[0]!), globalThis.Math.trunc(x2[0]!));
-        config.xSample = tmpVec2D.x;
-        config.ySample = tmpVec2D.y;
+        config.xSample = tmpVec2D.x();
+        config.ySample = tmpVec2D.y();
 
         if ((config.eyeConfig.dirSampler as Sampler).sample(
           camera,

@@ -2,12 +2,12 @@
 Monte Carlo radiosity
 */
 
-import { String as JavaString } from "../../../../java/lang/String";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -417,8 +417,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
 
   private static monteCarloRadiosityDiffuseReflectanceAtPoint(patch: Patch, u: number, v: number): ColorRgbMutable {
     const hit = new RayHit();
-    const point = new Vector3D();
-    patch.uniformPoint(u, v, point);
+    const point = patch.uniformPoint(u, v) ?? new Vector3Df();
     hit.init(patch, point, patch.getNormal(), patch.material);
     hit.setUv(u, v);
     let result = new ColorRgbMutable();
@@ -494,7 +493,7 @@ Returns the radiance emitted from the patch at the point with parameters
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3D,
+    dir: Vector3Df,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     void dir;

@@ -1,9 +1,8 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector2D } from "../../common/linealAlgebra/Vector2D";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
@@ -25,6 +24,7 @@ import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { FormFactorClusteredStrategy } from "./FormFactorClusteredStrategy";
 import type { FormFactorWorkspace } from "./FormFactorWorkspace";
 import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class FormFactorStrategy {
   private static cachedShadowTest(
@@ -114,7 +114,7 @@ export class FormFactorStrategy {
     role: GalerkinRole,
     galerkinState: GalerkinState,
     cr: Array<CubatureRule | null>,
-    x: Vector3D[],
+    x: Vector3Df[],
   ): void {
     if (element === null || cr === null || cr.length === 0 || x === null) {
       return;
@@ -132,13 +132,9 @@ export class FormFactorStrategy {
       const minZ = bb.minZ();
       for (let k = 0; cr[0] !== null && k < (cr[0] as CubatureRule).numberOfNodes && k < x.length; k++) {
         if (x[k] === null) {
-          x[k] = new Vector3D();
+          x[k] = new Vector3Df();
         }
-        x[k]!.set(
-          minX + (cr[0] as CubatureRule).u[k]! * dx,
-          minY + (cr[0] as CubatureRule).v[k]! * dy,
-          minZ + (cr[0] as CubatureRule).t[k]! * dz,
-        );
+        x[k]! = new Vector3Df(minX + (cr[0] as CubatureRule).u[k]! * dx, minY + (cr[0] as CubatureRule).v[k]! * dy, minZ + (cr[0] as CubatureRule).t[k]! * dz);
       }
       return;
     }
@@ -159,18 +155,17 @@ export class FormFactorStrategy {
         return;
     }
 
-    const topTransform = new Matrix2x2();
-    const hasTopTransform = element.transformToParent !== null && element.topTransform(topTransform) !== null;
+    const topTransform = element.topTransform();
 
     for (let k = 0; cr[0] !== null && k < (cr[0] as CubatureRule).numberOfNodes && k < x.length; k++) {
       if (x[k] === null) {
-        x[k] = new Vector3D();
+        x[k] = new Vector3Df();
       }
-      const node = new Vector2D((cr[0] as CubatureRule).u[k], (cr[0] as CubatureRule).v[k]);
-      if (hasTopTransform) {
-        topTransform.transformPoint2D(node, node);
+      let node = new Vector2Df((cr[0] as CubatureRule).u[k]!, (cr[0] as CubatureRule).v[k]!);
+      if (topTransform !== null) {
+        node = topTransform.transformPoint(node);
       }
-      (element.patch as Patch).uniformPoint(node.x, node.y, x[k]!);
+      x[k] = (element.patch as Patch).uniformPoint(node.x(), node.y()) ?? x[k]!;
     }
   }
 
@@ -178,8 +173,8 @@ export class FormFactorStrategy {
     shadowCache: ShadowCache,
     sceneQuery: SceneQuery | null,
     sceneQueryWorkspace: SceneQueryWorkspace | null,
-    x: Vector3D,
-    y: Vector3D,
+    x: Vector3Df,
+    y: Vector3Df,
     receiverElement: GalerkinElement,
     sourceElement: GalerkinElement,
     shadowGeometryList: Geometry[] | null,
@@ -190,13 +185,13 @@ export class FormFactorStrategy {
     workspace: FormFactorWorkspace,
   ): number {
     const ray = workspace.getKernelRay();
-    ray.position.copy(y);
-    ray.direction.subtraction(x, y);
-    const distance = ray.direction.norm();
-    if (distance < Numeric.EPSILON) {
+    ray.position = y;
+    ray.direction = x.subtract(y);
+    const distance = ray.direction.length();
+    if (distance < VSDK.EPSILON) {
       return 0.0;
     }
-    ray.direction.inverseScaledCopy(distance, ray.direction, Numeric.EPSILON_FLOAT);
+    ray.direction = ray.direction.multiplyByInverse(distance, Numeric.EPSILON_FLOAT);
 
     let cosThetaY: number;
     if (sourceElement.isCluster()) {
@@ -221,7 +216,7 @@ export class FormFactorStrategy {
     }
 
     const formFactorKernelTerm = cosThetaX * cosThetaY / (globalThis.Math.PI * distance * distance);
-    const shortenedDistance = distance * (1.0 - Numeric.EPSILON);
+    const shortenedDistance = distance * (1.0 - VSDK.EPSILON);
 
     let visibilityFactor: number;
     if (shadowGeometryList === null || shadowGeometryList.length === 0) {
@@ -385,7 +380,7 @@ export class FormFactorStrategy {
           if (cachedGxy[r]![s]! > cachedMaximumKernelValue) {
             cachedMaximumKernelValue = cachedGxy[r]![s]!;
           }
-          if (globalThis.Math.abs(cachedGxy[r]![s]!) > Numeric.EPSILON) {
+          if (globalThis.Math.abs(cachedGxy[r]![s]!) > VSDK.EPSILON) {
             cachedVisibilityCount++;
           }
         }

@@ -1,24 +1,22 @@
-import { ArrayList } from "../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import type { Ray as RpkRay } from "../common/linealAlgebra/Ray";
-import { Vector3Dd } from "../common/linealAlgebra/Vector3Dd";
-import { Ray } from "../environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
-import { BinnedSahSpatialIndex } from "../environment/geometry/spatialIndex/BinnedSahSpatialIndex";
-import { GridSpatialIndex } from "../environment/geometry/spatialIndex/GridSpatialIndex";
-import { LinearSpatialIndex } from "../environment/geometry/spatialIndex/LinearSpatialIndex";
-import { SpatialGroupTree } from "../environment/geometry/spatialIndex/SpatialGroupTree";
-import type { SpatialIndex } from "../environment/geometry/spatialIndex/SpatialIndex";
-import { SpatialIndexWorkspace } from "../environment/geometry/spatialIndex/SpatialIndexWorkspace";
-import { SpatialQueryMode } from "../environment/geometry/spatialIndex/SpatialQueryMode";
+import { BinnedSahSpatialIndex } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex";
+import { GridSpatialIndex } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex";
+import { LinearSpatialIndex } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex";
+import { SpatialGroupTree } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree";
+import type { SpatialIndex } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex";
+import { SpatialIndexWorkspace } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace";
+import { SpatialQueryMode } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode";
 import type { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import type { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
 import { SceneAccelerationMethod } from "./SceneAccelerationMethod";
 import { SceneFaceRayTest } from "./SceneFaceRayTest";
-import { VoxelGrid } from "./VoxelGrid";
-import { VoxelGridWorkspace } from "./VoxelGridWorkspace";
 import type { Scene } from "./Scene";
 import type { VisibilityQueryRecorder } from "./VisibilityQueryRecorder";
 
@@ -69,26 +67,15 @@ of the scene geometry requires a new query.
 export class SceneQuery {
   private readonly scene: Scene;
   private readonly method: SceneAccelerationMethod;
-  private readonly legacyGrid: VoxelGrid | null; // LEGACY_VOXEL_ACCELERATION only
-  private readonly index: SpatialIndex | null; // The other methods
+  private readonly index: SpatialIndex | null;
 
   public constructor(inScene: Scene, inMethod: SceneAccelerationMethod) {
     this.scene = inScene;
     this.method = inMethod;
-    if (this.method === SceneAccelerationMethod.LEGACY_VOXEL_ACCELERATION) {
-      this.legacyGrid = new VoxelGrid(this.scene.clusteredRootGeometry as Geometry, this.scene.getFaceBounds()!);
-      this.index = null;
-    }
-    else {
-      this.legacyGrid = null;
-      this.index = SceneQuery.buildIndex(this.scene, this.method);
-    }
+    this.index = SceneQuery.buildIndex(this.scene, this.method);
   }
 
   public destroy(): void {
-    if (this.legacyGrid !== null) {
-      this.legacyGrid.freeVoxelGridElements();
-    }
   }
 
   /**
@@ -155,11 +142,9 @@ export class SceneQuery {
     return null;
   }
 
-  /** The option name of a method: legacy, voxel, wald2007, bruteforce */
+  /** The option name of a method: voxel, wald2007, bruteforce */
   public static methodName(method: SceneAccelerationMethod): string {
     switch (method) {
-      case SceneAccelerationMethod.LEGACY_VOXEL_ACCELERATION:
-        return "legacy";
       case SceneAccelerationMethod.VOXEL_ACCELERATION:
         return "voxel";
       case SceneAccelerationMethod.WALD2007_ACCELERATION:
@@ -176,7 +161,6 @@ export class SceneQuery {
   */
   public static methodFromName(name: string | null, method: SceneAccelerationMethod[]): boolean {
     const METHODS = [
-      SceneAccelerationMethod.LEGACY_VOXEL_ACCELERATION,
       SceneAccelerationMethod.VOXEL_ACCELERATION,
       SceneAccelerationMethod.WALD2007_ACCELERATION,
       SceneAccelerationMethod.BRUTE_FORCE_ACCELERATION
@@ -195,10 +179,6 @@ export class SceneQuery {
 
   public getMethod(): SceneAccelerationMethod {
     return this.method;
-  }
-
-  public getLegacyGrid(): VoxelGrid | null {
-    return this.legacyGrid;
   }
 
   public getIndex(): SpatialIndex | null {
@@ -220,15 +200,10 @@ export class SceneQuery {
     exclusions: RayExclusionSet,
     workspace: SceneQueryWorkspace
   ): RayHit | null {
-    if (this.legacyGrid !== null) {
-      return this.legacyGrid.gridIntersect(
-        ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace.getLegacyWorkspace()!);
-    }
-
     const test = new SceneFaceRayTest(this.scene, ray, hitFlags, exclusions, hitStore);
     const indexRay = Ray.fromAffine(
-      new Vector3Dd(ray.position.x, ray.position.y, ray.position.z),
-      new Vector3Dd(ray.direction.x, ray.direction.y, ray.direction.z));
+      new Vector3Dd(ray.position.x(), ray.position.y(), ray.position.z()),
+      new Vector3Dd(ray.direction.x(), ray.direction.y(), ray.direction.z()));
     const mode = (hitFlags & RayHitFlag.ANY) !== 0
       ? SpatialQueryMode.ANY_HIT : SpatialQueryMode.CLOSEST_HIT;
     const result = this.index!.query(
@@ -242,33 +217,19 @@ export class SceneQuery {
 }
 
 /**
-Per-query scratch of a SceneQuery: the workspace of its index (or of the
-legacy grid) and, when ray capture is enabled (RPK_RAY_CAPTURE), the recorder
+Per-query scratch of a SceneQuery: the workspace of its index and, when ray capture is enabled (RPK_RAY_CAPTURE), the recorder
 the callers report each query to (null otherwise).
 
 Workspace: mutable, owned by one caller and passed explicitly on every
 SceneQuery.intersect call.
 */
 export class SceneQueryWorkspace {
-  private readonly legacyWorkspace: VoxelGridWorkspace | null; // Legacy grid only
-  private readonly indexWorkspace: SpatialIndexWorkspace | null; // The other methods
+  private readonly indexWorkspace: SpatialIndexWorkspace | null;
   private readonly recorder: VisibilityQueryRecorder | null; // Not owned
 
   public constructor(query: SceneQuery, inRecorder: VisibilityQueryRecorder | null = null) {
     this.recorder = inRecorder;
-    const legacyGrid = query.getLegacyGrid();
-    if (legacyGrid !== null) {
-      this.legacyWorkspace = new VoxelGridWorkspace(legacyGrid.getNumberOfItems(), legacyGrid.getNumberOfLevels(), inRecorder);
-      this.indexWorkspace = null;
-    }
-    else {
-      this.legacyWorkspace = null;
-      this.indexWorkspace = new SpatialIndexWorkspace(query.getIndex()!.getWorkspaceSize());
-    }
-  }
-
-  public getLegacyWorkspace(): VoxelGridWorkspace | null {
-    return this.legacyWorkspace;
+    this.indexWorkspace = new SpatialIndexWorkspace(query.getIndex()!.getWorkspaceSize());
   }
 
   public getIndexWorkspace(): SpatialIndexWorkspace | null {

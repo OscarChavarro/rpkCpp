@@ -2,11 +2,11 @@
 Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -42,9 +42,9 @@ export class Hierarchy {
   }
 
   public static elementHierarchyInit(clusteredWorldGeometry: Geometry): void {
-    ElementHierarchyState.activeState().coords = new ArrayList<Vector3D>();
-    ElementHierarchyState.activeState().normals = new ArrayList<Vector3D>();
-    ElementHierarchyState.activeState().texCoords = new ArrayList<Vector3D>();
+    ElementHierarchyState.activeState().coords = new ArrayList<Vector3Df>();
+    ElementHierarchyState.activeState().normals = new ArrayList<Vector3Df>();
+    ElementHierarchyState.activeState().texCoords = new ArrayList<Vector3Df>();
     ElementHierarchyState.activeState().vertices = new ArrayList<Vertex>();
     ElementHierarchyState.activeState().topCluster =
       StochasticRadiosityElement.stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
@@ -171,10 +171,10 @@ export class Hierarchy {
   }
 
   public static formFactorEstimate(rcv: StochasticRadiosityElement, src: StochasticRadiosityElement): number {
-    const D = new Vector3D();
-    D.subtraction(src.midPoint, rcv.midPoint);
+    let D = new Vector3Df();
+    D = src.midPoint.subtract(rcv.midPoint);
 
-    const d = D.norm();
+    const d = D.length();
     const f = src.area / (globalThis.Math.PI * d * d + src.area);
     const f2 = 2.0 * f;
     let c1 = rcv.isCluster() ? 1.0 : globalThis.Math.abs(D.dotProduct(rcv.patch!.getNormal())) / d;

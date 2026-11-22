@@ -1,9 +1,8 @@
-import { String as JavaString } from "../../../../java/lang/String";
-import { Logger } from "../../common/logging/Logger";
-import { Matrix4x4 } from "../../common/linealAlgebra/Matrix4x4";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { Vector4D } from "../../common/linealAlgebra/Vector4D";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Matrix4x4f } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4f";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector4Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector4Df";
 import { Element } from "../../environment/geometry/elements/Element";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { Poly } from "./Poly";
@@ -15,17 +14,14 @@ import { PolygonVertex } from "./PolygonVertex";
 import { SglConstants } from "./SglConstants";
 import { SglPixelContent } from "./SglPixelContent";
 import { Window } from "./Window";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class SglContext {
-  private static readonly IDENTITY_MATRIX = new Matrix4x4(
-    1.0, 0.0, 0.0, 0.0,
-    0.0, 1.0, 0.0, 0.0,
-    0.0, 0.0, 1.0, 0.0,
-    0.0, 0.0, 0.0, 1.0
-  );
+  private static readonly IDENTITY_MATRIX = new Matrix4x4f();
 
-  public transformStack: Matrix4x4[];
-  public currentTransform: Matrix4x4;
+  public transformStack: Matrix4x4f[];
+  // Index in transformStack of the current transform (the C++ pointer into it)
+  private currentTransformIndex: number;
   public clipping: boolean;
   public vp_x: number;
   public vp_y: number;
@@ -48,14 +44,6 @@ export class SglContext {
   public vp_width: number;
   public vp_height: number;
 
-  private static copyMatrix(source: Matrix4x4, destination: Matrix4x4): void {
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        destination.m[row]![col] = source.m[row]![col]!;
-      }
-    }
-  }
-
   private static clearFrameBuffer(sglContext: SglContext, backgroundColor: number): void {
     const viewportOrigin = sglContext.vp_y * sglContext.width + sglContext.vp_x;
     for (let j = 0; j < sglContext.vp_height; j++) {
@@ -69,14 +57,14 @@ export class SglContext {
     }
   }
 
-  private static identityMatrix(): Matrix4x4 {
+  private static identityMatrix(): Matrix4x4f {
     return SglContext.IDENTITY_MATRIX;
   }
 
   public constructor(width: number, height: number) {
-    this.transformStack = new Array<Matrix4x4>(SglConstants.SGL_TRANSFORM_STACK_SIZE);
+    this.transformStack = new Array<Matrix4x4f>(SglConstants.SGL_TRANSFORM_STACK_SIZE);
     for (let i = 0; i < this.transformStack.length; i++) {
-      this.transformStack[i] = new Matrix4x4();
+      this.transformStack[i] = new Matrix4x4f();
     }
 
     this.width = width;
@@ -93,8 +81,8 @@ export class SglContext {
     this.pixelData = SglPixelContent.PIXEL;
     this.depthBuffer = null;
 
-    this.currentTransform = this.transformStack[0]!;
-    SglContext.copyMatrix(SglContext.identityMatrix(), this.currentTransform);
+    this.currentTransformIndex = 0;
+    this.transformStack[this.currentTransformIndex] = SglContext.identityMatrix();
 
     this.currentPixel = 0;
     this.currentPatch = null;
@@ -145,13 +133,12 @@ export class SglContext {
     this.clipping = on;
   }
 
-  public sglLoadMatrix(xf: Matrix4x4): void {
-    SglContext.copyMatrix(xf, this.currentTransform);
+  public sglLoadMatrix(xf: Matrix4x4f): void {
+    this.transformStack[this.currentTransformIndex] = xf;
   }
 
-  public sglMultiplyMatrix(xf: Matrix4x4): void {
-    const composed = Matrix4x4.createTransComposeMatrix(this.currentTransform, xf);
-    SglContext.copyMatrix(composed, this.currentTransform);
+  public sglMultiplyMatrix(xf: Matrix4x4f): void {
+    this.transformStack[this.currentTransformIndex] = this.transformStack[this.currentTransformIndex]!.multiply(xf);
   }
 
   public sglSetPatch(patch: Patch | null): void {
@@ -171,7 +158,7 @@ export class SglContext {
     this.vp_height = viewPortHeight;
   }
 
-  public sglPolygon(numberOfVertices: number, vertices: Vector3D[]): void {
+  public sglPolygon(numberOfVertices: number, vertices: Vector3Df[]): void {
     const pol = new Polygon();
     const win = new Window();
     const clipBox = new PolygonBox(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
@@ -182,20 +169,16 @@ export class SglContext {
     }
 
     for (let i = 0; i < numberOfVertices; i++) {
-      const v = new Vector4D();
       const vertex: PolygonVertex = pol.vertices[i]!;
-      v.x = vertices[i]!.x;
-      v.y = vertices[i]!.y;
-      v.z = vertices[i]!.z;
-      v.w = 1.0;
-      this.currentTransform.transformPoint4D(v, v);
-      if (v.w > -Numeric.EPSILON && v.w < Numeric.EPSILON) {
+      const v = this.transformStack[this.currentTransformIndex]!.multiply(
+        new Vector4Df(vertices[i]!.x(), vertices[i]!.y(), vertices[i]!.z(), 1.0));
+      if (v.w() > -VSDK.EPSILON && v.w() < VSDK.EPSILON) {
         return;
       }
-      vertex.sx = v.x;
-      vertex.sy = v.y;
-      vertex.sz = v.z;
-      vertex.sw = v.w;
+      vertex.sx = v.x();
+      vertex.sy = v.y();
+      vertex.sz = v.z();
+      vertex.sw = v.w();
     }
     pol.n = numberOfVertices;
     pol.mask = 0;

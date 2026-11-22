@@ -1,9 +1,9 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
-import { Vector2D } from "../common/linealAlgebra/Vector2D";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
+import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../material/BsdfComponent";
 import { XxdfComponentFlag } from "../material/XxdfComponentFlag";
 import { PatchVisitor } from "../numericalAnalysis/PatchVisitor";
@@ -23,8 +23,8 @@ import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 
 type Matrix2x2Quad = [Matrix2x2, Matrix2x2, Matrix2x2, Matrix2x2];
-type QuadPoints = [Vector3D, Vector3D, Vector3D, Vector3D];
-type OctPoints = [Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D, Vector3D];
+type QuadPoints = [Vector3Df, Vector3Df, Vector3Df, Vector3Df];
+type OctPoints = [Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df];
 
 export class GalerkinElement extends Element {
   private static numberOfElements = 0;
@@ -50,56 +50,21 @@ export class GalerkinElement extends Element {
   private static readonly triangleToParentTransformMatrix = GalerkinElement.buildTriangleTransforms();
 
   private static buildQuadTransforms(): Matrix2x2Quad {
-    const t: Matrix2x2Quad = [new Matrix2x2(), new Matrix2x2(), new Matrix2x2(), new Matrix2x2()];
-    for (let i = 0; i < 4; i++) {
-      t[i]!.m[0][0] = 0.5;
-      t[i]!.m[0][1] = 0.0;
-      t[i]!.m[1][0] = 0.0;
-      t[i]!.m[1][1] = 0.5;
-    }
-    t[0].t[0] = 0.0;
-    t[0].t[1] = 0.0;
-    t[1].t[0] = 0.5;
-    t[1].t[1] = 0.0;
-    t[2].t[0] = 0.0;
-    t[2].t[1] = 0.5;
-    t[3].t[0] = 0.5;
-    t[3].t[1] = 0.5;
-    return t;
+    return [
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.0),
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.0),
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.5),
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.5)
+    ];
   }
 
   private static buildTriangleTransforms(): Matrix2x2Quad {
-    const t: Matrix2x2Quad = [new Matrix2x2(), new Matrix2x2(), new Matrix2x2(), new Matrix2x2()];
-
-    t[0].m[0][0] = 0.5;
-    t[0].m[0][1] = 0.0;
-    t[0].m[1][0] = 0.0;
-    t[0].m[1][1] = 0.5;
-    t[0].t[0] = 0.0;
-    t[0].t[1] = 0.0;
-
-    t[1].m[0][0] = 0.5;
-    t[1].m[0][1] = 0.0;
-    t[1].m[1][0] = 0.0;
-    t[1].m[1][1] = 0.5;
-    t[1].t[0] = 0.5;
-    t[1].t[1] = 0.0;
-
-    t[2].m[0][0] = 0.5;
-    t[2].m[0][1] = 0.0;
-    t[2].m[1][0] = 0.0;
-    t[2].m[1][1] = 0.5;
-    t[2].t[0] = 0.0;
-    t[2].t[1] = 0.5;
-
-    t[3].m[0][0] = -0.5;
-    t[3].m[0][1] = 0.0;
-    t[3].m[1][0] = 0.0;
-    t[3].m[1][1] = -0.5;
-    t[3].t[0] = 0.5;
-    t[3].t[1] = 0.5;
-
-    return t;
+    return [
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.0),
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.0),
+      new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.5),
+      new Matrix2x2(-0.5, 0.0, 0.0, -0.5, 0.5, 0.5)
+    ];
   }
 
   public constructor(inGalerkinState: GalerkinState);
@@ -330,7 +295,7 @@ export class GalerkinElement extends Element {
     return leaf;
   }
 
-  public vertices(p: Vector3D[] | null): number {
+  public vertices(p: Vector3Df[] | null): number {
     if (p === null) {
       return 0;
     }
@@ -346,65 +311,52 @@ export class GalerkinElement extends Element {
       return 0;
     }
 
-    const topTrans = new Matrix2x2();
-    const uv = new Vector2D();
-    if (this.transformToParent !== null) {
-      this.topTransform(topTrans);
+    const topTrans = this.topTransform();
+    let uv = new Vector2Df();
+
+    uv = new Vector2Df(0.0, 0.0);
+    if (topTrans !== null) {
+      uv = topTrans.transformPoint(uv);
+    }
+    if (p[0] !== undefined) {
+      p[0] = this.patch.uniformPoint(uv.x(), uv.y())!;
     }
 
-    uv.x = 0.0;
-    uv.y = 0.0;
-    if (this.transformToParent !== null) {
-      topTrans.transformPoint2D(uv, uv);
+    uv = new Vector2Df(1.0, 0.0);
+    if (topTrans !== null) {
+      uv = topTrans.transformPoint(uv);
     }
-    const p0 = p[0];
-    if (p0 !== undefined) {
-      this.patch.uniformPoint(uv.x, uv.y, p0);
-    }
-
-    uv.x = 1.0;
-    uv.y = 0.0;
-    if (this.transformToParent !== null) {
-      topTrans.transformPoint2D(uv, uv);
-    }
-    const p1 = p[1];
-    if (p1 !== undefined) {
-      this.patch.uniformPoint(uv.x, uv.y, p1);
+    if (p[1] !== undefined) {
+      p[1] = this.patch.uniformPoint(uv.x(), uv.y())!;
     }
 
     if (this.patch.numberOfVertices === 4) {
-      uv.x = 1.0;
-      uv.y = 1.0;
-      if (this.transformToParent !== null) {
-        topTrans.transformPoint2D(uv, uv);
+      uv = new Vector2Df(1.0, 1.0);
+      if (topTrans !== null) {
+        uv = topTrans.transformPoint(uv);
       }
-      const p2 = p[2];
-      if (p2 !== undefined) {
-        this.patch.uniformPoint(uv.x, uv.y, p2);
+      if (p[2] !== undefined) {
+        p[2] = this.patch.uniformPoint(uv.x(), uv.y())!;
       }
 
-      uv.x = 0.0;
-      uv.y = 1.0;
-      if (this.transformToParent !== null) {
-        topTrans.transformPoint2D(uv, uv);
+      uv = new Vector2Df(0.0, 1.0);
+      if (topTrans !== null) {
+        uv = topTrans.transformPoint(uv);
       }
-      const p3 = p[3];
-      if (p3 !== undefined) {
-        this.patch.uniformPoint(uv.x, uv.y, p3);
+      if (p[3] !== undefined) {
+        p[3] = this.patch.uniformPoint(uv.x(), uv.y())!;
       }
     }
     else {
-      uv.x = 0.0;
-      uv.y = 1.0;
-      if (this.transformToParent !== null) {
-        topTrans.transformPoint2D(uv, uv);
+      uv = new Vector2Df(0.0, 1.0);
+      if (topTrans !== null) {
+        uv = topTrans.transformPoint(uv);
       }
-      const p2 = p[2];
-      if (p2 !== undefined) {
-        this.patch.uniformPoint(uv.x, uv.y, p2);
+      if (p[2] !== undefined) {
+        p[2] = this.patch.uniformPoint(uv.x(), uv.y())!;
       }
       if (p.length > 3 && p[3] !== undefined && p[3] !== null) {
-        p[3].set(0.0, 0.0, 0.0);
+        p[3] = new Vector3Df(0.0, 0.0, 0.0);
       }
     }
 
@@ -421,7 +373,7 @@ export class GalerkinElement extends Element {
       return boundingBox;
     }
 
-    const p: QuadPoints = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
+    const p: QuadPoints = [new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()];
     const numberOfVertices = this.vertices(p);
     for (let i = 0; i < numberOfVertices; i++) {
       const point = p[i];
@@ -432,22 +384,22 @@ export class GalerkinElement extends Element {
     return boundingBox;
   }
 
-  public midPoint(): Vector3D {
+  public midPoint(): Vector3Df {
     if (this.isCluster()) {
-      return this.geometry !== null ? this.geometry.boundingBox.center() : new Vector3D();
+      return this.geometry !== null ? this.geometry.boundingBox.center() : new Vector3Df();
     }
 
-    const p: OctPoints = [new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()];
+    const p: OctPoints = [new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()];
     const numberOfVertices = this.vertices(p);
-    const c = new Vector3D();
+    let c = new Vector3Df();
     for (let i = 0; i < numberOfVertices; i++) {
       const point = p[i];
       if (point !== undefined) {
-        c.addition(c, point);
+        c = c.add(point);
       }
     }
     if (numberOfVertices > 0) {
-      c.scaledCopy(1.0 / numberOfVertices, c);
+      c = c.multiply(1.0 / numberOfVertices);
     }
     return c;
   }
@@ -464,7 +416,7 @@ export class GalerkinElement extends Element {
       return;
     }
 
-    polygon.normal.set(this.patch.getNormal().x, this.patch.getNormal().y, this.patch.getNormal().z);
+    polygon.normal = new Vector3Df(this.patch.getNormal().x(), this.patch.getNormal().y(), this.patch.getNormal().z());
     polygon.planeConstant = this.patch.getPlaneConstant();
     polygon.numberOfVertices = this.vertices(polygon.vertex);
     polygon.bounds = new BoundingBox();

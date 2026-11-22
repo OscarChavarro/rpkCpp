@@ -1,19 +1,19 @@
-import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
-import { RendererConfiguration } from "vitral/dist/vsdk/toolkit/material/RendererConfiguration";
-import { OptionBase } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
-import { OptionGroup } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
-import { OptionParser } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
-import { TypedOption } from "vitral/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { ParseRuntimeContext } from "vitral/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
-import { Background } from "vitral/dist/vsdk/toolkit/scene/Background";
-import { Camera } from "vitral/dist/vsdk/toolkit/scene/Camera";
-import { ConstantColorBackground } from "vitral/dist/vsdk/toolkit/scene/ConstantColorBackground";
+import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
+import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
+import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
+import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
+import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
+import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { ParseRuntimeContext } from "rpk-base/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
+import { Background } from "rpk-base/dist/vsdk/toolkit/scene/Background";
+import { Camera } from "rpk-base/dist/vsdk/toolkit/scene/Camera";
+import { ConstantColorBackground } from "rpk-base/dist/vsdk/toolkit/scene/ConstantColorBackground";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Scene } from "vitral/dist/vsdk/toolkit/scene/Scene";
-import { SceneAccelerationMethod } from "vitral/dist/vsdk/toolkit/scene/SceneAccelerationMethod";
-import { SceneQuery } from "vitral/dist/vsdk/toolkit/scene/SceneQuery";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
+import { SceneAccelerationMethod } from "rpk-base/dist/vsdk/toolkit/scene/SceneAccelerationMethod";
+import { SceneQuery } from "rpk-base/dist/vsdk/toolkit/scene/SceneQuery";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { EnumAppOptions } from "./EnumAppOptions";
 import { EnumBackgroundMode } from "./EnumBackgroundMode";
 import { OptionTextUtils } from "./OptionTextUtils";
@@ -210,7 +210,7 @@ export class OptionsGroupCore {
   }
 
   /**
-  -scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+  -scene-acceleration voxel|wald2007|bruteforce: the spatial index of
   the scene query (SceneAccelerationMethod); wald2007 by default
   */
   private static sceneAccelerationOption(value: TypedOption.MutableValue<string>): void {
@@ -221,7 +221,7 @@ export class OptionsGroupCore {
     }
     else {
       VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat(
-        "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", [name]));
+        "Invalid scene acceleration '%s' (voxel, wald2007 or bruteforce)", [name]));
     }
   }
 

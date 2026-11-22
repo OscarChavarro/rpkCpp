@@ -1,6 +1,6 @@
-import { String as JavaString } from "../../../../java/lang/String";
-import { InputStream } from "../../../../java/io/InputStream";
-import { Logger } from "../../common/logging/Logger";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { InputStream } from "vitral/dist/java/io/InputStream";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { ColorContext } from "../context/ColorContext";
 import { EntityDispatchContext } from "../context/EntityDispatchContext";
 import { EntityTypeContext } from "../context/EntityTypeContext";

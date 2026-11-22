@@ -1,8 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
-import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { SglConstants } from "../render/sgl/SglConstants";
 import { SglContext } from "../render/sgl/SglContext";
 import { Camera } from "../scene/Camera";
@@ -10,6 +8,7 @@ import { Scene } from "../scene/Scene";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMap } from "../tonemap/ToneMap";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class SoftIds {
   private constructor() {
@@ -21,14 +20,15 @@ export class SoftIds {
     sgl.sglClipping(true);
     sgl.sglClear(0, SglConstants.SGL_MAXIMUM_Z);
 
-    const p = Matrix4x4.createPerspectiveMatrix(
-      camera.fieldOfVision * 2.0 * globalThis.Math.PI / 180.0,
-      camera.xSize / camera.ySize,
+    const fr = Math.fround;
+    const p = Camera.perspectiveMatrix(
+      fr(fr(fr(fr(camera.fieldOfVision) * 2.0) * fr(globalThis.Math.PI)) / 180.0),
+      fr(camera.xSize / camera.ySize),
       camera.near,
       camera.far
     );
     sgl.sglLoadMatrix(p);
-    const l = Matrix4x4.createLookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
+    const l = Camera.lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
     sgl.sglMultiplyMatrix(l);
 
     return sgl;
@@ -44,10 +44,10 @@ export class SoftIds {
       return;
     }
 
-    const vertices = new Array<Vector3D>(4);
+    const vertices = new Array<Vector3Df>(4);
 
     if (renderOptions.backfaceCulling &&
-      patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < Numeric.EPSILON) {
+      patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < VSDK.EPSILON) {
       return;
     }
 

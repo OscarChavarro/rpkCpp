@@ -1,5 +1,5 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import { ParseRuntimeContext } from "../context/ParseRuntimeContext";
@@ -8,6 +8,8 @@ import { VertexContext } from "../context/VertexContext";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfTessellationMath } from "./MgfTessellationMath";
 import { MgfVertexFaceEntitySupport } from "./MgfVertexFaceEntitySupport";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class MgfConeEntityTessellator {
   private constructor() {
@@ -95,11 +97,11 @@ export class MgfConeEntityTessellator {
 
     // Set up (radius1, radius2)
     let radius1 = Number.parseFloat(argumentValues[2]!);
-    if (radius1 <= Numeric.EPSILON && radius1 >= -Numeric.EPSILON) {
+    if (radius1 <= VSDK.EPSILON && radius1 >= -VSDK.EPSILON) {
       radius1 = 0.0;
     }
     let radius2 = Number.parseFloat(argumentValues[4]!);
-    if (radius2 <= Numeric.EPSILON && radius2 >= -Numeric.EPSILON) {
+    if (radius2 <= VSDK.EPSILON && radius2 >= -VSDK.EPSILON) {
       radius2 = 0.0;
     }
 
@@ -133,17 +135,17 @@ export class MgfConeEntityTessellator {
       new Vector3Dd(v1Context.p.x() - v2Context.p.x(), v1Context.p.y() - v2Context.p.y(), v1Context.p.z() - v2Context.p.z())
     ];
 
-    d = MgfTessellationMath.normalizeAndGivePreviousNorm(wHolder, Numeric.EPSILON);
+    d = MgfTessellationMath.normalizeAndGivePreviousNorm(wHolder, VSDK.EPSILON);
     const w = wHolder[0]!;
-    if (Numeric.doubleEqual(d, 0.0, Numeric.EPSILON)) {
+    if (Numeric.doubleEqual(d, 0.0, VSDK.EPSILON)) {
       return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     normalOffset1 = normalOffset2 = (radius2 - radius1) / d;
     if (context.warpConeEnds) {
       // Hack for mgfEntitySphere and mgfEntityTorus
       d = globalThis.Math.atan(normalOffset2) - (globalThis.Math.PI / 4) / context.numberOfQuarterCircleDivisions;
-      if (d <= -globalThis.Math.PI / 2 + Numeric.EPSILON) {
-        normalOffset2 = -Numeric.HUGE_FLOAT_VALUE;
+      if (d <= -globalThis.Math.PI / 2 + VSDK.EPSILON) {
+        normalOffset2 = -Float.MAX_VALUE;
       }
       else {
         normalOffset2 = globalThis.Math.tan(d);
@@ -152,12 +154,12 @@ export class MgfConeEntityTessellator {
 
     const uHolder: Vector3Dd[] = [];
     const vHolder: Vector3Dd[] = [];
-    MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, w, Numeric.EPSILON);
+    MgfTessellationMath.mgfMakeAxes(uHolder, vHolder, w, VSDK.EPSILON);
     const u = uHolder[0]!;
     const v = vHolder[0]!;
 
     MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * u.x());
-    if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
+    if (normalOffset2 <= -Float.MAX_VALUE) {
       MgfTessellationMath.formatFloat(n3x, 24, -w.x());
     }
     else {
@@ -165,7 +167,7 @@ export class MgfConeEntityTessellator {
     }
 
     MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * u.y());
-    if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
+    if (normalOffset2 <= -Float.MAX_VALUE) {
       MgfTessellationMath.formatFloat(n3y, 24, -w.y());
     }
     else {
@@ -173,7 +175,7 @@ export class MgfConeEntityTessellator {
     }
 
     MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * u.z());
-    if (normalOffset2 <= -Numeric.HUGE_FLOAT_VALUE) {
+    if (normalOffset2 <= -Float.MAX_VALUE) {
       MgfTessellationMath.formatFloat(n3z, 24, -w.z());
     }
     else {
@@ -227,19 +229,19 @@ export class MgfConeEntityTessellator {
 
         d = u.x() * globalThis.Math.cos(theta) + v.x() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3x, 24, d + w.x() * normalOffset2);
         }
 
         d = u.y() * globalThis.Math.cos(theta) + v.y() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3y, 24, d + w.y() * normalOffset2);
         }
 
         d = u.z() * globalThis.Math.cos(theta) + v.z() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3z, 24, d + w.z() * normalOffset2);
         }
         p3Entity[1] = p3x[0]!;
@@ -258,7 +260,7 @@ export class MgfConeEntityTessellator {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity as string[], context);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
+        if (normalOffset2 > -Float.MAX_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 4, faceEntity as string[], context);
@@ -273,8 +275,8 @@ export class MgfConeEntityTessellator {
       if (context.warpConeEnds) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = globalThis.Math.atan(normalOffset1) + (globalThis.Math.PI / 4) / context.numberOfQuarterCircleDivisions;
-        if (d >= globalThis.Math.PI / 2 - Numeric.EPSILON) {
-          normalOffset1 = Numeric.HUGE_FLOAT_VALUE;
+        if (d >= globalThis.Math.PI / 2 - VSDK.EPSILON) {
+          normalOffset1 = Float.MAX_VALUE;
         }
         else {
           normalOffset1 = globalThis.Math.tan(
@@ -284,7 +286,7 @@ export class MgfConeEntityTessellator {
       }
 
       MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x() + radius1 * u.x());
-      if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
+      if (normalOffset1 >= Float.MAX_VALUE) {
         MgfTessellationMath.formatFloat(n4x, 24, w.x());
       }
       else {
@@ -292,7 +294,7 @@ export class MgfConeEntityTessellator {
       }
 
       MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y() + radius1 * u.y());
-      if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
+      if (normalOffset1 >= Float.MAX_VALUE) {
         MgfTessellationMath.formatFloat(n4y, 24, w.y());
       }
       else {
@@ -300,7 +302,7 @@ export class MgfConeEntityTessellator {
       }
 
       MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z() + radius1 * u.z());
-      if (normalOffset1 >= Numeric.HUGE_FLOAT_VALUE) {
+      if (normalOffset1 >= Float.MAX_VALUE) {
         MgfTessellationMath.formatFloat(n4z, 24, w.z());
       }
       else {
@@ -338,31 +340,31 @@ export class MgfConeEntityTessellator {
 
         d = u.x() * globalThis.Math.cos(theta) + v.x() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3x, 24, v2Context.p.x() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3x, 24, d + w.x() * normalOffset2);
         }
         MgfTessellationMath.formatFloat(p4x, 24, v1Context.p.x() + radius1 * d);
-        if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset1 < Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n4x, 24, d + w.x() * normalOffset1);
         }
 
         d = u.y() * globalThis.Math.cos(theta) + v.y() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3y, 24, v2Context.p.y() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3y, 24, d + w.y() * normalOffset2);
         }
         MgfTessellationMath.formatFloat(p4y, 24, v1Context.p.y() + radius1 * d);
-        if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset1 < Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n4y, 24, d + w.y() * normalOffset1);
         }
 
         d = u.z() * globalThis.Math.cos(theta) + v.z() * globalThis.Math.sin(theta);
         MgfTessellationMath.formatFloat(p3z, 24, v2Context.p.z() + radius2 * d);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset2 > -Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n3z, 24, d + w.z() * normalOffset2);
         }
         MgfTessellationMath.formatFloat(p4z, 24, v1Context.p.z() + radius1 * d);
-        if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE) {
+        if (normalOffset1 < Float.MAX_VALUE) {
           MgfTessellationMath.formatFloat(n4z, 24, d + w.z() * normalOffset1);
         }
 
@@ -388,7 +390,7 @@ export class MgfConeEntityTessellator {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n3Entity as string[], context);
-        if (normalOffset2 > -Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
+        if (normalOffset2 > -Float.MAX_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.VERTEX, 2, v4Entity as string[], context);
@@ -400,7 +402,7 @@ export class MgfConeEntityTessellator {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.MGF_NORMAL, 4, n4Entity as string[], context);
-        if (normalOffset1 < Numeric.HUGE_FLOAT_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
+        if (normalOffset1 < Float.MAX_VALUE && errorCode !== ParseErrorContext.MGF_OK) {
           return errorCode;
         }
         errorCode = MgfEntityControl.mgfHandle(EntityTypeContext.FACE, 5, faceEntity as string[], context);

@@ -21,6 +21,6 @@
     },
     "skipLibCheck": true
   },
-  "include": ["src/main/**/*.ts", "src/main/**/*.d.ts"],
+  "include": ["ambient.d.ts", "src/main/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

@@ -1,5 +1,5 @@
 import { LookUpTable } from "../../common/dataStructures/LookUpTable";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Material } from "../../material/Material";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Geometry } from "../../skin/Geometry";
@@ -48,8 +48,8 @@ export class ParseRuntimeContext extends ParseContext {
   public currentMaterialName: string | null;
   public geometryStackHeadIndex: number;
   public geometryStack: Array<Geometry[] | null>;
-  public currentPointList: Vector3D[] | null;
-  public currentNormalList: Vector3D[] | null;
+  public currentPointList: Vector3Df[] | null;
+  public currentNormalList: Vector3Df[] | null;
   public currentVertexList: Vertex[] | null;
   public currentFaceList: Patch[] | null;
   public currentGeometryList: Geometry[] | null;

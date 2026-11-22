@@ -1,7 +1,7 @@
-import { PrintStream } from "../../../../java/io/PrintStream";
-import { Numeric } from "../linealAlgebra/Numeric";
+import { PrintStream } from "vitral/dist/java/io/PrintStream";
 import { Cie } from "./Cie";
-import { ColorRgb } from "./ColorRgb";
+import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ColorRgbMutable {
   public r: number;
@@ -60,9 +60,9 @@ export class ColorRgbMutable {
   }
 
   public isBlack(): boolean {
-    return (this.r > -Numeric.EPSILON && this.r < Numeric.EPSILON &&
-      this.g > -Numeric.EPSILON && this.g < Numeric.EPSILON &&
-      this.b > -Numeric.EPSILON && this.b < Numeric.EPSILON);
+    return (this.r > -VSDK.EPSILON && this.r < VSDK.EPSILON &&
+      this.g > -VSDK.EPSILON && this.g < VSDK.EPSILON &&
+      this.b > -VSDK.EPSILON && this.b < VSDK.EPSILON);
   }
 
   public scaledCopy(a: number, c: ColorRgbMutable): void {

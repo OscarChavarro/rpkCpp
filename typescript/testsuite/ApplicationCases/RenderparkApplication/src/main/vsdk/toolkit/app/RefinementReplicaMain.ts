@@ -4,7 +4,7 @@ import { createWorkerMessageHandler } from "vitral/dist/java/concurrent/WorkerPr
 import {
   RefinementReplicas,
   type RefinementReplicaRequest,
-} from "vitral/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
+} from "rpk-base/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
 import { Main } from "./Main";
 
 /*

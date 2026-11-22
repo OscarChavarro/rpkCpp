@@ -1,4 +1,4 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import type { Scene } from "../../scene/Scene";
 import type { Geometry } from "../../skin/Geometry";

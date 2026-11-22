@@ -5,12 +5,13 @@
   "description": "RenderPark Application for TypeScript port",
   "main": "dist/vsdk/toolkit/app/Main.js",
   "scripts": {
-    "build": "npm run -w vitral build && tsc -p tsconfig.json",
+    "build": "npm run -w vitral build && npm run -w rpk-base build && tsc -p tsconfig.json",
     "run": "node ../../../../scripts/runNodeProgram.mjs --build --cwd . --entry dist/vsdk/toolkit/app/Main.js --",
     "run:help": "node ../../../../scripts/runNodeProgram.mjs --build --cwd . --entry dist/vsdk/toolkit/app/Main.js -- --help"
   },
   "dependencies": {
-    "vitral": "file:../../../base"
+    "vitral": "file:../../../base",
+    "rpk-base": "file:../../../rpkBase"
   },
   "devDependencies": {
     "typescript": "^6.0.2"

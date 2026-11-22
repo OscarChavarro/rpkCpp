@@ -1,6 +1,6 @@
 import { LookUpBehaviors } from "../../common/dataStructures/LookUpBehaviors";
 import { LookUpTable } from "../../common/dataStructures/LookUpTable";
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { VertexContext } from "./VertexContext";
 
 export class VertexRegistryContext {

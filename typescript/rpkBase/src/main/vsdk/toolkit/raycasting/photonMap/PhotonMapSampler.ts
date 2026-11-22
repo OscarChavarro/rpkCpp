@@ -6,10 +6,9 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 */
 
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RefractionIndex } from "../../material/RefractionIndex";
@@ -24,6 +23,7 @@ import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { BsdfSampler } from "../raytracing/BsdfSampler";
 import { Sampler } from "../raytracing/Sampler";
 import { PhotonMap } from "./PhotonMap";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
@@ -68,7 +68,7 @@ Returns true a component was chosen, false if absorbed
 
     totalPower = power1 + power2;
 
-    if (totalPower < Numeric.EPSILON) {
+    if (totalPower < VSDK.EPSILON) {
       return false;
     }
 
@@ -180,7 +180,7 @@ The Fresnel sampler works as follows:
       bsdf.indexOfRefraction(nc);
     }
 
-    if (nc.getNi() > Numeric.EPSILON) {
+    if (nc.getNi() > VSDK.EPSILON) {
       nc.set(nc.complexToGeometricRefractionIndex(), 0.0);
     }
 
@@ -191,7 +191,7 @@ The Fresnel sampler works as follows:
     thisNode: SimpleRaytracingPathNode,
     flags: number,
     x2: number,
-    dir: Vector3D,
+    dir: Vector3Df[], // One-element holder (C++ `Vector3Df *`)
     pdfDir: number[],
     scatteringColor: ColorRgbMutable,
     doCosInverse: boolean[]
@@ -218,8 +218,8 @@ The Fresnel sampler works as follows:
       );
     }
 
-    const reflective = reflectance.average() > Numeric.EPSILON;
-    const trans = transmittance.average() > Numeric.EPSILON;
+    const reflective = reflectance.average() > VSDK.EPSILON;
+    const trans = transmittance.average() > VSDK.EPSILON;
 
     if (reflective && trans) {
       VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
@@ -230,8 +230,8 @@ The Fresnel sampler works as follows:
     let cost: number;
     let F: number;
     const tir = [false];
-    let reflectedDir = new Vector3D();
-    let refractedDir = new Vector3D();
+    let reflectedDir = new Vector3Df();
+    let refractedDir = new Vector3Df();
 
     if (reflective) {
       if ((flags & BsdfComponent.BRDF_SPECULAR_COMPONENT) !== 0) {
@@ -304,18 +304,18 @@ The Fresnel sampler works as follows:
       F = 0.0;
     }
 
-    if (sum < Numeric.EPSILON) {
+    if (sum < VSDK.EPSILON) {
       return false;
     }
 
     if (x2 < T / sum) {
       reflected = false;
-      dir.copy(refractedDir);
+      dir[0] = refractedDir;
       pdfDir[0] = T / sum;
     }
     else {
       reflected = true;
-      dir.copy(reflectedDir);
+      dir[0] = reflectedDir;
       pdfDir[0] = F / sum;
     }
 
@@ -347,14 +347,15 @@ The Fresnel sampler works as follows:
     x2: number,
     flags: number
   ): boolean {
-    const dir = new Vector3D();
+    const dirHolder = [new Vector3Df()];
     const pdfDir = [0.0];
     const doCosInverse = [false];
     const scatteringColor = new ColorRgbMutable();
 
-    if (!PhotonMapSampler.chooseFresnelDirection(thisNode, flags, x2, dir, pdfDir, scatteringColor, doCosInverse)) {
+    if (!PhotonMapSampler.chooseFresnelDirection(thisNode, flags, x2, dirHolder, pdfDir, scatteringColor, doCosInverse)) {
       return false;
     }
+    const dir = dirHolder[0]!;
 
     PhotonMapSampler.DetermineRayType(thisNode, newNode, dir);
 

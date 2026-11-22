@@ -1,7 +1,7 @@
 import { Random48 } from "../../common/Random48";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { Niederreiter31 } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter31";
 import { Background } from "../../scene/Background";
@@ -237,7 +237,7 @@ export class SamplerConfig {
     flags: number,
     bsdfFlagsE: number,
     bsdfFlagsL: number,
-    pDirEl: Vector3D | null
+    pDirEl: Vector3Df | null
   ): number;
   public static pathNodeConnect(
     camera: Camera,
@@ -246,7 +246,7 @@ export class SamplerConfig {
     eyeConfig: SamplerConfig,
     lightConfig: SamplerConfig,
     flags: number,
-    pDirEl: Vector3D | null
+    pDirEl: Vector3Df | null
   ): number;
   public static pathNodeConnect(
     camera: Camera,
@@ -255,13 +255,13 @@ export class SamplerConfig {
     eyeConfig: SamplerConfig,
     lightConfig: SamplerConfig,
     flags: number,
-    bsdfFlagsEOrDir: number | Vector3D | null,
+    bsdfFlagsEOrDir: number | Vector3Df | null,
     bsdfFlagsL?: number,
-    pDirEl?: Vector3D | null
+    pDirEl?: Vector3Df | null
   ): number {
     let bsdfFlagsE: number;
     let bsdfFlagsLValue: number;
-    let outDirEl: Vector3D | null;
+    let outDirEl: Vector3Df | null;
 
     if (typeof bsdfFlagsEOrDir === "number") {
       bsdfFlagsE = bsdfFlagsEOrDir;
@@ -271,7 +271,7 @@ export class SamplerConfig {
     else {
       bsdfFlagsE = Sampler.BSDF_ALL_COMPONENTS;
       bsdfFlagsLValue = Sampler.BSDF_ALL_COMPONENTS;
-      outDirEl = bsdfFlagsEOrDir as Vector3D | null;
+      outDirEl = bsdfFlagsEOrDir as Vector3Df | null;
     }
 
     const nodeEP = nodeX.previous();
@@ -279,17 +279,17 @@ export class SamplerConfig {
     const pdf = [0.0];
     const pdfRR = [0.0];
 
-    const dirLE = new Vector3D();
-    const dirEL = new Vector3D();
+    let dirLE = new Vector3Df();
+    let dirEL = new Vector3Df();
 
-    dirEL.subtraction(nodeY.m_hit.getPoint(), nodeX.m_hit.getPoint());
-    const dist2 = dirEL.norm2();
+    dirEL = nodeY.m_hit.getPoint().subtract(nodeX.m_hit.getPoint());
+    const dist2 = dirEL.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    dirEL.inverseScaledCopy(dist, dirEL, Numeric.EPSILON_FLOAT);
-    dirLE.scaledCopy(-1.0, dirEL);
+    dirEL = dirEL.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    dirLE = dirEL.multiply(-1.0);
 
     if (outDirEl !== null) {
-      outDirEl.copy(dirEL);
+      outDirEl = dirEL;
     }
 
     if ((flags & SampleConnectionFlags.CONNECT_EL) !== 0) {

@@ -3,13 +3,13 @@ Ray casting using the SGL library for rendering Patch pointers into
 a software frame buffer directly.
 */
 
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { RayTracer } from "../common/RayTracer";
@@ -20,6 +20,7 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class RayCaster extends RayTracer {
   private static rayCaster: RayCaster | null = null;
@@ -86,25 +87,25 @@ export class RayCaster extends RayTracer {
   }
 
   private static clipUv(numberOfVertices: number, u: number[], v: number[]): void {
-    if (u[0]! > 1.0 - Numeric.EPSILON) {
-      u[0] = 1.0 - Numeric.EPSILON;
+    if (u[0]! > 1.0 - VSDK.EPSILON) {
+      u[0] = 1.0 - VSDK.EPSILON;
     }
-    if (v[0]! > 1.0 - Numeric.EPSILON) {
-      v[0] = 1.0 - Numeric.EPSILON;
+    if (v[0]! > 1.0 - VSDK.EPSILON) {
+      v[0] = 1.0 - VSDK.EPSILON;
     }
-    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - Numeric.EPSILON) {
+    if (numberOfVertices === 3 && (u[0]! + v[0]!) > 1.0 - VSDK.EPSILON) {
       if (u[0]! > v[0]!) {
-        u[0] = 1.0 - v[0]! - Numeric.EPSILON;
+        u[0] = 1.0 - v[0]! - VSDK.EPSILON;
       }
       else {
-        v[0] = 1.0 - u[0]! - Numeric.EPSILON;
+        v[0] = 1.0 - u[0]! - VSDK.EPSILON;
       }
     }
-    if (u[0]! < Numeric.EPSILON) {
-      u[0] = Numeric.EPSILON;
+    if (u[0]! < VSDK.EPSILON) {
+      u[0] = VSDK.EPSILON;
     }
-    if (v[0]! < Numeric.EPSILON) {
-      v[0] = Numeric.EPSILON;
+    if (v[0]! < VSDK.EPSILON) {
+      v[0] = VSDK.EPSILON;
     }
   }
 
@@ -128,13 +129,13 @@ export class RayCaster extends RayTracer {
       const ray = new Ray();
       ray.position = camera.eyePosition;
       ray.direction = this.screenBuffer.getPixelVector(x, y);
-      ray.direction.normalize(Numeric.EPSILON_FLOAT);
+      ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
 
       // Find intersection point of ray with patch
-      const point = new Vector3D();
+      let point = new Vector3Df();
       let dist = patch.getNormal().dotProduct(ray.direction);
       dist = -(patch.getNormal().dotProduct(ray.position) + patch.getPlaneConstant()) / dist;
-      point.sumScaled(ray.position, dist, ray.direction);
+      point = ray.position.add(ray.direction.multiply(dist));
 
       // Find surface coordinates of hit point on patch
       const u = [0.0];
@@ -146,7 +147,7 @@ export class RayCaster extends RayTracer {
       RayCaster.clipUv(patch.numberOfVertices, u, v);
 
       // Reverse ray direction and get radiance emitted at hit point towards the eye
-      const dir = new Vector3D(-ray.direction.x, -ray.direction.y, -ray.direction.z);
+      const dir = new Vector3Df(-ray.direction.x(), -ray.direction.y(), -ray.direction.z());
       return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, dir, renderOptions);
     }
     return radiance;

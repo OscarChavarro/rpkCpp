@@ -1,7 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Matrix4x4 } from "../../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinState } from "../GalerkinState";
@@ -12,6 +11,7 @@ import { Camera } from "../../scene/Camera";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Element } from "../../environment/geometry/elements/Element";
 import { ClusterTraversalStrategy } from "./ClusterTraversalStrategy";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ScratchVisibilityStrategy {
   public static scratchInit(galerkinState: GalerkinState): void {
@@ -25,11 +25,11 @@ export class ScratchVisibilityStrategy {
     }
   }
 
-  public static scratchRenderElements(cluster: GalerkinElement, eye: Vector3D, galerkinState: GalerkinState): BoundingBox {
+  public static scratchRenderElements(cluster: GalerkinElement, eye: Vector3Df, galerkinState: GalerkinState): BoundingBox {
     const boundingBox = new BoundingBox();
 
     if (cluster.id === galerkinState.lastClusterId
-      && eye.equals(galerkinState.lastEye, Numeric.EPSILON_FLOAT)) {
+      && Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON_FLOAT)) {
       return boundingBox;
     }
 
@@ -37,16 +37,16 @@ export class ScratchVisibilityStrategy {
     galerkinState.lastEye = eye;
 
     const center = cluster.midPoint();
-    const up = new Vector3D(0.0, 0.0, 1.0);
-    const viewDirection = new Vector3D();
+    let up = new Vector3Df(0.0, 0.0, 1.0);
+    let viewDirection = new Vector3Df();
 
-    viewDirection.subtraction(center, eye);
-    viewDirection.normalize(Numeric.EPSILON_FLOAT);
-    if (globalThis.Math.abs(up.dotProduct(viewDirection)) > 1.0 - Numeric.EPSILON) {
-      up.set(0.0, 1.0, 0.0);
+    viewDirection = center.subtract(eye);
+    viewDirection = viewDirection.normalized(Numeric.EPSILON_FLOAT);
+    if (globalThis.Math.abs(up.dotProduct(viewDirection)) > 1.0 - VSDK.EPSILON) {
+      up = new Vector3Df(0.0, 1.0, 0.0);
     }
 
-    const lookAt = Matrix4x4.createLookAtMatrix(eye, center, up);
+    const lookAt = Camera.lookAtMatrix(eye, center, up);
 
     Camera.transformBoundingBox((cluster.geometry as NonNullable<GalerkinElement["geometry"]>).getBoundingBox(), lookAt, boundingBox);
 

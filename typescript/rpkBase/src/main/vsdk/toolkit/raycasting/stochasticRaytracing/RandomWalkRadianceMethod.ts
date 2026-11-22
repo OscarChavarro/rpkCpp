@@ -1,14 +1,13 @@
-import { OutputStream } from "../../../../java/io/OutputStream";
-import { String as JavaString } from "../../../../java/lang/String";
-import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
+import { String as JavaString } from "vitral/dist/java/lang/String";
+import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
@@ -35,6 +34,7 @@ import { StochasticRaytracingApproximation } from "./StochasticRaytracingApproxi
 import { StochasticRaytracingMethod } from "./StochasticRaytracingMethod";
 import { StochasticJacobi } from "./StochasticJacobi";
 import { Tracepath } from "./Tracepath";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class RandomWalkRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 2000;
@@ -113,7 +113,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3D,
+    dir: Vector3Df,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
@@ -334,7 +334,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
   private static randomWalkRadiosityShootingUpdate(patch: Patch, w: number): void {
     const oldQuality = McradP.topLevelStochasticRadiosityElement(patch).quality;
     McradP.topLevelStochasticRadiosityElement(patch).quality += w;
-    if (McradP.topLevelStochasticRadiosityElement(patch).quality < Numeric.EPSILON) {
+    if (McradP.topLevelStochasticRadiosityElement(patch).quality < VSDK.EPSILON) {
       return;
     }
     const k = oldQuality / McradP.topLevelStochasticRadiosityElement(patch).quality;

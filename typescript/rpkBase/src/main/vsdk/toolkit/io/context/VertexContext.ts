@@ -1,4 +1,4 @@
-import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Vertex } from "../../environment/geometry/elements/Vertex";
 
 export class VertexContext {

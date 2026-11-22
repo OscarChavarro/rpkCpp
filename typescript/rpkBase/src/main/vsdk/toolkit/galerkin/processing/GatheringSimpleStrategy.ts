@@ -1,4 +1,3 @@
-import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Statistics } from "../../common/statistics/Statistics";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { GalerkinBasis } from "../GalerkinBasis";
@@ -16,6 +15,7 @@ import { Patch } from "../../environment/geometry/elements/Patch";
 import { GatheringStrategy } from "./GatheringStrategy";
 import { HierarchicalRefinementStrategy } from "./HierarchicalRefinementStrategy";
 import { LinkingSimpleStrategy } from "./LinkingSimpleStrategy";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class GatheringSimpleStrategy extends GatheringStrategy {
   private static patchUpdatePotential(patch: Patch, directPotentials: DirectPotentialTable, galerkinState: GalerkinState): void {
@@ -66,7 +66,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
     }
 
     if (galerkinState.importanceDriven !== 0
-      && topLevelElement.potential < Statistics.instance().potential.maxDirectPotential * Numeric.EPSILON) {
+      && topLevelElement.potential < Statistics.instance().potential.maxDirectPotential * VSDK.EPSILON) {
       return;
     }
 

@@ -1,4 +1,4 @@
-import { OutputStream } from "../../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 
 const childProcess = require("node:child_process");
 

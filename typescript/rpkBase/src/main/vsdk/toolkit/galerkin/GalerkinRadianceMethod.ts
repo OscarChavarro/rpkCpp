@@ -1,12 +1,11 @@
-import { OutputStream } from "../../../java/io/OutputStream";
+import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import type { DirectPotentialTable } from "../scene/DirectPotentialTable";
 import type { FaceColorTable } from "../scene/FaceColorTable";
-import { String as JavaString } from "../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../common/statistics/Statistics";
 import { VrmlWriter } from "../io/wrl/VrmlWriter";
 import { BsdfComponent } from "../material/BsdfComponent";
@@ -32,6 +31,7 @@ import { GalerkinElement } from "./GalerkinElement";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 import { Interaction } from "./Interaction";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class GalerkinRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 2000;
@@ -210,11 +210,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     GalerkinRadianceMethod.galerkinState.lastClusterId = -1;
-    GalerkinRadianceMethod.galerkinState.lastEye.set(
-      Numeric.HUGE_FLOAT_VALUE,
-      Numeric.HUGE_FLOAT_VALUE,
-      Numeric.HUGE_FLOAT_VALUE,
-    );
+    GalerkinRadianceMethod.galerkinState.lastEye = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
   }
 
   public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
@@ -322,7 +318,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return black;
     }
 
-    if (patch.getJacobian() !== null) {
+    if (patch.getFace().hasJacobian()) {
       const uu = [u];
       const vv = [v];
       patch.biLinearToUniform(uu, vv);
@@ -356,7 +352,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3D,
+    dir: Vector3Df,
     renderOptions: RendererConfiguration,
   ): ColorRgbMutable {
     if (camera !== null || dir !== null || renderOptions !== null) {
@@ -449,7 +445,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
   }
 
-  private static writeVertexCoord(p: Vector3D): void {
+  private static writeVertexCoord(p: Vector3Df): void {
     if (p === null) {
       return;
     }
@@ -460,7 +456,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     if (GalerkinRadianceMethod.numberOfWrites % 4 === 0) {
       GalerkinRadianceMethod.writeFormatted("%s", "\n\t  ");
     }
-    GalerkinRadianceMethod.writeFormatted("%g %g %g", p.x, p.y, p.z);
+    GalerkinRadianceMethod.writeFormatted("%g %g %g", p.x(), p.y(), p.z());
     GalerkinRadianceMethod.vertexId++;
   }
 
@@ -469,9 +465,9 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return;
     }
     const galerkinElement = element as GalerkinElement;
-    const v: Vector3D[] = [
-      new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(),
-      new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D(),
+    const v: Vector3Df[] = [
+      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
+      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
     ];
     const numberOfVertices = galerkinElement.vertices(v);
     for (let i = 0; i < numberOfVertices; i++) {

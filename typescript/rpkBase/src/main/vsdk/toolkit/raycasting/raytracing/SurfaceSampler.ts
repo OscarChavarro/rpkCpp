@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
@@ -25,7 +25,7 @@ export abstract class SurfaceSampler extends Sampler {
   protected static DetermineRayType(
     thisNode: SimpleRaytracingPathNode,
     newNode: SimpleRaytracingPathNode,
-    dir: Vector3D
+    dir: Vector3Df
   ): void {
     const cosThisPatch = dir.dotProduct(thisNode.m_normal);
 
@@ -50,8 +50,8 @@ export abstract class SurfaceSampler extends Sampler {
     hit: RayHit,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    incoming: Vector3D,
-    outgoing: Vector3D,
+    incoming: Vector3Df,
+    outgoing: Vector3Df,
     flags: number,
     bsdfComp: BsdfComp | null
   ): ColorRgbMutable {

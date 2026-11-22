@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "CommonJS", "moduleResolution": "node", "ignoreDeprecations": "6.0",
+    "lib": ["ES2022", "DOM"], "strict": true, "noImplicitAny": false, "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true, "useDefineForClassFields": true,
+    "noEmit": true, "esModuleInterop": true, "skipLibCheck": true, "baseUrl": ".",
+    "paths": { "@vitral/base/*": ["base/src/main/*"], "vitral/dist/*": ["base/src/main/*"], "rpk-base/dist/*": ["rpkBase/src/main/*"] }
+  },
+  "include": ["rpkBase/ambient.d.ts", "base/src/main/**/*.ts", "rpkBase/src/main/**/*.ts", "testsuite/ApplicationCases/RenderparkApplication/src/main/**/*.ts"]
+}

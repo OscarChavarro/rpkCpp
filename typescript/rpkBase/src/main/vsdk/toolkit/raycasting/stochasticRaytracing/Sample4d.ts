@@ -2,9 +2,9 @@
 4D vector sampling
 */
 
-import { String as JavaString } from "../../../../java/lang/String";
+import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Random48 } from "../../common/Random48";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Faure } from "../../numericalAnalysis/quasiMonteCarlo/Faure";
 import { Halton } from "../../numericalAnalysis/quasiMonteCarlo/Halton";
 import { Niederreiter31 } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter31";

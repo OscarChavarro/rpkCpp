@@ -1,4 +1,4 @@
-import { IllegalArgumentException } from "./IllegalArgumentException";
+import { IllegalArgumentException } from "./IllegalArgumentException.js";
 export class Boolean {
     public static readonly TRUE = true;
     public static readonly FALSE = false;

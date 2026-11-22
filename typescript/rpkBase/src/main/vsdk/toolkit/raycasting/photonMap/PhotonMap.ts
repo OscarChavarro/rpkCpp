@@ -1,12 +1,12 @@
 import { Random48 } from "../../common/Random48";
-import { PrintStream } from "../../../../java/io/PrintStream";
-import { StringBuilder } from "../../../../java/lang/StringBuilder";
+import { PrintStream } from "vitral/dist/java/io/PrintStream";
+import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { KDTree } from "../../common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -19,6 +19,8 @@ import { PhotonKDTree } from "./PhotonKDTree";
 import { PhotonMapDCAcceptPDFType } from "./PhotonMapDCAcceptPDFType";
 import { PhotonMapState } from "./PhotonMapState";
 import { SampleGrid2D } from "./SampleGrid2D";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class PhotonMap {
   protected photonMapState: PhotonMapState;
@@ -37,7 +39,7 @@ export class PhotonMap {
   protected m_kdtree: PhotonKDTree;
 
   protected m_grid: SampleGrid2D;
-  protected m_sampleLastPos: Vector3D;
+  protected m_sampleLastPos: Vector3Df;
 
   protected m_nrpFound: number;
   protected m_nrpCosinePos: number;
@@ -48,14 +50,14 @@ export class PhotonMap {
   protected m_cosinesOk: boolean;
 
   protected doQuery(
-    position: Vector3D,
+    position: Vector3Df,
     numberOfPhotons: number,
     maximumRadius: number,
     excludeFlags: number
   ): number;
-  protected doQuery(pos: Vector3D): number;
+  protected doQuery(pos: Vector3Df): number;
   protected doQuery(
-    positionOrPos: Vector3D,
+    positionOrPos: Vector3Df,
     numberOfPhotons?: number,
     maximumRadius?: number,
     excludeFlags?: number
@@ -64,7 +66,7 @@ export class PhotonMap {
 
     if (numberOfPhotons !== undefined && maximumRadius !== undefined && excludeFlags !== undefined) {
       return this.m_kdtree.query(
-        [positionOrPos.x, positionOrPos.y, positionOrPos.z],
+        [positionOrPos.x(), positionOrPos.y(), positionOrPos.z()],
         numberOfPhotons,
         this.m_photons as unknown[],
         this.m_distances,
@@ -74,7 +76,7 @@ export class PhotonMap {
     }
 
     return this.m_kdtree.query(
-      [positionOrPos.x, positionOrPos.y, positionOrPos.z],
+      [positionOrPos.x(), positionOrPos.y(), positionOrPos.z()],
       this.m_estimate_nrp[0]!,
       this.m_photons as unknown[],
       this.m_distances,
@@ -83,13 +85,13 @@ export class PhotonMap {
     );
   }
 
-  protected DoIrradianceQuery(position: Vector3D, normal: Vector3D, maxR2: number): IrrPhoton | null;
-  protected DoIrradianceQuery(position: Vector3D, normal: Vector3D): IrrPhoton | null;
-  protected DoIrradianceQuery(position: Vector3D, normal: Vector3D, maxR2 = Numeric.HUGE_FLOAT_VALUE): IrrPhoton | null {
+  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df, maxR2: number): IrrPhoton | null;
+  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df): IrrPhoton | null;
+  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df, maxR2 = Float.MAX_VALUE): IrrPhoton | null {
     return this.m_kdtree.normalPhotonQuery(position, normal, 0.8, maxR2);
   }
 
-  protected computeCosines(normal: Vector3D): void {
+  protected computeCosines(normal: Vector3Df): void {
     if (!this.m_cosinesOk) {
       this.m_nrpCosinePos = 0;
 
@@ -105,7 +107,7 @@ export class PhotonMap {
     }
   }
 
-  protected doAddPhoton(photon: Photon, normal: Vector3D, flags: number): void {
+  protected doAddPhoton(photon: Photon, normal: Vector3Df, flags: number): void {
     if (this.m_precomputeIrradiance) {
       const irrPhoton = new IrrPhoton();
       irrPhoton.copy(photon);
@@ -138,7 +140,7 @@ export class PhotonMap {
         color.clear();
       }
     }
-    return color.average() < Numeric.EPSILON;
+    return color.average() < VSDK.EPSILON;
   }
 
   private static getFalseMonochrome(val: number, photonMapState: PhotonMapState): number {
@@ -218,7 +220,7 @@ export class PhotonMap {
     this.m_totalPhotons = 0;
 
     this.m_grid = new SampleGrid2D(2, 4);
-    this.m_sampleLastPos = new Vector3D(Numeric.HUGE_FLOAT_VALUE, Numeric.HUGE_FLOAT_VALUE, Numeric.HUGE_FLOAT_VALUE);
+    this.m_sampleLastPos = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 
     this.m_photons = new Array<Photon>(PhotonMapState.MAXIMUM_RECON_PHOTONS);
     for (let i = 0; i < this.m_photons.length; i++) {
@@ -269,7 +271,7 @@ export class PhotonMap {
   /**
 Adding photons, returns if photon was added
 */
-  public addPhoton(photon: Photon, normal: Vector3D, flags: number): boolean {
+  public addPhoton(photon: Photon, normal: Vector3Df, flags: number): boolean {
     Random48.drand48();
 
     this.doAddPhoton(photon, normal, flags);
@@ -392,7 +394,7 @@ Get a maximum radius^2 to be used when locating photons
 
   public irradianceReconstruct(
     hit: RayHit,
-    outDir: Vector3D,
+    outDir: Vector3Df,
     diffuseAlbedo: ColorRgbMutable,
     result: ColorRgbMutable
   ): boolean {
@@ -416,7 +418,7 @@ Get a maximum radius^2 to be used when locating photons
 
   public reconstruct(
     hit: RayHit,
-    outDir: Vector3D,
+    outDir: Vector3Df,
     bsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null
@@ -447,8 +449,8 @@ Get a maximum radius^2 to be used when locating photons
 
     this.checkNBalance();
 
-    if (glossyAlbedo.average() < Numeric.EPSILON) {
-      if (diffuseAlbedo.average() < Numeric.EPSILON) {
+    if (glossyAlbedo.average() < VSDK.EPSILON) {
+      if (diffuseAlbedo.average() < VSDK.EPSILON) {
         return result;
       }
 
@@ -537,8 +539,8 @@ Return a color coded density of the photon map
     return PhotonMap.getFalseColor(density, this.photonMapState);
   }
 
-  public sample(position: Vector3D, r: number[], s: number[], coord: CoordinateSystem, flag: number, n: number): number {
-    if (!this.m_sampleLastPos.equals(position, 0.0001)) {
+  public sample(position: Vector3Df, r: number[], s: number[], coord: CoordinateSystem, flag: number, n: number): number {
+    if (!Numeric.vectorsEqual(this.m_sampleLastPos, position, 0.0001)) {
       this.m_grid.init();
 
       this.m_nrpFound = this.doQuery(
@@ -559,7 +561,7 @@ Return a color coded density of the photon map
       }
 
       this.m_grid.EnsureNonZeroEntries();
-      this.m_sampleLastPos.copy(position);
+      this.m_sampleLastPos = position;
     }
 
     const probabilityDensityFunction = [0.0];

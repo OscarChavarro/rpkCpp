@@ -1,8 +1,8 @@
-import { FundamentalEntity } from "../../../common/FundamentalEntity";
-import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd";
-import { Vector3Df } from "../../../common/linealAlgebra/Vector3Df";
-import { Logger } from "../../../common/logging/Logger";
-import { String as JavaString } from "../../../../../java/lang/String";
+import { FundamentalEntity } from "../../../common/FundamentalEntity.js";
+import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd.js";
+import { Vector3Df } from "../../../common/linealAlgebra/Vector3Df.js";
+import { Logger } from "../../../common/logging/Logger.js";
+import { String as JavaString } from "../../../../../java/lang/String.js";
 
 // Single precision rounding: every float operation of the source is rounded
 // with it, so that results are the IEEE single precision ones bit for bit
@@ -14,8 +14,7 @@ radiosity solvers: the face of a polygonal mesh with its plane, area,
 parametrization and uniform (area preserving) sampling.
 
 The face copies its three or four vertex positions when it is built and
-never changes afterwards, so every operation is const and a face can be
-shared by concurrent readers.
+never changes afterwards, so a face can be shared by concurrent readers.
 
 Every quantity is computed in single precision, in source operation order and
 with IEEE semantics; do not rewrite it with vector helpers or in double
@@ -89,10 +88,6 @@ export class PlanarFace extends FundamentalEntity {
 
     private static positionTolerance(p: Vector3Df, epsilon: number): number {
         return f(epsilon * f(f(Math.abs(p.x()) + Math.abs(p.y())) + Math.abs(p.z())));
-    }
-
-    private static determinant(a: Vector2Dd, b: Vector2Dd): number {
-        return a.x * b.y - a.y * b.x;
     }
 
     private static pointInTriangle(v0: Vector3Df, v1: Vector3Df, v2: Vector3Df, u: number, v: number): Vector3Df {
@@ -425,31 +420,15 @@ export class PlanarFace extends FundamentalEntity {
     }
 
     /**
-    Position i projected along the dominant axis
-    */
-    private projectedPosition(i: number, a: number[], b: number[]): void {
-        switch (this.dominantAxis) {
-            case 0:
-                a[0] = this.positionY[i]!;
-                b[0] = this.positionZ[i]!;
-                break;
-            case 1:
-                a[0] = this.positionX[i]!;
-                b[0] = this.positionZ[i]!;
-                break;
-            default:
-                a[0] = this.positionX[i]!;
-                b[0] = this.positionY[i]!;
-                break;
-        }
-    }
-
-    /**
     Barycentric (u, v) of a point in the triangle. Didier Badouel, Graphics
     Gems I, p390
     */
     private triangleParameters(point: Vector3Df, uv: Vector2Dd): boolean {
-        const inside = this.parametersOfProjected(this.projectedA(point), this.projectedB(point), PlanarFace.parameterScratch);
+        const inside = this.parametersOfProjected(
+            this.projectedA(point),
+            this.projectedB(point),
+            PlanarFace.parameterScratch,
+        );
         uv.x = PlanarFace.parameterScratch[0]!;
         uv.y = PlanarFace.parameterScratch[1]!;
         return inside;
@@ -627,18 +606,18 @@ export class PlanarFace extends FundamentalEntity {
     }
 
     /**
-    (u, v) of a point on the plane of the face, written to u[0] and v[0];
+    (u, v) of a point on the plane of the face, written to uv.x and uv.y;
     returns whether the point is inside. For points outside, (u, v) is not
     meaningful
     */
-    public parameters(point: Vector3Df, u: number[], v: number[]): boolean {
-        const uv = new Vector2Dd();
+    public parameters(point: Vector3Df, uv: Vector2Dd): boolean {
+        const localUv = new Vector2Dd();
         const inside =
             this.numberOfVertices === 3
-                ? this.triangleParameters(point, uv)
-                : this.quadrilateralParameters(point, uv);
-        u[0] = uv.x;
-        v[0] = uv.y;
+                ? this.triangleParameters(point, localUv)
+                : this.quadrilateralParameters(point, localUv);
+        uv.x = localUv.x;
+        uv.y = localUv.y;
         return inside;
     }
 
@@ -674,44 +653,48 @@ export class PlanarFace extends FundamentalEntity {
     Uniform coordinates are such that the area left of the line of points with
     u-coordinate u is u.A and the area under the line with v-coordinate v is v.A
     */
-    public biLinearToUniform(u: number[], v: number[]): void {
+    public biLinearToUniform(uv: Vector2Dd): void {
         const a = this.jacobianA;
         const b = this.jacobianB;
         const c = this.jacobianC;
-        u[0] = ((a + 0.5 * c + 0.5 * b * u[0]!) * u[0]!) / this.area;
-        v[0] = ((a + 0.5 * b + 0.5 * c * v[0]!) * v[0]!) / this.area;
+        uv.x = ((a + 0.5 * c + 0.5 * b * uv.x) * uv.x) / this.area;
+        uv.y = ((a + 0.5 * b + 0.5 * c * uv.y) * uv.y) / this.area;
     }
 
-    public uniformToBiLinear(u: number[], v: number[]): void {
+    public uniformToBiLinear(uv: Vector2Dd): void {
         const a = this.jacobianA;
         const b = this.jacobianB;
         const c = this.jacobianC;
+        const x: number[] = [0];
         let A = (0.5 * b) / this.area;
         let B = (a + 0.5 * c) / this.area;
-        let C = -u[0]!;
-        PlanarFace.solveQuadraticUnitInterval(A, B, C, u);
+        let C = -uv.x;
+        x[0] = uv.x;
+        PlanarFace.solveQuadraticUnitInterval(A, B, C, x);
+        uv.x = x[0]!;
 
         A = (0.5 * c) / this.area;
         B = (a + 0.5 * b) / this.area;
-        C = -v[0]!;
-        PlanarFace.solveQuadraticUnitInterval(A, B, C, v);
+        C = -uv.y;
+        x[0] = uv.y;
+        PlanarFace.solveQuadraticUnitInterval(A, B, C, x);
+        uv.y = x[0]!;
     }
 
     // Area preserving mapping: uniform parameters to point, point to uniform
-    // parameters, and the conversions between uniform and bi-linear parameters
+    // parameters
     public uniformPointAt(u: number, v: number): Vector3Df {
-        const uu = [u];
-        const vv = [v];
+        const uv = new Vector2Dd(u, v);
         if (this.jacobianPresent) {
-            this.uniformToBiLinear(uu, vv);
+            this.uniformToBiLinear(uv);
         }
-        return this.pointAt(uu[0]!, vv[0]!);
+        return this.pointAt(uv.x, uv.y);
     }
 
-    public uniformParameters(point: Vector3Df, u: number[], v: number[]): boolean {
-        const inside = this.parameters(point, u, v);
+    public uniformParameters(point: Vector3Df, uv: Vector2Dd): boolean {
+        const inside = this.parameters(point, uv);
         if (this.jacobianPresent) {
-            this.biLinearToUniform(u, v);
+            this.biLinearToUniform(uv);
         }
         return inside;
     }
@@ -852,21 +835,19 @@ export class PlanarFace extends FundamentalEntity {
         if (distance > maximumDistance || distance < minimumDistance) {
             return false;
         }
-        // RayHit's fields are written only here, as the friend PlanarFace of
-        // the source; the bracket access is TypeScript's equivalent
-        hit["side"] = side;
-        hit["distance"] = distance;
-        hit["pointX"] = f(ox + f(distance * dx));
-        hit["pointY"] = f(oy + f(distance * dy));
-        hit["pointZ"] = f(oz + f(distance * dz));
+        const pointX = f(ox + f(distance * dx));
+        const pointY = f(oy + f(distance * dy));
+        const pointZ = f(oz + f(distance * dz));
+        hit.setSide(side);
+        hit.setDistance(distance);
+        hit.setPoint(pointX, pointY, pointZ);
         const uv = PlanarFace.parameterScratch;
         const inside = this.parametersOfProjected(
-            this.dominantAxis === 0 ? hit["pointY"] : hit["pointX"],
-            this.dominantAxis === 2 ? hit["pointY"] : hit["pointZ"],
+            this.dominantAxis === 0 ? pointY : pointX,
+            this.dominantAxis === 2 ? pointY : pointZ,
             uv,
         );
-        hit["u"] = uv[0]!;
-        hit["v"] = uv[1]!;
+        hit.setParameters(uv[0]!, uv[1]!);
         return inside;
     }
 }
@@ -885,7 +866,7 @@ export namespace PlanarFace {
     }
 
     // Result of rayHit: the side the ray arrives at, the ray parameter of the
-    // plane hit, the hit point and its (u, v) parameters. Only rayHit fills it
+    // plane hit, the hit point and its (u, v) parameters
     export class RayHit {
         private side: Side = Side.PARALLEL;
         private distance = 0;
@@ -921,6 +902,25 @@ export namespace PlanarFace {
 
         public getV(): number {
             return this.v;
+        }
+
+        public setSide(inSide: Side): void {
+            this.side = inSide;
+        }
+
+        public setDistance(inDistance: number): void {
+            this.distance = inDistance;
+        }
+
+        public setPoint(x: number, y: number, z: number): void {
+            this.pointX = x;
+            this.pointY = y;
+            this.pointZ = z;
+        }
+
+        public setParameters(inU: number, inV: number): void {
+            this.u = inU;
+            this.v = inV;
         }
     }
 }

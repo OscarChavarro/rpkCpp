@@ -3,7 +3,7 @@ Non diffuse first shot
 */
 
 import { Random48 } from "../../common/Random48";
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -23,6 +23,7 @@ import { Mcrad } from "./Mcrad";
 import { McradP } from "./McradP";
 import { Sample4d } from "./Sample4d";
 import { StochasticRelaxation } from "./StochasticRelaxation";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 
 export class Nondiff {
   private static lights: LightSourceTable[] | null = null;
@@ -88,11 +89,11 @@ export class Nondiff {
       const hit = new RayHit();
       Nondiff.nextLightSample(patch, zeta);
 
-      patch.uniformPoint(zeta[0]!, zeta[1]!, ray.position);
+      ray.position = patch.uniformPoint(zeta[0]!, zeta[1]!) ?? ray.position;
 
       hit.init(patch, ray.position, patch.getNormal(), patch.material);
       dirSelectionPdf[0] = 0.0;
-      ray.direction.set(0.0, 0.0, 0.0);
+      ray.direction = new Vector3Df(0.0, 0.0, 0.0);
       if (patch.material !== null && patch.material.getEdf() !== null) {
         const shctxOk = [false];
         const shctx = hit.shadingContext(shctxOk);

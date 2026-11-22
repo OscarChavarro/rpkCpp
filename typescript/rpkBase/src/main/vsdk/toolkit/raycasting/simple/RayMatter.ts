@@ -2,7 +2,7 @@
 Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 */
 
-import { ArrayList } from "../../../../java/util/ArrayList";
+import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -157,7 +157,7 @@ export class RayMatter extends RayTracer {
           const ray = new Ray();
           ray.position = camera.eyePosition;
           ray.direction = this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0);
-          ray.direction.normalize(Numeric.EPSILON_FLOAT);
+          ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
 
           // Check if hit
           if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) !== null) {

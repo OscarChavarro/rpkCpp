@@ -1,4 +1,4 @@
-import { InputStream } from "../../../../java/io/InputStream";
+import { InputStream } from "vitral/dist/java/io/InputStream";
 
 export class ReaderContext {
   public static readonly MGF_MAXIMUM_INPUT_LINE_LENGTH = 4096;

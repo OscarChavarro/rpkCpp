@@ -1,15 +1,15 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
-import { ColorRgbMutable } from "vitral/dist/vsdk/toolkit/common/color/ColorRgbMutable";
+import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
+import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Numeric } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Numeric";
-import { Statistics } from "vitral/dist/vsdk/toolkit/common/statistics/Statistics";
-import { BsdfComponent } from "vitral/dist/vsdk/toolkit/material/BsdfComponent";
-import { XxdfComponentFlag } from "vitral/dist/vsdk/toolkit/material/XxdfComponentFlag";
-import { PatchVisitor } from "vitral/dist/vsdk/toolkit/numericalAnalysis/PatchVisitor";
-import { Patch } from "vitral/dist/vsdk/toolkit/environment/geometry/elements/Patch";
-import { ToneMapAdaptationMethod } from "vitral/dist/vsdk/toolkit/tonemap/ToneMapAdaptationMethod";
-import { ToneMappingContext } from "vitral/dist/vsdk/toolkit/tonemap/ToneMappingContext";
+import { Numeric } from "rpk-base/dist/vsdk/toolkit/common/linealAlgebra/Numeric";
+import { Statistics } from "rpk-base/dist/vsdk/toolkit/common/statistics/Statistics";
+import { BsdfComponent } from "rpk-base/dist/vsdk/toolkit/material/BsdfComponent";
+import { XxdfComponentFlag } from "rpk-base/dist/vsdk/toolkit/material/XxdfComponentFlag";
+import { PatchVisitor } from "rpk-base/dist/vsdk/toolkit/numericalAnalysis/PatchVisitor";
+import { Patch } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/Patch";
+import { ToneMapAdaptationMethod } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMapAdaptationMethod";
+import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { LuminanceArea } from "./LuminanceArea";
 
 /**
@@ -20,7 +20,7 @@ export class Adaptation {
   private static logAreaLum = 0.0;
   private static lumArea: LuminanceArea[] | null = null;
   private static lumAreaIndex = 0;
-  private static lumMin = Number.MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+  private static lumMin = Number.MAX_VALUE; // Note Float.MAX_VALUE; will cause an issue here
   private static lumMax = 0.0;
   private static patchRadianceEstimate: ((patch: Patch) => ColorRgbMutable) | null = null;
 

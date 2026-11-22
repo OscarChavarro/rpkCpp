@@ -1,5 +1,5 @@
-import { Logger } from "../../../common/logging/Logger";
-import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
+import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { ReaderContext } from "../../context/ReaderContext";
@@ -15,8 +15,8 @@ import { PatchSet } from "../../../environment/geometry/elements/PatchSet";
 import { Vertex } from "../../../environment/geometry/elements/Vertex";
 
 export class BinaryModelSerializationGraph {
-  public vectorIndices: Map<Vector3D, number>;
-  public vectors: Vector3D[];
+  public vectorIndices: Map<Vector3Df, number>;
+  public vectors: Vector3Df[];
 
   public vertexIndices: Map<Vertex, number>;
   public vertices: Vertex[];
@@ -43,7 +43,7 @@ export class BinaryModelSerializationGraph {
   public transformContexts: TransformStackContext[];
 
   public constructor() {
-    this.vectorIndices = new Map<Vector3D, number>();
+    this.vectorIndices = new Map<Vector3Df, number>();
     this.vectors = [];
 
     this.vertexIndices = new Map<Vertex, number>();
@@ -71,7 +71,7 @@ export class BinaryModelSerializationGraph {
     this.transformContexts = [];
   }
 
-  public ensureVector(value: Vector3D | null): boolean {
+  public ensureVector(value: Vector3Df | null): boolean {
     if (value === null) {
       return true;
     }
@@ -283,7 +283,7 @@ export class BinaryModelSerializationGraph {
     return this.ensureTransformContext(value.prev);
   }
 
-  public collectVectorList(list: Vector3D[] | null): boolean {
+  public collectVectorList(list: Vector3Df[] | null): boolean {
     if (list === null) {
       return true;
     }

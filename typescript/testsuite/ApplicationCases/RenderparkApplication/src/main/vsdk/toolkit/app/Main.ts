@@ -1,5 +1,5 @@
-import { NodeWorkerExecutor } from "vitral/dist/java/concurrent/NodeWorkerExecutor";
-import { RefinementReplicas } from "vitral/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
+import { NodeWorkerExecutor } from "rpk-base/dist/java/concurrent/NodeWorkerExecutor";
+import { RefinementReplicas } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
 import { RpkApplication } from "./RpkApplication";
 
 export class Main {

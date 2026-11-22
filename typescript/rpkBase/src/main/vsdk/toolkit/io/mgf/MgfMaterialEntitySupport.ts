@@ -14,6 +14,8 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../material
 import { PhongBidirectionalTransmittanceDistributionFunction } from "../../material/PhongBidirectionalTransmittanceDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
 import { MgfEntityControl } from "./MgfEntityControl";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { Float } from "vitral/dist/java/lang/Float";
 
 export class MgfMaterialEntitySupport {
   private static readonly NUMBER_OF_SAMPLES = 3;
@@ -42,7 +44,7 @@ export class MgfMaterialEntitySupport {
     const rgb = [0.0, 0.0, 0.0];
 
     cin.fixColorRepresentation(ColorContext.COLOR_XY_IS_SET_FLAG);
-    if (cin.cy > Numeric.EPSILON) {
+    if (cin.cy > VSDK.EPSILON) {
       xyz[0] = cin.cx / cin.cy * intensity;
       xyz[1] = 1.0 * intensity;
       xyz[2] = (1.0 - cin.cx - cin.cy) / cin.cy * intensity;
@@ -85,7 +87,7 @@ export class MgfMaterialEntitySupport {
     const samples = [0.0, 0.0, 0.0];
     MgfMaterialEntitySupport.specSamples(col, samples);
 
-    let mx = -Numeric.HUGE_FLOAT_VALUE;
+    let mx = -Float.MAX_VALUE;
     for (let i = 0; i < MgfMaterialEntitySupport.NUMBER_OF_SAMPLES; i++) {
       if (samples[i]! > mx) {
         mx = samples[i]!;
@@ -333,7 +335,7 @@ export class MgfMaterialEntitySupport {
         }
         currentMaterialContext.nr = Number.parseFloat(av[1]!);
         currentMaterialContext.ni = Number.parseFloat(av[2]!);
-        if (currentMaterialContext.nr <= Numeric.EPSILON) {
+        if (currentMaterialContext.nr <= VSDK.EPSILON) {
           return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
         currentMaterialContext.clock++;

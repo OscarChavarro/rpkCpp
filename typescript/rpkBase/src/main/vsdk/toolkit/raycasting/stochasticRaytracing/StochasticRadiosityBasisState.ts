@@ -1,5 +1,5 @@
-import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
+import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
+import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
 import { ApproximationTypeDescription } from "./ApproximationTypeDescription";
 import { Basismcrad } from "./Basismcrad";
 import { Basistrimcrad } from "./Basistrimcrad";
@@ -90,14 +90,7 @@ export class StochasticRadiosityBasisState {
   }
 
   public static createTransform(m00: number, m01: number, m10: number, m11: number, t0: number, t1: number): Matrix2x2 {
-    const transform = new Matrix2x2();
-    transform.m[0][0] = m00;
-    transform.m[0][1] = m01;
-    transform.m[1][0] = m10;
-    transform.m[1][1] = m11;
-    transform.t[0] = t0;
-    transform.t[1] = t1;
-    return transform;
+    return new Matrix2x2(m00, m01, m10, m11, t0, t1);
   }
 
   private static activeStatePtr: StochasticRadiosityBasisState | null = null;

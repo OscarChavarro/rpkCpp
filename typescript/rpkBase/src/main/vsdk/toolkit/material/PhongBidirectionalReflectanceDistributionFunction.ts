@@ -1,9 +1,9 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class PhongBidirectionalReflectanceDistributionFunction {
   private readonly Kd: ColorRgbMutable;
@@ -56,7 +56,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     return result;
   }
 
-  public evaluate(inDirection: Vector3D, out: Vector3D, normal: Vector3D, flags: number): ColorRgbMutable {
+  public evaluate(inDirection: Vector3Df, out: Vector3Df, normal: Vector3Df, flags: number): ColorRgbMutable {
     const result = new ColorRgbMutable();
     result.clear();
 
@@ -73,8 +73,8 @@ export class PhongBidirectionalReflectanceDistributionFunction {
       : XxdfComponentFlag.GLOSSY_COMPONENT;
 
     if (((flags & nonDiffuseFlag) !== 0) && (this.avgKs > 0.0)) {
-      const inRev = new Vector3D();
-      inRev.scaledCopy(-1.0, inDirection);
+      let inRev = new Vector3Df();
+      inRev = inDirection.multiply(-1.0);
       const idealReflected = Xxdf.idealReflectedDirection(inRev, normal);
       const localDotProduct = idealReflected.dotProduct(out);
 
@@ -89,18 +89,18 @@ export class PhongBidirectionalReflectanceDistributionFunction {
   }
 
   public sample(
-    inDirection: Vector3D,
-    normal: Vector3D,
+    inDirection: Vector3Df,
+    normal: Vector3Df,
     doRussianRoulette: number,
     flags: number,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3D {
+  ): Vector3Df {
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
 
-    const inRev = new Vector3D();
-    inRev.scaledCopy(-1.0, inDirection);
+    let inRev = new Vector3Df();
+    inRev = inDirection.multiply(-1.0);
 
     const localAverageKd = ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) ? this.avgKd : 0.0;
     const nonDiffuseFlag = this.isSpecular()
@@ -109,8 +109,8 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     const localAverageKs = ((flags & nonDiffuseFlag) !== 0) ? this.avgKs : 0.0;
 
     const scatteredPower = localAverageKd + localAverageKs;
-    let newDir = new Vector3D(0.0, 0.0, 0.0);
-    if (scatteredPower < Numeric.EPSILON) {
+    let newDir = new Vector3Df(0.0, 0.0, 0.0);
+    if (scatteredPower < VSDK.EPSILON) {
       return newDir;
     }
 
@@ -165,9 +165,9 @@ export class PhongBidirectionalReflectanceDistributionFunction {
   }
 
   public evaluateProbabilityDensityFunction(
-    inDirection: Vector3D,
-    out: Vector3D,
-    normal: Vector3D,
+    inDirection: Vector3Df,
+    out: Vector3Df,
+    normal: Vector3Df,
     flags: number,
     probabilityDensityFunction: number[] | null,
     probabilityDensityFunctionRR: number[] | null
@@ -175,16 +175,16 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
 
-    const inRev = new Vector3D();
-    inRev.scaledCopy(-1.0, inDirection);
+    let inRev = new Vector3Df();
+    inRev = inDirection.multiply(-1.0);
 
-    const goodNormal = new Vector3D();
+    let goodNormal = new Vector3Df();
     const cosIn = inDirection.dotProduct(normal);
     if (cosIn >= 0.0) {
-      goodNormal.copy(normal);
+      goodNormal = normal;
     }
     else {
-      goodNormal.scaledCopy(-1.0, normal);
+      goodNormal = normal.multiply(-1.0);
     }
 
     const cosTheta = goodNormal.dotProduct(out);
@@ -199,7 +199,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     const localAverageKs = ((flags & nonDiffuseFlag) !== 0) ? this.avgKs : 0.0;
 
     const scatteredPower = localAverageKd + localAverageKs;
-    if (scatteredPower < Numeric.EPSILON) {
+    if (scatteredPower < VSDK.EPSILON) {
       return;
     }
 

@@ -1,4 +1,4 @@
-import { Matrix4x4d } from "../../common/linealAlgebra/Matrix4x4d";
+import { Matrix4x4d } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4d";
 
 export class TransformContext {
   public transformMatrix: Matrix4x4d;

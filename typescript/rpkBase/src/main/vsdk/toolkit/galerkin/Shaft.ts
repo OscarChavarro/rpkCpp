@@ -1,6 +1,6 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
+import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { Polygon } from "../scene/Polygon";
 import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
@@ -16,6 +16,7 @@ import type { FaceBoundsTable } from "../scene/FaceBoundsTable";
 import { ShaftCullStrategy } from "./ShaftCullStrategy";
 import { ShaftPlane } from "./ShaftPlane";
 import { ShaftPlanePosition } from "./ShaftPlanePosition";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class Shaft {
   private static readonly NO_EXCLUSIONS = new RayExclusionSet();
@@ -50,8 +51,8 @@ export class Shaft {
   private readonly geometryIdsToAvoidOpening: number[];
   private numberOfGeometriesToAvoidOpen: number;
 
-  private readonly center1: Vector3D;
-  private readonly center2: Vector3D;
+  private center1: Vector3Df;
+  private center2: Vector3Df;
   private cut: boolean;
 
   public constructor(inFaceBounds: FaceBoundsTable) {
@@ -68,8 +69,8 @@ export class Shaft {
     this.geometryIdsToAvoidOpening = new Array<number>(Shaft.MAX_SKIP_ELEMENTS).fill(0);
     this.numberOfGeometriesToOmit = 0;
     this.numberOfGeometriesToAvoidOpen = 0;
-    this.center1 = new Vector3D();
-    this.center2 = new Vector3D();
+    this.center1 = new Vector3Df();
+    this.center2 = new Vector3Df();
     this.cut = false;
   }
 
@@ -121,8 +122,8 @@ export class Shaft {
       return;
     }
 
-    this.center1.copy((this.referenceItem1 as BoundingBox).center());
-    this.center2.copy((this.referenceItem2 as BoundingBox).center());
+    this.center1 = (this.referenceItem1 as BoundingBox).center();
+    this.center2 = (this.referenceItem2 as BoundingBox).center();
 
     const hasMinMax1 = new Array<boolean>(Shaft.MIN_MAX_DIMENSIONS).fill(false);
     const hasMinMax2 = new Array<boolean>(Shaft.MIN_MAX_DIMENSIONS).fill(false);
@@ -188,7 +189,7 @@ export class Shaft {
     this.numberOfPlanesInSet = localPlaneIndex;
   }
 
-  private static testPolygonWithRespectToPlane(polygon: Polygon, normal: Vector3D, d: number): ShaftPlanePosition {
+  private static testPolygonWithRespectToPlane(polygon: Polygon, normal: Vector3Df, d: number): ShaftPlanePosition {
     let out = false;
     let inside = false;
 
@@ -198,7 +199,7 @@ export class Shaft {
         continue;
       }
       const e = normal.dotProduct(vtx) + d;
-      const tolerance = Math.abs(d) * Numeric.EPSILON + vtx.tolerance(Numeric.EPSILON_FLOAT);
+      const tolerance = Math.abs(d) * VSDK.EPSILON + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * vtx.manhattanLength());
       out = out || (e > tolerance);
       inside = inside || (e < -tolerance);
       if (out && inside) {
@@ -214,7 +215,7 @@ export class Shaft {
 
   private static verifyPolygonWithRespectToPlane(
     polygon: Polygon,
-    normal: Vector3D,
+    normal: Vector3Df,
     d: number,
     side: ShaftPlanePosition,
   ): boolean {
@@ -227,7 +228,7 @@ export class Shaft {
         continue;
       }
       const e = normal.dotProduct(vtx) + d;
-      const tolerance = Math.abs(d) * Numeric.EPSILON + vtx.tolerance(Numeric.EPSILON_FLOAT);
+      const tolerance = Math.abs(d) * VSDK.EPSILON + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * vtx.manhattanLength());
       out = out || e > tolerance;
       if (out && side === ShaftPlanePosition.INSIDE) {
         return false;
@@ -251,8 +252,8 @@ export class Shaft {
     return false;
   }
 
-  private static testPointWithRespectToPlane(p: Vector3D, normal: Vector3D, d: number): ShaftPlanePosition {
-    const tolerance = Math.abs(d * Numeric.EPSILON) + p.tolerance(Numeric.EPSILON_FLOAT);
+  private static testPointWithRespectToPlane(p: Vector3Df, normal: Vector3Df, d: number): ShaftPlanePosition {
+    const tolerance = Math.abs(d * VSDK.EPSILON) + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * p.manhattanLength());
     const e = normal.dotProduct(p) + d;
     if (e < -tolerance) {
       return ShaftPlanePosition.INSIDE;
@@ -264,28 +265,28 @@ export class Shaft {
   }
 
   private static compareShaftPlanes(plane1: ShaftPlane, plane2: ShaftPlane): number {
-    if ((plane1.n[0] ?? 0.0) < (plane2.n[0] ?? 0.0) - Numeric.EPSILON) {
+    if ((plane1.n[0] ?? 0.0) < (plane2.n[0] ?? 0.0) - VSDK.EPSILON) {
       return -1;
     }
-    else if ((plane1.n[0] ?? 0.0) > (plane2.n[0] ?? 0.0) + Numeric.EPSILON) {
+    else if ((plane1.n[0] ?? 0.0) > (plane2.n[0] ?? 0.0) + VSDK.EPSILON) {
       return +1;
     }
 
-    if ((plane1.n[1] ?? 0.0) < (plane2.n[1] ?? 0.0) - Numeric.EPSILON) {
+    if ((plane1.n[1] ?? 0.0) < (plane2.n[1] ?? 0.0) - VSDK.EPSILON) {
       return -1;
     }
-    else if ((plane1.n[1] ?? 0.0) > (plane2.n[1] ?? 0.0) + Numeric.EPSILON) {
+    else if ((plane1.n[1] ?? 0.0) > (plane2.n[1] ?? 0.0) + VSDK.EPSILON) {
       return +1;
     }
 
-    if ((plane1.n[2] ?? 0.0) < (plane2.n[2] ?? 0.0) - Numeric.EPSILON) {
+    if ((plane1.n[2] ?? 0.0) < (plane2.n[2] ?? 0.0) - VSDK.EPSILON) {
       return -1;
     }
-    else if ((plane1.n[2] ?? 0.0) > (plane2.n[2] ?? 0.0) + Numeric.EPSILON) {
+    else if ((plane1.n[2] ?? 0.0) > (plane2.n[2] ?? 0.0) + VSDK.EPSILON) {
       return +1;
     }
 
-    const tolerance = Math.abs(Math.max(plane1.d, plane2.d) * Numeric.EPSILON);
+    const tolerance = Math.abs(Math.max(plane1.d, plane2.d) * VSDK.EPSILON);
     if (plane1.d < plane2.d - tolerance) {
       return -1;
     }
@@ -316,21 +317,21 @@ export class Shaft {
   }
 
   private constructPolygonToPolygonPlanes(polygon1: Polygon, polygon2: Polygon): void {
-    const normal = new Vector3D();
+    let normal = new Vector3Df();
     let localPlaneIndex = this.numberOfPlanesInSet;
     let maxPlanesPerEdge: number;
 
-    normal.copy(polygon1.normal);
+    normal = polygon1.normal;
     switch (Shaft.testPolygonWithRespectToPlane(polygon2, normal, polygon1.planeConstant)) {
       case ShaftPlanePosition.INSIDE:
-        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, polygon1.normal.x, polygon1.normal.y, polygon1.normal.z, polygon1.planeConstant);
+        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, polygon1.normal.x(), polygon1.normal.y(), polygon1.normal.z(), polygon1.planeConstant);
         if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
           localPlaneIndex++;
         }
         maxPlanesPerEdge = 1;
         break;
       case ShaftPlanePosition.OUTSIDE:
-        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -polygon1.normal.x, -polygon1.normal.y, -polygon1.normal.z, -polygon1.planeConstant);
+        Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -polygon1.normal.x(), -polygon1.normal.y(), -polygon1.normal.z(), -polygon1.planeConstant);
         if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
           localPlaneIndex++;
         }
@@ -357,15 +358,15 @@ export class Shaft {
           continue;
         }
 
-        normal.tripleCrossProduct(current, next, other);
-        const localNorm = normal.norm();
-        if (localNorm < Numeric.EPSILON) {
+        normal = other.subtract(next).crossProduct(current.subtract(next));
+        const localNorm = normal.length();
+        if (localNorm < VSDK.EPSILON) {
           continue;
         }
-        normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
+        normal = normal.multiplyByInverse(localNorm, Numeric.EPSILON_FLOAT);
         const dNaive = -normal.dotProduct(current);
-        const dExtended = -((normal.x * current.x) + (normal.y * current.y) + (normal.z * current.z));
-        const dFma = -Shaft.fma(normal.z, current.z, normal.x * current.x + normal.y * current.y);
+        const dExtended = -((normal.x() * current.x()) + (normal.y() * current.y()) + (normal.z() * current.z()));
+        const dFma = -Shaft.fma(normal.z(), current.z(), normal.x() * current.x() + normal.y() * current.y());
         let d = dNaive;
         if (Math.abs(d) <= 1.0e-10) {
           if (dFma !== 0.0 && Math.abs(dFma) <= 1.0e-5) {
@@ -396,10 +397,10 @@ export class Shaft {
 
         if (Shaft.verifyPolygonWithRespectToPlane(polygon2, normal, d, side)) {
           if (side === ShaftPlanePosition.INSIDE) {
-            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, normal.x, normal.y, normal.z, d);
+            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, normal.x(), normal.y(), normal.z(), d);
           }
           else {
-            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -normal.x, -normal.y, -normal.z, -d);
+            Shaft.fillInPlane(this.planeSet[localPlaneIndex]!, -normal.x(), -normal.y(), -normal.z(), -d);
           }
           if (this.uniqueShaftPlane(this.planeSet[localPlaneIndex]!)) {
             localPlaneIndex++;
@@ -431,27 +432,27 @@ export class Shaft {
     if (poly1v0 === undefined) {
       return;
     }
-    this.center1.copy(poly1v0);
+    this.center1 = poly1v0;
     for (let i = 1; i < polygon1.numberOfVertices; i++) {
       const v = polygon1.vertex[i];
       if (v !== undefined) {
-        this.center1.addition(this.center1, v);
+        this.center1 = this.center1.add(v);
       }
     }
-    this.center1.inverseScaledCopy(polygon1.numberOfVertices, this.center1, Numeric.EPSILON_FLOAT);
+    this.center1 = this.center1.multiplyByInverse(polygon1.numberOfVertices, Numeric.EPSILON_FLOAT);
 
     const poly2v0 = polygon2.vertex[0];
     if (poly2v0 === undefined) {
       return;
     }
-    this.center2.copy(poly2v0);
+    this.center2 = poly2v0;
     for (let i = 1; i < polygon2.numberOfVertices; i++) {
       const v = polygon2.vertex[i];
       if (v !== undefined) {
-        this.center2.addition(this.center2, v);
+        this.center2 = this.center2.add(v);
       }
     }
-    this.center2.inverseScaledCopy(polygon2.numberOfVertices, this.center2, Numeric.EPSILON_FLOAT);
+    this.center2 = this.center2.multiplyByInverse(polygon2.numberOfVertices, Numeric.EPSILON_FLOAT);
 
     this.numberOfPlanesInSet = 0;
     this.constructPolygonToPolygonPlanes(polygon1, polygon2);
@@ -475,7 +476,7 @@ export class Shaft {
         parameterBoundingBox.valueAt(localPlane.coordinateOffset[1] ?? BoundingBoxCoordinateIndex.MIN_Y),
         parameterBoundingBox.valueAt(localPlane.coordinateOffset[2] ?? BoundingBoxCoordinateIndex.MIN_Z),
       );
-      if (e > -Math.abs(localPlane.d * Numeric.EPSILON)) {
+      if (e > -Math.abs(localPlane.d * VSDK.EPSILON)) {
         return ShaftPlanePosition.OUTSIDE;
       }
     }
@@ -495,7 +496,7 @@ export class Shaft {
         parameterBoundingBox.valueAt(((localPlane.coordinateOffset[1] ?? BoundingBoxCoordinateIndex.MIN_Y) + 3) % 6),
         parameterBoundingBox.valueAt(((localPlane.coordinateOffset[2] ?? BoundingBoxCoordinateIndex.MIN_Z) + 3) % 6),
       );
-      if (e > Math.abs(localPlane.d * Numeric.EPSILON)) {
+      if (e > Math.abs(localPlane.d * VSDK.EPSILON)) {
         return ShaftPlanePosition.OVERLAP;
       }
     }
@@ -530,7 +531,7 @@ export class Shaft {
       inAll[j] = 1;
       tMin[j] = 0.0;
       tMax[j] = 1.0;
-      pTol[j] = patch.vertex[j]!.point.tolerance(Numeric.EPSILON_FLOAT);
+      pTol[j] = Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * patch.vertex[j]!.point.manhattanLength());
     }
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
@@ -542,8 +543,8 @@ export class Shaft {
 
       for (let j = 0; j < patch.numberOfVertices; j++) {
         const v = patch.vertex[j]!.point;
-        e[j] = Shaft.evaluatePlane(localPlane, v.x, v.y, v.z);
-        const tolerance = Math.abs(localPlane.d) * Numeric.EPSILON + (pTol[j] ?? 0.0);
+        e[j] = Shaft.evaluatePlane(localPlane, v.x(), v.y(), v.z());
+        const tolerance = Math.abs(localPlane.d) * VSDK.EPSILON + (pTol[j] ?? 0.0);
         side[j] = ShaftPlanePosition.COPLANAR;
         if ((e[j] ?? 0.0) > tolerance) {
           side[j] = ShaftPlanePosition.OUTSIDE;
@@ -578,7 +579,7 @@ export class Shaft {
                 }
               }
               else {
-                tMax[j] = -Numeric.EPSILON;
+                tMax[j] = -VSDK.EPSILON;
               }
             }
             else if ((side[j] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.OUTSIDE) {
@@ -591,12 +592,12 @@ export class Shaft {
                 }
               }
               else {
-                tMin[j] = 1.0 + Numeric.EPSILON;
+                tMin[j] = 1.0 + VSDK.EPSILON;
               }
             }
           }
           else if ((side[j] ?? ShaftPlanePosition.COPLANAR) === ShaftPlanePosition.OUTSIDE) {
-            tMax[j] = -Numeric.EPSILON;
+            tMax[j] = -VSDK.EPSILON;
           }
         }
       }
@@ -617,13 +618,13 @@ export class Shaft {
     }
 
     for (let j = 0; j < patch.numberOfVertices; j++) {
-      if ((tMin[j] ?? 0.0) + Numeric.EPSILON < (tMax[j] ?? 0.0) - Numeric.EPSILON) {
+      if ((tMin[j] ?? 0.0) + VSDK.EPSILON < (tMax[j] ?? 0.0) - VSDK.EPSILON) {
         return ShaftPlanePosition.OVERLAP;
       }
     }
 
-    ray.position.copy(this.center1);
-    ray.direction.subtraction(this.center2, this.center1);
+    ray.position = this.center1;
+    ray.direction = this.center2.subtract(this.center1);
     const dist = Shaft.shaftPatchTestScratchDistance;
     dist[0] = 1.0 - Numeric.EPSILON_FLOAT;
     if (
