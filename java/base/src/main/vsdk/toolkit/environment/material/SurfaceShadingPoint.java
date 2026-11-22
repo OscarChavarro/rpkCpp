@@ -22,27 +22,17 @@ public final class SurfaceShadingPoint {
         Vector3Df inTextureCoordinate,
         boolean inTextureCoordinateKnown)
     {
-        shadingNormal = inShadingNormal;
-        textureCoordinate = inTextureCoordinate;
+        shadingNormal = new Vector3Df(inShadingNormal);
+        textureCoordinate = new Vector3Df(inTextureCoordinate);
         shadingNormalKnown = inShadingNormalKnown;
         textureCoordinateKnown = inTextureCoordinateKnown;
     }
 
     /** Unit normal leaving the surface on the side the scattering is evaluated from */
-    public Vector3Df getShadingNormal() {
-        return shadingNormal;
-    }
-
-    public boolean hasShadingNormal() {
-        return shadingNormalKnown;
-    }
+    public Vector3Df getShadingNormal() { return shadingNormal; }
+    public boolean hasShadingNormal() { return shadingNormalKnown; }
 
     /** Texture coordinate (x and y used) */
-    public Vector3Df getTextureCoordinate() {
-        return textureCoordinate;
-    }
-
-    public boolean hasTextureCoordinate() {
-        return textureCoordinateKnown;
-    }
+    public Vector3Df getTextureCoordinate() { return textureCoordinate; }
+    public boolean hasTextureCoordinate() { return textureCoordinateKnown; }
 }

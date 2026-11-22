@@ -14,6 +14,20 @@
     #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 #endif
 
+namespace {
+
+void
+countRay(SceneQueryWorkspace *workspace) {
+    long *count = workspace->getRayCount();
+    if ( count != nullptr ) {
+        ++*count;
+    } else {
+        Statistics::instance().rayTracer.rayCount++;
+    }
+}
+
+}
+
 int
 RayTools::pathFrontHitFlags() {
     return RayHitFlag::FRONT | RayHitFlag::POINT | RayHitFlag::MATERIAL;
@@ -29,7 +43,7 @@ RayTools::traceWorld(
     const Patch *extraPatch,
     RpkRayHit *hitStore)
 {
-    static RpkRayHit myHitStore;
+    static thread_local RpkRayHit myHitStore;
     float dist;
     RpkRayHit *result;
     if ( !hitStore ) {
@@ -77,7 +91,7 @@ RayTools::findRayIntersection(
 
     // Trace the ray
     newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, nullptr, hitStore);
-    Statistics::instance().rayTracer.rayCount++; // statistics
+    countRay(sceneWorldSceneQueryWorkspace);
 
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
@@ -86,7 +100,7 @@ RayTools::findRayIntersection(
          newHit->getPatch()->getMaterial()->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
         newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, newHit->getPatch(), hitStore);
-        Statistics::instance().rayTracer.rayCount++; // Statistics
+        countRay(sceneWorldSceneQueryWorkspace);
     }
 
     return newHit;
@@ -191,7 +205,7 @@ RayTools::pathNodesVisible(
 #endif
         visible = (hit == nullptr);
 
-        Statistics::instance().rayTracer.rayCount++; // Statistics
+        countRay(sceneWorldSceneQueryWorkspace);
     } else {
         visible = false;
     }

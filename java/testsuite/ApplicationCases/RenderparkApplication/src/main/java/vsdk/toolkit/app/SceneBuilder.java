@@ -32,7 +32,7 @@ import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
-import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.common.linealAlgebra.Vector3Df;
 
 public final class SceneBuilder {
     private static final int ALL_XXDF_COMPONENTS =
@@ -66,13 +66,13 @@ public final class SceneBuilder {
     }
 
     private static void sceneBuilderComputeStats(Scene scene) {
-        Vector3D zero = new Vector3D();
+        Vector3Df zero = new Vector3Df();
         ColorRgbMutable one = new ColorRgbMutable();
         ColorRgbMutable averageAbsorption = new ColorRgbMutable();
         ColorRgbMutable BP;
 
         one.setMonochrome(1.0f);
-        zero.set(0, 0, 0);
+        zero = new Vector3Df(0, 0, 0);
 
         // Initialize
         Statistics.instance().radiance.totalEmittedPower.clear();

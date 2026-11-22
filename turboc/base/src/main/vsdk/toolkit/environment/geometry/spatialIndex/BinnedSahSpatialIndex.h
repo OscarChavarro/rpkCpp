@@ -1,19 +1,21 @@
+//= References:                                                             =
+//= [WALD2007] Wald, Ingo. "On fast Construction of SAH-based Bounding      =
+//=     Volume Hierarchies". Proceedings of the 2007 IEEE Symposium on      =
+//=     Interactive Ray Tracing, 2007, pp. 33-40.                           =
+
 #ifndef __BINNED_SAH_SPATIAL_INDEX__
 #define __BINNED_SAH_SPATIAL_INDEX__
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
 
 /**
 `SpatialIndex` over a `BinnedSahHierarchy` ([WALD2007]): the binned SAH
-builder and its nearest-first traversal, which can stop at the first
-accepted hit and counts into the workspace instead of `RaytraceStatistics`.
-
-C++ port note: the cpp port calls `BinnedSahHierarchy::traverse` of VITRAL's
-cpp port; VITRAL's turboc hierarchy has only `traverseClosest`, so this file
-runs the same loop over the public nodes, primitive order and `RaySlab` of
-the hierarchy.
+builder and its nearest-first traversal, through
+`BinnedSahHierarchy::traverse`, which can stop at the first accepted hit and
+counts into the workspace instead of `RaytraceStatistics`.
 
 Unbounded primitives are kept out of the hierarchy, on an explicit list that
 every query tests first, in list order. Candidates of the hierarchy come in
@@ -38,18 +40,18 @@ class BinnedSahSpatialIndex : public SpatialIndex {
         const ArrayList<double> &boxes,
         const ArrayList<int> &inUnboundedPrimitives,
         int maximumLeafSize = BinnedSahHierarchy::DEFAULT_MAXIMUM_LEAF_SIZE);
-    ~BinnedSahSpatialIndex();
+    virtual ~BinnedSahSpatialIndex();
 
-    int getNumberOfPrimitives() const ;
-    int getWorkspaceSize() const ;
+    virtual int getNumberOfPrimitives() const;
+    virtual int getWorkspaceSize() const;
     const BinnedSahHierarchy &getHierarchy() const;
-    SpatialQueryResult query(
+    virtual SpatialQueryResult query(
         const Ray &ray,
         double minimumT,
         double maximumT,
-        SpatialQueryMode mode,
+        SpatialQueryMode::Value mode,
         PrimitiveRayTest &test,
-        SpatialIndexWorkspace &workspace) const ;
+        SpatialIndexWorkspace &workspace) const;
 };
 
 #endif

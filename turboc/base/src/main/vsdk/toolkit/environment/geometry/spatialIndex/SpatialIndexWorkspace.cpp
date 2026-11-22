@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h"
 
 SpatialIndexWorkspace::SpatialIndexWorkspace(const int inNumberOfPrimitives) :

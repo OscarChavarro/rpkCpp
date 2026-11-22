@@ -11,17 +11,20 @@ also the closest-hit answer of brute force.
 public final class LinearSpatialIndex extends SpatialIndex {
     private final int numberOfPrimitives;
 
-    public LinearSpatialIndex(int inNumberOfPrimitives) {
+    public LinearSpatialIndex(int inNumberOfPrimitives)
+    {
         numberOfPrimitives = inNumberOfPrimitives > 0 ? inNumberOfPrimitives : 0;
     }
 
     @Override
-    public int getNumberOfPrimitives() {
+    public int getNumberOfPrimitives()
+    {
         return numberOfPrimitives;
     }
 
     @Override
-    public int getWorkspaceSize() {
+    public int getWorkspaceSize()
+    {
         return 0;
     }
 
@@ -32,11 +35,12 @@ public final class LinearSpatialIndex extends SpatialIndex {
         double maximumT,
         SpatialQueryMode mode,
         PrimitiveRayTest test,
-        SpatialIndexWorkspace workspace) {
-        SpatialQueryResult result = null;
+        SpatialIndexWorkspace workspace)
+    {
+        SpatialQueryResult result = new SpatialQueryResult();
         double bestT = maximumT;
         long tests = 0;
-        final double[] hitT = workspace.getHitTScratch();
+        double[] hitT = new double[1];
         for ( int primitive = 0; primitive < numberOfPrimitives; primitive++ ) {
             tests++;
             if ( test.test(primitive, minimumT, bestT, hitT) ) {
@@ -48,6 +52,6 @@ public final class LinearSpatialIndex extends SpatialIndex {
             }
         }
         workspace.addPrimitiveTests(tests);
-        return result != null ? result : new SpatialQueryResult();
+        return result;
     }
 }

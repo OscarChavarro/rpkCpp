@@ -196,6 +196,10 @@ BinnedSahLeafVisitor::~BinnedSahLeafVisitor()
 {
 }
 
+BinnedSahStoppingLeafVisitor::~BinnedSahStoppingLeafVisitor()
+{
+}
+
 BinnedSahHierarchy::BinnedSahHierarchy()
 {
 }
@@ -343,25 +347,34 @@ BinnedSahHierarchy::build(const ArrayList<double> &boxValues,
 
 }
 
-BOOLEAN
-BinnedSahHierarchy::traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visitor,
-    double &inOutBestT) const
+/**
+The traversal loop shared by traverseClosest and traverse, on a non empty
+hierarchy: a stack, nearest child first, nodes farther than the closest hit
+skipped. Counts node visits and leaf entries locally; returns false on stack
+overflow.
+
+C++ port note: the cpp port makes it a function template over two adapters
+of the visitors; here it takes the closest hit visitor, which never stops,
+or (when that one is null) the stopping visitor (no virtual call is added).
+*/
+static BOOLEAN
+traverseNodes(
+    const BinnedSahHierarchyNode *nodeArray,
+    const ArrayList<int> &primitiveOrder,
+    const Ray &ray,
+    BinnedSahLeafVisitor *closestVisitor,
+    BinnedSahStoppingLeafVisitor *stoppingVisitor,
+    double &inOutBestT,
+    long int &nodeVisits,
+    long int &entryTests)
 {
-    if (nodes.size() == 0 || primitiveOrder.size() == 0) {
-        return TRUE;
-    }
-    const RaySlab slab(ray);
-    const BinnedSahHierarchyNode *nodeArray = nodes.data();
+    const BinnedSahHierarchy::RaySlab slab(ray);
     const double rootDistance = slab.entry(nodeArray[0], inOutBestT);
     if (rootDistance < 0.0) {
-        RaytraceStatistics::recordInstanceLevelTraversal(0, 0);
         return TRUE;
     }
-    // Counted locally, reported once: no shared write per node.
-    long int nodeVisits = 0;
-    long int entryTests = 0;
-    int nodeStack[STACK_SIZE];
-    double distanceStack[STACK_SIZE];
+    int nodeStack[BinnedSahHierarchy::STACK_SIZE];
+    double distanceStack[BinnedSahHierarchy::STACK_SIZE];
     int sp = 0;
     nodeStack[sp] = 0;
     distanceStack[sp] = rootDistance;
@@ -375,7 +388,13 @@ BinnedSahHierarchy::traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visito
         nodeVisits++;
         if (node.count > 0) {
             for (int i = node.leftOrFirst; i < node.leftOrFirst + node.count; i++) {
-                visitor.visit(primitiveOrder[i], inOutBestT);
+                if (closestVisitor != NULL) {
+                    closestVisitor->visit(primitiveOrder[i], inOutBestT);
+                }
+                else if (stoppingVisitor->visit(primitiveOrder[i], inOutBestT)) {
+                    entryTests += i - node.leftOrFirst + 1;
+                    return TRUE;
+                }
             }
             entryTests += node.count;
             continue;
@@ -393,8 +412,7 @@ BinnedSahHierarchy::traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visito
             dl = dr;
             dr = swapDistance;
         }
-        if (sp + 2 > STACK_SIZE) {
-            RaytraceStatistics::recordInstanceLevelTraversal(nodeVisits, entryTests);
+        if (sp + 2 > BinnedSahHierarchy::STACK_SIZE) {
             return FALSE;
         }
         if (dl >= 0.0) {
@@ -408,8 +426,34 @@ BinnedSahHierarchy::traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visito
             sp++;
         }
     }
-    RaytraceStatistics::recordInstanceLevelTraversal(nodeVisits, entryTests);
     return TRUE;
+}
+
+BOOLEAN
+BinnedSahHierarchy::traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visitor,
+    double &inOutBestT) const
+{
+    if (nodes.size() == 0 || primitiveOrder.size() == 0) {
+        return TRUE;
+    }
+    // Counted locally, reported once: no shared write per node.
+    long int nodeVisits = 0;
+    long int entryTests = 0;
+    const BOOLEAN completed = traverseNodes(nodes.data(), primitiveOrder, ray,
+        &visitor, (BinnedSahStoppingLeafVisitor *)NULL, inOutBestT, nodeVisits, entryTests);
+    RaytraceStatistics::recordInstanceLevelTraversal(nodeVisits, entryTests);
+    return completed;
+}
+
+BOOLEAN
+BinnedSahHierarchy::traverse(const Ray &ray, BinnedSahStoppingLeafVisitor &visitor,
+    double &inOutBestT, long int &nodeVisits, long int &entryTests) const
+{
+    if (nodes.size() == 0 || primitiveOrder.size() == 0) {
+        return TRUE;
+    }
+    return traverseNodes(nodes.data(), primitiveOrder, ray,
+        (BinnedSahLeafVisitor *)NULL, &visitor, inOutBestT, nodeVisits, entryTests);
 }
 
 const ArrayList<BinnedSahHierarchyNode> &

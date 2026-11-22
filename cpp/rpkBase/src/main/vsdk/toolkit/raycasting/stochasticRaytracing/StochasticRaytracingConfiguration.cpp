@@ -18,7 +18,8 @@ StochasticRaytracingConfiguration::init(
     const java::ArrayList<Patch *> *lightList,
     const RadianceMethod *radianceMethod,
     ToneMappingContext *inToneMapOptions,
-    LightList *&rayTracingLightList)
+    LightList *&rayTracingLightList,
+    bool createScreen)
 {
     // Copy state options
 
@@ -79,8 +80,10 @@ StochasticRaytracingConfiguration::init(
         Logger::reportMessage("StochasticRaytracingConfiguration", Logger::FATAL_ERROR, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
     }
 
-    screen = new ScreenBuffer(nullptr, defaultCamera, toneMapOptions);
-    screen->setFactor(1.0); // We're storing plain radiance
+    if ( createScreen ) {
+        screen = new ScreenBuffer(nullptr, defaultCamera, toneMapOptions);
+        screen->setFactor(1.0); // We're storing plain radiance
+    }
 
     initDependentVars(lightList, radianceMethod, rayTracingLightList);
 }

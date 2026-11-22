@@ -1,6 +1,7 @@
 #ifndef __LINEAR_SPATIAL_INDEX__
 #define __LINEAR_SPATIAL_INDEX__
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
 
 /**
@@ -15,17 +16,17 @@ class LinearSpatialIndex : public SpatialIndex {
 
   public:
     explicit LinearSpatialIndex(int inNumberOfPrimitives);
-    ~LinearSpatialIndex();
+    virtual ~LinearSpatialIndex();
 
-    int getNumberOfPrimitives() const ;
-    int getWorkspaceSize() const ;
-    SpatialQueryResult query(
+    virtual int getNumberOfPrimitives() const;
+    virtual int getWorkspaceSize() const;
+    virtual SpatialQueryResult query(
         const Ray &ray,
         double minimumT,
         double maximumT,
-        SpatialQueryMode mode,
+        SpatialQueryMode::Value mode,
         PrimitiveRayTest &test,
-        SpatialIndexWorkspace &workspace) const ;
+        SpatialIndexWorkspace &workspace) const;
 };
 
 #endif

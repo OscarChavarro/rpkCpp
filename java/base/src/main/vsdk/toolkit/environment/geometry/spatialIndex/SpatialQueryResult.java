@@ -11,26 +11,31 @@ public final class SpatialQueryResult {
     private final double parameter;
 
     /** No accepted hit */
-    public SpatialQueryResult() {
+    public SpatialQueryResult()
+    {
         primitive = NO_PRIMITIVE;
         parameter = 0.0;
     }
 
-    public SpatialQueryResult(int inPrimitive, double inParameter) {
+    public SpatialQueryResult(int inPrimitive, double inParameter)
+    {
         primitive = inPrimitive;
         parameter = inParameter;
     }
 
-    public boolean hasHit() {
+    public boolean hasHit()
+    {
         return primitive != NO_PRIMITIVE;
     }
 
-    public int getPrimitive() {
+    public int getPrimitive()
+    {
         return primitive;
     }
 
     /** Ray parameter of the accepted hit; meaningless without a hit */
-    public double getParameter() {
+    public double getParameter()
+    {
         return parameter;
     }
 }

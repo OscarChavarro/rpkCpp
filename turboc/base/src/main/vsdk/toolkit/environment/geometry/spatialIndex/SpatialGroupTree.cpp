@@ -1,3 +1,6 @@
+#include <stddef.h>
+
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h"
 
@@ -9,7 +12,7 @@ SpatialGroupTree::SpatialGroupTree(const ArrayList<double> &inPrimitiveBoxes, co
     groupMembers(),
     groupPrimitiveCount(),
     primitiveGrouped(),
-    numberOfPrimitives(((int)(inPrimitiveBoxes.size() / 6)))
+    numberOfPrimitives((int)(inPrimitiveBoxes.size() / 6))
 {
     for ( int i = 0; i < numberOfPrimitives; i++ ) {
         primitiveGrouped.add(0);
@@ -27,7 +30,7 @@ SpatialGroupTree::~SpatialGroupTree()
 int
 SpatialGroupTree::newGroup(const int parent, const double *box)
 {
-    const int group = ((int)(groupParent.size()));
+    const int group = (int)groupParent.size();
     for ( int k = 0; k < 6; k++ ) {
         groupBoxes.add(box != NULL ? box[k] : 0.0);
     }
@@ -74,7 +77,7 @@ SpatialGroupTree::getNumberOfPrimitives() const
 int
 SpatialGroupTree::getNumberOfGroups() const
 {
-    return ((int)(groupParent.size()));
+    return (int)groupParent.size();
 }
 
 const ArrayList<double> &
@@ -104,7 +107,7 @@ SpatialGroupTree::getParent(const int group) const
 int
 SpatialGroupTree::getNumberOfMembers(const int group) const
 {
-    return ((int)(groupMembers[group]->size()));
+    return (int)groupMembers[group]->size();
 }
 
 int

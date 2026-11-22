@@ -2,10 +2,12 @@
 //= [SNYD1987] Snyder, John M. and Barr, Alan H. "Ray Tracing Complex       =
 //=     Models Containing Surface Tessellations". SIGGRAPH '87, Computer    =
 //=     Graphics 21(4), 1987, pp. 119-128.                                  =
+//=     PDF: doc/references/[SNYD1987]_*.pdf                                =
 
 #ifndef __GRID_SPATIAL_INDEX__
 #define __GRID_SPATIAL_INDEX__
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
@@ -38,19 +40,44 @@ the one RenderPark's grid returns, not necessarily the first accepted one.
 Traversal arithmetic is in double precision and prunes only; the test of the
 caller decides every hit and receives the query's minimum parameter.
 
+Correspondence with [SNYD1987]:
+- section 3.1: a grid is a box divided in cells, each non-empty cell with
+  the list of the objects inside it; section 3.2: lists and grids nest, a
+  grid or list being an object of another one (here a sub grid or a group
+  item);
+- Figure 6 (generic object engrid): an item goes to every cell its box
+  overlaps. The clipping of a primitive's box to each cell (Figure 7) is not
+  done;
+- Figures 9 and 10 (ray / 3D grid): the cell walk, with the parameters of
+  the next boundary along each axis and their increments, stepping along the
+  smallest; double precision, as the paper's implementation (section 5.2);
+- Figure 11 (an object in several cells): the paper accepts a hit only if it
+  lies inside the current cell; here the walk instead goes on until it
+  enters a cell beyond the closest hit, which gives the same closest hit;
+- not in the paper: the resolution floor(count^(1/3) + 1) (the paper's
+  modeller chooses the divisions; this one is RenderPark's); the cell list
+  box flags and the ray box cull of Figures 12 and 13 are not done.
+
 Shared, read-only after construction: the index keeps its own copy of the
 tree data it needs, and a query writes only to the workspace and the test
 it is given.
+
+C++ port note: the query steps of the cpp port are member templates over
+the type of the exact test (its GridSpatialIndex.txx), which the compilers
+of this port do not have: here they take a `PrimitiveRayTest` (one virtual
+call per candidate), and `queryWith` is `query`.
 */
 class GridSpatialIndex : public SpatialIndex {
   public:
-    static const int MINIMUM_ITEMS_FOR_SUB_GRID = 10;
+    enum { MINIMUM_ITEMS_FOR_SUB_GRID = 10 };
     static const double DELTA_BOUND_FACTOR;
 
   private:
-    static const int PRIMITIVE_ITEM = 0;
-    static const int GROUP_ITEM = 1;
-    static const int GRID_ITEM = 2;
+    enum {
+        PRIMITIVE_ITEM = 0,
+        GROUP_ITEM = 1,
+        GRID_ITEM = 2
+    };
 
     int numberOfPrimitives;
 
@@ -84,6 +111,7 @@ class GridSpatialIndex : public SpatialIndex {
     BOOLEAN fitsInCell(const SpatialGroupTree &tree, int grid, int group) const;
 
     BOOLEAN segmentEntry(const double *box, const Ray &ray, double minimumT, double maximumT, double *entryT) const;
+    // Query steps (templates over the exact test in the cpp port)
     BOOLEAN testItem(int item, const Ray &ray, double minimumT, double &inOutBestT, BOOLEAN anyHit,
         PrimitiveRayTest &test, SpatialIndexWorkspace &workspace, SpatialQueryResult &result, long int &tests) const;
     BOOLEAN testGroup(int group, const Ray &ray, double minimumT, double &inOutBestT, BOOLEAN anyHit,
@@ -99,23 +127,36 @@ class GridSpatialIndex : public SpatialIndex {
     only the primitives that are members of a group are indexed
     */
     explicit GridSpatialIndex(const SpatialGroupTree &tree);
-    ~GridSpatialIndex();
+    virtual ~GridSpatialIndex();
 
-    int getNumberOfPrimitives() const ;
-    int getWorkspaceSize() const ;
+    virtual int getNumberOfPrimitives() const;
+    virtual int getWorkspaceSize() const;
     int getNumberOfGrids() const;
     int getNumberOfItems() const;
 
     /** Cells per axis of a grid; grid 0 is the top level grid */
     int getResolution(int grid) const;
 
-    SpatialQueryResult query(
+    virtual SpatialQueryResult query(
         const Ray &ray,
         double minimumT,
         double maximumT,
-        SpatialQueryMode mode,
+        SpatialQueryMode::Value mode,
         PrimitiveRayTest &test,
-        SpatialIndexWorkspace &workspace) const ;
+        SpatialIndexWorkspace &workspace) const;
+
+    /**
+    `query` with the exact test given by its own type in the cpp port (a
+    member template there, so that the compiler can inline a final test
+    class into the cell loop); here the same traversal as `query`.
+    */
+    SpatialQueryResult queryWith(
+        const Ray &ray,
+        double minimumT,
+        double maximumT,
+        SpatialQueryMode::Value mode,
+        PrimitiveRayTest &test,
+        SpatialIndexWorkspace &workspace) const;
 };
 
 #endif

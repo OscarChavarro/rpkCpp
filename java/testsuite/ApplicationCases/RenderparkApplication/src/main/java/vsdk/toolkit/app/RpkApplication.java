@@ -193,16 +193,10 @@ Processes command line arguments
         DkColor.freeBuffer();
     }
 
-    public int entryPoint(int argc, String[] argv) {
-        return entryPoint(argc, argv, null);
-    }
-
     /**
-    Runs the program for the given command line. With a consumer, the scene
-    is built from the command line as for a rendering, handed to the
-    consumer instead of being rendered, and the consumer's status returned.
+    Runs the program for the given command line
     */
-    public int entryPoint(int argc, String[] argv, SceneConsumer consumer) {
+    public int entryPoint(int argc, String[] argv) {
         // 1. Default empty scene
         mainInitApplication();
 
@@ -251,13 +245,6 @@ Processes command line arguments
         selectToneMapByName(initializationToneMapName[0]); // Note this is used for basic Galerkin model initialization
         SceneBuilder.sceneBuilderCreateModel(argcRef, argv, mgfContext, scene, toneMapOptions);
         selectToneMapByName(renderToneMapName[0]);
-
-        if ( consumer != null ) {
-            // The scene goes to the consumer (a test program) instead of the renderer
-            final int status = consumer.consume(scene);
-            freeMemory(mgfContext);
-            return status;
-        }
 
         // 4. Run main radiosity simulation and export result
         executeRendering(

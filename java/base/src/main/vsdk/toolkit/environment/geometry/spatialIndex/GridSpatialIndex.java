@@ -2,6 +2,7 @@
 //= [SNYD1987] Snyder, John M. and Barr, Alan H. "Ray Tracing Complex       =
 //=     Models Containing Surface Tessellations". SIGGRAPH '87, Computer    =
 //=     Graphics 21(4), 1987, pp. 119-128.                                  =
+//=     PDF: doc/references/[SNYD1987]_*.pdf                                =
 
 package vsdk.toolkit.environment.geometry.spatialIndex;
 
@@ -38,13 +39,32 @@ the one RenderPark's grid returns, not necessarily the first accepted one.
 Traversal arithmetic is in double precision and prunes only; the test of the
 caller decides every hit and receives the query's minimum parameter.
 
+Correspondence with [SNYD1987]:
+- section 3.1: a grid is a box divided in cells, each non-empty cell with
+  the list of the objects inside it; section 3.2: lists and grids nest, a
+  grid or list being an object of another one (here a sub grid or a group
+  item);
+- Figure 6 (generic object engrid): an item goes to every cell its box
+  overlaps. The clipping of a primitive's box to each cell (Figure 7) is not
+  done;
+- Figures 9 and 10 (ray / 3D grid): the cell walk, with the parameters of
+  the next boundary along each axis and their increments, stepping along the
+  smallest; double precision, as the paper's implementation (section 5.2);
+- Figure 11 (an object in several cells): the paper accepts a hit only if it
+  lies inside the current cell; here the walk instead goes on until it
+  enters a cell beyond the closest hit, which gives the same closest hit;
+- not in the paper: the resolution floor(count^(1/3) + 1) (the paper's
+  modeller chooses the divisions; this one is RenderPark's); the cell list
+  box flags and the ray box cull of Figures 12 and 13 are not done.
+
 Shared, read-only after construction: the index keeps its own copy of the
 tree data it needs, and a query writes only to the workspace and the test
 it is given.
 
-Java adaptation: the tables are built in lists and frozen into primitive
-arrays at the end of the construction; the result and the counters that the
-C++ port passes by reference travel in a `QueryState`.
+The cpp query steps are templates over the exact test type
+(`GridSpatialIndex.txx`, `queryWith<Test>`); here they are generic methods
+over `T extends PrimitiveRayTest`, with the same traversal (the JIT, not the
+compiler, decides about inlining the test).
 */
 public final class GridSpatialIndex extends SpatialIndex {
     public static final int MINIMUM_ITEMS_FOR_SUB_GRID = 10;
@@ -66,155 +86,89 @@ public final class GridSpatialIndex extends SpatialIndex {
 
     private final int numberOfPrimitives;
 
-    // Construction lists, frozen into the arrays below
-    private ArrayList<Integer> itemKindList;
-    private ArrayList<Integer> itemReferenceList;
-    private ArrayList<Double> gridBoxList;
-    private ArrayList<Integer> gridResolutionList;
-    private ArrayList<Double> gridCellSizeList;
-    private ArrayList<Integer> gridFirstCellList;
-    private ArrayList<Integer> cellStartList;
-    private ArrayList<Integer> cellItemList;
-
     // Items, dense ids: kind and the primitive, group or grid they refer to
-    private final int[] itemKind;
-    private final int[] itemReference;
+    private final ArrayList<Integer> itemKind = new ArrayList<>();
+    private final ArrayList<Integer> itemReference = new ArrayList<>();
 
     // Grids: padded box (6 values), cells per axis, cell size (3 values),
     // first entry of the grid in cellStart (cells + 1 entries per grid)
-    private final double[] gridBoxes;
-    private final int[] gridResolution;
-    private final double[] gridCellSizes;
-    private final int[] gridFirstCell;
-    private final int[] cellStart;
-    private final int[] cellItems;
+    private final ArrayList<Double> gridBoxes = new ArrayList<>();
+    private final ArrayList<Integer> gridResolution = new ArrayList<>();
+    private final ArrayList<Double> gridCellSizes = new ArrayList<>();
+    private final ArrayList<Integer> gridFirstCell = new ArrayList<>();
+    private final ArrayList<Integer> cellStart = new ArrayList<>();
+    private final ArrayList<Integer> cellItems = new ArrayList<>();
 
     // Groups used as items: padded box (6 values), bounded flag, members
     // (as in SpatialGroupTree.getMember) from groupFirstMember
-    private final double[] groupBoxes;
-    private final boolean[] groupBounded;
-    private final int[] groupFirstMember;
-    private final int[] groupMembers;
-
-    /** What one query accumulates (the C++ port passes it by reference) */
-    private static final class QueryState {
-        SpatialQueryResult result;
-        long tests;
-        final double[] hitT;
-
-        QueryState(double[] inHitT) {
-            result = null;
-            tests = 0;
-            hitT = inHitT;
-        }
-    }
-
-    private static double component(Vector3Dd v, int k) {
-        return k == 0 ? v.x() : (k == 1 ? v.y() : v.z());
-    }
-
-    private static boolean outOfBox(double[] box, int offset, double[] p) {
-        for ( int k = 0; k < 3; k++ ) {
-            if ( p[k] < box[offset + k] || p[k] > box[offset + 3 + k] ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static int[] toIntArray(ArrayList<Integer> list) {
-        int[] array = new int[list.size()];
-        for ( int i = 0; i < array.length; i++ ) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
-
-    private static double[] toDoubleArray(ArrayList<Double> list) {
-        double[] array = new double[list.size()];
-        for ( int i = 0; i < array.length; i++ ) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
+    private final ArrayList<Double> groupBoxes = new ArrayList<>();
+    private final ArrayList<Boolean> groupBounded = new ArrayList<>();
+    private final ArrayList<Integer> groupFirstMember = new ArrayList<>();
+    private final ArrayList<Integer> groupMembers = new ArrayList<>();
 
     /**
     @param tree the groups and the primitive boxes, unpadded (the index
     pads them by DELTA_BOUND_FACTOR); its root group must have a box, and
     only the primitives that are members of a group are indexed
     */
-    public GridSpatialIndex(SpatialGroupTree tree) {
+    public GridSpatialIndex(SpatialGroupTree tree)
+    {
         numberOfPrimitives = tree.getNumberOfPrimitives();
-        itemKindList = new ArrayList<>();
-        itemReferenceList = new ArrayList<>();
-        gridBoxList = new ArrayList<>();
-        gridResolutionList = new ArrayList<>();
-        gridCellSizeList = new ArrayList<>();
-        gridFirstCellList = new ArrayList<>();
-        cellStartList = new ArrayList<>();
-        cellItemList = new ArrayList<>();
-
-        final int numberOfGroups = tree.getNumberOfGroups();
-        groupBoxes = new double[6 * numberOfGroups];
-        groupBounded = new boolean[numberOfGroups];
-        groupFirstMember = new int[numberOfGroups + 1];
-        ArrayList<Integer> members = new ArrayList<>();
-        double[] box = new double[6];
-        double[] padded = new double[6];
-        for ( int g = 0; g < numberOfGroups; g++ ) {
+        for ( int g = 0; g < tree.getNumberOfGroups(); g++ ) {
+            double[] box = new double[6];
             for ( int k = 0; k < 6; k++ ) {
                 box[k] = tree.getGroupBox(g, k);
             }
-            enlargedBox(box, 0, padded);
+            double[] padded = new double[6];
+            enlargedBox(box, padded);
             for ( int k = 0; k < 6; k++ ) {
-                groupBoxes[6 * g + k] = padded[k];
+                groupBoxes.add(padded[k]);
             }
-            groupBounded[g] = tree.isBounded(g);
-            groupFirstMember[g] = members.size();
+            groupBounded.add(tree.isBounded(g));
+            groupFirstMember.add(groupMembers.size());
             for ( int i = 0; i < tree.getNumberOfMembers(g); i++ ) {
-                members.add(tree.getMember(g, i));
+                groupMembers.add(tree.getMember(g, i));
             }
         }
-        groupFirstMember[numberOfGroups] = members.size();
-        groupMembers = toIntArray(members);
+        groupFirstMember.add(groupMembers.size());
 
         buildGrid(tree, 0);
+    }
 
-        itemKind = toIntArray(itemKindList);
-        itemReference = toIntArray(itemReferenceList);
-        gridBoxes = toDoubleArray(gridBoxList);
-        gridResolution = toIntArray(gridResolutionList);
-        gridCellSizes = toDoubleArray(gridCellSizeList);
-        gridFirstCell = toIntArray(gridFirstCellList);
-        cellStart = toIntArray(cellStartList);
-        cellItems = toIntArray(cellItemList);
-        itemKindList = null;
-        itemReferenceList = null;
-        gridBoxList = null;
-        gridResolutionList = null;
-        gridCellSizeList = null;
-        gridFirstCellList = null;
-        cellStartList = null;
-        cellItemList = null;
+    private static double component(Vector3Dd v, int k)
+    {
+        return k == 0 ? v.x() : (k == 1 ? v.y() : v.z());
+    }
+
+    private static boolean outOfBox(double[] box, double[] p)
+    {
+        for ( int k = 0; k < 3; k++ ) {
+            if ( p[k] < box[k] || p[k] > box[3 + k] ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
     The box enlarged on each side by DELTA_BOUND_FACTOR of its size along that
     axis, and by at least EPSILON
     */
-    private static void enlargedBox(double[] box, int offset, double[] out) {
+    private static void enlargedBox(double[] box, double[] out)
+    {
         for ( int k = 0; k < 3; k++ ) {
-            double delta = (box[offset + 3 + k] - box[offset + k]) * DELTA_BOUND_FACTOR;
+            double delta = (box[3 + k] - box[k]) * DELTA_BOUND_FACTOR;
             if ( delta < EPSILON ) {
                 delta = EPSILON;
             }
-            out[k] = box[offset + k] - delta;
-            out[3 + k] = box[offset + 3 + k] + delta;
+            out[k] = box[k] - delta;
+            out[3 + k] = box[3 + k] + delta;
         }
     }
 
     /** Index of the cell holding coordinate p along one axis, clamped to the grid */
-    private static int cellCoordinate(double p, double lo, double size, int resolution) {
+    private static int cellCoordinate(double p, double lo, double size, int resolution)
+    {
         int v = size < EPSILON ? 0 : (int)((p - lo) / size);
         if ( v < 0 ) {
             v = 0;
@@ -225,34 +179,46 @@ public final class GridSpatialIndex extends SpatialIndex {
         return v;
     }
 
-    private int newItem(int kind, int reference) {
-        itemKindList.add(kind);
-        itemReferenceList.add(reference);
-        return itemKindList.size() - 1;
+    private int newItem(int kind, int reference)
+    {
+        itemKind.add(kind);
+        itemReference.add(reference);
+        return itemKind.size() - 1;
+    }
+
+    private double[] primitiveBox(SpatialGroupTree tree, int member)
+    {
+        double[] box = new double[6];
+        for ( int k = 0; k < 6; k++ ) {
+            box[k] = tree.getPrimitiveBoxes().get(6 * member + k);
+        }
+        return box;
     }
 
     /**
     Builds the grid over a group (and, recursively, its sub grids) and returns
     its id
     */
-    private int buildGrid(SpatialGroupTree tree, int group) {
-        final int grid = gridResolutionList.size();
+    private int buildGrid(SpatialGroupTree tree, int group)
+    {
+        final int grid = gridResolution.size();
         final int count = tree.getPrimitiveCount(group);
-        final int resolution = (int)Math.floor(Math.pow((double)count, 0.33333) + 1.0);
+        final int resolution = (int)(Math.floor(Math.pow((double)count, 0.33333) + 1.0));
 
         for ( int k = 0; k < 6; k++ ) {
-            gridBoxList.add(groupBoxes[6 * group + k]);
+            gridBoxes.add(groupBoxes.get(6 * group + k));
         }
-        gridResolutionList.add(resolution);
+        gridResolution.add(resolution);
         for ( int k = 0; k < 3; k++ ) {
-            gridCellSizeList.add((gridBoxList.get(6 * grid + 3 + k) - gridBoxList.get(6 * grid + k)) / resolution);
+            gridCellSizes.add((gridBoxes.get(6 * grid + 3 + k) - gridBoxes.get(6 * grid + k)) / resolution);
         }
-        gridFirstCellList.add(0);
+        gridFirstCell.add(0);
 
         final int numberOfCells = resolution * resolution * resolution;
-        ArrayList<ArrayList<Integer>> cells = new ArrayList<>(numberOfCells);
+        @SuppressWarnings("unchecked")
+        ArrayList<Integer>[] cells = (ArrayList<Integer>[])new ArrayList[numberOfCells];
         for ( int c = 0; c < numberOfCells; c++ ) {
-            cells.add(null);
+            cells[c] = null;
         }
 
         if ( resolution == 1 ) {
@@ -267,29 +233,32 @@ public final class GridSpatialIndex extends SpatialIndex {
                     insert(tree, grid, cells, SpatialGroupTree.memberGroup(member));
                 }
                 else {
-                    insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), tree.getPrimitiveBoxes(), 6 * member);
+                    insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), primitiveBox(tree, member));
                 }
             }
         }
 
-        gridFirstCellList.set(grid, cellStartList.size());
+        gridFirstCell.set(grid, cellStart.size());
         for ( int c = 0; c < numberOfCells; c++ ) {
-            cellStartList.add(cellItemList.size());
-            if ( cells.get(c) != null ) {
-                cellItemList.addAll(cells.get(c));
-                cells.set(c, null);
+            cellStart.add(cellItems.size());
+            if ( cells[c] != null ) {
+                for ( int i = 0; i < cells[c].size(); i++ ) {
+                    cellItems.add(cells[c].get(i));
+                }
+                cells[c] = null;
             }
         }
-        cellStartList.add(cellItemList.size());
+        cellStart.add(cellItems.size());
         return grid;
     }
 
-    private boolean fitsInCell(SpatialGroupTree tree, int grid, int group) {
+    private boolean fitsInCell(SpatialGroupTree tree, int grid, int group)
+    {
         if ( !tree.isBounded(group) ) {
             return false;
         }
         for ( int k = 0; k < 3; k++ ) {
-            if ( tree.getGroupBox(group, 3 + k) - tree.getGroupBox(group, k) > gridCellSizeList.get(3 * grid + k) ) {
+            if ( tree.getGroupBox(group, 3 + k) - tree.getGroupBox(group, k) > gridCellSizes.get(3 * grid + k) ) {
                 return false;
             }
         }
@@ -300,21 +269,23 @@ public final class GridSpatialIndex extends SpatialIndex {
     Puts a member group into a grid: as one item when it fits in a cell (a sub
     grid when it is large enough), otherwise member by member
     */
-    private void insert(SpatialGroupTree tree, int grid, ArrayList<ArrayList<Integer>> cells, int group) {
+    private void insert(SpatialGroupTree tree, int grid, ArrayList<Integer>[] cells, int group)
+    {
         if ( fitsInCell(tree, grid, group) ) {
-            double[] box = new double[6];
             if ( tree.getPrimitiveCount(group) >= MINIMUM_ITEMS_FOR_SUB_GRID ) {
                 final int subGrid = buildGrid(tree, group);
+                double[] box = new double[6];
                 for ( int k = 0; k < 6; k++ ) {
-                    box[k] = gridBoxList.get(6 * subGrid + k);
+                    box[k] = gridBoxes.get(6 * subGrid + k);
                 }
-                insertItem(grid, cells, newItem(GRID_ITEM, subGrid), box, 0);
+                insertItem(grid, cells, newItem(GRID_ITEM, subGrid), box);
             }
             else {
+                double[] box = new double[6];
                 for ( int k = 0; k < 6; k++ ) {
                     box[k] = tree.getGroupBox(group, k);
                 }
-                insertItem(grid, cells, newItem(GROUP_ITEM, group), box, 0);
+                insertItem(grid, cells, newItem(GROUP_ITEM, group), box);
             }
             return;
         }
@@ -325,76 +296,84 @@ public final class GridSpatialIndex extends SpatialIndex {
                 insert(tree, grid, cells, SpatialGroupTree.memberGroup(member));
             }
             else {
-                insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), tree.getPrimitiveBoxes(), 6 * member);
+                insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), primitiveBox(tree, member));
             }
         }
     }
 
     /** Lists an item in every cell its enlarged box overlaps */
-    private void insertItem(int grid, ArrayList<ArrayList<Integer>> cells, int item, double[] box, int offset) {
+    private void insertItem(int grid, ArrayList<Integer>[] cells, int item, double[] box)
+    {
         double[] padded = new double[6];
-        enlargedBox(box, offset, padded);
-        final int resolution = gridResolutionList.get(grid);
+        enlargedBox(box, padded);
+        final int resolution = gridResolution.get(grid);
         int[] lo = new int[3];
         int[] hi = new int[3];
         for ( int k = 0; k < 3; k++ ) {
-            lo[k] = cellCoordinate(padded[k], gridBoxList.get(6 * grid + k), gridCellSizeList.get(3 * grid + k), resolution);
-            hi[k] = cellCoordinate(padded[3 + k], gridBoxList.get(6 * grid + k), gridCellSizeList.get(3 * grid + k), resolution);
+            lo[k] = cellCoordinate(padded[k], gridBoxes.get(6 * grid + k), gridCellSizes.get(3 * grid + k), resolution);
+            hi[k] = cellCoordinate(padded[3 + k], gridBoxes.get(6 * grid + k), gridCellSizes.get(3 * grid + k), resolution);
         }
         for ( int a = lo[0]; a <= hi[0]; a++ ) {
             for ( int b = lo[1]; b <= hi[1]; b++ ) {
                 for ( int c = lo[2]; c <= hi[2]; c++ ) {
                     final int cell = (a * resolution + b) * resolution + c;
-                    if ( cells.get(cell) == null ) {
-                        cells.set(cell, new ArrayList<>());
+                    if ( cells[cell] == null ) {
+                        cells[cell] = new ArrayList<>();
                     }
-                    cells.get(cell).add(item);
+                    cells[cell].add(item);
                 }
             }
         }
     }
 
     @Override
-    public int getNumberOfPrimitives() {
+    public int getNumberOfPrimitives()
+    {
         return numberOfPrimitives;
     }
 
     @Override
-    public int getWorkspaceSize() {
+    public int getWorkspaceSize()
+    {
         return getNumberOfItems();
     }
 
-    public int getNumberOfGrids() {
-        return gridResolution.length;
+    public int getNumberOfGrids()
+    {
+        return gridResolution.size();
     }
 
-    public int getNumberOfItems() {
-        return itemKind.length;
+    public int getNumberOfItems()
+    {
+        return itemKind.size();
     }
 
     /** Cells per axis of a grid; grid 0 is the top level grid */
-    public int getResolution(int grid) {
-        return gridResolution[grid];
+    public int getResolution(int grid)
+    {
+        return gridResolution.get(grid);
     }
 
     /**
     Clips the segment [minimumT, maximumT] of the ray to a box, as RenderPark's
     box test does, and gives the parameter where the segment enters it
+    @param entryT one-element output holder
     */
-    private static boolean segmentEntry(double[] box, int offset, Ray ray, double minimumT, double maximumT, double[] entryT) {
+    private boolean segmentEntry(double[] box, Ray ray, double minimumT, double maximumT, double[] entryT)
+    {
         double nearT = minimumT;
         double farT = maximumT;
         for ( int k = 0; k < 3; k++ ) {
             final double origin = component(ray.getOrigin(), k);
             final double direction = component(ray.getDirection(), k);
             if ( direction == 0.0 ) {
-                if ( origin < box[offset + k] || origin > box[offset + 3 + k] ) {
+                if ( origin < box[k] || origin > box[3 + k] ) {
                     return false;
                 }
                 continue;
             }
-            double entry = (box[offset + k] - origin) / direction;
-            double exit = (box[offset + 3 + k] - origin) / direction;
+            double entry = (box[k] - origin) / direction;
+            double exit = (box[3 + k] - origin) / direction;
             if ( entry > exit ) {
                 final double swap = entry;
                 entry = exit;
@@ -428,37 +407,56 @@ public final class GridSpatialIndex extends SpatialIndex {
         return true;
     }
 
-    private boolean testGroup(
+    /** Six values of a box list from `6 * index` */
+    private static double[] boxAt(ArrayList<Double> boxes, int index)
+    {
+        double[] box = new double[6];
+        for ( int k = 0; k < 6; k++ ) {
+            box[k] = boxes.get(6 * index + k);
+        }
+        return box;
+    }
+
+    /** Accumulated state of one query (cpp reference parameters) */
+    private static final class QueryState {
+        double bestT;
+        SpatialQueryResult result = new SpatialQueryResult();
+        long tests;
+        final double[] hitT = new double[1];
+    }
+
+    private <T extends PrimitiveRayTest> boolean testGroup(
         int group,
         Ray ray,
         double minimumT,
-        double[] inOutBestT,
         boolean anyHit,
-        PrimitiveRayTest test,
-        QueryState state) {
-        if ( groupBounded[group] ) {
+        T test,
+        QueryState state)
+    {
+        if ( groupBounded.get(group) ) {
+            final double[] box = boxAt(groupBoxes, group);
             double[] p = new double[3];
             for ( int k = 0; k < 3; k++ ) {
                 p[k] = component(ray.getOrigin(), k) + minimumT * component(ray.getDirection(), k);
             }
             double[] entryT = new double[1];
-            if ( outOfBox(groupBoxes, 6 * group, p) && !segmentEntry(groupBoxes, 6 * group, ray, minimumT, inOutBestT[0], entryT) ) {
+            if ( outOfBox(box, p) && !segmentEntry(box, ray, minimumT, state.bestT, entryT) ) {
                 return false;
             }
         }
 
         boolean accepted = false;
-        for ( int i = groupFirstMember[group]; i < groupFirstMember[group + 1]; i++ ) {
-            final int member = groupMembers[i];
+        for ( int i = groupFirstMember.get(group); i < groupFirstMember.get(group + 1); i++ ) {
+            final int member = groupMembers.get(i);
             boolean hit;
             if ( SpatialGroupTree.isGroupMember(member) ) {
-                hit = testGroup(SpatialGroupTree.memberGroup(member), ray, minimumT, inOutBestT, anyHit, test, state);
+                hit = testGroup(SpatialGroupTree.memberGroup(member), ray, minimumT, anyHit, test, state);
             }
             else {
                 state.tests++;
-                hit = test.test(member, minimumT, inOutBestT[0], state.hitT);
+                hit = test.test(member, minimumT, state.bestT, state.hitT);
                 if ( hit ) {
-                    inOutBestT[0] = state.hitT[0];
+                    state.bestT = state.hitT[0];
                     state.result = new SpatialQueryResult(member, state.hitT[0]);
                 }
             }
@@ -472,61 +470,72 @@ public final class GridSpatialIndex extends SpatialIndex {
         return accepted;
     }
 
-    private boolean testItem(
+    private <T extends PrimitiveRayTest> boolean testItem(
         int item,
         Ray ray,
         double minimumT,
-        double[] inOutBestT,
         boolean anyHit,
-        PrimitiveRayTest test,
+        T test,
         SpatialIndexWorkspace workspace,
-        QueryState state) {
-        final int reference = itemReference[item];
-        if ( itemKind[item] == PRIMITIVE_ITEM ) {
+        QueryState state)
+    {
+        final int reference = itemReference.get(item);
+        if ( itemKind.get(item) == PRIMITIVE_ITEM ) {
             state.tests++;
-            if ( test.test(reference, minimumT, inOutBestT[0], state.hitT) ) {
-                inOutBestT[0] = state.hitT[0];
+            if ( test.test(reference, minimumT, state.bestT, state.hitT) ) {
+                state.bestT = state.hitT[0];
                 state.result = new SpatialQueryResult(reference, state.hitT[0]);
                 return true;
             }
             return false;
         }
-        if ( itemKind[item] == GROUP_ITEM ) {
-            return testGroup(reference, ray, minimumT, inOutBestT, anyHit, test, state);
+        if ( itemKind.get(item) == GROUP_ITEM ) {
+            return testGroup(reference, ray, minimumT, anyHit, test, state);
         }
-        long[] visits = new long[] {0};
-        final boolean hit = traverseGrid(reference, ray, minimumT, inOutBestT, anyHit, test, workspace, state, visits);
+        long[] visits = {0};
+        final boolean hit = traverseGrid(reference, ray, minimumT, anyHit, test, workspace, state, visits);
         workspace.addNodeVisits(visits[0]);
         return hit;
     }
 
-    private boolean traverseGrid(
+    /**
+    Walk of one grid, [SNYD1987] Figures 9 and 10: enter the grid, then visit
+    the cells the ray crosses in order, stepping each time along the axis whose
+    next cell boundary is closest.
+    @param visits one-element accumulator
+    */
+    private <T extends PrimitiveRayTest> boolean traverseGrid(
         int grid,
         Ray ray,
         double minimumT,
-        double[] inOutBestT,
         boolean anyHit,
-        PrimitiveRayTest test,
+        T test,
         SpatialIndexWorkspace workspace,
         QueryState state,
-        long[] visits) {
-        final int boxOffset = 6 * grid;
-        final int resolution = gridResolution[grid];
-        final int cellSizeOffset = 3 * grid;
+        long[] visits)
+    {
+        final double[] box = boxAt(gridBoxes, grid);
+        final int resolution = gridResolution.get(grid);
+        final double[] cellSize = new double[3];
+        for ( int k = 0; k < 3; k++ ) {
+            cellSize[k] = gridCellSizes.get(3 * grid + k);
+        }
         final boolean mailbox = workspace.getNumberOfPrimitives() >= getNumberOfItems();
 
         // Where the ray enters the grid
-        double[] t0 = new double[] {minimumT};
+        double t0 = minimumT;
         double[] p = new double[3];
         for ( int k = 0; k < 3; k++ ) {
-            p[k] = component(ray.getOrigin(), k) + t0[0] * component(ray.getDirection(), k);
+            p[k] = component(ray.getOrigin(), k) + t0 * component(ray.getDirection(), k);
         }
-        if ( outOfBox(gridBoxes, boxOffset, p) ) {
-            if ( !segmentEntry(gridBoxes, boxOffset, ray, minimumT, inOutBestT[0], t0) ) {
+        if ( outOfBox(box, p) ) {
+            double[] entryT = {t0};
+            if ( !segmentEntry(box, ray, minimumT, state.bestT, entryT) ) {
                 return false;
             }
+            t0 = entryT[0];
             for ( int k = 0; k < 3; k++ ) {
-                p[k] = component(ray.getOrigin(), k) + t0[0] * component(ray.getDirection(), k);
+                p[k] = component(ray.getOrigin(), k) + t0 * component(ray.getDirection(), k);
             }
         }
 
@@ -537,20 +546,18 @@ public final class GridSpatialIndex extends SpatialIndex {
         double[] tDelta = new double[3];
         double[] tNext = new double[3];
         for ( int k = 0; k < 3; k++ ) {
-            final double cellSize = gridCellSizes[cellSizeOffset + k];
-            final double lo = gridBoxes[boxOffset + k];
-            g[k] = cellCoordinate(p[k], lo, cellSize, resolution);
+            g[k] = cellCoordinate(p[k], box[k], cellSize[k], resolution);
             final double direction = component(ray.getDirection(), k);
             if ( Math.abs(direction) > EPSILON ) {
                 if ( direction > 0.0 ) {
-                    tDelta[k] = cellSize / direction;
-                    tNext[k] = t0[0] + ((g[k] + 1) * cellSize + lo - p[k]) / direction;
+                    tDelta[k] = cellSize[k] / direction;
+                    tNext[k] = t0 + ((g[k] + 1) * cellSize[k] + box[k] - p[k]) / direction;
                     step[k] = 1;
                     out[k] = resolution;
                 }
                 else {
-                    tDelta[k] = cellSize / -direction;
-                    tNext[k] = t0[0] + (g[k] * cellSize + lo - p[k]) / direction;
+                    tDelta[k] = cellSize[k] / -direction;
+                    tNext[k] = t0 + (g[k] * cellSize[k] + box[k] - p[k]) / direction;
                     step[k] = -1;
                     out[k] = -1;
                 }
@@ -563,17 +570,16 @@ public final class GridSpatialIndex extends SpatialIndex {
             }
         }
 
-        final int firstCell = gridFirstCell[grid];
-        double t = t0[0];
+        final int firstCell = gridFirstCell.get(grid);
         boolean accepted = false;
         boolean inGrid;
         do {
             visits[0]++;
             final int cell = firstCell + (g[0] * resolution + g[1]) * resolution + g[2];
-            for ( int i = cellStart[cell]; i < cellStart[cell + 1]; i++ ) {
-                final int item = cellItems[i];
+            for ( int i = cellStart.get(cell); i < cellStart.get(cell + 1); i++ ) {
+                final int item = cellItems.get(i);
                 if ( !mailbox || workspace.firstVisit(item) ) {
-                    if ( testItem(item, ray, minimumT, inOutBestT, anyHit, test, workspace, state) ) {
+                    if ( testItem(item, ray, minimumT, anyHit, test, workspace, state) ) {
                         accepted = true;
                     }
                 }
@@ -587,10 +593,10 @@ public final class GridSpatialIndex extends SpatialIndex {
                 k = 1;
             }
             g[k] += step[k];
-            t = tNext[k];
+            t0 = tNext[k];
             tNext[k] += tDelta[k];
             inGrid = g[k] != out[k];
-        } while ( inGrid && t <= inOutBestT[0] );
+        } while ( inGrid && t0 <= state.bestT );
 
         return accepted;
     }
@@ -602,20 +608,37 @@ public final class GridSpatialIndex extends SpatialIndex {
         double maximumT,
         SpatialQueryMode mode,
         PrimitiveRayTest test,
-        SpatialIndexWorkspace workspace) {
+        SpatialIndexWorkspace workspace)
+    {
+        return queryWith(ray, minimumT, maximumT, mode, test, workspace);
+    }
+
+    /**
+    `query` with the exact test given by its own type: the same traversal
+    (cpp `GridSpatialIndex.txx`, a template so that a final test class is
+    inlined); `query` is this method for `PrimitiveRayTest`.
+    */
+    public <T extends PrimitiveRayTest> SpatialQueryResult queryWith(
+        Ray ray,
+        double minimumT,
+        double maximumT,
+        SpatialQueryMode mode,
+        T test,
+        SpatialIndexWorkspace workspace)
+    {
+        QueryState state = new QueryState();
         if ( getNumberOfItems() == 0 ) {
-            return new SpatialQueryResult();
+            return state.result;
         }
         if ( workspace.getNumberOfPrimitives() >= getNumberOfItems() ) {
             workspace.beginMailboxQuery();
         }
-        final double[] bestT = workspace.getBestTScratch();
-        bestT[0] = maximumT;
-        QueryState state = new QueryState(workspace.getHitTScratch());
-        long[] visits = new long[] {0};
-        traverseGrid(0, ray, minimumT, bestT, mode == SpatialQueryMode.ANY_HIT, test, workspace, state, visits);
+        state.bestT = maximumT;
+        state.tests = 0;
+        long[] visits = {0};
+        traverseGrid(0, ray, minimumT, mode == SpatialQueryMode.ANY_HIT, test, workspace, state, visits);
         workspace.addNodeVisits(visits[0]);
         workspace.addPrimitiveTests(state.tests);
-        return state.result != null ? state.result : new SpatialQueryResult();
+        return state.result;
     }
 }

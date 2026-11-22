@@ -17,7 +17,8 @@ public interface PrimitiveRayTest {
     @param minimumT smallest accepted ray parameter (inclusive)
     @param maximumT largest accepted ray parameter: the query interval end,
     or the parameter of the hit accepted so far in a closest-hit query
-    @param hitT receives in hitT[0] the parameter of the hit when it is accepted
+    @param hitT one-element holder that receives the parameter of the hit
+    when it is accepted
     @return true when the ray hits the primitive within the interval and the
     hit is accepted
     */

@@ -1,0 +1,203 @@
+/**
+Non diffuse first shot
+*/
+
+#include <stdlib.h>
+
+#include "java/lang/Math.h"
+#include "java/lang/System.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+
+#ifdef RAYTRACING_ENABLED
+
+#include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
+#include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/LightSourceTable.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/Localline.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/Nondiff.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
+
+LightSourceTable *Nondiff::lights = NULL;
+int Nondiff::numberOfLights = 0;
+int Nondiff::numberOfSamples = 0;
+double Nondiff::totalFlux = 0.0;
+
+void
+Nondiff::makeLightSourceTable(const ArrayList<Patch *> *scenePatches, const ArrayList<Patch *> *lightPatches) {
+    totalFlux = 0.0;
+    numberOfLights = Statistics::instance().reader.numberOfLightSources;
+    lights = new LightSourceTable[numberOfLights];
+
+    for ( int i = 0; lightPatches != NULL && i < lightPatches->size(); i++ ) {
+        Patch *light = lightPatches->get(i);
+        ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
+        double flux = M_PI * light->area * (Math::abs(emittedRadiance.getR()) + Math::abs(emittedRadiance.getG()) + Math::abs(emittedRadiance.getB()));
+        totalFlux += flux;
+        lights[i] = LightSourceTable(light, flux);
+    }
+
+    for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
+        const Patch *patch = scenePatches->get(i);
+        Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
+        Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
+        Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
+        McradP::topLvlStochRadElem(patch)->sourceRad = ColorRgb(0.0f, 0.0f, 0.0f);
+    }
+}
+
+void
+Nondiff::nextLightSample(const Patch *patch, double *zeta) {
+    const double *xi = Sample4d::sample4D(((unsigned int)(McradP::topLvlStochRadElem(patch)->rayIndex)));
+    McradP::topLvlStochRadElem(patch)->rayIndex++;
+    if ( patch->numberOfVertices == 3 ) {
+        double u = xi[0];
+        double v = xi[1];
+        Sample4d::foldSampleF(&u, &v);
+        zeta[0] = u;
+        zeta[1] = v;
+    } else {
+        zeta[0] = xi[0];
+        zeta[1] = xi[1];
+    }
+    zeta[2] = xi[2];
+    zeta[3] = xi[3];
+}
+
+RpkRay
+Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
+    RpkRay ray;
+    do {
+        double zeta[4];
+        RayHit hit;
+        nextLightSample(patch, zeta);
+
+        patch->uniformPoint(zeta[0], zeta[1], &ray.position);
+
+        hit.init(patch, &ray.position, &patch->normal, patch->material);
+        *dirSelectionPdf = 0.0;
+        ray.direction = Vector3Df(0.0, 0.0, 0.0);
+        if ( patch->material->getEdf() != NULL ) {
+            ShadingContext context = hit.shadingContext(NULL);
+            ray.direction = patch->material->getEdf()->phongEdfSample(
+                &context, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+        }
+    } while ( *dirSelectionPdf == 0.0 );
+
+    // The following is only correct if no rejections would result in the
+    // loop above, i.o.w. the surface is not textured, or it is textured, but there
+    // are no areas that are non-self emitting
+    *point_selection_pdf = 1.0 / patch->area;  // Uniform area sampling
+    return ray;
+}
+
+void
+Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, LightSourceTable *light, double light_selection_pdf) {
+    ColorRgb rad;
+    double pointSelectionPdf;
+    double dirSelectionPdf;
+    RpkRay ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
+    RayHit hitStore;
+    const RayHit *hit;
+
+    StochasticRelaxation::activeState().tracedRays++;
+    hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, light->patch, &ray, &hitStore);
+    if ( hit ) {
+        double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
+        double outCos = ray.direction.dotProduct(light->patch->normal);
+        ColorRgb receivedRadiosity;
+        ColorRgbMutable Rd = McradP::topLvlStochRadElem(hit->getPatch())->Rd;
+        float k = ((float)(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)));
+        receivedRadiosity = ColorRgb(
+            k * rad.getR() * Rd.getR(),
+            k * rad.getG() * Rd.getG(),
+            k * rad.getB() * Rd.getB());
+        McradP::getTopLevelPatchRad(hit->getPatch())[0] = ColorRgb(
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getR() + receivedRadiosity.getR(),
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getG() + receivedRadiosity.getG(),
+            McradP::getTopLevelPatchRad(hit->getPatch())[0].getB() + receivedRadiosity.getB());
+        McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0] = ColorRgb(
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getR() + receivedRadiosity.getR(),
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getG() + receivedRadiosity.getG(),
+            McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].getB() + receivedRadiosity.getB());
+        McradP::topLvlStochRadElem(hit->getPatch())->sourceRad = ColorRgb(
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getR() + receivedRadiosity.getR(),
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getG() + receivedRadiosity.getG(),
+            McradP::topLvlStochRadElem(hit->getPatch())->sourceRad.getB() + receivedRadiosity.getB());
+    }
+}
+
+void
+Nondiff::sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, int samplesCount) {
+    double rnd = drand48();
+    int count = 0;
+    double pCumulative = 0.0;
+    Nondiff::numberOfSamples = samplesCount;
+    System::err.printf("Shooting %d light rays ", Nondiff::numberOfSamples);
+    System::err.flush();
+    for ( int i = 0; i < Nondiff::numberOfLights; i++ ) {
+        double p = lights[i].flux / totalFlux;
+        int samples_this_light =
+                ((int)(floor((pCumulative + p) * ((double)(Nondiff::numberOfSamples)) + rnd))) - count;
+
+        for ( int j = 0; j < samples_this_light; j++ ) {
+            sampleLight(sceneQuery, sceneWorldSceneQueryWorkspace, &lights[i], p);
+        }
+
+        pCumulative += p;
+        count += samples_this_light;
+    }
+
+    System::err.println();
+}
+
+void
+Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().totalYmp = 0.0;
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        float k1 = ((float)(M_PI)) * patch->area;
+        ColorRgb us = ColorRgb(McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        ColorRgb tr = ColorRgb(McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().unShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().unShotFlux.getR() + k1 * us.getR(),
+            StochasticRelaxation::activeState().unShotFlux.getG() + k1 * us.getG(),
+            StochasticRelaxation::activeState().unShotFlux.getB() + k1 * us.getB());
+        StochasticRelaxation::activeState().totalFlux = ColorRgb(
+            StochasticRelaxation::activeState().totalFlux.getR() + k1 * tr.getR(),
+            StochasticRelaxation::activeState().totalFlux.getG() + k1 * tr.getG(),
+            StochasticRelaxation::activeState().totalFlux.getB() + k1 * tr.getB());
+        float k2 = ((float)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance);
+        StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + k2 * us.getR(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + k2 * us.getG(),
+            StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getB() + k2 * us.getB());
+        StochasticRelaxation::activeState().unShotYmp += patch->area * Math::abs(
+                McradP::topLvlStochRadElem(patch)->unShotImportance);
+        StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLvlStochRadElem(patch)->importance;
+        StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLvlStochRadElem(patch)->sourceImportance;
+        Mcrad::mntCarloRadPtchCompNewClr(patch);
+    }
+}
+
+/**
+Initial shooting pass handling non-diffuse light sources
+*/
+void
+Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RenderOptions */*renderOptions*/) {
+    makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
+    sampleLightSources(
+        scene->getSceneQuery(),
+        scene->getSceneQueryWorkspace(),
+        StochasticRelaxation::activeState().initialLightSourceSamples * numberOfLights);
+    summarize(scene->patchList);
+    delete[] lights;
+    lights = NULL;
+}
+
+#endif

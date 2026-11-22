@@ -21,7 +21,8 @@ class SpatialIndexWorkspace {
     int numberOfPrimitives;
     unsigned int queryCount;
 
-    // Not copyable
+    // C++ port note: not copyable (deleted in the cpp port): declared and
+    // not defined
     SpatialIndexWorkspace(const SpatialIndexWorkspace &);
     SpatialIndexWorkspace &operator=(const SpatialIndexWorkspace &);
 
@@ -45,7 +46,7 @@ class SpatialIndexWorkspace {
     void beginMailboxQuery();
 
     /**
-    Records that the current query reaches a primitive; returns FALSE when
+    Records that the current query reaches a primitive; returns false when
     the query had already reached it (the primitive is then not tested
     again). Valid after beginMailboxQuery, for primitives below the mailbox
     size.

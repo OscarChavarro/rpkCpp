@@ -18,6 +18,7 @@ public:
     Vector4Df(const Vector4Df& other) : x_(other.x_), y_(other.y_), z_(other.z_), w_(other.w_) {}
     explicit Vector4Df(const Vector4Dd& other);
     explicit Vector4Df(const Vector3Df& other);
+    Vector4Df& operator=(const Vector4Df& other) { x_ = other.x_; y_ = other.y_; z_ = other.z_; w_ = other.w_; return *this; }
 
     Vector4Df multiply(float a) const;
     Vector4Df dividedByW() const;

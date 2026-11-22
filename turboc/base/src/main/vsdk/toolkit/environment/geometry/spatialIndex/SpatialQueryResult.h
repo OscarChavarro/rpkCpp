@@ -9,7 +9,7 @@ parameter of its hit, or no primitive (`NO_PRIMITIVE`). An immutable value.
 */
 class SpatialQueryResult {
   public:
-    static const int NO_PRIMITIVE = -1;
+    enum { NO_PRIMITIVE = -1 };
 
   private:
     int primitive;

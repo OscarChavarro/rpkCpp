@@ -1,0 +1,392 @@
+#ifndef __BOUNDING_BOX__
+#define __BOUNDING_BOX__
+
+#include "vsdk/toolkit/common/VSDK.h"
+#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/skin/BoundingBoxCoordinateIndex.h"
+
+/**
+A bounding box is represented as an array of 6 floating point numbers.
+The meaning of the numbers is given by the constants MIN_X
+*/
+class BoundingBox {
+  private:
+    float coordinates[6];
+
+    static void inline
+    setIfLess(float &a, float b) {
+        a = a < b ? a : b;
+    }
+
+    static void inline
+    setIfGreater(float &a, float b) {
+        a = a > b ? a : b;
+    }
+
+    static bool inline
+    clipAxisSlab(
+        float minimumBound,
+        float maximumBound,
+        float origin,
+        float direction,
+        float toleranceScale,
+        float *nearDistance,
+        float *farDistance);
+
+  public:
+    BoundingBox();
+
+    float maxExtent() const;
+    bool outOfBounds(const Vector3Df *p) const;
+    Vector3Df center() const;
+    void setAsUnion(const BoundingBox *a, const BoundingBox *b);
+    bool disjointToOtherBoundingBox(const BoundingBox *other) const;
+    bool behindPlane(const Vector3Df &normal, float distance) const;
+    void copyFrom(const BoundingBox *other);
+    void enlarge(const BoundingBox *other);
+    void enlargeToIncludePoint(const Vector3Df *point);
+    void enlargeTinyBit();
+    void computeContributionFlags(const BoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const;
+    float dx() const;
+    float dy() const;
+    float dz() const;
+    Vector3Df voxelSize(const short nx, const short ny, const short nz) const;
+    void enlargeByFactor(float factor);
+    Vector3Df minPoint() const;
+    Vector3Df maxPoint() const;
+    float minX() const;
+    float minY() const;
+    float minZ() const;
+    float maxX() const;
+    float maxY() const;
+    float maxZ() const;
+    const float *rawCoordinates() const;
+    float valueAt(int idx) const;
+    void corners(Vector3Df out[8]) const;
+    bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
+    bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
+};
+
+inline bool
+BoundingBox::clipAxisSlab(
+    float minimumBound,
+    float maximumBound,
+    float origin,
+    float direction,
+    float toleranceScale,
+    float *nearDistance,
+    float *farDistance) {
+    if ( direction == 0.0f ) {
+        return !(origin < minimumBound || origin > maximumBound);
+    }
+
+    const float invDirection = 1.0f / direction;
+    float entryDistance = (minimumBound - origin) * invDirection;
+    float exitDistance = (maximumBound - origin) * invDirection;
+    if ( entryDistance > exitDistance ) {
+        const float swapValue = entryDistance;
+        entryDistance = exitDistance;
+        exitDistance = swapValue;
+    }
+
+    if ( exitDistance < *nearDistance ) {
+        return false;
+    }
+    if ( entryDistance > *nearDistance ) {
+        *nearDistance = entryDistance;
+    }
+    if ( exitDistance < *farDistance ) {
+        *farDistance = exitDistance;
+    }
+    return *nearDistance <= (*farDistance * toleranceScale);
+}
+
+inline bool
+BoundingBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
+    if ( ray == NULL || tMin == NULL || tMax == NULL ) {
+        return false;
+    }
+
+    const float minimumDistance = *tMin;
+    const float maximumDistance = *tMax;
+    float nearDistance = minimumDistance;
+    float farDistance = maximumDistance;
+    const float toleranceScale = 1.0f + Numeric::EPSILON_FLOAT;
+
+    if ( !clipAxisSlab(
+            coordinates[MIN_X], coordinates[MAX_X],
+            ray->position.x(), ray->direction.x(),
+            toleranceScale,
+            &nearDistance, &farDistance) ) {
+        return false;
+    }
+    if ( !clipAxisSlab(
+            coordinates[MIN_Y], coordinates[MAX_Y],
+            ray->position.y(), ray->direction.y(),
+            toleranceScale,
+            &nearDistance, &farDistance) ) {
+        return false;
+    }
+    if ( !clipAxisSlab(
+            coordinates[MIN_Z], coordinates[MAX_Z],
+            ray->position.z(), ray->direction.z(),
+            toleranceScale,
+            &nearDistance, &farDistance) ) {
+        return false;
+    }
+
+    *tMin = nearDistance;
+    *tMax = farDistance;
+
+    if ( nearDistance == minimumDistance ) {
+        if ( farDistance < maximumDistance ) {
+            return true;
+        }
+    } else {
+        if ( nearDistance < maximumDistance ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool
+BoundingBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
+    if ( maximumDistance == NULL ) {
+        return false;
+    }
+
+    float tMin = minimumDistance;
+    float tMax = *maximumDistance;
+    const bool hit = intersectingSegment(ray, &tMin, &tMax);
+    if ( hit ) {
+        if ( tMin == minimumDistance ) {
+            if ( tMax < *maximumDistance ) {
+                *maximumDistance = tMax;
+            }
+        } else {
+            if ( tMin < *maximumDistance ) {
+                *maximumDistance = tMin;
+            }
+        }
+    }
+    return hit;
+}
+
+inline float
+BoundingBox::maxExtent() const {
+    const float dx = coordinates[MAX_X] - coordinates[MIN_X];
+    const float dy = coordinates[MAX_Y] - coordinates[MIN_Y];
+    const float dz = coordinates[MAX_Z] - coordinates[MIN_Z];
+    return dx > dy
+           ? (dx > dz ? dx : dz)
+           : (dy > dz ? dy : dz);
+}
+
+inline bool
+BoundingBox::outOfBounds(const Vector3Df *p) const {
+    return p->x() < coordinates[MIN_X] || p->x() > coordinates[MAX_X] ||
+           p->y() < coordinates[MIN_Y] || p->y() > coordinates[MAX_Y] ||
+           p->z() < coordinates[MIN_Z] || p->z() > coordinates[MAX_Z];
+}
+
+inline Vector3Df
+BoundingBox::center() const {
+    return Vector3Df(
+        0.5f * (coordinates[MIN_X] + coordinates[MAX_X]),
+        0.5f * (coordinates[MIN_Y] + coordinates[MAX_Y]),
+        0.5f * (coordinates[MIN_Z] + coordinates[MAX_Z])
+    );
+}
+
+inline void
+BoundingBox::setAsUnion(const BoundingBox *a, const BoundingBox *b) {
+    for (int i = MIN_X; i <= MIN_Z; i++) {
+        coordinates[i] = a->coordinates[i] < b->coordinates[i]
+                         ? a->coordinates[i]
+                         : b->coordinates[i];
+    }
+
+    for (int i = MAX_X; i <= MAX_Z; i++) {
+        coordinates[i] = a->coordinates[i] > b->coordinates[i]
+                         ? a->coordinates[i]
+                         : b->coordinates[i];
+    }
+}
+
+/**
+True if the two given bounding boxes are disjoint
+*/
+inline bool
+BoundingBox::disjointToOtherBoundingBox(const BoundingBox *other) const {
+    return
+            (coordinates[MIN_X] > other->coordinates[MAX_X]) || (other->coordinates[MIN_X] > coordinates[MAX_X]) ||
+            (coordinates[MIN_Y] > other->coordinates[MAX_Y]) || (other->coordinates[MIN_Y] > coordinates[MAX_Y]) ||
+            (coordinates[MIN_Z] > other->coordinates[MAX_Z]) || (other->coordinates[MIN_Z] > coordinates[MAX_Z]);
+}
+
+inline void
+BoundingBox::computeContributionFlags(const BoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const {
+    for (int i = MIN_X; i <= MIN_Z; i++) {
+        if ( coordinates[i] < other->coordinates[i]) {
+            hasMinMax1[i] = true;
+        } else {
+            if (!Numeric::doubleEqual(
+                    coordinates[i],
+                    other->coordinates[i],
+                    VSDK::EPSILON)) {
+                hasMinMax2[i] = true;
+            }
+        }
+    }
+
+    for (int i = MAX_X; i <= MAX_Z; i++) {
+        if ( coordinates[i] > other->coordinates[i]) {
+            hasMinMax1[i] = true;
+        } else {
+            if (!Numeric::doubleEqual(
+                    coordinates[i],
+                    other->coordinates[i],
+                    VSDK::EPSILON)) {
+                hasMinMax2[i] = true;
+            }
+        }
+    }
+}
+
+inline float
+BoundingBox::dx() const {
+    return coordinates[MAX_X] - coordinates[MIN_X];
+}
+
+inline float
+BoundingBox::dy() const {
+    return coordinates[MAX_Y] - coordinates[MIN_Y];
+}
+
+inline float
+BoundingBox::dz() const {
+    return coordinates[MAX_Z] - coordinates[MIN_Z];
+}
+
+inline Vector3Df
+BoundingBox::voxelSize(const short nx, const short ny, const short nz) const {
+    return Vector3Df(
+            dx() / ((float)(nx)),
+            dy() / ((float)(ny)),
+            dz() / ((float)(nz))
+    );
+}
+
+inline void
+BoundingBox::enlargeByFactor(float factor) {
+    float fdx = dx() * factor;
+    float fdy = dy() * factor;
+    float fdz = dz() * factor;
+
+    if (fdx < Numeric::EPSILON_FLOAT) {
+        fdx = Numeric::EPSILON_FLOAT;
+    }
+    if (fdy < Numeric::EPSILON_FLOAT) {
+        fdy = Numeric::EPSILON_FLOAT;
+    }
+    if (fdz < Numeric::EPSILON_FLOAT) {
+        fdz = Numeric::EPSILON_FLOAT;
+    }
+
+    coordinates[MIN_X] -= fdx;
+    coordinates[MAX_X] += fdx;
+    coordinates[MIN_Y] -= fdy;
+    coordinates[MAX_Y] += fdy;
+    coordinates[MIN_Z] -= fdz;
+    coordinates[MAX_Z] += fdz;
+}
+
+inline Vector3Df
+BoundingBox::minPoint() const {
+    return Vector3Df(
+            coordinates[MIN_X],
+            coordinates[MIN_Y],
+            coordinates[MIN_Z]
+    );
+}
+
+inline Vector3Df
+BoundingBox::maxPoint() const {
+    return Vector3Df(
+            coordinates[MAX_X],
+            coordinates[MAX_Y],
+            coordinates[MAX_Z]
+    );
+}
+
+inline float
+BoundingBox::minX() const {
+    return coordinates[MIN_X];
+}
+
+inline float
+BoundingBox::minY() const {
+    return coordinates[MIN_Y];
+}
+
+inline float
+BoundingBox::minZ() const {
+    return coordinates[MIN_Z];
+}
+
+inline float
+BoundingBox::maxX() const {
+    return coordinates[MAX_X];
+}
+
+inline float
+BoundingBox::maxY() const {
+    return coordinates[MAX_Y];
+}
+
+inline float
+BoundingBox::maxZ() const {
+    return coordinates[MAX_Z];
+}
+
+inline const float *
+BoundingBox::rawCoordinates() const {
+    return coordinates;
+}
+
+inline float
+BoundingBox::valueAt(int idx) const {
+    switch (idx) {
+        case MIN_X: return minX();
+        case MIN_Y: return minY();
+        case MIN_Z: return minZ();
+        case MAX_X: return maxX();
+        case MAX_Y: return maxY();
+        case MAX_Z: return maxZ();
+        default: return 0.0f;
+    }
+}
+
+inline void
+BoundingBox::corners(Vector3Df out[8]) const {
+    const float minX = coordinates[MIN_X];
+    const float minY = coordinates[MIN_Y];
+    const float minZ = coordinates[MIN_Z];
+    const float maxX = coordinates[MAX_X];
+    const float maxY = coordinates[MAX_Y];
+    const float maxZ = coordinates[MAX_Z];
+
+    out[0] = Vector3Df(minX, minY, minZ);
+    out[1] = Vector3Df(maxX, minY, minZ);
+    out[2] = Vector3Df(minX, maxY, minZ);
+    out[3] = Vector3Df(maxX, maxY, minZ);
+    out[4] = Vector3Df(minX, minY, maxZ);
+    out[5] = Vector3Df(maxX, minY, maxZ);
+    out[6] = Vector3Df(minX, maxY, maxZ);
+    out[7] = Vector3Df(maxX, maxY, maxZ);
+}
+
+#endif

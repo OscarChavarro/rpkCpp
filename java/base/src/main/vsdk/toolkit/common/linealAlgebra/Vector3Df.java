@@ -65,6 +65,69 @@ public final class Vector3Df extends FundamentalEntity {
         return new Vector3Df(x - b.x, y - b.y, z - b.z);
     }
 
+    /**
+    Square of the length (the dot product with itself)
+    */
+    public float lengthSquared() {
+        return x * x + y * y + z * z;
+    }
+
+    /**
+    Sum of the absolute values of the components (the L1 norm)
+    */
+    public float manhattanLength() {
+        return absolute(x) + absolute(y) + absolute(z);
+    }
+
+    /**
+    Distance to the given point: the length of (other - this)
+    */
+    public float distance(Vector3Df other) {
+        return other.subtract(this).length();
+    }
+
+    /**
+    Square of the distance to the given point
+    */
+    public float distanceSquared(Vector3Df other) {
+        return other.subtract(this).lengthSquared();
+    }
+
+    /**
+    Scales by 1 / s, or returns this vector unchanged when s is within
+    [-epsilon, epsilon]. The factor 1 / s is computed once and multiplies
+    each component
+    */
+    public Vector3Df multiplyByInverse(float s, float epsilon) {
+        final float factor = s < -epsilon || s > epsilon ? 1.0f / s : 1.0f;
+        return new Vector3Df(factor * x, factor * y, factor * z);
+    }
+
+    /**
+    Scales by the inverse of the length, or returns this vector unchanged
+    when the length is within [-epsilon, epsilon]. Unlike normalized(), the
+    threshold applies to the length, and a unit vector is also rescaled
+    */
+    public Vector3Df normalized(float epsilon) {
+        return multiplyByInverse(length(), epsilon);
+    }
+
+    /**
+    Index of the component of largest absolute value: 0 for x, 1 for y,
+    2 for z; ties go to x before y and y before z
+    */
+    public int dominantAxis() {
+        final float ax = absolute(x);
+        final float ay = absolute(y);
+        final float az = absolute(z);
+        float m = ay > az ? ay : az;
+        m = ax > m ? ax : m;
+        if ( m == ax ) {
+            return 0;
+        }
+        return m == ay ? 1 : 2;
+    }
+
     public Vector3Df withX(float nx) { return new Vector3Df(nx, y, z); }
     public Vector3Df withY(float ny) { return new Vector3Df(x, ny, z); }
     public Vector3Df withZ(float nz) { return new Vector3Df(x, y, nz); }
@@ -82,5 +145,30 @@ public final class Vector3Df extends FundamentalEntity {
         return Math.abs(x - other.x) <= epsilon &&
                Math.abs(y - other.y) <= epsilon &&
                Math.abs(z - other.z) <= epsilon;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if ( this == obj ) {
+            return true;
+        }
+        if ( !(obj instanceof Vector3Df other) ) {
+            return false;
+        }
+        return Float.compare(x, other.x) == 0 &&
+               Float.compare(y, other.y) == 0 &&
+               Float.compare(z, other.z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Float.hashCode(x);
+        result = 31 * result + Float.hashCode(y);
+        result = 31 * result + Float.hashCode(z);
+        return result;
+    }
+
+    private static float absolute(float a) {
+        return a < 0.0f ? -a : a;
     }
 }

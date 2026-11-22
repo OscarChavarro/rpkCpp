@@ -3,11 +3,17 @@
 //=     Volume Hierarchies". Proceedings of the 2007 IEEE Symposium on      =
 //=     Interactive Ray Tracing, 2007, pp. 33-40.                           =
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h"
 
-/** Leaf visitor of one query: runs the caller's exact test */
-class _BinnedSahQueryVisitor {
+/**
+Leaf visitor of one query: runs the caller's exact test
+
+C++ port note: a class of this file (in an unnamed namespace in the cpp
+port), named after it
+*/
+class _BinnedSahQueryVisitor : public BinnedSahStoppingLeafVisitor {
   private:
     PrimitiveRayTest &test;
     const double minimumT;
@@ -21,7 +27,7 @@ class _BinnedSahQueryVisitor {
     {
     }
 
-    BOOLEAN visit(const int primitive, double &inOutBestT)
+    virtual BOOLEAN visit(const int primitive, double &inOutBestT)
     {
         double hitT;
         tests++;
@@ -44,85 +50,6 @@ class _BinnedSahQueryVisitor {
     }
 };
 
-/**
-The loop of `BinnedSahHierarchy::traverse` of VITRAL's cpp port, on a non
-empty hierarchy: a stack, nearest child first, nodes farther than the
-closest hit skipped, node entry clipped at parameter zero, the traversal
-ended when the visitor returns true. Node visits and leaf entries are added
-to the given counters; returns false when the stack would overflow.
-*/
-static BOOLEAN
-traverseHierarchy(
-    const BinnedSahHierarchy &hierarchy,
-    const Ray &ray,
-    _BinnedSahQueryVisitor &visitor,
-    double &inOutBestT,
-    long int &nodeVisits,
-    long int &entryTests)
-{
-    if ( hierarchy.getNodes().size() == 0 || hierarchy.getPrimitiveOrder().size() == 0 ) {
-        return TRUE;
-    }
-    const BinnedSahHierarchyNode *nodeArray = hierarchy.getNodes().data();
-    const ArrayList<int> &primitiveOrder = hierarchy.getPrimitiveOrder();
-    const BinnedSahHierarchy::RaySlab slab(ray);
-    const double rootDistance = slab.entry(nodeArray[0], inOutBestT);
-    if ( rootDistance < 0.0 ) {
-        return TRUE;
-    }
-    int nodeStack[BinnedSahHierarchy::STACK_SIZE];
-    double distanceStack[BinnedSahHierarchy::STACK_SIZE];
-    int sp = 0;
-    nodeStack[sp] = 0;
-    distanceStack[sp] = rootDistance;
-    sp++;
-    while ( sp > 0 ) {
-        sp--;
-        if ( distanceStack[sp] > inOutBestT ) {
-            continue;
-        }
-        const BinnedSahHierarchyNode &node = nodeArray[nodeStack[sp]];
-        nodeVisits++;
-        if ( node.count > 0 ) {
-            for ( int i = node.leftOrFirst; i < node.leftOrFirst + node.count; i++ ) {
-                if ( visitor.visit(primitiveOrder[i], inOutBestT) ) {
-                    entryTests += i - node.leftOrFirst + 1;
-                    return TRUE;
-                }
-            }
-            entryTests += node.count;
-            continue;
-        }
-        int left = node.leftOrFirst;
-        int right = left + 1;
-        double dl = slab.entry(nodeArray[left], inOutBestT);
-        double dr = slab.entry(nodeArray[right], inOutBestT);
-        // Push the farther child first, so the nearer one is visited first.
-        if ( dl >= 0.0 && dr >= 0.0 && dl < dr ) {
-            const int swapNode = left;
-            left = right;
-            right = swapNode;
-            const double swapDistance = dl;
-            dl = dr;
-            dr = swapDistance;
-        }
-        if ( sp + 2 > BinnedSahHierarchy::STACK_SIZE ) {
-            return FALSE;
-        }
-        if ( dl >= 0.0 ) {
-            nodeStack[sp] = left;
-            distanceStack[sp] = dl;
-            sp++;
-        }
-        if ( dr >= 0.0 ) {
-            nodeStack[sp] = right;
-            distanceStack[sp] = dr;
-            sp++;
-        }
-    }
-    return TRUE;
-}
-
 BinnedSahSpatialIndex::BinnedSahSpatialIndex(
     const ArrayList<double> &boxes,
     const ArrayList<int> &inUnboundedPrimitives,
@@ -130,14 +57,14 @@ BinnedSahSpatialIndex::BinnedSahSpatialIndex(
     hierarchy(),
     unboundedPrimitives(),
     unbounded(),
-    numberOfPrimitives(((int)(boxes.size() / 6)))
+    numberOfPrimitives((int)(boxes.size() / 6))
 {
-    long int i;
+    int i;
     for ( i = 0; i < numberOfPrimitives; i++ ) {
         unbounded.add(0);
     }
-    for ( i = 0; i < inUnboundedPrimitives.size(); i++ ) {
-        const int primitive = inUnboundedPrimitives[i];
+    for ( long int u = 0; u < inUnboundedPrimitives.size(); u++ ) {
+        const int primitive = inUnboundedPrimitives[u];
         if ( primitive >= 0 && primitive < numberOfPrimitives && unbounded[primitive] == 0 ) {
             unbounded[primitive] = 1;
             unboundedPrimitives.add(primitive);
@@ -181,11 +108,11 @@ BinnedSahSpatialIndex::query(
     const Ray &ray,
     const double minimumT,
     const double maximumT,
-    const SpatialQueryMode mode,
+    const SpatialQueryMode::Value mode,
     PrimitiveRayTest &test,
     SpatialIndexWorkspace &workspace) const
 {
-    const BOOLEAN anyHit = mode == ANY_HIT;
+    const BOOLEAN anyHit = mode == SpatialQueryMode::ANY_HIT;
     _BinnedSahQueryVisitor visitor(test, minimumT, anyHit);
     double bestT = maximumT;
 
@@ -197,7 +124,7 @@ BinnedSahSpatialIndex::query(
     if ( !stopped ) {
         long int nodeVisits = 0;
         long int entryTests = 0;
-        if ( !traverseHierarchy(hierarchy, ray, visitor, bestT, nodeVisits, entryTests) ) {
+        if ( !hierarchy.traverse(ray, visitor, bestT, nodeVisits, entryTests) ) {
             // Stack overflow (not reachable while MAXIMUM_DEPTH < STACK_SIZE):
             // the bounded primitives are tested linearly instead
             for ( int primitive = 0; primitive < numberOfPrimitives; primitive++ ) {

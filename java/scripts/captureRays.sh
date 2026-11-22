@@ -15,8 +15,7 @@
 # it would overwrite the C++ corpora.
 # The runs use -scene-acceleration legacy (through a wrapper of gradle in
 # output/ that appends it to the application arguments), so that a corpus
-# holds the answers of RenderPark's original voxel grid, which the replay
-# requires the legacy grid to reproduce bit for bit.
+# holds the answers of RenderPark's original voxel grid.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PROJECT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)

@@ -2,12 +2,19 @@
 //= [SNYD1987] Snyder, John M. and Barr, Alan H. "Ray Tracing Complex       =
 //=     Models Containing Surface Tessellations". SIGGRAPH '87, Computer    =
 //=     Graphics 21(4), 1987, pp. 119-128.                                  =
+//=     PDF: doc/references/[SNYD1987]_*.pdf                                =
 
+#include <stddef.h>
+
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h"
 
-const double GridSpatialIndex::DELTA_BOUND_FACTOR = 1e-4;
+// C++ port note: the query of the cpp port is in GridSpatialIndex.txx, as
+// templates over the type of the exact test; here it is below, over
+// PrimitiveRayTest, and the helpers of its gridSpatialIndexDetail namespace
+// are statics of this file.
 
 // Smallest cell size and direction component the traversal divides by, and
 // the smallest enlargement of a box side (RenderPark's EPSILON)
@@ -36,6 +43,8 @@ outOfBox(const double *box, const double *p)
     return FALSE;
 }
 
+const double GridSpatialIndex::DELTA_BOUND_FACTOR = 1e-4;
+
 GridSpatialIndex::GridSpatialIndex(const SpatialGroupTree &tree) :
     numberOfPrimitives(tree.getNumberOfPrimitives()),
     itemKind(),
@@ -51,9 +60,9 @@ GridSpatialIndex::GridSpatialIndex(const SpatialGroupTree &tree) :
     groupFirstMember(),
     groupMembers()
 {
+    int k;
     for ( int g = 0; g < tree.getNumberOfGroups(); g++ ) {
         double box[6];
-        int k;
         for ( k = 0; k < 6; k++ ) {
             box[k] = tree.getGroupBox(g, k);
         }
@@ -63,12 +72,12 @@ GridSpatialIndex::GridSpatialIndex(const SpatialGroupTree &tree) :
             groupBoxes.add(padded[k]);
         }
         groupBounded.add(tree.isBounded(g) ? 1 : 0);
-        groupFirstMember.add(((int)(groupMembers.size())));
+        groupFirstMember.add((int)groupMembers.size());
         for ( int i = 0; i < tree.getNumberOfMembers(g); i++ ) {
             groupMembers.add(tree.getMember(g, i));
         }
     }
-    groupFirstMember.add(((int)(groupMembers.size())));
+    groupFirstMember.add((int)groupMembers.size());
 
     buildGrid(tree, 0);
 }
@@ -98,7 +107,7 @@ GridSpatialIndex::enlargedBox(const double *box, double *out)
 int
 GridSpatialIndex::cellCoordinate(const double p, const double lo, const double size, const int resolution)
 {
-    int v = size < EPSILON ? 0 : ((int)((p - lo) / size));
+    int v = size < EPSILON ? 0 : (int)((p - lo) / size);
     if ( v < 0 ) {
         v = 0;
     }
@@ -113,7 +122,7 @@ GridSpatialIndex::newItem(const int kind, const int reference)
 {
     itemKind.add(kind);
     itemReference.add(reference);
-    return ((int)(itemKind.size())) - 1;
+    return (int)itemKind.size() - 1;
 }
 
 /**
@@ -123,23 +132,23 @@ its id
 int
 GridSpatialIndex::buildGrid(const SpatialGroupTree &tree, const int group)
 {
-    const int grid = ((int)(gridResolution.size()));
+    const int grid = (int)gridResolution.size();
     const int count = tree.getPrimitiveCount(group);
-    const int resolution = ((int)(Math::floor(Math::pow(((double)(count)), 0.33333) + 1.0)));
-
+    const int resolution = (int)(Math::floor(Math::pow((double)count, 0.33333) + 1.0));
     int k;
+    int c;
+
     for ( k = 0; k < 6; k++ ) {
-        gridBoxes.add(groupBoxes[6 * group + k]);
+        gridBoxes.add(groupBoxes[6L * group + k]);
     }
     gridResolution.add(resolution);
     for ( k = 0; k < 3; k++ ) {
-        gridCellSizes.add((gridBoxes[6 * grid + 3 + k] - gridBoxes[6 * grid + k]) / resolution);
+        gridCellSizes.add((gridBoxes[6L * grid + 3 + k] - gridBoxes[6L * grid + k]) / resolution);
     }
     gridFirstCell.add(0);
 
     const int numberOfCells = resolution * resolution * resolution;
     ArrayList<int> **cells = new ArrayList<int> *[numberOfCells];
-    int c;
     for ( c = 0; c < numberOfCells; c++ ) {
         cells[c] = NULL;
     }
@@ -155,17 +164,17 @@ GridSpatialIndex::buildGrid(const SpatialGroupTree &tree, const int group)
                 insert(tree, grid, cells, SpatialGroupTree::memberGroup(member));
             } else {
                 double box[6];
-                for ( int k = 0; k < 6; k++ ) {
-                    box[k] = tree.getPrimitiveBoxes()[6 * member + k];
+                for ( k = 0; k < 6; k++ ) {
+                    box[k] = tree.getPrimitiveBoxes()[6L * member + k];
                 }
                 insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), box);
             }
         }
     }
 
-    gridFirstCell[grid] = ((int)(cellStart.size()));
+    gridFirstCell[grid] = (int)cellStart.size();
     for ( c = 0; c < numberOfCells; c++ ) {
-        cellStart.add(((int)(cellItems.size())));
+        cellStart.add((int)cellItems.size());
         if ( cells[c] != NULL ) {
             for ( long int i = 0; i < cells[c]->size(); i++ ) {
                 cellItems.add((*cells[c])[i]);
@@ -173,7 +182,7 @@ GridSpatialIndex::buildGrid(const SpatialGroupTree &tree, const int group)
             delete cells[c];
         }
     }
-    cellStart.add(((int)(cellItems.size())));
+    cellStart.add((int)cellItems.size());
     delete[] cells;
     return grid;
 }
@@ -185,7 +194,7 @@ GridSpatialIndex::fitsInCell(const SpatialGroupTree &tree, const int grid, const
         return FALSE;
     }
     for ( int k = 0; k < 3; k++ ) {
-        if ( tree.getGroupBox(group, 3 + k) - tree.getGroupBox(group, k) > gridCellSizes[3 * grid + k] ) {
+        if ( tree.getGroupBox(group, 3 + k) - tree.getGroupBox(group, k) > gridCellSizes[3L * grid + k] ) {
             return FALSE;
         }
     }
@@ -199,17 +208,17 @@ grid when it is large enough), otherwise member by member
 void
 GridSpatialIndex::insert(const SpatialGroupTree &tree, const int grid, ArrayList<int> **cells, const int group)
 {
+    double box[6];
+    int k;
     if ( fitsInCell(tree, grid, group) ) {
         if ( tree.getPrimitiveCount(group) >= MINIMUM_ITEMS_FOR_SUB_GRID ) {
             const int subGrid = buildGrid(tree, group);
-            double box[6];
-            for ( int k = 0; k < 6; k++ ) {
-                box[k] = gridBoxes[6 * subGrid + k];
+            for ( k = 0; k < 6; k++ ) {
+                box[k] = gridBoxes[6L * subGrid + k];
             }
             insertItem(grid, cells, newItem(GRID_ITEM, subGrid), box);
         } else {
-            double box[6];
-            for ( int k = 0; k < 6; k++ ) {
+            for ( k = 0; k < 6; k++ ) {
                 box[k] = tree.getGroupBox(group, k);
             }
             insertItem(grid, cells, newItem(GROUP_ITEM, group), box);
@@ -222,9 +231,8 @@ GridSpatialIndex::insert(const SpatialGroupTree &tree, const int grid, ArrayList
         if ( SpatialGroupTree::isGroupMember(member) ) {
             insert(tree, grid, cells, SpatialGroupTree::memberGroup(member));
         } else {
-            double box[6];
-            for ( int k = 0; k < 6; k++ ) {
-                box[k] = tree.getPrimitiveBoxes()[6 * member + k];
+            for ( k = 0; k < 6; k++ ) {
+                box[k] = tree.getPrimitiveBoxes()[6L * member + k];
             }
             insertItem(grid, cells, newItem(PRIMITIVE_ITEM, member), box);
         }
@@ -241,8 +249,8 @@ GridSpatialIndex::insertItem(const int grid, ArrayList<int> **cells, const int i
     int lo[3];
     int hi[3];
     for ( int k = 0; k < 3; k++ ) {
-        lo[k] = cellCoordinate(padded[k], gridBoxes[6 * grid + k], gridCellSizes[3 * grid + k], resolution);
-        hi[k] = cellCoordinate(padded[3 + k], gridBoxes[6 * grid + k], gridCellSizes[3 * grid + k], resolution);
+        lo[k] = cellCoordinate(padded[k], gridBoxes[6L * grid + k], gridCellSizes[3L * grid + k], resolution);
+        hi[k] = cellCoordinate(padded[3 + k], gridBoxes[6L * grid + k], gridCellSizes[3L * grid + k], resolution);
     }
     for ( int a = lo[0]; a <= hi[0]; a++ ) {
         for ( int b = lo[1]; b <= hi[1]; b++ ) {
@@ -272,13 +280,13 @@ GridSpatialIndex::getWorkspaceSize() const
 int
 GridSpatialIndex::getNumberOfGrids() const
 {
-    return ((int)(gridResolution.size()));
+    return (int)gridResolution.size();
 }
 
 int
 GridSpatialIndex::getNumberOfItems() const
 {
-    return ((int)(itemKind.size()));
+    return (int)itemKind.size();
 }
 
 int
@@ -352,7 +360,7 @@ GridSpatialIndex::testGroup(
     long int &tests) const
 {
     if ( groupBounded[group] != 0 ) {
-        const double *box = &groupBoxes[6 * group];
+        const double *box = &groupBoxes[6L * group];
         double p[3];
         for ( int k = 0; k < 3; k++ ) {
             p[k] = component(ray.getOrigin(), k) + minimumT * component(ray.getDirection(), k);
@@ -420,6 +428,11 @@ GridSpatialIndex::testItem(
     return hit;
 }
 
+/**
+Walk of one grid, [SNYD1987] Figures 9 and 10: enter the grid, then visit
+the cells the ray crosses in order, stepping each time along the axis whose
+next cell boundary is closest.
+*/
 BOOLEAN
 GridSpatialIndex::traverseGrid(
     const int grid,
@@ -433,15 +446,15 @@ GridSpatialIndex::traverseGrid(
     long int &tests,
     long int &visits) const
 {
-    const double *box = &gridBoxes[6 * grid];
+    const double *box = &gridBoxes[6L * grid];
     const int resolution = gridResolution[grid];
-    const double *cellSize = &gridCellSizes[3 * grid];
+    const double *cellSize = &gridCellSizes[3L * grid];
     const BOOLEAN mailbox = workspace.getNumberOfPrimitives() >= getNumberOfItems();
+    int k;
 
     // Where the ray enters the grid
     double t0 = minimumT;
     double p[3];
-    int k;
     for ( k = 0; k < 3; k++ ) {
         p[k] = component(ray.getOrigin(), k) + t0 * component(ray.getDirection(), k);
     }
@@ -449,7 +462,7 @@ GridSpatialIndex::traverseGrid(
         if ( !segmentEntry(box, ray, minimumT, inOutBestT, &t0) ) {
             return FALSE;
         }
-        for ( int k = 0; k < 3; k++ ) {
+        for ( k = 0; k < 3; k++ ) {
             p[k] = component(ray.getOrigin(), k) + t0 * component(ray.getDirection(), k);
         }
     }
@@ -498,27 +511,27 @@ GridSpatialIndex::traverseGrid(
             }
         }
 
-        int k = 2;
+        int axis = 2;
         if ( tNext[0] <= tNext[1] && tNext[0] <= tNext[2] ) {
-            k = 0;
+            axis = 0;
         } else if ( tNext[1] <= tNext[2] ) {
-            k = 1;
+            axis = 1;
         }
-        g[k] += step[k];
-        t0 = tNext[k];
-        tNext[k] += tDelta[k];
-        inGrid = g[k] != out[k];
+        g[axis] += step[axis];
+        t0 = tNext[axis];
+        tNext[axis] += tDelta[axis];
+        inGrid = g[axis] != out[axis];
     } while ( inGrid && t0 <= inOutBestT );
 
     return accepted;
 }
 
 SpatialQueryResult
-GridSpatialIndex::query(
+GridSpatialIndex::queryWith(
     const Ray &ray,
     const double minimumT,
     const double maximumT,
-    const SpatialQueryMode mode,
+    const SpatialQueryMode::Value mode,
     PrimitiveRayTest &test,
     SpatialIndexWorkspace &workspace) const
 {
@@ -532,8 +545,20 @@ GridSpatialIndex::query(
     double bestT = maximumT;
     long int tests = 0;
     long int visits = 0;
-    traverseGrid(0, ray, minimumT, bestT, mode == ANY_HIT, test, workspace, result, tests, visits);
+    traverseGrid(0, ray, minimumT, bestT, mode == SpatialQueryMode::ANY_HIT, test, workspace, result, tests, visits);
     workspace.addNodeVisits(visits);
     workspace.addPrimitiveTests(tests);
     return result;
+}
+
+SpatialQueryResult
+GridSpatialIndex::query(
+    const Ray &ray,
+    const double minimumT,
+    const double maximumT,
+    const SpatialQueryMode::Value mode,
+    PrimitiveRayTest &test,
+    SpatialIndexWorkspace &workspace) const
+{
+    return queryWith(ray, minimumT, maximumT, mode, test, workspace);
 }

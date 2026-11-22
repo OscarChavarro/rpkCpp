@@ -1,6 +1,7 @@
 #ifndef __SPATIAL_INDEX__
 #define __SPATIAL_INDEX__
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h"
@@ -46,7 +47,7 @@ class SpatialIndex {
         const Ray &ray,
         double minimumT,
         double maximumT,
-        SpatialQueryMode mode,
+        SpatialQueryMode::Value mode,
         PrimitiveRayTest &test,
         SpatialIndexWorkspace &workspace) const = 0;
 };

@@ -2,8 +2,8 @@
 """T0 duplicate-class audit of the link closure.
 
 Collects the headers reachable through #include "..." from the compiled
-sources of the two targets (the vitral-turboc base library and the
-RenderPark application) and fails when one
+sources of the three targets (the vitral-turboc library in base/, the
+rpkBase-turboc library and the RenderPark application) and fails when one
 class name is defined by two different headers of that closure, or when two
 headers of the closure open with the same include guard, except for the names
 listed in classAudit.allow. Two definitions of one class linked together are
@@ -14,7 +14,7 @@ make the second one vanish from any unit that includes both.
 
 Run by the build (target classAudit) and usable by hand from any directory.
 
-Turbo C++ port note: this port has no vitral-opengl library, its application
+Turbo C++ port note: this port has no rpkOpenGL1 library, its application
 includes its headers below src (as "app/..."), so that directory is an
 include root, and the uppercase 8.3 mirror directories that
 scripts/map_to_83.py may leave are not compiled, so they are skipped, as the
@@ -30,10 +30,12 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 INCLUDE_ROOTS = [
     os.path.join(PROJECT_DIR, 'base', 'src', 'main'),
+    os.path.join(PROJECT_DIR, 'rpkBase', 'src', 'main'),
     os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RenderparkApplication', 'src'),
 ]
 SOURCE_ROOTS = [
     (os.path.join(PROJECT_DIR, 'base', 'src', 'main'), []),
+    (os.path.join(PROJECT_DIR, 'rpkBase', 'src', 'main'), []),
     (os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RenderparkApplication', 'src'), []),
 ]
 MIRROR = re.compile(r'/[A-Z0-9_]+/')

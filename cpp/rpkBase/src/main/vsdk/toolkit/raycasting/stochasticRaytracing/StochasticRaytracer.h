@@ -11,6 +11,11 @@
 
 class StochasticRaytracer final : public RayTracer {
   private:
+    class FinalTraceWorker;
+
+    void traceRandomWalkInParallel(Scene *scene, RadianceMethod *radianceMethod,
+        const RendererConfiguration *renderOptions, StochasticRaytracingConfiguration &config) const;
+
     static constexpr float PHOTON_MAP_MIN_DIST = 0.02F;
     static constexpr float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST;
     static char name[];

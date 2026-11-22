@@ -26,14 +26,17 @@ public final class ScatteringComponent {
     public static final int TRANSMISSION_GLOSSY = GLOSSY << COMPONENTS_PER_LOBE;
     public static final int TRANSMISSION_SPECULAR = SPECULAR << COMPONENTS_PER_LOBE;
 
-    private ScatteringComponent() {
+    private ScatteringComponent()
+    {
     }
 
-    public static int reflectionComponents(int scatteringComponents) {
+    public static int reflectionComponents(int scatteringComponents)
+    {
         return scatteringComponents & ALL;
     }
 
-    public static int transmissionComponents(int scatteringComponents) {
+    public static int transmissionComponents(int scatteringComponents)
+    {
         return (scatteringComponents >> COMPONENTS_PER_LOBE) & ALL;
     }
 }

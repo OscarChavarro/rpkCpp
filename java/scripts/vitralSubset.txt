@@ -1,20 +1,26 @@
 # Files of java/base/src/main that the Java port takes from VITRAL's Java port
-# unchanged (plan D1: a pinned source subset). scripts/vitralSubset.sh --check
-# compares each with a VITRAL checkout (its java/base/src/main) byte for byte;
-# --refresh copies them from it.
-# Pin: VITRAL bdbd6bbd.
-# Known local divergences, not listed: the step 4 replay classes were ported
-# from VITRAL's C++ port, because VITRAL's Java port does not have them yet
-# (environment/geometry/spatialIndex, the whole package) or has a different
-# implementation of them (common/statistics/RaytraceStatistics.java,
-# environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.java and
-# BinnedSahHierarchyNode.java, environment/geometry/element/Ray.java, which
-# the scene query mutates in place). They follow the C++ subset
-# (cpp/scripts/vitralSubset.txt) instead, and join this list once VITRAL's
-# Java port carries the same versions. Likewise the step 2 material classes
-# (environment/material: PhongMaterial, PhongLobe, ScatteringComponent,
-# ScatteringFrame, ScatteringArithmetic, SurfaceShadingPoint, Texture) are
-# ports of VITRAL's C++ classes, which VITRAL's Java port does not have yet.
+# unchanged (plan D1: a pinned source subset). base/ holds exactly these files
+# and nothing else: RenderPark's own classes live in rpkBase/ and rpkOpenGL1/.
+# scripts/vitralSubset.sh --check compares each with a VITRAL checkout (its
+# java/base/src/main) byte for byte and fails on any file of base/src/main
+# missing from this list; --refresh copies them from it.
+# Pin: VITRAL 9c443919 (Java port: lineal algebra on single precision; the
+# environment/material classes of plan step 2a, the
+# environment/geometry/spatialIndex contract with its linear, binned SAH and
+# grid indexes, BinnedSahHierarchy, Ray and RaytraceStatistics), plus the
+# classes taken into VITRAL's Java port in the base/rpkBase split:
+# common/memoryManagement/MemoryPool and io/wrapper/FileUncompressWrapper,
+# PipeInputStream, PipeOutputStream and StreamOpenMode.
+# RenderPark's lineal algebra uses VITRAL's Vector2Df, Vector3Df, Vector4Df,
+# Matrix4x4f and Matrix2x2 (RenderPark's Vector2D, Vector3D, Vector4D,
+# Matrix4x4 and Matrix2x2 were removed), with io/wrapper/Vector3DPrinter and
+# Matrix2x2Printer. The C++ subset (cpp/scripts/vitralSubset.txt) also lists
+# the java/* emulation classes and AlgebraPrimitives.cpp, which have no Java
+# file; this list adds the Java-only classes the subset depends on (Entity,
+# EntityEvent, EntityListener, FundamentalEntity, ModelElement,
+# BinnedSahHierarchyNode, BinnedSahLeafVisitor, BinnedSahStoppingLeafVisitor,
+# _BinnedSahBox, _BinnedSahBuildTask,
+# ScatteringArithmetic).
 vsdk/toolkit/common/Entity.java
 vsdk/toolkit/common/EntityEvent.java
 vsdk/toolkit/common/EntityListener.java
@@ -23,13 +29,48 @@ vsdk/toolkit/common/ModelElement.java
 vsdk/toolkit/common/VSDK.java
 vsdk/toolkit/common/VSDKFatalException.java
 vsdk/toolkit/common/color/ColorRgb.java
+vsdk/toolkit/common/linealAlgebra/Matrix2x2.java
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.java
+vsdk/toolkit/common/linealAlgebra/Matrix4x4f.java
 vsdk/toolkit/common/linealAlgebra/Quaterniond.java
+vsdk/toolkit/common/linealAlgebra/Quaternionf.java
 vsdk/toolkit/common/linealAlgebra/Vector2Dd.java
+vsdk/toolkit/common/linealAlgebra/Vector2Df.java
 vsdk/toolkit/common/linealAlgebra/Vector3Dd.java
 vsdk/toolkit/common/linealAlgebra/Vector3Df.java
 vsdk/toolkit/common/linealAlgebra/Vector4Dd.java
+vsdk/toolkit/common/linealAlgebra/Vector4Df.java
 vsdk/toolkit/common/logging/Logger.java
+vsdk/toolkit/common/memoryManagement/MemoryPool.java
+vsdk/toolkit/common/statistics/RaytraceStatistics.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchyNode.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahLeafVisitor.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahStoppingLeafVisitor.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBox.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBuildTask.java
 vsdk/toolkit/environment/geometry/element/PlanarFace.java
+vsdk/toolkit/environment/geometry/element/Ray.java
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.java
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.java
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.java
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.java
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.java
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.java
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.java
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.java
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.java
 vsdk/toolkit/environment/material/Material.java
+vsdk/toolkit/environment/material/PhongLobe.java
+vsdk/toolkit/environment/material/PhongMaterial.java
+vsdk/toolkit/environment/material/ScatteringArithmetic.java
+vsdk/toolkit/environment/material/ScatteringComponent.java
+vsdk/toolkit/environment/material/ScatteringFrame.java
+vsdk/toolkit/environment/material/SurfaceShadingPoint.java
+vsdk/toolkit/environment/material/Texture.java
+vsdk/toolkit/io/wrapper/FileUncompressWrapper.java
+vsdk/toolkit/io/wrapper/Matrix2x2Printer.java
+vsdk/toolkit/io/wrapper/PipeInputStream.java
+vsdk/toolkit/io/wrapper/PipeOutputStream.java
+vsdk/toolkit/io/wrapper/StreamOpenMode.java
+vsdk/toolkit/io/wrapper/Vector3DPrinter.java

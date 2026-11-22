@@ -63,12 +63,12 @@ SceneBuilder::sceneBldPtchAccumStats(Patch *patch) {
 
 void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
-    Vector3D zero;
+    Vector3Df zero;
     ColorRgb one(1.0f, 1.0f, 1.0f);
     ColorRgb averageAbsorption(0.0f, 0.0f, 0.0f);
     ColorRgb BP(0.0f, 0.0f, 0.0f);
 
-    zero.set(0, 0, 0);
+    zero = Vector3Df(0, 0, 0);
 
     // Initialize
     Statistics::instance().radiance.totalEmittedPower = ColorRgb(0.0f, 0.0f, 0.0f);

@@ -9,11 +9,29 @@ StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxSt
     yStratum = 0;
 }
 
+namespace {
+
+// SplitMix64 finalizer. In parallel mode each pixel has a separate range of
+// sample indices, so scheduling does not affect the samples it receives.
+double
+sampleUnitInterval(uint64_t *sampleIndex) {
+    if ( sampleIndex == nullptr ) {
+        return drand48();
+    }
+    uint64_t bits = (*sampleIndex)++;
+    bits = (bits ^ (bits >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+    bits = (bits ^ (bits >> 27)) * UINT64_C(0x94d049bb133111eb);
+    bits ^= bits >> 31;
+    return static_cast<double>(bits >> 11) / 9007199254740992.0;
+}
+
+}
+
 void
-StratifiedSampling2D::sample(double *x1, double *x2) {
+StratifiedSampling2D::sample(double *x1, double *x2, uint64_t *sampleIndex) {
     if ( yStratum < yMaxStratum ) {
-        *x1 = ((xStratum + drand48()) / static_cast<double>(xMaxStratum));
-        *x2 = ((yStratum + drand48()) / static_cast<double>(yMaxStratum));
+        *x1 = ((xStratum + sampleUnitInterval(sampleIndex)) / static_cast<double>(xMaxStratum));
+        *x2 = ((yStratum + sampleUnitInterval(sampleIndex)) / static_cast<double>(yMaxStratum));
 
         if ( (++xStratum) == xMaxStratum ) {
             xStratum = 0;
@@ -21,8 +39,8 @@ StratifiedSampling2D::sample(double *x1, double *x2) {
         }
     } else {
         // All strata sampled -> now just uniform sampling
-        *x1 = drand48();
-        *x2 = drand48();
+        *x1 = sampleUnitInterval(sampleIndex);
+        *x2 = sampleUnitInterval(sampleIndex);
     }
 }
 

@@ -9,7 +9,8 @@ java {
 }
 
 dependencies {
-    implementation(project(":base"))
+    implementation(project(":rpkBase"))
+    implementation(project(":rpkOpenGL1"))
 }
 
 application {
@@ -31,6 +32,6 @@ tasks.named("compileJava", JavaCompile) {
 tasks.named("run", JavaExec) {
     // Keep script behavior stable: relative output/* paths resolve under java/
     workingDir = rootProject.projectDir
-    dependsOn ":base:buildNativeRandomLibrary"
+    dependsOn ":rpkBase:buildNativeRandomLibrary"
     jvmArgs "--add-modules", "jdk.incubator.foreign", "--enable-native-access=ALL-UNNAMED"
 }

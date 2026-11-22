@@ -83,6 +83,7 @@ class SceneQueryWorkspace final {
   private:
     SpatialIndexWorkspace *indexWorkspace; // Owned
     VisibilityQueryRecorder *recorder; // Not owned
+    long *rayCount = nullptr; // Optional counter owned by the caller
 
   public:
     explicit SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder = nullptr);
@@ -92,6 +93,8 @@ class SceneQueryWorkspace final {
 
     inline SpatialIndexWorkspace *getIndexWorkspace() const;
     inline VisibilityQueryRecorder *getRecorder() const;
+    void setRayCount(long *counter) { rayCount = counter; }
+    long *getRayCount() const { return rayCount; }
 };
 
 inline SceneAccelerationMethod

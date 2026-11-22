@@ -51,10 +51,6 @@ Vector3Dd Vector3Dd::fromSpherical(double r, double theta, double phi)
 }
 
 Vector3Df::Vector3Df(const Vector3Dd& other) : x_((float)other.x()), y_((float)other.y()), z_((float)other.z()) {}
-Vector3Df Vector3Df::multiply(float a) const { return Vector3Df(a * x_, a * y_, a * z_); }
-Vector3Df Vector3Df::crossProduct(const Vector3Df& other) const { return Vector3Df(y_ * other.z_ - z_ * other.y_, z_ * other.x_ - x_ * other.z_, x_ * other.y_ - y_ * other.x_); }
-float Vector3Df::dotProduct(const Vector3Df& other) const { return x_ * other.x_ + y_ * other.y_ + z_ * other.z_; }
-float Vector3Df::length() const { return sqrt(x_ * x_ + y_ * y_ + z_ * z_); }
 Vector3Df Vector3Df::normalized() const
 {
     float t = x_ * x_ + y_ * y_ + z_ * z_;
@@ -62,8 +58,6 @@ Vector3Df Vector3Df::normalized() const
     if ( t != 0.0f && t != 1.0f ) t = 1.0f / sqrt(t);
     return Vector3Df(x_ * t, y_ * t, z_ * t);
 }
-Vector3Df Vector3Df::add(const Vector3Df& b) const { return Vector3Df(x_ + b.x_, y_ + b.y_, z_ + b.z_); }
-Vector3Df Vector3Df::subtract(const Vector3Df& b) const { return Vector3Df(x_ - b.x_, y_ - b.y_, z_ - b.z_); }
 BOOLEAN Vector3Df::epsilonEquals(const Vector3Df& other, float epsilon) const
 {
     if ( epsilon < 0.0f ) throw IllegalArgumentException("epsilon must be >= 0");

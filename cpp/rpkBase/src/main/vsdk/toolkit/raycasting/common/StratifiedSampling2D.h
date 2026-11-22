@@ -1,6 +1,8 @@
 #ifndef STRATIFIED_SAMPLING_2D__
 #define STRATIFIED_SAMPLING_2D__
 
+#include <cstdint>
+
 /**
 A simple 2D stratified sampling class. Only one sample per stratum. If the number
 of samples does not fit a 2D grid, some samples are taken randomly over the
@@ -17,7 +19,7 @@ class StratifiedSampling2D {
 
  public:
     explicit StratifiedSampling2D(int nrSamples);
-    void sample(double *x1, double *x2);
+    void sample(double *x1, double *x2, uint64_t *sampleIndex = nullptr);
 };
 
 #endif

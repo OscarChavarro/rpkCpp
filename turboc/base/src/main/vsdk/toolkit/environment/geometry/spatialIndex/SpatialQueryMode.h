@@ -7,10 +7,13 @@ What a `SpatialIndex` query looks for:
   hit is tested, and the closest accepted hit is returned;
 - ANY_HIT: the query ends at the first accepted hit (visibility, shadow
   rays); which blocker is returned depends on the index.
+
+C++ port note: the enum class of the cpp port is a plain enum nested in a
+class (SpatialQueryMode::ANY_HIT, of type SpatialQueryMode::Value).
 */
-enum SpatialQueryMode {
+class SpatialQueryMode { public: enum Value {
     CLOSEST_HIT = 0,
     ANY_HIT = 1
-};
+}; };
 
 #endif

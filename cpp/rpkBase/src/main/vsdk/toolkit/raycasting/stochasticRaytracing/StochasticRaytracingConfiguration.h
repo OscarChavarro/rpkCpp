@@ -5,6 +5,8 @@
 
 #ifdef RAYTRACING_ENABLED
 
+#include <cstdint>
+
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
 #include "vsdk/toolkit/raycasting/raytracing/SamplerConfig.h"
@@ -44,6 +46,7 @@ class StochasticRaytracingConfiguration {
     // All variables must not change during raytracing...
     SamplerConfig samplerConfig;
     SeedConfig seedConfig;
+    uint64_t *sampleIndex = nullptr; // Set while tracing a pixel in parallel
 
     // Scatter info blocks
 
@@ -66,7 +69,8 @@ public:
         const java::ArrayList<Patch *> *lightList,
         const RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        LightList *&rayTracingLightList);
+        LightList *&rayTracingLightList,
+        bool createScreen);
 
     // Constructors
     StochasticRaytracingConfiguration(
@@ -75,7 +79,8 @@ public:
             java::ArrayList<Patch *> *lightList,
             RadianceMethod *radianceMethod,
             ToneMappingContext *inToneMapOptions,
-            LightList *&rayTracingLightList):
+            LightList *&rayTracingLightList,
+            bool createScreen = true):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),
@@ -99,7 +104,7 @@ public:
             siOthersCount(),
             initialReadout()
         {
-        init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, rayTracingLightList);
+        init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, rayTracingLightList, createScreen);
     }
 
     ~StochasticRaytracingConfiguration() {

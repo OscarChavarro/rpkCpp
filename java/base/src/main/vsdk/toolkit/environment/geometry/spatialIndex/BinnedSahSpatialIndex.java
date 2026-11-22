@@ -25,7 +25,7 @@ the caller's tie rule; ANY_HIT stops at the first accepted candidate.
 public final class BinnedSahSpatialIndex extends SpatialIndex {
     private final BinnedSahHierarchy hierarchy;
     private final ArrayList<Integer> unboundedPrimitives;
-    private final byte[] unbounded;
+    private final ArrayList<Boolean> unbounded;
     private final int numberOfPrimitives;
 
     /** Leaf visitor of one query: runs the caller's exact test */
@@ -33,21 +33,22 @@ public final class BinnedSahSpatialIndex extends SpatialIndex {
         private final PrimitiveRayTest test;
         private final double minimumT;
         private final boolean anyHit;
-        private final double[] hitT;
         private SpatialQueryResult result;
         private long tests;
+        private final double[] hitT = new double[1];
 
-        QueryVisitor(PrimitiveRayTest inTest, double inMinimumT, boolean inAnyHit, double[] inHitT) {
+        QueryVisitor(PrimitiveRayTest inTest, double inMinimumT, boolean inAnyHit)
+        {
             test = inTest;
             minimumT = inMinimumT;
             anyHit = inAnyHit;
-            hitT = inHitT;
-            result = null;
+            result = new SpatialQueryResult();
             tests = 0;
         }
 
         @Override
-        public boolean visit(int primitive, double[] inOutBestT) {
+        public boolean visit(int primitive, double[] inOutBestT)
+        {
             tests++;
             if ( test.test(primitive, minimumT, inOutBestT[0], hitT) ) {
                 inOutBestT[0] = hitT[0];
@@ -57,16 +58,25 @@ public final class BinnedSahSpatialIndex extends SpatialIndex {
             return false;
         }
 
-        SpatialQueryResult getResult() {
-            return result != null ? result : new SpatialQueryResult();
+        SpatialQueryResult getResult()
+        {
+            return result;
         }
 
-        long getTests() {
+        long getTests()
+        {
             return tests;
         }
     }
 
-    public BinnedSahSpatialIndex(ArrayList<Double> boxes, ArrayList<Integer> inUnboundedPrimitives) {
+    /**
+    `BinnedSahSpatialIndex(boxes, inUnboundedPrimitives,
+    BinnedSahHierarchy.DEFAULT_MAXIMUM_LEAF_SIZE)` (cpp default argument)
+    */
+    public BinnedSahSpatialIndex(
+        ArrayList<Double> boxes,
+        ArrayList<Integer> inUnboundedPrimitives)
+    {
         this(boxes, inUnboundedPrimitives, BinnedSahHierarchy.DEFAULT_MAXIMUM_LEAF_SIZE);
     }
 
@@ -79,62 +89,48 @@ public final class BinnedSahSpatialIndex extends SpatialIndex {
     public BinnedSahSpatialIndex(
         ArrayList<Double> boxes,
         ArrayList<Integer> inUnboundedPrimitives,
-        int maximumLeafSize) {
-        this(toArray(boxes), inUnboundedPrimitives, maximumLeafSize);
-    }
-
-    /**
-    As the list constructor, with the box values in an array (Java adaptation:
-    no boxing of the box values)
-    */
-    public BinnedSahSpatialIndex(
-        double[] boxes,
-        ArrayList<Integer> inUnboundedPrimitives,
-        int maximumLeafSize) {
+        int maximumLeafSize)
+    {
         hierarchy = new BinnedSahHierarchy();
         unboundedPrimitives = new ArrayList<>();
-        numberOfPrimitives = boxes.length / 6;
-        unbounded = new byte[numberOfPrimitives];
+        unbounded = new ArrayList<>();
+        numberOfPrimitives = boxes.size() / 6;
+
         for ( int i = 0; i < numberOfPrimitives; i++ ) {
-            unbounded[i] = 0;
+            unbounded.add(false);
         }
         for ( int i = 0; i < inUnboundedPrimitives.size(); i++ ) {
             final int primitive = inUnboundedPrimitives.get(i);
-            if ( primitive >= 0 && primitive < numberOfPrimitives && unbounded[primitive] == 0 ) {
-                unbounded[primitive] = 1;
+            if ( primitive >= 0 && primitive < numberOfPrimitives && !unbounded.get(primitive) ) {
+                unbounded.set(primitive, true);
                 unboundedPrimitives.add(primitive);
             }
         }
 
         // An unbounded primitive gets an empty box: the hierarchy never reaches it
-        double[] boundedBoxes = new double[6 * numberOfPrimitives];
+        ArrayList<Double> boundedBoxes = new ArrayList<>();
         for ( int i = 0; i < numberOfPrimitives; i++ ) {
             for ( int k = 0; k < 6; k++ ) {
-                boundedBoxes[6 * i + k] = unbounded[i] != 0 ? (k < 3 ? 1.0 : -1.0) : boxes[6 * i + k];
+                boundedBoxes.add(unbounded.get(i) ? (k < 3 ? 1.0 : -1.0) : boxes.get(6 * i + k));
             }
         }
         hierarchy.build(boundedBoxes, maximumLeafSize);
     }
 
-    private static double[] toArray(ArrayList<Double> values) {
-        double[] array = new double[values.size()];
-        for ( int i = 0; i < array.length; i++ ) {
-            array[i] = values.get(i);
-        }
-        return array;
-    }
-
     @Override
-    public int getNumberOfPrimitives() {
+    public int getNumberOfPrimitives()
+    {
         return numberOfPrimitives;
     }
 
     @Override
-    public int getWorkspaceSize() {
+    public int getWorkspaceSize()
+    {
         return 0;
     }
 
-    public BinnedSahHierarchy getHierarchy() {
+    public BinnedSahHierarchy getHierarchy()
+    {
         return hierarchy;
     }
 
@@ -145,11 +141,11 @@ public final class BinnedSahSpatialIndex extends SpatialIndex {
         double maximumT,
         SpatialQueryMode mode,
         PrimitiveRayTest test,
-        SpatialIndexWorkspace workspace) {
+        SpatialIndexWorkspace workspace)
+    {
         final boolean anyHit = mode == SpatialQueryMode.ANY_HIT;
-        QueryVisitor visitor = new QueryVisitor(test, minimumT, anyHit, workspace.getHitTScratch());
-        final double[] bestT = workspace.getBestTScratch();
-        bestT[0] = maximumT;
+        QueryVisitor visitor = new QueryVisitor(test, minimumT, anyHit);
+        double[] bestT = {maximumT};
 
         boolean stopped = false;
         for ( int i = 0; i < unboundedPrimitives.size() && !stopped; i++ ) {
@@ -157,15 +153,13 @@ public final class BinnedSahSpatialIndex extends SpatialIndex {
         }
 
         if ( !stopped ) {
-            final long[] nodeVisits = workspace.getNodeVisitScratch();
-            final long[] entryTests = workspace.getEntryTestScratch();
-            nodeVisits[0] = 0;
-            entryTests[0] = 0;
-            if ( !hierarchy.traverse(ray, visitor, bestT, nodeVisits, entryTests, workspace.getTraversalStack()) ) {
+            long[] nodeVisits = {0};
+            long[] entryTests = {0};
+            if ( !hierarchy.traverse(ray, visitor, bestT, nodeVisits, entryTests) ) {
                 // Stack overflow (not reachable while MAXIMUM_DEPTH < STACK_SIZE):
                 // the bounded primitives are tested linearly instead
                 for ( int primitive = 0; primitive < numberOfPrimitives; primitive++ ) {
-                    if ( unbounded[primitive] == 0 && visitor.visit(primitive, bestT) ) {
+                    if ( !unbounded.get(primitive) && visitor.visit(primitive, bestT) ) {
                         break;
                     }
                 }

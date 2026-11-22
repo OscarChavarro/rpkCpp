@@ -27,13 +27,17 @@ read their getRefractionIndex(). A null medium in evaluation and sampling
 has the index 0 (RenderPark's unset index); in densityOf it has the vacuum
 index 1. A material without transmission lobe has the vacuum index.
 
-Ownership and copies. The texture is shared and read-only. The material is
-immutable once built, so one instance can be read from any number of
-threads. copy() is a copy of the lobes and the name that shares the texture.
-The geometric transforms of Material do not change a surface material and
-return the material itself. Output parameters are one element arrays.
+Ownership and copies. The material owns its lobes and its name; the texture
+is shared and read-only. Construction adopts the lobes passed in (null for
+an absent lobe). The material is immutable once built, so one instance can
+be read from any number of threads. copy() is a deep copy of the lobes and
+the name that shares the texture. The geometric transforms of Material do not
+change a surface material and return the material itself.
+
+Output parameters (`density`, `survival`, `radiance`) are one-element
+holders; where cpp accepts a null pointer, a null holder is accepted.
 */
-public final class PhongMaterial implements Material {
+public class PhongMaterial implements Material {
     /**
     The texture color replaces this component of the scattered power
     when a texture is present.
@@ -42,8 +46,6 @@ public final class PhongMaterial implements Material {
 
     // Scattering below which nothing is sampled (RenderPark's EPSILON)
     private static final double NO_SCATTERING = 1e-6;
-    // C's M_PI literal
-    private static final double M_PI = 3.14159265358979323846;
 
     /** The part of the scattering a first variate chose */
     private enum SampledPart { TEXTURE_PART, REFLECTION_PART, TRANSMISSION_PART, ABSORPTION }
@@ -54,8 +56,8 @@ public final class PhongMaterial implements Material {
     private final PhongLobe transmission;
     private final PhongLobe emission;
     private final Texture texture;
-    private final float refractionIndexReal;
-    private final float refractionIndexImaginary;
+    private final float storedRefractionIndexReal;
+    private final float storedRefractionIndexImaginary;
 
     public PhongMaterial(
         String inName,
@@ -85,29 +87,34 @@ public final class PhongMaterial implements Material {
         transmission = inTransmission;
         emission = inEmission;
         texture = inTexture;
-        refractionIndexReal = inRefractionIndexReal;
-        refractionIndexImaginary = inRefractionIndexImaginary;
+        storedRefractionIndexReal = inRefractionIndexReal;
+        storedRefractionIndexImaginary = inRefractionIndexImaginary;
     }
 
-    private static boolean isFiniteColor(ColorRgb color) {
-        return Float.isFinite((float) ((color.getR() + color.getG() + color.getB()) / 3.0));
+    private static boolean isFiniteColor(ColorRgb color)
+    {
+        return Float.isFinite((float)((color.getR() + color.getG() + color.getB()) / 3.0));
     }
 
-    private static PhongLobe copyLobe(PhongLobe lobe) {
+    private static PhongLobe copyLobe(PhongLobe lobe)
+    {
         return lobe != null ? new PhongLobe(lobe) : null;
     }
 
-    private static double averageOf(ColorRgb color) {
+    private static double averageOf(ColorRgb color)
+    {
         return (color.getR() + color.getG() + color.getB()) / 3.0;
     }
 
     /** Refraction index of a medium in evaluation and sampling: 0 when unknown */
-    private static float sampledIndex(PhongMaterial medium) {
+    private static float sampledIndex(PhongMaterial medium)
+    {
         return medium != null ? medium.getRefractionIndex() : 0.0F;
     }
 
     /** Refraction index of a medium in densityOf: vacuum when unknown */
-    private static float densityIndex(PhongMaterial medium) {
+    private static float densityIndex(PhongMaterial medium)
+    {
         return medium != null ? medium.getRefractionIndex() : 1.0F;
     }
 
@@ -127,60 +134,69 @@ public final class PhongMaterial implements Material {
         double[] density)
     {
         switch ( part ) {
-            case TEXTURE_PART:
-                return new ScatteringFrame(normal).sampleCosine(x1, x2, density);
-            case REFLECTION_PART:
-                if ( reflection != null ) {
-                    return reflection.reflectionSample(in, normal, false, reflectionComponents, x1, x2, density);
-                }
-                break;
-            case TRANSMISSION_PART:
-                if ( transmission != null ) {
-                    return transmission.transmissionSample(
-                        inIndex, outIndex, in, normal, false, transmissionComponents, x1, x2, density);
-                }
-                break;
-            case ABSORPTION:
-                break;
+          case TEXTURE_PART:
+            return new ScatteringFrame(normal).sampleCosine(x1, x2, density);
+          case REFLECTION_PART:
+            if ( reflection != null ) {
+                return reflection.reflectionSample(in, normal, false, reflectionComponents, x1, x2, density);
+            }
+            break;
+          case TRANSMISSION_PART:
+            if ( transmission != null ) {
+                return transmission.transmissionSample(
+                    inIndex, outIndex, in, normal, false, transmissionComponents, x1, x2, density);
+            }
+            break;
+          case ABSORPTION:
+            break;
         }
         density[0] = 0.0;
         return new Vector3Df(0.0F, 0.0F, 0.0F);
     }
 
     /** Density of the texture's diffuse scattering: cos / pi */
-    private static double textureDensity(Vector3Df out, Vector3Df normal) {
-        return ScatteringArithmetic.dot(normal, out) / M_PI;
+    private static double textureDensity(Vector3Df out, Vector3Df normal)
+    {
+        return ScatteringArithmetic.dot(normal, out) / Math.PI;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public boolean isSided() {
+    public boolean isSided()
+    {
         return sided;
     }
 
-    public boolean isTextured() {
+    public boolean isTextured()
+    {
         return texture != null;
     }
 
-    public boolean hasEmission() {
+    public boolean hasEmission()
+    {
         return emission != null;
     }
 
-    public PhongLobe getReflection() {
+    public PhongLobe getReflection()
+    {
         return reflection;
     }
 
-    public PhongLobe getTransmission() {
+    public PhongLobe getTransmission()
+    {
         return transmission;
     }
 
-    public PhongLobe getEmission() {
+    public PhongLobe getEmission()
+    {
         return emission;
     }
 
-    public Texture getTexture() {
+    public Texture getTexture()
+    {
         return texture;
     }
 
@@ -188,22 +204,26 @@ public final class PhongMaterial implements Material {
     Real part of the refraction index seen by a ray that crosses the
     surface: the transmission lobe's, 1 (vacuum) without one
     */
-    public float getRefractionIndex() {
-        return transmission != null ? refractionIndexReal : 1.0F;
+    public float getRefractionIndex()
+    {
+        return transmission != null ? storedRefractionIndexReal : 1.0F;
     }
 
     /** Imaginary part of the transmission lobe's refraction index, 0 without one */
-    public float getRefractionIndexImaginary() {
-        return transmission != null ? refractionIndexImaginary : 0.0F;
+    public float getRefractionIndexImaginary()
+    {
+        return transmission != null ? storedRefractionIndexImaginary : 0.0F;
     }
 
     /** Stored refraction index, also without transmission lobe (for persistence) */
-    public float getStoredRefractionIndexReal() {
-        return refractionIndexReal;
+    public float getStoredRefractionIndexReal()
+    {
+        return storedRefractionIndexReal;
     }
 
-    public float getStoredRefractionIndexImaginary() {
-        return refractionIndexImaginary;
+    public float getStoredRefractionIndexImaginary()
+    {
+        return storedRefractionIndexImaginary;
     }
 
     /**
@@ -215,15 +235,17 @@ public final class PhongMaterial implements Material {
     the coordinate is unknown: a warning is reported and the texture adds
     nothing.
     */
-    public ColorRgb scatteredPower(int components, Vector3Df textureCoordinate) {
+    public ColorRgb scatteredPower(int components, Vector3Df textureCoordinate)
+    {
         double r = 0.0;
         double g = 0.0;
         double b = 0.0;
 
         if ( texture != null && (components & TEXTURED_COMPONENT) != 0 ) {
             if ( textureCoordinate == null ) {
-                Logger.reportMessage("PhongMaterial", Logger.WARNING, "scatteredPower", "Couldn't get texture coordinates");
-            } else {
+                Logger.reportMessage(this, Logger.WARNING, "scatteredPower", "Couldn't get texture coordinates");
+            }
+            else {
                 final ColorRgb textureColor = texture.evaluateColor(textureCoordinate.x(), textureCoordinate.y());
                 r += textureColor.getR();
                 g += textureColor.getG();
@@ -235,7 +257,7 @@ public final class PhongMaterial implements Material {
         if ( reflection != null ) {
             final ColorRgb reflectance = reflection.integrated(ScatteringComponent.reflectionComponents(components));
             if ( !isFiniteColor(reflectance) ) {
-                Logger.reportMessage("PhongMaterial", Logger.FATAL_ERROR, "scatteredPower", "Reflectance is not finite");
+                Logger.reportMessage(this, Logger.FATAL_ERROR, "scatteredPower", "Reflectance is not finite");
             }
             r += reflectance.getR();
             g += reflectance.getG();
@@ -245,7 +267,7 @@ public final class PhongMaterial implements Material {
         if ( transmission != null ) {
             final ColorRgb transmittance = transmission.integrated(ScatteringComponent.transmissionComponents(components));
             if ( !isFiniteColor(transmittance) ) {
-                Logger.reportMessage("PhongMaterial", Logger.FATAL_ERROR, "scatteredPower", "Transmittance is not finite");
+                Logger.reportMessage(this, Logger.FATAL_ERROR, "scatteredPower", "Transmittance is not finite");
             }
             r += transmittance.getR();
             g += transmittance.getG();
@@ -259,41 +281,22 @@ public final class PhongMaterial implements Material {
     Integrated emittance of the requested components (ScatteringComponent
     DIFFUSE, GLOSSY, SPECULAR), black when the material does not emit.
     */
-    public ColorRgb emittance(int components) {
+    public ColorRgb emittance(int components)
+    {
         if ( emission == null ) {
             return new ColorRgb(0.0, 0.0, 0.0);
         }
         return emission.integrated(components);
     }
 
-    @Override
-    public Material copy() {
-        return new PhongMaterial(name, copyLobe(reflection), copyLobe(transmission), copyLobe(emission), texture, sided,
-            refractionIndexReal, refractionIndexImaginary);
-    }
-
-    @Override
-    public Material translate(Vector3Dd vector) {
-        return this;
-    }
-
-    @Override
-    public Material rotate(Vector3Dd vector) {
-        return this;
-    }
-
-    @Override
-    public Material scale(Vector3Dd vector) {
-        return this;
-    }
-
     /** Texture color at the point; black without texture or texture coordinate (reported) */
-    private ColorRgb textureColor(SurfaceShadingPoint point) {
+    private ColorRgb textureColor(SurfaceShadingPoint point)
+    {
         if ( texture == null ) {
             return new ColorRgb(0.0, 0.0, 0.0);
         }
         if ( !point.hasTextureCoordinate() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "textureColor", "Couldn't get texture coordinates");
+            Logger.reportMessage(this, Logger.WARNING, "textureColor", "Couldn't get texture coordinates");
             return new ColorRgb(0.0, 0.0, 0.0);
         }
         return texture.evaluateColor(point.getTextureCoordinate().x(), point.getTextureCoordinate().y());
@@ -301,24 +304,27 @@ public final class PhongMaterial implements Material {
 
     /**
     Average albedos of the texture, of the reflection without the textured
-    component, and of the transmission (parts[0..2]), and the components
-    left to each lobe (lobeComponents[0..1])
+    component, and of the transmission, and the components left to each lobe
+    (one-element output holders)
     */
     private void samplingProbabilities(
         SurfaceShadingPoint point,
         int components,
-        double[] parts,
-        int[] lobeComponents)
+        double[] texturePart,
+        double[] reflectionPart,
+        double[] transmissionPart,
+        int[] reflectionComponents,
+        int[] transmissionComponents)
     {
-        parts[0] = 0.0;
+        texturePart[0] = 0.0;
         if ( texture != null && (components & TEXTURED_COMPONENT) != 0 ) {
-            parts[0] = averageOf(textureColor(point));
+            texturePart[0] = averageOf(textureColor(point));
             components &= ~TEXTURED_COMPONENT;
         }
-        lobeComponents[0] = ScatteringComponent.reflectionComponents(components);
-        lobeComponents[1] = ScatteringComponent.transmissionComponents(components);
-        parts[1] = reflection != null ? averageOf(reflection.integrated(lobeComponents[0])) : 0.0;
-        parts[2] = transmission != null ? averageOf(transmission.integrated(lobeComponents[1])) : 0.0;
+        reflectionComponents[0] = ScatteringComponent.reflectionComponents(components);
+        transmissionComponents[0] = ScatteringComponent.transmissionComponents(components);
+        reflectionPart[0] = reflection != null ? averageOf(reflection.integrated(reflectionComponents[0])) : 0.0;
+        transmissionPart[0] = transmission != null ? averageOf(transmission.integrated(transmissionComponents[0])) : 0.0;
     }
 
     /**
@@ -338,13 +344,13 @@ public final class PhongMaterial implements Material {
         double g = 0.0;
         double b = 0.0;
         if ( !point.hasShadingNormal() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "scatteringEvaluate", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "scatteringEvaluate", "Couldn't determine shading normal");
             return new ColorRgb(r, g, b);
         }
         final Vector3Df normal = point.getShadingNormal();
 
         if ( texture != null && (components & TEXTURED_COMPONENT) != 0 ) {
-            final double textureValue = 1.0 / M_PI;
+            final double textureValue = 1.0 / Math.PI;
             final ColorRgb color = textureColor(point);
             r += textureValue * color.getR();
             g += textureValue * color.getG();
@@ -365,7 +371,8 @@ public final class PhongMaterial implements Material {
                 r += transmitted.getR();
                 g += transmitted.getG();
                 b += transmitted.getB();
-            } else {
+            }
+            else {
                 r += 0.0;
                 g += 0.0;
                 b += 0.0;
@@ -375,11 +382,11 @@ public final class PhongMaterial implements Material {
     }
 
     /**
-    Samples a scattered direction: the first variate picks the texture, the
-    reflection or the transmission in proportion to their average albedos
-    (with Russian roulette it can also pick absorption, and a null vector
-    with density 0 is returned). The density of the direction over all the
-    parts goes to density[0].
+    Samples a scattered direction: the first variate chooses the texture,
+    the reflection or the transmission in proportion to their average
+    albedos (and absorption, with Russian roulette), then the chosen part
+    samples the direction; density[0] is the density of the direction summed
+    over all parts, 0 when no direction was produced
     */
     public Vector3Df scatteringSample(
         SurfaceShadingPoint point,
@@ -394,20 +401,23 @@ public final class PhongMaterial implements Material {
     {
         density[0] = 0;
         if ( !point.hasShadingNormal() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "scatteringSample", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "scatteringSample", "Couldn't determine shading normal");
             return new Vector3Df(0.0F, 0.0F, 1.0F);
         }
         final Vector3Df normal = point.getShadingNormal();
 
-        final double[] parts = new double[3];
-        final int[] lobeComponents = new int[2];
-        samplingProbabilities(point, components, parts, lobeComponents);
-        double texturePart = parts[0];
-        double reflectionPart = parts[1];
-        double transmissionPart = parts[2];
-        final int reflectionComponents = lobeComponents[0];
-        final int transmissionComponents = lobeComponents[1];
-
+        final double[] texturePartHolder = {0.0};
+        final double[] reflectionPartHolder = {0.0};
+        final double[] transmissionPartHolder = {0.0};
+        final int[] reflectionComponentsHolder = {0};
+        final int[] transmissionComponentsHolder = {0};
+        samplingProbabilities(point, components, texturePartHolder, reflectionPartHolder, transmissionPartHolder,
+            reflectionComponentsHolder, transmissionComponentsHolder);
+        double texturePart = texturePartHolder[0];
+        double reflectionPart = reflectionPartHolder[0];
+        double transmissionPart = transmissionPartHolder[0];
+        final int reflectionComponents = reflectionComponentsHolder[0];
+        final int transmissionComponents = transmissionComponentsHolder[0];
         final double scattering = texturePart + reflectionPart + transmissionPart;
         if ( scattering < NO_SCATTERING ) {
             return new Vector3Df(0.0F, 0.0F, 0.0F);
@@ -425,12 +435,14 @@ public final class PhongMaterial implements Material {
         if ( x1 < texturePart ) {
             mode = SampledPart.TEXTURE_PART;
             x1 /= texturePart;
-        } else {
+        }
+        else {
             x1 -= texturePart;
             if ( x1 < reflectionPart ) {
                 mode = SampledPart.REFLECTION_PART;
                 x1 /= reflectionPart;
-            } else {
+            }
+            else {
                 x1 -= reflectionPart;
                 if ( x1 < transmissionPart ) {
                     mode = SampledPart.TRANSMISSION_PART;
@@ -441,6 +453,7 @@ public final class PhongMaterial implements Material {
 
         final float inIndex = sampledIndex(inMedium);
         final float outIndex = sampledIndex(outMedium);
+
         final double[] p = {0.0};
         final Vector3Df out = sampleWithinPart(
             mode, reflection, transmission, normal, in, inIndex, outIndex,
@@ -452,7 +465,6 @@ public final class PhongMaterial implements Material {
         if ( p[0] < NO_SCATTERING ) {
             return out;
         }
-
         density[0] = (mode == SampledPart.TEXTURE_PART ? texturePart : mode == SampledPart.REFLECTION_PART ? reflectionPart : transmissionPart) * p[0];
 
         // Density of the same direction through the parts not chosen
@@ -460,26 +472,25 @@ public final class PhongMaterial implements Material {
             p[0] = textureDensity(out, normal);
             density[0] += texturePart * p[0];
         }
-
         final double[] survival = {0.0};
         if ( mode != SampledPart.REFLECTION_PART ) {
             if ( reflection == null ) {
                 p[0] = 0.0;
-            } else {
+            }
+            else {
                 reflection.reflectionDensity(in, out, normal, reflectionComponents, p, survival);
             }
             density[0] += reflectionPart * p[0];
         }
-
         if ( mode != SampledPart.TRANSMISSION_PART ) {
             if ( transmission == null ) {
                 p[0] = 0.0;
-            } else {
+            }
+            else {
                 transmission.transmissionDensity(inIndex, outIndex, in, out, normal, transmissionComponents, p, survival);
             }
             density[0] += transmissionPart * p[0];
         }
-
         return out;
     }
 
@@ -499,21 +510,19 @@ public final class PhongMaterial implements Material {
     {
         density[0] = survival[0] = 0.0;
         if ( !point.hasShadingNormal() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "scatteringDensity", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "scatteringDensity", "Couldn't determine shading normal");
             return;
         }
         final Vector3Df normal = point.getShadingNormal();
 
-        final double[] parts = new double[3];
-        final int[] lobeComponents = new int[2];
-        samplingProbabilities(point, components, parts, lobeComponents);
-        final double texturePart = parts[0];
-        final double reflectionPart = parts[1];
-        final double transmissionPart = parts[2];
-        final int reflectionComponents = lobeComponents[0];
-        final int transmissionComponents = lobeComponents[1];
-
-        final double scattering = texturePart + reflectionPart + transmissionPart;
+        final double[] texturePart = {0.0};
+        final double[] reflectionPart = {0.0};
+        final double[] transmissionPart = {0.0};
+        final int[] reflectionComponents = {0};
+        final int[] transmissionComponents = {0};
+        samplingProbabilities(point, components, texturePart, reflectionPart, transmissionPart,
+            reflectionComponents, transmissionComponents);
+        final double scattering = texturePart[0] + reflectionPart[0] + transmissionPart[0];
         if ( scattering < NO_SCATTERING ) {
             return;
         }
@@ -521,25 +530,23 @@ public final class PhongMaterial implements Material {
 
         final float inIndex = densityIndex(inMedium);
         final float outIndex = densityIndex(outMedium);
-
         final double[] p = {textureDensity(out, normal)};
         final double[] pSurvival = {0.0};
-        density[0] = texturePart * p[0];
-
+        density[0] = texturePart[0] * p[0];
         if ( reflection == null ) {
             p[0] = 0.0;
-        } else {
-            reflection.reflectionDensity(in, out, normal, reflectionComponents, p, pSurvival);
         }
-        density[0] += reflectionPart * p[0];
-
+        else {
+            reflection.reflectionDensity(in, out, normal, reflectionComponents[0], p, pSurvival);
+        }
+        density[0] += reflectionPart[0] * p[0];
         if ( transmission == null ) {
             p[0] = 0.0;
-        } else {
-            transmission.transmissionDensity(inIndex, outIndex, in, out, normal, transmissionComponents, p, pSurvival);
         }
-        density[0] += transmissionPart * p[0];
-
+        else {
+            transmission.transmissionDensity(inIndex, outIndex, in, out, normal, transmissionComponents[0], p, pSurvival);
+        }
+        density[0] += transmissionPart[0] * p[0];
         density[0] /= scattering;
     }
 
@@ -567,7 +574,8 @@ public final class PhongMaterial implements Material {
                 r += componentValues[i].getR();
                 g += componentValues[i].getG();
                 b += componentValues[i].getB();
-            } else {
+            }
+            else {
                 componentValues[i] = new ColorRgb(0.0, 0.0, 0.0);
             }
         }
@@ -590,20 +598,18 @@ public final class PhongMaterial implements Material {
             density[0] = 0.0;
         }
         if ( point == null || !point.hasShadingNormal() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "emissionEvaluate", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "emissionEvaluate", "Couldn't determine shading normal");
             return new ColorRgb(0.0, 0.0, 0.0);
         }
-
         final double cosL = ScatteringArithmetic.dot(out, point.getShadingNormal());
         if ( cosL < 0.0 || emission == null ) {
             return new ColorRgb(0.0, 0.0, 0.0);
         }
-
         if ( (components & ScatteringComponent.DIFFUSE) != 0 ) {
             // kd = Kd / pi, with 1 / pi in single precision as RenderPark stores it
-            final double toRadiance = 1.00F / (float) M_PI;
+            final double toRadiance = 1.00F / (float)Math.PI;
             if ( density != null ) {
-                density[0] = cosL / M_PI;
+                density[0] = cosL / Math.PI;
             }
             return new ColorRgb(
                 0.0 + toRadiance * emission.getDiffuse().getR(),
@@ -617,7 +623,7 @@ public final class PhongMaterial implements Material {
     Samples an emitted direction (cosine distributed around the normal when
     the diffuse component is requested; (0, 0, 1) otherwise or when the
     normal is unknown); the radiance along it and its density go to the
-    non-null one element arrays
+    non-null holders
     */
     public Vector3Df emissionSample(
         SurfaceShadingPoint point,
@@ -637,22 +643,46 @@ public final class PhongMaterial implements Material {
             return new Vector3Df(0.0F, 0.0F, 1.0F);
         }
         if ( point == null || !point.hasShadingNormal() ) {
-            Logger.reportMessage("PhongMaterial", Logger.WARNING, "emissionSample", "Couldn't determine shading normal");
+            Logger.reportMessage(this, Logger.WARNING, "emissionSample", "Couldn't determine shading normal");
             return new Vector3Df(0.0F, 0.0F, 1.0F);
         }
-
         final double[] sampleDensity = {0.0};
         final Vector3Df direction = new ScatteringFrame(point.getShadingNormal()).sampleCosine(xi1, xi2, sampleDensity);
         if ( density != null ) {
             density[0] = sampleDensity[0];
         }
         if ( radiance != null && emission != null ) {
-            final double toRadiance = 1.0F / (float) M_PI;
+            final double toRadiance = 1.0F / (float)Math.PI;
             radiance[0] = new ColorRgb(
                 toRadiance * emission.getDiffuse().getR(),
                 toRadiance * emission.getDiffuse().getG(),
                 toRadiance * emission.getDiffuse().getB());
         }
         return direction;
+    }
+
+    @Override
+    public Material copy()
+    {
+        return new PhongMaterial(name, copyLobe(reflection), copyLobe(transmission), copyLobe(emission), texture, sided,
+            storedRefractionIndexReal, storedRefractionIndexImaginary);
+    }
+
+    @Override
+    public Material translate(Vector3Dd vector)
+    {
+        return this;
+    }
+
+    @Override
+    public Material rotate(Vector3Dd vector)
+    {
+        return this;
+    }
+
+    @Override
+    public Material scale(Vector3Dd vector)
+    {
+        return this;
     }
 }

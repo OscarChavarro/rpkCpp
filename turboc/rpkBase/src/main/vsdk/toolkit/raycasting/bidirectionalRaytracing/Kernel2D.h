@@ -1,0 +1,29 @@
+/**
+Many routines borrowed from Density Estimation master thesis by Olivier Ceulemans.
+*/
+
+#ifndef __DENSITY_KERNEL__
+#define __DENSITY_KERNEL__
+
+#include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"
+#include "vsdk/toolkit/render/ScreenBuffer.h"
+
+class Kernel2D{ private:
+    float m_h; // Kernel size.
+    float m_h2; // h2=h*h.
+    float m_h2inv; // h2inv=1/h2.
+    float m_weight; // The weight of the kernel
+
+  public:
+    Kernel2D();
+
+    void Init(float h, float w);
+    void SetH(float newH);
+    float Evaluate(const Vector2Df &point, const Vector2Df &center) const;
+    void cover(const Vector2Df &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const;
+
+    void
+    varCover( const Vector2Df &center, const ColorRgb &color, const ScreenBuffer *ref, ScreenBuffer *dest, int totalSamples, int scaleSamples, float baseSize = 4.0);
+};
+
+#endif

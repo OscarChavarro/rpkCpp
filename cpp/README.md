@@ -21,6 +21,23 @@ any file of `base/src/main` that is not in the list; a VITRAL file changes in VI
 with `--refresh`. No VITRAL OpenGL 1 or OpenGL 4 file (`cpp/opengl1`, `cpp/opengl4` in VITRAL) is used,
 so there is no VITRAL OpenGL copy here.
 
+## Parallel final tracing after Random Walk
+
+With `-radiance-method RandomWalk -raytracing-method StochasticRaytracing`,
+`-gr-threads N` enables parallel final image tracing when `N > 1`. For example,
+on Linux with the first socket mapped to CPUs 0–17 and 36–53, run from `cpp/`:
+
+```bash
+taskset -c 0-17,36-53 ./scripts/13_floorStochasticRaytracingRandomWalk.sh -gr-threads 36
+```
+
+The radiosity iterations run serially. The parallel tracer requires BRDF
+sampling and falls back to serial tracing when stored radiance, coherent or
+correlated sampling, or ray capture is requested. Parallel results are
+reproducible across worker counts, but use a different random sequence from
+the serial golden image. Omit the option or use `-gr-threads 1` for the
+historical serial result.
+
 ## Modernized features from original ANSI C to current C++-11 code
 
 This is a full rewrite with the following features:

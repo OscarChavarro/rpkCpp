@@ -1,133 +1,144 @@
 package vsdk.toolkit.environment.geometry.element;
+import java.io.Serial;
+import java.util.Objects;
 
+import vsdk.toolkit.common.FundamentalEntity;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.common.statistics.RaytraceStatistics;
 
 /**
-This class models a mathematical RAY.
-*/
-public class Ray {
+ This class models a mathematical RAY.
+ */
+public final class Ray extends FundamentalEntity
+{
+    @Serial
+    private static final long serialVersionUID = 20060502L;
     private static final double UNIT_DIRECTION_TOLERANCE = 1e-12;
 
-    private Vector3Dd origin;
-    private Vector3Dd direction;
-    private double t;
+    private final Vector3Dd origin;
+    private final Vector3Dd direction;
+    private final double t;
 
-    public Ray() {
+    public Ray()
+    {
         this(new Vector3Dd(0, 0, 0), new Vector3Dd(1, 0, 0), 0.0);
     }
 
-    public Ray(Vector3Dd origin, Vector3Dd direction) {
+    public Ray(Vector3Dd origin, Vector3Dd direction)
+    {
         this(origin, direction, 0.0);
     }
 
-    public Ray(Vector3Dd origin, Vector3Dd direction, double t) {
-        this.origin = origin;
-        this.direction = normalizeDirection(direction);
-        this.t = t;
+    public Ray(Vector3Dd origin, Vector3Dd direction, double t)
+    {
+        this(origin, direction, t, false);
+    }
+
+    public Ray(Ray b)
+    {
+        this(Objects.requireNonNull(b, "Ray to copy cannot be null").origin,
+             b.direction,
+             b.t,
+             true);
     }
 
     /**
     Explicit affine construction: preserve direction magnitude and t.
     Legacy constructors retain their historical normalization behavior.
     */
-    public static Ray fromAffine(Vector3Dd origin, Vector3Dd direction) {
+    public static Ray fromAffine(Vector3Dd origin, Vector3Dd direction, double t)
+    {
+        return new Ray(origin, direction, t, true);
+    }
+
+    public static Ray fromAffine(Vector3Dd origin, Vector3Dd direction)
+    {
         return fromAffine(origin, direction, 0.0);
     }
 
-    public static Ray fromAffine(Vector3Dd origin, Vector3Dd direction, double t) {
-        Ray result = new Ray();
-        result.setOriginAndDirection(origin, direction);
-        result.setT(t);
-        return result;
+    public static Ray copyOf(Ray other)
+    {
+        return Objects.requireNonNull(other, "Ray to copy cannot be null");
     }
 
-    public static Ray copyOf(Ray other) {
-        Ray result = new Ray();
-        result.origin = other.origin;
-        result.direction = other.direction;
-        result.t = other.t;
-        return result;
+    public Ray withOrigin(Vector3Dd newOrigin)
+    {
+        return new Ray(newOrigin, direction, t, true);
     }
 
-    /**
-    Copies replace only the named component; they never renormalize.
-    */
-    public Ray withOrigin(Vector3Dd newOrigin) {
-        Ray result = copyOf(this);
-        result.origin = newOrigin;
-        return result;
+    // Copies replace only the named component; they never renormalize.
+    public Ray withDirection(Vector3Dd newDirection)
+    {
+        return new Ray(origin, newDirection, t, true);
     }
 
-    public Ray withDirection(Vector3Dd newDirection) {
-        Ray result = copyOf(this);
-        result.direction = newDirection;
-        return result;
+    public Ray withT(double newT)
+    {
+        RaytraceStatistics.recordRayWithT();
+        return new Ray(origin, direction, newT, true);
     }
 
-    public Ray withT(double newT) {
-        Ray result = copyOf(this);
-        result.t = newT;
-        return result;
-    }
-
-    public Vector3Dd getOrigin() {
+    public Vector3Dd getOrigin()
+    {
         return origin;
     }
 
-    public Vector3Dd getDirection() {
+    public Vector3Dd getDirection()
+    {
         return direction;
     }
 
-    public double getT() {
+    public double getT()
+    {
         return t;
     }
 
-    public void setOrigin(Vector3Dd newOrigin) {
-        origin = newOrigin;
+    private Ray(
+        Vector3Dd origin,
+        Vector3Dd direction,
+        double t,
+        boolean directionAlreadyNormalized)
+    {
+        this.origin = Objects.requireNonNull(origin, "Ray origin cannot be null");
+        this.direction = directionAlreadyNormalized ?
+            Objects.requireNonNull(direction, "Ray direction cannot be null") :
+            normalizeDirection(direction);
+        this.t = t;
     }
 
-    public void setDirection(Vector3Dd newDirection) {
-        direction = newDirection;
-    }
-
-    public void setT(double newT) {
-        t = newT;
-    }
-
-    public void setOriginAndDirection(Vector3Dd newOrigin, Vector3Dd newDirection) {
-        origin = newOrigin;
-        direction = newDirection;
-    }
-
-    private static Vector3Dd normalizeDirection(Vector3Dd direction) {
-        double lengthSquared = direction.dotProduct(direction);
+    private static Vector3Dd normalizeDirection(Vector3Dd direction)
+    {
+        Vector3Dd candidate =
+            Objects.requireNonNull(direction, "Ray direction cannot be null");
+        double lengthSquared = candidate.dotProduct(candidate);
         if ( lengthSquared <= VSDK.EPSILON ) {
-            return direction;
+            return candidate;
         }
         if ( Math.abs(lengthSquared - 1.0) <= UNIT_DIRECTION_TOLERANCE ) {
-            return direction;
+            return candidate;
         }
-        return direction.multiply(1.0 / Math.sqrt(lengthSquared));
+        return candidate.multiply(1.0 / Math.sqrt(lengthSquared));
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if ( this == obj ) {
             return true;
         }
         if ( !(obj instanceof Ray other) ) {
             return false;
         }
-        return t == other.t && origin.equals(other.origin) && direction.equals(other.direction);
+        return Double.compare(t, other.t) == 0 &&
+               origin.equals(other.origin) &&
+               direction.equals(other.direction);
     }
 
     @Override
-    public int hashCode() {
-        int result = Double.hashCode(t);
-        result = 31 * result + origin.hashCode();
-        result = 31 * result + direction.hashCode();
-        return result;
+    public int hashCode()
+    {
+        return Objects.hash(origin, direction, t);
     }
 
     /**
@@ -137,13 +148,8 @@ public class Ray {
     @return human-readable representation of current Ray
     */
     @Override
-    public String toString() {
-        return "Ray Origin: <" + VSDK.formatDouble(origin.x()) + ", " +
-            VSDK.formatDouble(origin.y()) + ", " +
-            VSDK.formatDouble(origin.z()) + ">; Direction: <" +
-            VSDK.formatDouble(direction.x()) + ", " +
-            VSDK.formatDouble(direction.y()) + ", " +
-            VSDK.formatDouble(direction.z()) + "> T: " +
-            VSDK.formatDouble(t);
+    public String toString()
+    {
+        return "Ray Origin: " + origin + "; Direction: " + direction + " T: " + VSDK.formatDouble(t);
     }
 }

@@ -64,29 +64,25 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
    - Without namespaces, VITRAL's `Ray` (`environment/geometry/element/Ray.h`,
      used by the spatial indexes) and RenderPark's ray need distinct names, as in the cpp port
 13. Spatial index support code of the cpp port in the C++98 subset
-   - `BinnedSahSpatialIndex`: VITRAL's turboc `BinnedSahHierarchy` has no `traverse`
-     (the cpp port's stopping traversal), so the index runs that loop itself over the
-     hierarchy's public nodes, primitive order and `RaySlab`
-14. Ray capture and replay (`WITH_RAY_CAPTURE`, `WITH_RAY_REPLAY`,
-    `testsuite/ApplicationCases/RayCorpusReplay`, `scripts/captureRays.sh`,
-    `scripts/replayRays.sh`)
-   - The `.vqc` corpus is the cpp port's format, written and read field by field as
-     32-bit little-endian values instead of host-order `fwrite`/`fread` of `int` (16 bits
-     on Turbo C++ 3.0), so a corpus of either port replays on the other
-   - The cpp port's `long long` counters (and query numbers, limits and strides of the
-     replay) are `double` values holding whole numbers: exact up to 2^53, printed with
-     `%.0f` as the same digits as `%lld`. Turbo C++ 3.0 has no 64-bit integer and C++98
-     has no `long long`
-   - Corpus files are only read and written sequentially: no `fseek`/`ftell`, so no file
-     offset is held in a `long`; the reader skips geometry lists by reading them. The
-     CMake build compiles the recorder and the replay with `_FILE_OFFSET_BITS=64`, so the
-     32-bit build opens files beyond 2 GB (a FAT16 DOS volume caps a file at 2 GB)
-   - No threads: the replay's worker pass runs its workers one after another, each over
-     its own interleaved share of the queries with its own workspaces; timings come from
-     `System::currentTimeMillis`, and a chunk holds 512 queries under Turbo C++
-     (64 KB allocations) instead of 2^20
+   - It is VITRAL's turboc port's (`base/`): `SpatialQueryMode` is a plain enum nested
+     in a class (`SpatialQueryMode::ANY_HIT`, of type `SpatialQueryMode::Value`), and
+     `GridSpatialIndex::queryWith` is `query` (no member templates)
+14. Ray capture (`WITH_RAY_CAPTURE`, `scripts/captureRays.sh`)
+   - The `.vqc` corpus is the cpp port's format, written field by field as
+     32-bit little-endian values instead of host-order `fwrite` of `int` (16 bits
+     on Turbo C++ 3.0), so both ports write the same file
+   - The cpp port's `long long` counters are `double` values holding whole numbers:
+     exact up to 2^53, printed with `%.0f` as the same digits as `%lld`. Turbo C++ 3.0
+     has no 64-bit integer and C++98 has no `long long`
+   - Corpus files are only written sequentially: no `fseek`/`ftell`, so no file
+     offset is held in a `long`. The CMake build compiles the recorder with
+     `_FILE_OFFSET_BITS=64`, so the 32-bit build writes files beyond 2 GB (a FAT16
+     DOS volume caps a file at 2 GB)
    - `captureRays.sh` writes the accounting files to `turboc/doc/rayCorpus`, not to the
      cpp port's top-level `doc/rayCorpus`
+   - The ray corpus replay that consumed the corpora
+     (`testsuite/ApplicationCases/RayCorpusReplay`, `scripts/replayRays.sh`,
+     `WITH_RAY_REPLAY`, `SceneConsumer`) was removed, as in the cpp port
 15. Galerkin refinement stays serial: no parallel Jacobi
    - The cpp port's `-gr-iteration-method parallel-jacobi` (`PARALLEL_JACOBI`) and
      `-gr-threads` are not offered: Turbo C++ 3.0 under DOS has no threads
@@ -106,20 +102,47 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      `Interaction::uncountedDuplicate`, the deferred "nodes too close" warnings of
      `FormFactorWorkspace` and the parallel refinement and commit functions
 
+16. Lineal algebra from VITRAL's turboc port
+   - RenderPark's mutable `Vector2D`, `Vector3D`, `Vector4D` and `Matrix4x4` were removed,
+     as in the cpp port: the port uses VITRAL's immutable `Vector2Df`, `Vector3Df`,
+     `Vector4Df`, `Matrix4x4f` and `Matrix2x2`, `Numeric::EPSILON` and
+     `Numeric::HUGE_FLOAT_VALUE` became `VSDK::EPSILON` and `Float::MAX_VALUE`, and
+     `Camera::lookAtMatrix`/`perspectiveMatrix`, `Numeric::vectorsEqual` and
+     `VrmlWriter::recoverRotationParameters` hold what RenderPark keeps of its own
+   - Kept, unlike the cpp port, because this port has not taken the steps that retired
+     them there: `Patch` keeps its own face data (`normal`, `midPoint`, the `Jacobian`
+     class) since it does not hold a VITRAL `PlanarFace` yet, and `MinMaxBox` stays
+     for the legacy voxel grid (`scene/VoxelGrid`), which this port still offers
+
+## Library layout
+
+The build (`CMakeLists.txt` of this folder; `Makefile` compiles the same three
+source trees into one program) stacks three targets:
+
+| Folder | Target | Contents |
+| --- | --- | --- |
+| `base/` | `libvitral-turboc.so` | Only the VITRAL files RenderPark takes, byte-identical to `turboc/base/src/main` of a VITRAL checkout (list in `scripts/vitralSubset.txt`) |
+| `rpkBase/` | `librpkBase-turboc.so` | RenderPark's own classes: Galerkin, stochastic relaxation and random walk radiosity, raytracers and raycasters, scene model, MGF reader, tone mapping, support classes |
+| `testsuite/ApplicationCases/RenderparkApplication/` | `rpk` | The program: command line, options and the rendering driver |
+
+`rpkBase` keeps the `vsdk/toolkit/...` include paths its files had inside `base/`.
+This port has no OpenGL viewer, so there is no `rpkOpenGL1/` (the cpp port's third
+library).
+
 ## VITRAL turboc shared subset
 
-`base/src/main` follows the layout of VITRAL's own turboc port
-(`base/src/main/java` and `base/src/main/vsdk/toolkit`). The files listed in
-`scripts/vitralSubset.txt` are kept byte-identical to VITRAL's
-`turboc/base/src/main` (pin and exceptions in that list):
-`scripts/vitralSubset.sh --check|--refresh <VITRAL checkout>` compares or copies
-them. The one exception is `vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp`,
-which upstream still calls the removed `Logger::error`. The spatial index files
-(`environment/geometry/spatialIndex`) were translated from the cpp port's VITRAL
-subset, since VITRAL's turboc port does not carry them yet.
+`base/src/main` holds exactly the files listed in `scripts/vitralSubset.txt`
+(pin in that list), byte-identical to VITRAL's own turboc port
+(`turboc/base/src/main` of a VITRAL checkout):
+`scripts/vitralSubset.sh --check <VITRAL checkout>` compares them byte for byte
+and fails on any file of `base/src/main` that is not in the list, and `--refresh`
+copies them. A VITRAL file changes in VITRAL first and comes in with `--refresh`.
+The spatial index files (`environment/geometry/spatialIndex`) and
+`io/wrapper/FileUncompressWrapper.cpp`, which this port used to keep as its own
+translations, now come from VITRAL's turboc port like the rest.
 `scripts/vitralClosure.py <VITRAL checkout> [seeds]` lists the closure of VITRAL
-headers a slice needs and the class names it would collide with, and
-`scripts/classAudit.py` (build target `classAudit`, known debt in
+headers a slice needs and the class names it would collide with (in `base/` or
+`rpkBase/`), and `scripts/classAudit.py` (build target `classAudit`, known debt in
 `scripts/classAudit.allow`) fails the build on a class or include guard name
 defined twice in the link closure.
 

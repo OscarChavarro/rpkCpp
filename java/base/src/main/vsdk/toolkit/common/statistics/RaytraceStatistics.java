@@ -1,10 +1,10 @@
 package vsdk.toolkit.common.statistics;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
 Counters of the CPU ray tracer, enabled with the system property
-`vsdk.raytrace.stats` (read the first time the statistics are used) or with
+`vsdk.raytrace.stats` (read when the class is loaded) or with
 `setEnabled`. Disabled, every `record` call is one test of a flag.
 
 Acceleration structure counters follow the two levels of
@@ -26,141 +26,207 @@ Counters are atomic, so parallel tracing gives exact totals; traversals add
 their counts once per query, not once per node.
 */
 public final class RaytraceStatistics {
-    private static final AtomicLong primaryRays = new AtomicLong(0);
-    private static final AtomicLong shadowRays = new AtomicLong(0);
-    private static final AtomicLong reflectionRays = new AtomicLong(0);
-    private static final AtomicLong sceneTraversals = new AtomicLong(0);
-    private static final AtomicLong objectIntersectionTests = new AtomicLong(0);
-    private static final AtomicLong raysWithT = new AtomicLong(0);
-    private static final AtomicLong rayHitInstances = new AtomicLong(0);
-    private static final AtomicLong hitInfoClones = new AtomicLong(0);
-    private static final AtomicLong geometryDetailComputations = new AtomicLong(0);
-    private static final AtomicLong instanceLevelTraversals = new AtomicLong(0);
-    private static final AtomicLong instanceLevelNodeVisits = new AtomicLong(0);
-    private static final AtomicLong instanceLevelEntryTests = new AtomicLong(0);
-    private static final AtomicLong primitiveLevelTraversals = new AtomicLong(0);
-    private static final AtomicLong primitiveLevelNodeVisits = new AtomicLong(0);
-    private static final AtomicLong primitiveLevelPrimitiveTests = new AtomicLong(0);
+    private static volatile boolean enabled = Boolean.getBoolean("vsdk.raytrace.stats");
 
-    // -1: not decided yet (read the property), 0: disabled, 1: enabled
-    private static int enabledState = -1;
+    private static final LongAdder primaryRays = new LongAdder();
+    private static final LongAdder shadowRays = new LongAdder();
+    private static final LongAdder reflectionRays = new LongAdder();
+    private static final LongAdder sceneTraversals = new LongAdder();
+    private static final LongAdder objectIntersectionTests = new LongAdder();
+    private static final LongAdder rayWithTCalls = new LongAdder();
+    private static final LongAdder rayHitInstances = new LongAdder();
+    private static final LongAdder hitInfoClones = new LongAdder();
+    private static final LongAdder geometryDetailComputations = new LongAdder();
+    private static final LongAdder instanceLevelTraversals = new LongAdder();
+    private static final LongAdder instanceLevelNodeVisits = new LongAdder();
+    private static final LongAdder instanceLevelEntryTests = new LongAdder();
+    private static final LongAdder primitiveLevelTraversals = new LongAdder();
+    private static final LongAdder primitiveLevelNodeVisits = new LongAdder();
+    private static final LongAdder primitiveLevelPrimitiveTests = new LongAdder();
 
     private RaytraceStatistics() {
     }
 
     public static boolean isEnabled() {
-        if ( enabledState < 0 ) {
-            enabledState = Boolean.getBoolean("vsdk.raytrace.stats") ? 1 : 0;
-        }
-        return enabledState == 1;
+        return enabled;
     }
 
-    /**
-    Overrides the system property; call it before tracing starts
-    */
+    /** Overrides the system property; call it before tracing starts */
     public static void setEnabled(boolean enabled) {
-        enabledState = enabled ? 1 : 0;
+        RaytraceStatistics.enabled = enabled;
     }
 
     public static void reset() {
-        primaryRays.set(0);
-        shadowRays.set(0);
-        reflectionRays.set(0);
-        sceneTraversals.set(0);
-        objectIntersectionTests.set(0);
-        raysWithT.set(0);
-        rayHitInstances.set(0);
-        hitInfoClones.set(0);
-        geometryDetailComputations.set(0);
-        instanceLevelTraversals.set(0);
-        instanceLevelNodeVisits.set(0);
-        instanceLevelEntryTests.set(0);
-        primitiveLevelTraversals.set(0);
-        primitiveLevelNodeVisits.set(0);
-        primitiveLevelPrimitiveTests.set(0);
+        primaryRays.reset();
+        shadowRays.reset();
+        reflectionRays.reset();
+        sceneTraversals.reset();
+        objectIntersectionTests.reset();
+        rayWithTCalls.reset();
+        rayHitInstances.reset();
+        hitInfoClones.reset();
+        geometryDetailComputations.reset();
+        instanceLevelTraversals.reset();
+        instanceLevelNodeVisits.reset();
+        instanceLevelEntryTests.reset();
+        primitiveLevelTraversals.reset();
+        primitiveLevelNodeVisits.reset();
+        primitiveLevelPrimitiveTests.reset();
     }
 
     public static void recordPrimaryRay() {
-        if ( isEnabled() ) primaryRays.incrementAndGet();
+        if (enabled) {
+            primaryRays.increment();
+        }
     }
 
     public static void recordShadowRay() {
-        if ( isEnabled() ) shadowRays.incrementAndGet();
+        if (enabled) {
+            shadowRays.increment();
+        }
     }
 
     public static void recordReflectionRay() {
-        if ( isEnabled() ) reflectionRays.incrementAndGet();
+        if (enabled) {
+            reflectionRays.increment();
+        }
     }
 
     public static void recordSceneTraversal() {
-        if ( isEnabled() ) sceneTraversals.incrementAndGet();
+        if (enabled) {
+            sceneTraversals.increment();
+        }
     }
 
     public static void recordObjectIntersectionTest() {
-        if ( isEnabled() ) objectIntersectionTests.incrementAndGet();
+        if (enabled) {
+            objectIntersectionTests.increment();
+        }
     }
 
     public static void recordRayWithT() {
-        if ( isEnabled() ) raysWithT.incrementAndGet();
+        if (enabled) {
+            rayWithTCalls.increment();
+        }
     }
 
     public static void recordRayHitInstance() {
-        if ( isEnabled() ) rayHitInstances.incrementAndGet();
+        if (enabled) {
+            rayHitInstances.increment();
+        }
     }
 
     public static void recordHitInfoClone() {
-        if ( isEnabled() ) hitInfoClones.incrementAndGet();
+        if (enabled) {
+            hitInfoClones.increment();
+        }
     }
 
     public static void recordGeometryDetailComputation() {
-        if ( isEnabled() ) geometryDetailComputations.incrementAndGet();
+        if (enabled) {
+            geometryDetailComputations.increment();
+        }
     }
 
-    /**
-    One query of an instance level hierarchy
-    */
+    /** One query of an instance level hierarchy */
     public static void recordInstanceLevelTraversal(long nodeVisits, long entryTests) {
-        if ( !isEnabled() ) return;
-        instanceLevelTraversals.incrementAndGet();
-        if ( nodeVisits != 0 ) instanceLevelNodeVisits.addAndGet(nodeVisits);
-        if ( entryTests != 0 ) instanceLevelEntryTests.addAndGet(entryTests);
+        if (!enabled) {
+            return;
+        }
+        instanceLevelTraversals.increment();
+        if (nodeVisits != 0) {
+            instanceLevelNodeVisits.add(nodeVisits);
+        }
+        if (entryTests != 0) {
+            instanceLevelEntryTests.add(entryTests);
+        }
     }
 
-    /**
-    One query of a primitive level hierarchy (or brute force loop)
-    */
+    /** One query of a primitive level hierarchy (or brute force loop) */
     public static void recordPrimitiveLevelTraversal(long nodeVisits, long primitiveTests) {
-        if ( !isEnabled() ) return;
-        primitiveLevelTraversals.incrementAndGet();
-        if ( nodeVisits != 0 ) primitiveLevelNodeVisits.addAndGet(nodeVisits);
-        if ( primitiveTests != 0 ) primitiveLevelPrimitiveTests.addAndGet(primitiveTests);
+        if (!enabled) {
+            return;
+        }
+        primitiveLevelTraversals.increment();
+        if (nodeVisits != 0) {
+            primitiveLevelNodeVisits.add(nodeVisits);
+        }
+        if (primitiveTests != 0) {
+            primitiveLevelPrimitiveTests.add(primitiveTests);
+        }
     }
 
-    public static long getPrimaryRays() { return primaryRays.get(); }
-    public static long getShadowRays() { return shadowRays.get(); }
-    public static long getInstanceLevelTraversals() { return instanceLevelTraversals.get(); }
-    public static long getInstanceLevelNodeVisits() { return instanceLevelNodeVisits.get(); }
-    public static long getInstanceLevelEntryTests() { return instanceLevelEntryTests.get(); }
-    public static long getPrimitiveLevelTraversals() { return primitiveLevelTraversals.get(); }
-    public static long getPrimitiveLevelNodeVisits() { return primitiveLevelNodeVisits.get(); }
-    public static long getPrimitiveLevelPrimitiveTests() { return primitiveLevelPrimitiveTests.get(); }
+    public static long getPrimaryRays() {
+        return primaryRays.sum();
+    }
+
+    public static long getShadowRays() {
+        return shadowRays.sum();
+    }
+
+    public static long getInstanceLevelTraversals() {
+        return instanceLevelTraversals.sum();
+    }
+
+    public static long getInstanceLevelNodeVisits() {
+        return instanceLevelNodeVisits.sum();
+    }
+
+    public static long getInstanceLevelEntryTests() {
+        return instanceLevelEntryTests.sum();
+    }
+
+    public static long getPrimitiveLevelTraversals() {
+        return primitiveLevelTraversals.sum();
+    }
+
+    public static long getPrimitiveLevelNodeVisits() {
+        return primitiveLevelNodeVisits.sum();
+    }
+
+    public static long getPrimitiveLevelPrimitiveTests() {
+        return primitiveLevelPrimitiveTests.sum();
+    }
 
     public static void printSummary() {
-        System.out.printf("Raytrace statistics (enabled=%s):\n", isEnabled() ? "true" : "false");
-        System.out.printf("  Primary rays: %d\n", primaryRays.get());
-        System.out.printf("  Shadow rays: %d\n", shadowRays.get());
-        System.out.printf("  Reflection rays: %d\n", reflectionRays.get());
-        System.out.printf("  Scene traversals: %d\n", sceneTraversals.get());
-        System.out.printf("  Object intersection tests: %d\n", objectIntersectionTests.get());
-        System.out.printf("  Rays with t: %d\n", raysWithT.get());
-        System.out.printf("  RayHit instances: %d\n", rayHitInstances.get());
-        System.out.printf("  Hit info clones: %d\n", hitInfoClones.get());
-        System.out.printf("  Geometry detail computations: %d\n", geometryDetailComputations.get());
-        System.out.printf("  Instance level: %d traversals, %d node visits, %d entry tests\n",
-            instanceLevelTraversals.get(), instanceLevelNodeVisits.get(),
-            instanceLevelEntryTests.get());
-        System.out.printf("  Primitive level: %d traversals, %d node visits, %d primitive tests\n",
-            primitiveLevelTraversals.get(), primitiveLevelNodeVisits.get(),
-            primitiveLevelPrimitiveTests.get());
+        if (!enabled) {
+            return;
+        }
+
+        long primaryRaysSnapshot = primaryRays.sum();
+        long shadowRaysSnapshot = shadowRays.sum();
+        long reflectionRaysSnapshot = reflectionRays.sum();
+        long sceneTraversalsSnapshot = sceneTraversals.sum();
+        long objectIntersectionTestsSnapshot = objectIntersectionTests.sum();
+        long rayWithTCallsSnapshot = rayWithTCalls.sum();
+        long rayHitInstancesSnapshot = rayHitInstances.sum();
+        long hitInfoClonesSnapshot = hitInfoClones.sum();
+        long geometryDetailComputationsSnapshot = geometryDetailComputations.sum();
+        long totalRays =
+            primaryRaysSnapshot + shadowRaysSnapshot + reflectionRaysSnapshot;
+
+        System.out.println("Ray statistics:");
+        System.out.println("  Primary rays: " + primaryRaysSnapshot);
+        System.out.println("  Shadow rays: " + shadowRaysSnapshot);
+        System.out.println("  Reflection rays: " + reflectionRaysSnapshot);
+        System.out.println("  Total rays cast: " + totalRays);
+        System.out.println("  Scene traversals: " + sceneTraversalsSnapshot);
+        System.out.println("  Object intersection tests: " + objectIntersectionTestsSnapshot);
+        System.out.println("  Ray.withT calls: " + rayWithTCallsSnapshot);
+        System.out.println("  RayHit instances: " + rayHitInstancesSnapshot);
+        System.out.println("  Hit info clones: " + hitInfoClonesSnapshot);
+        System.out.println("  Geometry detail computations: " + geometryDetailComputationsSnapshot);
+        if (sceneTraversalsSnapshot > 0) {
+            System.out.println(
+                "  Avg. object tests / traversal: " +
+                ((double) objectIntersectionTestsSnapshot / (double) sceneTraversalsSnapshot)
+            );
+        }
+        System.out.println("  Instance level: " + instanceLevelTraversals.sum() +
+            " traversals, " + instanceLevelNodeVisits.sum() + " node visits, " +
+            instanceLevelEntryTests.sum() + " entry tests");
+        System.out.println("  Primitive level: " + primitiveLevelTraversals.sum() +
+            " traversals, " + primitiveLevelNodeVisits.sum() + " node visits, " +
+            primitiveLevelPrimitiveTests.sum() + " primitive tests");
     }
 }

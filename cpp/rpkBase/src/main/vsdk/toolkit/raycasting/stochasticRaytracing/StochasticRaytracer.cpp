@@ -4,7 +4,11 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "java/lang/System.h"
+#include "java/lang/Thread.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
+#include "vsdk/toolkit/common/statistics/RaytraceStatistics.h"
 #include "vsdk/toolkit/raycasting/common/StratifiedSampling2D.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapRadianceMethod.h"
@@ -39,6 +43,104 @@ StochasticRaytracer::getName() const {
 void
 StochasticRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) const {
     (void) lightPatches;
+}
+
+// Each worker has its own samplers, light list and traversal workspace.
+// Workers write disjoint rows of radiance. Only the caller touches the screen.
+class StochasticRaytracer::FinalTraceWorker final : public java::Runnable {
+  private:
+    Scene *scene;
+    ColorRgbMutable *pixels;
+    int firstRow;
+    int rowStride;
+    long rayCount = 0;
+    bool finished = false;
+    LightList *lights = nullptr;
+    StochasticRaytracingConfiguration config;
+    StochasticRaytracerCallbackData callback;
+
+  public:
+    FinalTraceWorker(Scene *inScene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions,
+        RendererConfiguration *renderOptions, StochasticRayTracingState &state,
+        ColorRgbMutable *inPixels, int inFirstRow, int inRowStride):
+        scene(inScene), pixels(inPixels), firstRow(inFirstRow), rowStride(inRowStride),
+        config(scene->camera, state, scene->lightSourcePatchList, radianceMethod, toneMapOptions, lights, false),
+        callback{&config, radianceMethod, renderOptions} {
+    }
+
+    ~FinalTraceWorker() {
+        delete lights;
+    }
+
+    void run() override {
+        const SceneQuery *query = scene->getSceneQuery();
+        SceneQueryWorkspace workspace(*query);
+        workspace.setRayCount(&rayCount);
+        const int width = scene->camera->xSize;
+        uint64_t sampleIndex;
+        config.sampleIndex = &sampleIndex;
+        for ( int y = firstRow; y < scene->camera->ySize; y += rowStride ) {
+            for ( int x = 0; x < width; ++x ) {
+                const uint64_t pixel = static_cast<uint64_t>(y) * width + x;
+                sampleIndex = (pixel ^ static_cast<uint32_t>(config.baseSeed)) << 32;
+                pixels[pixel] = calcPixel(scene->camera, query, &workspace, scene->background, x, y, &callback);
+            }
+        }
+        config.sampleIndex = nullptr;
+        finished = true;
+    }
+
+    long getRayCount() const { return rayCount; }
+    bool hasFinished() const { return finished; }
+};
+
+void
+StochasticRaytracer::traceRandomWalkInParallel(Scene *scene, RadianceMethod *radianceMethod,
+    const RendererConfiguration *renderOptions, StochasticRaytracingConfiguration &config) const {
+    const int width = scene->camera->xSize;
+    const int height = scene->camera->ySize;
+    const int workers = rayTracingState.randomWalkFinalThreads < height
+        ? rayTracingState.randomWalkFinalThreads : height;
+    const long long start = java::System::nanoTime();
+    RayTracerStatistics &stats = Statistics::instance().rayTracer;
+    stats.resetCounters();
+    // Resolve the shared statistics setting before any traversal can read it.
+    RaytraceStatistics::isEnabled();
+    java::System::err.printf("Tracing Random Walk final image with %d workers\n", workers);
+
+    const long pixelCount = static_cast<long>(width) * height;
+    ColorRgbMutable *pixels = new ColorRgbMutable[pixelCount];
+    FinalTraceWorker **tasks = new FinalTraceWorker *[workers];
+    java::Thread **threads = new java::Thread *[workers];
+    for ( int i = 0; i < workers; ++i ) {
+        tasks[i] = new FinalTraceWorker(scene, radianceMethod, config.toneMapOptions,
+            const_cast<RendererConfiguration *>(renderOptions), rayTracingState, pixels, i, workers);
+        threads[i] = new java::Thread(tasks[i]);
+    }
+    for ( int i = 0; i < workers; ++i ) {
+        threads[i]->start();
+    }
+    for ( int i = 0; i < workers; ++i ) {
+        threads[i]->join();
+        // Thread::start can fail to start the worker. Finish its rows here.
+        if ( !tasks[i]->hasFinished() ) {
+            tasks[i]->run();
+        }
+        stats.rayCount += tasks[i]->getRayCount();
+        delete threads[i];
+        delete tasks[i];
+    }
+    delete[] threads;
+    delete[] tasks;
+
+    for ( int y = 0; y < height; ++y ) {
+        for ( int x = 0; x < width; ++x ) {
+            config.screen->add(x, y, pixels[static_cast<long>(y) * width + x]);
+        }
+    }
+    delete[] pixels;
+    stats.pixelCount = pixelCount;
+    stats.totalTime = static_cast<double>(java::System::nanoTime() - start) / 1000000000.0;
 }
 
 /**
@@ -76,7 +178,21 @@ StochasticRaytracer::execute(
         srand48(rayTracingState.baseSeed);
     }
 
-    if ( !rayTracingState.progressiveTracing ) {
+    const bool parallelRequested = radianceMethod != nullptr && radianceMethod->className == RANDOM_WALK
+        && rayTracingState.randomWalkFinalThreads > 1;
+    const bool parallelSupported = rayTracingState.radMode == RayTracingRadMode::STORED_NONE
+        && rayTracingState.reflectionSampling == RayTracingSamplingMode::BRDF_SAMPLING
+        && !rayTracingState.doFrameCoherent && !rayTracingState.doCorrelatedSampling
+        && scene->getSceneQueryWorkspace()->getRecorder() == nullptr;
+    if ( parallelRequested && !parallelSupported ) {
+        Logger::reportMessage("StochasticRaytracer", Logger::WARNING, "execute",
+            "Random Walk parallel final tracing requires BRDF sampling without stored radiance, "
+            "coherent or correlated sampling, or ray capture; tracing serially");
+    }
+
+    if ( parallelRequested && parallelSupported ) {
+        traceRandomWalkInParallel(scene, radianceMethod, renderOptions, config);
+    } else if ( !rayTracingState.progressiveTracing ) {
         ScreenIterate::sequential(
                 scene->camera,
                 scene->getSceneQuery(),
@@ -211,7 +327,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( int i = 0; i < numberOfSamples; i++ ) {
-                stratified.sample(&x1, &x2);
+                stratified.sample(&x1, &x2, config->sampleIndex);
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
@@ -335,7 +451,7 @@ StochasticRaytracer::srGetDirectRadiance(
 
             for ( int i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
-                stratified.sample(&x1, &x2);
+                stratified.sample(&x1, &x2, config->sampleIndex);
 
                 if ( config->samplerConfig.neSampler->sample(
                     camera,
@@ -689,7 +805,7 @@ StochasticRaytracer::calcPixel(
 
     // Stratified sampling of the pixel
     for ( int i = 0; i < config->samplesPerPixel; i++ ) {
-        stratified.sample(&x1, &x2);
+        stratified.sample(&x1, &x2, config->sampleIndex);
 
         if ( config->samplerConfig.dirSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != PathRayType::ENVIRONMENT) || (config->backgroundDirect)) ) {
@@ -733,7 +849,9 @@ StochasticRaytracer::calcPixel(
     double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->samplesPerPixel));
 
     result.scale(static_cast<float>(factor));
-    config->screen->add(nx, ny, result);
+    if ( config->screen != nullptr ) {
+        config->screen->add(nx, ny, result);
+    }
 
     // Frame coherent & correlated sampling
     if ( config->doFrameCoherent || config->doCorrelatedSampling ) {

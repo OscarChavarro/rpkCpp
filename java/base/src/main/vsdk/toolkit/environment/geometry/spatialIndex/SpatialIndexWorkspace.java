@@ -1,7 +1,5 @@
 package vsdk.toolkit.environment.geometry.spatialIndex;
 
-import vsdk.toolkit.environment.geometry.boundingVolumeHierarchy.BinnedSahHierarchy;
-
 /**
 Per-query scratch of a `SpatialIndex`: the traversal counters and, for
 indexes whose cells may list one primitive several times (grids), a mailbox
@@ -12,9 +10,8 @@ concurrent queries. The counters accumulate over the queries until the
 caller reads and clears them; nothing static is written (the counters of all
 workers are merged by the caller).
 
-Java adaptation: it also holds the traversal stack of `BinnedSahHierarchy`
-and the by-reference scratch values that the C++ port keeps on the call
-stack, so a query allocates no arrays.
+The query counter is an unsigned 32 bit value in cpp; here an `int` that
+wraps the same way (only equality is used on it).
 */
 public final class SpatialIndexWorkspace {
     private long nodeVisits;
@@ -23,13 +20,9 @@ public final class SpatialIndexWorkspace {
     private final int numberOfPrimitives;
     private int queryCount;
 
-    private final BinnedSahHierarchy.TraversalStack traversalStack;
-    private final double[] bestT;
-    private final double[] hitT;
-    private final long[] nodeVisitScratch;
-    private final long[] entryTestScratch;
-
-    public SpatialIndexWorkspace() {
+    /** `SpatialIndexWorkspace(0)` (cpp default argument) */
+    public SpatialIndexWorkspace()
+    {
         this(0);
     }
 
@@ -37,46 +30,57 @@ public final class SpatialIndexWorkspace {
     @param inNumberOfPrimitives size of the mailbox: the number of primitives
     of the index, or zero when the index does not use one
     */
-    public SpatialIndexWorkspace(int inNumberOfPrimitives) {
+    public SpatialIndexWorkspace(int inNumberOfPrimitives)
+    {
         nodeVisits = 0;
         primitiveTests = 0;
         numberOfPrimitives = inNumberOfPrimitives > 0 ? inNumberOfPrimitives : 0;
-        lastQueryByPrimitive = numberOfPrimitives > 0 ? new int[numberOfPrimitives] : null;
         queryCount = 0;
-        traversalStack = new BinnedSahHierarchy.TraversalStack();
-        bestT = new double[1];
-        hitT = new double[1];
-        nodeVisitScratch = new long[1];
-        entryTestScratch = new long[1];
+        if ( numberOfPrimitives > 0 ) {
+            lastQueryByPrimitive = new int[numberOfPrimitives];
+            for ( int i = 0; i < numberOfPrimitives; i++ ) {
+                lastQueryByPrimitive[i] = 0;
+            }
+        }
+        else {
+            lastQueryByPrimitive = null;
+        }
     }
 
-    public long getNodeVisits() {
+    public long getNodeVisits()
+    {
         return nodeVisits;
     }
 
-    public long getPrimitiveTests() {
+    public long getPrimitiveTests()
+    {
         return primitiveTests;
     }
 
-    public void addNodeVisits(long count) {
+    public void addNodeVisits(long count)
+    {
         nodeVisits += count;
     }
 
-    public void addPrimitiveTests(long count) {
+    public void addPrimitiveTests(long count)
+    {
         primitiveTests += count;
     }
 
-    public void clearCounters() {
+    public void clearCounters()
+    {
         nodeVisits = 0;
         primitiveTests = 0;
     }
 
-    public int getNumberOfPrimitives() {
+    public int getNumberOfPrimitives()
+    {
         return numberOfPrimitives;
     }
 
     /** Starts a query that uses the mailbox */
-    public void beginMailboxQuery() {
+    public void beginMailboxQuery()
+    {
         queryCount++;
         if ( queryCount == 0 ) {
             // The counter wrapped: clear the mailbox, so that no primitive appears
@@ -94,31 +98,12 @@ public final class SpatialIndexWorkspace {
     again). Valid after beginMailboxQuery, for primitives below the mailbox
     size.
     */
-    public boolean firstVisit(int primitive) {
+    public boolean firstVisit(int primitive)
+    {
         if ( lastQueryByPrimitive[primitive] == queryCount ) {
             return false;
         }
         lastQueryByPrimitive[primitive] = queryCount;
         return true;
-    }
-
-    BinnedSahHierarchy.TraversalStack getTraversalStack() {
-        return traversalStack;
-    }
-
-    double[] getBestTScratch() {
-        return bestT;
-    }
-
-    double[] getHitTScratch() {
-        return hitT;
-    }
-
-    long[] getNodeVisitScratch() {
-        return nodeVisitScratch;
-    }
-
-    long[] getEntryTestScratch() {
-        return entryTestScratch;
     }
 }

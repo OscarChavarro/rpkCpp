@@ -17,33 +17,29 @@ LDFLAGS ?=
 LDLIBS ?= -lm
 
 ROOT_DIR := .
-BASE_DIR := $(ROOT_DIR)/base/src/main
+# base/ holds only the VITRAL subset (scripts/vitralSubset.txt); RenderPark's
+# own classes are in rpkBase/
+VITRAL_DIR := $(ROOT_DIR)/base/src/main
+BASE_DIR := $(ROOT_DIR)/rpkBase/src/main
 APP_DIR := $(ROOT_DIR)/testsuite/ApplicationCases/RenderparkApplication/src
 
 OBJ_DIR := $(ROOT_DIR)/build
 BIN_DIR := $(ROOT_DIR)/testsuite/ApplicationCases/RenderparkApplication/build
 BIN := $(BIN_DIR)/rpk
 BIN_ALIAS := $(BIN_DIR)/rpm
-REPLAY_DIR := $(ROOT_DIR)/testsuite/ApplicationCases/RayCorpusReplay/src
-REPLAY_BIN_DIR := $(ROOT_DIR)/testsuite/ApplicationCases/RayCorpusReplay/build
-REPLAY_BIN := $(REPLAY_BIN_DIR)/rayCorpusReplay
 
+VITRAL_SRCS := $(shell find $(VITRAL_DIR) -type f -name '*.cpp')
 BASE_SRCS := $(shell find $(BASE_DIR) -type f -name '*.cpp')
 APP_SRCS := $(shell find $(APP_DIR) -type f -name '*.cpp')
-SRCS := $(BASE_SRCS) $(APP_SRCS)
-REPLAY_SRCS := $(shell find $(REPLAY_DIR) -type f -name '*.cpp')
-REPLAY_APP_SRCS := $(filter-out $(APP_DIR)/app/Main.cpp,$(APP_SRCS))
+SRCS := $(VITRAL_SRCS) $(BASE_SRCS) $(APP_SRCS)
 
 OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-REPLAY_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(BASE_SRCS) $(REPLAY_APP_SRCS) $(REPLAY_SRCS))
 
-INCLUDES := -I$(BASE_DIR) -I$(APP_DIR) -I$(REPLAY_DIR)
+INCLUDES := -I$(VITRAL_DIR) -I$(BASE_DIR) -I$(APP_DIR)
 
-.PHONY: all clean dirs replay
+.PHONY: all clean dirs
 
 all: $(BIN) $(BIN_ALIAS)
-
-replay: $(REPLAY_BIN)
 
 dirs:
 	@$(MKDIR_P) $(OBJ_DIR)
@@ -51,10 +47,6 @@ dirs:
 
 $(BIN): dirs $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
-
-$(REPLAY_BIN): dirs $(REPLAY_OBJS)
-	@$(MKDIR_P) $(REPLAY_BIN_DIR)
-	$(CXX) $(LDFLAGS) -o $@ $(REPLAY_OBJS) $(LDLIBS)
 
 $(BIN_ALIAS): $(BIN)
 	@cp $(BIN) $(BIN_ALIAS)
@@ -65,4 +57,4 @@ $(OBJ_DIR)/%.o: %.cpp
 
 clean:
 	$(RM) -r $(OBJ_DIR)
-	$(RM) $(BIN) $(BIN_ALIAS) $(REPLAY_BIN)
+	$(RM) $(BIN) $(BIN_ALIAS)

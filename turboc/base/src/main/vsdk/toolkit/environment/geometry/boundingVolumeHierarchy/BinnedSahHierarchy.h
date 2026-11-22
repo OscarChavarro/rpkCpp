@@ -44,6 +44,16 @@ class BinnedSahLeafVisitor {
 };
 
 /**
+Leaf test of `BinnedSahHierarchy::traverse`: as `BinnedSahLeafVisitor`, and
+it may end the traversal by returning true (any-hit queries).
+*/
+class BinnedSahStoppingLeafVisitor {
+  public:
+    virtual ~BinnedSahStoppingLeafVisitor();
+    virtual BOOLEAN visit(int primitive, double &inOutBestT) = 0;
+};
+
+/**
 Binary bounding volume hierarchy over axis aligned primitive boxes, built
 top-down with the binned surface area heuristic of [WALD2007].3. It is the
 single builder of vitral for binary hierarchies: it serves the triangles of
@@ -122,6 +132,18 @@ class BinnedSahHierarchy {
     BOOLEAN traverseClosest(const Ray &ray, BinnedSahLeafVisitor &visitor,
         double &inOutBestT) const;
 
+    /**
+    The traversal of `traverseClosest` for callers that keep their own
+    statistics and may stop early: the visitor ends the traversal by
+    returning true, and node visits and leaf entries are added to the given
+    counters instead of being reported to `RaytraceStatistics` (nothing
+    static is written, so concurrent callers share the hierarchy freely).
+    Node entry is clipped at parameter zero: a caller with a minimum
+    parameter applies it in its visitor. Returns false when the stack would
+    overflow, as `traverseClosest`.
+    */
+    BOOLEAN traverse(const Ray &ray, BinnedSahStoppingLeafVisitor &visitor,
+        double &inOutBestT, long int &nodeVisits, long int &entryTests) const;
     const ArrayList<BinnedSahHierarchyNode> &getNodes() const;
     /** Primitive ids in leaf order */
     const ArrayList<int> &getPrimitiveOrder() const;

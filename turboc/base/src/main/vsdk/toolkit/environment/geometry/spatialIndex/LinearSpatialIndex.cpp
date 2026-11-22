@@ -26,7 +26,7 @@ LinearSpatialIndex::query(
     const Ray &/*ray*/,
     const double minimumT,
     const double maximumT,
-    const SpatialQueryMode mode,
+    const SpatialQueryMode::Value mode,
     PrimitiveRayTest &test,
     SpatialIndexWorkspace &workspace) const
 {
@@ -39,7 +39,7 @@ LinearSpatialIndex::query(
         if ( test.test(primitive, minimumT, bestT, &hitT) ) {
             bestT = hitT;
             result = SpatialQueryResult(primitive, hitT);
-            if ( mode == ANY_HIT ) {
+            if ( mode == SpatialQueryMode::ANY_HIT ) {
                 break;
             }
         }

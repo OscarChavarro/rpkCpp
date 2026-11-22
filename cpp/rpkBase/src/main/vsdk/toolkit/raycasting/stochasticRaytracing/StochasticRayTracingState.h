@@ -39,6 +39,7 @@ class StochasticRayTracingState {
     // Pixel sampling
     int samplesPerPixel;
     int progressiveTracing;
+    int randomWalkFinalThreads = 0;
 
     int doFrameCoherent;
     int doCorrelatedSampling;

@@ -24,7 +24,7 @@ class PrimitiveRayTest {
     @param maximumT largest accepted ray parameter: the query interval end,
     or the parameter of the hit accepted so far in a closest-hit query
     @param hitT receives the parameter of the hit when it is accepted
-    @return TRUE when the ray hits the primitive within the interval and the
+    @return true when the ray hits the primitive within the interval and the
     hit is accepted
     */
     virtual BOOLEAN test(int primitive, double minimumT, double maximumT, double *hitT) = 0;

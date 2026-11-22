@@ -19,10 +19,17 @@ public:
     Vector2Df(float x, float y) : x_(x), y_(y) {}
     Vector2Df(const Vector2Df& other) : x_(other.x_), y_(other.y_) {}
     explicit Vector2Df(const Vector2Dd& other);
+    Vector2Df& operator=(const Vector2Df& other) { x_ = other.x_; y_ = other.y_; return *this; }
 
     Vector2Df multiply(float a) const { return Vector2Df(a * x_, a * y_); }
     float length() const { return sqrt(x_ * x_ + y_ * y_); }
     Vector2Df add(const Vector2Df& b) const { return Vector2Df(x_ + b.x_, y_ + b.y_); }
+    Vector2Df subtract(const Vector2Df& b) const { return Vector2Df(x_ - b.x_, y_ - b.y_); }
+
+    /**
+    Square of the length (the dot product with itself)
+    */
+    float lengthSquared() const { return x_ * x_ + y_ * y_; }
 
     Vector2Df withX(float nx) const { return Vector2Df(nx, y_); }
     Vector2Df withY(float ny) const { return Vector2Df(x_, ny); }

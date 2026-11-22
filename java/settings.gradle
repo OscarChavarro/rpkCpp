@@ -1,5 +1,9 @@
 rootProject.name = "rpkJava"
 
+// Layers: base/ (the byte-identical VITRAL subset) <- rpkBase/ (RenderPark's
+// radiosity, raytracing and scene classes) <- rpkOpenGL1/ (OpenGL 1 viewer
+// over JOGL) <- the RenderPark application
 include(":base")
+include(":rpkBase")
+include(":rpkOpenGL1")
 include(":testsuite:ApplicationCases:RenderparkApplication")
-include(":testsuite:ApplicationCases:RayCorpusReplay")

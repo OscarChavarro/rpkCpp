@@ -33,9 +33,11 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-get_filename_component(VITRAL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../base REALPATH)
-set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src/main" CACHE PATH "Include directory for the turboc vitral library")
-set(VITRAL_LIBRARY_PATH "${VITRAL_BASE_DIR}/build/libvitral-turboc.so" CACHE FILEPATH "Shared library path for turboc vitral when building standalone")
+get_filename_component(RPK_TURBOC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../.. REALPATH)
+set(VITRAL_INCLUDE_DIR "${RPK_TURBOC_DIR}/base/src/main" CACHE PATH "Include directory for the turboc vitral library")
+set(VITRAL_LIBRARY_PATH "${RPK_TURBOC_DIR}/base/build/libvitral-turboc.so" CACHE FILEPATH "Shared library path for turboc vitral when building standalone")
+set(RPK_BASE_INCLUDE_DIR "${RPK_TURBOC_DIR}/rpkBase/src/main" CACHE PATH "Include directory for the turboc rpkBase library")
+set(RPK_BASE_LIBRARY_PATH "${RPK_TURBOC_DIR}/rpkBase/build/librpkBase-turboc.so" CACHE FILEPATH "Shared library path for turboc rpkBase when building standalone")
 
 file(GLOB_RECURSE RPK_APP_SRC CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
@@ -58,6 +60,7 @@ add_executable(rpk ${RPK_APP_SRC})
 target_include_directories(rpk
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${RPK_BASE_INCLUDE_DIR}
         ${VITRAL_INCLUDE_DIR}
 )
 
@@ -73,13 +76,21 @@ if(MGF_ENABLED)
     target_compile_definitions(rpk PRIVATE MGF_ENABLED)
 endif()
 
-if(TARGET vitral-turboc)
-    target_link_libraries(rpk PRIVATE vitral-turboc)
-else()
+if(NOT TARGET vitral-turboc)
     add_library(vitral-turboc SHARED IMPORTED)
     set_target_properties(vitral-turboc PROPERTIES
         IMPORTED_LOCATION ${VITRAL_LIBRARY_PATH}
         INTERFACE_INCLUDE_DIRECTORIES ${VITRAL_INCLUDE_DIR}
     )
-    target_link_libraries(rpk PRIVATE vitral-turboc)
 endif()
+
+if(NOT TARGET rpkBase-turboc)
+    add_library(rpkBase-turboc SHARED IMPORTED)
+    set_target_properties(rpkBase-turboc PROPERTIES
+        IMPORTED_LOCATION ${RPK_BASE_LIBRARY_PATH}
+        INTERFACE_INCLUDE_DIRECTORIES "${RPK_BASE_INCLUDE_DIR};${VITRAL_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES vitral-turboc
+    )
+endif()
+
+target_link_libraries(rpk PRIVATE rpkBase-turboc vitral-turboc)

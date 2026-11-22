@@ -2,8 +2,8 @@
 """T0 duplicate-class audit of the Java port's class path.
 
 Collects the top-level types (class, interface, enum, record) declared by the
-sources of the Java modules that run together (the base library, the
-RenderPark application and the ray corpus replay) and fails when one fully
+sources of the Java modules that run together (the VITRAL library in base/,
+the rpkBase and rpkOpenGL1 libraries and the RenderPark application) and fails when one fully
 qualified name is declared by two different files, or when a file's package
 does not match its directory, except for the names listed in
 classAudit.allow. javac rejects a duplicate inside one module, but two
@@ -28,8 +28,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 SOURCE_ROOTS = [
     os.path.join(PROJECT_DIR, 'base', 'src', 'main'),
+    os.path.join(PROJECT_DIR, 'rpkBase', 'src', 'main'),
+    os.path.join(PROJECT_DIR, 'rpkOpenGL1', 'src', 'main'),
     os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RenderparkApplication', 'src', 'main', 'java'),
-    os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RayCorpusReplay', 'src', 'main', 'java'),
 ]
 COMMENT = re.compile(r'/\*.*?\*/|//[^\n]*', re.S)
 STRING = re.compile(r'"(?:\\.|[^"\\])*"')

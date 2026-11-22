@@ -225,6 +225,7 @@ RpkApplication::executeRendering(
     mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
+        stochasticRayTracingState.randomWalkFinalThreads = GalerkinRadianceMethod::galerkinState.numberOfThreads;
         rayTracer = Raytrace::rayTraceCreate(
             scene,
             &toneMapOptions,

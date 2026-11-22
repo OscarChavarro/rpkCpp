@@ -1,38 +1,27 @@
 # Files of base/src/main that the RenderPark Turbo C++ port takes unchanged
 # from VITRAL's own Turbo C++ port (turboc/base/src/main of a VITRAL checkout;
-# plan D1: a pinned source subset). scripts/vitralSubset.sh --check compares
-# each with a VITRAL checkout byte for byte; --refresh copies them from it.
-# Pin: VITRAL 1fb3bd24 (turboc/base/src/main), including
-# java/util/concurrent/atomic/AtomicLong.h, which VITRAL's turboc
-# RaytraceStatistics now uses.
-# Known local divergence, not listed: vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
-# (RenderPark's Logger::reportMessage calls; upstream still calls the
-# removed Logger::error).
-# Not listed because VITRAL's turboc port does not carry them yet: the files
-# of the cpp port's VITRAL subset (cpp/scripts/vitralSubset.txt) that this
-# port translated from the cpp port to the Turbo C++ subset, at their VITRAL
-# paths. Refresh them from VITRAL's turboc port, and list them here, once it
-# carries them:
-#   vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.cpp
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.h
-#   vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.h
-# Files of the cpp port's subset left out of this port: PlanarFace (plan
-# step 3 part 2, not ported to turboc), environment/material/Material.h (its
-# class name is RenderPark's Material until the part 1 renames), and the
-# Phong material files of step 2a (VITRAL's turboc port lacks them).
+# plan D1: a pinned source subset). base/ holds exactly these files and nothing
+# else: RenderPark's own classes live in rpkBase/.
+# scripts/vitralSubset.sh --check compares each with a VITRAL checkout byte for
+# byte and fails on any file of base/src/main missing from this list;
+# --refresh copies them from it.
+# Pin: VITRAL 1cce0bcb (turboc/base/src/main), which carries the spatial index
+# contract (environment/geometry/spatialIndex, with BinnedSahHierarchy::traverse)
+# that this port used to translate from the cpp port, the single precision
+# lineal algebra (Vector2Df, Vector3Df, Vector4Df and a Matrix4x4f that stores
+# floats and computes in float), the immutable float affine Matrix2x2 with
+# io/wrapper/Matrix2x2Printer, io/wrapper/Vector3DPrinter for Vector3Df, and
+# io/wrapper/FileUncompressWrapper.cpp with Logger::reportMessage calls.
+# RenderPark's Vector2D, Vector3D, Vector4D and Matrix4x4 were removed.
+# Files of the cpp port's subset left out of this port, although VITRAL's
+# turboc port carries them: PlanarFace (plan step 3 part 2), the
+# environment/material files of step 2a (Material.h, PhongLobe, PhongMaterial,
+# ScatteringComponent, ScatteringFrame, SurfaceShadingPoint, Texture) and the
+# thread support of parallel Jacobi (java/lang/Thread and Runnable): this port
+# has not taken those steps yet (its Patch keeps its own face data, its
+# materials are RenderPark's, its Galerkin refinement is serial). The cpp
+# port's java/util/concurrent/locks/Condition.h, java/util/function/_LambdaHolder.h
+# and GridSpatialIndex.txx (member templates) have no turboc counterpart.
 java/io/BufferedInputStream.cpp
 java/io/BufferedInputStream.h
 java/io/File.cpp
@@ -100,8 +89,11 @@ vsdk/toolkit/common/VSDKFatalException.h
 vsdk/toolkit/common/color/ColorRgb.cpp
 vsdk/toolkit/common/color/ColorRgb.h
 vsdk/toolkit/common/linealAlgebra/AlgebraPrimitives.cpp
+vsdk/toolkit/common/linealAlgebra/Matrix2x2.h
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.cpp
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h
+vsdk/toolkit/common/linealAlgebra/Matrix4x4f.cpp
+vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h
 vsdk/toolkit/common/linealAlgebra/Quaterniond.h
 vsdk/toolkit/common/linealAlgebra/Quaternionf.h
 vsdk/toolkit/common/linealAlgebra/Vector2Dd.h
@@ -120,6 +112,23 @@ vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.cpp
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.h
 vsdk/toolkit/environment/geometry/element/Ray.cpp
 vsdk/toolkit/environment/geometry/element/Ray.h
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialGroupTree.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.cpp
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.h
+vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.h
+vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.h
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.cpp
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.h

@@ -1,0 +1,187 @@
+#include "java/lang/Float.h"
+#include "vsdk/toolkit/common/VSDK.h"
+#include "java/lang/Math.h"
+#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/galerkin/GalerkinElement.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorClusteredStrategy.h"
+#include "vsdk/toolkit/galerkin/ShadowCache.h"
+
+/**
+Like above, but with a constant approximation on both the receiver and source
+element, which makes things slightly simpler
+*/
+void
+FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
+    Interaction *link,
+    const CubatureRule *cubatureRuleRcv,
+    const CubatureRule *cubatureRuleSrc,
+    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES])
+{
+    const GalerkinElement *receiverElement = link->receiverElement;
+    const GalerkinElement *sourceElement = link->sourceElement;
+    double Gx;
+    double G = 0.0;
+    double gMin = Numeric::HUGE_DOUBLE_VALUE;
+    double gMax = -Numeric::HUGE_DOUBLE_VALUE;
+
+    for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
+        Gx = 0.0;
+        for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
+            Gx += cubatureRuleSrc->w[l] * Gxy[k][l];
+        }
+        Gx *= sourceElement->area;
+
+        G += cubatureRuleRcv->w[k] * Gx;
+
+        if ( Gx > gMax ) {
+            gMax = Gx;
+        }
+        if ( Gx < gMin ) {
+            gMin = Gx;
+        }
+    }
+    // The constant cluster kernel (0.25 cosine terms, cubature nodes on bounding box
+    // corners) can produce a form factor G = K / receiverArea far above 1 for nearly
+    // touching clusters (e.g. the office3 bookshelf boards, ~1 cm apart): sample node
+    // pairs almost coincide and 1/(PI*d^2) explodes. Reciprocal links with G > 1 form a
+    // feedback loop with gain above 1 that makes the radiosity solution diverge (red
+    // glow on the shelf). Energy conservation bounds any real form factor by 1, so the
+    // estimate is clamped here; legitimate links always satisfy G < 1 and are unaffected.
+    if ( G > 1.0 ) {
+        G = 1.0;
+    }
+
+    link->K[0] = ((float)(receiverElement->area * G));
+
+    link->deltaK = ((float)(G - gMin));
+    if ( gMax - G > link->deltaK ) {
+        link->deltaK = ((float)(gMax - G));
+    }
+
+    link->nmbrORecvCbtrPstns = 1;
+}
+
+/**
+Return a floating point number in the range [0..1].
+0 indicates that there is
+full occlusion, 1 that there is full visibility and a number in between
+that there is visibility with at least one occluder with feature size
+smaller than the specified minimum feature size. (Such occluders have been
+replaced by a box containing an isotropic participating medium with
+suitable extinction properties.) rcvdist is the distance from the origin of
+the ray (assumed to be on the source) to the receiver surface. srcsize
+is the diameter of the source surface. min feature size is the minimal
+diameter of a feature (umbra or whole lit region on the receiver)
+that one is interested in. Approximate visibility computations are allowed
+for occluders that cast features with diameter smaller than
+min feature size. If there is a "hard" occlusion, the first patch tested that
+lead to this conclusion is added to the shadow cache
+*/
+double
+FormFactorClusteredStrategy::geomListMultiResVis(
+    const ArrayList<Geometry *> *geometryOccluderList,
+    ShadowCache *shadowCache,
+    RpkRay *ray,
+    float rcvDist,
+    float srcSize,
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
+{
+    double vis = 1.0;
+
+    for ( int i = 0; geometryOccluderList != NULL && i < geometryOccluderList->size(); i++ ) {
+        double v = FormFactorClusteredStrategy::geomMultiResVis(
+            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
+        if ( v < VSDK::EPSILON ) {
+            return 0.0;
+        } else {
+            vis *= v;
+        }
+    }
+
+    return vis;
+}
+
+double
+FormFactorClusteredStrategy::geomMultiResVis(
+    ShadowCache *shadowCache,
+    Geometry *geometry,
+    RpkRay *ray,
+    float rcvDist,
+    float srcSize,
+    float minimumFeatureSize,
+    const RayExclusionSet &exclusions)
+{
+    if ( exclusions.excludesGeometry(geometry) ) {
+        return 1.0;
+    }
+
+    if ( !geometry->bounded ) {
+        Logger::reportMessage("FormFactorClusteredStrategy", Logger::FATAL_ERROR, "geomMultiResVis", "Don't know what to do with unbounded geoms");
+    }
+
+    float fSize = Float::MAX_VALUE;
+    float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
+    float tMaximum = rcvDist;
+    const BoundingBox *boundingBox = &geometry->boundingBox;
+
+    // Check ray/bounding volume intersection and compute feature size of occluder
+    Vector3Df vectorTmp;
+    const GalerkinElement *cluster = ((GalerkinElement *)(geometry->radianceData));
+
+    vectorTmp = ray->position.add(ray->direction.multiply(((float)(tMinimum))));
+    if ( boundingBox->outOfBounds(&vectorTmp) ) {
+        if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
+            // Ray doesn't intersect the bounding box of the Geometry within
+            // distance interval tMinimum ... tMaximum
+            return 1.0;
+        }
+
+        if ( cluster ) {
+            // Compute feature size using equivalent blocker size of the occluder
+            float t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
+            fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
+        }
+    }
+
+    if ( fSize < minimumFeatureSize ) {
+        double kappa = 0.0;
+
+        double vol =
+                (boundingBox->dx() + VSDK::EPSILON) *
+                (boundingBox->dy() + VSDK::EPSILON) *
+                (boundingBox->dz() + VSDK::EPSILON);
+
+        if ( cluster != NULL ) {
+            kappa = cluster->area / (4.0 * vol);
+        }
+        return Math::exp(-kappa * (tMaximum - tMinimum));
+    } else {
+        if ( geometry->isCompound() ) {
+            ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+            double visibility = FormFactorClusteredStrategy::geomListMultiResVis(
+                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize, exclusions);
+            delete geometryList;
+            return visibility;
+        } else {
+            RayHit hitStore;
+            const RayHit *hit = Geometry::patchListIntersect(
+                    Geometry::patchListReference(geometry),
+                    ray,
+                    rcvDist * Numeric::EPSILON_FLOAT,
+                    &rcvDist,
+                    FRONT | ANY,
+                    &hitStore,
+                    exclusions);
+
+            if ( hit != NULL ) {
+                shadowCache->addToShadowCache(hit->getPatch());
+                return 0.0;
+            } else {
+                return 1.0;
+            }
+        }
+    }
+}

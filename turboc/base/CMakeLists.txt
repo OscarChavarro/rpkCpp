@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(vitral-turboc LANGUAGES C CXX)
 
+# The VITRAL library: base/src/main holds only the files listed in
+# scripts/vitralSubset.txt, byte-identical to the VITRAL checkout
+# (scripts/vitralSubset.sh --check). RenderPark's own classes are in rpkBase/.
+
 # IEEE 754 floating point everywhere: no fast-math (no reassociation, no
 # finite-math or reciprocal shortcuts) and no fused multiply-add contraction,
 # so results do not depend on how the compiler rewrites an expression
@@ -8,10 +12,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Cla
     add_compile_options(-fno-fast-math -ffp-contract=off)
 endif()
 
-option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
-option(MGF_ENABLED "Enable MGF reader modules" ON)
 option(FORCE_32BIT_UNIX_APPLE "Build 32-bit binaries on Linux/macOS (-m32)" ON)
-option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
 
 if(UNIX AND NOT APPLE)
     add_compile_options(-Wall -Wextra -pedantic)
@@ -41,16 +42,6 @@ file(GLOB_RECURSE VITRAL_TURBOC_SRC CONFIGURE_DEPENDS
 # Keep the normal lowercase source tree only; uppercase 8.3 mirror files are not build inputs.
 list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/src/main/[A-Z0-9_]+/")
 
-if(NOT MGF_ENABLED)
-    list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/io/mgf/")
-    list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/IO/MGF/")
-endif()
-
-if(NOT RAYTRACING_ENABLED)
-    list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/raycasting/")
-    list(FILTER VITRAL_TURBOC_SRC EXCLUDE REGEX "/RAYCASTING/")
-endif()
-
 add_library(vitral-turboc SHARED ${VITRAL_TURBOC_SRC})
 
 target_include_directories(vitral-turboc
@@ -62,22 +53,3 @@ set_target_properties(vitral-turboc PROPERTIES
     OUTPUT_NAME vitral-turboc
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-
-if(RAYTRACING_ENABLED)
-    target_compile_definitions(vitral-turboc PUBLIC RAYTRACING_ENABLED)
-endif()
-
-if(MGF_ENABLED)
-    target_compile_definitions(vitral-turboc PUBLIC MGF_ENABLED)
-endif()
-
-# The ray corpus is written sequentially, with 64-bit file offsets so that the
-# 32-bit build writes files beyond 2 GB
-set_source_files_properties(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/vsdk/toolkit/scene/VisibilityQueryRecorder.cpp
-    PROPERTIES COMPILE_DEFINITIONS _FILE_OFFSET_BITS=64
-)
-
-if(WITH_RAY_CAPTURE)
-    target_compile_definitions(vitral-turboc PUBLIC RPK_RAY_CAPTURE)
-endif()

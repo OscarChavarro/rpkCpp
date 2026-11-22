@@ -6,17 +6,17 @@
 #   captureRays.sh <capture build directory> <corpus directory> image ...
 #
 # The capture build directory is the -B directory of
-#   cmake -S turboc -B <dir>/top -DWITH_RAY_CAPTURE=ON -DRPK_BASE_BINARY_DIR=<dir>/base \
-#     -DRPK_RENDERPARK_BINARY_DIR=<dir>/rpk -DRPK_RAY_REPLAY_BINARY_DIR=<dir>/replay
+#   cmake -S turboc -B <dir>/top -DWITH_RAY_CAPTURE=ON -DRPK_VITRAL_BINARY_DIR=<dir>/base \
+#     -DRPK_BASE_BINARY_DIR=<dir>/rpkBase -DRPK_RENDERPARK_BINARY_DIR=<dir>/rpk
 # without the /top suffix. Run from a directory whose parent holds etc/, like
 # the other scripts; images go to its output/. For each image the corpus
 # directory receives <image>.vqc (format in VisibilityQueryRecorder.h), and
 # turboc/doc/rayCorpus receives <image>.accounting.txt, which is versioned
 # (the C++ port keeps its own in the top-level doc/rayCorpus). The corpus
-# format is the C++ one, so a corpus of either port replays on the other.
+# format is the C++ one.
 # The runs use -scene-acceleration legacy (through a wrapper of the program in
 # output/), so that a corpus holds the answers of RenderPark's original voxel
-# grid, which the replay requires the legacy grid to reproduce bit for bit.
+# grid.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
@@ -48,7 +48,7 @@ for line in $selection; do
     image=$(echo "$line" | cut -d'|' -f1)
     script=$(echo "$line" | cut -d'|' -f2)
     log=$(echo "$line" | cut -d'|' -f3)
-    RPK_BIN="$wrapper" RPK_LIB_DIR="$BUILD_DIR/base" \
+    RPK_BIN="$wrapper" RPK_LIB_DIR="$BUILD_DIR/base:$BUILD_DIR/rpkBase" \
         RPK_RAY_CAPTURE_FILE="$CORPUS_DIR/$image.vqc" \
         bash "$SCRIPT_DIR/$script.sh" >"output/$log.log" 2>"output/$log.err" || status=1
     grep '^Ray capture: ' "output/$log.err" | grep -v 'corpus written to' | sed 's/^Ray capture: //' >"$ACCOUNTING_DIR/$image.accounting.txt"
