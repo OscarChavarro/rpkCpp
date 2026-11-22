@@ -52,12 +52,13 @@ export class FormFactorStrategy {
     exclusions: RayExclusionSet,
     workspace: FormFactorWorkspace,
   ): RayHit | null {
-    Statistics.instance().shadow.numberOfShadowRays++;
+    const shadowStatistics = workspace.getShadowStatistics();
+    shadowStatistics.numberOfShadowRays++;
     const dist = workspace.getShadowTestDistance();
     dist[0] = minimumDistance;
     let hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
     if (hit !== null) {
-      Statistics.instance().shadow.numberOfShadowCacheHits++;
+      shadowStatistics.numberOfShadowCacheHits++;
       if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
         sceneQueryWorkspace.getRecorder()!.countCacheResolved();
       }

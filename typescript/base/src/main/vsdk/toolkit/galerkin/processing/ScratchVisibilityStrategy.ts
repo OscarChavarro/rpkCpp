@@ -84,7 +84,7 @@ export class ScratchVisibilityStrategy {
         if (elementBase instanceof GalerkinElement) {
           const element = elementBase as GalerkinElement;
           if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
-            || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
+            || galerkinState.isJacobi()) {
             rad.add(rad, (element.radiance as ColorRgbMutable[])[0]!);
           }
           else {

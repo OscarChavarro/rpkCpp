@@ -1,6 +1,7 @@
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
+import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinRadianceMethod } from "../GalerkinRadianceMethod";
 import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
@@ -72,7 +73,12 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
     }
 
     const userErrorThreshold = galerkinState.relLinkErrorThreshold;
-    HierarchicalRefinementStrategy.refineInteractions(scene, galerkinState.topCluster as GalerkinElement, galerkinState);
+    if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.PARALLEL_JACOBI) {
+      HierarchicalRefinementStrategy.refineInteractionsInParallel(scene, galerkinState.topCluster as GalerkinElement, galerkinState);
+    }
+    else {
+      HierarchicalRefinementStrategy.refineInteractions(scene, galerkinState.topCluster as GalerkinElement, galerkinState);
+    }
     galerkinState.relLinkErrorThreshold = userErrorThreshold;
 
     GalerkinBasis.pushPullRadiance(galerkinState.topCluster, galerkinState);

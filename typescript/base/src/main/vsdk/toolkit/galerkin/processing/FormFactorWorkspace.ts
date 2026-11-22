@@ -1,6 +1,7 @@
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
+import type { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 import type { GalerkinElement } from "../GalerkinElement";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 
@@ -10,8 +11,10 @@ receiver element is the same as in the previous computation, so the cubature
 rules, nodes and kernel values of the last element pair are kept here and
 reused.
 
-Workspace: mutable, owned by the solver (one per worker later) and passed
-explicitly to FormFactorStrategy.
+Workspace: mutable, owned by the solver (the serial one) or by a parallel
+Jacobi worker, and passed explicitly to FormFactorStrategy.
+It also tells where the shadow rays are counted (the global statistics, or the
+counters of a worker, added to them afterwards).
 
 TypeScript adaptation: the ray, hit record and distance cells that the C++
 port keeps on the stack live here too, so the computation allocates nothing.
@@ -26,13 +29,15 @@ export class FormFactorWorkspace {
   private readonly kernel: number[][];
   private maximumKernelValue = 0.0;
   private visibilityCount = 0; // Number of rays that "pass" occluders
+  private readonly shadowStatistics: ShadowStatistics; // Not owned
 
   private readonly kernelRay = new Ray();
   private readonly kernelHitStore = new RayHit();
   private readonly kernelDistance = [0.0];
   private readonly shadowTestDistance = [0.0];
 
-  public constructor() {
+  public constructor(inShadowStatistics: ShadowStatistics) {
+    this.shadowStatistics = inShadowStatistics;
     this.receiverNodes = [];
     this.sourceNodes = [];
     this.kernel = [];
@@ -98,6 +103,10 @@ export class FormFactorWorkspace {
 
   public setVisibilityCount(value: number): void {
     this.visibilityCount = value;
+  }
+
+  public getShadowStatistics(): ShadowStatistics {
+    return this.shadowStatistics;
   }
 
   public getKernelRay(): Ray {

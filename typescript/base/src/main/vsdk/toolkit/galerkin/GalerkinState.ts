@@ -1,4 +1,5 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
+import { Statistics } from "../common/statistics/Statistics";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { CubatureDegree } from "../numericalAnalysis/CubatureDegree";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
@@ -24,6 +25,7 @@ export class GalerkinState {
   public importanceDriven: number;
   public clustered: number;
   public galerkinIterationMethod: GalerkinIterationMethod;
+  public numberOfThreads: number; // Threads of PARALLEL_JACOBI; 0 for one per online processor
   public lazyLinking: number;
   public exactVisibility: number;
   public multiResolutionVisibility: number;
@@ -69,7 +71,7 @@ export class GalerkinState {
   public toneMapOptions: ToneMappingContext | null;
 
   // Form factor scratch owned by the solver
-  public readonly formFactorWorkspace = new FormFactorWorkspace();
+  public readonly formFactorWorkspace = new FormFactorWorkspace(Statistics.instance().shadow);
 
   private static readonly DEFAULT_GAL_HIERARCHICAL = true;
   private static readonly DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod.JACOBI;
@@ -94,6 +96,12 @@ export class GalerkinState {
 
   // The scene's table of top-level elements, bound when the method is initialized
   private radianceElements: RadianceElementTable | null = null;
+
+  /** Jacobi iterations, serial or parallel: both gather with the radiance of the previous iteration */
+  public isJacobi(): boolean {
+    return this.galerkinIterationMethod === GalerkinIterationMethod.JACOBI
+      || this.galerkinIterationMethod === GalerkinIterationMethod.PARALLEL_JACOBI;
+  }
 
   public getRadianceElements(): RadianceElementTable | null {
     return this.radianceElements;
@@ -138,6 +146,7 @@ export class GalerkinState {
 
     this.hierarchical = GalerkinState.DEFAULT_GAL_HIERARCHICAL;
     this.galerkinIterationMethod = GalerkinState.DEFAULT_GAL_ITERATION_METHOD;
+    this.numberOfThreads = 0;
     this.relMinElemArea = GalerkinState.DEFAULT_GAL_REL_MIN_ELEM_AREA;
     this.relLinkErrorThreshold = GalerkinState.DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
     this.refinementMinimumArea = 0.0;

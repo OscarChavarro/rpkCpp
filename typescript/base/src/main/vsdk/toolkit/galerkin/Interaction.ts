@@ -75,9 +75,16 @@ export class Interaction {
 
     this.deltaK = inDeltaK ?? 0.0;
 
+    Interaction.countCreated(this);
+  }
+
+  /**
+  Adds the interaction to the interaction counters
+  */
+  public static countCreated(interaction: Interaction): void {
     Interaction.totalInteractions++;
-    if (this.receiverElement !== null && this.receiverElement.isCluster()) {
-      if (this.sourceElement !== null && this.sourceElement.isCluster()) {
+    if (interaction.receiverElement !== null && interaction.receiverElement.isCluster()) {
+      if (interaction.sourceElement !== null && interaction.sourceElement.isCluster()) {
         Interaction.ccInteractions++;
       }
       else {
@@ -85,7 +92,7 @@ export class Interaction {
       }
     }
     else {
-      if (this.sourceElement !== null && this.sourceElement.isCluster()) {
+      if (interaction.sourceElement !== null && interaction.sourceElement.isCluster()) {
         Interaction.csInteractions++;
       }
       else {

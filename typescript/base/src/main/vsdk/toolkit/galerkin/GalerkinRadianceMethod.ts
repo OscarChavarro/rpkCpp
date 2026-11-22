@@ -160,6 +160,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       switch (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod) {
         case GalerkinIterationMethod.GAUSS_SEIDEL:
         case GalerkinIterationMethod.JACOBI:
+        case GalerkinIterationMethod.PARALLEL_JACOBI:
           element.potential = directPotentials.get(patch.getFaceIndex());
           break;
         case GalerkinIterationMethod.SOUTH_WELL:
@@ -228,6 +229,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     let done: boolean;
     switch (GalerkinRadianceMethod.galerkinState.galerkinIterationMethod) {
       case GalerkinIterationMethod.JACOBI:
+      case GalerkinIterationMethod.PARALLEL_JACOBI:
       case GalerkinIterationMethod.GAUSS_SEIDEL:
         if (this.gatheringStrategy === null) {
           this.setStrategy();

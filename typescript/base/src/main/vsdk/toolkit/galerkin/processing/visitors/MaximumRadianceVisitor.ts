@@ -22,7 +22,7 @@ export class MaximumRadianceVisitor implements ClusterLeafVisitor {
   ): void {
     let rad: ColorRgbMutable;
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
-      || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
+      || galerkinState.isJacobi()) {
       rad = (galerkinElement.radiance as ColorRgbMutable[])[0]!;
     }
     else {

@@ -16,6 +16,9 @@
     "rootDir": "src/main",
     "outDir": "dist",
     "esModuleInterop": true,
+    "paths": {
+      "@vitral/base/*": ["../../../base/dist/*"]
+    },
     "skipLibCheck": true
   },
   "include": ["src/main/**/*.ts", "src/main/**/*.d.ts"],

@@ -8,10 +8,8 @@ mkdir -p output
 
 node scripts/runNodeProgram.mjs --build --entry testsuite/ApplicationCases/RenderparkApplication/dist/vsdk/toolkit/app/Main.js -- \
   ../etc/cube.mgf \
-  -obf output/15_cubeJacobiImportance.bin \
   -raytracing-method none -iterations 11 -radiance-method Galerkin \
-  -gr-iteration-method jacobi -gr-importance \
-  -radiance-model-savefile output/15_cubeJacobiImportance.wrl \
+  -gr-iteration-method parallel-jacobi -gr-importance \
   -eyepoint 4.78 -10.7 8 -center 4.8 -1 5.62 \
-  -raycast -radiance-image-savefile ./output/15_cubeJacobiImportance.ppm \
+  -raycast -save-last-only -radiance-image-savefile ./output/15_cubeJacobiImportance.ppm \
   "$@"

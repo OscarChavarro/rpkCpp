@@ -1,6 +1,8 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
@@ -19,22 +21,32 @@ import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { ClusterTraversalStrategy } from "./ClusterTraversalStrategy";
 import { FormFactorStrategy } from "./FormFactorStrategy";
+import { FormFactorWorkspace } from "./FormFactorWorkspace";
 import { InteractionEvaluationCode } from "./InteractionEvaluationCode";
+import { RefinementReplicas } from "./RefinementReplicas";
+import {
+  RefinementEvent,
+  RefinementGroup,
+  RefinementRecord,
+  RefinementScheduler,
+  RefinementTask,
+  RefinementWorkspace,
+} from "./RefinementWorkspace";
 
 export class HierarchicalRefinementStrategy {
   private static readonly hierarchicalKPool: number[][] = [];
 
-  private static borrowKBuffer(): number[] {
-    const v = HierarchicalRefinementStrategy.hierarchicalKPool.pop();
+  private static borrowKBuffer(pool: number[][]): number[] {
+    const v = pool.pop();
     if (v !== undefined) {
       return v;
     }
     return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
   }
 
-  private static returnKBuffer(v: number[] | null): void {
+  private static returnKBuffer(pool: number[][], v: number[] | null): void {
     if (v !== null && v.length === GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE) {
-      HierarchicalRefinementStrategy.hierarchicalKPool.push(v);
+      pool.push(v);
     }
   }
 
@@ -145,7 +157,7 @@ export class HierarchicalRefinementStrategy {
     }
 
     if (galerkinState.importanceDriven !== 0
-      && (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI
+      && (galerkinState.isJacobi()
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL)) {
       const maxDirect = galerkinState.refinementMaxDirectPotential;
       if (maxDirect > Numeric.EPSILON) {
@@ -165,7 +177,7 @@ export class HierarchicalRefinementStrategy {
     let srcRad: ColorRgbMutable;
 
     if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
-      || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
+      || galerkinState.isJacobi()) {
       if (interaction.sourceElement.isCluster()
         && interaction.sourceElement !== interaction.receiverElement) {
         srcRad = ClusterTraversalStrategy.maxRadiance(interaction.sourceElement, galerkinState);
@@ -313,7 +325,21 @@ export class HierarchicalRefinementStrategy {
     return InteractionEvaluationCode.ACCURATE_ENOUGH;
   }
 
+
   private static hierarchicRefinementComputeLightTransport(
+    interaction: Interaction,
+    galerkinState: GalerkinState,
+  ): void {
+    HierarchicalRefinementStrategy.receiverLightTransport(interaction, galerkinState);
+    HierarchicalRefinementStrategy.sourceLightTransport(interaction, galerkinState);
+  }
+
+  /**
+  The part of light transport that writes the receiver: the number of
+  effectively used radiance coefficients and the received radiance. It reads
+  only the source radiance (frozen during gathering)
+  */
+  private static receiverLightTransport(
     interaction: Interaction,
     galerkinState: GalerkinState,
   ): void {
@@ -321,9 +347,6 @@ export class HierarchicalRefinementStrategy {
     const b = globalThis.Math.min(interaction.numberOfBasisFunctionsOnSource, interaction.sourceElement.basisSize);
     if (a > interaction.receiverElement.basisUsed) {
       interaction.receiverElement.basisUsed = a;
-    }
-    if (b > interaction.sourceElement.basisUsed) {
-      interaction.sourceElement.basisUsed = b;
     }
 
     let srcRad: ColorRgbMutable[];
@@ -361,13 +384,44 @@ export class HierarchicalRefinementStrategy {
       }
     }
 
-    if (galerkinState.importanceDriven !== 0) {
+    if (galerkinState.importanceDriven !== 0
+      && galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
       const K = interaction.K[0]!;
-      const rcvRho = new ColorRgbMutable();
       const srcRho = new ColorRgbMutable();
+      if (interaction.sourceElement.isCluster()) {
+        srcRho.setMonochrome(1.0);
+      }
+      else {
+        srcRho.set(
+          galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.r,
+          galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.g,
+          galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.b,
+        );
+      }
+      interaction.receiverElement.receivedPotential +=
+        K * HierarchicalRefinementStrategy.hierarchicRefinementColorToError(srcRho) * interaction.sourceElement.unShotPotential;
+    }
+  }
 
+  /**
+  The part of light transport that writes the source: the number of effectively
+  used radiance coefficients and, for importance-driven gathering, the received
+  potential. It reads only the receiver potential (frozen during gathering)
+  */
+  private static sourceLightTransport(
+    interaction: Interaction,
+    galerkinState: GalerkinState,
+  ): void {
+    const b = globalThis.Math.min(interaction.numberOfBasisFunctionsOnSource, interaction.sourceElement.basisSize);
+    if (b > interaction.sourceElement.basisUsed) {
+      interaction.sourceElement.basisUsed = b;
+    }
+
+    if (galerkinState.importanceDriven !== 0) {
       if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
-        || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
+        || galerkinState.isJacobi()) {
+        const K = interaction.K[0]!;
+        const rcvRho = new ColorRgbMutable();
         if (interaction.receiverElement.isCluster()) {
           rcvRho.setMonochrome(1.0);
         }
@@ -381,20 +435,6 @@ export class HierarchicalRefinementStrategy {
         interaction.sourceElement.receivedPotential +=
           K * HierarchicalRefinementStrategy.hierarchicRefinementColorToError(rcvRho) * interaction.receiverElement.potential;
       }
-      else if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.SOUTH_WELL) {
-        if (interaction.sourceElement.isCluster()) {
-          srcRho.setMonochrome(1.0);
-        }
-        else {
-          srcRho.set(
-            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.r,
-            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.g,
-            galerkinState.topLevelElement(interaction.sourceElement.patch!).Rd.b,
-          );
-        }
-        interaction.receiverElement.receivedPotential +=
-          K * HierarchicalRefinementStrategy.hierarchicRefinementColorToError(srcRho) * interaction.sourceElement.unShotPotential;
-      }
     }
   }
 
@@ -405,6 +445,7 @@ export class HierarchicalRefinementStrategy {
     sourceElement: GalerkinElement,
     interaction: Interaction,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): number {
     interaction.receiverElement = receiverElement;
     interaction.sourceElement = sourceElement;
@@ -427,8 +468,8 @@ export class HierarchicalRefinementStrategy {
     const isClusteredGeometry = (candidatesList === scene.clusteredGeometryList);
     FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
       scene.getSceneQuery(),
-      scene.getSceneQueryWorkspace(),
-      galerkinState.formFactorWorkspace,
+      workspace.getSceneQueryWorkspace(),
+      workspace.getFormFactorWorkspace(),
       candidatesList,
       isSceneGeometry,
       isClusteredGeometry,
@@ -441,7 +482,15 @@ export class HierarchicalRefinementStrategy {
   private static hierarchicRefinementStoreInteraction(
     interaction: Interaction,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): void {
+    const record = workspace.getRecord();
+    if (record !== null) {
+      // Parallel Jacobi: counted, stored and transported over when committed
+      record.addLink(interaction);
+      return;
+    }
+
     const newInteraction = Interaction.interactionDuplicate(interaction);
     if (newInteraction === null) {
       return;
@@ -460,21 +509,113 @@ export class HierarchicalRefinementStrategy {
     }
   }
 
+  /**
+  Regular subdivision of a surface element. Parallel Jacobi workers record the
+  event (subdivision is idempotent, and the children only depend on the frozen
+  state of the parent): the ids of new children are 0 until the commit gives
+  them the ids of the serial order
+  */
+  private static regularSubDivide(element: GalerkinElement, workspace: RefinementWorkspace): void {
+    const record = workspace.getRecord();
+    if (record === null) {
+      element.regularSubDivide();
+      return;
+    }
+    RefinementWorkspace.subdivideUncommitted(element);
+    if (element.regularSubElements === null) {
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "HierarchicalRefinementStrategy::regularSubDivide", "Element that can not be subdivided in a parallel Jacobi iteration");
+    }
+    record.addSubdivision(element);
+  }
+
+  /**
+  Creates the interaction between the receiver and the source (sub-elements of
+  a refined interaction), refines it and, if it needs no further refinement,
+  stores it. A parallel Jacobi worker may instead leave it to another worker as
+  a new task: the FORK event keeps its place in the serial order
+  */
+  private static refineOrForkSubInteraction(
+    scene: Scene,
+    candidatesList: Geometry[] | null,
+    receiverElement: GalerkinElement,
+    sourceElement: GalerkinElement,
+    galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
+  ): void {
+    const scheduler = workspace.getScheduler();
+    if (scheduler !== null && scheduler.wantsMoreTasks()) {
+      const task = scheduler.fork(receiverElement, sourceElement, candidatesList);
+      workspace.getRecord()!.addFork(task);
+      return;
+    }
+    HierarchicalRefinementStrategy.refineSubInteraction(
+      scene, candidatesList, receiverElement, sourceElement, galerkinState, workspace,
+    );
+  }
+
+  private static refineSubInteraction(
+    scene: Scene,
+    candidatesList: Geometry[] | null,
+    receiverElement: GalerkinElement,
+    sourceElement: GalerkinElement,
+    galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
+  ): void {
+    const coefficientsPool = workspace.getCoefficientsPool();
+    const subInteraction = new Interaction();
+    subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer(coefficientsPool);
+    subInteraction.ownsK = false;
+
+    const candidates: Array<Geometry[] | null> = [candidatesList];
+    if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
+      scene,
+      candidates[0] ?? null,
+      receiverElement,
+      sourceElement,
+      subInteraction,
+      galerkinState,
+      workspace,
+    ) !== 0
+      && !HierarchicalRefinementStrategy.refineRecursive(scene, candidates, subInteraction, galerkinState, workspace)) {
+      HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState, workspace);
+    }
+
+    const borrowed = subInteraction.K;
+    subInteraction.K = [];
+    HierarchicalRefinementStrategy.returnKBuffer(coefficientsPool, borrowed);
+  }
+
+  /**
+  An element that could not be regularly subdivided: light transport is done
+  over the interaction instead (TypeScript safeguard, not expected)
+  */
+  private static unsubdividedLightTransport(
+    interaction: Interaction,
+    galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
+  ): void {
+    if (workspace.getRecord() !== null) {
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "HierarchicalRefinementStrategy::unsubdividedLightTransport", "Element that can not be subdivided in a parallel Jacobi iteration");
+    }
+    HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+  }
+
   private static hierarchicRefinementRegularSubdivideSource(
     scene: Scene,
     candidatesList: Array<Geometry[] | null>,
     interaction: Interaction,
     isClusteredGeometry: boolean,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): void {
     const backup = candidatesList[0];
     HierarchicalRefinementStrategy.hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     const sourceElement = interaction.sourceElement;
     const receiverElement = interaction.receiverElement;
 
-    sourceElement.regularSubDivide();
+    HierarchicalRefinementStrategy.regularSubDivide(sourceElement, workspace);
     if (sourceElement.regularSubElements === null) {
-      HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+      HierarchicalRefinementStrategy.unsubdividedLightTransport(interaction, galerkinState, workspace);
       return;
     }
 
@@ -483,23 +624,9 @@ export class HierarchicalRefinementStrategy {
         continue;
       }
       const child = sourceElement.regularSubElements[i] as GalerkinElement;
-      const subInteraction = new Interaction();
-      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
-      subInteraction.ownsK = false;
-      if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
-        scene,
-        candidatesList[0] ?? null,
-        receiverElement,
-        child,
-        subInteraction,
-        galerkinState,
-      ) !== 0
-        && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
-        HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
-      }
-      const borrowed = subInteraction.K;
-      subInteraction.K = [];
-      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
+      HierarchicalRefinementStrategy.refineOrForkSubInteraction(
+        scene, candidatesList[0] ?? null, receiverElement, child, galerkinState, workspace,
+      );
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup ?? null;
@@ -511,15 +638,16 @@ export class HierarchicalRefinementStrategy {
     interaction: Interaction,
     isClusteredGeometry: boolean,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): void {
     const backup = candidatesList[0];
     HierarchicalRefinementStrategy.hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     const sourceElement = interaction.sourceElement;
     const receiverElement = interaction.receiverElement;
 
-    receiverElement.regularSubDivide();
+    HierarchicalRefinementStrategy.regularSubDivide(receiverElement, workspace);
     if (receiverElement.regularSubElements === null) {
-      HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+      HierarchicalRefinementStrategy.unsubdividedLightTransport(interaction, galerkinState, workspace);
       return;
     }
 
@@ -528,23 +656,9 @@ export class HierarchicalRefinementStrategy {
         continue;
       }
       const child = receiverElement.regularSubElements[i] as GalerkinElement;
-      const subInteraction = new Interaction();
-      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
-      subInteraction.ownsK = false;
-      if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
-        scene,
-        candidatesList[0] ?? null,
-        child,
-        sourceElement,
-        subInteraction,
-        galerkinState,
-      ) !== 0
-        && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
-        HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
-      }
-      const borrowed = subInteraction.K;
-      subInteraction.K = [];
-      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
+      HierarchicalRefinementStrategy.refineOrForkSubInteraction(
+        scene, candidatesList[0] ?? null, child, sourceElement, galerkinState, workspace,
+      );
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup ?? null;
@@ -556,6 +670,7 @@ export class HierarchicalRefinementStrategy {
     interaction: Interaction,
     isClusteredGeometry: boolean,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): void {
     const backup = candidatesList[0];
     HierarchicalRefinementStrategy.hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
@@ -580,24 +695,9 @@ export class HierarchicalRefinementStrategy {
           continue;
         }
       }
-      const subInteraction = new Interaction();
-      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
-      subInteraction.ownsK = false;
-
-      if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
-        scene,
-        candidatesList[0] ?? null,
-        receiverElement,
-        childElement,
-        subInteraction,
-        galerkinState,
-      ) !== 0
-        && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
-        HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
-      }
-      const borrowed = subInteraction.K;
-      subInteraction.K = [];
-      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
+      HierarchicalRefinementStrategy.refineOrForkSubInteraction(
+        scene, candidatesList[0] ?? null, receiverElement, childElement, galerkinState, workspace,
+      );
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup ?? null;
@@ -609,6 +709,7 @@ export class HierarchicalRefinementStrategy {
     interaction: Interaction,
     isClusteredGeometry: boolean,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): void {
     const backup = candidatesList[0];
     HierarchicalRefinementStrategy.hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
@@ -633,23 +734,9 @@ export class HierarchicalRefinementStrategy {
           continue;
         }
       }
-      const subInteraction = new Interaction();
-      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
-      subInteraction.ownsK = false;
-      if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
-        scene,
-        candidatesList[0] ?? null,
-        child,
-        sourceElement,
-        subInteraction,
-        galerkinState,
-      ) !== 0
-        && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
-        HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
-      }
-      const borrowed = subInteraction.K;
-      subInteraction.K = [];
-      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
+      HierarchicalRefinementStrategy.refineOrForkSubInteraction(
+        scene, candidatesList[0] ?? null, child, sourceElement, galerkinState, workspace,
+      );
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup ?? null;
@@ -660,36 +747,40 @@ export class HierarchicalRefinementStrategy {
     candidatesList: Array<Geometry[] | null>,
     interaction: Interaction,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): boolean {
     let refined: boolean;
 
     const isClusteredGeometry = (candidatesList[0] === scene.clusteredGeometryList);
     switch (HierarchicalRefinementStrategy.hierarchicRefinementEvaluateInteraction(interaction, galerkinState)) {
       case InteractionEvaluationCode.ACCURATE_ENOUGH:
-        HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+        // A parallel Jacobi worker leaves light transport to the commit
+        if (workspace.getRecord() === null) {
+          HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+        }
         refined = false;
         break;
       case InteractionEvaluationCode.REGULAR_SUBDIVIDE_SOURCE:
         HierarchicalRefinementStrategy.hierarchicRefinementRegularSubdivideSource(
-          scene, candidatesList, interaction, isClusteredGeometry, galerkinState,
+          scene, candidatesList, interaction, isClusteredGeometry, galerkinState, workspace,
         );
         refined = true;
         break;
       case InteractionEvaluationCode.REGULAR_SUBDIVIDE_RECEIVER:
         HierarchicalRefinementStrategy.hierarchicRefinementRegularSubdivideReceiver(
-          scene, candidatesList, interaction, isClusteredGeometry, galerkinState,
+          scene, candidatesList, interaction, isClusteredGeometry, galerkinState, workspace,
         );
         refined = true;
         break;
       case InteractionEvaluationCode.SUBDIVIDE_SOURCE_CLUSTER:
         HierarchicalRefinementStrategy.hierarchicRefinementSubdivideSourceCluster(
-          scene, candidatesList, interaction, isClusteredGeometry, galerkinState,
+          scene, candidatesList, interaction, isClusteredGeometry, galerkinState, workspace,
         );
         refined = true;
         break;
       case InteractionEvaluationCode.SUBDIVIDE_RECEIVER_CLUSTER:
         HierarchicalRefinementStrategy.hierarchicRefinementSubdivideReceiverCluster(
-          scene, candidatesList, interaction, isClusteredGeometry, galerkinState,
+          scene, candidatesList, interaction, isClusteredGeometry, galerkinState, workspace,
         );
         refined = true;
         break;
@@ -705,6 +796,7 @@ export class HierarchicalRefinementStrategy {
     scene: Scene,
     interaction: Interaction,
     galerkinState: GalerkinState,
+    workspace: RefinementWorkspace,
   ): boolean {
     let candidateOccluderList: Geometry[] | null = scene.clusteredGeometryList;
 
@@ -713,7 +805,7 @@ export class HierarchicalRefinementStrategy {
     }
 
     const arr: Array<Geometry[] | null> = [candidateOccluderList];
-    return HierarchicalRefinementStrategy.refineRecursive(scene, arr, interaction, galerkinState);
+    return HierarchicalRefinementStrategy.refineRecursive(scene, arr, interaction, galerkinState, workspace);
   }
 
   public static refineInteractions(
@@ -722,8 +814,15 @@ export class HierarchicalRefinementStrategy {
     galerkinState: GalerkinState,
   ): void {
     HierarchicalRefinementStrategy.prepareRefinementIterationState(galerkinState);
+    const workspace = new RefinementWorkspace(
+      scene.getSceneQueryWorkspace(),
+      galerkinState.formFactorWorkspace,
+      HierarchicalRefinementStrategy.hierarchicalKPool,
+      null,
+      null,
+    );
     const activePath = new Set<number>();
-    HierarchicalRefinementStrategy.refineInteractionsInternal(scene, parentElement, galerkinState, activePath);
+    HierarchicalRefinementStrategy.refineInteractionsInternal(scene, parentElement, galerkinState, activePath, workspace);
   }
 
   private static refineInteractionsInternal(
@@ -731,6 +830,7 @@ export class HierarchicalRefinementStrategy {
     parentElement: GalerkinElement,
     galerkinState: GalerkinState,
     activePath: Set<number>,
+    workspace: RefinementWorkspace,
   ): void {
     if (parentElement === null) {
       return;
@@ -754,6 +854,7 @@ export class HierarchicalRefinementStrategy {
             parentElement.irregularSubElements[i] as GalerkinElement,
             galerkinState,
             activePath,
+            workspace,
           );
         }
       }
@@ -766,6 +867,7 @@ export class HierarchicalRefinementStrategy {
               parentElement.regularSubElements[i] as GalerkinElement,
               galerkinState,
               activePath,
+              workspace,
             );
           }
         }
@@ -786,7 +888,7 @@ export class HierarchicalRefinementStrategy {
             continue;
           }
           const interaction = o;
-          if (HierarchicalRefinementStrategy.refineInteraction(scene, interaction, galerkinState)) {
+          if (HierarchicalRefinementStrategy.refineInteraction(scene, interaction, galerkinState, workspace)) {
             Interaction.interactionDestroy(interaction);
           }
           else {
@@ -804,6 +906,322 @@ export class HierarchicalRefinementStrategy {
     finally {
       activePath.delete(parentElement.id);
       HierarchicalRefinementStrategy.refineTreeDepth = treeDepth;
+    }
+  }
+
+  /**
+  Parallel Jacobi refinement.
+  With Jacobi iterations, refinement only reads state frozen during the
+  iteration (radiance, potential, reflectivity, error thresholds), so the
+  refinement of each interaction is independent of the others, except for what
+  it changes: received radiance and potential (light transport), interaction
+  lists (new links), the regular subdivision of elements and their ids and the
+  shadow ray counters. The workers refine and compute form factors with their
+  own scratch and record those changes; the commit then does them in the order
+  of the serial refinement (refineInteractionsInternal), so that every floating
+  point sum and every list is the serial one.
+  Interactions are those of the element lists when the iteration starts, in the
+  serial post-order. The serial refinement of an element also visits the links
+  that the element's own refinement appends to its list (receiver kept, source
+  subdivided); the commit visits them serially, as the serial loop does.
+  TypeScript: the workers are replicas of the program (see RefinementReplicas),
+  and every replica commits all the records, in its own heap.
+  */
+  private static parallelRefinementSupported(scene: Scene, galerkinState: GalerkinState): boolean {
+    const sceneQueryWorkspace = scene.getSceneQueryWorkspace();
+    return galerkinState.clusteringStrategy === GalerkinClusteringStrategy.ISOTROPIC
+      && galerkinState.shaftCullMode === GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING
+      && galerkinState.multiResolutionVisibility === 0
+      && (sceneQueryWorkspace === null || sceneQueryWorkspace.getRecorder() === null);
+  }
+
+  private static numberOfRefinementThreads(galerkinState: GalerkinState): number {
+    let threads = galerkinState.numberOfThreads;
+    if (threads <= 0) {
+      // As VITRAL's ParallelRaytracer.availableProcessors
+      const count: number | undefined = typeof navigator !== "undefined" ? navigator.hardwareConcurrency : undefined;
+      threads = count !== undefined && count > 0 ? count : 1;
+    }
+    return threads < 1 ? 1 : globalThis.Math.trunc(threads);
+  }
+
+  /**
+  Collects, in the order of refineInteractionsInternal, the elements having
+  interactions and their interactions
+  */
+  private static collectRefinementItems(
+    parentElement: GalerkinElement,
+    groups: RefinementGroup[],
+    items: RefinementTask[],
+    activePath: Set<number>,
+  ): void {
+    if (activePath.has(parentElement.id)) {
+      return;
+    }
+    activePath.add(parentElement.id);
+    for (let i = 0;
+      parentElement.irregularSubElements !== null && i < parentElement.irregularSubElements.length;
+      i++) {
+      if (parentElement.irregularSubElements[i] instanceof GalerkinElement) {
+        HierarchicalRefinementStrategy.collectRefinementItems(
+          parentElement.irregularSubElements[i] as GalerkinElement, groups, items, activePath,
+        );
+      }
+    }
+
+    if (parentElement.regularSubElements !== null) {
+      for (let i = 0; i < 4; i++) {
+        if (parentElement.regularSubElements[i] instanceof GalerkinElement) {
+          HierarchicalRefinementStrategy.collectRefinementItems(
+            parentElement.regularSubElements[i] as GalerkinElement, groups, items, activePath,
+          );
+        }
+      }
+    }
+    activePath.delete(parentElement.id);
+
+    const interactions = parentElement.interactions;
+    if (interactions !== null && interactions.length > 0) {
+      groups.push(new RefinementGroup(parentElement, items.length, interactions.length));
+      for (let i = 0; i < interactions.length; i++) {
+        items.push(new RefinementTask(interactions[i], null, null, null, items.length));
+      }
+    }
+  }
+
+  /**
+  Light transport over the interactions, as if done one after the other in
+  their order.
+  TypeScript: in one thread (every replica needs all of it in its own heap);
+  C++ splits it among its threads by the element written
+  */
+  private static applyLightTransports(
+    transports: Interaction[],
+    galerkinState: GalerkinState,
+    _numberOfThreads: number,
+  ): void {
+    const n = transports.length;
+    for (let i = 0; i < n; i++) {
+      HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(transports[i]!, galerkinState);
+    }
+  }
+
+  /**
+  Does what the refinement task recorded, in its order: ids for new children,
+  counting and storing each new link with its receiver, and the events of the
+  tasks it forked, where it forked them. The interactions to transport light
+  over (new links, and the interaction itself when it was not refined) are
+  appended to transports, in the serial order.
+  @return true when the task was a top-level interaction that was refined, so
+  that it is to be destroyed
+  */
+  private static commitRefinementTask(
+    scheduler: RefinementScheduler,
+    replicas: RefinementReplicas,
+    task: RefinementTask,
+    elements: Array<GalerkinElement | undefined>,
+    transports: Interaction[],
+    nextElementId: number[],
+  ): boolean {
+    const events = replicas.getRecordEvents(task.getWorker());
+    const event = new RefinementEvent();
+
+    let offset = task.getFirstEvent();
+    const end = task.getEndEvent();
+    while (offset < end) {
+      offset = event.read(events, offset, elements);
+      switch (event.getKind()) {
+        case RefinementEvent.SUBDIVISION: {
+          const element = event.getReceiver();
+          RefinementWorkspace.subdivideUncommitted(element);
+          const children = element.regularSubElements!;
+          for (let j = 0; j < 4; j++) {
+            const child = children[j];
+            if (child !== null && child !== undefined && child.id === 0) {
+              child.id = nextElementId[0]!;
+              nextElementId[0] = nextElementId[0]! + 1;
+            }
+          }
+          break;
+        }
+        case RefinementEvent.LINK: {
+          const link = event.getLink();
+          Interaction.countCreated(link);
+          transports.push(link);
+          if (link.receiverElement.interactions === null) {
+            link.receiverElement.interactions = [];
+          }
+          link.receiverElement.interactions.push(link);
+          break;
+        }
+        case RefinementEvent.FORK:
+          HierarchicalRefinementStrategy.commitRefinementTask(
+            scheduler, replicas, scheduler.getForked(event.getTask()), elements, transports, nextElementId,
+          );
+          break;
+        default:
+          break;
+      }
+    }
+
+    const interaction = task.getInteraction();
+    if (interaction instanceof Interaction && !task.isRefined()) {
+      transports.push(interaction);
+    }
+    return task.isRefined();
+  }
+
+  /**
+  Same result as refineInteractions with Jacobi iterations, bit for bit, but
+  the refinement and form factors of the interactions are computed by
+  GalerkinState.numberOfThreads workers, and what they change (light
+  transport, new interactions, element ids) is then committed in the serial
+  order. Configurations whose refinement reads or writes shared scratch (non
+  isotropic clustering, shaft culling, multi-resolution visibility, ray capture)
+  are refined serially
+  */
+  public static refineInteractionsInParallel(
+    scene: Scene,
+    parentElement: GalerkinElement,
+    galerkinState: GalerkinState,
+  ): void {
+    if (!HierarchicalRefinementStrategy.parallelRefinementSupported(scene, galerkinState)) {
+      if (galerkinState.iterationNumber <= 1) {
+        VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "refineInteractionsInParallel",
+          "Parallel Jacobi needs isotropic clustering, no shaft culling, no multi-resolution visibility "
+          + "and no ray capture: refining serially");
+      }
+      HierarchicalRefinementStrategy.refineInteractions(scene, parentElement, galerkinState);
+      return;
+    }
+
+    HierarchicalRefinementStrategy.prepareRefinementIterationState(galerkinState);
+
+    // The interactions of the element lists are the items, in the serial order
+    const numberOfThreads = HierarchicalRefinementStrategy.numberOfRefinementThreads(galerkinState);
+    const groups: RefinementGroup[] = [];
+    const items: RefinementTask[] = [];
+    HierarchicalRefinementStrategy.collectRefinementItems(parentElement, groups, items, new Set<number>());
+    const chunk = globalThis.Math.max(1, globalThis.Math.min(64, globalThis.Math.trunc(items.length / (8 * numberOfThreads))));
+    const replicas = RefinementReplicas.forThreads(numberOfThreads);
+    const elements = RefinementWorkspace.committedElements(parentElement);
+    const scheduler = new RefinementScheduler(replicas, items, chunk, 4 * numberOfThreads, scene, elements);
+    replicas.startIteration(items.length, GalerkinElement.getNumberOfElements(), Interaction.getNumberOfInteractions());
+
+    // Phase 1: workers refine the items, and the sub-interactions subdivisions fork
+    const firstNewElementId = GalerkinElement.getNumberOfElements() + 1;
+    const w = replicas.getWorker();
+    const record = new RefinementRecord(replicas.getRecordEvents(w));
+    const shadowStatistics = new ShadowStatistics();
+    const workspace = new RefinementWorkspace(
+      scene.getSceneQueryWorkspace(),
+      new FormFactorWorkspace(shadowStatistics),
+      HierarchicalRefinementStrategy.hierarchicalKPool,
+      record,
+      scheduler,
+    );
+    let failure: unknown = null;
+    try {
+      const range = [0, 0];
+      scheduler.startItems();
+      while (scheduler.takeItems(range)) {
+        for (let i = range[0]!; i < range[1]!; i++) {
+          const task = scheduler.getItem(i);
+          const firstEvent = record.getSize();
+          const interaction = task.getInteraction();
+          const refined = interaction instanceof Interaction
+            && HierarchicalRefinementStrategy.refineInteraction(scene, interaction, galerkinState, workspace);
+          scheduler.setResult(task, w, firstEvent, record.getSize(), refined);
+        }
+      }
+      scheduler.done();
+      for (let task = scheduler.takeForked(); task !== null; task = scheduler.takeForked()) {
+        const firstEvent = record.getSize();
+        HierarchicalRefinementStrategy.refineSubInteraction(
+          scene,
+          task.getCandidatesList(),
+          task.getReceiver(),
+          task.getSource(),
+          galerkinState,
+          workspace,
+        );
+        scheduler.setResult(task, w, firstEvent, record.getSize(), false);
+        scheduler.done();
+      }
+    }
+    catch (error: unknown) {
+      failure = error;
+      scheduler.fail();
+    }
+    if (failure !== null || scheduler.hasFailed()) {
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "refineInteractionsInParallel",
+        "A refinement worker failed" + (failure instanceof Error ? ": " + failure.message : ""));
+    }
+    replicas.endRefinement(record.getSize(), shadowStatistics);
+    replicas.addShadowStatistics(Statistics.instance().shadow);
+
+    // Phase 2: commit in the serial order; light transport is collected, in
+    // that order, and done at the end
+    const serialWorkspace = new RefinementWorkspace(
+      scene.getSceneQueryWorkspace(),
+      galerkinState.formFactorWorkspace,
+      HierarchicalRefinementStrategy.hierarchicalKPool,
+      null,
+      null,
+    );
+    const transports: Interaction[] = [];
+    const nextElementId = [firstNewElementId];
+    for (let g = 0; g < groups.length; g++) {
+      const group = groups[g]!;
+      const interactions = group.getElement().interactions;
+      let writeIndex = 0;
+      for (let readIndex = 0; readIndex < interactions.length; readIndex++) {
+        const o = interactions[readIndex];
+        let refined: boolean;
+        if (readIndex < group.getNumberOfItems()) {
+          refined = HierarchicalRefinementStrategy.commitRefinementTask(
+            scheduler,
+            replicas,
+            scheduler.getItemWithResult(group.getFirstItem() + readIndex),
+            elements,
+            transports,
+            nextElementId,
+          );
+        }
+        else if (!(o instanceof Interaction)) {
+          refined = false;
+        }
+        else if (HierarchicalRefinementStrategy.hierarchicRefinementEvaluateInteraction(o, galerkinState)
+          === InteractionEvaluationCode.ACCURATE_ENOUGH) {
+          // A link appended by this element's refinement, visited as the serial loop does
+          transports.push(o);
+          refined = false;
+        }
+        else {
+          // Not expected (the link was accurate enough when stored): refine it
+          // serially, after the light transport collected so far
+          HierarchicalRefinementStrategy.applyLightTransports(transports, galerkinState, 1);
+          transports.length = 0;
+          refined = HierarchicalRefinementStrategy.refineInteraction(scene, o, galerkinState, serialWorkspace);
+        }
+        if (refined && o instanceof Interaction) {
+          Interaction.interactionDestroy(o);
+        }
+        else {
+          if (writeIndex !== readIndex) {
+            interactions[writeIndex] = o;
+          }
+          writeIndex++;
+        }
+      }
+      if (writeIndex < interactions.length) {
+        interactions.length = writeIndex;
+      }
+    }
+    HierarchicalRefinementStrategy.applyLightTransports(transports, galerkinState, numberOfThreads);
+
+    if (nextElementId[0] !== GalerkinElement.getNumberOfElements() + 1) {
+      VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "refineInteractionsInParallel", "Element ids out of the serial order");
     }
   }
 }

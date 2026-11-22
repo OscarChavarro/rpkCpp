@@ -239,9 +239,17 @@ export class Batch {
 
         const wastedStart = process.hrtime.bigint();
 
+        // With -save-last-only, the image and the model are saved only
+        // after the last iteration (the last one asked for, or the one
+        // after which the method is done)
+        const lastIteration = done || iterationNumber === Batch.batchOptions.iterations - 1;
+        const saveImage = Batch.batchOptions.saveLastOnly !== 0
+          ? lastIteration
+          : Batch.batchOptions.saveModulo !== 0 && (iterationNumber % Batch.batchOptions.saveModulo) === 0;
+        const saveModel = Batch.batchOptions.saveLastOnly === 0 || lastIteration;
+
         if (
-          Batch.batchOptions.saveModulo !== 0
-          && (iterationNumber % Batch.batchOptions.saveModulo) === 0
+          saveImage
           && Batch.batchOptions.radianceImageFileNameFormat !== null
           && Batch.batchOptions.radianceImageFileNameFormat.length > 0
         ) {
@@ -258,7 +266,8 @@ export class Batch {
         }
 
         if (
-          Batch.batchOptions.radianceModelFileNameFormat !== null
+          saveModel
+          && Batch.batchOptions.radianceModelFileNameFormat !== null
           && Batch.batchOptions.radianceModelFileNameFormat.length > 0
         ) {
           const fileName = Batch.formatFileName(Batch.batchOptions.radianceModelFileNameFormat, iterationNumber);

@@ -43,6 +43,7 @@ export class OptionsGroupBatch {
     target.radianceImageFileNameFormat = source.radianceImageFileNameFormat;
     target.radianceModelFileNameFormat = source.radianceModelFileNameFormat;
     target.saveModulo = source.saveModulo;
+    target.saveLastOnly = source.saveLastOnly;
     target.raytracingImageFileName = source.raytracingImageFileName;
     target.timings = source.timings;
   }
@@ -120,6 +121,18 @@ export class OptionsGroupBatch {
       null,
       null
     );
+    const saveLastOnlyOpt = new TypedOption<number>(
+      "-save-last-only",
+      TypedOption.reference(
+        () => OptionsGroupBatch.batchOptionsState.saveLastOnly,
+        (v) => {
+          OptionsGroupBatch.batchOptionsState.saveLastOnly = v;
+        }
+      ),
+      0,
+      OptionsGroupBatch.setIntTrue,
+      null
+    );
     const raytracingImageOpt = new TypedOption<string>(
       "-raytracing-image-savefile",
       TypedOption.reference(
@@ -152,11 +165,12 @@ export class OptionsGroupBatch {
       TypedOption.REGISTER_OPTION(radianceImageOpt, 12),
       TypedOption.REGISTER_OPTION(radianceModelOpt, 12),
       TypedOption.REGISTER_OPTION(saveModuloOpt, 8),
+      TypedOption.REGISTER_OPTION(saveLastOnlyOpt, 8),
       TypedOption.REGISTER_OPTION(raytracingImageOpt, 14),
       TypedOption.REGISTER_OPTION(timingsOpt, 3),
     ];
     const batchGroups = [
-      new OptionGroup("batch", batchCommandLineOptions, 8),
+      new OptionGroup("batch", batchCommandLineOptions, 9),
     ];
 
     OptionsGroupBatch.copyFrom(options, OptionsGroupBatch.batchOptionsState);

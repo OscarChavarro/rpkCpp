@@ -115,7 +115,7 @@ export class GatheringSimpleStrategy extends GatheringStrategy {
       GatheringSimpleStrategy.patchGather(scene.patchList[i]!, scene, galerkinState);
     }
 
-    if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI) {
+    if (galerkinState.isJacobi()) {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList[i]!, galerkinState, scene.getFaceColors()!);
       }

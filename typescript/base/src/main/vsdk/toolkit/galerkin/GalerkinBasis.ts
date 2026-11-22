@@ -200,7 +200,7 @@ export class GalerkinBasis {
       }
 
       if (
-        galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI
+        galerkinState.isJacobi()
         || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
       ) {
         const Ed = element.galerkinState.topLevelElement(element.patch).Ed;
@@ -246,7 +246,7 @@ export class GalerkinBasis {
     }
 
     if (
-      galerkinState.galerkinIterationMethod === GalerkinIterationMethod.JACOBI
+      galerkinState.isJacobi()
       || galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
     ) {
       ColorRgbMutable.arrayCopy(radiance, bup, n);
