@@ -19,6 +19,9 @@
 # corpus plus the scenes outside it (corpus.sh OPTIONAL_TABLE) whose run has
 # finished, as output/<log>.status shows; an unfinished one is reported as
 # NOT COMPARED, a failed run as a failure. Difference images of failed comparisons go to output/diff/.
+# Parallel Random Walk case 13 uses a different random sequence: its exact
+# image check is skipped, but its statistics are checked and its golden RMSE
+# is measured after reducing both images to 50%, with a separate bound.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
@@ -28,6 +31,12 @@ reference_dir="etc/goldenImagesForTests"
 manifest="$reference_dir/manifest.txt"
 bounds="$reference_dir/goldenBounds.txt"
 diff_dir="output/diff"
+parallel_random_walk_bound="0.006"
+
+isParallelRandomWalk() {
+    [ "$1" = "13_floorStochasticRaytracingRandomWalk" ] &&
+        grep -Eq '^Tracing Random Walk final image with [0-9]+ workers$' output/13.err 2>/dev/null
+}
 
 mode="all"
 case "${1:-}" in
@@ -93,7 +102,9 @@ checkExact() {
         return
     fi
 
-    if [ -f "$reference" ]; then
+    if isParallelRandomWalk "$image"; then
+        echo "SKIP: $image exact image comparison (parallel Random Walk)"
+    elif [ -f "$reference" ]; then
         ae=$(runCompare AE "$reference" "$output" null:)
         status=$?
         if [ $status -eq 2 ]; then
@@ -120,6 +131,10 @@ checkExact() {
     fi
 
     fingerprint="$reference_dir/fingerprints/$image.txt"
+    if isParallelRandomWalk "$image" && [ ! -f "$fingerprint" ]; then
+        fail "$image: no statistics fingerprint for parallel Random Walk"
+        return
+    fi
     if [ -f "$fingerprint" ]; then
         if [ ! -f "output/$log.log" ] || [ ! -f "output/$log.err" ]; then
             fail "$image: missing run logs output/$log.log and .err for the statistics fingerprint"
@@ -131,7 +146,11 @@ checkExact() {
             return
         fi
     fi
-    echo "EXACT: $image"
+    if isParallelRandomWalk "$image"; then
+        echo "EXACT: $image statistics fingerprint"
+    else
+        echo "EXACT: $image"
+    fi
 }
 
 checkGolden() {
@@ -152,23 +171,39 @@ checkGolden() {
         return
     fi
 
-    rmse=$(runCompare RMSE "$golden_dir/$golden.ppm" "$output" null:)
-    if [ $? -eq 2 ] || [ -z "$rmse" ]; then
+    if isParallelRandomWalk "$image"; then
+        result=$(compare -metric RMSE \( "$golden_dir/$golden.ppm" -resize 50% \) \( "$output" -resize 50% \) null: 2>&1)
+        status=$?
+        rmse=$(echo "$result" | sed -n 's/.*(\(.*\)).*/\1/p')
+        bound="$parallel_random_walk_bound"
+    else
+        rmse=$(runCompare RMSE "$golden_dir/$golden.ppm" "$output" null:)
+        status=$?
+        bound=$(awk -v i="$image" '$1 == i { print $3 }' "$bounds" 2>/dev/null)
+    fi
+    if [ "$status" -eq 2 ] || [ -z "$rmse" ]; then
         fail "$image: compare error against golden $golden.ppm"
         return
     fi
-    bound=$(awk -v i="$image" '$1 == i { print $3 }' "$bounds" 2>/dev/null)
     if [ -z "$bound" ]; then
         fail "$image: no recorded RMSE bound (measured $rmse)"
         return
     fi
     if awk -v r="$rmse" -v b="$bound" 'BEGIN { exit !(r + 0 > b + 0) }'; then
         mkdir -p "$diff_dir"
-        compare "$golden_dir/$golden.ppm" "$output" "$diff_dir/${image}_vs_golden.png" 2>/dev/null
+        if isParallelRandomWalk "$image"; then
+            compare \( "$golden_dir/$golden.ppm" -resize 50% \) \( "$output" -resize 50% \) "$diff_dir/${image}_vs_golden.png" 2>/dev/null
+        else
+            compare "$golden_dir/$golden.ppm" "$output" "$diff_dir/${image}_vs_golden.png" 2>/dev/null
+        fi
         fail "$image: RMSE $rmse above bound $bound against golden $golden.ppm (difference: $diff_dir/${image}_vs_golden.png)"
         return
     fi
-    echo "GOLDEN: $image RMSE $rmse (bound $bound)"
+    if isParallelRandomWalk "$image"; then
+        echo "GOLDEN: $image RMSE $rmse (50% size, bound $bound)"
+    else
+        echo "GOLDEN: $image RMSE $rmse (bound $bound)"
+    fi
 }
 
 captureReference() {

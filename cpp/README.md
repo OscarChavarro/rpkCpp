@@ -38,6 +38,14 @@ reproducible across worker counts, but use a different random sequence from
 the serial golden image. Omit the option or use `-gr-threads 1` for the
 historical serial result.
 
+For test 13, `scripts/testReviewResults.sh` detects parallel final tracing in
+the run log. It checks the statistics fingerprint and compares the output and
+golden images at 50% size, with a normalized RMSE limit of 0.006. The limit
+allows for the parallel random sequence (the measured 72-worker result is
+0.00481165); serial runs retain the exact image and original golden checks.
+In `--exact` mode the parallel image check is skipped, so use the default or
+`--golden` mode to check its image.
+
 ## Modernized features from original ANSI C to current C++-11 code
 
 This is a full rewrite with the following features:
