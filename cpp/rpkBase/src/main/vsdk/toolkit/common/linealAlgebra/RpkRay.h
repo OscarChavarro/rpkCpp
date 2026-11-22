@@ -1,0 +1,12 @@
+#ifndef RPK_RAY__
+#define RPK_RAY__
+
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+
+class RpkRay {
+  public:
+    Vector3Df position;
+    Vector3Df direction; // Direction should be normalized
+};
+
+#endif

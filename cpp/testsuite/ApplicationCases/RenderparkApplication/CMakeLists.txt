@@ -25,12 +25,13 @@ add_compile_options(-O3)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-get_filename_component(VITRAL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../base REALPATH)
-get_filename_component(VITRAL_OPENGL_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../opengl REALPATH)
-set(VITRAL_INCLUDE_DIR "${VITRAL_BASE_DIR}/src/main" CACHE PATH "Include directory for the vitral library")
-set(VITRAL_LIBRARY_PATH "${VITRAL_BASE_DIR}/build/libvitral.so" CACHE FILEPATH "Shared library path for vitral when building standalone")
-set(VITRAL_OPENGL_INCLUDE_DIR "${VITRAL_OPENGL_BASE_DIR}/src/main" CACHE PATH "Include directory for the vitral-opengl library")
-set(VITRAL_OPENGL_LIBRARY_PATH "${VITRAL_OPENGL_BASE_DIR}/build/libvitral-opengl.so" CACHE FILEPATH "Shared library path for vitral-opengl when building standalone")
+get_filename_component(RPK_CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../.. REALPATH)
+set(VITRAL_INCLUDE_DIR "${RPK_CPP_DIR}/base/src/main" CACHE PATH "Include directory for the vitral library")
+set(VITRAL_LIBRARY_PATH "${RPK_CPP_DIR}/base/build/libvitral.so" CACHE FILEPATH "Shared library path for vitral when building standalone")
+set(RPK_BASE_INCLUDE_DIR "${RPK_CPP_DIR}/rpkBase/src/main" CACHE PATH "Include directory for the rpkBase library")
+set(RPK_BASE_LIBRARY_PATH "${RPK_CPP_DIR}/rpkBase/build/librpkBase.so" CACHE FILEPATH "Shared library path for rpkBase when building standalone")
+set(RPK_OPENGL1_INCLUDE_DIR "${RPK_CPP_DIR}/rpkOpenGL1/src/main" CACHE PATH "Include directory for the rpkOpenGL1 library")
+set(RPK_OPENGL1_LIBRARY_PATH "${RPK_CPP_DIR}/rpkOpenGL1/build/librpkOpenGL1.so" CACHE FILEPATH "Shared library path for rpkOpenGL1 when building standalone")
 
 file(GLOB_RECURSE RPK_SRC CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
@@ -53,6 +54,7 @@ add_executable(rpk ${RPK_SRC})
 target_include_directories(rpk
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${RPK_BASE_INCLUDE_DIR}
         ${VITRAL_INCLUDE_DIR}
 )
 
@@ -72,26 +74,33 @@ if(WITH_MGF)
     target_compile_definitions(rpk PRIVATE MGF_ENABLED=true)
 endif()
 
-if(TARGET vitral)
-    target_link_libraries(rpk PRIVATE vitral)
-else()
+if(NOT TARGET vitral)
     add_library(vitral SHARED IMPORTED)
     set_target_properties(vitral PROPERTIES
         IMPORTED_LOCATION ${VITRAL_LIBRARY_PATH}
         INTERFACE_INCLUDE_DIRECTORIES ${VITRAL_INCLUDE_DIR}
     )
-    target_link_libraries(rpk PRIVATE vitral)
 endif()
 
+if(NOT TARGET rpkBase)
+    add_library(rpkBase SHARED IMPORTED)
+    set_target_properties(rpkBase PROPERTIES
+        IMPORTED_LOCATION ${RPK_BASE_LIBRARY_PATH}
+        INTERFACE_INCLUDE_DIRECTORIES "${RPK_BASE_INCLUDE_DIR};${VITRAL_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES vitral
+    )
+endif()
+
+target_link_libraries(rpk PRIVATE rpkBase vitral)
+
 if(WITH_OPENGL)
-    if(TARGET vitral-opengl)
-        target_link_libraries(rpk PRIVATE vitral-opengl)
-    else()
-        add_library(vitral-opengl SHARED IMPORTED)
-        set_target_properties(vitral-opengl PROPERTIES
-            IMPORTED_LOCATION ${VITRAL_OPENGL_LIBRARY_PATH}
-            INTERFACE_INCLUDE_DIRECTORIES "${VITRAL_OPENGL_INCLUDE_DIR};${VITRAL_INCLUDE_DIR}"
+    if(NOT TARGET rpkOpenGL1)
+        add_library(rpkOpenGL1 SHARED IMPORTED)
+        set_target_properties(rpkOpenGL1 PROPERTIES
+            IMPORTED_LOCATION ${RPK_OPENGL1_LIBRARY_PATH}
+            INTERFACE_INCLUDE_DIRECTORIES "${RPK_OPENGL1_INCLUDE_DIR};${RPK_BASE_INCLUDE_DIR};${VITRAL_INCLUDE_DIR}"
+            INTERFACE_LINK_LIBRARIES rpkBase
         )
-        target_link_libraries(rpk PRIVATE vitral-opengl)
     endif()
+    target_link_libraries(rpk PRIVATE rpkOpenGL1)
 endif()

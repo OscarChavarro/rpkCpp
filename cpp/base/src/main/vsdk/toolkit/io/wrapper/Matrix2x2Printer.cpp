@@ -4,6 +4,6 @@ Matrix2x2Printer::print(const Matrix2x2 &matrix, java::PrintStream *stream) {
     if ( stream == nullptr ) {
         return;
     }
-    stream->printf("\t%f %f    %f\n", matrix.m[0][0], matrix.m[0][1], matrix.t[0]);
-    stream->printf("\t%f %f    %f\n", matrix.m[0][1], matrix.m[1][1], matrix.t[1]);
+    stream->printf("\t%f %f    %f\n", matrix.get(0, 0), matrix.get(0, 1), matrix.getTranslation(0));
+    stream->printf("\t%f %f    %f\n", matrix.get(1, 0), matrix.get(1, 1), matrix.getTranslation(1));
 }

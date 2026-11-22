@@ -181,8 +181,8 @@ Both commands accept image or script names to rebuild only part of the corpus. R
 anew accepts the current distance to the golden images, so it is a decision of the project owner.
 
 The ray corpus files (`etc/goldenImagesForTests/rayCorpus/<image>.vqc`) need a build configured with
-`-DWITH_RAY_CAPTURE=ON`; the exact `cmake` command is in the header of `scripts/captureRays.sh`. Only
-the replay of `scripts/replayRays.sh` uses them, so nothing else depends on this folder:
+`-DWITH_RAY_CAPTURE=ON`; the exact `cmake` command is in the header of `scripts/captureRays.sh`. The
+ray corpus replay that consumed them was removed, so no test depends on this folder:
 
 ```bash
 ./scripts/captureRays.sh <capture build directory> etc/goldenImagesForTests/rayCorpus 01_cubeJacobi 02_corridor \

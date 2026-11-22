@@ -6,7 +6,6 @@
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
-#include "SceneConsumer.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
@@ -74,11 +73,9 @@ class RpkApplication {
     ~RpkApplication();
 
     /**
-    Runs the program for the given command line. With a consumer, the scene
-    is built from the command line as for a rendering, handed to the
-    consumer instead of being rendered, and the consumer's status returned.
+    Runs the program for the given command line
     */
-    int entryPoint(int argc, char *argv[], SceneConsumer *consumer = nullptr);
+    int entryPoint(int argc, char *argv[]);
 };
 
 #endif

@@ -4,6 +4,8 @@ Estimate static adaptation for tone mapping
 
 #include <cstdlib>
 
+#include "java/lang/Math.h"
+#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -18,7 +20,7 @@ int Adaptation::numEntries = 0;
 double Adaptation::logAreaLum = 0.0;
 LuminanceArea *Adaptation::lumArea = nullptr;
 int Adaptation::lumAreaIndex = 0;
-float Adaptation::lumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+float Adaptation::lumMin = java::Float::MAX_VALUE; // Note java::Float::MAX_VALUE; will cause an issue here
 float Adaptation::lumMax = 0.0;
 Adaptation::PatchRadianceEstimateFn Adaptation::patchRadianceEstimate = nullptr;
 

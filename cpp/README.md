@@ -4,6 +4,23 @@ This document contains the C++-specific checklist and modernization notes.
 For program usage, screenshots and run/build examples, see the main README:
 [../README.md](../README.md).
 
+## Library layout
+
+The build (`CMakeLists.txt` of this folder) stacks four targets:
+
+| Folder | Target | Contents |
+| --- | --- | --- |
+| `base/` | `libvitral.so` | Only the VITRAL files RenderPark takes, byte-identical to `~/VITRAL/vitral/cpp/base/src/main` (list in `scripts/vitralSubset.txt`) |
+| `rpkBase/` | `librpkBase.so` | RenderPark's own classes: Galerkin, stochastic relaxation and random walk radiosity, raytracers and raycasters, scene model, MGF reader, tone mapping, support classes |
+| `rpkOpenGL1/` | `librpkOpenGL1.so` | Interactive viewer and visual debug tools over fixed-function OpenGL 1 and GLUT (only with `WITH_OPENGL`) |
+| `testsuite/ApplicationCases/RenderparkApplication/` | `rpk` | The program: command line, options and the rendering driver |
+
+`rpkBase` and `rpkOpenGL1` keep the `vsdk/toolkit/...` include paths their files had inside `base/`.
+`scripts/vitralSubset.sh --check ~/VITRAL/vitral` compares `base/` with VITRAL byte for byte and fails on
+any file of `base/src/main` that is not in the list; a VITRAL file changes in VITRAL first and comes in
+with `--refresh`. No VITRAL OpenGL 1 or OpenGL 4 file (`cpp/opengl1`, `cpp/opengl4` in VITRAL) is used,
+so there is no VITRAL OpenGL copy here.
+
 ## Modernized features from original ANSI C to current C++-11 code
 
 This is a full rewrite with the following features:

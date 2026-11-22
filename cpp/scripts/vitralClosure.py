@@ -3,15 +3,17 @@
 
 Follows #include "..." (and the sibling .cpp/.txx of each header) from the
 seed headers inside VITRAL's cpp/base/src/main, and classifies every file of
-the closure against RPK's cpp/base/src/main:
+the closure against RPK's VITRAL copy, cpp/base/src/main:
 
     shared-identical   present in both trees with the same bytes
     shared-different   present in both trees with different bytes (must be
                        resolved to one pinned implementation first)
     vitral-only        enters RPK with the slice
+    rpk-path           absent from base/ but present at the same path in
+                       rpkBase/ or rpkOpenGL1/ (RenderPark's own copy)
 
-and lists every class the closure defines that RPK already defines in
-another header (a name collision that the D2 rename map must clear before
+and lists every class the closure defines that RPK (base/, rpkBase/ or
+rpkOpenGL1/) already defines in another header (a name collision that the D2 rename map must clear before
 the header enters the tree).
 
     vitralClosure.py <VITRAL checkout> [seed header relative to src/main ...]
@@ -25,7 +27,12 @@ import sys
 from collections import Counter
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-RPK_MAIN = os.path.join(os.path.dirname(SCRIPT_DIR), 'base', 'src', 'main')
+CPP_DIR = os.path.dirname(SCRIPT_DIR)
+RPK_MAIN = os.path.join(CPP_DIR, 'base', 'src', 'main')
+RPK_OWN_MAINS = [
+    os.path.join(CPP_DIR, 'rpkBase', 'src', 'main'),
+    os.path.join(CPP_DIR, 'rpkOpenGL1', 'src', 'main'),
+]
 FIRST_SLICE = [
     'vsdk/toolkit/environment/material/Material.h',
     'vsdk/toolkit/environment/geometry/surface/TriangleMesh.h',
@@ -64,12 +71,16 @@ def closure(vitralMain, seeds):
 
 def rpkClasses():
     classes = {}
-    for directory, _, names in os.walk(RPK_MAIN):
-        for name in names:
-            if name.endswith('.h'):
-                path = os.path.join(directory, name)
-                for c in CLASS.findall(read(path)):
-                    classes.setdefault(c, []).append(os.path.relpath(path, RPK_MAIN))
+    for main in [RPK_MAIN] + RPK_OWN_MAINS:
+        for directory, _, names in os.walk(main):
+            for name in names:
+                if name.endswith('.h'):
+                    path = os.path.join(directory, name)
+                    relative = os.path.relpath(path, main)
+                    if main != RPK_MAIN:
+                        relative = os.path.join(os.path.basename(os.path.dirname(os.path.dirname(main))), relative)
+                    for c in CLASS.findall(read(path)):
+                        classes.setdefault(c, []).append(relative)
     return classes
 
 
@@ -86,7 +97,10 @@ def main():
     for name in files:
         rpkPath = os.path.join(RPK_MAIN, name)
         if not os.path.isfile(rpkPath):
-            state = 'vitral-only'
+            if any(os.path.isfile(os.path.join(m, name)) for m in RPK_OWN_MAINS):
+                state = 'rpk-path'
+            else:
+                state = 'vitral-only'
         elif read(rpkPath) == read(os.path.join(vitralMain, name)):
             state = 'shared-identical'
         else:
@@ -97,7 +111,7 @@ def main():
             for c in CLASS.findall(read(os.path.join(vitralMain, name))):
                 collisions += ['%s (RPK %s)' % (c, p) for p in classes.get(c, []) if p != name]
         print('%-17s %s%s' % (state, name, ('  COLLIDES ' + ', '.join(collisions)) if collisions else ''))
-        if collisions or state == 'shared-different':
+        if collisions or state in ('shared-different', 'rpk-path'):
             problems += 1
     print('%d files: %s; %d to resolve' % (len(files), ', '.join('%d %s' % (n, s) for s, n in sorted(states.items())), problems))
     return 1 if problems else 0

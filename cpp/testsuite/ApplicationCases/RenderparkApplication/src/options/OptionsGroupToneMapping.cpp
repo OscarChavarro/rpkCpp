@@ -38,12 +38,12 @@ OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
 }
 
 void
-OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
+OptionsGroupToneMapping::redChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xr = value.x;
-    (*toneMapOptions).yr = value.y;
+    (*toneMapOptions).xr = value.x();
+    (*toneMapOptions).yr = value.y();
     Cie::computeColorConversionTransforms(
         (*toneMapOptions).xr, (*toneMapOptions).yr,
         (*toneMapOptions).xg, (*toneMapOptions).yg,
@@ -52,12 +52,12 @@ OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
 }
 
 void
-OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
+OptionsGroupToneMapping::greenChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xg = value.x;
-    (*toneMapOptions).yg = value.y;
+    (*toneMapOptions).xg = value.x();
+    (*toneMapOptions).yg = value.y();
     Cie::computeColorConversionTransforms(
         (*toneMapOptions).xr, (*toneMapOptions).yr,
         (*toneMapOptions).xg, (*toneMapOptions).yg,
@@ -66,12 +66,12 @@ OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
 }
 
 void
-OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
+OptionsGroupToneMapping::blueChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xb = value.x;
-    (*toneMapOptions).yb = value.y;
+    (*toneMapOptions).xb = value.x();
+    (*toneMapOptions).yb = value.y();
     Cie::computeColorConversionTransforms(
         (*toneMapOptions).xr, (*toneMapOptions).yr,
         (*toneMapOptions).xg, (*toneMapOptions).yg,
@@ -80,12 +80,12 @@ OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
 }
 
 void
-OptionsGroupToneMapping::whiteChromaOption(Vector3D &value) {
+OptionsGroupToneMapping::whiteChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xw = value.x;
-    (*toneMapOptions).yw = value.y;
+    (*toneMapOptions).xw = value.x();
+    (*toneMapOptions).yw = value.y();
     Cie::computeColorConversionTransforms(
         (*toneMapOptions).xr, (*toneMapOptions).yr,
         (*toneMapOptions).xg, (*toneMapOptions).yg,
@@ -124,10 +124,10 @@ OptionsGroupToneMapping::toneMapParseOptions(
 {
     char *toneMapMethodName = nullptr;
     char *adaptMethodName = nullptr;
-    Vector3D redChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D greenChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D blueChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D whiteChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Df redChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Df greenChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Df blueChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Df whiteChromaticityValue(0.0, 0.0, 0.0);
     double gammaScalar = toneMapOptionsContext.gamma.getR();
     TypedOption<char *> toneMappingOpt = {"-tonemapping", &toneMapMethodName, 1, OptionsGroupToneMapping::toneMappingMethodOption, nullptr};
     TypedOption<float> brightnessAdjustOpt = {"-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, OptionsGroupToneMapping::brightnessAdjustOption, nullptr};
@@ -137,10 +137,10 @@ OptionsGroupToneMapping::toneMapParseOptions(
     TypedOption<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
     TypedOption<double> gammaOpt = {"-gamma", &gammaScalar, 1, OptionsGroupToneMapping::gammaOption, nullptr};
     TypedOption<ColorRgbMutable> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, OptionsGroupToneMapping::parseColor3};
-    TypedOption<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy};
-    TypedOption<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy};
-    TypedOption<Vector3D> blueOpt = {"-blue", &blueChromaticityValue, 2, OptionsGroupToneMapping::blueChromaOption, OptionsGroupToneMapping::parseCieXy};
-    TypedOption<Vector3D> whiteOpt = {"-white", &whiteChromaticityValue, 2, OptionsGroupToneMapping::whiteChromaOption, OptionsGroupToneMapping::parseCieXy};
+    TypedOption<Vector3Df> redOpt = {"-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy};
+    TypedOption<Vector3Df> greenOpt = {"-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy};
+    TypedOption<Vector3Df> blueOpt = {"-blue", &blueChromaticityValue, 2, OptionsGroupToneMapping::blueChromaOption, OptionsGroupToneMapping::parseCieXy};
+    TypedOption<Vector3Df> whiteOpt = {"-white", &whiteChromaticityValue, 2, OptionsGroupToneMapping::whiteChromaOption, OptionsGroupToneMapping::parseCieXy};
     OptionBase toneMappingOptions[] = {
         REGISTER_OPTION(char *, toneMappingOpt, 4),
         REGISTER_OPTION(float, brightnessAdjustOpt, 4),
@@ -150,10 +150,10 @@ OptionsGroupToneMapping::toneMapParseOptions(
         REGISTER_OPTION(float, cmaxOpt, 4),
         REGISTER_OPTION(double, gammaOpt, 4),
         REGISTER_OPTION(ColorRgbMutable, rgbGammaOpt, 4),
-        REGISTER_OPTION(Vector3D, redOpt, 4),
-        REGISTER_OPTION(Vector3D, greenOpt, 4),
-        REGISTER_OPTION(Vector3D, blueOpt, 4),
-        REGISTER_OPTION(Vector3D, whiteOpt, 4)
+        REGISTER_OPTION(Vector3Df, redOpt, 4),
+        REGISTER_OPTION(Vector3Df, greenOpt, 4),
+        REGISTER_OPTION(Vector3Df, blueOpt, 4),
+        REGISTER_OPTION(Vector3Df, whiteOpt, 4)
     };
 
     OptionsGroupToneMapping::toneMapName = toneMapNameOut;
@@ -191,19 +191,19 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgbMutable &val
 }
 
 bool
-OptionsGroupToneMapping::parseCieXy(int argc, char **argv, Vector3D &value) {
+OptionsGroupToneMapping::parseCieXy(int argc, char **argv, Vector3Df &value) {
     if ( argc < 2 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr ) {
         return false;
     }
     char *endPointer = nullptr;
-    value.x = strtof(argv[0], &endPointer);
+    value = value.withX(strtof(argv[0], &endPointer));
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value.y = strtof(argv[1], &endPointer);
+    value = value.withY(strtof(argv[1], &endPointer));
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value.z = 0.0;
+    value = value.withZ(0.0);
     return true;
 }

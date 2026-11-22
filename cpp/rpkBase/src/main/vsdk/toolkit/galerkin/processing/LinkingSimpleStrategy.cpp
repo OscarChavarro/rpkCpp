@@ -1,0 +1,250 @@
+#include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/memoryManagement/MemoryPool.txx"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/galerkin/processing/FormFactorStrategy.h"
+#include "vsdk/toolkit/galerkin/processing/LinkingSimpleStrategy.h"
+#include "vsdk/toolkit/galerkin/Shaft.h"
+
+MemoryPool<float> LinkingSimpleStrategy::interactionCoefficientsPool;
+bool LinkingSimpleStrategy::interactionCoefficientsPoolInitialized = false;
+
+void
+LinkingSimpleStrategy::ensureInteractionCoefficientsPool() {
+    if ( !interactionCoefficientsPoolInitialized ) {
+        interactionCoefficientsPool.init(8 * 1024 * 1024);
+        interactionCoefficientsPoolInitialized = true;
+    }
+}
+
+void
+LinkingSimpleStrategy::createInitialLink(
+    const Scene *scene,
+    const GalerkinState *galerkinState,
+    const GalerkinRole role,
+    java::ArrayList<RpkGeometry *> **candidateList,
+    GalerkinElement *topElement,
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
+    Patch *patch)
+{
+    if ( !patch->facing(topElement->patch) ) {
+        return;
+    }
+
+    GalerkinElement *rcv = nullptr;
+    GalerkinElement *src = nullptr;
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
+    switch ( role ) {
+        case GalerkinRole::SOURCE:
+            rcv = topLevelElement;
+            src = topElement;
+            break;
+        case GalerkinRole::RECEIVER:
+            rcv = topElement;
+            src = topLevelElement;
+            break;
+        default:
+            Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLink", "Impossible element role");
+    }
+
+    java::ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
+
+    if ( (galerkinState->exactVisibility
+       || galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING)
+       && oldCandidateList ) {
+        Shaft shaft(scene->getFaceBounds());
+
+        if ( galerkinState->exactVisibility ) {
+            if ( rcv != nullptr && src != nullptr ) {
+                Polygon rcvPolygon;
+                Polygon srcPolygon;
+                rcv->initPolygon(&rcvPolygon);
+                src->initPolygon(&srcPolygon);
+                shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
+            }
+        } else {
+            RpkAxisAlignedBoundingBox boundingBox;
+            boundingBox.copyFrom(&scene->getFaceBounds()->get(patch->getFaceIndex()));
+            shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
+        }
+
+        shaft.setShaftOmit(topElement->patch);
+        shaft.setShaftOmit(patch);
+        java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
+        shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
+        *candidateList = arr;
+
+        if ( shaft.isCut() ) {
+            // One patch causes full occlusion
+            Shaft::freeCandidateList(*candidateList);
+            *candidateList = oldCandidateList;
+            return;
+        }
+    }
+
+    Interaction link{};
+    constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+    ensureInteractionCoefficientsPool();
+    bool usingPool = true;
+    link.K = interactionCoefficientsPool.allocate(KSize);
+    if ( link.K == nullptr ) {
+        if ( interactionCoefficientsPool.expand(KSize * 128) ) {
+            link.K = interactionCoefficientsPool.allocate(KSize);
+        }
+        if ( link.K == nullptr ) {
+            usingPool = false;
+            link.K = new float[KSize];
+        }
+    }
+    link.ownsK = !usingPool;
+    link.receiverElement = rcv;
+    link.sourceElement = src;
+
+    if ( rcv != nullptr ) {
+        link.numberOfBasisFunctionsOnReceiver = rcv->basisSize;
+    }
+
+    if ( src != nullptr ) {
+        link.numberOfBasisFunctionsOnSource = src->basisSize;
+    }
+
+    bool isSceneGeometry = (*candidateList == scene->geometryList);
+    bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
+    const java::ArrayList<RpkGeometry *> *geometryListReferences = *candidateList;
+    FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
+        scene->getSceneQuery(),
+        scene->getSceneQueryWorkspace(),
+        galerkinState->formFactorWorkspace,
+        geometryListReferences,
+        isSceneGeometry,
+        isClusteredGeometry,
+        &link,
+        galerkinState);
+
+    if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+        if ( oldCandidateList != *candidateList ) {
+            Shaft::freeCandidateList(*candidateList);
+        }
+        *candidateList = oldCandidateList;
+    }
+
+    if ( link.visibility > 0 ) {
+        Interaction *newLink = Interaction::interactionDuplicate(&link);
+        // Store interactions with the source patch for the progressive radiosity method
+        // and with the receiving patch for gathering methods
+        if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
+            if ( src != nullptr ) {
+                src->interactions->add(newLink);
+            }
+        } else if ( rcv != nullptr ) {
+            rcv->interactions->add(newLink);
+        }
+    }
+
+    if ( usingPool ) {
+        link.K = nullptr;
+        interactionCoefficientsPool.free(KSize);
+    }
+}
+
+/**
+Yes... we exploit the hierarchical structure of the scene during initial linking
+*/
+void
+LinkingSimpleStrategy::geometryLink(
+    const Scene *scene,
+    const GalerkinState *galerkinState,
+    const GalerkinRole role,
+    java::ArrayList<RpkGeometry *> **candidateList,
+    GalerkinElement *topElement,
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
+    RpkGeometry *geometry)
+{
+    // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
+    if ( geometry->bounded
+        && geometry->getBoundingBox().behindPlane(topElement->patch->getNormal(), topElement->patch->getPlaneConstant()) ) {
+        return;
+    }
+
+    // If the geometry is bounded, do shaft culling, reducing the candidate list
+    // which contains the possible occluder between a pair of patches for which
+    // an initial link will need to be created
+    java::ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
+
+    if ( geometry->bounded && oldCandidateList ) {
+        Shaft shaft(scene->getFaceBounds());
+        RpkAxisAlignedBoundingBox boundingBox = geometry->getBoundingBox();
+        shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
+        shaft.setShaftOmit(topElement->patch);
+        java::ArrayList<RpkGeometry*> *arr = new java::ArrayList<RpkGeometry*>();
+        shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
+        *candidateList = arr;
+    }
+
+    // If the Geometry is an aggregate, test each of its children GEOMs, if it
+    // is a primitive, create an initial link with each patch it consists of
+    if ( geometry->isCompound() ) {
+        java::ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
+        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+            LinkingSimpleStrategy::geometryLink(
+                scene,
+                galerkinState,
+                role,
+                candidateList,
+                topElement,
+                topLevelBoundingBox,
+                geometryList->get(i));
+        }
+        delete geometryList;
+    } else {
+        const java::ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
+        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+            LinkingSimpleStrategy::createInitialLink(
+                scene,
+                galerkinState,
+                role,
+                candidateList,
+                topElement,
+                topLevelBoundingBox,
+                patchList->get(i));
+        }
+    }
+
+    if ( geometry->bounded && oldCandidateList ) {
+        Shaft::freeCandidateList(*candidateList);
+    }
+    *candidateList = oldCandidateList;
+}
+
+/**
+Creates the initial interactions for a top level element which is
+considered to be a SOURCE or RECEIVER according to 'role'. Interactions
+are stored at element for both source and receiver when doing gathering and at the
+source element only when doing shooting
+*/
+void
+LinkingSimpleStrategy::createInitialLinks(
+    const Scene *scene,
+    const GalerkinState *galerkinState,
+    const GalerkinRole role,
+    GalerkinElement *topElement)
+{
+    if ( topElement->flags & ElementFlags::IS_CLUSTER_MASK ) {
+        Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
+    }
+
+    RpkAxisAlignedBoundingBox topLevelBoundingBox;
+    topLevelBoundingBox.copyFrom(&scene->getFaceBounds()->get(topElement->patch->getFaceIndex()));
+
+    java::ArrayList<RpkGeometry *> *candidateList = scene->clusteredGeometryList;
+
+    for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
+        LinkingSimpleStrategy::geometryLink(
+            scene,
+            galerkinState,
+            role,
+            &candidateList,
+            topElement,
+            &topLevelBoundingBox,
+            scene->geometryList->get(i));
+    }
+}

@@ -2,8 +2,8 @@
 """T0 duplicate-class audit of the link closure.
 
 Collects the headers reachable through #include "..." from the compiled
-sources of the three targets (base library, the
-vitral-opengl library and the RenderPark application) and fails when one
+sources of the four targets (the vitral library in base/, the rpkBase
+and rpkOpenGL1 libraries and the RenderPark application) and fails when one
 class name is defined by two different headers of that closure, or when two
 headers of the closure open with the same include guard, except for the names
 listed in classAudit.allow. Two definitions of one class linked together are
@@ -22,11 +22,13 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 INCLUDE_ROOTS = [
     os.path.join(PROJECT_DIR, 'base', 'src', 'main'),
-    os.path.join(PROJECT_DIR, 'opengl', 'src', 'main'),
+    os.path.join(PROJECT_DIR, 'rpkBase', 'src', 'main'),
+    os.path.join(PROJECT_DIR, 'rpkOpenGL1', 'src', 'main'),
 ]
 SOURCE_ROOTS = [
     (os.path.join(PROJECT_DIR, 'base', 'src', 'main'), []),
-    (os.path.join(PROJECT_DIR, 'opengl', 'src'), []),
+    (os.path.join(PROJECT_DIR, 'rpkBase', 'src', 'main'), []),
+    (os.path.join(PROJECT_DIR, 'rpkOpenGL1', 'src'), []),
     (os.path.join(PROJECT_DIR, 'testsuite', 'ApplicationCases', 'RenderparkApplication', 'src'), []),
 ]
 INCLUDE = re.compile(r'^\s*#\s*include\s+"([^"]+)"', re.M)

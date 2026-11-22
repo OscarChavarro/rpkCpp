@@ -29,8 +29,9 @@ for configuration in raytracing noraytracing; do
     rm -rf "$build"
     cmake -S "$PROJECT_DIR" -B "$build/top" \
         -DWITH_RAYTRACING=$flag -DWITH_RAYCASTING=$flag \
-        -DRPK_BASE_BINARY_DIR="$build/base" \
-        -DRPK_OPENGL_BINARY_DIR="$build/opengl" \
+        -DRPK_VITRAL_BINARY_DIR="$build/base" \
+        -DRPK_BASE_BINARY_DIR="$build/rpkBase" \
+        -DRPK_OPENGL1_BINARY_DIR="$build/rpkOpenGL1" \
         -DRPK_RENDERPARK_BINARY_DIR="$build/rpk" >/dev/null || status=1
     cmake --build "$build/top" -j "$(nproc)" >"$build.log" 2>&1 || status=1
     grep -E 'warning:' "$build.log" |
@@ -44,7 +45,7 @@ for configuration in raytracing noraytracing; do
 done
 
 # Class definitions (not forward declarations) by header
-find "$PROJECT_DIR/base/src/main" "$PROJECT_DIR/opengl/src" "$PROJECT_DIR/testsuite" \
+find "$PROJECT_DIR/base/src/main" "$PROJECT_DIR/rpkBase/src/main" "$PROJECT_DIR/rpkOpenGL1/src" "$PROJECT_DIR/testsuite" \
     -name '*.h' -print 2>/dev/null |
     xargs grep -H -E '^(class|struct) [A-Za-z_][A-Za-z0-9_]*( final)? *(:[^;]*)?\{?$' 2>/dev/null |
     sed -e "s|$PROJECT_DIR/||" -e 's/:\(class\|struct\) \([A-Za-z_][A-Za-z0-9_]*\).*/ \2/' |

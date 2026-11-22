@@ -12,35 +12,37 @@ option(WITH_RAYTRACING "Enable raytracing modules" ON)
 option(WITH_OPENGL "Enable OpenGL modules" ON)
 option(WITH_MGF "Enable MGF reader modules" ON)
 option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
-option(WITH_RAY_REPLAY "Build the ray corpus replay of plan step 4 (testsuite/ApplicationCases/RayCorpusReplay)" ON)
 
 get_filename_component(RPK_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
-set(RPK_BASE_BINARY_DIR "${RPK_ROOT_DIR}/base/build" CACHE PATH "Binary directory for the vitral library build")
-set(RPK_OPENGL_BINARY_DIR "${RPK_ROOT_DIR}/opengl/build" CACHE PATH "Binary directory for the vitral-opengl library build")
+set(RPK_VITRAL_BINARY_DIR "${RPK_ROOT_DIR}/base/build" CACHE PATH "Binary directory for the vitral library build (base/, the VITRAL copy)")
+set(RPK_BASE_BINARY_DIR "${RPK_ROOT_DIR}/rpkBase/build" CACHE PATH "Binary directory for the rpkBase library build")
+set(RPK_OPENGL1_BINARY_DIR "${RPK_ROOT_DIR}/rpkOpenGL1/build" CACHE PATH "Binary directory for the rpkOpenGL1 library build")
 set(RPK_RENDERPARK_BINARY_DIR "${RPK_ROOT_DIR}/testsuite/ApplicationCases/RenderparkApplication/build" CACHE PATH "Binary directory for the Renderpark application build")
-set(RPK_RAY_REPLAY_BINARY_DIR "${RPK_ROOT_DIR}/testsuite/ApplicationCases/RayCorpusReplay/build" CACHE PATH "Binary directory for the ray corpus replay build")
 
+# Layers: base/ (vitral, the byte-identical VITRAL subset) <- rpkBase/
+# (RenderPark's radiosity, raytracing and scene classes) <- rpkOpenGL1/
+# (OpenGL 1 viewer, only WITH_OPENGL) <- the RenderPark application
 add_subdirectory(
     ${RPK_ROOT_DIR}/base
+    ${RPK_VITRAL_BINARY_DIR}
+)
+
+add_subdirectory(
+    ${RPK_ROOT_DIR}/rpkBase
     ${RPK_BASE_BINARY_DIR}
 )
 
-add_subdirectory(
-    ${RPK_ROOT_DIR}/opengl
-    ${RPK_OPENGL_BINARY_DIR}
-)
+if(WITH_OPENGL)
+    add_subdirectory(
+        ${RPK_ROOT_DIR}/rpkOpenGL1
+        ${RPK_OPENGL1_BINARY_DIR}
+    )
+endif()
 
 add_subdirectory(
     ${RPK_ROOT_DIR}/testsuite/ApplicationCases/RenderparkApplication
     ${RPK_RENDERPARK_BINARY_DIR}
 )
-
-if(WITH_RAY_REPLAY)
-    add_subdirectory(
-        ${RPK_ROOT_DIR}/testsuite/ApplicationCases/RayCorpusReplay
-        ${RPK_RAY_REPLAY_BINARY_DIR}
-    )
-endif()
 
 # T0 duplicate-class audit: two definitions of one class name in the link
 # closure fail the build (scripts/classAudit.py; known debt in classAudit.allow)
