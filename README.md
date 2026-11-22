@@ -157,7 +157,7 @@ To check a change, run the test corpus and then the image gate (ImageMagick `com
 
 ```bash
 ./scripts/runCorpus.sh                   # whole corpus in parallel, or name images to run a subset
-./scripts/testReviewResults.sh --exact   # every output pixel-identical to its port reference in ./testReferences
+./scripts/testReviewResults.sh --exact   # every output pixel-identical to its port reference in etc/goldenImagesForTests
 ./scripts/testReviewResults.sh --golden  # every output within its recorded RMSE bound of ./doc/testBaseImages
 ```
 
@@ -167,7 +167,7 @@ decision of the project owner. Failed comparisons leave difference images in `./
 
 ### Rebuilding the C++ test references
 
-`cpp/testReferences` is not versioned (the ray corpus alone takes more than 30 GB), so a fresh clone
+`cpp/etc/goldenImagesForTests` is not versioned (the ray corpus alone takes more than 30 GB), so a fresh clone
 does not have it. Rebuild it locally, from `cpp/`, on a tree whose outputs you trust:
 
 ```bash
@@ -180,12 +180,12 @@ does not have it. Rebuild it locally, from `cpp/`, on a tree whose outputs you t
 Both commands accept image or script names to rebuild only part of the corpus. Recording the bounds
 anew accepts the current distance to the golden images, so it is a decision of the project owner.
 
-The ray corpus files (`testReferences/rayCorpus/<image>.vqc`) need a build configured with
+The ray corpus files (`etc/goldenImagesForTests/rayCorpus/<image>.vqc`) need a build configured with
 `-DWITH_RAY_CAPTURE=ON`; the exact `cmake` command is in the header of `scripts/captureRays.sh`. Only
 the replay of `scripts/replayRays.sh` uses them, so nothing else depends on this folder:
 
 ```bash
-./scripts/captureRays.sh <capture build directory> testReferences/rayCorpus 01_cubeJacobi 02_corridor \
+./scripts/captureRays.sh <capture build directory> etc/goldenImagesForTests/rayCorpus 01_cubeJacobi 02_corridor \
   11_floorRayCasting 12_floorBidirectionalPathTracing 14_floorStochasticRaytracingJacobi
 ```
 
@@ -193,7 +193,7 @@ The notes of the ray corpus are versioned in `doc/rayCorpus`: `captureRays.sh` w
 accounting of each scene there (`<image>.accounting.txt`), and `manifest.txt`, written by hand at each
 capture, records the pins, the build and the sha256 to check the regenerated `.vqc` files against.
 
-`testReferences/vitralMeshAcceleration.txt` (VITRAL `RaytracingOfflineExample` control runs) is also
+`etc/goldenImagesForTests/vitralMeshAcceleration.txt` (VITRAL `RaytracingOfflineExample` control runs) is also
 written by hand and no script regenerates it. Until 2026-11-21 it was versioned, so the last committed
 copy can be recovered with `git show a4d00720:cpp/testReferences/vitralMeshAcceleration.txt`.
 

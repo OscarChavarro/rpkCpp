@@ -79,7 +79,7 @@ AGENTS.md
 
 # Port references: the C++ ones stay local (see README.md, "Rebuilding the C++ test references");
 # for the other ports, images stay local and checksums and fingerprints are versioned
-cpp/testReferences/
-turboc/testReferences/*.ppm
-java/testReferences/*.ppm
-typescript/testReferences/*.ppm
+cpp/etc/goldenImagesForTests/
+turboc/etc/goldenImagesForTests/*.ppm
+java/etc/goldenImagesForTests/*.ppm
+typescript/etc/goldenImagesForTests/*.ppm

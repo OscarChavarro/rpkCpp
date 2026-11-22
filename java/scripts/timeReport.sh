@@ -6,7 +6,7 @@
 #
 # Prints, per image, the CPU time of its run (user + system seconds), the wall
 # clock and the peak RSS, and the change of CPU time against the baseline in
-# testReferences/timings.txt. CPU time is the figure to compare: it does not
+# etc/goldenImagesForTests/timings.txt. CPU time is the figure to compare: it does not
 # depend on how many runs share the machine, as the wall clock does. A scene
 # outside the corpus whose run has not finished is reported as not measured.
 # --record stores the current CPU times as the baseline (all selected images
@@ -15,7 +15,7 @@
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
 
-baseline="testReferences/timings.txt"
+baseline="etc/goldenImagesForTests/timings.txt"
 
 record=0
 if [ "${1:-}" = "--record" ]; then
