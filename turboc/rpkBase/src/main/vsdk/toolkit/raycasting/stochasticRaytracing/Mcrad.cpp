@@ -72,7 +72,7 @@ For counting how much CPU time was used for the computations
 */
 void
 Mcrad::mntCarloRadUpdCpuSecs() {
-    const long t = System::nanoTime();
+    const long long t = System::nanoTime();
     StochasticRelaxation::activeState().cpuSeconds += ((float)(
         ((double)(t - StochasticRelaxation::activeState().lastClock)) / 1000000000.0));
     StochasticRelaxation::activeState().lastClock = t;

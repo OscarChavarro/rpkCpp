@@ -15,6 +15,11 @@ option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corp
 
 get_filename_component(RPK_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
 set(RPK_VITRAL_BINARY_DIR "${RPK_ROOT_DIR}/base/build" CACHE PATH "Binary directory for the vitral-turboc library build (base/, the VITRAL copy)")
+# Before the library split, RPK_BASE_BINARY_DIR referred to base/build.  Drop
+# that obsolete cache entry so existing build directories pick up the new path.
+if(DEFINED RPK_BASE_BINARY_DIR AND RPK_BASE_BINARY_DIR STREQUAL RPK_VITRAL_BINARY_DIR)
+    unset(RPK_BASE_BINARY_DIR CACHE)
+endif()
 set(RPK_BASE_BINARY_DIR "${RPK_ROOT_DIR}/rpkBase/build" CACHE PATH "Binary directory for the rpkBase-turboc library build")
 set(RPK_RENDERPARK_BINARY_DIR "${RPK_ROOT_DIR}/testsuite/ApplicationCases/RenderparkApplication/build" CACHE PATH "Binary directory for the Renderpark application build")
 

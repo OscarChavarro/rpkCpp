@@ -71,8 +71,8 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
           j >= 0;
           j--, ySample += v ) {
         const long rowStart = j * x;
-        for ( long i = 0; i < x; i++ ) {
-            const float xSample = -h * ((float)(x - 1)) / 2.0f + h * ((float)(i));
+        float xSample = -h * ((float)(x - 1)) / 2.0f;
+        for ( long i = 0; i < x; i++, xSample += h ) {
             const unsigned long the_id = ids[rowStart + i] & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
@@ -133,7 +133,7 @@ Potential::softGetPatchPointers(const SglContext *sgl, const ArrayList<Patch *> 
 
     const int pixelCount = sgl->width * sgl->height;
     for ( i = 0; i < pixelCount; i++ ) {
-        Patch *P = ((Patch *)(sgl->frameBuffer[i]));
+        Patch *P = sgl->patchBuffer[i];
         if ( P ) {
             P->setVisible();
         }
@@ -142,7 +142,7 @@ Potential::softGetPatchPointers(const SglContext *sgl, const ArrayList<Patch *> 
 
 void
 Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
-    const long t = System::nanoTime();
+    const long long t = System::nanoTime();
     SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
     SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);

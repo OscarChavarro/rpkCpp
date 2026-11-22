@@ -269,7 +269,7 @@ For counting how much CPU time was used for the computations
 */
 void
 GalerkinRadianceMethod::updateCpuSecs() {
-    const long t = System::nanoTime();
+    const long long t = System::nanoTime();
     galerkinState.cpuSeconds += ((float)(((double)(t - galerkinState.lastClock)) / 1000000000.0));
     galerkinState.lastClock = t;
 }

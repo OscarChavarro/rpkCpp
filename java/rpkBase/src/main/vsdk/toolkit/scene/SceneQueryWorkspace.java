@@ -18,12 +18,22 @@ public final class SceneQueryWorkspace {
     private final SpatialIndexWorkspace indexWorkspace; // The other methods
     private SceneFaceRayTest faceRayTest;
     private final VisibilityQueryRecorder recorder; // Not owned
+    private final boolean countRays;
+    private long rayCount;
 
     public SceneQueryWorkspace(SceneQuery query) {
         this(query, null);
     }
 
     public SceneQueryWorkspace(SceneQuery query, VisibilityQueryRecorder inRecorder) {
+        this(query, inRecorder, false);
+    }
+
+    public SceneQueryWorkspace(SceneQuery query, boolean countRays) {
+        this(query, null, countRays);
+    }
+
+    private SceneQueryWorkspace(SceneQuery query, VisibilityQueryRecorder inRecorder, boolean countRays) {
         if (query.getLegacyGrid() != null) {
             legacyWorkspace = new VoxelGridWorkspace(
                 query.getLegacyGrid().getNumberOfItems(), query.getLegacyGrid().getNumberOfLevels());
@@ -35,6 +45,7 @@ public final class SceneQueryWorkspace {
         }
         faceRayTest = null;
         recorder = inRecorder;
+        this.countRays = countRays;
     }
 
     public VoxelGridWorkspace getLegacyWorkspace() {
@@ -47,6 +58,17 @@ public final class SceneQueryWorkspace {
 
     public VisibilityQueryRecorder getRecorder() {
         return recorder;
+    }
+
+    public boolean recordRay() {
+        if ( countRays ) {
+            rayCount++;
+        }
+        return countRays;
+    }
+
+    public long getRayCount() {
+        return rayCount;
     }
 
     SceneFaceRayTest getFaceRayTest(Scene scene) {

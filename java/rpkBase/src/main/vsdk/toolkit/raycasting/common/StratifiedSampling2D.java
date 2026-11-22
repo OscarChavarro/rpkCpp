@@ -31,13 +31,17 @@ public class StratifiedSampling2D {
     }
 
     public void sample(double[] x1, double[] x2) {
+        sample(x1, x2, null);
+    }
+
+    public void sample(double[] x1, double[] x2, SampleIndex sampleIndex) {
         if (x1 == null || x1.length == 0 || x2 == null || x2.length == 0) {
             throw new IllegalArgumentException("Output arrays must have length >= 1");
         }
 
         if (yStratum < yMaxStratum && xMaxStratum > 0 && yMaxStratum > 0) {
-            x1[0] = (xStratum + Random.drand48()) / (double)xMaxStratum;
-            x2[0] = (yStratum + Random.drand48()) / (double)yMaxStratum;
+            x1[0] = (xStratum + sampleUnitInterval(sampleIndex)) / (double)xMaxStratum;
+            x2[0] = (yStratum + sampleUnitInterval(sampleIndex)) / (double)yMaxStratum;
 
             if ((++xStratum) == xMaxStratum) {
                 xStratum = 0;
@@ -45,8 +49,29 @@ public class StratifiedSampling2D {
             }
         }
         else {
-            x1[0] = Random.drand48();
-            x2[0] = Random.drand48();
+            x1[0] = sampleUnitInterval(sampleIndex);
+            x2[0] = sampleUnitInterval(sampleIndex);
+        }
+    }
+
+    private static double sampleUnitInterval(SampleIndex sampleIndex) {
+        return sampleIndex == null ? Random.drand48() : sampleIndex.next();
+    }
+
+    // SplitMix64 finalizer over a separate range of sample indices for each pixel.
+    public static final class SampleIndex {
+        private long index;
+
+        public void reset(long pixel, long baseSeed) {
+            index = (pixel ^ (baseSeed & 0xffffffffL)) << 32;
+        }
+
+        private double next() {
+            long bits = index++;
+            bits = (bits ^ (bits >>> 30)) * 0xbf58476d1ce4e5b9L;
+            bits = (bits ^ (bits >>> 27)) * 0x94d049bb133111ebL;
+            bits ^= bits >>> 31;
+            return (bits >>> 11) / 9007199254740992.0;
         }
     }
 

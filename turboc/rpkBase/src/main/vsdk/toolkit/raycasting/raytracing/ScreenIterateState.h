@@ -5,7 +5,7 @@
 
 class ScreenIterateState {
   public:
-    long lastTime;
+    long long lastTime;
     unsigned char wakeUp;
 
     ScreenIterateState();

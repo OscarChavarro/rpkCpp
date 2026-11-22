@@ -56,7 +56,7 @@ class StochasticRelaxation {
     long numberOfMisses; // Rays disappearing to background
     int doNonDiffuseFirstShot; // Initial shooting pass handles non-diffuse lights
     int initialLightSourceSamples; // Initial shot samples per light source
-    long lastClock; // For computation timings (nanoseconds)
+    long long lastClock; // For computation timings (nanoseconds)
     float cpuSeconds; // CPU time spent in calculations
     ToneMappingContext *toneMapOptions;
 

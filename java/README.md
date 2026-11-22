@@ -21,6 +21,21 @@ RenderPark's lineal algebra is VITRAL's: the immutable `Vector2Df`, `Vector3Df`,
 `Matrix4x4f` and `Matrix2x2`. A method that the C++ port writes with a vector output pointer either
 returns the vector or takes a one-element array as output holder.
 
+## Parallel final tracing after Random Walk
+
+`-gr-threads N` enables parallel final tracing with `RandomWalk` and
+`StochasticRaytracing` when `N > 1`. To run the corpus case from `java/`:
+
+```bash
+./scripts/runAllParallel.sh --threads 4 13_floorStochasticRaytracingRandomWalk
+```
+
+The radiosity iterations run serially. The final trace requires BRDF sampling
+and falls back to serial tracing with stored radiance, coherent or correlated
+sampling, ray capture, or the legacy voxel grid. Each pixel has its own sample
+sequence, so parallel results are reproducible across worker counts. The
+historical serial render uses a different sequence.
+
 ## Running with JOGL
 
 To run the JOGL demo with JNI native libraries:

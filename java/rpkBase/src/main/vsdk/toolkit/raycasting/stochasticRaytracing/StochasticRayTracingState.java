@@ -33,6 +33,7 @@ public class StochasticRayTracingState {
     // Pixel sampling
     public int samplesPerPixel;
     public int progressiveTracing;
+    private int randomWalkFinalThreads;
 
     public int doFrameCoherent;
     public int doCorrelatedSampling;
@@ -62,4 +63,12 @@ public class StochasticRayTracingState {
     public int maxPathDepth;
 
     public ScreenBuffer lastScreen;
+
+    public int getRandomWalkFinalThreads() {
+        return randomWalkFinalThreads;
+    }
+
+    public void setRandomWalkFinalThreads(int randomWalkFinalThreads) {
+        this.randomWalkFinalThreads = randomWalkFinalThreads;
+    }
 }

@@ -159,7 +159,7 @@ RayCaster::render(
 {
     screenBuffer->setToneMappingContext(toneMapOptions);
 #ifdef RAYTRACING_ENABLED
-    long t = System::nanoTime();
+    long long t = System::nanoTime();
 #endif
 
     SoftIdsWrapper *idRenderer = new SoftIdsWrapper(scene, renderOptions);

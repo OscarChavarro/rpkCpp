@@ -80,7 +80,7 @@ For counting how much CPU time was used for the computations
 */
 void
 PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
-    const long t = System::nanoTime();
+    const long long t = System::nanoTime();
     photonMapState.cpuSecs += ((float)(
         ((double)(t - photonMapState.lastClock)) / 1000000000.0));
     photonMapState.lastClock = t;

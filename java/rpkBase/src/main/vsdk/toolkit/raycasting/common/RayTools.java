@@ -21,6 +21,12 @@ import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class RayTools {
+    private static void countRay(SceneQueryWorkspace workspace) {
+        if ( !workspace.recordRay() ) {
+            Statistics.instance().rayTracer.rayCount++;
+        }
+    }
+
     private static int pathFrontHitFlags() {
         return RayHitFlag.FRONT | RayHitFlag.POINT | RayHitFlag.MATERIAL;
     }
@@ -35,11 +41,10 @@ public class RayTools {
         Patch extraPatch,
         RayHit hitStore)
     {
-        RayHit myHitStore = new RayHit();
         float[] dist = new float[1];
         RayHit result;
         if (hitStore == null) {
-            hitStore = myHitStore;
+            hitStore = new RayHit();
         }
 
         dist[0] = Float.MAX_VALUE;
@@ -82,7 +87,7 @@ public class RayTools {
 
         // Trace the ray
         newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, null, hitStore);
-        Statistics.instance().rayTracer.rayCount++; // statistics
+        countRay(sceneWorldSceneQueryWorkspace);
 
         // Robustness test : If a back is hit, check the current
         // bsdf and the bsdf of the material hit. If they
@@ -91,7 +96,7 @@ public class RayTools {
             newHit.getPatch().material.getBsdf() != currentBsdf) {
             // Whoops, intersected with wrong patch (accuracy problem)
             newHit = traceWorld(sceneQuery, sceneWorldSceneQueryWorkspace, ray, patch, hitFlags, newHit.getPatch(), hitStore);
-            Statistics.instance().rayTracer.rayCount++; // Statistics
+            countRay(sceneWorldSceneQueryWorkspace);
         }
 
         return newHit;
@@ -196,7 +201,7 @@ pathNodesVisible : send a shadow ray
             }
             visible = (hit == null);
 
-            Statistics.instance().rayTracer.rayCount++; // Statistics
+            countRay(sceneWorldSceneQueryWorkspace);
         }
         else {
             visible = false;

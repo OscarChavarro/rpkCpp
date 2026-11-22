@@ -1,16 +1,24 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import vsdk.toolkit.common.Random;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
+import vsdk.toolkit.common.statistics.RayTracerStatistics;
+import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3Df;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.RayTools;
@@ -62,6 +70,93 @@ public final class StochasticRaytracer extends RayTracer {
     public void initialize(ArrayList<Patch> lightPatches) {
     }
 
+    // Workers own their samplers, lights and traversal scratch and write disjoint rows.
+    private static final class FinalTraceWorker implements Callable<Long> {
+        private final Scene scene;
+        private final ColorRgbMutable[] pixels;
+        private final int firstRow;
+        private final int rowStride;
+        private final StochasticRaytracerCallbackData callback;
+
+        FinalTraceWorker(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions,
+                         RenderOptions renderOptions, StochasticRayTracingState state,
+                         ColorRgbMutable[] pixels, int firstRow, int rowStride) {
+            this.scene = scene;
+            this.pixels = pixels;
+            this.firstRow = firstRow;
+            this.rowStride = rowStride;
+            callback = new StochasticRaytracerCallbackData();
+            callback.config = new StochasticRaytracingConfiguration(
+                scene.camera, state, scene.lightSourcePatchList, radianceMethod, toneMapOptions, null, false);
+            callback.radianceMethod = radianceMethod;
+            callback.renderOptions = renderOptions;
+        }
+
+        @Override
+        public Long call() throws InterruptedException {
+            SceneQuery query = scene.getSceneQuery();
+            SceneQueryWorkspace workspace = new SceneQueryWorkspace(query, true);
+            StochasticRaytracingConfiguration config = callback.config;
+            int width = scene.camera.xSize;
+            try {
+                for ( int y = firstRow; y < scene.camera.ySize; y += rowStride ) {
+                    if ( Thread.currentThread().isInterrupted() ) {
+                        throw new InterruptedException();
+                    }
+                    for ( int x = 0; x < width; x++ ) {
+                        int pixel = y * width + x;
+                        config.getSampleIndex().reset(pixel, config.baseSeed);
+                        pixels[pixel] = calcPixel(scene.camera, query, workspace, scene.background, x, y, callback);
+                    }
+                }
+                return workspace.getRayCount();
+            } finally {
+                config.release();
+            }
+        }
+    }
+
+    private void traceRandomWalkInParallel(Scene scene, RadianceMethod radianceMethod,
+                                           RenderOptions renderOptions, StochasticRaytracingConfiguration config) {
+        int width = scene.camera.xSize;
+        int height = scene.camera.ySize;
+        int workers = Math.min(rayTracingState.getRandomWalkFinalThreads(), height);
+        long start = System.nanoTime();
+        RayTracerStatistics stats = Statistics.instance().rayTracer;
+        stats.resetCounters();
+        System.err.printf("Tracing Random Walk final image with %d workers%n", workers);
+
+        ColorRgbMutable[] pixels = new ColorRgbMutable[Math.multiplyExact(width, height)];
+        ArrayList<FinalTraceWorker> tasks = new ArrayList<>(workers);
+        for ( int i = 0; i < workers; i++ ) {
+            tasks.add(new FinalTraceWorker(scene, radianceMethod, config.toneMapOptions,
+                renderOptions, rayTracingState, pixels, i, workers));
+        }
+        ExecutorService executor = Executors.newFixedThreadPool(workers);
+        long rayCount = 0;
+        try {
+            for ( Future<Long> task : executor.invokeAll(tasks) ) {
+                rayCount += task.get();
+            }
+        } catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while tracing the Random Walk image", e);
+        } catch ( ExecutionException e ) {
+            throw new IllegalStateException("Random Walk final tracing failed", e.getCause());
+        } finally {
+            executor.shutdownNow();
+        }
+
+        for ( int y = 0; y < height; y++ ) {
+            for ( int x = 0; x < width; x++ ) {
+                config.screen.add(x, y, pixels[y * width + x]);
+            }
+        }
+        stats.rayCount = rayCount;
+        stats.pixelCount = pixels.length;
+        stats.totalTime = (System.nanoTime() - start) / 1_000_000_000.0;
+    }
+
     /**
 Raytrace the current scene as seen with the current camera. If fp
 is not a nullptr pointer, write the ray-traced image to the file
@@ -73,7 +168,7 @@ pointed to by 'fp'
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        vsdk.toolkit.material.RenderOptions renderOptions)
+        RenderOptions renderOptions)
     {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticRaytracer::execute", "Tone mapping context not provided");
@@ -96,7 +191,22 @@ pointed to by 'fp'
             Random.srand48(rayTracingState.baseSeed);
         }
 
-        if ( rayTracingState.progressiveTracing == 0 ) {
+        boolean parallelRequested = radianceMethod != null && radianceMethod.className == RadianceMethodAlgorithm.RANDOM_WALK
+            && rayTracingState.getRandomWalkFinalThreads() > 1;
+        boolean traceInParallel = parallelRequested && rayTracingState.radMode == RayTracingRadMode.STORED_NONE
+            && rayTracingState.reflectionSampling == RayTracingSamplingMode.BRDF_SAMPLING
+            && rayTracingState.doFrameCoherent == 0 && rayTracingState.doCorrelatedSampling == 0
+            && scene.getSceneQueryWorkspace().getRecorder() == null
+            && scene.getSceneQuery().getLegacyGrid() == null;
+        if ( parallelRequested && !traceInParallel ) {
+            Logger.reportMessage(this, Logger.WARNING, "execute",
+                "Random Walk parallel final tracing requires BRDF sampling without stored radiance, "
+                + "coherent or correlated sampling, ray capture, or the legacy voxel grid; tracing serially");
+        }
+
+        if ( traceInParallel ) {
+            traceRandomWalkInParallel(scene, radianceMethod, renderOptions, config);
+        } else if ( rayTracingState.progressiveTracing == 0 ) {
             ScreenIterate.sequential(
                 scene.camera,
                 scene.getSceneQuery(),
@@ -217,7 +327,7 @@ pointed to by 'fp'
                 boolean doRR = thisNode.m_depth >= config.samplerConfig.minDepth;
 
                 for ( int i = 0; i < numberOfSamples; i++ ) {
-                    stratified.sample(x1, x2);
+                    stratified.sample(x1, x2, config.getSampleIndex());
 
                     // Surface sampling
                     if ( config.samplerConfig.surfaceSampler.sample(
@@ -346,7 +456,7 @@ pointed to by 'fp'
 
                 for ( int i = 0; i < config.nextEventSamples; i++ ) {
                     // Light sampling
-                    stratified.sample(x1, x2);
+                    stratified.sample(x1, x2, config.getSampleIndex());
 
                     if ( config.samplerConfig.neSampler.sample(
                         camera,
@@ -682,7 +792,7 @@ pointed to by 'fp'
 
         // Stratified sampling of the pixel
         for ( int i = 0; i < config.samplesPerPixel; i++ ) {
-            stratified.sample(x1, x2);
+            stratified.sample(x1, x2, config.getSampleIndex());
 
             if ( config.samplerConfig.dirSampler.sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, null, eyeNode, pixelNode, x1[0], x2[0])
                  && ((pixelNode.m_rayType != PathRayType.ENVIRONMENT) || (config.backgroundDirect)) ) {
@@ -723,7 +833,9 @@ pointed to by 'fp'
         double factor = (ScreenBuffer.computeFluxToRadFactor(camera, nx, ny) / (float)config.samplesPerPixel);
 
         result.scale((float)factor);
-        config.screen.add(nx, ny, result);
+        if ( config.screen != null ) {
+            config.screen.add(nx, ny, result);
+        }
 
         // Frame coherent & correlated sampling
         if ( config.doFrameCoherent != 0 || config.doCorrelatedSampling != 0 ) {

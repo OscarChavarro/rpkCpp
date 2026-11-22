@@ -169,6 +169,7 @@ Processes command line arguments
         // Create the window in which to render (canvas window)
         mainCreateOffscreenCanvasWindow();
 
+        stochasticRayTracingState.setRandomWalkFinalThreads(GalerkinRadianceMethod.galerkinState.numberOfThreads);
         rayTracer = Raytrace.rayTraceCreate(
             scene,
             toneMapOptions,

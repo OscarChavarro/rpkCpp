@@ -130,7 +130,7 @@ RayMatter::createFilter() {
 
 void
 RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace) {
-    const long t = System::nanoTime();
+    const long long t = System::nanoTime();
 
     createFilter();
 

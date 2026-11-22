@@ -18,7 +18,7 @@ For counting how much CPU time was used for the computations
 */
 void
 ScreenIterate::updateCpuSecs() {
-    const long now = System::nanoTime();
+    const long long now = System::nanoTime();
     Statistics::instance().rayTracer.totalTime += ((double)(now - state.lastTime)) / 1000000000.0;
     state.lastTime = now;
 }

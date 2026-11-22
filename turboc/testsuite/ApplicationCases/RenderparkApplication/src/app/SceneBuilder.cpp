@@ -514,7 +514,7 @@ SceneBuilder::sceneBuilderReadFile(
 
     // Read the source scene description into a ParseSnapshotContext snapshot
     System::err.printf("Reading the scene from file '%s' ... \n", inputName);
-    long last = System::nanoTime();
+    long long last = System::nanoTime();
     ParseSnapshotContext *mgfModel = NULL;
 
     if ( readBinaryModel ) {
@@ -554,7 +554,7 @@ SceneBuilder::sceneBuilderReadFile(
     scene->geometryList = mgfModel == NULL ? NULL : mgfModel->geometries;
     SceneBuilder::sceneBldFillFcsBackPntrs(scene->geometryList);
 
-    long t = System::nanoTime();
+    long long t = System::nanoTime();
     System::err.printf(
         "Reading took %g secs.\n",
         ((float)(((double)(t - last)) / 1000000000.0)));

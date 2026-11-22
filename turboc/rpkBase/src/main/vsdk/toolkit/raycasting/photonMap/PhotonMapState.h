@@ -54,7 +54,7 @@ class PhotonMapState {
 		     // different from currentIteration only when
 		     // statistics are gathered
     float cpuSecs; // For counting computing times
-    long lastClock;
+    long long lastClock;
 
     PhotonMapState();
     virtual ~PhotonMapState();

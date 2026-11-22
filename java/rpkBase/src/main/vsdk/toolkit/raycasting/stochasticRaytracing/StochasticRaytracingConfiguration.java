@@ -7,6 +7,7 @@ import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.ImportantLightSampler;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.UniformLightSampler;
+import vsdk.toolkit.raycasting.common.StratifiedSampling2D.SampleIndex;
 import vsdk.toolkit.raycasting.photonMap.PhotonMapSampler;
 import vsdk.toolkit.raycasting.raytracing.BsdfSampler;
 import vsdk.toolkit.raycasting.raytracing.EyeSampler;
@@ -47,6 +48,11 @@ public class StochasticRaytracingConfiguration {
     // All variables must not change during raytracing...
     public SamplerConfig samplerConfig;
     public SeedConfig seedConfig;
+    private final SampleIndex sampleIndex;
+
+    SampleIndex getSampleIndex() {
+        return sampleIndex;
+    }
 
     // Scatter info blocks
 
@@ -70,6 +76,18 @@ public class StochasticRaytracingConfiguration {
         ToneMappingContext inToneMapOptions,
         LightList inRayTracingLightList)
     {
+        this(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, inRayTracingLightList, true);
+    }
+
+    StochasticRaytracingConfiguration(
+        Camera defaultCamera,
+        StochasticRayTracingState state,
+        ArrayList<Patch> lightList,
+        RadianceMethod radianceMethod,
+        ToneMappingContext inToneMapOptions,
+        LightList inRayTracingLightList,
+        boolean createScreen)
+    {
         samplesPerPixel = 0;
         nextEventSamples = 0;
         lightMode = RayTracingLightMode.ALL_LIGHTS;
@@ -88,6 +106,7 @@ public class StochasticRaytracingConfiguration {
         toneMapOptions = null;
         samplerConfig = new SamplerConfig();
         seedConfig = new SeedConfig();
+        sampleIndex = createScreen ? null : new SampleIndex();
         siStorage = new ScatterInfo();
         siOthers = new ScatterInfo[6];
         for ( int i = 0; i < siOthers.length; i++ ) {
@@ -170,8 +189,10 @@ public class StochasticRaytracingConfiguration {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
         }
 
-        screen = new ScreenBuffer(null, defaultCamera, toneMapOptions);
-        screen.setFactor(1.0f); // We're storing plain radiance
+        if ( sampleIndex == null ) {
+            screen = new ScreenBuffer(null, defaultCamera, toneMapOptions);
+            screen.setFactor(1.0f); // We're storing plain radiance
+        }
 
         initDependentVars(lightList, radianceMethod, inRayTracingLightList);
     }
