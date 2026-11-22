@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 
 /**
 Surfaces are basically a list of patches representing a simple object with given material.
@@ -51,14 +51,14 @@ public final class MeshSurface extends Geometry {
     */
     public ArrayList<Patch> faces;
 
-    public Material material;
+    public RpkMaterial material;
 
     /**
     This routine creates a MeshSurface with given material, positions.
     */
     public MeshSurface(
         String inObjectName,
-        Material inMaterial,
+        RpkMaterial inMaterial,
         ArrayList<Vector3D> inPoints,
         ArrayList<Vector3D> inNormals,
         ArrayList<Vector3D> texCoords,

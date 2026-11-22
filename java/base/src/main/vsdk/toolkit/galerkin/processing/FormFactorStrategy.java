@@ -11,6 +11,8 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.common.logging.Logger;
+import vsdk.toolkit.common.statistics.ShadowStatistics;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
@@ -39,7 +41,7 @@ public class FormFactorStrategy {
         FormFactorWorkspace workspace) {
         float[] distance = workspace.getKernelDistance();
         distance[0] = shortenedDistance;
-        return shadowCache.cacheHit(ray, distance, workspace.getKernelHitStore(), exclusions) != null;
+        return shadowCache.cacheHit(ray, distance, workspace.getKernelHitStore(), exclusions, workspace.getPatchWorkspace()) != null;
     }
 
     private static RayHit shadowTestDiscretization(
@@ -55,12 +57,13 @@ public class FormFactorStrategy {
         RayExclusionSet exclusions,
         FormFactorWorkspace workspace)
     {
-        Statistics.instance().shadow.numberOfShadowRays++;
+        ShadowStatistics shadowStatistics = workspace.getShadowStatistics();
+        shadowStatistics.numberOfShadowRays++;
         float[] dist = workspace.getShadowTestDistance();
         dist[0] = minimumDistance;
-        RayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
+        RayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions, workspace.getPatchWorkspace());
         if ( hit != null ) {
-            Statistics.instance().shadow.numberOfShadowCacheHits++;
+            shadowStatistics.numberOfShadowCacheHits++;
             if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
                 sceneQueryWorkspace.getRecorder().countCacheResolved();
             }
@@ -105,6 +108,13 @@ public class FormFactorStrategy {
             shadowCache.addToShadowCache(hit.getPatch());
         }
         return hit;
+    }
+
+    /**
+Warns that two cubature nodes of an element pair are too close to interact
+*/
+    public static void reportNodesTooClose(GalerkinElement receiverElement, GalerkinElement sourceElement) {
+        Logger.reportMessage(null, Logger.WARNING, "evaluatePointsPairKernel", String.format("Nodes too close too each other (receiver id %d, source id %d)", receiverElement.id, sourceElement.id));
     }
 
     /**
@@ -197,7 +207,12 @@ relevant for surface elements
         ray.position.copy(y);
         ray.direction.subtraction(x, y);
         double distance = ray.direction.norm();
+
+        // Don't allow too nearby nodes to interact
         if ( distance < Numeric.EPSILON ) {
+            if ( !workspace.deferNodesTooClose(receiverElement, sourceElement) ) {
+                reportNodesTooClose(receiverElement, sourceElement);
+            }
             return 0.0;
         }
         ray.direction.inverseScaledCopy((float)distance, ray.direction, Numeric.EPSILON_FLOAT);

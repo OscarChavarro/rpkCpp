@@ -5,6 +5,7 @@ Higher order approximations for Galerkin radiosity
 package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
@@ -99,7 +100,9 @@ public class GalerkinBasis {
             childCoefficients[beta].clear();
             for ( int alpha = 0; alpha < b; alpha++ ) {
                 double f = basis.regularFilter[sigma][alpha][beta];
-                childCoefficients[beta].addScaled(childCoefficients[beta], (float)f, parentCoefficients[alpha]);
+                if ( f < -Numeric.EPSILON || f > Numeric.EPSILON ) {
+                    childCoefficients[beta].addScaled(childCoefficients[beta], (float)f, parentCoefficients[alpha]);
+                }
             }
         }
     }
@@ -170,7 +173,7 @@ public class GalerkinBasis {
         if ( sigma < 0 || sigma > 3 ) {
             Logger.reportMessage(null, Logger.ERROR, "stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
             ColorRgbMutable.arrayClear(parentCoefficients, parent.basisSize);
-            parentCoefficients[0] = childCoefficients[0];
+            parentCoefficients[0].set(childCoefficients[0].getR(), childCoefficients[0].getG(), childCoefficients[0].getB());
             return;
         }
 
@@ -179,7 +182,9 @@ public class GalerkinBasis {
             parentCoefficients[alpha].clear();
             for ( int beta = 0; beta < child.basisSize; beta++ ) {
                 double f = basis.regularFilter[sigma][alpha][beta];
-                parentCoefficients[alpha].addScaled(parentCoefficients[alpha], (float)f, childCoefficients[beta]);
+                if ( f < -Numeric.EPSILON || f > Numeric.EPSILON ) {
+                    parentCoefficients[alpha].addScaled(parentCoefficients[alpha], (float)f, childCoefficients[beta]);
+                }
             }
             parentCoefficients[alpha].scale(0.25f);
         }
@@ -209,7 +214,7 @@ public class GalerkinBasis {
                 bup[i].scalarProduct(rho, bdown[i]);
             }
 
-            if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI
+            if ( galerkinState.isJacobi()
                 || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
                 // Add self-emitted radiance
                 ColorRgbMutable Ed = element.patch.radianceData.Ed;
@@ -254,7 +259,7 @@ public class GalerkinBasis {
             }
         }
 
-        if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI
+        if ( galerkinState.isJacobi()
             || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
             ColorRgbMutable.arrayCopy(element.radiance, bup, n);
         }

@@ -14,7 +14,7 @@ import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.TokenValidationContext;
 import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.io.context.VertexContext;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.Vertex;
 
@@ -425,7 +425,7 @@ the (indispensable) Graphics Gems books
                 d = nn.distance(normal);
 
                 good = true;
-                if (d <= 1.0 + Numeric.EPSILON) {
+                if (d <= 1.0) {
                     for (int i = 0; i < n && good; i++) {
                         if (out[i] || v[i] == v[p0] || v[i] == v[p1] || v[i] == v[p2]) {
                             continue;
@@ -445,7 +445,7 @@ the (indispensable) Graphics Gems books
                         }
                     }
                 }
-            } while (d > 1.0 + Numeric.EPSILON || !good);
+            } while (d > 1.0 || !good);
 
             if (p0 == start) {
                 MgfEntityControl.doError("mis-built polygonal face", context);
@@ -487,7 +487,7 @@ the (indispensable) Graphics Gems books
                 MgfObjectNameSupport.mgfObjectSurfaceDone(context);
             }
             MgfObjectNameSupport.mgfObjectNewSurface(context);
-            Material[] holder = new Material[] {context.currentMaterial};
+            RpkMaterial[] holder = new RpkMaterial[] {context.currentMaterial};
             MgfMaterialEntitySupport.mgfGetCurrentMaterial(holder, context.singleSided, context);
             context.currentMaterial = holder[0];
             context.materialState.currentMaterial = holder[0];
@@ -565,7 +565,7 @@ the (indispensable) Graphics Gems books
                 MgfObjectNameSupport.mgfObjectSurfaceDone(context);
             }
             MgfObjectNameSupport.mgfObjectNewSurface(context);
-            Material[] holder = new Material[] {context.currentMaterial};
+            RpkMaterial[] holder = new RpkMaterial[] {context.currentMaterial};
             MgfMaterialEntitySupport.mgfGetCurrentMaterial(holder, context.singleSided, context);
             context.currentMaterial = holder[0];
             context.materialState.currentMaterial = holder[0];

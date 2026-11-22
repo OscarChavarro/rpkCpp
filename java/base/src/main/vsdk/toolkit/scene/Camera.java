@@ -241,4 +241,49 @@ public class Camera {
             -boundingBox.minZ()
         );
     }
+
+    /**
+    Fits the near and far clipping distances to the given scene bounds,
+    with 2% extra distance on each side
+    */
+    public void fitClippingPlanes(BoundingBox sceneBounds) {
+        Vector3D minimum = new Vector3D();
+        Vector3D maximum = new Vector3D();
+        Vector3D d = new Vector3D();
+
+        minimum.set(sceneBounds.minX(), sceneBounds.minY(), sceneBounds.minZ());
+        maximum.set(sceneBounds.maxX(), sceneBounds.maxY(), sceneBounds.maxZ());
+
+        far = -Numeric.HUGE_FLOAT_VALUE;
+        near = Numeric.HUGE_FLOAT_VALUE;
+        for ( int i = 0; i <= 1; i++ ) {
+            for ( int j = 0; j <= 1; j++ ) {
+                for ( int k = 0; k <= 1; k++ ) {
+                    d.set(i != 0 ? maximum.x : minimum.x,
+                          j != 0 ? maximum.y : minimum.y,
+                          k != 0 ? maximum.z : minimum.z);
+
+                    d.subtraction(d, eyePosition);
+                    float z = d.dotProduct(Z);
+
+                    if ( z > far ) {
+                        far = z;
+                    }
+                    if ( z < near ) {
+                        near = z;
+                    }
+                }
+            }
+        }
+
+        // Take 2% extra distance for near as well as far clipping plane
+        far += 0.02F * (far);
+        near -= 0.02F * (near);
+        if ( far < Numeric.EPSILON ) {
+            far = viewDistance;
+        }
+        if ( near < Numeric.EPSILON ) {
+            near = viewDistance / 100.0F;
+        }
+    }
 }

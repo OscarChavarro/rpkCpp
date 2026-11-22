@@ -46,7 +46,7 @@ public final class OptionsGroupToneMapping {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
         }
-        toneMapOptions.pow_bright_adjust = (float)Math.pow(2.0f, toneMapOptions.brightness_adjust);
+        toneMapOptions.pow_bright_adjust = (float) Math.pow(2.0, (double) toneMapOptions.brightness_adjust);
     }
 
     private static void redChromaOption(TypedOption.MutableValue<Vector3D> value) {

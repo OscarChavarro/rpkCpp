@@ -58,7 +58,7 @@ A-priori estimate of a patch's radiance
 
     private static float patchBrightnessEstimate(Patch patch) {
         ColorRgbMutable radiance = patchRadianceEstimate.apply(patch);
-        float brightness = Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+        float brightness = (float) Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
         if ( brightness < Numeric.EPSILON_FLOAT ) {
             brightness = Numeric.EPSILON_FLOAT;
         }
@@ -68,7 +68,7 @@ A-priori estimate of a patch's radiance
     private static void patchComputeLogAreaLum(Patch patch) {
         float brightness = Adaptation.patchBrightnessEstimate(patch);
         // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
-        logAreaLum += patch.area * Math.log(brightness);
+        logAreaLum += patch.area * (float) Math.log(brightness);
     }
 
     private static void patchFillLumArea(Patch patch) {

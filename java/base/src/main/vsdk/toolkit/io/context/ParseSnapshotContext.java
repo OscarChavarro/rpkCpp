@@ -2,7 +2,7 @@ package vsdk.toolkit.io.context;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.Vertex;
@@ -22,7 +22,7 @@ public class ParseSnapshotContext {
     public int geometryStackHeadIndex;
     public boolean inComplex;
     public boolean inSurface;
-    public ArrayList<Material> materials;
+    public ArrayList<RpkMaterial> materials;
     public boolean monochrome;
     public boolean singleSided;
     public boolean warpConeEnds;

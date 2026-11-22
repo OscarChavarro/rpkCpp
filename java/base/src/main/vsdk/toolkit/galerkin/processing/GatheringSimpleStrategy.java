@@ -111,7 +111,7 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
         }
 
         // Update the radiosity after gathering to all patches with Jacobi
-        if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI ) {
+        if ( galerkinState.isJacobi() ) {
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
                 GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList.get(i), galerkinState);
             }

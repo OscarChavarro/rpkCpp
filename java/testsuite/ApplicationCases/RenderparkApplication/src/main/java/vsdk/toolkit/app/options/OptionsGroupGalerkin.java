@@ -27,6 +27,9 @@ public final class OptionsGroupGalerkin {
         else if ( OptionTextUtils.equalsIgnoreCasePrefix(name, "southwell", 2) ) {
             GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.SOUTH_WELL;
         }
+        else if ( OptionTextUtils.equalsIgnoreCasePrefix(name, "parallel-jacobi", 2) ) {
+            GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.PARALLEL_JACOBI;
+        }
         else {
             Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid iteration method '%s'", name));
         }
@@ -160,6 +163,14 @@ public final class OptionsGroupGalerkin {
             1,
             null,
             null);
+        TypedOption<Integer> grThreadsOpt = new TypedOption<>(
+            "-gr-threads",
+            TypedOption.reference(
+                () -> GalerkinRadianceMethod.galerkinState.numberOfThreads,
+                v -> GalerkinRadianceMethod.galerkinState.numberOfThreads = v),
+            1,
+            null,
+            null);
         OptionBase[] galerkinOptions = new OptionBase[] {
             TypedOption.REGISTER_OPTION(iterationMethodOpt, 6),
             TypedOption.REGISTER_OPTION(shaftCullingOpt, 6),
@@ -174,10 +185,11 @@ public final class OptionsGroupGalerkin {
             TypedOption.REGISTER_OPTION(grAmbientOpt, 6),
             TypedOption.REGISTER_OPTION(grNoAmbientOpt, 10),
             TypedOption.REGISTER_OPTION(grLinkErrorOpt, 6),
-            TypedOption.REGISTER_OPTION(grMinElemAreaOpt, 6)
+            TypedOption.REGISTER_OPTION(grMinElemAreaOpt, 6),
+            TypedOption.REGISTER_OPTION(grThreadsOpt, 6)
         };
         OptionGroup[] galerkinGroups = new OptionGroup[] {
-            new OptionGroup("galerkin", galerkinOptions, 14)
+            new OptionGroup("galerkin", galerkinOptions, 15)
         };
         OptionParser.parse(argc, argv, galerkinGroups, 1);
     }

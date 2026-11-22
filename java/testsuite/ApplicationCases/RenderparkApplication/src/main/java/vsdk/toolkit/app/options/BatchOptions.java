@@ -8,7 +8,8 @@ public class BatchOptions {
     public int iterations; // Radiance method iterations
     public String radianceImageFileNameFormat;
     public String radianceModelFileNameFormat;
-    public int saveModulo; // Every n-th iteration, surface model and image will be saved
+    public int saveModulo; // Every n-th iteration the image will be saved (the model at every iteration)
+    public int saveLastOnly; // Image and model saved only after the last iteration (overrides saveModulo)
     public String raytracingImageFileName;
     public int timings = 0;
 
@@ -21,6 +22,7 @@ public class BatchOptions {
         radianceImageFileNameFormat = "";
         radianceModelFileNameFormat = "";
         saveModulo = 10;
+        saveLastOnly = 0;
         raytracingImageFileName = "";
         timings = 0;
     }

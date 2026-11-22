@@ -1,6 +1,7 @@
 package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.processing.FormFactorWorkspace;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
@@ -16,6 +17,7 @@ public class GalerkinState {
     public int importanceDriven; // Set true for potential-driven comp
     public int clustered; // Set true for clustering
     public GalerkinIterationMethod galerkinIterationMethod; // How to solve the resulting linear set
+    public int numberOfThreads; // Threads of PARALLEL_JACOBI; 0 for one per online processor
     public int lazyLinking; // Set true for lazy linking
     public int exactVisibility; // For more exact treatment of visibility
     public int multiResolutionVisibility; // For multi-resolution visibility determination
@@ -70,7 +72,7 @@ public class GalerkinState {
     public ToneMappingContext toneMapOptions;
 
     // Form factor scratch owned by the solver
-    public final FormFactorWorkspace formFactorWorkspace = new FormFactorWorkspace();
+    public final FormFactorWorkspace formFactorWorkspace = new FormFactorWorkspace(Statistics.instance().shadow);
 
     private static final boolean DEFAULT_GAL_HIERARCHICAL = true;
     private static final GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod.JACOBI;
@@ -109,6 +111,7 @@ public class GalerkinState {
 
         hierarchical = DEFAULT_GAL_HIERARCHICAL;
         galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
+        numberOfThreads = 0;
         relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
         relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
         refinementMinimumArea = 0.0;
@@ -147,5 +150,11 @@ public class GalerkinState {
         QuadCubatureRule.setQuadCubatureRules(quadRuleRef, sourceDegree);
         sourceQuadCubatureRule = quadRuleRef[0];
         clusterRule = QuadCubatureRule.degree1BoxRule();
+    }
+
+    /** Jacobi iterations, serial or parallel: both gather with the radiance of the previous iteration */
+    public boolean isJacobi() {
+        return galerkinIterationMethod == GalerkinIterationMethod.JACOBI
+            || galerkinIterationMethod == GalerkinIterationMethod.PARALLEL_JACOBI;
     }
 }

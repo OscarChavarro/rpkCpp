@@ -60,13 +60,13 @@ Returns true a component was chosen, false if absorbed
         if ( bsdf != null ) {
             color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF));
         }
-        power1 = color.average();
+        power1 = (float) color.average();
 
         color.clear();
         if ( bsdf != null ) {
             color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF));
         }
-        power2 = color.average();
+        power2 = (float) color.average();
 
         totalPower = power1 + power2;
 

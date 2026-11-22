@@ -112,7 +112,7 @@ computes the average radiance of the virtual screen
                 if ( elementBase instanceof GalerkinElement ) {
                     GalerkinElement element = (GalerkinElement)elementBase;
                     if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ||
-                         galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI ) {
+                         galerkinState.isJacobi() ) {
                         rad.add(rad, element.radiance[0]);
                     }
                     else {

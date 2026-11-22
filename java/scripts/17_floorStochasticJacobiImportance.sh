@@ -4,7 +4,6 @@ source "$(dirname "$0")/renderpark_env.sh"
 mkdir -p output
 
 "${RPK_GRADLE}" "${RPK_GRADLE_QUIET}" "${RPK_APP_TASK}" --args "${RPK_ETC_DIR}/floor_gloss.mgf -raytracing-method StochasticRaytracing \
-    -obf output/17_floorStochasticJacobiImportance.bin \
     -nqcdivs 16 \
     -iterations 9 -radiance-method StochJacobi -srr-importance-driven yes \
     -eyepoint 9.16 3.0 0.81 -center -2.72 1.63 -0.44 -updir 0 0 1 \

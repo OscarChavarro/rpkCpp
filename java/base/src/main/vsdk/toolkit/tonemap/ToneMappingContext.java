@@ -39,7 +39,7 @@ public class ToneMappingContext {
 
     public ToneMappingContext() {
         brightness_adjust = 0.0f;
-        pow_bright_adjust = (float)Math.pow(2.0, brightness_adjust);
+        pow_bright_adjust = (float) Math.pow(2.0F, brightness_adjust);
 
         staticAdaptationMethod = ToneMapAdaptationMethod.TMA_MEDIAN;
         realWorldAdaptionLuminance = DEFAULT_TM_LWA;

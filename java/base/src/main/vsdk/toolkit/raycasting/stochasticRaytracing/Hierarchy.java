@@ -200,8 +200,8 @@ as in Hanrahan SIGGRAPH'91
             rhoSrcRad.selfScalarProduct(rd);
         }
 
-        threshold = ElementHierarchyState.activeState().epsilon * statistics.radiance.maxSelfEmittedPower.maximumComponent();
-        propagatedPower = rcv.area * ff * rhoSrcRad.maximumComponent();
+        threshold = (float) (ElementHierarchyState.activeState().epsilon * statistics.radiance.maxSelfEmittedPower.maximumComponent());
+        propagatedPower = (float) (rcv.area * ff * rhoSrcRad.maximumComponent());
         if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
             propagatedPower *= rcv.importance;
             if ( !rcv.isCluster() ) {

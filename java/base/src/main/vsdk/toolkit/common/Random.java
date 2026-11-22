@@ -140,6 +140,24 @@ public final class Random {
     }
 
     /**
+     * The C library's erand48(): one step of the same 48-bit LCG, on the
+     * caller's own state (xsubi[0] is the least significant 16-bit word), and
+     * the new state divided by 2^48. glibc builds that double from the 48
+     * state bits directly, which equals the exact division done here, so the
+     * result is bit identical without going through the native library.
+     */
+    public static double erand48(short[] xsubi) {
+        long x = (((long)xsubi[2] & 0xFFFFL) << 32)
+            | (((long)xsubi[1] & 0xFFFFL) << 16)
+            | ((long)xsubi[0] & 0xFFFFL);
+        x = (MULTIPLIER * x + ADDEND) & MASK_48;
+        xsubi[0] = (short)(x & 0xFFFFL);
+        xsubi[1] = (short)((x >>> 16) & 0xFFFFL);
+        xsubi[2] = (short)((x >>> 32) & 0xFFFFL);
+        return x / (double)(1L << 48);
+    }
+
+    /**
      * Sets the 48-bit generator state from newSeed[3] (each entry treated as
      * an unsigned 16-bit value) and returns the previous state, mirroring
      * the C library's seed48() semantics used by SeedConfig.

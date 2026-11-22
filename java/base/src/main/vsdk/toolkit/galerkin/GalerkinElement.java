@@ -125,7 +125,7 @@ public class GalerkinElement extends Element {
             if ( inPatch.material != null && inPatch.material.getEdf() != null ) {
                 flags |= ElementFlags.IS_LIGHT_SOURCE_MASK;
                 Ed = PatchVisitor.averageEmittance(inPatch, XxdfComponentFlag.DIFFUSE_COMPONENT);
-                Ed.scaleInverse((float)Math.PI, Ed);
+                Ed.scaleInverse(Math.PI, Ed);
             }
             inPatch.radianceData = this;
         }

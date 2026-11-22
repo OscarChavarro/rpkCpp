@@ -10,7 +10,8 @@ import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.Canvas;
 import vsdk.toolkit.render.RadianceImageExporter;
-import vsdk.toolkit.render.jogl.RenderOpenGL;
+import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -176,6 +177,21 @@ This routine was copied from uit.c, leaving out all interface related things
         }
     }
 
+    /**
+    Fits the camera's near and far clipping distances to the scene geometry, the
+    same way with or without an OpenGL display
+    */
+    private static void fitCameraClippingPlanes(Scene scene) {
+        if ( scene.geometryList == null || scene.geometryList.size() == 0 ) {
+            scene.camera.far = 10.0F;
+            scene.camera.near = 0.1F;
+            return;
+        }
+        BoundingBox bounds = new BoundingBox();
+        Geometry.listBounds(scene.geometryList, bounds);
+        scene.camera.fitClippingPlanes(bounds);
+    }
+
     public static void batchExecuteRadianceSimulation(
         Scene scene,
         RadianceMethod radianceMethod,
@@ -199,6 +215,9 @@ This routine was copied from uit.c, leaving out all interface related things
             System.out.flush();
             System.err.flush();
 
+            // The importance computations render patch IDs during the first step
+            Batch.fitCameraClippingPlanes(scene);
+
             boolean done = false;
             for ( int iterationNumber = 0;
                   iterationNumber < batchOptions.iterations && !done;
@@ -218,15 +237,23 @@ This routine was copied from uit.c, leaving out all interface related things
 
                 System.out.printf("%s", radianceMethod.getStats());
 
-		RenderOpenGL.renderGetNearFar(scene.camera, scene.geometryList);
+                Batch.fitCameraClippingPlanes(scene);
 
                 System.out.flush();
                 System.err.flush();
 
                 long wastedStart = System.nanoTime();
 
-                if ( batchOptions.saveModulo != 0
-                     && (iterationNumber % batchOptions.saveModulo) == 0
+                // With -save-last-only, the image and the model are saved only
+                // after the last iteration (the last one asked for, or the one
+                // after which the method is done)
+                final boolean lastIteration = done || iterationNumber == batchOptions.iterations - 1;
+                final boolean saveImage = batchOptions.saveLastOnly != 0
+                    ? lastIteration
+                    : batchOptions.saveModulo != 0 && (iterationNumber % batchOptions.saveModulo) == 0;
+                final boolean saveModel = batchOptions.saveLastOnly == 0 || lastIteration;
+
+                if ( saveImage
                      && batchOptions.radianceImageFileNameFormat != null
                      && !batchOptions.radianceImageFileNameFormat.isEmpty() ) {
                     String fileName = formatFileName(batchOptions.radianceImageFileNameFormat, iterationNumber);
@@ -240,7 +267,8 @@ This routine was copied from uit.c, leaving out all interface related things
                         renderOptions);
                 }
 
-                if ( batchOptions.radianceModelFileNameFormat != null
+                if ( saveModel
+                     && batchOptions.radianceModelFileNameFormat != null
                      && !batchOptions.radianceModelFileNameFormat.isEmpty() ) {
                     String fileName = formatFileName(batchOptions.radianceModelFileNameFormat, iterationNumber);
                     Batch.batchProcessFile(

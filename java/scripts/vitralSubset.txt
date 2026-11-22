@@ -2,7 +2,7 @@
 # unchanged (plan D1: a pinned source subset). scripts/vitralSubset.sh --check
 # compares each with a VITRAL checkout (its java/base/src/main) byte for byte;
 # --refresh copies them from it.
-# Pin: VITRAL 1fb3bd24.
+# Pin: VITRAL bdbd6bbd.
 # Known local divergences, not listed: the step 4 replay classes were ported
 # from VITRAL's C++ port, because VITRAL's Java port does not have them yet
 # (environment/geometry/spatialIndex, the whole package) or has a different
@@ -11,7 +11,10 @@
 # BinnedSahHierarchyNode.java, environment/geometry/element/Ray.java, which
 # the scene query mutates in place). They follow the C++ subset
 # (cpp/scripts/vitralSubset.txt) instead, and join this list once VITRAL's
-# Java port carries the same versions.
+# Java port carries the same versions. Likewise the step 2 material classes
+# (environment/material: PhongMaterial, PhongLobe, ScatteringComponent,
+# ScatteringFrame, ScatteringArithmetic, SurfaceShadingPoint, Texture) are
+# ports of VITRAL's C++ classes, which VITRAL's Java port does not have yet.
 vsdk/toolkit/common/Entity.java
 vsdk/toolkit/common/EntityEvent.java
 vsdk/toolkit/common/EntityListener.java
@@ -24,6 +27,9 @@ vsdk/toolkit/common/linealAlgebra/Matrix4x4d.java
 vsdk/toolkit/common/linealAlgebra/Quaterniond.java
 vsdk/toolkit/common/linealAlgebra/Vector2Dd.java
 vsdk/toolkit/common/linealAlgebra/Vector3Dd.java
+vsdk/toolkit/common/linealAlgebra/Vector3Df.java
 vsdk/toolkit/common/linealAlgebra/Vector4Dd.java
 vsdk/toolkit/common/logging/Logger.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahLeafVisitor.java
+vsdk/toolkit/environment/geometry/element/PlanarFace.java
+vsdk/toolkit/environment/material/Material.java

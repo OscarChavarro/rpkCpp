@@ -65,59 +65,47 @@ monitor gamut
 // Really SHOULD desaturate instead of just clipping!
 
 public final class Cie {
-    private static float cieXR = 0.640f;
-    private static float cieYR = 0.330f;
-    private static float cieXG = 0.290f;
-    private static float cieYG = 0.600f;
-    private static float cieXB = 0.150f;
-    private static float cieYB = 0.060f;
-    private static float cieXW = 0.3333333333f;
-    private static float cieYW = 0.3333333333f;
+    public static final double WHITE_EFFICACY = 183.07;
 
-    public static final float WHITE_EFFICACY = 183.07f;
+    private static double cieXR = 0.640; // Nominal CRT primaries
+    private static double cieYR = 0.330;
+    private static double cieXG = 0.290;
+    private static double cieYG = 0.600;
+    private static double cieXB = 0.150;
+    private static double cieYB = 0.060;
+    private static double cieXW = 0.3333333333;
+    private static double cieYW = 0.3333333333;
 
-    private static float luminousEfficacy = WHITE_EFFICACY;
-    private static final float[][] xyz2RgbMat = new float[3][3];
-    private static final float[][] rgb2XyzMat = new float[3][3];
-
-    static {
-        computeColorConversionTransforms(
-            cieXR,
-            cieYR,
-            cieXG,
-            cieYG,
-            cieXB,
-            cieYB,
-            cieXW,
-            cieYW);
-    }
+    private static double luminousEfficacy = WHITE_EFFICACY;
+    private static final double[][] xyz2RgbMat = new double[3][3];
+    private static final double[][] rgb2XyzMat = new double[3][3];
 
     private Cie() {
     }
 
     private static double cieD() {
         return cieXR * (cieYG - cieYB) +
-            cieXG * (cieYB - cieYR) +
-            cieXB * (cieYR - cieYG);
+               cieXG * (cieYB - cieYR) +
+               cieXB * (cieYR - cieYG);
     }
 
     private static double cieCrD() {
         return (1.0 / cieYW) *
-            (cieXW * (cieYG - cieYB) -
+               (cieXW * (cieYG - cieYB) -
                 cieYW * (cieXG - cieXB) +
                 cieXG * cieYB - cieXB * cieYG);
     }
 
     private static double cieCgD() {
         return (1.0 / cieYW) *
-            (cieXW * (cieYB - cieYR) -
+               (cieXW * (cieYB - cieYR) -
                 cieYW * (cieXB - cieXR) -
                 cieXR * cieYB + cieXB * cieYR);
     }
 
     private static double cieCbD() {
         return (1.0 / cieYW) *
-            (cieXW * (cieYR - cieYG) -
+               (cieXW * (cieYR - cieYG) -
                 cieYW * (cieXR - cieXG) +
                 cieXR * cieYG - cieXG * cieYR);
     }
@@ -134,25 +122,20 @@ public final class Cie {
         return cieYB * cieCbD() / cieD();
     }
 
-    private static float gray(float r, float g, float b) {
-        return (float)cieRf() * r + (float)cieGf() * g + (float)cieBf() * b;
+    private static double gray(double r, double g, double b) {
+        return cieRf() * r + cieGf() * g + cieBf() * b;
     }
 
-    private static float luminance(float r, float g, float b) {
+    private static double luminance(double r, double g, double b) {
         return luminousEfficacy * gray(r, g, b);
     }
 
     private static void setColorTransform(
-        float[][] mat,
-        float a,
-        float b,
-        float c,
-        float d,
-        float e,
-        float f,
-        float g,
-        float h,
-        float i) {
+        double[][] mat,
+        double a, double b, double c,
+        double d, double e, double f,
+        double g, double h, double i)
+    {
         mat[0][0] = a;
         mat[0][1] = b;
         mat[0][2] = c;
@@ -164,36 +147,48 @@ public final class Cie {
         mat[2][2] = i;
     }
 
-    private static void colorTransform(float[] col, float[][] mat, float[] res) {
+    private static void colorTransform(double[] col, double[][] mat, double[] res) {
         res[0] = mat[0][0] * col[0] + mat[0][1] * col[1] + mat[0][2] * col[2];
         res[1] = mat[1][0] * col[0] + mat[1][1] * col[1] + mat[1][2] * col[2];
         res[2] = mat[2][0] * col[0] + mat[2][1] * col[1] + mat[2][2] * col[2];
     }
 
-    public static void transformColorFromXYZ2RGB(float[] xyz, float[] rgb) {
-        colorTransform(xyz, xyz2RgbMat, rgb);
+    /**
+    Set/return the value used for tri-stimulus white efficacy.
+    */
+    public static double getLuminousEfficacy() {
+        return luminousEfficacy;
     }
 
-    public static boolean clipGamut(float[] rgb) {
-        boolean desaturated = false;
-        for (int i = 0; i < 3; i++) {
-            if (rgb[i] < 0.0f) {
-                rgb[i] = 0.0f;
-                desaturated = true;
-            }
-        }
-        return desaturated;
+    /**
+    Returns an achromatic value representing the spectral quantity.
+    */
+    public static double spectrumGray(double r, double g, double b) {
+        return gray(r, g, b);
     }
 
+    /**
+    Returns the luminance, photometric quantity corresponding to the
+    radiance of the given spectrum.
+    */
+    public static double spectrumLuminance(double r, double g, double b) {
+        return luminance(r, g, b);
+    }
+
+    /**
+    Computes RGB <-> XYZ color transforms based on the given monitor primary
+    colors and white point.
+    */
     public static void computeColorConversionTransforms(
-        float xr,
-        float yr,
-        float xg,
-        float yg,
-        float xb,
-        float yb,
-        float xw,
-        float yw) {
+        double xr,
+        double yr,
+        double xg,
+        double yg,
+        double xb,
+        double yb,
+        double xw,
+        double yw)
+    {
         cieXR = xr;
         cieYR = yr;
         cieXG = xg;
@@ -204,47 +199,49 @@ public final class Cie {
         cieYW = yw;
 
         setColorTransform(
-            xyz2RgbMat,
-            (float)((cieYG - cieYB - cieXB * cieYG + cieYB * cieXG) / cieCrD()),
-            (float)((cieXB - cieXG - cieXB * cieYG + cieXG * cieYB) / cieCrD()),
-            (float)((cieXG * cieYB - cieXB * cieYG) / cieCrD()),
-            (float)((cieYB - cieYR - cieYB * cieXR + cieYR * cieXB) / cieCgD()),
-            (float)((cieXR - cieXB - cieXR * cieYB + cieXB * cieYR) / cieCgD()),
-            (float)((cieXB * cieYR - cieXR * cieYB) / cieCgD()),
-            (float)((cieYR - cieYG - cieYR * cieXG + cieYG * cieXR) / cieCbD()),
-            (float)((cieXG - cieXR - cieXG * cieYR + cieXR * cieYG) / cieCbD()),
-            (float)((cieXR * cieYG - cieXG * cieYR) / cieCbD()));
+            xyz2RgbMat, // XYZ to RGB
+            (cieYG - cieYB - cieXB * cieYG + cieYB * cieXG) / cieCrD(),
+            (cieXB - cieXG - cieXB * cieYG + cieXG * cieYB) / cieCrD(),
+            (cieXG * cieYB - cieXB * cieYG) / cieCrD(),
+            (cieYB - cieYR - cieYB * cieXR + cieYR * cieXB) / cieCgD(),
+            (cieXR - cieXB - cieXR * cieYB + cieXB * cieYR) / cieCgD(),
+            (cieXB * cieYR - cieXR * cieYB) / cieCgD(),
+            (cieYR - cieYG - cieYR * cieXG + cieYG * cieXR) / cieCbD(),
+            (cieXG - cieXR - cieXG * cieYR + cieXR * cieYG) / cieCbD(),
+            (cieXR * cieYG - cieXG * cieYR) / cieCbD());
 
         setColorTransform(
-            rgb2XyzMat,
-            (float)(cieXR * cieCrD() / cieD()),
-            (float)(cieXG * cieCgD() / cieD()),
-            (float)(cieXB * cieCbD() / cieD()),
-            (float)(cieYR * cieCrD() / cieD()),
-            (float)(cieYG * cieCgD() / cieD()),
-            (float)(cieYB * cieCbD() / cieD()),
-            (float)((1.0 - cieXR - cieYR) * cieCrD() / cieD()),
-            (float)((1.0 - cieXG - cieYG) * cieCgD() / cieD()),
-            (float)((1.0 - cieXB - cieYB) * cieCbD() / cieD()));
+            rgb2XyzMat, // RGB to XYZ
+            cieXR * cieCrD() / cieD(),
+            cieXG * cieCgD() / cieD(),
+            cieXB * cieCbD() / cieD(),
+            cieYR * cieCrD() / cieD(),
+            cieYG * cieCgD() / cieD(),
+            cieYB * cieCbD() / cieD(),
+            (1.0 - cieXR - cieYR) * cieCrD() / cieD(),
+            (1.0 - cieXG - cieYG) * cieCgD() / cieD(),
+            (1.0 - cieXB - cieYB) * cieCbD() / cieD());
     }
 
-    public static float getLuminousEfficacy() {
-        return luminousEfficacy;
+    /**
+    CIE XYZ <-> RGB
+    */
+    public static void transformColorFromXYZ2RGB(double[] xyz, double[] rgb) {
+        colorTransform(xyz, xyz2RgbMat, rgb);
     }
 
-    public static float spectrumGray(float r, float g, float b) {
-        return gray(r, g, b);
-    }
-
-    public static float spectrumGray(double r, double g, double b) {
-        return gray((float)r, (float)g, (float)b);
-    }
-
-    public static float spectrumLuminance(float r, float g, float b) {
-        return luminance(r, g, b);
-    }
-
-    public static float spectrumLuminance(double r, double g, double b) {
-        return luminance((float)r, (float)g, (float)b);
+    /**
+    Returns TRUE if the color was desaturated during clipping against the
+    monitor gamut
+    */
+    public static boolean clipGamut(double[] rgb) {
+        boolean desaturated = false;
+        for ( int i = 0; i < 3; i++ ) {
+            if ( rgb[i] < 0.0 ) {
+                rgb[i] = 0.0;
+                desaturated = true;
+            }
+        }
+        return desaturated;
     }
 }

@@ -55,10 +55,10 @@ public class LightList extends CircularList<LightInfo> {
                     } else {
                         e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT));
                     }
-                    info.emittedFlux = e.average();
+                    info.emittedFlux = (float) e.average();
                 } else {
                     lightColor = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
-                    info.emittedFlux = lightColor.average() * light.area;
+                    info.emittedFlux = (float) (lightColor.average() * light.area);
                 }
 
                 totalFlux += info.emittedFlux;

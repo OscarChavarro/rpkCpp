@@ -17,12 +17,9 @@ import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
-import vsdk.toolkit.material.Material;
-import vsdk.toolkit.material.PhongBidirectionalReflectanceDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalTransmittanceDistributionFunction;
-import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.material.Texture;
+import vsdk.toolkit.material.RpkMaterial;
+import vsdk.toolkit.environment.material.PhongLobe;
+import vsdk.toolkit.environment.material.Texture;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
@@ -77,7 +74,7 @@ public class BinaryModelDeserializer {
         ArrayList<Vector3D> vectors = new ArrayList<>();
         ArrayList<Vertex> vertices = new ArrayList<>();
         ArrayList<Patch> patches = new ArrayList<>();
-        ArrayList<Material> materials = new ArrayList<>();
+        ArrayList<RpkMaterial> materials = new ArrayList<>();
         ArrayList<Geometry> geometries = new ArrayList<>();
         ArrayList<ColorContext> colorContexts = new ArrayList<>();
         ArrayList<ReaderContext> readerContexts = new ArrayList<>();
@@ -128,7 +125,7 @@ public class BinaryModelDeserializer {
             require(BinaryModelReadPrimitives.initializeArrayList(vectors, vectorCount, (Vector3D)null, "vectors"));
             require(BinaryModelReadPrimitives.initializeArrayList(vertices, vertexCount, (Vertex)null, "vertices"));
             require(BinaryModelReadPrimitives.initializeArrayList(patches, patchCount, (Patch)null, "patches"));
-            require(BinaryModelReadPrimitives.initializeArrayList(materials, materialCount, (Material)null, "materials"));
+            require(BinaryModelReadPrimitives.initializeArrayList(materials, materialCount, (RpkMaterial)null, "materials"));
             require(BinaryModelReadPrimitives.initializeArrayList(geometries, geometryCount, (Geometry)null, "geometries"));
             require(BinaryModelReadPrimitives.initializeArrayList(colorContexts, colorContextCount, (ColorContext)null, "color contexts"));
             require(BinaryModelReadPrimitives.initializeArrayList(readerContexts, readerContextCount, (ReaderContext)null, "reader contexts"));
@@ -152,7 +149,12 @@ public class BinaryModelDeserializer {
                 require(BinaryModelReadPrimitives.readNullableString(input, materialName, hasMaterialName));
                 boolean sided = BinaryModelReadPrimitives.readBool(input);
 
-                PhongEmittanceDistributionFunction edf = null;
+                PhongLobe emission = null;
+                PhongLobe reflection = null;
+                PhongLobe transmission = null;
+                float refractionIndexReal = 1.0F;
+                float refractionIndexImaginary = 0.0F;
+                Texture texture = null;
                 boolean hasEdf = BinaryModelReadPrimitives.readBool(input);
                 if (hasEdf) {
                     ColorRgbMutable kd = new ColorRgbMutable();
@@ -160,16 +162,11 @@ public class BinaryModelDeserializer {
                     require(BinaryModelReadPrimitives.readColor(input, kd));
                     require(BinaryModelReadPrimitives.readColor(input, ks));
                     float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                    edf = new PhongEmittanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns);
+                    emission = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
                 }
 
-                PhongBidirectionalScatteringDistributionFunction bsdf = null;
                 boolean hasBsdf = BinaryModelReadPrimitives.readBool(input);
                 if (hasBsdf) {
-                    PhongBidirectionalReflectanceDistributionFunction brdf = null;
-                    PhongBidirectionalTransmittanceDistributionFunction btdf = null;
-                    Texture texture = null;
-
                     boolean hasBrdf = BinaryModelReadPrimitives.readBool(input);
                     if (hasBrdf) {
                         ColorRgbMutable kd = new ColorRgbMutable();
@@ -177,7 +174,7 @@ public class BinaryModelDeserializer {
                         require(BinaryModelReadPrimitives.readColor(input, kd));
                         require(BinaryModelReadPrimitives.readColor(input, ks));
                         float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                        brdf = new PhongBidirectionalReflectanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns);
+                        reflection = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
                     }
 
                     boolean hasBtdf = BinaryModelReadPrimitives.readBool(input);
@@ -189,7 +186,9 @@ public class BinaryModelDeserializer {
                         float ns = BinaryModelReadPrimitives.readFloatLE(input);
                         float nr = BinaryModelReadPrimitives.readFloatLE(input);
                         float ni = BinaryModelReadPrimitives.readFloatLE(input);
-                        btdf = new PhongBidirectionalTransmittanceDistributionFunction(kd.toImmutable(), ks.toImmutable(), ns, nr, ni);
+                        transmission = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
+                        refractionIndexReal = nr;
+                        refractionIndexImaginary = ni;
                     }
 
                     boolean hasTexture = BinaryModelReadPrimitives.readBool(input);
@@ -222,12 +221,12 @@ public class BinaryModelDeserializer {
 
                         texture = new Texture(width, height, channels, textureData);
                     }
-
-                    bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, texture);
                 }
 
                 String materialNameText = hasMaterialName[0] ? materialName[0] : "";
-                materials.set(i, new Material(materialNameText, edf, bsdf, sided));
+                materials.set(i, new RpkMaterial(
+                    materialNameText, emission, hasBsdf, reflection, transmission, texture,
+                    refractionIndexReal, refractionIndexImaginary, sided));
             }
 
             require(BinaryModelReadPrimitives.expectTag(input, "COLR"));
@@ -437,27 +436,37 @@ public class BinaryModelDeserializer {
 
                 Patch patch = new Patch(record.numberOfVertices, v1Out.value, v2Out.value, v3Out.value, v4Out.value);
                 patch.id = record.id;
-                patch.normal.copy(record.normal);
-                patch.planeConstant = record.planeConstant;
-                patch.tolerance = record.tolerance;
-                patch.area = record.area;
-                patch.midPoint.copy(record.midPoint);
-                patch.directPotential = record.directPotential;
-                if (record.dominantIndex >= 0 && record.dominantIndex < CoordinateAxis.values().length) {
-                    patch.index = CoordinateAxis.values()[record.dominantIndex];
+                // Plane constant is immutable after construction and recomputed from geometry.
+                // Plane tolerance is immutable after construction and recomputed from geometry.
+                // Area is immutable after construction and recomputed from geometry.
+                // The direct potential is read and discarded: it is per-face solver data
+                // and starts at zero
+                // The dominant axis and the Jacobian are derived from the vertices by the
+                // patch's face; the file's values must agree with them bit for bit
+                if ( record.dominantIndex != patch.index.ordinal() ) {
+                    Logger.reportMessage(null, Logger.ERROR, "BinaryModelDeserializer::read", String.format("%s", "Patch dominant axis disagrees with its vertices"));
+                    throw new ReadFailureException();
                 }
                 patch.omit = (byte)(record.omit ? 1 : 0);
-                patch.setFlags(Byte.toUnsignedInt(record.flags));
-                patch.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
+                // The flags byte (direct visibility) is read and discarded: it is per-face
+                // solver data and starts cleared
+                // The display color is read and discarded: it is per-face display data
+                // and starts black
 
-                BinaryModelReadPrimitives.Out<Material> materialOut = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkMaterial> materialOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));
                 patch.material = materialOut.value;
                 patch.radianceData = null;
 
-                patch.jacobian = null;
-                if (record.hasJacobian) {
-                    patch.jacobian = new Jacobian(record.jacobianA, record.jacobianB, record.jacobianC);
+                {
+                    final Jacobian jacobian = patch.jacobian;
+                    final boolean jacobianAgrees = record.hasJacobian
+                        ? jacobian != null && jacobian.A == record.jacobianA && jacobian.B == record.jacobianB && jacobian.C == record.jacobianC
+                        : jacobian == null;
+                    if ( !jacobianAgrees ) {
+                        Logger.reportMessage(null, Logger.ERROR, "BinaryModelDeserializer::read", String.format("%s", "Patch Jacobian disagrees with its vertices"));
+                        throw new ReadFailureException();
+                    }
                 }
 
                 patch.boundingBox = null;
@@ -549,7 +558,7 @@ public class BinaryModelDeserializer {
                     BinaryModelReadPrimitives.Out<ArrayList<Vector3D>> normalsOut = new BinaryModelReadPrimitives.Out<>();
                     BinaryModelReadPrimitives.Out<ArrayList<Vertex>> verticesOut = new BinaryModelReadPrimitives.Out<>();
                     BinaryModelReadPrimitives.Out<ArrayList<Patch>> facesOut = new BinaryModelReadPrimitives.Out<>();
-                    BinaryModelReadPrimitives.Out<Material> materialOut = new BinaryModelReadPrimitives.Out<>();
+                    BinaryModelReadPrimitives.Out<RpkMaterial> materialOut = new BinaryModelReadPrimitives.Out<>();
 
                     require(BinaryModelReadPrimitives.arrayListFromIndices(record.positions, vectors, "surface.positions", positionsOut));
                     require(BinaryModelReadPrimitives.arrayListFromIndices(record.normals, vectors, "surface.normals", normalsOut));
@@ -664,7 +673,7 @@ public class BinaryModelDeserializer {
             BinaryModelReadPrimitives.Out<ArrayList<Vector3D>> modelPointListOut = new BinaryModelReadPrimitives.Out<>();
             BinaryModelReadPrimitives.Out<ArrayList<Vertex>> modelVertexListOut = new BinaryModelReadPrimitives.Out<>();
             BinaryModelReadPrimitives.Out<ArrayList<Geometry>> modelGeometriesOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Material>> modelMaterialsOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<RpkMaterial>> modelMaterialsOut = new BinaryModelReadPrimitives.Out<>();
 
             require(BinaryModelReadPrimitives.arrayListFromIndices(modelRecord.currentFaceList, patches, "model.currentFaceList", modelFaceListOut));
             require(BinaryModelReadPrimitives.arrayListFromIndices(modelRecord.currentGeometryList, geometries, "model.currentGeometryList", modelGeometryListOut));

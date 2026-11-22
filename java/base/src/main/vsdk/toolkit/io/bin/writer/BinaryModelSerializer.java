@@ -15,12 +15,10 @@ import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
-import vsdk.toolkit.material.Material;
-import vsdk.toolkit.material.PhongBidirectionalReflectanceDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalTransmittanceDistributionFunction;
-import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.material.Texture;
+import vsdk.toolkit.material.RpkMaterial;
+import vsdk.toolkit.environment.material.PhongLobe;
+import vsdk.toolkit.environment.material.PhongMaterial;
+import vsdk.toolkit.environment.material.Texture;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
@@ -247,45 +245,45 @@ public class BinaryModelSerializer {
         return true;
     }
 
-    private static boolean writeMaterialRecord(OutputStream output, Material material) {
+    private static boolean writeMaterialRecord(OutputStream output, RpkMaterial material) {
         if (!writeString(output, material.getName())) {
             return false;
         }
         writeBool(output, material.isSided());
 
-        PhongEmittanceDistributionFunction edf = material.getEdf();
-        writeBool(output, edf != null);
-        if (edf != null) {
-            writeColor(output, edf.getKd());
-            writeColor(output, edf.getKs());
-            writeFloatLE(output, edf.getNs());
+        PhongMaterial surfaceMaterial = material.getSurfaceMaterial();
+        PhongLobe emission = material.getEdf() != null ? surfaceMaterial.getEmission() : null;
+        writeBool(output, emission != null);
+        if (emission != null) {
+            writeColor(output, emission.getDiffuse());
+            writeColor(output, emission.getNonDiffuse());
+            writeFloatLE(output, emission.getExponent());
         }
 
-        PhongBidirectionalScatteringDistributionFunction bsdf = material.getBsdf();
-        writeBool(output, bsdf != null);
-        if (bsdf == null) {
+        writeBool(output, material.getBsdf() != null);
+        if (material.getBsdf() == null) {
             return true;
         }
 
-        PhongBidirectionalReflectanceDistributionFunction brdf = bsdf.getBrdf();
-        writeBool(output, brdf != null);
-        if (brdf != null) {
-            writeColor(output, brdf.getKd());
-            writeColor(output, brdf.getKs());
-            writeFloatLE(output, brdf.getNs());
+        PhongLobe reflection = surfaceMaterial.getReflection();
+        writeBool(output, reflection != null);
+        if (reflection != null) {
+            writeColor(output, reflection.getDiffuse());
+            writeColor(output, reflection.getNonDiffuse());
+            writeFloatLE(output, reflection.getExponent());
         }
 
-        PhongBidirectionalTransmittanceDistributionFunction btdf = bsdf.getBtdf();
-        writeBool(output, btdf != null);
-        if (btdf != null) {
-            writeColor(output, btdf.getKd());
-            writeColor(output, btdf.getKs());
-            writeFloatLE(output, btdf.getNs());
-            writeFloatLE(output, btdf.getRefractionIndex().getNr());
-            writeFloatLE(output, btdf.getRefractionIndex().getNi());
+        PhongLobe transmission = surfaceMaterial.getTransmission();
+        writeBool(output, transmission != null);
+        if (transmission != null) {
+            writeColor(output, transmission.getDiffuse());
+            writeColor(output, transmission.getNonDiffuse());
+            writeFloatLE(output, transmission.getExponent());
+            writeFloatLE(output, surfaceMaterial.getStoredRefractionIndexReal());
+            writeFloatLE(output, surfaceMaterial.getStoredRefractionIndexImaginary());
         }
 
-        Texture texture = bsdf.getTexture();
+        Texture texture = surfaceMaterial.getTexture();
         writeBool(output, texture != null);
         if (texture != null) {
             int width = texture.getWidth();

@@ -1,330 +1,59 @@
 package vsdk.toolkit.material;
 
-/**
-A simple combination of brdf and btdf.
-Handles evaluation and sampling and also
-functions that relate to brdf or btdf like reflectance etc.
-*/
-
-/*in*/
-
-/*out*/
-
-/*normal*/
-
-/**
-Bidirectional Reflectance Distribution Functions (BSDF)
-
-Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
-*/
-
-/**
-Creates a BSDF instance with given data and methods
-*/
-
-/**
-Computes a shading frame at the given hit point. The Z axis of this frame is
-the shading normal, The X axis is in the tangent plane on the surface at the
-hit point ("brush" direction relevant for anisotropic shaders e.getG().). Y
-is perpendicular to X and Z. X and Y may be null pointers. In this case,
-only the shading normal is returned, avoiding computation of the X and
-Y axis if possible).
-Note: edf can have also a routine for computing the shading frame. If a
-material has both an edf and a bsdf, the shading frame shall of course
-be the same.
-This routine returns TRUE if a shading frame could be constructed and FALSE if
-not. In the latter case, a default frame needs to be used (not computed by this
-routine - pointShadingFrame() in material.[ch] constructs such a frame if
-needed)
-*/
-
-/*hit*/
-
-/*X*/
-
-/*Y*/
-
-/*Z*/
-
-// Not implemented, should call to bsdf->methods->setShadingFrame or something like that
-
-/**
-Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
-*/
-
-// Avoid taking it into account again
-
-/**
-Albedo is assumed to be 1
-*/
-
-// Section [ARVO1995b].2: map (x1, x2) from [0,1]^2 into a hemisphere direction.
-
-/**
-Sample a split bsdf. If no sample was taken (RR/absorption)
-the pdf will be 0 upon return  Computes probabilities for sampling the texture, reflection minus texture,
-or transmission. Also determines b[r|t]dfFlags taking into
-account potential texturing
-*/
-
-// bsdf has a texture for diffuse reflection and diffuse reflection needs to be sampled
-
-// Rescale into [0,1) interval again
-
-/**
-Returns the index of refraction of the BSDF
-*/
-
-// Vacuum
-
-/**
-Sampling and pdf evaluation
-
-Sampling routines, parameters as in evaluation, except that two
-random numbers x1 and x2 are needed (2D sampling process)
-*/
-
-// So we can return safely
-
-// Calculate probabilities for sampling the texture, reflection minus texture,
-
-// and transmission. Also fills in correct b[r|t]dfFlags
-
-// Decide whether to sample the texture reflectance, the reflectance
-
-// modes not in the texture, transmission or absorption
-
-// Normalize: no absorption sampling
-
-// Sample according to the selected mode
-
-// Don't care
-
-/* other components will be added later */
-
-// Add probability of sampling the same direction in other than the
-
-// selected scattering mode (e.getG(). internal reflection) */
-
-/**
-Bsdf evaluations
-All components of the Bsdf
-
-Vector directions :
-
-in: from patch
-out: from patch
-hit->normal : leaving from patch, on the incoming side.
-         So in . hit->normal > 0!
-*/
-
-// Just add brdf and btdf contributions, the eval routines handle the direction of out.
-
-// Note that out * normal is computed more than once :-(
-
-/**
-Constructs shading frame at hit point. Returns TRUE if successful and
-FALSE if not. X and Y may be null pointers
-
-Sample a split bsdf. If no sample was taken (RR/absorption)
-the pdf will be 0 upon return
-*/
-
-// Survival probability
-
-// Probability of sampling the outgoing direction, after survival decision
-
-/**
-Evaluates all requested components of the BSDF separately and
-stores the result in 'colArray'.
-Total evaluation is returned.
-*/
-
-// Some caching optimisation could be used here
-
-// Set to 0 for safety
-
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.material.PhongMaterial;
 
 /**
-A simple combination of BRDF and BTDF.
+RenderPark's view of the scattering of a material (its split BSDF: the
+reflection, the transmission and the texture): the evaluation, sampling and
+density functions the raytracers call, with RenderPark's argument types.
+Every function converts its arguments (Vector3D to Vector3Df, the shading
+context to a SurfaceShadingPoint, the media to their VITRAL materials) and
+answers through the VITRAL PhongMaterial; the scattering model itself lives
+in VITRAL (plan step 2b). The material and the media are the ones of the
+RpkMaterials that own these views, so a view identifies its material.
+
+Read-only after construction; does not own the PhongMaterial.
 */
 public class PhongBidirectionalScatteringDistributionFunction {
-    private static final int TEXTURED_COMPONENT = BsdfComponent.BRDF_DIFFUSE_COMPONENT;
+    private final PhongMaterial material;
 
-    private PhongBidirectionalReflectanceDistributionFunction brdf;
-    private PhongBidirectionalTransmittanceDistributionFunction btdf;
-    private Texture texture;
-
-    public PhongBidirectionalScatteringDistributionFunction(
-        PhongBidirectionalReflectanceDistributionFunction brdf,
-        PhongBidirectionalTransmittanceDistributionFunction btdf,
-        Texture texture) {
-        this.brdf = brdf;
-        this.btdf = btdf;
-        this.texture = texture;
+    private static PhongMaterial mediumOf(PhongBidirectionalScatteringDistributionFunction bsdf) {
+        return bsdf != null ? bsdf.getMaterial() : null;
     }
 
-    public PhongBidirectionalReflectanceDistributionFunction getBrdf() {
-        return brdf;
+    public PhongBidirectionalScatteringDistributionFunction(PhongMaterial inMaterial) {
+        material = inMaterial;
     }
 
-    public PhongBidirectionalTransmittanceDistributionFunction getBtdf() {
-        return btdf;
+    public PhongMaterial getMaterial() {
+        return material;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
-
+    /**
+    No material defines its own shading frame: callers build a default one
+    */
     public static boolean bsdfShadingFrame(ShadingContext context, Vector3D X, Vector3D Y, Vector3D Z) {
         return false;
     }
 
-    private static ColorRgb splitBsdfEvalTexture(Texture texture, ShadingContext context) {
-        ColorRgbMutable col = new ColorRgbMutable();
-        col.clear();
-
-        if (texture == null) {
-            return col.toImmutable();
-        }
-        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE)) {
-            Logger.reportMessage(null, Logger.WARNING, "splitBsdfEvalTexture", "Couldn't get texture coordinates");
-            return col.toImmutable();
-        }
-        Vector3D texCoord = context.getTexCoord();
-        return texture.evaluateColor(texCoord.x, texCoord.y);
-    }
-
-
+    /**
+    Scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
+    */
     public ColorRgb splitBsdfScatteredPower(ShadingContext context, int flags) {
-        ColorRgbMutable albedo = new ColorRgbMutable();
-        albedo.clear();
-
-        if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
-            ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
-            albedo.add(albedo, new ColorRgbMutable(textureColor));
-            flags &= ~TEXTURED_COMPONENT;
-        }
-
-        if (brdf != null) {
-            ColorRgb reflectance = brdf.reflectance(flags);
-            if (!Float.isFinite(new ColorRgbMutable(reflectance).average())) {
-                Logger.reportMessage(this, Logger.FATAL_ERROR, "brdfReflectance", "Oops - test Rd is not finite!");
-            }
-            albedo.add(albedo, new ColorRgbMutable(reflectance));
-        }
-
-        if (btdf != null) {
-            ColorRgb transmitted = btdf.transmittance(BsdfComponentFlag.getBtdfFlags(flags));
-            albedo.add(albedo, new ColorRgbMutable(transmitted));
-        }
-
-        return albedo.toImmutable();
+        final Vector3Df textureCoordinate = MaterialBoundary.toVitral(context.getTexCoord());
+        return material.scatteredPower(
+            flags, context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE) ? textureCoordinate : null);
     }
 
     public boolean splitBsdfIsTextured() {
-        return texture != null;
-    }
-
-    private static Vector3D texturedScattererSample(
-        Vector3D in,
-        Vector3D normal,
-        double x1,
-        double x2,
-        double[] probabilityDensityFunction) {
-        CoordinateSystem coord = new CoordinateSystem();
-        coord.setFromZAxis(normal);
-        return coord.sampleHemisphereCosTheta(x1, x2, probabilityDensityFunction);
-    }
-
-    private static void texturedScattererEvalPdf(
-        Vector3D in,
-        Vector3D out,
-        Vector3D normal,
-        double[] probabilityDensityFunction) {
-        setOut(probabilityDensityFunction, normal.dotProduct(out) / Math.PI);
-    }
-
-    private void splitBsdfProbabilities(
-        ShadingContext context,
-        int flags,
-        double[] inTexture,
-        double[] reflection,
-        double[] transmission,
-        int[] brdfFlags,
-        int[] btdfFlags) {
-        setOut(inTexture, 0.0);
-
-        if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
-            ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
-            setOut(inTexture, new ColorRgbMutable(textureColor).average());
-            flags &= ~TEXTURED_COMPONENT;
-        }
-
-        setOut(brdfFlags, BsdfComponentFlag.getBrdfFlags(flags));
-        setOut(btdfFlags, BsdfComponentFlag.getBtdfFlags(flags));
-
-        ColorRgb reflectance;
-        if (brdf == null) {
-            reflectance = new ColorRgb();
-        }
-        else {
-            reflectance = brdf.reflectance(brdfFlags[0]);
-        }
-        setOut(reflection, new ColorRgbMutable(reflectance).average());
-
-        ColorRgb transmittance;
-        if (btdf == null) {
-            transmittance = new ColorRgb();
-        }
-        else {
-            transmittance = btdf.transmittance(btdfFlags[0]);
-        }
-        setOut(transmission, new ColorRgbMutable(transmittance).average());
-    }
-
-    private static SplitBSDFSamplingMode splitBsdfSamplingMode(
-        double texture,
-        double reflection,
-        double transmission,
-        double[] x1) {
-        SplitBSDFSamplingMode mode = SplitBSDFSamplingMode.SAMPLE_ABSORPTION;
-
-        if (x1[0] < texture) {
-            mode = SplitBSDFSamplingMode.SAMPLE_TEXTURE;
-            x1[0] /= texture;
-        }
-        else {
-            x1[0] -= texture;
-            if (x1[0] < reflection) {
-                mode = SplitBSDFSamplingMode.SAMPLE_REFLECTION;
-                x1[0] /= reflection;
-            }
-            else {
-                x1[0] -= reflection;
-                if (x1[0] < transmission) {
-                    mode = SplitBSDFSamplingMode.SAMPLE_TRANSMISSION;
-                    x1[0] /= transmission;
-                }
-            }
-        }
-
-        return mode;
+        return material.isTextured();
     }
 
     public void indexOfRefraction(RefractionIndex index) {
-        if (btdf == null) {
-            index.set(1.0f, 0.0f);
-        }
-        else {
-            btdf.setIndexOfRefraction(index);
-        }
+        index.set(material.getRefractionIndex(), material.getRefractionIndexImaginary());
     }
 
     public Vector3D sample(
@@ -336,131 +65,11 @@ public class PhongBidirectionalScatteringDistributionFunction {
         int flags,
         double x1,
         double x2,
-        double[] probabilityDensityFunction) {
-        Vector3D normal = new Vector3D();
-        Vector3D out = new Vector3D();
-
-        setOut(probabilityDensityFunction, 0.0);
-        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.reportMessage(this, Logger.WARNING, "sample", "Couldn't determine shading normal");
-            out.set(0.0f, 0.0f, 1.0f);
-            return out;
-        }
-        normal.copy(context.getShadingNormal());
-
-        double[] localTexture = new double[] {0.0};
-        double[] reflection = new double[] {0.0};
-        double[] transmission = new double[] {0.0};
-        int[] brdfFlags = new int[] {0};
-        int[] btdfFlags = new int[] {0};
-
-        splitBsdfProbabilities(context, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
-
-        double scattering = localTexture[0] + reflection[0] + transmission[0];
-        if (scattering < Numeric.EPSILON) {
-            return out;
-        }
-
-        if (doRussianRoulette == 0) {
-            localTexture[0] /= scattering;
-            reflection[0] /= scattering;
-            transmission[0] /= scattering;
-        }
-
-        double[] localX1 = new double[] {x1};
-        SplitBSDFSamplingMode mode = splitBsdfSamplingMode(localTexture[0], reflection[0], transmission[0], localX1);
-
-        RefractionIndex inIndex = new RefractionIndex();
-        RefractionIndex outIndex = new RefractionIndex();
-
-        if (inBsdf != null) {
-            inBsdf.indexOfRefraction(inIndex);
-        }
-        if (outBsdf != null) {
-            outBsdf.indexOfRefraction(outIndex);
-        }
-
-        double p;
-        switch (mode) {
-            case SAMPLE_TEXTURE:
-                double[] pTexture = new double[] {0.0};
-                out = texturedScattererSample(in, normal, localX1[0], x2, pTexture);
-                p = pTexture[0];
-                if (p < Numeric.EPSILON) {
-                    return out;
-                }
-                setOut(probabilityDensityFunction, localTexture[0] * p);
-                break;
-            case SAMPLE_REFLECTION:
-                if (brdf == null) {
-                    p = 0.0;
-                }
-                else {
-                    double[] pReflection = new double[] {0.0};
-                    out = brdf.sample(in, normal, 0, brdfFlags[0], localX1[0], x2, pReflection);
-                    p = pReflection[0];
-                }
-                if (p < Numeric.EPSILON) {
-                    return out;
-                }
-                setOut(probabilityDensityFunction, reflection[0] * p);
-                break;
-            case SAMPLE_TRANSMISSION:
-                if (btdf == null) {
-                    p = 0.0;
-                    out.x = 0.0f;
-                    out.y = 0.0f;
-                    out.z = 0.0f;
-                }
-                else {
-                    double[] pTransmission = new double[] {0.0};
-                    out = btdf.sample(inIndex, outIndex, in, normal, 0, btdfFlags[0], localX1[0], x2, pTransmission);
-                    p = pTransmission[0];
-                }
-                if (p < Numeric.EPSILON) {
-                    return out;
-                }
-                setOut(probabilityDensityFunction, transmission[0] * p);
-                break;
-            case SAMPLE_ABSORPTION:
-            default:
-                setOut(probabilityDensityFunction, 0.0);
-                return out;
-        }
-
-        if (mode != SplitBSDFSamplingMode.SAMPLE_TEXTURE) {
-            double[] pTexture = new double[] {0.0};
-            texturedScattererEvalPdf(in, out, normal, pTexture);
-            setOut(probabilityDensityFunction, probabilityDensityFunction[0] + localTexture[0] * pTexture[0]);
-        }
-
-        if (mode != SplitBSDFSamplingMode.SAMPLE_REFLECTION) {
-            double pReflection = 0.0;
-            if (brdf != null) {
-                double[] pRR = new double[] {0.0};
-                double[] outP = new double[] {0.0};
-                brdf.evaluateProbabilityDensityFunction(in, out, normal, brdfFlags[0], outP, pRR);
-                pReflection = outP[0];
-            }
-            setOut(probabilityDensityFunction, probabilityDensityFunction[0] + reflection[0] * pReflection);
-        }
-
-        if (mode != SplitBSDFSamplingMode.SAMPLE_TRANSMISSION) {
-            double pTransmission = 0.0;
-            if (btdf != null) {
-                double[] pRR = new double[] {0.0};
-                double[] outP = new double[] {0.0};
-                btdf.evaluateProbabilityDensityFunction(inIndex, outIndex, in, out, normal, btdfFlags[0], outP, pRR);
-                pTransmission = outP[0];
-            }
-            setOut(probabilityDensityFunction, probabilityDensityFunction[0] + transmission[0] * pTransmission);
-        }
-
-        return out;
-    }
-
-    private static double texturedScattererEval(Vector3D in, Vector3D out, Vector3D normal) {
-        return 1.0 / Math.PI;
+        double[] probabilityDensityFunction)
+    {
+        return MaterialBoundary.fromVitral(material.scatteringSample(
+            context.toShadingPoint(), mediumOf(inBsdf), mediumOf(outBsdf), MaterialBoundary.toVitral(in),
+            doRussianRoulette != 0, flags, x1, x2, probabilityDensityFunction));
     }
 
     public ColorRgb evaluate(
@@ -469,50 +78,11 @@ public class PhongBidirectionalScatteringDistributionFunction {
         PhongBidirectionalScatteringDistributionFunction outBsdf,
         Vector3D in,
         Vector3D out,
-        int flags) {
-        ColorRgbMutable result = new ColorRgbMutable();
-        Vector3D normal = new Vector3D();
-
-        result.clear();
-        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.reportMessage(this, Logger.WARNING, "evaluate", "Couldn't determine shading normal");
-            return result.toImmutable();
-        }
-        normal.copy(context.getShadingNormal());
-
-        if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
-            double textureBsdf = texturedScattererEval(in, out, normal);
-            ColorRgb textureCol = splitBsdfEvalTexture(texture, context);
-            result.addScaled(result, textureBsdf, new ColorRgbMutable(textureCol));
-            flags &= ~TEXTURED_COMPONENT;
-        }
-
-        if (brdf != null) {
-            ColorRgb reflectionCol = brdf.evaluate(in, out, normal, BsdfComponentFlag.getBrdfFlags(flags));
-            result.add(result, new ColorRgbMutable(reflectionCol));
-
-            RefractionIndex inIndex = new RefractionIndex();
-            RefractionIndex outIndex = new RefractionIndex();
-            ColorRgb refractionCol;
-
-            if (inBsdf != null) {
-                inBsdf.indexOfRefraction(inIndex);
-            }
-            if (outBsdf != null) {
-                outBsdf.indexOfRefraction(outIndex);
-            }
-
-            if (btdf == null) {
-                refractionCol = new ColorRgb();
-            }
-            else {
-                refractionCol = btdf.evaluate(inIndex, outIndex, in, out, normal, BsdfComponentFlag.getBtdfFlags(flags));
-            }
-
-            result.add(result, new ColorRgbMutable(refractionCol));
-        }
-
-        return result.toImmutable();
+        int flags)
+    {
+        return material.scatteringEvaluate(
+            context.toShadingPoint(), mediumOf(inBsdf), mediumOf(outBsdf),
+            MaterialBoundary.toVitral(in), MaterialBoundary.toVitral(out), flags);
     }
 
     public void evaluateProbabilityDensityFunction(
@@ -523,71 +93,12 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D out,
         int flags,
         double[] probabilityDensityFunction,
-        double[] probabilityDensityFunctionRR) {
-        setOut(probabilityDensityFunction, 0.0);
-        setOut(probabilityDensityFunctionRR, 0.0);
-
-        Vector3D normal = new Vector3D();
-        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.reportMessage(this, Logger.WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
-            return;
-        }
-        normal.copy(context.getShadingNormal());
-
-        double[] pTexture = new double[] {0.0};
-        double[] pReflection = new double[] {0.0};
-        double[] pTransmission = new double[] {0.0};
-        int[] brdfFlags = new int[] {0};
-        int[] btdfFlags = new int[] {0};
-
-        splitBsdfProbabilities(context, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
-
-        double pScattering = pTexture[0] + pReflection[0] + pTransmission[0];
-        if (pScattering < Numeric.EPSILON) {
-            return;
-        }
-
-        setOut(probabilityDensityFunctionRR, pScattering);
-
-        RefractionIndex inIndex = new RefractionIndex();
-        RefractionIndex outIndex = new RefractionIndex();
-        if (inBsdf == null) {
-            inIndex.set(1.0f, 0.0f);
-        }
-        else {
-            inBsdf.indexOfRefraction(inIndex);
-        }
-
-        if (outBsdf == null) {
-            outIndex.set(1.0f, 0.0f);
-        }
-        else {
-            outBsdf.indexOfRefraction(outIndex);
-        }
-
-        double[] p = new double[] {0.0};
-        texturedScattererEvalPdf(in, out, normal, p);
-        setOut(probabilityDensityFunction, pTexture[0] * p[0]);
-
-        if (brdf == null) {
-            p[0] = 0.0;
-        }
-        else {
-            double[] pRR = new double[] {0.0};
-            brdf.evaluateProbabilityDensityFunction(in, out, normal, brdfFlags[0], p, pRR);
-        }
-        setOut(probabilityDensityFunction, probabilityDensityFunction[0] + pReflection[0] * p[0]);
-
-        if (btdf == null) {
-            p[0] = 0.0;
-        }
-        else {
-            double[] pRR = new double[] {0.0};
-            btdf.evaluateProbabilityDensityFunction(inIndex, outIndex, in, out, normal, btdfFlags[0], p, pRR);
-        }
-        setOut(probabilityDensityFunction, probabilityDensityFunction[0] + pTransmission[0] * p[0]);
-
-        setOut(probabilityDensityFunction, probabilityDensityFunction[0] / pScattering);
+        double[] probabilityDensityFunctionRR)
+    {
+        material.scatteringDensity(
+            context.toShadingPoint(), mediumOf(inBsdf), mediumOf(outBsdf),
+            MaterialBoundary.toVitral(in), MaterialBoundary.toVitral(out), flags,
+            probabilityDensityFunction, probabilityDensityFunctionRR);
     }
 
     public ColorRgb bsdfEvalComponents(
@@ -597,34 +108,10 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D in,
         Vector3D out,
         int flags,
-        ColorRgb[] colArray) {
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgb empty = new ColorRgb();
-        result.clear();
-
-        for (int i = 0; i < BsdfComponentInfo.BSDF_COMPONENTS; i++) {
-            int thisFlag = BsdfComponentFlag.bsdfIndexToComp(i);
-            if ((flags & thisFlag) != 0) {
-                colArray[i] = evaluate(context, inBsdf, outBsdf, in, out, thisFlag);
-                result.add(result, new ColorRgbMutable(colArray[i]));
-            }
-            else {
-                colArray[i] = new ColorRgb(empty.getR(), empty.getG(), empty.getB());
-            }
-        }
-
-        return result.toImmutable();
-    }
-
-    private static void setOut(double[] out, double value) {
-        if (out != null && out.length > 0) {
-            out[0] = value;
-        }
-    }
-
-    private static void setOut(int[] out, int value) {
-        if (out != null && out.length > 0) {
-            out[0] = value;
-        }
+        ColorRgb[] colArray)
+    {
+        return material.scatteringEvaluateComponents(
+            context.toShadingPoint(), mediumOf(inBsdf), mediumOf(outBsdf),
+            MaterialBoundary.toVitral(in), MaterialBoundary.toVitral(out), flags, colArray);
     }
 }

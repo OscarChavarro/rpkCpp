@@ -5,7 +5,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 package vsdk.toolkit.raycasting.simple;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
+import vsdk.toolkit.common.Random;
 
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.material.RenderOptions;
@@ -131,6 +131,7 @@ public final class RayMatter extends RayTracer {
 
     public void doMatting(Camera camera, SceneQuery sceneQuery, SceneQueryWorkspace sceneWorldSceneQueryWorkspace) {
         long t = System.nanoTime();
+        short[] rayMatterRngState = new short[] {(short)0x1234, (short)0x5678, (short)0x9ABC};
 
         createFilter();
 
@@ -141,8 +142,8 @@ public final class RayMatter extends RayTracer {
 
                 for (int i = 0; i < rayMatterState.samplesPerPixel; i++) {
                     // Uniform random var
-                    double[] dx = new double[] {ThreadLocalRandom.current().nextDouble()};
-                    double[] dy = new double[] {ThreadLocalRandom.current().nextDouble()};
+                    double[] dx = new double[] {Random.erand48(rayMatterRngState)};
+                    double[] dy = new double[] {Random.erand48(rayMatterRngState)};
 
                     // Insert non-uniform sampling here
                     if (pixelFilter != null) {

@@ -1,6 +1,7 @@
 package vsdk.toolkit.scene;
 
 import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.elements.PatchIntersectionWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
 import vsdk.toolkit.environment.geometry.spatialIndex.PrimitiveRayTest;
@@ -19,7 +20,8 @@ One object per query: it writes the accepted hit into the caller's hit
 record, so after a closest-hit query the record holds the closest face.
 
 Java adaptation: the scene query keeps one in its workspace and sets it up
-for each query with `set`, so a query allocates no test object.
+for each query with `set`, so a query allocates no test object; it also owns
+the scratch of the face test (one workspace, so one test, per thread).
 */
 public final class SceneFaceRayTest implements PrimitiveRayTest {
     private final Scene scene;
@@ -28,6 +30,7 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
     private RayExclusionSet exclusions;
     private RayHit hitStore;
     private final float[] distance;
+    private final PatchIntersectionWorkspace patchWorkspace;
 
     public SceneFaceRayTest(
         Scene inScene,
@@ -37,6 +40,7 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
         RayHit inHitStore) {
         scene = inScene;
         distance = new float[1];
+        patchWorkspace = new PatchIntersectionWorkspace();
         set(inRay, inHitFlags, inExclusions, inHitStore);
     }
 
@@ -51,7 +55,7 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
     public boolean test(int primitive, double minimumT, double maximumT, double[] hitT) {
         distance[0] = (float)maximumT;
         RayHit hit = scene.getFace(primitive).intersect(
-            ray, (float)minimumT, distance, hitFlags, hitStore, exclusions);
+            ray, (float)minimumT, distance, hitFlags, hitStore, exclusions, patchWorkspace);
         if (hit == null) {
             return false;
         }

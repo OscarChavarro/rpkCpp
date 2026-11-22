@@ -12,11 +12,8 @@ import vsdk.toolkit.io.context.MaterialContext;
 import vsdk.toolkit.io.context.ParseErrorContext;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.TokenValidationContext;
-import vsdk.toolkit.material.Material;
-import vsdk.toolkit.material.PhongBidirectionalReflectanceDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.material.PhongBidirectionalTransmittanceDistributionFunction;
-import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
+import vsdk.toolkit.material.RpkMaterial;
+import vsdk.toolkit.environment.material.PhongLobe;
 
 public class MgfMaterialEntitySupport {
     private static final int NUMBER_OF_SAMPLES = 3;
@@ -25,9 +22,9 @@ public class MgfMaterialEntitySupport {
     Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
     */
-    private static Material materialLookup(String name, ParseRuntimeContext context) {
+    private static RpkMaterial materialLookup(String name, ParseRuntimeContext context) {
         for (int i = 0; context.materials != null && i < context.materials.size(); i++) {
-            Material m = context.materials.get(i);
+            RpkMaterial m = context.materials.get(i);
             if (m != null && m.getName() != null && m.getName().equals(name)) {
                 return m;
             }
@@ -35,62 +32,83 @@ a pointer to the material if found, or nullptr if not found
         return null;
     }
 
+    private static ColorRgb addColor(ColorRgb a, ColorRgb b) {
+        return new ColorRgb(a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB());
+    }
+
+    private static ColorRgb scaleColor(ColorRgb c, double s) {
+        return new ColorRgb(c.getR() * s, c.getG() * s, c.getB() * s);
+    }
+
+    private static boolean isBlack(ColorRgb c) {
+        return Math.abs(c.getR()) < Numeric.EPSILON
+            && Math.abs(c.getG()) < Numeric.EPSILON
+            && Math.abs(c.getB()) < Numeric.EPSILON;
+    }
+
+    private static ColorRgb gray(ColorRgb c) {
+        return new ColorRgb(
+            Cie.spectrumGray(c.getR(), c.getG(), c.getB()),
+            Cie.spectrumGray(c.getR(), c.getG(), c.getB()),
+            Cie.spectrumGray(c.getR(), c.getG(), c.getB()));
+    }
+
     /**
     Translates mgf color into out color representation
     */
-    private static void mgfGetColor(ColorContext cin, float intensity, ColorRgbMutable colorOut, ParseRuntimeContext context) {
-        float[] xyz = new float[3];
-        float[] rgb = new float[3];
+    private static ColorRgb mgfGetColor(ColorContext cin, double intensity, ParseRuntimeContext context) {
+        double[] xyz = new double[3];
+        double[] rgb = new double[3];
 
         cin.fixColorRepresentation(ColorContext.COLOR_XY_IS_SET_FLAG);
-        if (cin.cy > Numeric.EPSILON) {
+        if ( cin.cy > Numeric.EPSILON ) {
             xyz[0] = cin.cx / cin.cy * intensity;
-            xyz[1] = 1.0f * intensity;
-            xyz[2] = (1.0f - cin.cx - cin.cy) / cin.cy * intensity;
+            xyz[1] = 1.0 * intensity;
+            xyz[2] = (1.0 - cin.cx - cin.cy) / cin.cy * intensity;
         } else {
             MgfEntityControl.doWarning("invalid color specification (Y<=0) ... setting to black", context);
-            xyz[0] = 0.0f;
-            xyz[1] = 0.0f;
-            xyz[2] = 0.0f;
+            xyz[0] = 0.0;
+            xyz[1] = 0.0;
+            xyz[2] = 0.0;
         }
 
-        if (xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0) {
+        if ( xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0 ) {
             MgfEntityControl.doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero", context);
-            if (xyz[0] < 0.0) {
-                xyz[0] = 0.0f;
+            if ( xyz[0] < 0.0 ) {
+                xyz[0] = 0.0;
             }
-            if (xyz[1] < 1.0) {
-                xyz[1] = 0.0f;
+            if ( xyz[1] < 1.0 ) {
+                xyz[1] = 0.0;
             }
-            if (xyz[2] < 2.0) {
-                xyz[2] = 0.0f;
+            if ( xyz[2] < 2.0 ) {
+                xyz[2] = 0.0;
             }
         }
 
         Cie.transformColorFromXYZ2RGB(xyz, rgb);
-        if (Cie.clipGamut(rgb)) {
+        if ( Cie.clipGamut(rgb) ) {
             MgfEntityControl.doWarning("color desaturated during gamut clipping", context);
         }
-        colorOut.set(rgb[0], rgb[1], rgb[2]);
+        return new ColorRgb(rgb[0], rgb[1], rgb[2]);
     }
 
-    private static void specSamples(ColorRgbMutable col, float[] rgb) {
-        rgb[0] = (float)col.r;
-        rgb[1] = (float)col.g;
-        rgb[2] = (float)col.b;
+    private static void specSamples(ColorRgb col, double[] rgb) {
+        rgb[0] = col.getR();
+        rgb[1] = col.getG();
+        rgb[2] = col.getB();
     }
 
-    private static float colorMax(ColorRgbMutable col) {
+    private static double colorMax(ColorRgb col) {
         // We should check every wavelength in the visible spectrum, but
         // as a first approximation, only the three RGB primary colors
         // are checked
-        float[] samples = new float[NUMBER_OF_SAMPLES];
+        double[] samples = new double[NUMBER_OF_SAMPLES];
 
         MgfMaterialEntitySupport.specSamples(col, samples);
 
-        float mx = -Numeric.HUGE_FLOAT_VALUE;
-        for (int i = 0; i < NUMBER_OF_SAMPLES; i++) {
-            if (samples[i] > mx) {
+        double mx = -Numeric.HUGE_FLOAT_VALUE;
+        for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
+            if ( samples[i] > mx ) {
                 mx = samples[i];
             }
         }
@@ -99,128 +117,124 @@ a pointer to the material if found, or nullptr if not found
     }
 
     /**
-This routine checks whether the mgf material being used has changed. If it
-changed, this routine converts to our representation of materials and
-creates a new MATERIAL, which is added to the session material library.
-The routine returns true if the material being used has changed
+    This routine checks whether the mgf material being used has changed. If it
+    changed, this routine converts to our representation of materials and
+    creates a new MATERIAL, which is added to the session material library.
+    The routine returns true if the material being used has changed
     */
-    public static boolean mgfGetCurrentMaterial(Material[] material, boolean allSurfacesSided, ParseRuntimeContext context) {
-        ColorRgbMutable Ed = new ColorRgbMutable();
-        ColorRgbMutable Es = new ColorRgbMutable();
-        ColorRgbMutable Rd = new ColorRgbMutable();
-        ColorRgbMutable Td = new ColorRgbMutable();
-        ColorRgbMutable Rs = new ColorRgbMutable();
-        ColorRgbMutable Ts = new ColorRgbMutable();
-        ColorRgbMutable A = new ColorRgbMutable();
+    public static boolean mgfGetCurrentMaterial(RpkMaterial[] material, boolean allSurfacesSided, ParseRuntimeContext context) {
         MaterialContext currentMaterialContext = context.materialRepository.currentMaterialContext;
         String materialName = context.currentMaterialName;
-        if (materialName == null || materialName.isEmpty()) {
+        if ( materialName == null || materialName.isEmpty() ) {
             // This might cause strcmp to crash!
             materialName = "unnamed";
         }
 
         // Is it another material than the one used for the previous face ?? If not, the
         // material remains the same
-        if (material[0] != null && materialName.equals(material[0].getName()) && currentMaterialContext.clock == 0) {
+        if ( material[0] != null && materialName.equals(material[0].getName()) && currentMaterialContext.clock == 0 ) {
             return false;
         }
 
-        Material storedMaterial = MgfMaterialEntitySupport.materialLookup(materialName, context);
-        if (storedMaterial != null && currentMaterialContext.clock == 0) {
+        RpkMaterial storedMaterial = MgfMaterialEntitySupport.materialLookup(materialName, context);
+        if ( storedMaterial != null && currentMaterialContext.clock == 0 ) {
             material[0] = storedMaterial;
             return true;
         }
 
         // New material, or a material that changed. Convert intensities and chromaticities
         // to our color model
-        MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.ed_c, currentMaterialContext.ed, Ed, context);
-        MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.rd_c, currentMaterialContext.rd, Rd, context);
-        MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.td_c, currentMaterialContext.td, Td, context);
-        MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.rs_c, currentMaterialContext.rs, Rs, context);
-        MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.ts_c, currentMaterialContext.ts, Ts, context);
+        ColorRgb Ed = MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.ed_c, currentMaterialContext.ed, context);
+        ColorRgb Rd = MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.rd_c, currentMaterialContext.rd, context);
+        ColorRgb Td = MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.td_c, currentMaterialContext.td, context);
+        ColorRgb Rs = MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.rs_c, currentMaterialContext.rs, context);
+        ColorRgb Ts = MgfMaterialEntitySupport.mgfGetColor(currentMaterialContext.ts_c, currentMaterialContext.ts, context);
+        ColorRgb A;
 
         // Check/correct range of reflectances and transmittances
-        A.add(Rd, Rs);
-        float a = MgfMaterialEntitySupport.colorMax(A);
-        if (a > 1.0f - Numeric.EPSILON_FLOAT) {
+        A = addColor(Rd, Rs);
+        double a = MgfMaterialEntitySupport.colorMax(A);
+        if ( a > 1.0 - Numeric.EPSILON_FLOAT ) {
             MgfEntityControl.doWarning("invalid material specification: total reflectance shall be < 1", context);
-            a = (1.0f - Numeric.EPSILON_FLOAT) / a;
-            Rd.scale(a);
-            Rs.scale(a);
+            a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+            Rd = scaleColor(Rd, a);
+            Rs = scaleColor(Rs, a);
         }
 
-        A.add(Td, Ts);
+        A = addColor(Td, Ts);
         a = MgfMaterialEntitySupport.colorMax(A);
-        if (a > 1.0f - Numeric.EPSILON_FLOAT) {
+        if ( a > 1.0 - Numeric.EPSILON_FLOAT ) {
             MgfEntityControl.doWarning("invalid material specification: total transmittance shall be < 1", context);
-            a = (1.0f - Numeric.EPSILON_FLOAT) / a;
-            Td.scale(a);
-            Ts.scale(a);
+            a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+            Td = scaleColor(Td, a);
+            Ts = scaleColor(Ts, a);
         }
 
         // Convert lumen / m^2 to W / m^2
-        Ed.scale(1.0f / Cie.WHITE_EFFICACY);
+        Ed = scaleColor(Ed, 1.0 / Cie.WHITE_EFFICACY);
 
-        Es.clear();
+        ColorRgb Es = new ColorRgb(0.0, 0.0, 0.0);
 
-        float Nr;
-        float Nt;
+        double Nr;
+        double Nt;
 
         // Specular power = (0.6/roughness)^2 (see mgf docs)
-        if (currentMaterialContext.rs_a != 0.0) {
-            Nr = 0.6f / currentMaterialContext.rs_a;
+        if ( currentMaterialContext.rs_a != 0.0 ) {
+            Nr = 0.6 / currentMaterialContext.rs_a;
             Nr *= Nr;
         } else {
-            Nr = 0.0f;
+            Nr = 0.0;
         }
 
-        if (currentMaterialContext.ts_a != 0.0) {
-            Nt = 0.6f / currentMaterialContext.ts_a;
+        if ( currentMaterialContext.ts_a != 0.0 ) {
+            Nt = 0.6 / currentMaterialContext.ts_a;
             Nt *= Nt;
         } else {
-            Nt = 0.0f;
+            Nt = 0.0;
         }
 
-        if (context.monochrome) {
-            Ed.setMonochrome(Cie.spectrumGray((float)Ed.r, (float)Ed.g, (float)Ed.b));
-            Es.setMonochrome(Cie.spectrumGray((float)Es.r, (float)Es.g, (float)Es.b));
-            Rd.setMonochrome(Cie.spectrumGray((float)Rd.r, (float)Rd.g, (float)Rd.b));
-            Rs.setMonochrome(Cie.spectrumGray((float)Rs.r, (float)Rs.g, (float)Rs.b));
-            Td.setMonochrome(Cie.spectrumGray((float)Td.r, (float)Td.g, (float)Td.b));
-            Ts.setMonochrome(Cie.spectrumGray((float)Ts.r, (float)Ts.g, (float)Ts.b));
+        if ( context.monochrome ) {
+            Ed = gray(Ed);
+            Es = gray(Es);
+            Rd = gray(Rd);
+            Rs = gray(Rs);
+            Td = gray(Td);
+            Ts = gray(Ts);
         }
 
-        PhongEmittanceDistributionFunction edf = null;
-        if (!Ed.isBlack() || !Es.isBlack()) {
-            final float Ne = 0.0f;
-            edf = new PhongEmittanceDistributionFunction(Ed.toImmutable(), Es.toImmutable(), Ne);
+        // The lobes keep their exponents in single precision
+        PhongLobe emission = null;
+        if ( !isBlack(Ed) || !isBlack(Es) ) {
+            final double Ne = 0.0;
+            emission = new PhongLobe(Ed, Es, (float) Ne);
         }
 
-        PhongBidirectionalReflectanceDistributionFunction brdf = null;
-        if (!Rd.isBlack() || !Rs.isBlack()) {
-            brdf = new PhongBidirectionalReflectanceDistributionFunction(Rd.toImmutable(), Rs.toImmutable(), Nr);
+        PhongLobe reflection = null;
+        if ( !isBlack(Rd) || !isBlack(Rs) ) {
+            reflection = new PhongLobe(Rd, Rs, (float) Nr);
         }
 
-        PhongBidirectionalTransmittanceDistributionFunction btdf = null;
-        if (!Td.isBlack() || !Ts.isBlack()) {
-            btdf = new PhongBidirectionalTransmittanceDistributionFunction(
-                Td.toImmutable(),
-                Ts.toImmutable(),
-                Nt,
-                currentMaterialContext.nr,
-                currentMaterialContext.ni);
+        PhongLobe transmission = null;
+        float refractionIndexReal = 1.0F;
+        float refractionIndexImaginary = 0.0F;
+        if ( !isBlack(Td) || !isBlack(Ts) ) {
+            transmission = new PhongLobe(Td, Ts, (float) Nt);
+            refractionIndexReal = currentMaterialContext.nr;
+            refractionIndexImaginary = currentMaterialContext.ni;
         }
 
-        PhongBidirectionalScatteringDistributionFunction bsdf =
-            new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, null);
-
-        material[0] = new Material(
+        material[0] = new RpkMaterial(
             materialName,
-            edf,
-            bsdf,
+            emission,
+            true,
+            reflection,
+            transmission,
+            null,
+            refractionIndexReal,
+            refractionIndexImaginary,
             allSurfacesSided || currentMaterialContext.sided);
 
-        if (context.materials == null) {
+        if ( context.materials == null ) {
             context.materials = new ArrayList<>();
             context.materialState.materials = context.materials;
         }
@@ -241,7 +255,7 @@ The routine returns true if the material being used has changed
     /**
 This routine returns true if the current material has changed
     */
-    public static boolean mgfMaterialChanged(Material material, ParseRuntimeContext context) {
+    public static boolean mgfMaterialChanged(RpkMaterial material, ParseRuntimeContext context) {
         String materialName = context.currentMaterialName;
         if (materialName == null || materialName.isEmpty()) {
             materialName = "unnamed";

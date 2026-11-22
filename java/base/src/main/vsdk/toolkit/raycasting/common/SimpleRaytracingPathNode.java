@@ -11,7 +11,7 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.io.wrapper.Vector3DPrinter;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.elements.RayHit;
@@ -215,7 +215,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
     }
 
     public void assignBsdfAndNormal() {
-        final Material thisMaterial;
+        final RpkMaterial thisMaterial;
 
         if (m_hit.getPatch() == null) {
             // Invalid node

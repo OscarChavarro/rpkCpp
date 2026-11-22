@@ -7,7 +7,7 @@ import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -18,7 +18,7 @@ public class BinaryModelReadCleanup {
         ArrayList<Vector3D> vectors,
         ArrayList<Vertex> vertices,
         ArrayList<Patch> patches,
-        ArrayList<Material> materials,
+        ArrayList<RpkMaterial> materials,
         ArrayList<Geometry> geometries,
         ArrayList<ColorContext> colorContexts,
         ArrayList<ReaderContext> readerContexts,

@@ -9,7 +9,7 @@ import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
@@ -28,8 +28,8 @@ public class BinaryModelSerializationGraph {
     public IdentityHashMap<Patch, Integer> patchIndices = new IdentityHashMap<>();
     public ArrayList<Patch> patches = new ArrayList<>();
 
-    public IdentityHashMap<Material, Integer> materialIndices = new IdentityHashMap<>();
-    public ArrayList<Material> materials = new ArrayList<>();
+    public IdentityHashMap<RpkMaterial, Integer> materialIndices = new IdentityHashMap<>();
+    public ArrayList<RpkMaterial> materials = new ArrayList<>();
 
     public IdentityHashMap<Geometry, Integer> geometryIndices = new IdentityHashMap<>();
     public ArrayList<Geometry> geometries = new ArrayList<>();
@@ -59,7 +59,7 @@ public class BinaryModelSerializationGraph {
         return true;
     }
 
-    public boolean ensureMaterial(Material value) {
+    public boolean ensureMaterial(RpkMaterial value) {
         if (value == null) {
             return true;
         }
@@ -292,7 +292,7 @@ public class BinaryModelSerializationGraph {
         return true;
     }
 
-    public boolean collectMaterialList(ArrayList<Material> list) {
+    public boolean collectMaterialList(ArrayList<RpkMaterial> list) {
         if (list == null) {
             return true;
         }

@@ -220,16 +220,7 @@ public class Shaft {
                 localPlane.n[a] = du;
                 localPlane.n[b] = dv;
                 localPlane.n[3 - a - b] = 0.0f;
-                float dExpr = -(du * u1 + dv * v1);
-                float dResolved = dExpr;
-                // Preserve tiny cancellation residuals observed in C++ for near-zero d.
-                if (Math.abs(dResolved) <= 1.0e-10f) {
-                    float dFma = -Math.fma(dv, v1, du * u1);
-                    if (dFma != 0.0f && Math.abs(dFma) <= 1.0e-5f) {
-                        dResolved = dFma;
-                    }
-                }
-                localPlane.d = dResolved;
+                localPlane.d = -(du * u1 + dv * v1);
 
                 localPlane.coordinateOffset[0] =
                     localPlane.n[0] > 0.0f ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
@@ -451,21 +442,7 @@ public class Shaft {
                 }
                 // Co-linear vertices, try next vertex on polygon2
                 normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
-                float dNaive = -normal.dotProduct(current);
-                float dExtended =
-                    (float)(-((double)normal.x * (double)current.x
-                        + (double)normal.y * (double)current.y
-                        + (double)normal.z * (double)current.z));
-                float dFma = -Math.fma(normal.z, current.z, normal.x * current.x + normal.y * current.y);
-                float d = dNaive;
-                if (Math.abs(d) <= 1.0e-10f) {
-                    if (dFma != 0.0f && Math.abs(dFma) <= 1.0e-5f) {
-                        d = dFma;
-                    }
-                    else if (dExtended != 0.0f && Math.abs(dExtended) <= 1.0e-5f) {
-                        d = Math.abs(dExtended);
-                    }
-                }
+                float d = -normal.dotProduct(current);
 
                 // Test position of polygon1 with respect to constructed plane.
                 ShaftPlanePosition side =
@@ -549,7 +526,7 @@ public class Shaft {
     OVERLAP if it overlaps, OUTSIDE if it is outside shaft.
     */
     private static float evaluatePlane(ShaftPlane plane, float x, float y, float z) {
-        return Math.fma(plane.n[1], y, Math.fma(plane.n[0], x, Math.fma(plane.n[2], z, plane.d)));
+        return plane.n[0] * x + plane.n[1] * y + plane.n[2] * z + plane.d;
     }
 
     private ShaftPlanePosition boundingBoxTest(BoundingBox parameterBoundingBox) {

@@ -13,7 +13,7 @@ import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformStackContext;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
@@ -541,7 +541,7 @@ Note: this is an implementation of MGF file format with major version number 2.
         context.geometryBuildState.currentGeometryList = context.currentGeometryList;
 
         if (context.materials == null) {
-            context.materials = new ArrayList<Material>();
+            context.materials = new ArrayList<RpkMaterial>();
             context.materialState.materials = context.materials;
         }
 

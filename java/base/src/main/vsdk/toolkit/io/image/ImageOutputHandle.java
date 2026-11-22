@@ -57,9 +57,9 @@ public class ImageOutputHandle {
     }
 
     protected static ColorRgb gammaCorrect(ColorRgb rgb, final float[] gamma) {
-        double r = gamma[0] == 1.0f ? rgb.getR() : Math.pow(rgb.getR(), 1.0f / gamma[0]);
-        double g = gamma[1] == 1.0f ? rgb.getG() : Math.pow(rgb.getG(), 1.0f / gamma[1]);
-        double b = gamma[2] == 1.0f ? rgb.getB() : Math.pow(rgb.getB(), 1.0f / gamma[2]);
+        double r = gamma[0] == 1.0F ? rgb.getR() : Math.pow(rgb.getR(), 1.0 / (double) gamma[0]);
+        double g = gamma[1] == 1.0F ? rgb.getG() : Math.pow(rgb.getG(), 1.0 / (double) gamma[1]);
+        double b = gamma[2] == 1.0F ? rgb.getB() : Math.pow(rgb.getB(), 1.0 / (double) gamma[2]);
         return new ColorRgb(r, g, b);
     }
 

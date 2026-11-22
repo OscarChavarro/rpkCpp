@@ -3,6 +3,7 @@ package vsdk.toolkit.galerkin.processing;
 import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
+import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.GalerkinRole;
@@ -70,7 +71,12 @@ public final class GatheringClusteredStrategy extends GatheringStrategy {
         float userErrorThreshold = galerkinState.relLinkErrorThreshold;
 
         // Refines and computes light transport over the refined links
-        HierarchicalRefinementStrategy.refineInteractions(scene, galerkinState.topCluster, galerkinState);
+        if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.PARALLEL_JACOBI ) {
+            HierarchicalRefinementStrategy.refineInteractionsInParallel(scene, galerkinState.topCluster, galerkinState);
+        }
+        else {
+            HierarchicalRefinementStrategy.refineInteractions(scene, galerkinState.topCluster, galerkinState);
+        }
 
         galerkinState.relLinkErrorThreshold = userErrorThreshold;
 

@@ -142,6 +142,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
             switch ( galerkinState.galerkinIterationMethod ) {
                 case GAUSS_SEIDEL:
                 case JACOBI:
+                case PARALLEL_JACOBI:
                     element.potential = patch.directPotential;
                     break;
                 case SOUTH_WELL:
@@ -208,6 +209,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
 
         switch ( galerkinState.galerkinIterationMethod ) {
             case JACOBI:
+            case PARALLEL_JACOBI:
             case GAUSS_SEIDEL:
                 if ( gatheringStrategy == null ) {
                     setStrategy();

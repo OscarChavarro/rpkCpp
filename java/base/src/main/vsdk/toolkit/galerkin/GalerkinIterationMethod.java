@@ -6,9 +6,12 @@ Reference:
      Academic Press Professional, 1993.
 */
 
-// See [COHE1993] section 5.3.
+// See [COHE1993] section 5.3. PARALLEL_JACOBI is Jacobi whose refinement and
+// form factors are evaluated by several threads (GalerkinState.numberOfThreads)
+// and committed in the serial order, so its result is JACOBI's, bit for bit
 public enum GalerkinIterationMethod {
     JACOBI,
     GAUSS_SEIDEL,
-    SOUTH_WELL
+    SOUTH_WELL,
+    PARALLEL_JACOBI
 }

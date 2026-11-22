@@ -7,4 +7,5 @@ gradle -q :base:buildNativeRandomLibrary :base:jar :testsuite:ApplicationCases:R
 RPK_JAVA_CLASSPATH=$(gradle -q -I "$PREPARE_DIR/printRuntimeClasspath.gradle" \
     :testsuite:ApplicationCases:RenderparkApplication:printRuntimeClasspath | tail -1) || return 1
 export RPK_JAVA_CLASSPATH
-export RPK_GRADLE="$PREPARE_DIR/runJava.sh"
+# A wrapper of runJava.sh (scripts/runAllParallel.sh) may take its place
+export RPK_GRADLE="${RPK_RUN_WRAPPER:-$PREPARE_DIR/runJava.sh}"

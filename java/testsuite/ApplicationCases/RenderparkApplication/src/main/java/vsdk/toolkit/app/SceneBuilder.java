@@ -16,7 +16,7 @@ import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.mgf.MgfParserLoader;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.MeshSurfaceVisitor;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
@@ -301,7 +301,7 @@ they are primitive or not
         mgfContext.currentMaterial = null;
         if ( mgfContext.materials != null && mgfContext.currentMaterialName != null ) {
             for ( int i = 0; i < mgfContext.materials.size(); i++ ) {
-                Material material = mgfContext.materials.get(i);
+                RpkMaterial material = mgfContext.materials.get(i);
                 if ( material != null
                      && material.getName() != null
                      && material.getName().equals(mgfContext.currentMaterialName) ) {

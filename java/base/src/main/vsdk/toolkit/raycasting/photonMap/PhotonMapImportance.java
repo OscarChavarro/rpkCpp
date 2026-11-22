@@ -43,7 +43,7 @@ Store a importon/poton. Some acceptance tests are performed first
 
     private static boolean doImportanceStore(ImportanceMap map, SimpleRaytracingPathNode node, ColorRgbMutable importance) {
         if ( PhotonMapImportance.hasDiffuseOrGlossy(node) ) {
-            float importanceF = importance.average();
+            float importanceF = (float) importance.average();
             float potentialF = 1.0f;
 
             // Compute footprint

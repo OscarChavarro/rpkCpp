@@ -1,218 +1,81 @@
 package vsdk.toolkit.material;
 
-/**
-Emittance Distribution Functions: the self-emitted radiance
-distribution of light sources
-*/
-
-/*hit*/
-
-/**
-Creates Phong type EDF, BRDF, BTDF data structs:
-Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
-Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
-Ns = Phong exponent.
-note: Emittance is total power emitted by the light source per unit of area
-*/
-
-// Because we use it often
-
-/**
-Returns emittance, reflectance, transmittance
-*/
-
-/**
-Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
-*/
-
-/**
-Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
-out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
-computed and returned in probabilityDensityFunction
-*/
-
-// Back face of a light does not radiate
-
-// kd + ks (idealReflected * out) ^ n
-
-// Divide by PI to turn radiant exitance [W / m ^ 2] into exitant radiance [W / m ^ 2 sr]
-
-// ???
-
-/**
-Samples a direction according to the specified edf and emission range determined
-by flags. If emitted_radiance is not a null pointer, the emitted radiance along
-the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
-of the generated direction is computed and returned in probabilityDensityFunction
-*/
-
-// Section [ARVO1995b].2: two independent samples (xi1, xi2) in [0,1]^2
-
-// are mapped to a direction on the hemisphere after building a local frame.
-
-/**
-Computes a shading frame at the given hit point. The Z axis of this frame is
-the shading normal, The X axis is in the tangent plane on the surface at the
-hit point ("brush" direction relevant for anisotropic shaders e.getG().). Y
-is perpendicular to X and Z. X and Y may be null pointers. In this case,
-only the shading normal is returned, avoiding computation of the X and
-Y axis if possible).
-Note: also edf's can have a routine for computing the shading frame. If a
-material has both an edf and a bsdf, the shading frame shall of course
-be the same.
-This routine returns TRUE if a shading frame could be constructed and FALSE if
-not. In the latter case, a default frame needs to be used (not computed by this
-routine - pointShadingFrame() in material.[ch] constructs such a frame if
-needed)
-*/
-
-/*X*/
-
-/*Y*/
-
-/*Z*/
-
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.environment.material.PhongMaterial;
+import vsdk.toolkit.environment.material.SurfaceShadingPoint;
 
 /**
-Emittance Distribution Functions: the self-emitted radiance distribution of light sources.
+RenderPark's view of the self-emitted radiance distribution of a light
+source material, with RenderPark's argument types: every function converts
+its arguments and answers through the VITRAL PhongMaterial, whose emission
+lobe is the model (plan step 2b).
+
+Read-only after construction; does not own the PhongMaterial.
 */
 public class PhongEmittanceDistributionFunction {
-    private ColorRgb Kd;
-    private ColorRgb kd;
-    private ColorRgb Ks;
-    private float Ns;
+    private final PhongMaterial material;
 
-    private boolean isSpecular() {
-        return Ns >= Xxdf.PHONG_LOWEST_SPECULAR_EXP;
-    }
-
-    public PhongEmittanceDistributionFunction(ColorRgb KdParameter, ColorRgb KsParameter, double NsParameter) {
-        Kd = new ColorRgb(KdParameter.getR(), KdParameter.getG(), KdParameter.getB());
-        ColorRgbMutable kdMutable = new ColorRgbMutable();
-        kdMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
-        kd = kdMutable.toImmutable();
-        Ks = new ColorRgb(KsParameter.getR(), KsParameter.getG(), KsParameter.getB());
-        if (!new ColorRgbMutable(Ks).isBlack()) {
-            Logger.reportMessage(this, Logger.WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
-        }
-        Ns = (float)NsParameter;
-    }
-
-    public ColorRgb getKd() {
-        return Kd;
-    }
-
-    public ColorRgb getKs() {
-        return Ks;
-    }
-
-    public float getNs() {
-        return Ns;
+    public PhongEmittanceDistributionFunction(PhongMaterial inMaterial) {
+        material = inMaterial;
     }
 
     public static boolean edfIsTextured() {
         return false;
     }
 
+    /**
+    No emitter defines its own shading frame: callers build a default one
+    */
     public static boolean edfShadingFrame(ShadingContext context, Vector3D X, Vector3D Y, Vector3D Z) {
         return false;
     }
 
+    /** Emittance (self-emitted radiant exitance) [W / m^2] of the components in flags */
     public ColorRgb phongEmittance(ShadingContext context, int flags) {
-        ColorRgbMutable result = new ColorRgbMutable();
-        result.clear();
-
-        if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, new ColorRgbMutable(Kd));
-        }
-
-        if (isSpecular()) {
-            if ((flags & XxdfComponentFlag.SPECULAR_COMPONENT) != 0) {
-                result.add(result, new ColorRgbMutable(Ks));
-            }
-        }
-        else if ((flags & XxdfComponentFlag.GLOSSY_COMPONENT) != 0) {
-            result.add(result, new ColorRgbMutable(Ks));
-        }
-
-        return result.toImmutable();
+        return material.emittance(flags);
     }
 
+    /**
+    Exitant radiance [W / m^2 sr] into the direction out; when
+    probabilityDensityFunction is not null, the density of out under
+    phongEdfSample goes there
+    */
     public ColorRgb phongEdfEval(ShadingContext context, Vector3D out, int flags, double[] probabilityDensityFunction) {
-        Vector3D normal = new Vector3D();
-        ColorRgbMutable result = new ColorRgbMutable();
-        result.clear();
-        setOut(probabilityDensityFunction, 0.0);
-
-        if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-            Logger.reportMessage(this, Logger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
-            return result.toImmutable();
+        if ( context == null ) {
+            return material.emissionEvaluate(null, MaterialBoundary.toVitral(out), flags, probabilityDensityFunction);
         }
-        normal.copy(context.getShadingNormal());
-
-        double cosL = out.dotProduct(normal);
-        if (cosL < 0.0) {
-            return result.toImmutable();
-        }
-
-        if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            result.add(result, new ColorRgbMutable(kd));
-            setOut(probabilityDensityFunction, cosL / Math.PI);
-        }
-
-        if ((flags & XxdfComponentFlag.SPECULAR_COMPONENT) != 0) {
-            // Not implemented in original C++ code.
-        }
-
-        return result.toImmutable();
+        final SurfaceShadingPoint point = context.toShadingPoint();
+        return material.emissionEvaluate(point, MaterialBoundary.toVitral(out), flags, probabilityDensityFunction);
     }
 
+    /**
+    Samples an emitted direction; the radiance along it (into
+    selfEmittedRadiance, an out-parameter that is mutated) and its density
+    go to the non-null arguments
+    */
     public Vector3D phongEdfSample(
         ShadingContext context,
         int flags,
         double xi1,
         double xi2,
         ColorRgbMutable selfEmittedRadiance,
-        double[] probabilityDensityFunction) {
-        // selfEmittedRadiance is an out-parameter (the C++ port assigns it
-        // through a pointer), so it must be mutated, never re-assigned.
-        if (selfEmittedRadiance != null) {
-            selfEmittedRadiance.clear();
+        double[] probabilityDensityFunction)
+    {
+        final ColorRgb[] radiance = selfEmittedRadiance != null ? new ColorRgb[1] : null;
+        final Vector3D direction;
+        if ( context == null ) {
+            direction = MaterialBoundary.fromVitral(material.emissionSample(
+                null, flags, xi1, xi2, radiance, probabilityDensityFunction));
+        } else {
+            final SurfaceShadingPoint point = context.toShadingPoint();
+            direction = MaterialBoundary.fromVitral(material.emissionSample(
+                point, flags, xi1, xi2, radiance, probabilityDensityFunction));
         }
-        setOut(probabilityDensityFunction, 0.0);
-
-        Vector3D dir = new Vector3D(0.0f, 0.0f, 1.0f);
-        if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
-            CoordinateSystem coord = new CoordinateSystem();
-            if (context == null || !context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
-                Logger.reportMessage(this, Logger.WARNING, "phongEdfEval", "Couldn't determine shading normal");
-                return dir;
-            }
-            Vector3D normal = context.getShadingNormal();
-
-            coord.setFromZAxis(normal);
-            double[] sampledPdf = new double[] {0.0};
-            dir = coord.sampleHemisphereCosTheta(xi1, xi2, sampledPdf);
-            setOut(probabilityDensityFunction, sampledPdf[0]);
-
-            if (selfEmittedRadiance != null) {
-                ColorRgbMutable radianceMutable = new ColorRgbMutable();
-                radianceMutable.scaledCopy((1.0 / Math.PI), new ColorRgbMutable(Kd));
-                selfEmittedRadiance.set(radianceMutable.getR(), radianceMutable.getG(), radianceMutable.getB());
-            }
+        if ( selfEmittedRadiance != null ) {
+            selfEmittedRadiance.set(radiance[0].getR(), radiance[0].getG(), radiance[0].getB());
         }
-
-        return dir;
-    }
-
-    private static void setOut(double[] out, double value) {
-        if (out != null && out.length > 0) {
-            out[0] = value;
-        }
+        return direction;
     }
 }

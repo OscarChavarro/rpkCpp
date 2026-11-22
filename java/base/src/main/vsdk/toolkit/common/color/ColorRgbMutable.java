@@ -65,16 +65,16 @@ public class ColorRgbMutable {
         b = a * s.b;
     }
 
-    public float maximumComponent() {
-        if (r > g) return (float)((r > b) ? r : b);
-        return (float)((g > b) ? g : b);
+    public double maximumComponent() {
+        if (r > g) return (r > b) ? r : b;
+        return (g > b) ? g : b;
     }
 
     public double sumAbsComponents() { return Math.abs(r) + Math.abs(g) + Math.abs(b); }
     public void abs() { r = Math.abs(r); g = Math.abs(g); b = Math.abs(b); }
     public void maximum(ColorRgbMutable s, ColorRgbMutable t) { r = (s.r > t.r) ? s.r : t.r; g = (s.g > t.g) ? s.g : t.g; b = (s.b > t.b) ? s.b : t.b; }
     public void minimum(ColorRgbMutable s, ColorRgbMutable t) { r = (s.r < t.r) ? s.r : t.r; g = (s.g < t.g) ? s.g : t.g; b = (s.b < t.b) ? s.b : t.b; }
-    public float average() { return (float)((r + g + b) / 3.0); }
+    public double average() { return (r + g + b) / 3.0; }
     public void interpolateBarycentric(ColorRgbMutable c0, ColorRgbMutable c1, ColorRgbMutable c2, double u, double v) {
         r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
         g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);

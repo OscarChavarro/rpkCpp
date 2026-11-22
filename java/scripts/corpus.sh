@@ -12,6 +12,7 @@ CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi|01_cube
 05_office2|05_runOffice2|05|05_office2
 06_office3|06_runOffice3|06|06_office3
 07_classroom|07_runSalonDeClase|07|07_classroom
+08_soda|08_runSoda|08|08_soda
 10_floorRayMatting|10_floorRayMatting|10|10_floorRayMatting
 11_floorRayCasting|11_floorRayCasting|11|11_floorRayCasting
 12_floorBidirectionalPathTracing|12_floorBidirectionalPathTracing|12|12_floorBidirectionalPathTracing
@@ -22,12 +23,13 @@ CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi|01_cube
 21_tonemapWard|21_tonemap_Ward|21|21_tonemapWard
 22_tonemapTumblinRushmeier|22_tonemap_TumblinRushmeier|22|22_tonemapTumblinRushmeier'
 
-# Scenes outside the corpus, with the same columns. scripts/runAll.sh starts
-# them beside the corpus and does not wait for them (08 soda takes hours), so
+# Scenes outside the corpus, with the same columns (none in this port: 08 soda
+# runs in the corpus with parallel Jacobi). scripts/runAll.sh starts
+# them beside the corpus and does not wait for them, so
 # testReviewResults.sh compares one only when its run has finished, that is
 # when output/<log>.status (the run's exit status, written at its end) exists,
 # and otherwise reports that it was not compared.
-OPTIONAL_TABLE='08_soda|08_runSoda|08|08_soda'
+OPTIONAL_TABLE=''
 
 # Runs one corpus script from cpp/: stdout to output/<log>.log, stderr to
 # output/<log>.err, the CPU time of the run (the script and the rpk process

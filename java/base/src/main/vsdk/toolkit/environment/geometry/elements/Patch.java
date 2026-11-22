@@ -8,25 +8,30 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.PlanarFace;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.skin.BoundingBox;
 
 public class Patch {
-    private static double vector2DdDeterminant(Vector2Dd a, Vector2Dd b) {
-        return a.x * b.y - a.y * b.x;
-    }
 
     public static final int MAXIMUM_VERTICES_PER_PATCH = 4;
     public static final int PATCH_VISIBILITY = 0x01;
     public static final int MAX_EXCLUDED_PATCHES = 4;
 
-    private static final double TOLERANCE = 1e-5;
-
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     private static int patchId = 1;
+
+    private static Vector3Df toFace(Vector3D v) {
+        return new Vector3Df(v.x, v.y, v.z);
+    }
+
+    private static Vector3D fromFace(Vector3Df v) {
+        return new Vector3D(v.x(), v.y(), v.z());
+    }
 
     private int flags; // Other flags
 
@@ -36,7 +41,9 @@ public class Patch {
     public Vertex[] vertex; // Pointers to the vertices
     public byte numberOfVertices; // Number of vertices: 3 or 4
     public BoundingBox boundingBox;
-    public Vector3D normal;
+    // Geometry of the face: positions, plane, area, parametrization; immutable
+    private PlanarFace face;
+    public Vector3D normal; // face.getNormal(), in the type RPK's callers use
     public float planeConstant;
     public float tolerance; // Plane tolerance
     public float area; // Patch area
@@ -53,7 +60,7 @@ public class Patch {
     public ColorRgbMutable color; // Color used to flat render the patch
     // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     public Element radianceData;
-    public Material material;
+    public RpkMaterial material;
 
     /**
     This routine returns the ID number the next patch would get.
@@ -78,16 +85,6 @@ public class Patch {
             }
         }
         return i >= numberOfVertices;
-    }
-
-    private static boolean withinUvInterval(double value) {
-        return value >= 0.0 && value <= 1.0;
-    }
-
-    public static double planeEquationValue(Vector3D normal, float planeConstant, Vector3D point) {
-        float xy = normal.x * point.x + normal.y * point.y;
-        float zd = normal.z * point.z + planeConstant;
-        return (double)(xy + zd);
     }
 
     /**
@@ -159,80 +156,6 @@ public class Patch {
     }
 
     /**
-    Looks for solution of the quadratic equation A.u^2 + B.u + C = 0
-    in the interval [0,1]. There must be exactly one such solution.
-    Returns true if one such solution is found, or false if the equation
-    has no real solutions, both solutions are in the interval [0,1] or
-    none of them is. In case of problems, best guess solution
-    is returned. Problems seem to be due to numerical inaccuracy.
-    */
-    private static boolean solveQuadraticUnitInterval(double A, double B, double C, double[] x) {
-        double D = B * B - 4.0 * A * C;
-        double x1;
-        double x2;
-
-        if (A < TOLERANCE && A > -TOLERANCE) {
-            // Degenerate case, solve B*x + C = 0
-            x1 = -1.0;
-            x2 = -C / B;
-        }
-        else {
-            if (D < -TOLERANCE * TOLERANCE) {
-                x[0] = -B / (2.0 * A);
-                Logger.reportMessage(null, Logger.ERROR, "", String.format("Bi-linear->Uniform mapping has negative discriminant D = %g. Taking 0 as discriminant and %g as solution.", D, x[0]));
-                return false;
-            }
-
-            D = D > TOLERANCE * TOLERANCE ? Math.sqrt(D) : 0.0;
-            A = 1.0 / (2.0 * A);
-            x1 = (-B + D) * A;
-            x2 = (-B - D) * A;
-
-            if (x1 > -TOLERANCE && x1 < 1.0 + TOLERANCE) {
-                x[0] = x1;
-                if (x2 > -TOLERANCE && x2 < 1.0 + TOLERANCE) {
-                    // Error: Bi-linear->Uniform mapping ambiguous: x1, x2, taking x1 as solution
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        if (x2 > -TOLERANCE && x2 < 1.0 + TOLERANCE) {
-            x[0] = x2;
-            return true;
-        }
-
-        // May happen due to numerical errors choose the root closest to [0,1]
-        double d;
-        if (x1 > 1.0) {
-            d = x1 - 1.0;
-        }
-        else {
-            // x1 < 0.0
-            d = -x1;
-        }
-        x[0] = x1;
-        if (x2 > 1.0) {
-            if (x2 - 1.0 < d) {
-                x[0] = x2;
-            }
-        }
-        else if (0.0 - x2 < d) {
-            x[0] = x2;
-        }
-
-        // Clip it to [0,1]
-        if (x[0] < 0.0) {
-            x[0] = 0.0;
-        }
-        if (x[0] > 1.0) {
-            x[0] = 1.0;
-        }
-        return false;
-    }
-
-    /**
     Adds the patch to the list of patches that share the vertex.
     */
     private void connectVertex(Vertex paramVertex) {
@@ -252,408 +175,14 @@ public class Patch {
     }
 
     /**
-    Compute the jacobian J(u, v) of the coordinate mapping from the unit
-    square [0, 1] ^ 2 or the standard triangle (0, 0), (1, 0), (0, 1) to the patch.
-    - For triangles: J(u, v) = the area of the triangle.
-    - For quadrilaterals: J(u, v) = A + B.u + C.v
-      the area of the patch = A + (B + C) / 2
-      for parallelograms holds that B = C = 0
-      the coefficients A, B, C are only stored if B and C are non-zero.
-    The normal of the patch should have been computed before calling this routine.
-    */
-    private float computeRandomWalkRadiosityArea() {
-        Vector3D p1;
-        Vector3D p2;
-        Vector3D p3;
-        Vector3D p4;
-        Vector3D d1 = new Vector3D();
-        Vector3D d2 = new Vector3D();
-        Vector3D d3 = new Vector3D();
-        Vector3D d4 = new Vector3D();
-        Vector3D cp1 = new Vector3D();
-        Vector3D cp2 = new Vector3D();
-        Vector3D cp3 = new Vector3D();
-        float a;
-        float b;
-        float c;
-
-        // Explicitly compute the area and jacobian
-        switch (numberOfVertices) {
-            case 3:
-                // Jacobian J(u,v) for the mapping of the triangle
-                // (0,0),(0,1),(1,0) to a triangular patch is constant and equal
-                // to the area of the triangle ... so there is no need to store
-                // any coefficients explicitly
-                jacobian = null;
-
-                p1 = vertex[0].point;
-                p2 = vertex[1].point;
-                p3 = vertex[2].point;
-                d1.subtraction(p2, p1);
-                d2.subtraction(p3, p2);
-                cp1.crossProduct(d1, d2);
-                area = 0.5f * cp1.norm();
-                break;
-            case 4:
-                p1 = vertex[0].point;
-                p2 = vertex[1].point;
-                p3 = vertex[2].point;
-                p4 = vertex[3].point;
-                d1.subtraction(p2, p1);
-                d2.subtraction(p3, p2);
-                d3.subtraction(p3, p4);
-                d4.subtraction(p4, p1);
-                cp1.crossProduct(d1, d4);
-                cp2.crossProduct(d1, d3);
-                cp3.crossProduct(d2, d4);
-                a = cp1.dotProduct(normal);
-                b = cp2.dotProduct(normal);
-                c = cp3.dotProduct(normal);
-
-                area = a + 0.5f * (b + c);
-                if (area < 0.0f) {
-                    // May happen if the normal direction and
-                    // vertex order are not consistent
-                    b = -b;
-                    c = -c;
-                    area = -area;
-                }
-
-                // b and c are zero for parallelograms. In that case, the area is equal to
-                // a, so we do not need to store the coefficients
-                if (Math.abs(b) / area < Numeric.EPSILON && Math.abs(c) / area < Numeric.EPSILON) {
-                    jacobian = null;
-                }
-                else {
-                    jacobian = new Jacobian(a, b, c);
-                }
-                break;
-            default:
-                Logger.reportMessage(this, Logger.FATAL_ERROR, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.");
-                jacobian = null;
-                area = 0.0f;
-                break;
-        }
-
-        if (area < Numeric.EPSILON * Numeric.EPSILON) {
-            System.err.printf("Warning: very small patch id %d area = %g%n", id, area);
-        }
-
-        return area;
-    }
-
-    /**
-    Computes the mid point of the patch, stores the result in p and
-    returns a pointer to p.
-    */
-    private void computeMidpoint(Vector3D p) {
-        p.set(0.0f, 0.0f, 0.0f);
-        for (int i = 0; i < numberOfVertices; i++) {
-            p.addition(p, vertex[i].point);
-        }
-        p.inverseScaledCopy(numberOfVertices, p, Numeric.EPSILON_FLOAT);
-    }
-
-    /**
-    Computes a certain width for the plane, e.getG(). for co-planar testing.
-    */
-    private float computeTolerance() {
-        // Fill in the vertices in the plane equation + take into account the vertex position tolerance
-        float localTolerance = 0.0f;
-        for (int i = 0; i < numberOfVertices; i++) {
-            Vector3D p = vertex[i].point;
-            float e = Math.abs(normal.dotProduct(p) + planeConstant) + p.tolerance(Numeric.EPSILON_FLOAT);
-            if (e > localTolerance) {
-                localTolerance = e;
-            }
-        }
-        return localTolerance;
-    }
-
-    /**
     Returns (u, v) coordinates of the point in the triangle.
     Didier Badouel, Graphics Gems I, p390.
     */
-    // Scratch storage reused across calls on the hot ray intersection paths.
-    // The C++ port keeps the equivalent variables on the stack; the rendering
-    // core is single threaded, so sharing them here is safe and avoids
-    // billions of short-lived heap allocations per scene.
-    private static final Vector2Dd triangleUvScratchP0 = new Vector2Dd();
-    private static final Vector2Dd triangleUvScratchP1 = new Vector2Dd();
-    private static final Vector2Dd triangleUvScratchP2 = new Vector2Dd();
-
-    private boolean triangleUv(Vector3D point, Vector2Dd uv) {
-        double u0;
-        double v0;
-        double alpha;
-        double beta;
-        Vector2Dd p0 = triangleUvScratchP0;
-        Vector2Dd p1 = triangleUvScratchP1;
-        Vector2Dd p2 = triangleUvScratchP2;
-
-        // Project to 2D
-        int vertexIndex = 0;
-        switch (index) {
-            case X:
-                u0 = vertex[vertexIndex].point.y;
-                v0 = vertex[vertexIndex].point.z;
-                p0.set(point.y - u0, point.z - v0);
-                vertexIndex++;
-                p1.set(vertex[vertexIndex].point.y - u0, vertex[vertexIndex].point.z - v0);
-                vertexIndex++;
-                p2.set(vertex[vertexIndex].point.y - u0, vertex[vertexIndex].point.z - v0);
-                break;
-
-            case Y:
-                u0 = vertex[vertexIndex].point.x;
-                v0 = vertex[vertexIndex].point.z;
-                p0.set(point.x - u0, point.z - v0);
-                vertexIndex++;
-                p1.set(vertex[vertexIndex].point.x - u0, vertex[vertexIndex].point.z - v0);
-                vertexIndex++;
-                p2.set(vertex[vertexIndex].point.x - u0, vertex[vertexIndex].point.z - v0);
-                break;
-
-            case Z:
-                u0 = vertex[vertexIndex].point.x;
-                v0 = vertex[vertexIndex].point.y;
-                p0.set(point.x - u0, point.y - v0);
-                vertexIndex++;
-                p1.set(vertex[vertexIndex].point.x - u0, vertex[vertexIndex].point.y - v0);
-                vertexIndex++;
-                p2.set(vertex[vertexIndex].point.x - u0, vertex[vertexIndex].point.y - v0);
-                break;
-
-            default:
-                break;
-        }
-
-        if (p1.x < -Numeric.EPSILON || p1.x > Numeric.EPSILON) {
-            // p1.u non zero
-            beta = (p0.y * p1.x - p0.x * p1.y) / (p2.y * p1.x - p2.x * p1.y);
-            if (beta >= 0.0 && beta <= 1.0) {
-                alpha = (p0.x - beta * p2.x) / p1.x;
-            }
-            else {
-                return false;
-            }
-        }
-        else {
-            beta = p0.x / p2.x;
-            if (beta >= 0.0 && beta <= 1.0) {
-                alpha = (p0.y - beta * p2.y) / p1.y;
-            }
-            else {
-                return false;
-            }
-        }
-
-        uv.x = alpha;
-        uv.y = beta;
-        return !(alpha < 0.0 || (alpha + beta) > 1.0);
-    }
-
-    /**
-    Christophe Schlick and Gilles Subrenat (15 May 1994)
-    Ray Intersection of Tessellated Surfaces: Quadrangles versus Triangles
-    in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241.
-    */
-    private static final Vector2Dd quadUvScratchA = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchB = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchC = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchD = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchM = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchAB = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchBC = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchCD = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchAD = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchAM = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchAE = new Vector2Dd();
-    private static final Vector2Dd quadUvScratchVector = new Vector2Dd();
-
-    private static boolean quadUv(Patch patch, Vector3D point, Vector2Dd uv) {
-        Vector2Dd A = quadUvScratchA; // Projected vertices
-        Vector2Dd B = quadUvScratchB;
-        Vector2Dd C = quadUvScratchC;
-        Vector2Dd D = quadUvScratchD;
-        Vector2Dd M = quadUvScratchM; // Projected intersection point
-        Vector2Dd AB = quadUvScratchAB; // AE = DC - AB = DA - CB
-        Vector2Dd BC = quadUvScratchBC;
-        Vector2Dd CD = quadUvScratchCD;
-        Vector2Dd AD = quadUvScratchAD;
-        Vector2Dd AM = quadUvScratchAM;
-        Vector2Dd AE = quadUvScratchAE;
-        double u = -1.0; // Parametric coordinates
-        double v = -1.0;
-        Vector2Dd vector = quadUvScratchVector; // Temporary 2D-vector
-        boolean isInside = false;
-
-        // Projection on the plane that is most parallel to the facet
-        int vertexIndex = 0;
-        switch (patch.index) {
-            case X:
-                A.set(patch.vertex[vertexIndex].point.y, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                B.set(patch.vertex[vertexIndex].point.y, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                C.set(patch.vertex[vertexIndex].point.y, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                D.set(patch.vertex[vertexIndex].point.y, patch.vertex[vertexIndex].point.z);
-                M.set(point.y, point.z);
-                break;
-
-            case Y:
-                A.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                B.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                C.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.z);
-                vertexIndex++;
-                D.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.z);
-                M.set(point.x, point.z);
-                break;
-
-            case Z:
-                A.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.y);
-                vertexIndex++;
-                B.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.y);
-                vertexIndex++;
-                C.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.y);
-                vertexIndex++;
-                D.set(patch.vertex[vertexIndex].point.x, patch.vertex[vertexIndex].point.y);
-                M.set(point.x, point.y);
-                break;
-
-            default:
-                break;
-        }
-
-        AB.set(B.x - A.x, B.y - A.y);
-        BC.set(C.x - B.x, C.y - B.y);
-        CD.set(D.x - C.x, D.y - C.y);
-        AD.set(D.x - A.x, D.y - A.y);
-        AE.set(CD.x + AB.x, CD.y + AB.y);
-        AE.set(-AE.x, -AE.y);
-        AM.set(M.x - A.x, M.y - A.y);
-
-        double a; // Quadratic equation
-        double b;
-        double c;
-
-        if (Math.abs(vector2DdDeterminant(AB, CD)) < Numeric.EPSILON) {
-            // Case AB // CD
-            vector.set(AB.x - CD.x, AB.y - CD.y);
-            v = vector2DdDeterminant(AM, vector) / vector2DdDeterminant(AD, vector);
-            if (withinUvInterval(v)) {
-                b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
-                c = vector2DdDeterminant(AM, AD);
-                u = Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
-                isInside = withinUvInterval(u);
-            }
-        }
-        else if (Math.abs(vector2DdDeterminant(BC, AD)) < Numeric.EPSILON) {
-            // Case AD // BC
-            vector.set(AD.x + BC.x, AD.y + BC.y);
-            u = vector2DdDeterminant(AM, vector) / vector2DdDeterminant(AB, vector);
-            if (withinUvInterval(u)) {
-                b = vector2DdDeterminant(AD, AB) - vector2DdDeterminant(AM, AE);
-                c = vector2DdDeterminant(AM, AB);
-                v = Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
-                isInside = withinUvInterval(v);
-            }
-        }
-        else {
-            // General case
-            a = vector2DdDeterminant(AB, AE);
-            c = -vector2DdDeterminant(AM, AD);
-            b = vector2DdDeterminant(AB, AD) - vector2DdDeterminant(AM, AE);
-            a = -0.5 / a;
-            b *= a;
-            c *= (a + a);
-            double sqrtDelta = b * b + c;
-            if (sqrtDelta >= 0.0) {
-                sqrtDelta = Math.sqrt(sqrtDelta);
-                u = b - sqrtDelta;
-                if (u < 0.0 || u > 1.0) {
-                    // To choose u between 0 and 1
-                    u = b + sqrtDelta;
-                }
-                if (withinUvInterval(u)) {
-                    v = AD.x + u * AE.x;
-                    if (Math.abs(v) < Numeric.EPSILON) {
-                        v = (AM.y - u * AB.y) / (AD.y + u * AE.y);
-                    }
-                    else {
-                        v = (AM.x - u * AB.x) / v;
-                    }
-                    isInside = withinUvInterval(v);
-                }
-            }
-            else {
-                u = -1.0;
-                v = -1.0;
-            }
-        }
-
-        uv.x = clipToUnitInterval(u);
-        uv.y = clipToUnitInterval(v);
-        return isInside;
-    }
-
-    /**
-    Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
-    (u,v) parameters as a side result.
-    */
-    private static final Vector2Dd hitInPatchScratchUv = new Vector2Dd();
-
-    private boolean hitInPatch(RayHit hit, Patch patch) {
-        int newFlags = hit.getFlags() | RayHitFlag.UV;
-        hit.setFlags(newFlags); // uv parameters computed as a side result
-        Vector3D position = hit.getPoint();
-        Vector2Dd uv = hitInPatchScratchUv;
-        boolean result = (patch.numberOfVertices == 3)
-            ? triangleUv(position, uv)
-            : quadUv(patch, position, uv);
-        hit.setUv(uv);
-        return result;
-    }
-
-    /**
-    Returns a pointer to the normal vector if everything is OK. Null pointer if degenerate polygon.
-    */
-    private static Vector3D patchNormal(Patch patch, Vector3D normal) {
-        Vector3D current = new Vector3D();
-        double normalX = 0.0;
-        double normalY = 0.0;
-        double normalZ = 0.0;
-
-        normal.set(0.0f, 0.0f, 0.0f);
-        current.subtraction(patch.vertex[patch.numberOfVertices - 1].point, patch.vertex[0].point);
-        for (int i = 0; i < patch.numberOfVertices; i++) {
-            Vector3D previous = new Vector3D(current.x, current.y, current.z);
-            current.subtraction(patch.vertex[i].point, patch.vertex[0].point);
-            float termX = (previous.y - current.y) * (previous.z + current.z);
-            float termY = (previous.z - current.z) * (previous.x + current.x);
-            float termZ = (previous.x - current.x) * (previous.y + current.y);
-            normalX += termX;
-            normalY += termY;
-            normalZ += termZ;
-            normal.x = (float)normalX;
-            normal.y = (float)normalY;
-            normal.z = (float)normalZ;
-        }
-        normal.x = (float)normalX;
-        normal.y = (float)normalY;
-        normal.z = (float)normalZ;
-
-        float localNorm = normal.norm();
-        if (localNorm < Numeric.EPSILON) {
-            Logger.reportMessage(null, Logger.WARNING, "patchNormal", String.format("degenerate patch (id %d)", patch.id));
-            return null;
-        }
-        normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
-        return normal;
-    }
+    // Scratch storage reused across calls on the hot ray intersection paths
+    // (the C++ port keeps the equivalent variables on the stack) lives in a
+    // PatchIntersectionWorkspace: each thread passes its own, and the single
+    // threaded callers share this one
+    private static final PatchIntersectionWorkspace sharedWorkspace = new PatchIntersectionWorkspace();
 
     /**
     Return true if patch is virtual.
@@ -699,30 +228,33 @@ public class Patch {
         // A bounding box will be computed the first time it is needed
         boundingBox = null;
 
-        normal = new Vector3D();
-
-        // Compute normal
-        if (patchNormal(this, normal) == null) {
+        // Face geometry: normal, area and Jacobian, midpoint, plane, dominant axis
+        final Vector3Df[] positions = new Vector3Df[] {
+            toFace(v1.point),
+            toFace(v2.point),
+            toFace(v3.point),
+            inNumberOfVertices == 4 ? toFace(v4.point) : new Vector3Df()
+        };
+        face = new PlanarFace(inNumberOfVertices, positions);
+        if ( !face.isValid() ) {
+            Logger.reportMessage("Patch", Logger.WARNING, "patchNormal", String.format("degenerate patch (id %d)", id));
             Statistics.instance().reader.numberOfElements--;
-            Logger.reportMessage(this, Logger.ERROR, "Patch::Patch", "Error computing patch normal");
+            Logger.reportMessage("Patch", Logger.ERROR, "Patch::Patch", "Error computing patch normal");
             System.exit(3);
         }
-
-        // Also computes the jacobian
-        area = computeRandomWalkRadiosityArea();
-
-        // Patch midpoint
-        midPoint = new Vector3D();
-        computeMidpoint(midPoint);
-
-        // Plane constant
-        planeConstant = -normal.dotProduct(midPoint);
-
-        // Plane tolerance
-        tolerance = computeTolerance();
-
-        // Dominant part of normal
-        index = normal.dominantCoordinate();
+        normal = fromFace(face.getNormal());
+        midPoint = fromFace(face.getMidPoint());
+        jacobian = null;
+        if ( face.hasJacobian() ) {
+            jacobian = new Jacobian(face.getJacobianA(), face.getJacobianB(), face.getJacobianC());
+        }
+        area = face.getArea();
+        planeConstant = face.getPlaneConstant();
+        tolerance = face.getTolerance();
+        index = CoordinateAxis.values()[face.getDominantAxis()];
+        if ( face.getArea() < Numeric.EPSILON * Numeric.EPSILON ) {
+            System.err.printf("Warning: very small patch id %d area = %g\n", id, face.getArea());
+        }
 
         // Tell the vertices that there is a new Patch using them
         connectVertices();
@@ -851,13 +383,6 @@ public class Patch {
     intersection and whether front/back facing patches are to be
     considered and are described in ray.h.
     */
-    // Reused hit record, mirroring the local stack variable of the C++ port.
-    // Results are copied into the caller's hitStore before returning, so the
-    // scratch object never escapes this method.
-    private static final RayHit intersectScratchHit = new RayHit();
-    private static final double[] intersectScratchU = new double[1];
-    private static final double[] intersectScratchV = new double[1];
-
     public RayHit intersect(
         Ray ray,
         float minimumDistance,
@@ -865,50 +390,50 @@ public class Patch {
         int hitFlags,
         RayHit hitStore,
         RayExclusionSet exclusions) {
-        RayHit hit = intersectScratchHit;
+        return intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, sharedWorkspace);
+    }
+
+    /**
+    Same as the method above, with the scratch of the calling thread. The hit
+    record of the workspace mirrors the local stack variable of the C++ port:
+    results are copied into the caller's hitStore before returning, so it never
+    escapes this method (without hitStore the workspace's record is returned).
+    */
+    public RayHit intersect(
+        Ray ray,
+        float minimumDistance,
+        float[] maximumDistance,
+        int hitFlags,
+        RayHit hitStore,
+        RayExclusionSet exclusions,
+        PatchIntersectionWorkspace workspace) {
+        RayHit hit = workspace.hit;
         hit.setFlags(0);
         hit.setPatch(null);
         hit.setMaterial(null);
 
-        if (exclusions.excludesPatch(this) || exclusions.excludesFace(faceIndex)) {
+        if ( exclusions.excludesPatch(this) || exclusions.excludesFace(faceIndex) ) {
             return null;
         }
 
-        float distance = normal.dotProduct(ray.direction);
-        if (distance > Numeric.EPSILON) {
-            // Back facing patch
-            if ((hitFlags & RayHitFlag.BACK) == 0) {
-                return null;
-            }
-            int newFlags = hit.getFlags() | RayHitFlag.BACK;
-            hit.setFlags(newFlags);
-        }
-        else if (distance < -Numeric.EPSILON) {
-            // Front facing patch
-            if ((hitFlags & RayHitFlag.FRONT) == 0) {
-                return null;
-            }
-            int newFlags = hit.getFlags() | RayHitFlag.FRONT;
-            hit.setFlags(newFlags);
-        }
-        else {
-            // Ray is parallel with the plane of the patch
-            return null;
-        }
-
-        distance = (float)(-planeEquationValue(normal, planeConstant, ray.position) / distance);
-
-        if (distance > maximumDistance[0] || distance < minimumDistance) {
-            // Intersection too far or too close
-            return null;
-        }
-
-        // Intersection point of ray with plane of patch
-        Vector3D position = hit.getPoint();
-        position.sumScaled(ray.position, distance, ray.direction);
-
-        // Test whether it lies inside or outside the patch
-        if (hitInPatch(hit, this)) {
+        // Side, plane hit, hit point and (u, v) in one call into the face
+        final PlanarFace.RayHit faceHit = workspace.faceHit;
+        final boolean inside = face.rayHit(
+            toFace(ray.position),
+            toFace(ray.direction),
+            (hitFlags & RayHitFlag.FRONT) != 0,
+            (hitFlags & RayHitFlag.BACK) != 0,
+            minimumDistance,
+            maximumDistance[0],
+            faceHit);
+        if ( inside ) {
+            final float distance = faceHit.distance;
+            Vector3D position = new Vector3D(faceHit.pointX, faceHit.pointY, faceHit.pointZ);
+            hit.setPoint(position);
+            hit.setUv(faceHit.u, faceHit.v);
+            hit.setFlags(hit.getFlags()
+                | (faceHit.side == PlanarFace.Side.BACK ? RayHitFlag.BACK : RayHitFlag.FRONT)
+                | RayHitFlag.UV);
             hit.setPatch(this);
             hit.setMaterial(material);
             hit.setGeometricNormal(normal);
@@ -919,23 +444,19 @@ public class Patch {
                 | RayHitFlag.GEOMETRIC_NORMAL
                 | RayHitFlag.DISTANCE;
             hit.setFlags(newFlags);
-
-            if ((hitFlags & RayHitFlag.UV) != 0 && (hit.getFlags() & RayHitFlag.UV) == 0) {
+            if ( (hitFlags & RayHitFlag.UV) != 0 && (hit.getFlags() & RayHitFlag.UV) == 0 ) {
                 position = hit.getPoint();
-                double[] u = intersectScratchU;
-                double[] v = intersectScratchV;
-                u[0] = 0.0;
-                v[0] = 0.0;
+                double[] u = workspace.u;
+                double[] v = workspace.v;
                 hit.getPatch().uv(position, u, v);
                 hit.setUv(u[0], v[0]);
                 hit.setPoint(position);
                 newFlags = hit.getFlags() & RayHitFlag.UV;
                 hit.setFlags(newFlags);
             }
-
             maximumDistance[0] = distance;
 
-            if (hitStore != null) {
+            if ( hitStore != null ) {
                 hitStore.copyFrom(hit);
                 return hitStore;
             }
@@ -953,31 +474,17 @@ public class Patch {
     will be v.A.
     */
     public void biLinearToUniform(double[] u, double[] v) {
-        double a = jacobian.A;
-        double b = jacobian.B;
-        double c = jacobian.C;
-        u[0] = ((a + 0.5 * c) + 0.5 * b * u[0]) * u[0] / area;
-        v[0] = ((a + 0.5 * b) + 0.5 * c * v[0]) * v[0] / area;
+        final Vector2Dd uv = new Vector2Dd();
+        uv.x = u[0];
+        uv.y = v[0];
+        face.biLinearToUniform(uv);
+        u[0] = uv.x;
+        v[0] = uv.y;
     }
 
     /**
     Converts uniform to bi-linear coordinates.
     */
-    private void uniformToBiLinear(double[] u, double[] v) {
-        double a = jacobian.A;
-        double b = jacobian.B;
-        double c = jacobian.C;
-
-        double A = 0.5 * b / area;
-        double B = (a + 0.5 * c) / area;
-        double C = -u[0];
-        solveQuadraticUnitInterval(A, B, C, u);
-
-        A = 0.5 * c / area;
-        B = (a + 0.5 * b) / area;
-        C = -v[0];
-        solveQuadraticUnitInterval(A, B, C, v);
-    }
 
     /**
     Given the parameter (u,v) of a point on the patch, this routine
@@ -987,29 +494,11 @@ public class Patch {
     (1-u) and (1-v) are used instead.
     */
     public Vector3D pointBarycentricMapping(double u, double v, Vector3D point) {
-        if (hasZeroVertices()) {
+        if ( hasZeroVertices() ) {
             return null;
         }
 
-        Vector3D v1 = vertex[0].point;
-        Vector3D v2 = vertex[1].point;
-        Vector3D v3 = vertex[2].point;
-
-        if (numberOfVertices == 3) {
-            if (u + v > 1.0) {
-                u = 1.0 - u;
-                v = 1.0 - v;
-            }
-            pointInTriangle(v1, v2, v3, (float)u, (float)v, point);
-        }
-        else if (numberOfVertices == 4) {
-            Vector3D v4 = vertex[3].point;
-            pointInQuadrilateral(v1, v2, v3, v4, (float)u, (float)v, point);
-        }
-        else {
-            Logger.reportMessage(this, Logger.FATAL_ERROR, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
-        }
-
+        point.copy(fromFace(face.pointAt(u, v)));
         return point;
     }
 
@@ -1021,14 +510,11 @@ public class Patch {
     routine).
     */
     public Vector3D uniformPoint(double u, double v, Vector3D point) {
-        if (jacobian != null) {
-            double[] uu = new double[] {u};
-            double[] vv = new double[] {v};
-            uniformToBiLinear(uu, vv);
-            u = uu[0];
-            v = vv[0];
+        if ( hasZeroVertices() ) {
+            return null;
         }
-        return pointBarycentricMapping(u, v, point);
+        point.copy(fromFace(face.uniformPointAt(u, v)));
+        return point;
     }
 
     /**
@@ -1039,23 +525,10 @@ public class Patch {
     the patch. For positions outside, they can be garbage.
     */
     public boolean uv(Vector3D point, double[] u, double[] v) {
-        Vector2Dd localUv = new Vector2Dd();
-        boolean inside = false;
-
-        switch (numberOfVertices) {
-            case 3:
-                inside = triangleUv(point, localUv);
-                break;
-            case 4:
-                inside = quadUv(this, point, localUv);
-                break;
-            default:
-                Logger.reportMessage(this, Logger.FATAL_ERROR, "uv", "Can only handle triangular or quadrilateral patches");
-                break;
-        }
-
-        u[0] = localUv.x;
-        v[0] = localUv.y;
+        final Vector2Dd uv = new Vector2Dd();
+        final boolean inside = face.parameters(toFace(point), uv);
+        u[0] = uv.x;
+        v[0] = uv.y;
         return inside;
     }
 
@@ -1069,29 +542,11 @@ public class Patch {
     }
 
     /**
-    Returns true if P is at least partly in front the plane of Q. Returns false
-    if P is coplanar with or behind Q. It suffices to test the vertices of P
-    with respect to the plane of Q.
-    */
-    private boolean isAtLeastPartlyInFront(Patch other) {
-        for (int i = 0; i < numberOfVertices; i++) {
-            Vector3D vp = vertex[i].point;
-            double ep = other.normal.dotProduct(vp) + other.planeConstant;
-            double localTolerance = other.tolerance + vp.tolerance(Numeric.EPSILON_FLOAT);
-            if (ep > localTolerance) {
-                // P is at least partly in front of Q
-                return true;
-            }
-        }
-        return false; // P is behind or coplanar with Q
-    }
-
-    /**
     Returns true if the two patches can see each other: P and Q see each
     other if at least a part of P is in front of Q and vice versa.
     */
     public boolean facing(Patch other) {
-        return isAtLeastPartlyInFront(other) && other.isAtLeastPartlyInFront(this);
+        return face.facing(other.face);
     }
 
     public static double clipToUnitInterval(double x) {
@@ -1128,10 +583,10 @@ public class Patch {
     Like uv, but returns uniform coordinates (inverse of uniformPoint()).
     */
     public boolean uniformUv(Vector3D point, double[] u, double[] v) {
-        boolean inside = uv(point, u, v);
-        if (jacobian != null) {
-            biLinearToUniform(u, v);
-        }
+        final Vector2Dd uv = new Vector2Dd();
+        final boolean inside = face.uniformParameters(toFace(point), uv);
+        u[0] = uv.x;
+        v[0] = uv.y;
         return inside;
     }
 

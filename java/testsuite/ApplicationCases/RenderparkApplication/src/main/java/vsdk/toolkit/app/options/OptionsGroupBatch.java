@@ -45,6 +45,7 @@ public final class OptionsGroupBatch {
         target.radianceImageFileNameFormat = source.radianceImageFileNameFormat;
         target.radianceModelFileNameFormat = source.radianceModelFileNameFormat;
         target.saveModulo = source.saveModulo;
+        target.saveLastOnly = source.saveLastOnly;
         target.raytracingImageFileName = source.raytracingImageFileName;
         target.timings = source.timings;
     }
@@ -90,6 +91,12 @@ public final class OptionsGroupBatch {
             1,
             null,
             null);
+        TypedOption<Integer> saveLastOnlyOpt = new TypedOption<>(
+            "-save-last-only",
+            TypedOption.reference(() -> batchOptionsState.saveLastOnly, v -> batchOptionsState.saveLastOnly = v),
+            0,
+            OptionsGroupBatch::setIntTrue,
+            null);
         TypedOption<String> raytracingImageOpt = new TypedOption<>(
             "-raytracing-image-savefile",
             TypedOption.reference(() -> batchOptionsState.raytracingImageFileName, v -> batchOptionsState.raytracingImageFileName = v),
@@ -109,11 +116,12 @@ public final class OptionsGroupBatch {
             TypedOption.REGISTER_OPTION(radianceImageOpt, 12),
             TypedOption.REGISTER_OPTION(radianceModelOpt, 12),
             TypedOption.REGISTER_OPTION(saveModuloOpt, 8),
+            TypedOption.REGISTER_OPTION(saveLastOnlyOpt, 8),
             TypedOption.REGISTER_OPTION(raytracingImageOpt, 14),
             TypedOption.REGISTER_OPTION(timingsOpt, 3)
         };
         OptionGroup[] batchGroups = new OptionGroup[] {
-            new OptionGroup("batch", batchCommandLineOptions, 8)
+            new OptionGroup("batch", batchCommandLineOptions, 9)
         };
 
         copyFrom(options, batchOptionsState);

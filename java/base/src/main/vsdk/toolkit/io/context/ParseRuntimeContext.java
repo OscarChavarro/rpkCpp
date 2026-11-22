@@ -3,7 +3,7 @@ package vsdk.toolkit.io.context;
 import java.util.ArrayList;
 import vsdk.toolkit.common.dataStructures.LookUpTable;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -29,7 +29,7 @@ public final class ParseRuntimeContext extends ParseContext {
     public String currentVertexName;
     public int numberOfQuarterCircleDivisions;
     public boolean monochrome;
-    public Material currentMaterial;
+    public RpkMaterial currentMaterial;
     public String[] entityNames;
     public String[] errorCodeMessages;
     public LookUpTable<String> entityLookUpTable;
@@ -53,7 +53,7 @@ public final class ParseRuntimeContext extends ParseContext {
     public LookUpTable<VertexContext> vertexLookUpTable;
     public ArrayList<Geometry> allGeometries;
     public ArrayList<Geometry> geometries;
-    public ArrayList<Material> materials;
+    public ArrayList<RpkMaterial> materials;
 
     public ParseRuntimeContext() {
         parserConfig = new ParseOptionsContext();

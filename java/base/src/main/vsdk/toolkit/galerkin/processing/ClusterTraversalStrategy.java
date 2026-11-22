@@ -79,7 +79,25 @@ towards the samplePoint point
                 return sourceRadiance;
             }
             case Z_VISIBILITY:
-                return sourceElement.radiance[0];
+                if ( !sourceElement.isCluster() || !sourceElement.geometry.boundingBox.outOfBounds(samplePoint) ) {
+                    return sourceElement.radiance[0];
+                } else {
+                    double areaFactor;
+
+                    // Render pointers to the elements in the source cluster into the scratch frame
+                    // buffer, seen from the samplePoint point
+                    final BoundingBox boundingBox =
+                        ScratchVisibilityStrategy.scratchRenderElements(sourceElement, samplePoint, galerkinState);
+
+                    // Compute average radiance on the virtual screen
+                    ColorRgbMutable sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(galerkinState);
+
+                    // Area factor = area of virtual screen / source cluster area used for
+                    // form factor computation
+                    areaFactor = (boundingBox.dx() * boundingBox.dy()) / (0.25 * sourceElement.area);
+                    sourceRadiance.scale((float) areaFactor);
+                    return sourceRadiance;
+                }
             default:
                 Logger.reportMessage(null, Logger.FATAL_ERROR, "clusterRadianceToSamplePoint", String.format("Invalid clustering strategy %s\n", galerkinState.clusteringStrategy));
                 return new ColorRgbMutable();

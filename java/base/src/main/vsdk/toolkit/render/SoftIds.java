@@ -103,7 +103,12 @@ the pixel. x is normally the width and y the height of the canvas window
         }
 
         long[] ids = new long[currentSglContext.width * currentSglContext.height];
-        System.arraycopy(currentSglContext.frameBuffer, 0, ids, 0, ids.length);
+        // softRenderPatches renders patch pointers, which the rasterizer stores in
+        // the patch buffer; translate them to patch IDs (0 for the background)
+        for ( int i = 0; i < currentSglContext.width * currentSglContext.height; i++ ) {
+            final Patch patch = currentSglContext.patchBuffer[i];
+            ids[i] = patch != null ? patch.id : 0;
+        }
 
         return ids;
     }

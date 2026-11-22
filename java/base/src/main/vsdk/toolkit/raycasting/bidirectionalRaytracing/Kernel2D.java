@@ -131,8 +131,8 @@ public class Kernel2D {
         // Reference estimated function
         ColorRgbMutable fe = ref.getBiLinear(center.x, center.y);
 
-        float avgFe = fe.average();
-        float avgG = color.average();
+        float avgFe = (float) fe.average();
+        float avgG = (float) color.average();
 
         if ( avgFe > Numeric.EPSILON ) {
             h = (float)(Bn * Math.sqrt(avgG / avgFe));

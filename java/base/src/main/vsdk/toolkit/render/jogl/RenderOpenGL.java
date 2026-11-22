@@ -30,55 +30,16 @@ public final class RenderOpenGL {
     }
 
     public static void renderGetNearFar(Camera camera, ArrayList<Geometry> sceneGeometries) {
-        if ( camera == null ) {
-            return;
-        }
+        BoundingBox bounds = new BoundingBox();
 
         if ( sceneGeometries == null || sceneGeometries.isEmpty() ) {
-            camera.far = 10.0f;
-            camera.near = 0.1f;
+            camera.far = 10.0F;
+            camera.near = 0.1F;
             return;
         }
 
-        BoundingBox bounds = new BoundingBox();
         Geometry.listBounds(sceneGeometries, bounds);
-
-        Vector3D minimum = new Vector3D(bounds.minX(), bounds.minY(), bounds.minZ());
-        Vector3D maximum = new Vector3D(bounds.maxX(), bounds.maxY(), bounds.maxZ());
-        Vector3D d = new Vector3D();
-
-        camera.far = -Numeric.HUGE_FLOAT_VALUE;
-        camera.near = Numeric.HUGE_FLOAT_VALUE;
-
-        for ( int i = 0; i <= 1; i++ ) {
-            for ( int j = 0; j <= 1; j++ ) {
-                for ( int k = 0; k <= 1; k++ ) {
-                    d.set(
-                        i != 0 ? maximum.x : minimum.x,
-                        j != 0 ? maximum.y : minimum.y,
-                        k != 0 ? maximum.z : minimum.z);
-
-                    d.subtraction(d, camera.eyePosition);
-                    float z = d.dotProduct(camera.Z);
-
-                    if ( z > camera.far ) {
-                        camera.far = z;
-                    }
-                    if ( z < camera.near ) {
-                        camera.near = z;
-                    }
-                }
-            }
-        }
-
-        camera.far += 0.02f * camera.far;
-        camera.near -= 0.02f * camera.near;
-        if ( camera.far < Numeric.EPSILON_FLOAT ) {
-            camera.far = camera.viewDistance;
-        }
-        if ( camera.near < Numeric.EPSILON_FLOAT ) {
-            camera.near = camera.viewDistance / 100.0f;
-        }
+        camera.fitClippingPlanes(bounds);
     }
 
     public static void renderBoundingBox(BoundingBox boundingBox) {

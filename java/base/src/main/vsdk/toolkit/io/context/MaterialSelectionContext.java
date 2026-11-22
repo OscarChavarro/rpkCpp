@@ -1,12 +1,12 @@
 package vsdk.toolkit.io.context;
 
 import java.util.ArrayList;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 
 public class MaterialSelectionContext {
-    public Material currentMaterial;
+    public RpkMaterial currentMaterial;
     public String currentMaterialName;
-    public ArrayList<Material> materials;
+    public ArrayList<RpkMaterial> materials;
 
     public MaterialSelectionContext() {
         currentMaterial = null;

@@ -13,7 +13,7 @@ import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
@@ -280,8 +280,8 @@ does this
         long b2 = 0;
         while ( elem.childNumber >= 0 ) {
             nb++;
-            b1 = (b1 << 1) | (elem.childNumber & 1);
-            b2 = (b2 >> 1) | ((elem.childNumber & 2) << (Niederreiter.NBITS - 2));
+            b1 = (b1 << 1) | (long) (elem.childNumber & 1);
+            b2 = (b2 >>> 1) | ((long) (elem.childNumber & 2) << (Niederreiter.NBITS - 2));
             elem = (StochasticRadiosityElement)elem.parent;
         }
 
@@ -556,7 +556,7 @@ Only for surface elements
             Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
             return false;
         }
-        Material mat = elem.patch.material;
+        RpkMaterial mat = elem.patch.material;
         return mat.getBsdf() != null
             && (mat.getBsdf().splitBsdfIsTextured() || PhongEmittanceDistributionFunction.edfIsTextured());
     }
@@ -571,7 +571,7 @@ Uses elem->Rd for surface elements
             return 1.0f;
         }
 
-        rd = elem.Rd.maximumComponent();
+        rd = (float) elem.Rd.maximumComponent();
         if ( rd < Numeric.EPSILON ) {
             // Avoid divisions by zero
             rd = Numeric.EPSILON_FLOAT;

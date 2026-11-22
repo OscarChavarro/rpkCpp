@@ -15,21 +15,21 @@ public final class WardToneMap extends ToneMap {
     private float lda;
 
     public WardToneMap() {
-        comp = 0.0f;
-        display = 0.0f;
-        lda = 0.0f;
+        comp = 0.0F;
+        display = 0.0F;
+        lda = 0.0F;
     }
 
     @Override
     public void init(ToneMappingContext toneMapOptions) {
-        float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-        float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-        lda = maximumDisplayLuminance / 2.0f;
+        final float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+        final float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
 
-        float p1 = (float)Math.pow(lda, 0.4);
-        float p2 = (float)Math.pow(realWorldAdaptionLuminance, 0.4);
-        float p3 = (1.219f + p1) / (1.219f + p2);
-        comp = (float)Math.pow(p3, 2.5);
+        lda = maximumDisplayLuminance / 2.0F;
+        final float p1 = (float) Math.pow(lda, 0.4F);
+        final float p2 = (float) Math.pow(realWorldAdaptionLuminance, 0.4F);
+        final float p3 = (1.219F + p1) / (1.219F + p2);
+        comp = (float) Math.pow(p3, 2.5F);
         display = comp / maximumDisplayLuminance;
     }
 
@@ -41,8 +41,7 @@ public final class WardToneMap extends ToneMap {
 
     @Override
     public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
-        float eff = Cie.getLuminousEfficacy();
-
+        final float eff = (float) Cie.getLuminousEfficacy();
         radiance.scale(eff * display);
         return radiance;
     }

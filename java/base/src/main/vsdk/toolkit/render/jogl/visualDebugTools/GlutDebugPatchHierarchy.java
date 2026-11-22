@@ -123,7 +123,7 @@ public final class GlutDebugPatchHierarchy {
 
             ColorRgbMutable rgbColor = new ColorRgbMutable();
             ToneMap.radianceToRgb(radianceSample, rgbColor, toneMapOptions);
-            grayValue = toneMappedGrayAndDarkened(Cie.spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
+            grayValue = toneMappedGrayAndDarkened((float) Cie.spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
             Opengl.openGlRenderSetColor(new ColorRgb(grayValue, grayValue, grayValue), renderOptions);
             Opengl.openGlRenderPolygonFlat(numberOfVertices, vertices);
         }
@@ -133,7 +133,7 @@ public final class GlutDebugPatchHierarchy {
             outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
         }
         else {
-            outlineGray = toneMappedGrayAndDarkened(Cie.spectrumLuminance(
+            outlineGray = toneMappedGrayAndDarkened((float) Cie.spectrumLuminance(
                 renderOptions.outlineColor.getR(),
                 renderOptions.outlineColor.getG(),
                 renderOptions.outlineColor.getB()));

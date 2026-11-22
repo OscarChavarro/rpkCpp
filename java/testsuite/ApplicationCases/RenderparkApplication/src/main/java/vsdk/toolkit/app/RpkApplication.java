@@ -32,12 +32,12 @@ import vsdk.toolkit.tonemap.ToneMappingContext;
 import vsdk.toolkit.tonemap.TumblinRushmeierToneMap;
 import vsdk.toolkit.tonemap.WardToneMap;
 import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.io.mgf.MgfParserLoader;
 
 public class RpkApplication {
     private static final boolean DEFAULT_MONOCHROME = false;
-    private static final Material defaultMaterial = new Material("(default)", null, null, false);
+    private static final RpkMaterial defaultMaterial = new RpkMaterial("(default)", null, false, null, null, null, 1.0F, 0.0F, false);
     private int imageOutputWidth;
     private int imageOutputHeight;
     private Scene scene;

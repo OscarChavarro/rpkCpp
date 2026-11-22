@@ -55,9 +55,16 @@ public class Interaction {
 
         deltaK = inDeltaK;
 
+        countCreated(this);
+    }
+
+    /**
+    Adds the interaction to the interaction counters
+    */
+    public static void countCreated(Interaction interaction) {
         totalInteractions++;
-        if ( inReceiverElement != null && inReceiverElement.isCluster() ) {
-            if ( inSourceElement != null && inSourceElement.isCluster() ) {
+        if ( interaction.receiverElement != null && interaction.receiverElement.isCluster() ) {
+            if ( interaction.sourceElement != null && interaction.sourceElement.isCluster() ) {
                 ccInteractions++;
             }
             else {
@@ -65,13 +72,44 @@ public class Interaction {
             }
         }
         else {
-            if ( inSourceElement != null && inSourceElement.isCluster() ) {
+            if ( interaction.sourceElement != null && interaction.sourceElement.isCluster() ) {
                 csInteractions++;
             }
             else {
                 ssInteractions++;
             }
         }
+    }
+
+    /**
+    Same as interactionDuplicate, but the copy is not counted: for threads that
+    create interactions which a single thread counts later (countCreated)
+    */
+    public static Interaction uncountedDuplicate(Interaction interaction) {
+        Interaction newInteraction = new Interaction();
+        newInteraction.ownsK = false; // As the copy constructor of interactionDuplicate leaves it
+        newInteraction.receiverElement = interaction.receiverElement;
+        newInteraction.sourceElement = interaction.sourceElement;
+        newInteraction.numberOfBasisFunctionsOnReceiver = interaction.numberOfBasisFunctionsOnReceiver;
+        newInteraction.numberOfBasisFunctionsOnSource = interaction.numberOfBasisFunctionsOnSource;
+        newInteraction.numberOfReceiverCubaturePositions = interaction.numberOfReceiverCubaturePositions;
+        newInteraction.visibility = interaction.visibility;
+
+        int n = (newInteraction.numberOfBasisFunctionsOnReceiver & 0xFF) * (newInteraction.numberOfBasisFunctionsOnSource & 0xFF);
+        if ( n <= 0 ) {
+            n = 1;
+        }
+        newInteraction.K = new float[n];
+        if ( interaction.K != null ) {
+            System.arraycopy(interaction.K, 0, newInteraction.K, 0, Math.min(interaction.K.length, newInteraction.K.length));
+        }
+
+        if ( (newInteraction.numberOfReceiverCubaturePositions & 0xFF) > 1 ) {
+            Logger.reportMessage(newInteraction, Logger.FATAL_ERROR, "interactionCreate", "Not yet implemented for higher order approximations");
+        }
+
+        newInteraction.deltaK = interaction.deltaK;
+        return newInteraction;
     }
 
     public static int getNumberOfInteractions() {

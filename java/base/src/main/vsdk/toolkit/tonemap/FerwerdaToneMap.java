@@ -10,7 +10,7 @@ Visual Adaptation for Realistic Image Synthesis, SIGGRAPH 1996,
 pp. 249-258.
 */
 public final class FerwerdaToneMap extends ToneMap {
-    private ColorRgbMutable sf;
+    private final ColorRgbMutable sf;
     private float msf;
     private float pmComp;
     private float pmDisplay;
@@ -18,125 +18,98 @@ public final class FerwerdaToneMap extends ToneMap {
     private float smDisplay;
     private float lda;
 
-    private static float photopicOperator(float logLa) {
-        // Equation [FERW1996](4): piecewise approximation of log(t_p(L_a))
-        float r;
-        if (logLa <= -2.6) {
-            r = -0.72f;
-        }
-        else if (logLa >= 1.9) {
-            r = logLa - 1.255f;
-        }
-        else {
-            r = (float)Math.pow(0.249f * logLa + 0.65f, 2.7) - 0.72f;
-        }
-
-        return (float)Math.pow(10.0, r);
-    }
-
-    private static float scotopicOperator(float logLa) {
-        // Equation [FERW1996](5): piecewise approximation of log(t_s(L_a))
-        float r;
-        if (logLa <= -3.94) {
-            r = -2.86f;
-        }
-        else if (logLa >= -1.44) {
-            r = logLa - 0.395f;
-        }
-        else {
-            r = (float)Math.pow(0.405f * logLa + 1.6f, 2.18) - 2.86f;
-        }
-
-        return (float)Math.pow(10.0, r);
-    }
-
-    private static float mesopicScaleFactor(float logLwa) {
-        if (logLwa < -2.5) {
-            return 1.0f;
-        }
-        else if (logLwa > 0.8) {
-            return 0.0f;
-        }
-        else {
-            return (0.8f - logLwa) / 3.3f;
-        }
-    }
-
     public FerwerdaToneMap() {
-        sf = new ColorRgbMutable(0.062f, 0.608f, 0.330f);
-        msf = 0.0f;
-        pmComp = 0.0f;
-        pmDisplay = 0.0f;
-        smComp = 0.0f;
-        smDisplay = 0.0f;
-        lda = 0.0f;
+        sf = new ColorRgbMutable(0.062F, 0.608F, 0.330F);
+        msf = 0.0F;
+        pmComp = 0.0F;
+        pmDisplay = 0.0F;
+        smComp = 0.0F;
+        smDisplay = 0.0F;
+        lda = 0.0F;
     }
 
     @Override
     public void init(ToneMappingContext toneMapOptions) {
-        float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-        float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-        lda = maximumDisplayLuminance / 2.0f;
+        final float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+        final float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
 
-        // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)
-        msf = FerwerdaToneMap.mesopicScaleFactor((float)Math.log10(realWorldAdaptionLuminance));
-        // Equation [FERW1996](3): m = t(L_da) / t(L_wa) using scotopic t_s from Equation (5)
-        smComp = FerwerdaToneMap.scotopicOperator((float)Math.log10(lda)) /
-            FerwerdaToneMap.scotopicOperator((float)Math.log10(realWorldAdaptionLuminance));
-        // Equation [FERW1996](3): m = t(L_da) / t(L_wa) using photopic t_p from Equation (4)
-        pmComp = FerwerdaToneMap.photopicOperator((float)Math.log10(lda)) /
-            FerwerdaToneMap.photopicOperator((float)Math.log10(realWorldAdaptionLuminance));
+        lda = maximumDisplayLuminance / 2.0F;
+        msf = FerwerdaToneMap.mesopicScaleFactor((float) Math.log10(realWorldAdaptionLuminance));
+        smComp = FerwerdaToneMap.scotopicOperator((float) Math.log10(lda)) /
+                 FerwerdaToneMap.scotopicOperator((float) Math.log10(realWorldAdaptionLuminance));
+        pmComp = FerwerdaToneMap.photopicOperator((float) Math.log10(lda)) /
+                 FerwerdaToneMap.photopicOperator((float) Math.log10(realWorldAdaptionLuminance));
         smDisplay = smComp / maximumDisplayLuminance;
         pmDisplay = pmComp / maximumDisplayLuminance;
     }
 
     @Override
     public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
-        ColorRgbMutable p = new ColorRgbMutable();
+        ColorRgbMutable p;
         float sl;
+        final float eff = (float) Cie.getLuminousEfficacy();
 
-        // Convert to photometric values
-        float eff = Cie.getLuminousEfficacy();
         radiance.scale(eff);
-
-        // Compute the scotopic grayscale shift
-        p.set(radiance.getR(), radiance.getG(), radiance.getB());
-        // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-        sl = (float)(smComp * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
-
-        // Scale the photopic luminance
+        p = new ColorRgbMutable(radiance.getR(), radiance.getG(), radiance.getB());
+        sl = (float) (smComp * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
         radiance.scale(pmComp);
-
-        // Eventually, offset by the scotopic luminance
-        if (sl > 0.0) {
+        if ( sl > 0.0 ) {
             radiance.addConstant(radiance, sl);
         }
-
         return radiance;
     }
 
     @Override
     public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
-        ColorRgbMutable p = new ColorRgbMutable();
+        final ColorRgbMutable p = new ColorRgbMutable();
         float sl;
+        final float eff = (float) Cie.getLuminousEfficacy();
 
-        // Convert to photometric values
-        float eff = Cie.getLuminousEfficacy();
         radiance.scale(eff);
-
-        // Compute the scotopic grayscale shift
-        radiance.set(p.getR(), p.getG(), p.getB());
-        // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-        sl = (float)(smDisplay * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
-
-        // Scale the photopic luminance
+        radiance = new ColorRgbMutable(p.getR(), p.getG(), p.getB());
+        sl = (float) (smDisplay * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
         radiance.scale(pmDisplay);
-
-        // Eventually, offset by the scotopic luminance
-        if (sl > 0.0) {
+        if ( sl > 0.0 ) {
             radiance.addConstant(radiance, sl);
         }
-
         return radiance;
+    }
+
+    private static float photopicOperator(float logLa) {
+        // Equation [FERW1996](4): piecewise approximation of log(t_p(L_a))
+        float r;
+        if ( logLa <= -2.6 ) {
+            r = -0.72F;
+        } else if ( logLa >= 1.9 ) {
+            r = logLa - 1.255F;
+        } else {
+            r = (float) Math.pow(0.249F * logLa + 0.65F, 2.7F) - 0.72F;
+        }
+
+        return (float) Math.pow(10.0F, r);
+    }
+
+    private static float scotopicOperator(float logLa) {
+        // Equation [FERW1996](5): piecewise approximation of log(t_s(L_a))
+        float r;
+        if ( logLa <= -3.94 ) {
+            r = -2.86F;
+        } else if ( logLa >= -1.44 ) {
+            r = logLa - 0.395F;
+        } else {
+            r = (float) Math.pow(0.405F * logLa + 1.6F, 2.18F) - 2.86F;
+        }
+
+        return (float) Math.pow(10.0F, r);
+    }
+
+    private static float mesopicScaleFactor(float logLwa) {
+        if ( logLwa < -2.5 ) {
+            return 1.0F;
+        } else if ( logLwa > 0.8 ) {
+            return 0.0F;
+        } else {
+            return (0.8F - logLwa) / 3.3F;
+        }
     }
 }

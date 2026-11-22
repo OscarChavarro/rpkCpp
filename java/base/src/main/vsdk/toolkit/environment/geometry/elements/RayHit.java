@@ -4,7 +4,7 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.Material;
+import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.ShadingContext;
@@ -20,7 +20,7 @@ public class RayHit {
     private Patch patch; // Patch that was hit
     private Vector3D texCoord; // Texture coordinate
     private Vector3D geometricNormal;
-    private Material material; // Material of hit surface
+    private RpkMaterial material; // RpkMaterial of hit surface
     // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
     private CoordinateSystem shadingFrame;
     private Vector2Dd uv; // Bi-linear / barycentric parameters of hit
@@ -138,7 +138,7 @@ public class RayHit {
     This routine can be used in order to construct BSDF queries at other positions
     than hit positions returned by ray intersection routines.
     */
-    public boolean init(Patch inPatch, Vector3D inPoint, Vector3D inGeometryNormal, Material inMaterial) {
+    public boolean init(Patch inPatch, Vector3D inPoint, Vector3D inGeometryNormal, RpkMaterial inMaterial) {
         flags = 0;
         patch = inPatch;
         if (inPatch != null) {
@@ -265,7 +265,7 @@ public class RayHit {
         geometricNormal.copy(inNormal);
     }
 
-    public void setMaterial(Material inMaterial) {
+    public void setMaterial(RpkMaterial inMaterial) {
         material = inMaterial;
     }
 
@@ -311,7 +311,7 @@ public class RayHit {
         return shadingFrame;
     }
 
-    public Material getMaterial() {
+    public RpkMaterial getMaterial() {
         return material;
     }
 

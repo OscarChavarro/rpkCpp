@@ -68,7 +68,7 @@ Updates directly received potential for all patches
              j--, ySample += v) {
             long rowStart = j * x[0];
             float xSample = -h * (float)(x[0] - 1) / 2.0f;
-            for (long i = 0; i < x[0]; i++, xSample += (long)h) {
+            for (long i = 0; i < x[0]; i++, xSample += h) {
                 long the_id = ids[(int)(rowStart + i)] & 0xffffffL;
 
                 if (the_id > 0 && the_id <= maximumPatchId) {
