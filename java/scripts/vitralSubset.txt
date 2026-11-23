@@ -29,6 +29,12 @@ vsdk/toolkit/common/ModelElement.java
 vsdk/toolkit/common/VSDK.java
 vsdk/toolkit/common/VSDKFatalException.java
 vsdk/toolkit/common/color/ColorRgb.java
+vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.java
+vsdk/toolkit/common/dataStructures/KDQuery.java
+vsdk/toolkit/common/dataStructures/KDTree.java
+vsdk/toolkit/common/dataStructures/KDTreeAdapter.java
+vsdk/toolkit/common/dataStructures/KDTreeNode.java
+vsdk/toolkit/common/dataStructures/KDTreeVisitor.java
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.java
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.java
 vsdk/toolkit/common/linealAlgebra/Matrix4x4f.java

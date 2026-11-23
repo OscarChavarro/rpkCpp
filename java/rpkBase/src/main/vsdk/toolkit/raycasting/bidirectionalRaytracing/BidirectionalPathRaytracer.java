@@ -879,9 +879,8 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         Background sceneBackground,
         int nx,
         int ny,
-        Object data)
+        BidirectionalPathTracingConfiguration config)
     {
-        BidirectionalPathTracingConfiguration config = (BidirectionalPathTracingConfiguration)data;
         double[] x1 = new double[1];
         double[] x2 = new double[1];
         ColorRgbMutable result = new ColorRgbMutable();

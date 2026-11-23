@@ -61,7 +61,7 @@ public class PhotonMap {
     {
         m_cosinesOk = false;
         return m_kdtree.query(
-            new float[] {position.x(), position.y(), position.z()},
+            position,
             numberOfPhotons,
             m_photons,
             m_distances,
@@ -72,7 +72,7 @@ public class PhotonMap {
     protected int doQuery(Vector3Df pos) {
         m_cosinesOk = false;
         return m_kdtree.query(
-            new float[] {pos.x(), pos.y(), pos.z()},
+            pos,
             m_estimate_nrp[0] /*pmapstate.reconPhotons*/,
             m_photons,
             m_distances,
@@ -199,11 +199,7 @@ public class PhotonMap {
         m_precomputeIrradiance = doPrecomputeIrradiance;
         m_irradianceComputed = false;
 
-        if ( doPrecomputeIrradiance ) {
-            m_kdtree = new PhotonKDTree(0, true);
-        } else {
-            m_kdtree = new PhotonKDTree(0, true);
-        }
+        m_kdtree = new PhotonKDTree(doPrecomputeIrradiance);
 
         m_totalPaths = 0;
         m_nrPhotons = 0;
@@ -417,11 +413,9 @@ Get a maximum radius^2 to be used when locating photons
     public void precomputeIrradiance() {
         System.err.printf("PhotonMap::precomputeIrradiance\n");
         if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-            m_kdtree.iterateNodes((data, nodeData) -> {
-                PhotonMap map = (PhotonMap)data;
-                IrrPhoton photon = (IrrPhoton)nodeData;
-                map.photonPrecomputeIrradiance(null, photon);
-            }, this);
+            m_kdtree.iterateIrradiance(new vsdk.toolkit.common.dataStructures.KDTreeVisitor<IrrPhoton>() {
+                public void visit(IrrPhoton photon) { photonPrecomputeIrradiance(null, photon); }
+            });
             m_irradianceComputed = true;
         }
     }

@@ -162,26 +162,21 @@ public final class Opengl {
         gl.glEnd();
     }
 
-    private static void openGlInvokeRenderPatch(OpenGlRenderTraversalCallback renderPatch, Patch patch, Camera camera, RenderOptions renderOptions) {
+    private static void openGlInvokeRenderPatch(OpenGlRenderTraversalCallback<?> renderPatch, Patch patch, Camera camera, RenderOptions renderOptions) {
         if ( renderPatch == null ) {
             return;
         }
-        if ( renderPatch.callbackWithData != null ) {
-            renderPatch.callbackWithData.apply(patch, camera, renderOptions, renderPatch.callbackData);
-        }
-        else if ( renderPatch.callbackWithoutData != null ) {
-            renderPatch.callbackWithoutData.apply(patch, camera, renderOptions);
-        }
+        renderPatch.apply(patch, camera, renderOptions);
     }
 
-    private static void openGlReallyRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback renderPatch, RenderOptions renderOptions) {
+    private static void openGlReallyRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RenderOptions renderOptions) {
         ArrayList<Patch> patchList = Geometry.patchListReference(geometry);
         for ( int i = 0; patchList != null && i < patchList.size(); i++ ) {
             openGlInvokeRenderPatch(renderPatch, patchList.get(i), camera, renderOptions);
         }
     }
 
-    private static void openGlRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback renderPatch, RenderOptions renderOptions) {
+    private static void openGlRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RenderOptions renderOptions) {
         openGlReallyRenderOctreeLeaf(camera, geometry, renderPatch, renderOptions);
     }
 
@@ -204,7 +199,7 @@ public final class Opengl {
         return d.lengthSquared();
     }
 
-    private static void openGlRenderOctreeNonLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback renderPatchCallback, RenderOptions renderOptions) {
+    private static void openGlRenderOctreeNonLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatchCallback, RenderOptions renderOptions) {
         OctreeChild[] octreeChildren = new OctreeChild[8];
         for ( int i = 0; i < octreeChildren.length; i++ ) {
             octreeChildren[i] = new OctreeChild();
@@ -263,13 +258,11 @@ public final class Opengl {
             return;
         }
 
-        OpenGlRenderTraversalCallback callbackContext = new OpenGlRenderTraversalCallback();
         if ( renderPatchCallback == null ) {
             renderPatchCallback = Opengl::openGlRenderPatchCallBack;
         }
-        callbackContext.callbackWithoutData = renderPatchCallback;
-        callbackContext.callbackWithData = null;
-        callbackContext.callbackData = null;
+        OpenGlRenderTraversalCallback<Void> callbackContext =
+            new OpenGlRenderTraversalCallback<>(renderPatchCallback, null, null);
 
         if ( scene.clusteredRootGeometry.isCompound() ) {
             openGlRenderOctreeNonLeaf(scene.camera, scene.clusteredRootGeometry, callbackContext, renderOptions);

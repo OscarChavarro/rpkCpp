@@ -1,166 +1,85 @@
-/**
-Photon kd-tree : specialized kd-tree with some photon map specific additions
-*/
-
 package vsdk.toolkit.raycasting.photonMap;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
+import vsdk.toolkit.common.dataStructures.BalancedKDTreeNode;
 import vsdk.toolkit.common.dataStructures.KDTree;
+import vsdk.toolkit.common.dataStructures.KDTreeAdapter;
+import vsdk.toolkit.common.dataStructures.KDTreeVisitor;
 import vsdk.toolkit.common.linealAlgebra.Vector3Df;
 
-public class PhotonKDTree extends KDTree {
-    private static class NodeData {
-        Photon photon;
-        short flags;
-        float[] point;
-
-        NodeData(Photon photon, short flags) {
-            this.photon = photon;
-            this.flags = flags;
-            Vector3Df p = photon.pos();
-            this.point = new float[] {p.x(), p.y(), p.z()};
+public final class PhotonKDTree {
+    private static final class PhotonAdapter implements KDTreeAdapter<Photon> {
+        public Vector3Df getKDPosition(Photon value) { return value.pos(); }
+        public Photon copy(Photon value) { return new Photon(value.pos(), value.power(), value.dir()); }
+    }
+    private static final class IrrPhotonAdapter implements KDTreeAdapter<IrrPhoton> {
+        public Vector3Df getKDPosition(IrrPhoton value) { return value.pos(); }
+        public IrrPhoton copy(IrrPhoton value) {
+            IrrPhoton result = new IrrPhoton();
+            result.copy(value);
+            result.setNormal(value.Normal());
+            result.SetIrradiance(value.m_irradiance);
+            return result;
         }
     }
-
-    private static class QueryCandidate {
-        Photon photon;
-        float distance;
-
-        QueryCandidate(Photon photon, float distance) {
-            this.photon = photon;
-            this.distance = distance;
-        }
+    private static final class NormalSearch {
+        Vector3Df point;
+        Vector3Df normal;
+        float threshold;
+        float maximumDistance;
+        IrrPhoton photon;
     }
+    private final KDTree<Photon> photons;
+    private final KDTree<IrrPhoton> irradiancePhotons;
+    private IrrPhoton[] irradianceResults = new IrrPhoton[0];
 
-    private static NormalQuery qdat_s = new NormalQuery();
-    private final List<NodeData> nodes;
-
-    // Distance calculation COPY FROM kdtree.C !
-    private static float sqrDistance3D(float[] a, float[] b) {
-        float result;
-        float tmp;
-
-        tmp = a[0] - b[0];
-        result = tmp * tmp;
-
-        tmp = a[1] - b[1];
-        result += tmp * tmp;
-
-        tmp = a[2] - b[2];
-        result += tmp * tmp;
-
-        return result;
+    public PhotonKDTree(boolean irradiance) {
+        photons = irradiance ? null : new KDTree<>(new PhotonAdapter(), true);
+        irradiancePhotons = irradiance ? new KDTree<>(new IrrPhotonAdapter(), true) : null;
     }
-
-    public PhotonKDTree(int dataSize, boolean copyData) {
-        super(dataSize, copyData);
-        nodes = new ArrayList<>();
+    public void addPoint(Photon photon, short flags) { photons.addPoint(photon, flags); }
+    public void addPoint(IrrPhoton photon, short flags) { irradiancePhotons.addPoint(photon, flags); }
+    public void balance() {
+        if (irradiancePhotons != null) irradiancePhotons.balance();
+        else photons.balance();
     }
-
-    @Override
-    public void addPoint(Object data, short flags) {
-        if ( !(data instanceof Photon) ) {
-            throw new IllegalArgumentException("PhotonKDTree only accepts Photon data");
-        }
-        nodes.add(new NodeData((Photon)data, flags));
-    }
-
-    @Override
-    public int query(float[] point, int n, Object[] results) {
-        return query(point, n, results, null, KD_MAX_RADIUS, (short)0);
-    }
-
-    @Override
-    public int query(float[] point, int n, Object[] results, float[] inDistances, float radius, short excludeFlags) {
-        List<QueryCandidate> candidates = new ArrayList<>();
-
-        for ( NodeData node : nodes ) {
-            if ( (node.flags & excludeFlags) != 0 ) {
-                continue;
-            }
-            float dist = sqrDistance3D(node.point, point);
-            if ( dist < radius ) {
-                candidates.add(new QueryCandidate(node.photon, dist));
-            }
-        }
-
-        candidates.sort(Comparator.comparingDouble(c -> c.distance));
-
-        int found = Math.min(n, candidates.size());
-        if ( found <= 0 ) {
-            return 0;
-        }
-
-        float[] usedDistances = inDistances;
-        if ( usedDistances == null ) {
-            usedDistances = new float[Math.max(1, found)];
-        }
-
-        // C kd-tree query keeps the farthest of the selected photons at index 0.
-        QueryCandidate farthest = candidates.get(found - 1);
-        results[0] = farthest.photon;
-        usedDistances[0] = farthest.distance;
-
-        int outIndex = 1;
-        for ( int i = 0; i < found - 1; i++ ) {
-            results[outIndex] = candidates.get(i).photon;
-            usedDistances[outIndex] = candidates.get(i).distance;
-            outIndex++;
-        }
-
+    public int query(Vector3Df position, int count, Photon[] results, float[] distances, float radius, short excluded) {
+        if (irradiancePhotons == null) return photons.query(position, count, results, distances, radius, excluded);
+        if (count > irradianceResults.length) irradianceResults = new IrrPhoton[count];
+        int found = irradiancePhotons.query(position, count, irradianceResults, distances, radius, excluded);
+        System.arraycopy(irradianceResults, 0, results, 0, found);
         return found;
     }
-
-    @Override
-    public void iterateNodes(NodeCallback callback, Object data) {
-        for ( NodeData node : nodes ) {
-            callback.call(data, node.photon);
-        }
+    public void iterateIrradiance(KDTreeVisitor<IrrPhoton> visitor) { irradiancePhotons.iterateNodes(visitor); }
+    public IrrPhoton normalPhotonQuery(Vector3Df position, Vector3Df normal, float threshold, float maxR2) {
+        if (irradiancePhotons == null || irradiancePhotons.getBalancedCount() == 0 || irradiancePhotons.getUnbalancedCount() != 0) return null;
+        NormalSearch query = new NormalSearch();
+        query.point = position;
+        query.normal = normal;
+        query.threshold = threshold;
+        query.maximumDistance = maxR2;
+        normalQueryRec(0, query);
+        return query.photon;
     }
-
-    @Override
-    public void balance() {
-        // This Java migration keeps a linear container. No explicit balancing needed.
-    }
-
-    /**
-Find the nearest photon with a similar normal constraint
-returns nullptr is no appropriate photon was found (should barely ever happen)
-*/
-    public IrrPhoton
-    normalPhotonQuery(
-        Vector3Df position,
-        Vector3Df normal,
-        float threshold,
-        float maxR2)
-    {
-        // Fill qdat_s
-        qdat_s.photon = null;
-        qdat_s.normal = new Vector3Df(normal.x(), normal.y(), normal.z());
-        qdat_s.point = new float[] {position.x(), position.y(), position.z()};
-        qdat_s.threshold = threshold;
-        qdat_s.maximumDistance = maxR2;
-
-        for ( NodeData node : nodes ) {
-            if ( !(node.photon instanceof IrrPhoton) ) {
-                continue;
-            }
-
-            float dist = sqrDistance3D(node.point, qdat_s.point);
-
-            // Normal constraint
-            IrrPhoton photon = (IrrPhoton)node.photon;
-            if ( dist < qdat_s.maximumDistance &&
-                 (photon.Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
-                // Replace point if distance < maxdist AND normal is similar
-                qdat_s.maximumDistance = dist;
-                qdat_s.photon = photon;
-            }
+    private void normalQueryRec(int index, NormalSearch query) {
+        BalancedKDTreeNode<IrrPhoton> node = irradiancePhotons.getBalancedNode(index);
+        Vector3Df position = node.data.pos();
+        if (index < irradiancePhotons.getFirstLeaf()) {
+            int axis = node.discriminator();
+            float d = position.component(axis) - query.point.component(axis);
+            int near = (index << 1) + 1;
+            int far = near + 1;
+            if (d < 0) { int temp = near; near = far; far = temp; }
+            if (near < irradiancePhotons.getBalancedCount()) normalQueryRec(near, query);
+            d *= d;
+            if (far < irradiancePhotons.getBalancedCount() && d < query.maximumDistance) normalQueryRec(far, query);
         }
-
-        return qdat_s.photon;
+        float d = position.x() - query.point.x();
+        float distance = d * d;
+        d = position.y() - query.point.y(); distance += d * d;
+        d = position.z() - query.point.z(); distance += d * d;
+        if (distance < query.maximumDistance && node.data.Normal().dotProduct(query.normal) > query.threshold) {
+            query.maximumDistance = distance;
+            query.photon = node.data;
+        }
     }
 }

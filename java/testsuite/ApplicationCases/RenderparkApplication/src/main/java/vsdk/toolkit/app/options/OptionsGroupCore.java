@@ -225,14 +225,9 @@ public final class OptionsGroupCore {
         int[] imageOutputHeight,
         boolean[] glutDebugEnabledOut)
     {
-        EnumAppOptions appOptions = new EnumAppOptions();
-        appOptions.width = outputImageWidth;
-        appOptions.height = outputImageHeight;
-        appOptions.nqcdivs = numberOfQuarterCircleDivisions;
-        appOptions.yesValue = 1;
-        appOptions.noValue = 0;
-        appOptions.debug = 0;
-        appOptions.nativeRNG = DEFAULT_NATIVE_RNG_ENABLED;
+        EnumAppOptions appOptions = new EnumAppOptions(
+            outputImageWidth, outputImageHeight, numberOfQuarterCircleDivisions,
+            1, 0, 0, DEFAULT_NATIVE_RNG_ENABLED);
 
         TypedOption<Integer> widthOpt = new TypedOption<>(
             "-width",

@@ -7,6 +7,6 @@ import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
 
 @FunctionalInterface
-public interface SCREEN_ITERATE_CALLBACK {
-    ColorRgbMutable call(Camera camera, SceneQuery sceneQuery, SceneQueryWorkspace sceneSceneQueryWorkspace, Background sceneBackground, int x, int y, Object data);
+public interface SCREEN_ITERATE_CALLBACK<T> {
+    ColorRgbMutable call(Camera camera, SceneQuery sceneQuery, SceneQueryWorkspace sceneSceneQueryWorkspace, Background sceneBackground, int x, int y, T data);
 }

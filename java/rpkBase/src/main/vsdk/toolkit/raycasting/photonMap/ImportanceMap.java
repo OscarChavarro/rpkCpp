@@ -44,12 +44,12 @@ public class ImportanceMap extends PhotonMap {
         maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            Importon importon = (Importon)m_photons[i];
+            Photon importon = m_photons[i];
 
             Vector3Df dir = importon.dir();
 
             // No bsdf eval : incoming importance !!!!!!
-            importance = importon.Importance();
+            importance = (float)importon.power().getR();
 
             float cos_theta = dir.dotProduct(normal);
             if ( cos_theta > 0.0 ) {
@@ -96,12 +96,12 @@ public class ImportanceMap extends PhotonMap {
                 precomputeIrradiance();
             }
 
-            Importon photon = (Importon)DoIrradianceQuery(pos, normal, m_totalMaxDistance);
+            IrrPhoton photon = DoIrradianceQuery(pos, normal, m_totalMaxDistance);
 
             if ( photon != null ) {
                 switch ( photonMapState.importanceOption ) {
                     case PhotonMapImportanceOptions.USE_IMPORTANCE:
-                        density = photon.PImportance();
+                        density = (float)photon.m_irradiance.getR();
                         density *= m_impScalePtr[0];
                         break;
                     default:
@@ -175,7 +175,7 @@ public class ImportanceMap extends PhotonMap {
         pot[0] = m_distances[0]; // Only valid since max heap is used in kd-tree
         m_totalMaxDistance = Math.max(pot[0], m_totalMaxDistance);
 
-        ((Importon)photon).PSetAll(imp[0], pot[0], diff[0]);
+        photon.SetIrradiance(new vsdk.toolkit.common.color.ColorRgbMutable(imp[0], imp[0], imp[0]));
         if ( imp[0] > m_maxImp ) {
             m_maxImp = imp[0];
         }

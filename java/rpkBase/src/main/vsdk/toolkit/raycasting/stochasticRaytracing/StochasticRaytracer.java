@@ -85,11 +85,9 @@ public final class StochasticRaytracer extends RayTracer {
             this.pixels = pixels;
             this.firstRow = firstRow;
             this.rowStride = rowStride;
-            callback = new StochasticRaytracerCallbackData();
-            callback.config = new StochasticRaytracingConfiguration(
-                scene.camera, state, scene.lightSourcePatchList, radianceMethod, toneMapOptions, null, false);
-            callback.radianceMethod = radianceMethod;
-            callback.renderOptions = renderOptions;
+            callback = new StochasticRaytracerCallbackData(
+                new StochasticRaytracingConfiguration(scene.camera, state, scene.lightSourcePatchList,
+                    radianceMethod, toneMapOptions, null, false), radianceMethod, renderOptions);
         }
 
         @Override
@@ -181,10 +179,8 @@ pointed to by 'fp'
             radianceMethod,
             toneMapOptions,
             lightList); // config filled in by constructor
-        StochasticRaytracerCallbackData callbackData = new StochasticRaytracerCallbackData();
-        callbackData.config = config;
-        callbackData.radianceMethod = radianceMethod;
-        callbackData.renderOptions = renderOptions;
+        StochasticRaytracerCallbackData callbackData =
+            new StochasticRaytracerCallbackData(config, radianceMethod, renderOptions);
 
         // Frame Coherent sampling : init fixed seed
         if ( rayTracingState.doFrameCoherent != 0 ) {
@@ -756,9 +752,8 @@ pointed to by 'fp'
         Background sceneBackground,
         int nx,
         int ny,
-        Object data)
+        StochasticRaytracerCallbackData callbackData)
     {
-        StochasticRaytracerCallbackData callbackData = (StochasticRaytracerCallbackData)data;
         StochasticRaytracingConfiguration config = callbackData.config;
         RadianceMethod radianceMethod = callbackData.radianceMethod;
         vsdk.toolkit.material.RenderOptions renderOptions = callbackData.renderOptions;

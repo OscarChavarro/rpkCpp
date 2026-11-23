@@ -1,44 +1,16 @@
 package vsdk.toolkit.common.commandLineOptions;
 
 public class OptionParser<TOptionBase extends OptionBase> {
-    public static <TOptionBase extends OptionBase> boolean parse(
-        int[] argc,
-        String[] argv,
-        TOptionBase[] registry,
-        int registryCount)
-    {
-        return parse(argc, argv, registry, registryCount, null);
-    }
-
     @SuppressWarnings("unchecked")
     public static <TOptionBase extends OptionBase> boolean parse(
-        int[] argc,
-        String[] argv,
-        TOptionBase[] registry,
-        int registryCount,
-        Object context)
-    {
-        OptionGroupT<TOptionBase> singleGroup = new OptionGroupT<>("default", registry, registryCount);
-        OptionGroupT<TOptionBase>[] groups = (OptionGroupT<TOptionBase>[])new OptionGroupT[]{singleGroup};
-        return parse(argc, argv, groups, 1, context);
+        int[] argc, String[] argv, TOptionBase[] registry, int registryCount) {
+        OptionGroupT<TOptionBase> group = new OptionGroupT<>("default", registry, registryCount);
+        OptionGroupT<TOptionBase>[] groups = (OptionGroupT<TOptionBase>[])new OptionGroupT[]{group};
+        return parse(argc, argv, groups, 1);
     }
 
     public static <TOptionBase extends OptionBase> boolean parse(
-        int[] argc,
-        String[] argv,
-        OptionGroupT<TOptionBase>[] groups,
-        int groupCount)
-    {
-        return parse(argc, argv, groups, groupCount, null);
-    }
-
-    public static <TOptionBase extends OptionBase> boolean parse(
-        int[] argc,
-        String[] argv,
-        OptionGroupT<TOptionBase>[] groups,
-        int groupCount,
-        Object context)
-    {
+        int[] argc, String[] argv, OptionGroupT<TOptionBase>[] groups, int groupCount) {
         if (groups == null || groupCount <= 0 || argc == null || argc.length == 0 || argv == null) {
             return false;
         }
@@ -79,7 +51,7 @@ public class OptionParser<TOptionBase extends OptionBase> {
 
                         String[] argsSlice = new String[consumesValue];
                         System.arraycopy(argv, i + 1, argsSlice, 0, consumesValue);
-                        if (!groups[g].options[j].apply(context, consumesValue, argsSlice)) {
+                        if (!groups[g].options[j].apply(consumesValue, argsSlice)) {
                             return false;
                         }
 
@@ -90,7 +62,7 @@ public class OptionParser<TOptionBase extends OptionBase> {
                         i += consumesValue;
                     }
                     else {
-                        if (!groups[g].options[j].apply(context, 0, null)) {
+                        if (!groups[g].options[j].apply(0, null)) {
                             return false;
                         }
                         argv[i] = null;

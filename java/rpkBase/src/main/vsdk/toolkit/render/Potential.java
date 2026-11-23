@@ -25,16 +25,12 @@ Updates directly received potential for all patches
     public static void updateDirectPotential(Scene scene, RenderOptions renderOptions) {
         Canvas.canvasPushMode();
 
-        // Get the patch IDs for each pixel
-        long[] x = new long[1];
-        long[] y = new long[1];
-        long[] ids = SoftIds.softRenderIds(x, y, scene, renderOptions);
+        SglContext target = SoftIds.setupSoftFrameBuffer(scene.camera);
+        SoftIds.softRenderPatches(scene, renderOptions, target);
+        long[] x = {target.width};
+        long[] y = {target.height};
 
         Canvas.canvasPullMode();
-
-        if (ids == null) {
-            return;
-        }
 
         long lostPixels = 0;
 
@@ -69,7 +65,8 @@ Updates directly received potential for all patches
             long rowStart = j * x[0];
             float xSample = -h * (float)(x[0] - 1) / 2.0f;
             for (long i = 0; i < x[0]; i++, xSample += h) {
-                long the_id = ids[(int)(rowStart + i)] & 0xffffffL;
+                Patch visible = target.patchBuffer[(int)(rowStart + i)];
+                long the_id = visible == null ? 0 : visible.id & 0xffffffL;
 
                 if (the_id > 0 && the_id <= maximumPatchId) {
                     Vector3Df pixDir = new Vector3Df();

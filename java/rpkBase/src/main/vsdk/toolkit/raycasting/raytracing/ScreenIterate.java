@@ -46,14 +46,14 @@ public class ScreenIterate {
         updateCpuSecs();
     }
 
-    public static void
+    public static <T> void
     sequential(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        Object data,
+        SCREEN_ITERATE_CALLBACK<T> callback,
+        T data,
         ToneMappingContext toneMapOptions)
     {
         int width;
@@ -119,14 +119,14 @@ public class ScreenIterate {
         SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
     }
 
-    public static void
+    public static <T> void
     progressive(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
         Background sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        Object data,
+        SCREEN_ITERATE_CALLBACK<T> callback,
+        T data,
         ToneMappingContext toneMapOptions)
     {
         int width;

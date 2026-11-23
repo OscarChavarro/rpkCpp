@@ -45,10 +45,6 @@ public class TypedOption<T> {
         };
     }
 
-    public interface ContextBinding {
-        <T> Reference<T> resolve(int offset);
-    }
-
     public static class MutableValue<T> {
         public T value;
 
@@ -79,8 +75,6 @@ public class TypedOption<T> {
 
     private String name_;
     private Reference<T> target_;
-    private int offset_;
-    private boolean useOffset_;
     private int consumesValue_;
     private OnSet<T> onSet_;
     private ParseArgs<T> parseArgs_;
@@ -90,8 +84,6 @@ public class TypedOption<T> {
     public TypedOption() {
         name_ = null;
         target_ = null;
-        offset_ = 0;
-        useOffset_ = false;
         consumesValue_ = 1;
         onSet_ = null;
         parseArgs_ = null;
@@ -102,8 +94,6 @@ public class TypedOption<T> {
     public TypedOption(String name, Reference<T> target, int consumesValue, OnSet<T> onSet, ParseArgs<T> parseArgs) {
         name_ = name;
         target_ = target;
-        offset_ = 0;
-        useOffset_ = false;
         consumesValue_ = consumesValue;
         onSet_ = onSet;
         parseArgs_ = parseArgs;
@@ -114,32 +104,6 @@ public class TypedOption<T> {
     public TypedOption(String name, Reference<T> target, int consumesValue, OnSet<T> onSet, ParseArgs<T> parseArgs, Validate<T> validate, Transform<T> transform) {
         name_ = name;
         target_ = target;
-        offset_ = 0;
-        useOffset_ = false;
-        consumesValue_ = consumesValue;
-        onSet_ = onSet;
-        parseArgs_ = parseArgs;
-        validate_ = validate;
-        transform_ = transform;
-    }
-
-    public TypedOption(String name, int offset, int consumesValue, OnSet<T> onSet, ParseArgs<T> parseArgs) {
-        name_ = name;
-        target_ = null;
-        offset_ = offset;
-        useOffset_ = true;
-        consumesValue_ = consumesValue;
-        onSet_ = onSet;
-        parseArgs_ = parseArgs;
-        validate_ = null;
-        transform_ = null;
-    }
-
-    public TypedOption(String name, int offset, int consumesValue, OnSet<T> onSet, ParseArgs<T> parseArgs, Validate<T> validate, Transform<T> transform) {
-        name_ = name;
-        target_ = null;
-        offset_ = offset;
-        useOffset_ = true;
         consumesValue_ = consumesValue;
         onSet_ = onSet;
         parseArgs_ = parseArgs;
@@ -155,15 +119,8 @@ public class TypedOption<T> {
         return consumesValue_;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean apply(Object context, int argc, String[] argv) {
+    public boolean apply(int argc, String[] argv) {
         Reference<T> target = target_;
-        if (useOffset_) {
-            if (context == null || !(context instanceof ContextBinding)) {
-                return false;
-            }
-            target = ((ContextBinding)context).resolve(offset_);
-        }
         if (target == null) {
             return false;
         }
@@ -226,26 +183,6 @@ public class TypedOption<T> {
         return true;
     }
 
-    public static <T> boolean applyOption(TypedOption<T> opt, Object context, int argc, String[] argv) {
-        return opt.apply(context, argc, argv);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> boolean applyAdapter(Object opt, Object context, int argc, String[] argv) {
-        if (opt == null) {
-            return false;
-        }
-        return applyOption((TypedOption<T>)opt, context, argc, argv);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> int consumesValueAdapter(Object opt) {
-        if (opt == null) {
-            return 1;
-        }
-        return ((TypedOption<T>)opt).getConsumesValue();
-    }
-
     public static boolean matchOption(String input, String name, int abbrLen) {
         if (input == null || name == null) {
             return false;
@@ -266,12 +203,7 @@ public class TypedOption<T> {
     }
 
     public static <T> OptionBase registerOption(TypedOption<T> optionInstance, int abbr) {
-        return new OptionBase(
-            optionInstance.getName(),
-            abbr,
-            TypedOption::consumesValueAdapter,
-            TypedOption::applyAdapter,
-            optionInstance);
+        return new OptionBase(optionInstance, abbr);
     }
 
     public static <T> OptionBase REGISTER_OPTION(TypedOption<T> optionInstance, int abbr) {

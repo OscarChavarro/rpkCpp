@@ -4,7 +4,14 @@ import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.scene.RadianceMethod;
 
 public class StochasticRaytracerCallbackData {
-    public StochasticRaytracingConfiguration config;
-    public RadianceMethod radianceMethod;
-    public RenderOptions renderOptions;
+    public final StochasticRaytracingConfiguration config;
+    public final RadianceMethod radianceMethod;
+    public final RenderOptions renderOptions;
+
+    public StochasticRaytracerCallbackData(StochasticRaytracingConfiguration config,
+                                           RadianceMethod radianceMethod, RenderOptions renderOptions) {
+        this.config = config;
+        this.radianceMethod = radianceMethod;
+        this.renderOptions = renderOptions;
+    }
 }

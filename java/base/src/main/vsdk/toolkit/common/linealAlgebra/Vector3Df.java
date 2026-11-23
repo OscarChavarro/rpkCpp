@@ -131,6 +131,7 @@ public final class Vector3Df extends FundamentalEntity {
     public Vector3Df withX(float nx) { return new Vector3Df(nx, y, z); }
     public Vector3Df withY(float ny) { return new Vector3Df(x, ny, z); }
     public Vector3Df withZ(float nz) { return new Vector3Df(x, y, nz); }
+    public float component(int axis) { return axis == 0 ? x : (axis == 1 ? y : z); }
     public float x() { return x; }
     public float y() { return y; }
     public float z() { return z; }
