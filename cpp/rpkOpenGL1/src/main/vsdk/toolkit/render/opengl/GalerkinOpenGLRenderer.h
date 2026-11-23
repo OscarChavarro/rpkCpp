@@ -4,7 +4,6 @@
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugState.h"
-#include "vsdk/toolkit/render/sgl/SglContext.h"
 #include "vsdk/toolkit/scene/Scene.h"
 
 class GalerkinOpenGLRenderer {

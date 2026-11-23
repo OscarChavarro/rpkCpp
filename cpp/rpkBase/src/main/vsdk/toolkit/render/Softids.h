@@ -11,18 +11,17 @@ due to frame buffer formats, etc.
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/render/sgl/SglContext.h"
+#include "vsdk/toolkit/render/FaceVisibilityBuffer.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class SoftIds {
+  private:
+    static void drawPatch(const Patch &patch, const Camera &camera,
+                          const RendererConfiguration &renderOptions, FaceVisibilityBuffer &target);
+
   public:
-    static SglContext *setupSoftFrameBuffer(const Camera *camera);
-    static void softRenderPatch(
-        const Patch *patch,
-        const Camera *camera,
-        const RendererConfiguration *renderOptions,
-        SglContext *sglContext);
-    static void softRenderPatches(const Scene *scene, const RendererConfiguration *renderOptions, SglContext *sglContext);
+    /** Renders into a cleared target with the camera's dimensions and full viewport. */
+    static void renderVisibleFaces(const Scene &scene, const RendererConfiguration *renderOptions, FaceVisibilityBuffer &target);
     static unsigned long *softRenderIds(long *x, long *y, const Scene *scene, const RendererConfiguration *renderOptions);
     static void softRenderPixels(int width, int height, const ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions);
 };

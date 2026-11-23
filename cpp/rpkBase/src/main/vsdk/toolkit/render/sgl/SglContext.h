@@ -1,63 +1,37 @@
-/**
-Small Graphics Library
-*/
-
-#ifndef SGL__
-#define SGL__
+#ifndef SGL_CONTEXT__
+#define SGL_CONTEXT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"
-#include "vsdk/toolkit/environment/geometry/elements/Element.h"
-#include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/render/sgl/SglConstants.h"
-#include "vsdk/toolkit/render/sgl/SglPixelContent.h"
+#include "vsdk/toolkit/render/sgl/Window.h"
 
-using SGL_PIXEL = unsigned long;
-using SGL_Z_VALUE = unsigned long;
+class Polygon;
 
+/** Projection, viewport and optional depth plane shared by typed SGL targets. */
 class SglContext {
   private:
-    static void clearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor);
-    static const Matrix4x4f &identityMatrix();
+    const int width;
+    const int height;
+    Window viewport;
+    Matrix4x4f transform;
+    SglDepthValue *const depthBuffer;
 
   public:
-    Matrix4x4f transformStack[SglConstants::SGL_TRANSFORM_STACK_SIZE]; // Transform stack
-    Matrix4x4f *currentTransform;
-    bool clipping; // Whether to do clipping or not
-    int vp_x; // Viewport
-    int vp_y;
-    double near; // Depth range
-    double far;
-
-//public:
-    SglPixelContent pixelData;
-    SGL_PIXEL *frameBuffer;
-    Patch **patchBuffer;
-    Element **galerkinElementBuffer;
-
-    SGL_PIXEL currentPixel;
-    const Patch *currentPatch;
-    const Element *currentGalerkinElement;
-
-    SGL_Z_VALUE *depthBuffer; // Z buffer
-
-    int width; // canvas size
-    int height;
-    int vp_width;
-    int vp_height;
-
-    explicit SglContext(int width, int height);
+    SglContext(int inWidth, int inHeight, bool depthTesting);
     ~SglContext();
+    SglContext(const SglContext &) = delete;
+    SglContext &operator=(const SglContext &) = delete;
 
-    void sglClearZBuffer(SGL_Z_VALUE defZVal) const;
-    void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
-    void sglDepthTesting(bool on);
-    void sglClipping(bool on);
-    void sglLoadMatrix(const Matrix4x4f *xf) const;
-    void sglMultiplyMatrix(const Matrix4x4f *xf) const;
-    void sglSetPatch(const Patch *col);
-    void sglSetGalerkinElement(const Element *galerkinElement);
-    void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
-    void sglPolygon(int numberOfVertices, const Vector3Df *vertices);
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+    int getViewportWidth() const { return viewport.x1 - viewport.x0 + 1; }
+    int getViewportHeight() const { return viewport.y1 - viewport.y0 + 1; }
+    const Window &getViewport() const { return viewport; }
+    SglDepthValue *getDepthBuffer() { return depthBuffer; }
+
+    void setViewport(int x, int y, int viewportWidth, int viewportHeight);
+    void setTransform(const Matrix4x4f &matrix) { transform = matrix; }
+    bool projectPolygon(int numberOfVertices, const Vector3Df *vertices, Polygon &result) const;
 };
 
 #endif

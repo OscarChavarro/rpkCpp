@@ -43,8 +43,9 @@ Poly::incrementZ(PolygonVertex *p, const PolygonVertex &dp) {
 /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
+template<class Sample>
 void
-Poly::scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+Poly::scanlineZ(Sample *samples, SglDepthValue *depth, int stride, Sample value, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -65,23 +66,16 @@ Poly::scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, con
 
     double frac = lx + 0.5 - l->sx;
     double dzf = (r->sz - l->sz) / dx;
-    SGL_Z_VALUE z = static_cast<SGL_Z_VALUE>(l->sz + dzf * frac);
+    SglDepthValue z = static_cast<SglDepthValue>(l->sz + dzf * frac);
     int dz = static_cast<int>(dzf);
 
-    const int rowStart = y * sglContext->width;
+    const int rowStart = y * stride;
     int pixelIndex = rowStart + lx;
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
-        if ( z <= sglContext->depthBuffer[pixelIndex] ) {
-            if ( sglContext->pixelData == SglPixelContent::PATCH_POINTER ) {
-                sglContext->patchBuffer[pixelIndex] = const_cast<Patch *>(sglContext->currentPatch);
-            } else if ( sglContext->pixelData == SglPixelContent::ELEMENT_POINTER ) {
-                sglContext->galerkinElementBuffer[pixelIndex] =
-                    const_cast<Element *>(sglContext->currentGalerkinElement);
-            } else {
-                sglContext->frameBuffer[pixelIndex] = sglContext->currentPixel;
-            }
-            sglContext->depthBuffer[pixelIndex] = z;
+        if ( z <= depth[pixelIndex] ) {
+            samples[pixelIndex] = value;
+            depth[pixelIndex] = z;
         }
         pixelIndex++;
         z += dz;
@@ -108,8 +102,9 @@ All the fields of point indicated by p->mask will be valid inside pixel proc
 except sx and sy. If they were computed, they would have values
 sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
 */
+template<class Sample>
 void
-Poly::scanZ(SglContext *sglContext, Polygon *p,  const Window *window)
+Poly::scanZ(Sample *samples, SglDepthValue *depth, int stride, Sample value, const Polygon *p,  const Window *window)
 {
     int i;
 
@@ -165,9 +160,9 @@ Poly::scanZ(SglContext *sglContext, Polygon *p,  const Window *window)
             // Do scan lines till end of l or r edge
             if ( y >= window->y0 && y <= window->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    Poly::scanlineZ(sglContext, y, &l, &r, window);
+                    Poly::scanlineZ(samples, depth, stride, value, y, &l, &r, window);
                 } else {
-                    Poly::scanlineZ(sglContext, y, &r, &l, window);
+                    Poly::scanlineZ(samples, depth, stride, value, y, &r, &l, window);
                 }
             }
             y++;

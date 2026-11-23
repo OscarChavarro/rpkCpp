@@ -113,7 +113,7 @@ RayCaster::getRadianceAtPixel(
     Camera *camera,
     int x,
     int y,
-    Patch *patch,
+    const Patch *patch,
     const RadianceMethod *radianceMethod,
     const RendererConfiguration *renderOptions) const
 {
@@ -174,7 +174,7 @@ RayCaster::render(
     // This is the main loop for ray-casting
     for ( int y = 0; y < height; y++ ) {
         for ( int x = 0; x < width; x++ ) {
-            Patch *patch = idRenderer->getPatchAtPixel(x, y);
+            const Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
                 ColorRgbMutable rad = getRadianceAtPixel(scene->camera, x, y, patch, radianceMethod, renderOptions);
                 screenBuffer->add(x, y, rad);

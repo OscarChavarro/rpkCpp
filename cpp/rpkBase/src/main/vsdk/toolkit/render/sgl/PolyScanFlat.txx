@@ -42,8 +42,9 @@ Poly::incrementFlat(PolygonVertex *p, const PolygonVertex &dp) {
 /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
+template<class Sample>
 void
-Poly::scanlineFlat(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+Poly::scanlineFlat(Sample *samples, int stride, Sample value, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -57,18 +58,10 @@ Poly::scanlineFlat(const SglContext *sglContext, int y, const PolygonVertex *l, 
         return;
     }
 
-    const int rowStart = y * sglContext->width;
+    const int rowStart = y * stride;
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
-        const int pixelIndex = rowStart + x;
-        if ( sglContext->pixelData == SglPixelContent::PATCH_POINTER ) {
-            sglContext->patchBuffer[pixelIndex] = const_cast<Patch *>(sglContext->currentPatch);
-        } else if ( sglContext->pixelData == SglPixelContent::ELEMENT_POINTER ) {
-            sglContext->galerkinElementBuffer[pixelIndex] =
-                const_cast<Element *>(sglContext->currentGalerkinElement);
-        } else {
-            sglContext->frameBuffer[pixelIndex] = sglContext->currentPixel;
-        }
+        samples[rowStart + x] = value;
     }
 }
 
@@ -95,8 +88,9 @@ sx=x+.5 and sy=y+.5, since sampling is done at pixel centers
 p: polygon
 win: 2-D screen space clipping window
 */
+template<class Sample>
 void
-Poly::scanFlat(SglContext *sglContext, Polygon *p, const Window *win)
+Poly::scanFlat(Sample *samples, int stride, Sample value, const Polygon *p, const Window *win)
 {
     int i;
     int ri;
@@ -152,9 +146,9 @@ Poly::scanFlat(SglContext *sglContext, Polygon *p, const Window *win)
             // Do scan lines till end of l or r edge
             if ( y >= win->y0 && y <= win->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    Poly::scanlineFlat(sglContext, y, &l, &r, win);
+                    Poly::scanlineFlat(samples, stride, value, y, &l, &r, win);
                 } else {
-                    Poly::scanlineFlat(sglContext, y, &r, &l, win);
+                    Poly::scanlineFlat(samples, stride, value, y, &r, &l, win);
                 }
             }
             y++;

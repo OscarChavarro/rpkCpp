@@ -1,480 +1,211 @@
-# Comparative analysis of the core model: rpkCpp <-> VITRAL
+# Comparative analysis of the core model: rpkCpp and VITRAL
 
-Status snapshot comparing the current `cpp/` port of rpkCpp (RenderPark
-modernization) with the current
-[VITRAL library](https://github.com/OscarChavarro/vitral) (`vitral/cpp`).
-
-The focus is the required alignment surface between both codebases: linear
-algebra, rays, hit records, the intersection operation model, geometry and
-scene models, cameras, materials, renderer configuration, bounding
-information and statistics. It closes with the list of alignment work that
-remains beyond the first milestone (§14).
-
-The order, gates and decisions of the alignment work are governed by
-[`vitralAlignmentPlan.md`](vitralAlignmentPlan.md), which is the authoritative
-source; this document supplies the class-by-class comparison that plan works
-from.
-
----
-
-Directory and namespace layout are already shared between the two trees:
-both keep the toolkit under `base/src/main/vsdk/toolkit/...`, with the
-`java::` JDK-mirror layer as a sibling root (`base/src/main/java/{io,lang,util}`),
-matching the Java and TypeScript ports of this same project.
+This comparison uses RenderPark C++ at `c8bbe766` and VITRAL C++ at
+`ec5e54aa`. RenderPark's `cpp/base/` is a source subset of VITRAL's
+`cpp/base/`. Its engine and viewer live in `cpp/rpkBase/` and
+`cpp/rpkOpenGL1/`. The subset check found 130 byte-identical files.
+The [alignment plan](vitralAlignmentPlan.md) governs the remaining work
+and its verification.
 
 ## 1. Linear algebra
 
-### 1.1. rpkCpp
-
-`toolkit/common/linealAlgebra/` carries a **two-precision** model:
-
-- `Vector3D` — `float x, y, z`, **public attributes**, a rich mutating API
-  (`combine`, `sumScaled`, `crossProduct(a, b)` writing into `this`, etc.).
-  This is the workhorse of the whole patch/radiosity pipeline; `float` is a
-  deliberate memory/bandwidth choice.
-- `Vector3Dd` — `double x, y, z`, public attributes, a minimal API
-  (`dotProduct`, `crossProduct`, `normalizeAndGivePreviousNorm`), used where
-  double precision is numerically required.
-- `Vector2D`, `Vector2Dd`, `Vector4D`, `Matrix2x2`, `Matrix4x4` (float),
-  `Matrix4x4d`, `Numeric`, `CoordinateSystem`, `CoordinateAxis`, `Jacobian`.
-
-### 1.2. VITRAL
-
-`common/linealAlgebra/` is **double-first with float twins**: `Vector3Dd` /
-`Vector3Df`, `Vector2Dd/f`, `Vector4Dd/f`, `Matrix4x4d/f`, `MatrixNxM`,
-`Quaterniond/f`, `Complex`. VITRAL `Vector3Dd` has **private** `x_, y_, z_`,
-inline getters, and an immutable-style API returning new values
-(`multiply`, `crossProduct(other)`, `midpoint`), plus `equals`/`hashCode`/
-`toString` in the JDK idiom.
-
-### 1.3. Alignment status
-
-- The package name is already shared (`common/linealAlgebra`, same spelling).
-- The **class-name collision is real**: both trees define `Vector3Dd` and
-  `Matrix4x4d` with different contracts (public mutable vs private
-  immutable-style).
-- rpkCpp's float `Vector3D` corresponds to VITRAL's `Vector3Df` in precision,
-  but not in name or API shape.
-- VITRAL has no `CoordinateSystem`/`Jacobian`/`Numeric` equivalents; those are
-  rpkCpp candidates to contribute upstream, in VITRAL style.
-
-Required alignment item: converge on VITRAL's naming scheme
-(`Vector3Df` = float, `Vector3Dd` = double) and encapsulation style, while
-preserving rpkCpp's mutating hot-path operations as members of the same
-classes (VITRAL classes are already mutable-friendly: private fields do not
-force immutability). The float/double split itself is **kept**: patch and
-radiosity storage stays `float`; shared VITRAL primitives stay `double`.
+RenderPark uses the shared `Vector2Df`, `Vector3Df`, `Vector4Df`,
+`Matrix4x4f` and `Matrix2x2`. The shared double-precision variants also
+exist where higher precision is needed. `PlanarFace` computes its geometry
+in float, while the spatial indices traverse double-precision bounds.
+Retain that precision boundary when preparing faces from VITRAL meshes.
 
 ## 2. Ray model
 
-### 2.1. rpkCpp
-
-```cpp
-class Ray {
-  public:
-    Vector3D position;
-    Vector3D direction; // Direction should be normalized
-};
-```
-
-Float precision, public attributes, no parametric distance on the ray (the
-`t`/distance travels separately as `minimumDistance`/`maximumDistance`
-parameters of the intersection calls). Lives in `common/linealAlgebra/`.
-
-### 2.2. VITRAL
-
-```cpp
-class Ray {  // environment/geometry/element/Ray.h
-private:
-    Vector3Dd origin;
-    Vector3Dd direction;
-    double t;
-public:
-    Ray(const Vector3Dd& origin, const Vector3Dd& direction, double t);
-    Ray withOrigin(...) const; Ray withDirection(...) const; Ray withT(...) const;
-    const Vector3Dd& getOrigin() const; ...setters...;
-    bool equals(...); int hashCode(); java::String toString();
-};
-```
-
-Double precision, private attributes, getters/setters plus `with*` builders,
-normalization enforced at the boundary. Lives in
-`environment/geometry/element/`.
-
-### 2.3. Alignment status
-
-Divergent on: package (linealAlgebra vs environment/geometry/element), field
-name (`position` vs `origin`), precision (float vs double), carried state
-(`t` on the VITRAL ray vs distance-interval parameters in rpkCpp), and
-encapsulation.
-
-Required alignment item: adopt VITRAL's `origin` naming and encapsulation for
-the rpkCpp ray, and decide precision at the same time as §1. povCpp resolved
-the analogous problem by **extending** VITRAL `Ray`
-(`RayWithTracingState : public Ray`) rather than replacing it; the same
-pattern fits here if rpkCpp needs to keep a float fast path or per-ray
-traversal caches (e.g. `VoxelGrid` reciprocals).
+RenderPark's `RpkRay` has public float-vector `position` and `direction`.
+Distances travel separately in its query contract. VITRAL's `Ray` under
+`environment/geometry/element/` encapsulates double-vector origin and
+direction and a ray parameter `t`. A radiosity visibility interface needs
+an explicit distance interval and documented direction and distance
+conventions. Existing VITRAL raytracer entry points can keep their API.
 
 ## 3. Hit record
 
-### 3.1. rpkCpp `RayHit`
-
-Already encapsulated (private fields, `init()`, getters/setters):
-
-- `point`, `geometricNormal`, `texCoord`, `uv` (`Vector2Dd`), `patch`
-  (hit `Patch*`), `material`, `shadingFrame` (`CoordinateSystem`, Z = shading
-  normal), `flags`.
-- `flags` (values in `RayHitFlag.h`) records **which fields have been filled
-  in**, and the `hitFlags` parameter of the intersection entry points requests
-  what must be computed — a request/fill contract.
-- Raytracing-only members (`getNormal`, shading frame accessors) are gated by
-  `RAYTRACING_ENABLED`.
-- A header comment acknowledges the layering debt: `class Patch; // TODO:
-  this is coupling RayHit with skin level classes :(`.
-
-### 3.2. VITRAL `RayHit`
-
-- Public `p`, `n`, `t` (tangent), `u`, `v`, `material`, `texture`,
-  `normalMap`; private consumed `Ray`, `hitDistance`, and
-  `requiredDetailMask_` with `DETAIL_NONE/POINT/NORMAL/UV/TANGENT/ALL`
-  constants and `needsPoint()/needsNormal()/...` queries.
-
-### 3.3. Alignment status
-
-The two records agree on intent more than povCpp's did: both are
-**nearest-hit** records with a lazy-detail contract. The differences:
-
-| VITRAL `RayHit` | rpkCpp `RayHit` | Status |
-|---|---|---|
-| `p` | `point` (float `Vector3D`) | aligned concept, name/precision differ |
-| `n` | `geometricNormal` + `shadingFrame.getZ()` | rpkCpp splits geometric vs shading normal — richer |
-| `t` tangent | `shadingFrame.getX()` | representable via the frame |
-| `u`, `v` | `uv` (`Vector2Dd`) + `texCoord` (`Vector3D`) | aligned concept |
-| `hitDistance` | not stored; `maximumDistance` parameter is updated in place | divergent |
-| `requiredDetailMask` (request) | `hitFlags` argument (request) + `flags` (filled) | same contract, split differently: rpkCpp separates "requested" from "filled" |
-| `material`, `texture`, `normalMap` | `material`; texture lives on `Material` | aligned role, different material model |
-| — | `patch` (hit primitive back-pointer) | rpkCpp-specific: radiosity needs the patch identity, not just surface data |
-
-Required alignment item: map `RayHitFlag` values onto VITRAL's `DETAIL_*`
-constants (or a superset), and keep rpkCpp's separation of
-"requested mask" vs "filled mask" as the proposed improvement to VITRAL —
-VITRAL currently overloads one mask for both meanings. The `Patch*`
-back-pointer stays rpkCpp-specific (radiosity attribution), like povCpp's
-`hitGeometry`/`hitBody` chain.
+`RpkRayHit` is a reusable, encapsulated hit record with a borrowed
+`const Patch *`, a shading frame and flags that track which results are
+valid. Updating UV invalidates the derived texture coordinate, normal
+and frame. VITRAL's `RayHit` uses surface detail flags and can carry the
+information used by the VITRAL raytracer, including its material.
+Galerkin shadow rays primarily need an occlusion answer and, for blocker
+reuse, the face identity and distance. A face hit contract can keep
+those fields independent of either renderer's full shading record.
 
 ## 4. Intersection operation model
 
-### 4.1. VITRAL: nearest-hit primitive
-
-```cpp
-virtual bool doIntersectionFirstHit(const Ray& inRay, RayHit* outHit) = 0;
-virtual void doExtraInformation(const Ray& inRay, double inT, RayHit* outHit);
-virtual int computeQuantitativeInvisibility(const Vector3Dd& origin, const Vector3Dd& p);
-virtual double* getMinMax() = 0;
-virtual int doContainmentTest(const Vector3Dd& p, double distanceTolerance);
-```
-
-### 4.2. rpkCpp: nearest-hit with interval and flags
-
-```cpp
-virtual RayHit *discretizationIntersect(
-    Ray *ray, float minimumDistance, float *maximumDistance,
-    int hitFlags, RayHit *hitStore) const;              // Geometry
-RayHit *intersect(...same shape...);                     // Patch
-static RayHit *listDiscretizationIntersect(...);         // over geometry lists
-RayHit *VoxelGrid::gridIntersect(...);                   // accelerated
-```
-
-Semantics: return the nearest hit in `(minimumDistance, *maximumDistance)`,
-writing into the caller-provided `hitStore` and shrinking
-`*maximumDistance` — the caller-owned store doubles as the "closest so far"
-accumulator across list/grid traversal. Shadow tests pass `hitFlags` that
-allow any-hit early out.
-
-### 4.3. Alignment status
-
-The alignment is about naming and types:
-
-- `discretizationIntersect` ↔ `doIntersectionFirstHit`: same role. The rpkCpp
-  extras — distance interval, in-place `maximumDistance` shrinking,
-  caller-provided store, any-hit flags for shadows — are genuinely useful and
-  are the candidate *upstream* improvements (VITRAL's signature cannot express
-  a shadow any-hit or a capped interval today).
-- rpkCpp has no `doContainmentTest` / `computeQuantitativeInvisibility`; not
-  needed by current algorithms, nothing to do.
-- Precision: rpkCpp intersects in `float` distances; VITRAL in `double`.
-
-Required alignment item: agree the shared nearest-hit signature. Proposed
-direction: VITRAL adopts an interval+flags overload (superset of its current
-contract); rpkCpp adopts the `doIntersectionFirstHit` name once signatures
-match. Renaming before that agreement would create a false cognate.
+`SceneQuery` selects `BinnedSahSpatialIndex`, `GridSpatialIndex` or
+`LinearSpatialIndex` over the scene's face table. Its const query takes
+a distance interval, exclusions, hit flags, a reusable hit record and
+a caller-owned workspace. `Patch::intersect` performs the exact test
+using `PlanarFace`; an any-hit query may return different blockers at
+the same visibility result. Closest-hit ties can also depend on index
+traversal order. VITRAL's `Geometry::doIntersectionFirstHit` is the
+closest-surface contract used by its raytracing path. The radiosity
+module can reuse the spatial index contract and define its face query
+with the policies it needs.
 
 ## 5. Geometry model
 
-### 5.1. VITRAL
+`Patch` owns an immutable VITRAL `PlanarFace` and binds it to vertices,
+material, an optional twin and two identifiers. The scene-local
+`getFaceIndex()` addresses the face table. `getId()` serves legacy ID
+output and serialization. Bounds, direct potential, view visibility,
+display color and top-level radiance-element bindings now live outside
+`Patch`, in scene-owned tables.
 
-`environment/geometry/Geometry.h` is a small **abstract interface** (see
-§4.1); concrete shapes live in `curve/`, `surface/`, `volume/` and are
-analytic (sphere, box, ...). Placement is owned by `SimpleBody` at scene
-level; geometry is transform-free.
-
-### 5.2. rpkCpp
-
-`toolkit/skin/` is a **concrete aggregation hierarchy** over patches:
-
-- `Geometry` (base): `id`, `boundingBox`, `radianceData` (`Element*` hook for
-  the radiance method), `bounded`/`shaftCullGeometry`/`omit` flags,
-  `className` discriminator, plus static list operations
-  (`listDiscretizationIntersect`, `listBounds`). It still carries one piece of
-  **static mutable state**, the `nextGeometryId` counter, and the header admits
-  the debt: `public: // Will become protected`. The "don't self-intersect"
-  mechanism is a value: every intersect call takes a `RayExclusionSet` (up to
-  four patches and two geometries) built by the caller.
-- `Compound` — a list of child geometries (hierarchical scenes, clusters).
-- `MeshSurface` — a material + vertex/patch list.
-- `PatchSet` — a bare patch list.
-- The actual surface primitive is `Patch` (triangles/quads with vertices,
-  normal, plane constant, area, jacobian, `radianceData`), in
-  `environment/geometry/elements/`.
-
-There are **no analytic solids and no transforms**: the MGF reader bakes
-everything into world-space patches at load time.
-
-### 5.3. Alignment status
-
-The two `Geometry` classes share a name but not a level of abstraction:
-VITRAL's is "an intersectable analytic surface"; rpkCpp's is "a node in a
-patch-aggregation scene tree". The honest mapping is:
-
-| VITRAL | rpkCpp | Notes |
-|---|---|---|
-| `Geometry` (abstract intersectable) | `Patch` + `RpkGeometry::discretizationIntersect` | the intersectable unit is the patch |
-| `SimpleBody` / `SimpleBodyGroup` | `MeshSurface` / `Compound` | body-with-material / grouping |
-| `SimpleScene` | `Scene` | §6 |
-| analytic `surface/`, `volume/` shapes | — (patches only) | rpkCpp has no analytic solids |
-| — | `PatchSet`, cluster octree, `radianceData` hooks | radiosity-specific, stays application-side |
-
-Required alignment items:
-
-- Do **not** force-rename either `Geometry` yet; first split rpkCpp's
-  `Geometry` into a geometric core vs radiosity annotations (`radianceData`,
-  `shaftCullGeometry`, `omit` are algorithm state stamped onto scene
-  structure — the same concern `doc/patchBoundingBoxDecoupling.md` records
-  for `Patch`/`BoundingBox`).
-- Express the `RayExclusionSet` in face and group identifiers instead of
-  pointers once the shared face of plan step 3 exists.
-- rpkCpp's patch/mesh model is itself the candidate upstream contribution:
-  VITRAL has meshes for painting but no patch-set intersectable with
-  radiosity hooks.
+VITRAL's `Geometry` represents intersectable shapes, including meshes and
+analytic surfaces. RenderPark's `RpkGeometry`, `MeshSurface`, `Compound`
+and `PatchSet` organize patches, including for clustering and shaft
+culling. The radiosity input can expose a prepared face table to the
+solver. It can keep clusters and shaft candidates in solver state and
+scratch while leaving mesh and placement with VITRAL.
 
 ## 6. Scene model and transforms
 
-- **rpkCpp `Scene`** owns: the geometry list, the flat patch list, the
-  clustered hierarchy (`PatchClusterOctreeNode`), the `VoxelGrid`, `Camera`
-  and `Background`. Already encapsulated (private helpers, accessors).
-- **VITRAL `SimpleScene`** owns `SimpleBody`/`SimpleBodyGroup` collections and
-  snapshots (`SimpleSceneSnapshot`).
-- Transforms: VITRAL `SimpleBody` owns decomposed position/scale/rotation
-  (+quaternions, fast-path flags). rpkCpp has **no runtime transforms at
-  all** — MGF geometry is baked to world space at parse time. Nothing to
-  converge until an application needs instancing; record the difference and
-  move on.
-
-Alignment status: concepts map (`Scene` ↔ `SimpleScene`), contents differ by
-domain (acceleration structures and radiosity clustering vs body grouping and
-snapshots). No forced convergence; shared vocabulary can emerge when geometry
-classes converge (§5).
+RenderPark's MGF loader produces world-space geometry. `Scene` owns the
+flat patch list and cluster hierarchy and builds a dense face table and
+`SceneQuery`. VITRAL's `SimpleScene` organizes bodies. A
+`SimpleSceneSnapshot` exposes bodies, lights, camera and background, and
+its body collection contains pointers to `SimpleBody`. The adapter
+should copy the planar face positions after applying body placement and
+establish read-only material bindings for the solve. The snapshot alone
+provides no guarantee that the bodies stay immutable.
 
 ## 7. Camera
 
-- **rpkCpp `Camera`** (`toolkit/scene/`): public float attributes — eye/look/up,
-  FOV pair, near/far, resolution, the eye frame `X/Y/Z`, background color,
-  derived per-pixel state (`pixelWidth`, tangents) and the four view planes
-  used for frustum culling. Mutable, self-completing (`complete()` recomputes
-  derived state).
-- **VITRAL `Camera`** (`environment/camera/`): encapsulated, exports an
-  immutable `CameraSnapshot` (eye, direction, up/right with scale, projection
-  mode) that the raytracer consumes; povCpp already renders from
-  `CameraSnapshot`.
-
-Required alignment item: same recipe as povCpp — keep the application camera
-(rpkCpp `Camera` carries radiosity-view concerns like frustum planes and
-`changed` tracking) but produce a VITRAL `CameraSnapshot` at the
-render boundary, so the raytracer family reads the shared record. Encapsulate
-rpkCpp `Camera` per M1 along the way.
+RenderPark's `Camera` supplies float projection and view matrices, frustum
+planes and the eye frame used by importance, face ID rendering and the
+viewer. VITRAL's `CameraSnapshot` is the view input for raytracing.
+Use a snapshot at the VITRAL display boundary. The base radiosity
+solution can be evaluated from several views, and direct potential and
+view visibility can be recomputed for each importance pass.
 
 ## 8. Material model
 
-- **rpkCpp**: `Material` (private: `edf`, `bsdf`, `sided`, `name`) over a
-  physically-based Phong family — `PhongEmittanceDistributionFunction`,
-  `PhongBidirectionalReflectanceDistributionFunction`, `...Transmittance...`,
-  combined by `PhongBidirectionalScatteringDistributionFunction`, plus
-  `RefractionIndex`, `Texture`, and BSDF component/sampling-mode flags.
-  Already in the target encapsulation style.
-- **VITRAL**: `Material` base with `SimpleMaterial` (the raytracer's
-  Phong-ish surface: colors, texture, normal map) and `MicroFacetedMaterial`.
-
-Alignment status: different physical models at different maturity. rpkCpp's
-EDF/BSDF decomposition is the more principled radiometric model and is a
-strong upstream candidate once VITRAL needs physically-based rendering; in
-the meantime the two coexist, exactly as povCpp's `PovRayMaterial` stays
-application-side.
-
-Required alignment item: `vitralAlignmentPlan.md` step 2. A VITRAL material
-specialization composing scattering and optional emission is seeded from
-rpkCpp's Phong EDF/BSDF family. The integrated reflectance and emittance that
-Galerkin consumes are part of the first milestone; directional evaluation,
-sampling and PDFs follow on an independent track gated by the raytracer
-scenes.
+VITRAL's `PhongMaterial`, `PhongLobe` and `ScatteringFrame` supply the
+integrated reflectance and emission used by Galerkin and the directional
+operations used by the RPK ray methods. `RpkMaterial` owns the shared
+material and presents EDF and BSDF forwarding views. VITRAL's existing
+shaders also use `SimpleMaterial` and `MicroFacetedMaterial`. The scene
+adapter needs an explicit radiometric binding or conversion for scenes
+authored with the viewer's materials. In particular it must specify
+diffuse reflectance, emissive surfaces and sidedness.
 
 ## 9. Renderer configuration
 
-Both trees define `RendererConfiguration` — same name, **disjoint
-vocabularies**:
-
-- rpkCpp (`toolkit/material/RendererConfiguration.h`): display/debug options
-  (outlines, bounding boxes, clusters, smooth shading, backface culling,
-  frustum culling, freeze-raytraced-image), private with getters.
-- VITRAL (`environment/material/RendererConfiguration.h`): `SHADING_TYPE_*`
-  vocabulary (NOLIGHT/FLAT/GOURAUD/PHONG/COOK_TERRANCE) plus viewer options
-  (wires, bounding volume, texture, bump map, LOD hint...).
-
-povCpp precedent: `PovRayRendererConfiguration` **derives from** the VITRAL
-base, reusing the shading-type vocabulary and keeping app flags separate.
-
-Required alignment item: same move — make rpkCpp's configuration derive from
-(or embed) the VITRAL base, mapping `smoothShading`/`noShading` onto
-`SHADING_TYPE_*`, and keep the radiosity-specific display flags
-application-side.
+RenderPark's `RendererConfiguration` carries display and debug options
+such as outline and cluster display, smoothing and culling.
+VITRAL's class of the same name defines shading modes and viewer
+options. Pass the options each solve or render actually consumes at the
+boundary. When a VITRAL header enters the RenderPark build, check for
+colliding class names and include guards before combining them.
 
 ## 10. Bounding information
 
-- rpkCpp: `skin/AxisAlignedBoundingBox` (+ `MinMaxBox`,
-  `BoundingBoxCoordinateIndex`), stored by value on `Geometry`, plus
-  per-patch boxes (decoupling plan already written in
-  `doc/patchBoundingBoxDecoupling.md`).
-- VITRAL: `virtual double* getMinMax() = 0` on `Geometry`.
-- povCpp: proposes `BoundingVolumeHierarchy` / `AabbBoundingVolume` /
-  `AxisAlignedBoundingBox` as the shared winner (its
-  `vitralNormalizationAnalysis.md` §10/§14.4).
-
-Required alignment item: this is now a **three-tree decision**, and povCpp's
-proposal is inherited: a polymorphic bounding-volume contract whose naive
-implementation wraps a vptr-free AABB value. rpkCpp's
-`AxisAlignedBoundingBox` is already the value type of that shape; when the
-shared contract lands in VITRAL, rpkCpp adopts it instead of growing its own.
-`patchBoundingBoxDecoupling.md` moves bounds out of `Patch` into a dedicated
-store, which is compatible with any winner and is a prerequisite of
-`vitralAlignmentPlan.md` step 3. VITRAL also provides a WALD2007 binned-SAH
-hierarchy (`BinnedSahHierarchy`) in all of its ports; step 4 of the plan puts
-it and a port of rpkCpp's voxel grid behind one spatial query.
+RenderPark fills `FaceBoundsTable` from planar faces and keeps
+`RpkAxisAlignedBoundingBox` for geometry and clusters. VITRAL already
+provides `GeometryBounds` for geometry-local bounds and a separate
+`SpatialIndex` family for traversal. Reuse the shared index. Check the
+padding used by each backend against the face intersection tolerance
+when building the new prepared scene.
 
 ## 11. Statistics
 
-- rpkCpp (`common/statistics/`): per-domain **instance** counter classes —
-  `Statistics`, `RadianceStatistics`, `RayTracerStatistics`,
-  `ShadowStatistics`, `PotentialStatistics`, `ReaderStatistics`.
-- VITRAL: static event recorder `RaytraceStatistics`
-  (+ `GeometryStatistics`/`SolidTextureStatistics` colocated by the povCpp
-  effort).
+RenderPark divides counters into reader, radiance, ray tracer, shadow and
+potential groups. Its `Statistics::instance()` still exposes global
+state. VITRAL's `RaytraceStatistics` exposes a static recording API.
+The extracted solver needs per-solve counters, with per-worker collection
+and aggregation where needed. Keep the iteration counts and ray
+fingerprints used to compare against RenderPark.
 
-The povCpp learning-experience document already works this example through:
-one shared event taxonomy, instance ownership for thread aggregation
-(povCpp's parts-summing constructor), shared sub-models kept as-is. rpkCpp's
-instance-based design is on the winning side of that direction; its
-contribution is the per-domain split (reader/shadow/potential) as taxonomy
-input.
+## 12. Remaining subsystem boundaries
 
-Required alignment item: participate in the same taxonomy discussion; no
-unilateral rename.
+The Galerkin solver, its clustering and refinement, the SGL 3D scan
+conversion, the MGF loader, tone mapping and the Niederreiter sequences
+live in RenderPark. VITRAL already has its own raytracer and a
+`Rasterizer2D` that draws and fills polygons into an `Image`. The
+radiosity milestone needs a VITRAL input adapter, a reusable solve and a
+way to display the result. Importers, other RPK radiance methods and
+GPU execution can evolve separately.
 
-## 12. rpkCpp-only subsystems (future upstream contributions)
+## 13. SGL and typed raster outputs
 
-No VITRAL counterpart exists for any of these; they are what rpkCpp brings to
-the partnership (the analogue of povCpp bringing CSG and all-crossings):
+### Current data flow
 
-1. **Galerkin radiosity** (`toolkit/galerkin/`): hierarchical Galerkin with
-   higher-order bases, clustering, shaft culling, Jacobi/Gauss-Seidel/
-   Southwell iteration — the flagship.
-2. **Raytracer family** (`toolkit/raycasting/`): stochastic raytracing /
-   random walk, bidirectional path tracing, photon map, ray matting.
-3. **Tone mapping** (`toolkit/tonemap/`): Ward, TumblinRushmeier (+revised),
-   Ferwerda, Lightness operators behind a `ToneMap` base.
-4. **Quasi-Monte-Carlo** (`numericalAnalysis/quasiMonteCarlo/`): Niederreiter
-   31/63-bit sequences.
-5. **MGF scene format** (`io/mgf/`) and the software rasterizer
-   (`render/sgl/`).
+`SglContext` owns three separate arrays with the same pixel coordinates
+and an optional depth array. It allocates all three outputs and clears
+all three over the current viewport. `sglSetPatch` and
+`sglSetGalerkinElement` change the current value and the output
+mode for the context. `Poly::scanlineFlat` and `Poly::scanlineZ` check the
+mode inside the pixel loop. In the depth path, a covered sample wins on
+`z <= storedDepth`, so the last submitted polygon wins an equal-depth tie.
 
-These migrate to VITRAL only after their supporting models (§1–§4, §8) have
-converged — never before, or they would drag the divergent types with them.
+| Mode | Value per sample | Current C++ consumer |
+| --- | --- | --- |
+| `PIXEL` | Packed `SGL_PIXEL` value | The constructor defaults to this mode. The code search found no packed-color draw caller or reader of `frameBuffer`. `SoftIds::softRenderPixels` uses its own RGBA array. |
+| `PATCH_POINTER` | One borrowed `Patch *`, or null for background | `SoftIdsWrapper` looks up a visible patch for ray casting and image export. `Potential` uses the buffer for direct visibility and an exported patch ID array for direct importance. |
+| `ELEMENT_POINTER` | One borrowed `Element *`, or null for background | The Galerkin scratch pass projects a cluster, reads source radiance, counts covered samples and updates per-element coverage counters. All entries it submits are `GalerkinElement` objects. |
 
-## 13. Current alignment matrix
+The patch list supplies polygons in draw order. Each output cell records
+only the winning polygon's patch or element. The scan loops cast away
+constness to store the pointers, and the element readers downcast the
+generic `Element *`. During importance calculation a patch pointer
+becomes a legacy ID, is masked to 24 bits and is used with a table
+sized by the largest patch ID. The dense face table gives that pass a
+scene-local address already. A migration should check any changes in
+legacy ID semantics and statistics summation order separately.
 
-| Area | Current rpkCpp `cpp/` | Current VITRAL | Alignment status |
-|---|---|---|---|
-| Vector types | `Vector3D` float public + minimal `Vector3Dd` | `Vector3Df`/`Vector3Dd` encapsulated | name collision, style divergent |
-| Ray | float, public `position`/`direction`, no `t` | double, private `origin`/`direction`/`t`, builders | divergent |
-| Hit record | `RayHit` encapsulated, patch back-pointer, request/fill flag split | `RayHit` public surface fields, one detail mask | same intent, different shape; rpkCpp split is the proposed improvement |
-| Intersection primitive | nearest-hit, interval + hitFlags + caller store | nearest-hit `doIntersectionFirstHit` | same primitive — naming/signature convergence only |
-| Geometry | concrete patch-aggregation tree + radiosity hooks + static excluded state | small abstract intersectable | same name, different abstraction level |
-| Scene | `Scene` + VoxelGrid + cluster octree | `SimpleScene`/`SimpleBody` | concept maps, contents domain-specific |
-| Ray acceleration | hierarchical `VoxelGrid` with static and shared traversal state | `BinnedSahHierarchy` (WALD2007), `TriangleAccelerationStructure` | both behind one spatial query (plan steps 0, 4, 5) |
-| Transforms | none (world-space baked at MGF load) | decomposed on `SimpleBody` | intentional divergence, documented |
-| Camera | public float camera + frustum planes | `Camera` + `CameraSnapshot` | adopt snapshot at render boundary |
-| Material | Phong EDF/BSDF family, encapsulated | `SimpleMaterial`/`MicroFacetedMaterial` | different models; rpkCpp seeds a VITRAL specialization (plan step 2) |
-| RendererConfiguration | display/debug flags, private | shading-type vocabulary + viewer flags | name collision; derive-from-base per povCpp precedent |
-| Bounding | `AxisAlignedBoundingBox` value on `Geometry`/`Patch` | `getMinMax()` | three-tree decision; povCpp `BoundingVolumeHierarchy` proposal inherited |
-| Statistics | per-domain instance counters | static recorder | povCpp worked example governs |
-| Radiosity / tonemap / QMC / MGF | full subsystems | — | rpkCpp-only, future contributions |
-| Encapsulation style | mixed (Material/RayHit/Scene private; Vector/Ray/Camera/Patch/Element/Vertex public) | private + getters + constructors, mutable | migration pending (M1), under the design rules of the plan |
+### Design options
 
-## 14. Required alignment work
+| Design | Benefit | Cost or constraint |
+| --- | --- | --- |
+| Concrete typed targets with a shared rasterizer | A face pass exposes face indices and an element pass exposes element references or indices. Each target owns one payload plane. Invalid combinations fail at the API boundary. | Keep transforms, clipping, depth comparison and scan conversion in shared code. Use typed entry points with a common kernel, and keep any dispatch outside the per-pixel loop. |
+| A generic primitive ID target | SGL writes a compact integer. Pass-owned lookup tables resolve it to a face or element. The raster core stays independent of solver classes and the IDs can also be used by an integer GPU attachment. | Raw integers allow face and element indices to mix. Expose distinct typed maps or index wrappers at the consumer boundary and define the lookup lifetime and background value. |
+| A rasterizer that emits visible spans or fragments to a sink | The rasterizer stays independent of the storage format. Color, IDs and specialized consumers supply the storage operation. | Dispatch once per span or use a statically typed sink. Consumers that need the final winner still need storage or must handle replacement when depth changes. |
+| A target tagged once per pass | A context can choose one concrete target dynamically and allocate only that target. | Runtime type checking remains at the boundary. A tag per cell or multiple simultaneous payload planes add storage and allow combinations that neither current visibility pass needs. |
 
-The first milestone — a Galerkin render over a VITRAL face and material with
-a selectable spatial index — is planned step by step in
-[`vitralAlignmentPlan.md`](vitralAlignmentPlan.md). That plan owns the
-order of work, the verification tiers (exact `compare` against port
-references, bounded `compare` against `doc/testBaseImages`, timing against
-the recorded baseline), the design rules for new and migrated classes and
-the port propagation cadence. The list below is the alignment work by area;
-where the plan schedules part of an item, the item says so, and the plan's
-order prevails over the numbering here.
+### Proposed first change
 
-1. **Kill static mutable state**: the visibility path has none in any of the
-   four ports. Exclusions are a `RayExclusionSet` value passed down every
-   intersect call, the voxel grid ray counter and per-item stamps live in a
-   `VoxelGridWorkspace` owned by the `Scene`, the form-factor caches (last
-   element pair, cubature rules, nodes, kernel matrix) live in a
-   `FormFactorWorkspace` owned by `GalerkinState`, and the grid hierarchy is
-   owned by its root grid. What remains are the ID counters, the object pools
-   and the solver statics, left for the parallel Galerkin work and moved into
-   per-render or per-worker objects there. Prerequisite for objective #4 and
-   for sharing any class with VITRAL. (§5)
-2. **Encapsulation migration** of the public-attribute core — `Vector3D`,
-   `Vector3Dd`, `Ray`, `Camera`, `Vertex`, `Element`, `Patch`, `Geometry` —
-   to private attributes with getters and full-state constructors. Performance
-   comes first: small arithmetic value types keep their in-place mutators so
-   hot loops lose nothing, and inline accessors keep the abstraction cost at
-   zero. Objects shared read-only during a solve are preferably immutable,
-   when that is free. Do it class by class, innermost types first
-   (`Vector3D` → `Ray` → `Vertex`/`Patch` → `Element` → `Geometry` →
-   `Camera`), measuring each. Plan step 3 covers `Patch`. (M1)
-3. **Naming convergence on the shared primitives**: `Vector3Df`/`Vector3Dd`
-   scheme, ray `origin`, `DETAIL_*`-compatible hit flags — only after step
-   2, and jointly with VITRAL so both trees rename once. (§1–§3)
-4. **Shared nearest-hit signature**: negotiate the interval+flags+store
-   extensions into VITRAL's `doIntersectionFirstHit`, then adopt the shared
-   name in rpkCpp. Plan step 4 defines the spatial query contract (interval,
-   exclusions, closest-hit or any-hit, caller-owned workspace) that this
-   signature must agree with. (§4)
-5. **`RendererConfiguration` derives from the VITRAL base**, mapping shading
-   flags onto `SHADING_TYPE_*`. (§9)
-6. **Bounding contract and ray acceleration**: adopt VITRAL's
-   `BoundingVolumeHierarchy` family; finish `patchBoundingBoxDecoupling.md`
-   first. Plan steps 3 to 5. (§10)
-7. **Statistics taxonomy**: join the povCpp/VITRAL shared-taxonomy design
-   with rpkCpp's per-domain split as input. (§11)
-8. **Upstream contributions** (Galerkin, raytracer family, tone mapping,
-   QMC, MGF) — only after their supporting types are shared. The material
-   model and the voxel grid go upstream earlier, in plan steps 2 and 4,
-   because the milestone needs them. (§12)
+Give the two active passes concrete APIs, for example
+`FaceVisibilityBuffer` and `GalerkinElementVisibilityBuffer`, using
+one rasterizer and a common depth component. Submit the polygon and its
+typed value together. Each pass selects, allocates and clears its own target.
+The target dimensions and viewport are fixed or validated at the draw
+boundary. Use a distinct color target only if a real color consumer
+requires one.
+
+- **Face pass.** Use a typed index into the prepared scene's dense face
+  table, with an explicit background sentinel such as `-1`. Face zero is
+  valid. Treat the map as valid only while that table remains in use.
+  Resolve to `const Patch *` at the RPK boundary where an existing caller
+  needs a patch. Keep the legacy ID export as a conversion while migrating
+  its consumers. `FaceVisibilityTable` remains the per-face summary of
+  the per-sample result.
+- **Element pass.** Use a pass-scoped `const GalerkinElement *` initially,
+  with null for background. Keep coverage accumulation in solver state,
+  with explicit mutable access there. A solver-owned element index can
+  replace the reference when its stability through refinement is defined.
+  Clear or invalidate the scratch result when its element hierarchy or
+  projection changes. Move the mutable cached bounding box in
+  `ScratchVisibilityStrategy` into solve-owned scratch when making this
+  path reentrant.
+- **Rasterizer.** Preserve the shared clipping, viewport mapping, scan
+  conversion and depth quantization. Reuse a depth plane within a pass
+  with a clear depth convention. VITRAL's `ZBuffer` stores float depth and
+  `Rasterizer2D` uses `Image` and color fills. Any reuse needs an explicit
+  depth and coordinate compatibility check against SGL's integer
+  comparisons, depth stepping and ties.
+
+## 14. Remaining alignment work
+
+The [alignment plan](vitralAlignmentPlan.md) sequences the typed visibility
+outputs, the VITRAL mesh and material adapter, extraction of a Galerkin
+solver with instance-owned state, and a VITRAL offline example. The main
+solver work is the removal of dependencies on application ownership,
+including static `GalerkinState`, ID counters, shaft pools and scratch
+caches. The current CPU Jacobi implementations provide the serial and
+parallel reference for that extraction.

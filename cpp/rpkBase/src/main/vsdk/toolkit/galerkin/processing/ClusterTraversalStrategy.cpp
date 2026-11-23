@@ -191,7 +191,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
                 projectedArea =
                     static_cast<double>(ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState)) *
                     boundingBox->dx() * boundingBox->dy() /
-                    static_cast<double>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
+                    static_cast<double>(galerkinState->scratch->getViewportWidth() * galerkinState->scratch->getViewportHeight());
                 return projectedArea;
             }
 
@@ -275,7 +275,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
 
                 // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
                 double pixelArea = boundingBox->dx() * boundingBox->dy() /
-                    static_cast<double>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
+                    static_cast<double>(galerkinState->scratch->getViewportWidth() * galerkinState->scratch->getViewportHeight());
 
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero

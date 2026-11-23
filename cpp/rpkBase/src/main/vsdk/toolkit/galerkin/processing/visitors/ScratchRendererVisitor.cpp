@@ -1,10 +1,10 @@
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/ScratchRendererVisitor.h"
 
-ScratchRendererVisitor::ScratchRendererVisitor(Vector3Df inEyePoint, SglContext *inSglContext) {
-    eyePoint = inEyePoint;
-    sglContext = inSglContext;
+ScratchRendererVisitor::ScratchRendererVisitor(Vector3Df inEyePoint, GalerkinElementVisibilityBuffer &inTarget):
+    eyePoint(inEyePoint),
+    target(inTarget)
+{
 }
 
 ScratchRendererVisitor::~ScratchRendererVisitor() {
@@ -28,10 +28,5 @@ ScratchRendererVisitor::visit(
         v[i] = *patch->getVertices()[i]->point;
     }
 
-    if ( sglContext == nullptr ) {
-        return;
-    }
-
-    sglContext->sglSetGalerkinElement(galerkinElement);
-    sglContext->sglPolygon(patch->getNumberOfVertices(), v);
+    target.drawPolygon(patch->getNumberOfVertices(), v, galerkinElement);
 }

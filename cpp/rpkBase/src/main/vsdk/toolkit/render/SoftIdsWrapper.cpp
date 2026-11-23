@@ -1,17 +1,9 @@
-#include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/render/SoftIdsWrapper.h"
+#include "vsdk/toolkit/render/Softids.h"
 
-SoftIdsWrapper::SoftIdsWrapper(const Scene *scene, const RendererConfiguration *renderOptions) {
-    sgl = nullptr;
-    init(scene, renderOptions);
-}
-
-SoftIdsWrapper::~SoftIdsWrapper() {
-    delete sgl;
-}
-
-void
-SoftIdsWrapper::init(const Scene *scene, const RendererConfiguration *renderOptions) {
-    sgl = SoftIds::setupSoftFrameBuffer(scene->camera);
-    SoftIds::softRenderPatches(scene, renderOptions, sgl);
+SoftIdsWrapper::SoftIdsWrapper(const Scene *inScene, const RendererConfiguration *renderOptions):
+    scene(*inScene),
+    target(scene.camera->xSize, scene.camera->ySize, SglFaceIndex())
+{
+    SoftIds::renderVisibleFaces(scene, renderOptions, target);
 }

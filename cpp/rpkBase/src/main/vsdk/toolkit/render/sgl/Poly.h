@@ -12,7 +12,7 @@ Definitions for polygon package
 #include "vsdk/toolkit/render/sgl/Polygon.h"
 #include "vsdk/toolkit/render/sgl/PolygonBox.h"
 #include "vsdk/toolkit/render/sgl/Window.h"
-#include "vsdk/toolkit/render/sgl/SglContext.h"
+#include "vsdk/toolkit/render/sgl/SglConstants.h"
 /**
 Mask is an interpolation mask whose kth bit indicates whether the kth
 double in a Poly_vert is relevant.
@@ -31,11 +31,15 @@ class Poly {
 
     static void incrementalizeYFlat(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y);
     static void incrementFlat(PolygonVertex *p, const PolygonVertex &dp);
-    static void scanlineFlat(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win);
+    template<class Sample>
+    static void scanlineFlat(Sample *samples, int stride, Sample value,
+                             int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win);
 
     static void incrementalizeYZ(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y);
     static void incrementZ(PolygonVertex *p, const PolygonVertex &dp);
-    static void scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win);
+    template<class Sample>
+    static void scanlineZ(Sample *samples, SglDepthValue *depth, int stride, Sample value,
+                          int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win);
 
   public:
     static constexpr unsigned long
@@ -44,8 +48,12 @@ class Poly {
     }
 
     static int clipToBox(Polygon *p1, const PolygonBox *box);
-    static void scanFlat(SglContext *sglContext, Polygon *p, const Window *win);
-    static void scanZ(SglContext *sglContext, Polygon *p, const Window *window);
+    template<class Sample>
+    static void scanFlat(Sample *samples, int stride, Sample value, const Polygon *p, const Window *win);
+
+    template<class Sample>
+    static void scanZ(Sample *samples, SglDepthValue *depth, int stride, Sample value,
+                      const Polygon *p, const Window *window);
 };
 
 #endif

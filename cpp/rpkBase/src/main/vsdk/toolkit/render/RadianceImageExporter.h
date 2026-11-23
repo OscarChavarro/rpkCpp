@@ -29,7 +29,7 @@ class RadianceImageExporter final {
         Camera *camera,
         int x,
         int y,
-        Patch *patch,
+        const Patch *patch,
         const RadianceMethod *radianceMethod,
         const RendererConfiguration *renderOptions);
 };

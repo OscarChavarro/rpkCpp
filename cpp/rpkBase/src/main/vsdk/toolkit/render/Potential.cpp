@@ -120,30 +120,24 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
 }
 
 void
-Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches, FaceVisibilityTable *faceVisibility) {
-    int i;
-
-    for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        faceVisibility->setVisible(scenePatches->get(i)->getFaceIndex(), false);
-    }
-
-    const int pixelCount = sgl->width * sgl->height;
-    for ( i = 0; i < pixelCount; i++ ) {
-        Patch * const P = sgl->patchBuffer[i]; // softRenderPatches stores patch pointers there
-        if ( P ) {
-            faceVisibility->setVisible(P->getFaceIndex(), true);
-        }
-    }
-}
-
-void
 Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfiguration *renderOptions) {
     const long long t = java::System::nanoTime();
-    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
-    SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
-    Potential::softGetPatchPointers(currentSglContext, scene->patchList, scene->getFaceVisibility());
-    delete currentSglContext;
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, SglFaceIndex());
+    SoftIds::renderVisibleFaces(*scene, renderOptions, target);
+
+    FaceVisibilityTable *const faceVisibility = scene->getFaceVisibility();
+    for ( int i = 0; i < faceVisibility->getNumberOfFaces(); i++ ) {
+        faceVisibility->setVisible(i, false);
+    }
+    for ( int y = 0; y < target.getHeight(); y++ ) {
+        for ( int x = 0; x < target.getWidth(); x++ ) {
+            const SglFaceIndex face = target.getSample(x, y);
+            if ( !face.isBackground() ) {
+                faceVisibility->setVisible(face.getIndex(), true);
+            }
+        }
+    }
 
     java::System::err.printf("Determining visible patches in software took %g sec\n",
         static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
