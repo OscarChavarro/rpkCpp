@@ -3,6 +3,9 @@
 
 class EnumAppOptions {
   public:
+    EnumAppOptions(int inWidth, int inHeight, int inNqcdivs):
+        width(inWidth), height(inHeight), nqcdivs(inNqcdivs), yesValue(1), noValue(0), debug(0) {}
+
     int width;
     int height;
     int nqcdivs;

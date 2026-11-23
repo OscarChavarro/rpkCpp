@@ -1,5 +1,6 @@
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 
+#ifdef RAYTRACING_ENABLED
 namespace {
 
 const PhongMaterial *
@@ -8,6 +9,8 @@ mediumOf(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
 }
 
 }
+
+#endif
 
 PhongBidirectionalScatteringDistributionFunction::PhongBidirectionalScatteringDistributionFunction(
     const PhongMaterial *inMaterial):

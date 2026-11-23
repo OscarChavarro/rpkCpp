@@ -98,11 +98,7 @@ PhotonMap::PhotonMap(
     m_precomputeIrradiance = doPrecomputeIrradiance;
     m_irradianceComputed = false;
 
-    if ( doPrecomputeIrradiance ) {
-        m_kdtree = new PhotonKDTree(sizeof(IrrPhoton), true);
-    } else {
-        m_kdtree = new PhotonKDTree(sizeof(Photon), true);
-    }
+    m_kdtree = new PhotonKDTree(doPrecomputeIrradiance);
 
     m_totalPaths = 0;
     m_nrPhotons = 0;
@@ -329,17 +325,17 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
 }
 
 void
-PhotonMap::precomputeIrradianceCallback(void *data, void *nodeData) {
-    PhotonMap *map = static_cast<PhotonMap *>(data);
-    IrrPhoton *photon = static_cast<IrrPhoton *>(nodeData);
-    map->photonPrecomputeIrradiance(nullptr, photon);
-}
-
-void
 PhotonMap::precomputeIrradiance() {
     java::System::err.printf("PhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->iterateNodes(PhotonMap::precomputeIrradianceCallback, this);
+        class IrradianceVisitor {
+          private:
+            PhotonMap &map;
+          public:
+            explicit IrradianceVisitor(PhotonMap &inMap): map(inMap) {}
+            void visit(IrrPhoton &photon) { map.photonPrecomputeIrradiance(nullptr, &photon); }
+        } visitor(*this);
+        m_kdtree->iterateIrradiance(visitor);
         m_irradianceComputed = true;
     }
 }
@@ -510,7 +506,7 @@ PhotonMap::sample(
         m_grid->init();
 
         // Find the nearest photons
-        m_nrpFound = doQuery(&position, m_sample_nrp, KDTree::KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
+        m_nrpFound = doQuery(&position, m_sample_nrp, KDTree<Photon>::KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
 
         double pr;
         double ps;

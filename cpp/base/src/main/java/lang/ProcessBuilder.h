@@ -1,6 +1,8 @@
 #ifndef __PROCESS_BUILDER__
 #define __PROCESS_BUILDER__
 
+#include <cstdio>
+
 namespace java {
 
 class ProcessBuilder {
@@ -10,11 +12,11 @@ class ProcessBuilder {
   public:
     explicit ProcessBuilder(const char *commandLine);
 
-    void *startRead() const;
-    void *startWrite() const;
+    FILE *startRead() const;
+    FILE *startWrite() const;
 
-    static void *start(const char *commandLine, const char *mode);
-    static int close(void *processHandle);
+    static FILE *start(const char *commandLine, const char *mode);
+    static int close(FILE *processHandle);
 };
 
 }

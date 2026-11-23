@@ -7,7 +7,12 @@ class OpenGlRenderTraversalCallback {
   public:
     OpenGlRenderPatchCallback callbackWithoutData;
     OpenGlRenderPatchCallbackWithData callbackWithData;
-    void *callbackData;
+    const FaceColorTable *callbackData;
+
+    OpenGlRenderTraversalCallback(OpenGlRenderPatchCallback callback,
+                                  OpenGlRenderPatchCallbackWithData defaultCallback,
+                                  const FaceColorTable *colors):
+        callbackWithoutData(callback), callbackWithData(defaultCallback), callbackData(colors) {}
 };
 
 #endif

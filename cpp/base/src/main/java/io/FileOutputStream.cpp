@@ -3,21 +3,16 @@
 #include "java/io/FileOutputStream.h"
 namespace java {
 
-FILE *
-FileOutputStream::toFileHandle(void *handle) {
-    return static_cast<FILE *>(handle);
-}
-
 FileOutputStream::FileOutputStream(const char *fileName):
     stream(nullptr), ownsStream(true)
 {
     if ( fileName != nullptr && fileName[0] != '\0' ) {
-        stream = static_cast<void *>(std::fopen(fileName, "wb"));
+        stream = std::fopen(fileName, "wb");
     }
 }
 
 FileOutputStream::FileOutputStream(FILE *openStream):
-    stream(static_cast<void *>(openStream)), ownsStream(false)
+    stream(openStream), ownsStream(false)
 {
 }
 
@@ -27,7 +22,7 @@ FileOutputStream::~FileOutputStream() {
 
 void
 FileOutputStream::write(int value) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return;
     }
@@ -36,7 +31,7 @@ FileOutputStream::write(int value) {
 
 void
 FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr || buffer == nullptr || offset < 0 || length < 0 ) {
         return;
     }
@@ -48,7 +43,7 @@ FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
 
 void
 FileOutputStream::flush() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return;
     }
@@ -57,7 +52,7 @@ FileOutputStream::flush() {
 
 void
 FileOutputStream::close() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return;
     }

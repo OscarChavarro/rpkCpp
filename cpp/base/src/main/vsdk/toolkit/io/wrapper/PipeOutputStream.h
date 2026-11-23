@@ -6,8 +6,7 @@
 #include "java/io/OutputStream.h"
 class PipeOutputStream : public java::OutputStream {
   private:
-    void *pipeHandle;
-    static FILE *toFileHandle(void *handle);
+    FILE *pipeHandle;
 
   public:
     explicit PipeOutputStream(const char *command);

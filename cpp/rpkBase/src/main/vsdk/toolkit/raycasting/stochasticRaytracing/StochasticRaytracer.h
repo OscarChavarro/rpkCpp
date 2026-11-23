@@ -9,6 +9,8 @@
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 
+class StochasticRaytracerCallbackData;
+
 class StochasticRaytracer final : public RayTracer {
   private:
     class FinalTraceWorker;
@@ -30,7 +32,7 @@ class StochasticRaytracer final : public RayTracer {
         Background *sceneBackground,
         int nx,
         int ny,
-        void *data);
+        StochasticRaytracerCallbackData *data);
     static ColorRgbMutable stochasticRaytracerGetScatteredRadiance(
         Camera *camera,
         const SceneQuery *sceneQuery,

@@ -1,18 +1,12 @@
-#include <cstring>
 
 #include "java/lang/Float.h"
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/dataStructures/KDQuery.h"
-#include "vsdk/toolkit/common/dataStructures/KDTree.h"
 
-// KD Tree with one data element per node
-float *KDTree::distances = nullptr;
-
-KDTree::KDTree(int inDataSize, bool CopyData) {
-    dataSize = inDataSize;
+template<typename T>
+KDTree<T>::KDTree(bool CopyData) {
     numberOfNodes = 0;
 
     numUnbalanced = 0;
@@ -23,15 +17,12 @@ KDTree::KDTree(int inDataSize, bool CopyData) {
 
     copyData = CopyData;
 
-    if ( distances == nullptr ) {
-        // Maximum 1000!
-        distances = new float[1000];
-    }
     firstLeaf = 0;
 }
 
+template<typename T>
 void
-KDTree::deleteNodes(KDTreeNode *node, bool deleteData) {
+KDTree<T>::deleteNodes(KDTreeNode<T> *node, bool deleteData) {
     if ( node == nullptr ) {
         return;
     }
@@ -40,21 +31,22 @@ KDTree::deleteNodes(KDTreeNode *node, bool deleteData) {
     deleteNodes(node->hison, deleteData);
 
     if ( deleteData ) {
-        delete[] static_cast<unsigned char *>(node->m_data);
+        delete node->m_data;
     }
 
     delete node;
 }
 
+template<typename T>
 void
-KDTree::deleteBNodes(bool deleteData) {
+KDTree<T>::deleteBNodes(bool deleteData) {
     if ( balancedRootNode == nullptr ) {
         return;
     }
 
     if ( deleteData ) {
         for ( int node = 0; node < numBalanced; node++ ) {
-            delete[] static_cast<unsigned char *>(balancedRootNode[node].m_data);
+            delete balancedRootNode[node].m_data;
         }
     }
 
@@ -62,7 +54,8 @@ KDTree::deleteBNodes(bool deleteData) {
     balancedRootNode = nullptr;
 }
 
-KDTree::~KDTree() {
+template<typename T>
+KDTree<T>::~KDTree() {
     deleteNodes(root, copyData);
     root = nullptr;
     deleteBNodes(copyData);
@@ -71,25 +64,31 @@ KDTree::~KDTree() {
 /**
 Add a point in the kd tree, this is always to the unbalanced part
 */
+template<typename T>
 void
-KDTree::addPoint(void *data, short flags = 0) {
+KDTree<T>::addPoint(T *data, short flags) {
     // Add the point to the unbalanced part
-    KDTreeNode **nodePtr;
-    KDTreeNode *newNode;
-    KDTreeNode *parent;
-    const float *newPoint;
+    KDTreeNode<T> **nodePtr;
+    KDTreeNode<T> *newNode;
+    KDTreeNode<T> *parent;
+    const Vector3Df &position = data->getKDPosition();
+    const float newPoint[3] = {position.x(), position.y(), position.z()};
     int discriminator;
 
-    newNode = new KDTreeNode;
+    newNode = new KDTreeNode<T>;
 
-    newNode->m_data = assignData(data);
+    try {
+        newNode->m_data = copyData ? new T(*data) : data;
+    } catch ( ... ) {
+        delete newNode;
+        throw;
+    }
     newNode->m_flags = flags;
     newNode->setDiscriminator(0); // Default
 
     newNode->loson = nullptr;
     newNode->hison = nullptr;
 
-    newPoint = static_cast<float *>(data);
     numberOfNodes++;
     numUnbalanced++;
 
@@ -102,7 +101,7 @@ KDTree::addPoint(void *data, short flags = 0) {
         discriminator = parent->discriminator();
 
         // Test discriminator
-        if ( newPoint[discriminator] <= static_cast<float *>(parent->m_data)[discriminator] ) {
+        if ( newPoint[discriminator] <= coordinate(parent->m_data, discriminator) ) {
             nodePtr = &(parent->loson);
         } else {
             nodePtr = &(parent->hison);
@@ -114,7 +113,8 @@ KDTree::addPoint(void *data, short flags = 0) {
         float dx;
         float dy;
         float dz;
-        const float *customNodeData = static_cast<float *>(parent->m_data);
+        const Vector3Df &parentPosition = parent->m_data->getKDPosition();
+        const float customNodeData[3] = {parentPosition.x(), parentPosition.y(), parentPosition.z()};
 
         dx = java::Math::abs(newPoint[0] - customNodeData[0]);
         dy = java::Math::abs(newPoint[1] - customNodeData[1]);
@@ -148,29 +148,15 @@ KDTree::addPoint(void *data, short flags = 0) {
     }
 }
 
-void *
-KDTree::assignData(void *data) const {
-    if ( copyData ) {
-        unsigned char *newData = new unsigned char[static_cast<size_t>(dataSize)];
-        memcpy(newData, data, static_cast<size_t>(dataSize));
-        return newData;
-    } else {
-        return data;
-    }
-}
-
-/**
-Iterate nodes : iterate all nodes (only for balanced trees!)
-*/
-void
-KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
+template<typename T>
+template<typename Visitor>
+void KDTree<T>::iterateNodes(Visitor &visitor) {
     if ( numUnbalanced > 0 ) {
-        Logger::reportMessage("KDTree", Logger::ERROR, " KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+        Logger::reportMessage("KDTree", Logger::ERROR, "KDTree::iterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
-
-    for ( int i = 0; i < numBalanced; i++ ) {
-        callBack(data, balancedRootNode[i].m_data);
+    for ( int i = 0; i < numBalanced; ++i ) {
+        visitor.visit(*balancedRootNode[i].m_data);
     }
 }
 
@@ -178,25 +164,32 @@ KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
 Query the kd tree : both balanced and unbalanced parts taken into
 account ! (The balanced part is searched first)
 */
+template<typename T>
 int
-KDTree::query(
-    float *point,
+KDTree<T>::query(
+    const Vector3Df &position,
     int N,
-    void *results,
+    T **results,
     float *inDistances,
     float radius,
     short excludeFlags)
 {
-    KDQuery queryData;
+    KDQuery<T> queryData;
+    const float point[3] = {position.x(), position.y(), position.z()};
     int numberFound;
+    float localDistances[1000];
     float *usedDistances;
+
+    if ( N <= 0 ) {
+        return 0;
+    }
 
     if ( inDistances == nullptr ) {
         if ( N > 1000 ) {
             Logger::reportMessage("KDTree", Logger::ERROR, "KDTree::query", "Too many nodes requested");
             return 0;
         }
-        usedDistances = inDistances;
+        usedDistances = localDistances;
     } else {
         usedDistances = inDistances;
     }
@@ -205,22 +198,19 @@ KDTree::query(
     queryData.point = point;
     queryData.wantedN = N;
     queryData.foundN = 0;
-    queryData.results = static_cast<float **>(results);
+    queryData.results = results;
     queryData.distances = usedDistances;
     queryData.maximumDistance = radius;
     queryData.sqrRadius = radius;
     queryData.excludeFlags = excludeFlags;
     queryData.notFilled = true;
 
-    // First query balanced part
-    if ( balancedRootNode != nullptr ) {
-        balancedQueryRec(0, queryData);
-    }
-
-    // Now query unbalanced part using the already found nodes
-    // from the balanced part
-    if ( root ) {
-        queryRec(root, queryData);
+    if ( excludeFlags == 0 ) {
+        if ( balancedRootNode != nullptr ) balancedQueryRec<false>(0, queryData);
+        if ( root != nullptr ) queryRec<false>(root, queryData);
+    } else {
+        if ( balancedRootNode != nullptr ) balancedQueryRec<true>(0, queryData);
+        if ( root != nullptr ) queryRec<true>(root, queryData);
     }
 
     numberFound = queryData.foundN;
@@ -231,18 +221,20 @@ KDTree::query(
 /**
 Distance calculation
 */
+template<typename T>
 inline float
-KDTree::sqrDistance3D(const float *a, const float *b) {
+KDTree<T>::sqrDistance3D(const T *data, const float *b) {
     float result;
     float tmp;
 
-    tmp = a[0] - b[0];
+    const Vector3Df &a = data->getKDPosition();
+    tmp = a.x() - b[0];
     result = tmp * tmp;
 
-    tmp = a[1] - b[1];
+    tmp = a.y() - b[1];
     result += tmp * tmp;
 
-    tmp = a[2] - b[2];
+    tmp = a.z() - b[2];
     result += tmp * tmp;
 
     return result;
@@ -252,14 +244,15 @@ KDTree::sqrDistance3D(const float *a, const float *b) {
 Max heap stuff
 Adapted from patched POVRAY (megasrc), who took it from Sejwick
 */
+template<typename T>
 inline void
-KDTree::fixUp(KDQuery &queryData) {
+KDTree<T>::fixUp(KDQuery<T> &queryData) {
     // Ripple the node (qdat_s.foundN) upward. There are qdat_s.foundN + 1 nodes
     // in the tree
     int son;
     int parent;
     float tmpDist;
-    float *tmpData;
+    T *tmpData;
 
     son = queryData.foundN;
     parent = (son - 1) >> 1;  // Root of tree == index 0 so parent = any son - 1 / 2
@@ -279,12 +272,13 @@ KDTree::fixUp(KDQuery &queryData) {
     }
 }
 
+template<typename T>
 inline void
-KDTree::mhInsert(KDQuery &queryData, float *data, float dist) {
+KDTree<T>::mhInsert(KDQuery<T> &queryData, T *data, float dist) {
     queryData.distances[queryData.foundN] = dist;
     queryData.results[queryData.foundN] = data;
 
-    KDTree::fixUp(queryData);
+    KDTree<T>::fixUp(queryData);
 
     // If all the photons are filled, we can use the actual maximum distance
     if ( ++queryData.foundN == queryData.wantedN ) {
@@ -293,14 +287,15 @@ KDTree::mhInsert(KDQuery &queryData, float *data, float dist) {
     }
 }
 
+template<typename T>
 inline void
-KDTree::fixDown(KDQuery &queryData) {
+KDTree<T>::fixDown(KDQuery<T> &queryData) {
     // Ripple the top node, which may not be max anymore downwards
     // There are qdat_s.foundN nodes in the tree, starting at index 0
     int son;
     int parent;
     float tmpDist;
-    float *tmpData;
+    T *tmpData;
 
     int max = queryData.foundN;
 
@@ -333,15 +328,16 @@ KDTree::fixDown(KDQuery &queryData) {
     }
 }
 
+template<typename T>
 inline void
-KDTree::mhReplaceMax(KDQuery &queryData, float *data, float dist) {
+KDTree<T>::mhReplaceMax(KDQuery<T> &queryData, T *data, float dist) {
     // Top = maximum element. Replace it with new and ripple down
     // The heap is full (foundN == wantedN), but this is not required
 
     *queryData.distances = dist; // Top
     *queryData.results = data;
 
-    KDTree::fixDown(queryData);
+    KDTree<T>::fixDown(queryData);
 
     queryData.maximumDistance = *queryData.distances; // Max = top of heap
 }
@@ -349,29 +345,31 @@ KDTree::mhReplaceMax(KDQuery &queryData, float *data, float dist) {
 /**
 Query_rec for the unbalanced kd tree part
 */
+template<typename T>
+template<bool FilterFlags>
 void
-KDTree::queryRec(const KDTreeNode *node, KDQuery &queryData) {
+KDTree<T>::queryRec(const KDTreeNode<T> *node, KDQuery<T> &queryData) {
     int discriminator = node->discriminator();
     float dist;
-    const KDTreeNode *nearNode;
-    const KDTreeNode *farNode;
+    const KDTreeNode<T> *nearNode;
+    const KDTreeNode<T> *farNode;
 
-    dist = sqrDistance3D(static_cast<float *>(node->m_data), queryData.point);
+    dist = sqrDistance3D(node->m_data, queryData.point);
 
-    if ( dist < queryData.maximumDistance ) {
+    if ( dist < queryData.maximumDistance && (!FilterFlags || (node->flags() & queryData.excludeFlags) == 0) ) {
         if ( queryData.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert(queryData, static_cast<float *>(node->m_data), dist);
+            mhInsert(queryData, node->m_data, dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax(queryData, static_cast<float *>(node->m_data), dist);
+            mhReplaceMax(queryData, node->m_data, dist);
         }
     }
 
     // Reuse distance
-    dist = static_cast<float *>(node->m_data)[discriminator] - queryData.point[discriminator];
+    dist = coordinate(node->m_data, discriminator) - queryData.point[discriminator];
 
     if ( dist >= 0.0 ) {
         nearNode = node->loson;
@@ -383,7 +381,7 @@ KDTree::queryRec(const KDTreeNode *node, KDQuery &queryData) {
 
     // Always call near node recursively
     if ( nearNode ) {
-        queryRec(nearNode, queryData);
+        queryRec<FilterFlags>(nearNode, queryData);
     }
 
     dist *= dist; // Square distance to the separator plane
@@ -392,16 +390,18 @@ KDTree::queryRec(const KDTreeNode *node, KDQuery &queryData) {
         (dist < queryData.maximumDistance)) ) {
         // Discriminator line closer than maximumDistance : nearer positions can lie
         // on the far side. Or there are still not enough nodes found
-        queryRec(farNode, queryData);
+        queryRec<FilterFlags>(farNode, queryData);
     }
 }
 
 /**
 Query_rec for the unbalanced kd tree part
 */
+template<typename T>
+template<bool FilterFlags>
 void
-KDTree::balancedQueryRec(int index, KDQuery &queryData) {
-    const BalancedKDTreeNode &node = balancedRootNode[index];
+KDTree<T>::balancedQueryRec(int index, KDQuery<T> &queryData) {
+    const BalancedKDTreeNode<T> &node = balancedRootNode[index];
     int discr = node.discriminator();
     float dist;
     int nearIndex;
@@ -411,7 +411,7 @@ KDTree::balancedQueryRec(int index, KDQuery &queryData) {
 
     // Test discr (reuse distance)
     if ( index < firstLeaf ) {
-        dist = static_cast<float *>(node.m_data)[discr] - queryData.point[discr];
+        dist = coordinate(node.m_data, discr) - queryData.point[discr];
 
         if ( dist >= 0.0 ) {
             nearIndex = (index << 1) + 1; // node loson
@@ -423,7 +423,7 @@ KDTree::balancedQueryRec(int index, KDQuery &queryData) {
 
         // Always call near node recursively
         if ( nearIndex < numBalanced ) {
-            balancedQueryRec(nearIndex, queryData);
+            balancedQueryRec<FilterFlags>(nearIndex, queryData);
         }
 
         dist *= dist; // Square distance to the separator plane
@@ -432,27 +432,28 @@ KDTree::balancedQueryRec(int index, KDQuery &queryData) {
                                          (dist < queryData.maximumDistance)) ) {
             // Discriminator line closer than maximumDistance : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
-            balancedQueryRec(farIndex, queryData);
+            balancedQueryRec<FilterFlags>(farIndex, queryData);
         }
     }
 
-    dist = sqrDistance3D(static_cast<float *>(node.m_data), queryData.point);
+    dist = sqrDistance3D(node.m_data, queryData.point);
 
-    if ( dist < queryData.maximumDistance ) {
+    if ( dist < queryData.maximumDistance && (!FilterFlags || (node.m_flags & queryData.excludeFlags) == 0) ) {
         if ( queryData.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert(queryData, static_cast<float *>(node.m_data), dist);
+            mhInsert(queryData, node.m_data, dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax(queryData, static_cast<float *>(node.m_data), dist);
+            mhReplaceMax(queryData, node.m_data, dist);
         }
     }
 }
 
+template<typename T>
 void
-KDTreeNode::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
+KDTreeNode<T>::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
     if ( (loson == nullptr) && (hison == nullptr) ) {
         *maxDepth = java::Math::max(*maxDepth, depth);
         *minDepth = java::Math::min(*minDepth, depth);
@@ -471,30 +472,35 @@ This Quick select routine is adapted from the algorithm described in
 "Numerical recipes in C", Second Edition,
 Cambridge University Press, 1992, Section 8.5, ISBN 0-521-43108-5
 */
+template<typename T>
 inline void
-KDTree::bkdswap(BalancedKDTreeNode root[], int a, int b) {
-    BalancedKDTreeNode tmp = root[a];
+KDTree<T>::bkdswap(BalancedKDTreeNode<T> root[], int a, int b) {
+    BalancedKDTreeNode<T> tmp = root[a];
     root[a] = root[b];
     root[b] = tmp;
 }
 
+template<typename T>
 inline float
-KDTree::bkdval(BalancedKDTreeNode root[], int index, int discr) {
-    return static_cast<float *>(root[index].m_data)[discr];
+KDTree<T>::bkdval(BalancedKDTreeNode<T> root[], int index, int discr) {
+    return coordinate(root[index].m_data, discr);
 }
 
+template<typename T>
 inline void
-KDTree::eSwap(BalancedKDTreeNode broot[], int a, int b) {
-    KDTree::bkdswap(broot, a, b);
+KDTree<T>::eSwap(BalancedKDTreeNode<T> broot[], int a, int b) {
+    KDTree<T>::bkdswap(broot, a, b);
 }
 
+template<typename T>
 inline float
-KDTree::eVal(BalancedKDTreeNode broot[], int index, int discr) {
-    return KDTree::bkdval(broot, index, discr);
+KDTree<T>::eVal(BalancedKDTreeNode<T> broot[], int index, int discr) {
+    return KDTree<T>::bkdval(broot, index, discr);
 }
 
+template<typename T>
 int
-KDTree::getBalancedMedian(int low, int high) {
+KDTree<T>::getBalancedMedian(int low, int high) {
     int N = high - low + 1;  // High inclusive
 
     if ( N <= 1 ) {
@@ -525,14 +531,15 @@ KDTree::getBalancedMedian(int low, int high) {
 /**
 Return index of median element
 */
+template<typename T>
 int
-KDTree::quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
+KDTree<T>::quickSelect(BalancedKDTreeNode<T> broot[], int low, int high, int discr) {
     int median;
     int middle;
     int ll;
     int hh;
 
-    median = KDTree::getBalancedMedian(low, high);
+    median = KDTree<T>::getBalancedMedian(low, high);
 
     for ( ;; ) {
         if ( high <= low ) {
@@ -597,17 +604,19 @@ KDTree::quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
 /**
 Balance the kd tree
 */
+template<typename T>
 void
-KDTree::copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
+KDTree<T>::copyUnbalancedRec(KDTreeNode<T> *node, BalancedKDTreeNode<T> *broot, int *pindex) {
     if ( node ) {
         broot[(*pindex)++].copy(*node);
-        KDTree::copyUnbalancedRec(node->loson, broot, pindex);
-        KDTree::copyUnbalancedRec(node->hison, broot, pindex);
+        KDTree<T>::copyUnbalancedRec(node->loson, broot, pindex);
+        KDTree<T>::copyUnbalancedRec(node->hison, broot, pindex);
     }
 }
 
+template<typename T>
 int
-KDTree::bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
+KDTree<T>::bestDiscriminator(BalancedKDTreeNode<T> broot[], int low, int high) {
     float bMin[3] = {java::Float::MAX_VALUE, java::Float::MAX_VALUE, java::Float::MAX_VALUE};
     float bMax[3] = {-java::Float::MAX_VALUE, -java::Float::MAX_VALUE, -java::Float::MAX_VALUE};
     float tmp;
@@ -658,10 +667,11 @@ KDTree::bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
 /**
 balance the tree recursively
 */
+template<typename T>
 void
-KDTree::balanceRec(
-    BalancedKDTreeNode broot[],
-    BalancedKDTreeNode dest[],
+KDTree<T>::balanceRec(
+    BalancedKDTreeNode<T> broot[],
+    BalancedKDTreeNode<T> dest[],
     int destIndex,
     int low,
     int high) // High inclusive!
@@ -693,9 +703,10 @@ KDTree::balanceRec(
 /**
 Balance the tree, it is possible that a part is already balanced!
 */
+template<typename T>
 void
-KDTree::balance() {
-    // Make an unsorted BalancedKDTreeNode array pointing to the nodes
+KDTree<T>::balance() {
+    // Make an unsorted BalancedKDTreeNode<T> array pointing to the nodes
     if ( numUnbalanced == 0 ) {
         // No balancing needed.
         return;
@@ -703,7 +714,14 @@ KDTree::balance() {
 
     java::System::err.printf("Balancing kd-tree: %i nodes...\n", numberOfNodes);
 
-    BalancedKDTreeNode *broot = new BalancedKDTreeNode[numberOfNodes + 1];
+    BalancedKDTreeNode<T> *broot = new BalancedKDTreeNode<T>[numberOfNodes + 1];
+    BalancedKDTreeNode<T> *dest;
+    try {
+        dest = new BalancedKDTreeNode<T>[numberOfNodes + 1];
+    } catch ( ... ) {
+        delete[] broot;
+        throw;
+    }
 
     broot[numberOfNodes].m_data = nullptr;
     broot[numberOfNodes].m_flags = 128;
@@ -726,7 +744,6 @@ KDTree::balance() {
     deleteBNodes(false);
 
     numBalanced = numberOfNodes;
-    BalancedKDTreeNode *dest = new BalancedKDTreeNode[numberOfNodes + 1]; // Could we do with just 1 array???
 
     dest[numberOfNodes].m_data = nullptr;
     dest[numberOfNodes].m_flags = 64;

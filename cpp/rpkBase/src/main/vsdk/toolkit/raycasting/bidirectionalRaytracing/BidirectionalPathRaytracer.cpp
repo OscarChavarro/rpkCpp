@@ -818,9 +818,8 @@ BidirectionalPathRaytracer::bpCalcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    void *data)
+    BidirectionalPathTracingConfiguration *config)
 {
-    auto *config = static_cast<BidirectionalPathTracingConfiguration *>(data);
     double x1;
     double x2;
     ColorRgbMutable result(0.0, 0.0, 0.0);

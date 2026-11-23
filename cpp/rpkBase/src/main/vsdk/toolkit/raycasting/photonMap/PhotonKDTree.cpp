@@ -1,103 +1,102 @@
-/**
-Implementation of specific kdtree for photonmaps
-*/
-
 #include "vsdk/toolkit/raycasting/photonMap/PhotonKDTree.h"
-#include "vsdk/toolkit/raycasting/photonMap/NormalQuery.h"
 
-NormalQuery PhotonKDTree::qdat_s;
+PhotonKDTree::PhotonKDTree(bool irradiance):
+    photons(irradiance ? nullptr : new KDTree<Photon>()),
+    irradiancePhotons(irradiance ? new KDTree<IrrPhoton>() : nullptr),
+    irradianceResults(nullptr), resultCapacity(0) {
+}
 
-// Distance calculation COPY FROM kdtree.C !
-float PhotonKDTree::sqrDistance3D(const float *a, const float *b) {
-    float result;
-    float tmp;
+PhotonKDTree::~PhotonKDTree() {
+    delete photons;
+    delete irradiancePhotons;
+    delete[] irradianceResults;
+}
 
-    tmp = a[0] - b[0];
-    result = tmp * tmp;
+void PhotonKDTree::addPoint(Photon *photon, short flags) {
+    photons->addPoint(photon, flags);
+}
 
-    tmp = a[1] - b[1];
+void PhotonKDTree::addPoint(IrrPhoton *photon, short flags) {
+    irradiancePhotons->addPoint(photon, flags);
+}
+
+void PhotonKDTree::balance() {
+    if ( irradiancePhotons != nullptr ) {
+        irradiancePhotons->balance();
+    } else {
+        photons->balance();
+    }
+}
+
+int PhotonKDTree::query(const Vector3Df &position, int count, Photon **results,
+                        float *distances, float maximumDistance, short excludeFlags) {
+    if ( irradiancePhotons == nullptr ) {
+        return photons->query(position, count, results, distances, maximumDistance, excludeFlags);
+    }
+    if ( count > resultCapacity ) {
+        IrrPhoton **newResults = new IrrPhoton *[count];
+        delete[] irradianceResults;
+        irradianceResults = newResults;
+        resultCapacity = count;
+    }
+    const int found = irradiancePhotons->query(position, count, irradianceResults, distances,
+                                               maximumDistance, excludeFlags);
+    for ( int i = 0; i < found; ++i ) {
+        results[i] = irradianceResults[i];
+    }
+    return found;
+}
+
+float PhotonKDTree::sqrDistance3D(const Vector3Df &a, const Vector3Df &b) {
+    float tmp = a.x() - b.x();
+    float result = tmp * tmp;
+    tmp = a.y() - b.y();
     result += tmp * tmp;
-
-    tmp = a[2] - b[2];
+    tmp = a.z() - b.z();
     result += tmp * tmp;
-
     return result;
 }
 
-PhotonKDTree::PhotonKDTree(int dataSize, bool copyData) : KDTree(dataSize, copyData) {
-}
-
-void
-PhotonKDTree::NormalBQuery_rec(const int index) {
-    const BalancedKDTreeNode &node = balancedRootNode[index];
-    int discr = node.discriminator();
-
-    float dist;
-    int nearIndex;
-    int farIndex;
-
-    // Recursive call to the child nodes
-
-    // Test discr (reuse distance)
-
-    if ( index < firstLeaf ) {
-        dist = static_cast<float *>(node.m_data)[discr] - (qdat_s.point)[discr];
-
-        if ( dist >= 0.0 )  // qdat_s.point[discr] <= ((float *)node->m_data)[discr]
-        {
-            nearIndex = (index << 1) + 1; // node loson
-            farIndex = nearIndex + 1; // node hison
-        } else {
-            farIndex = (index << 1) + 1; // node loson
-            nearIndex = farIndex + 1;// node hison
+void PhotonKDTree::normalQueryRec(int index, NormalQuery &query) {
+    const BalancedKDTreeNode<IrrPhoton> &node = irradiancePhotons->getBalancedNode(index);
+    const Vector3Df &position = node.m_data->getKDPosition();
+    const int discriminator = node.discriminator();
+    if ( index < irradiancePhotons->getFirstLeaf() ) {
+        float distance;
+        if ( discriminator == 0 ) distance = position.x() - query.point.x();
+        else if ( discriminator == 1 ) distance = position.y() - query.point.y();
+        else distance = position.z() - query.point.z();
+        int nearIndex = (index << 1) + 1;
+        int farIndex = nearIndex + 1;
+        if ( distance < 0.0f ) {
+            const int temp = nearIndex;
+            nearIndex = farIndex;
+            farIndex = temp;
         }
-
-        // Always call near node recursively
-
-        if ( nearIndex < numBalanced ) {
-            NormalBQuery_rec(nearIndex);
-        }
-
-        dist *= dist; // Square distance to the separator plane
-        if ((farIndex < numBalanced) && (dist < qdat_s.maximumDistance) ) {
-            // Discriminator line closer than maxdist : nearer positions can lie
-            // on the far side. Or there are still not enough nodes found
-            NormalBQuery_rec(farIndex);
+        if ( nearIndex < irradiancePhotons->getBalancedCount() ) normalQueryRec(nearIndex, query);
+        distance *= distance;
+        if ( farIndex < irradiancePhotons->getBalancedCount() && distance < query.maximumDistance ) {
+            normalQueryRec(farIndex, query);
         }
     }
-
-    dist = PhotonKDTree::sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
-
-    // Normal constraint
-    if ( dist < qdat_s.maximumDistance &&
-         (static_cast<IrrPhoton *>(node.m_data)->Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
-        // Replace point if distance < maxdist AND normal is similar
-        qdat_s.maximumDistance = dist;
-        qdat_s.photon = static_cast<IrrPhoton *>(node.m_data);
+    const float distance = sqrDistance3D(position, query.point);
+    if ( distance < query.maximumDistance && node.m_data->Normal().dotProduct(query.normal) > query.threshold ) {
+        query.maximumDistance = distance;
+        query.photon = node.m_data;
     }
 }
 
-/**
-Find the nearest photon with a similar normal constraint
-returns nullptr is no appropriate photon was found (should barely ever happen)
-*/
-IrrPhoton *
-PhotonKDTree::normalPhotonQuery(
-    Vector3Df *position,
-    const Vector3Df *normal,
-    float threshold,
-    float maxR2)
-{
-    // Fill qdat_s
-    qdat_s.photon = nullptr;
-    qdat_s.normal = *normal;
-    qdat_s.point = reinterpret_cast<float *>(position);
-    qdat_s.threshold = threshold;
-    qdat_s.maximumDistance = maxR2;
-
-    if ( balancedRootNode && (numberOfNodes > 0) && (numUnbalanced == 0) ) {
-        // Find the best photon
-        NormalBQuery_rec(0);
+IrrPhoton *PhotonKDTree::normalPhotonQuery(const Vector3Df *position, const Vector3Df *normal,
+                                          float threshold, float maxR2) {
+    NormalQuery query;
+    query.photon = nullptr;
+    query.normal = *normal;
+    query.point = *position;
+    query.threshold = threshold;
+    query.maximumDistance = maxR2;
+    if ( irradiancePhotons != nullptr && irradiancePhotons->getBalancedCount() > 0 &&
+         irradiancePhotons->getUnbalancedCount() == 0 ) {
+        normalQueryRec(0, query);
     }
-    return qdat_s.photon;
+    return query.photon;
 }

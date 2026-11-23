@@ -3,16 +3,11 @@
 #include "java/io/FileInputStream.h"
 namespace java {
 
-FILE *
-FileInputStream::toFileHandle(void *handle) {
-    return static_cast<FILE *>(handle);
-}
-
 FileInputStream::FileInputStream(const char *fileName):
     stream(nullptr)
 {
     if ( fileName != nullptr && fileName[0] != '\0' ) {
-        stream = static_cast<void *>(std::fopen(fileName, "rb"));
+        stream = std::fopen(fileName, "rb");
     }
 }
 
@@ -22,7 +17,7 @@ FileInputStream::~FileInputStream() {
 
 int
 FileInputStream::read() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return -1;
     }
@@ -31,7 +26,7 @@ FileInputStream::read() {
 
 int
 FileInputStream::read(unsigned char *buffer, int offset, int length) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return -1;
     }
@@ -50,7 +45,7 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
 
 void
 FileInputStream::close() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == nullptr ) {
         return;
     }

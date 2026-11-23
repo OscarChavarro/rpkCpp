@@ -41,7 +41,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Background *sceneBackground,
         int nx,
         int ny,
-        void *data);
+        BidirectionalPathTracingConfiguration *config);
 
     static bool spikeCheck(ColorRgbMutable color);
 

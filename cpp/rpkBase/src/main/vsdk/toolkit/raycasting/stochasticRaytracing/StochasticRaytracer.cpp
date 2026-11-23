@@ -769,9 +769,8 @@ StochasticRaytracer::calcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    void *data)
+    StochasticRaytracerCallbackData *callbackData)
 {
-    auto *callbackData = static_cast<StochasticRaytracerCallbackData *>(data);
     StochasticRaytracingConfiguration *config = callbackData->config;
     RadianceMethod *radianceMethod = callbackData->radianceMethod;
     RendererConfiguration *renderOptions = callbackData->renderOptions;

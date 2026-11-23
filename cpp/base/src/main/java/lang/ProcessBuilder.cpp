@@ -8,27 +8,27 @@ ProcessBuilder::ProcessBuilder(const char *commandLine):
 {
 }
 
-void *
+FILE *
 ProcessBuilder::startRead() const {
     return start(command, "r");
 }
 
-void *
+FILE *
 ProcessBuilder::startWrite() const {
     return start(command, "w");
 }
 
-void *
+FILE *
 ProcessBuilder::start(const char *commandLine, const char *mode) {
     if ( commandLine == nullptr || commandLine[0] == '\0' || mode == nullptr || mode[0] == '\0' ) {
         return nullptr;
     }
-    return static_cast<void *>(popen(commandLine, mode));
+    return popen(commandLine, mode);
 }
 
 int
-ProcessBuilder::close(void *processHandle) {
-    FILE *handle = static_cast<FILE *>(processHandle);
+ProcessBuilder::close(FILE *processHandle) {
+    FILE *handle = processHandle;
     if ( handle == nullptr ) {
         return -1;
     }

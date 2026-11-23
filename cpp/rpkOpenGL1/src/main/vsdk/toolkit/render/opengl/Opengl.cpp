@@ -420,17 +420,10 @@ Opengl::openGlRenderWorldOctree(
         return;
     }
 #ifdef OPEN_GL_ENABLED
-    OpenGlRenderTraversalCallback callbackContext{};
-    if ( renderPatchCallback == nullptr ) {
-        // Default rendering: flat or smooth with the scene's face display colors
-        callbackContext.callbackWithoutData = nullptr;
-        callbackContext.callbackWithData = Opengl::openGlRenderPatchCallBack;
-        callbackContext.callbackData = scene->getFaceColors();
-    } else {
-        callbackContext.callbackWithoutData = renderPatchCallback;
-        callbackContext.callbackWithData = nullptr;
-        callbackContext.callbackData = nullptr;
-    }
+    const OpenGlRenderTraversalCallback callbackContext(
+        renderPatchCallback,
+        renderPatchCallback == nullptr ? Opengl::openGlRenderPatchCallBack : nullptr,
+        renderPatchCallback == nullptr ? scene->getFaceColors() : nullptr);
     if ( scene->clusteredRootGeometry->isCompound() ) {
         Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {
@@ -443,14 +436,13 @@ Opengl::openGlRenderWorldOctree(
 Renders the all the patches using default colors
 */
 void
-Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, void *faceColors) {
+Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, const FaceColorTable *faceColors) {
 #ifdef OPEN_GL_ENABLED
     if ( !renderOptions->isNoShading() ) {
         if ( renderOptions->isSmoothShading() ) {
             Opengl::openGlRenderPatchSmooth(patch, renderOptions);
         } else {
-            const FaceColorTable *colors = static_cast<const FaceColorTable *>(faceColors);
-            Opengl::openGlRenderPatchFlat(patch, colors->get(patch->getFaceIndex()), renderOptions);
+            Opengl::openGlRenderPatchFlat(patch, faceColors->get(patch->getFaceIndex()), renderOptions);
         }
     }
 

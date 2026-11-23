@@ -70,7 +70,7 @@ class Opengl {
         Vector3Df *vertices,
         const ColorRgbMutable *verticesColors,
         const RendererConfiguration *renderOptions);
-    static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, void *faceColors);
+    static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, const FaceColorTable *faceColors);
     static void openGlRenderClearWindow(const Camera *camera);
     static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<RpkGeometry *> *sceneGeometries);
     static void openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *debugState);

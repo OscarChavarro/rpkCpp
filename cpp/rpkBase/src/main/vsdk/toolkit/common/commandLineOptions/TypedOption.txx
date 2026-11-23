@@ -2,8 +2,6 @@ template<typename T>
 TypedOption<T>::TypedOption():
     name_(nullptr),
     target_(nullptr),
-    offset_(0),
-    useOffset_(false),
     consumesValue_(1),
     onSet_(nullptr),
     parseArgs_(nullptr),
@@ -15,8 +13,6 @@ template<typename T>
 TypedOption<T>::TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &)):
     name_(name),
     target_(target),
-    offset_(0),
-    useOffset_(false),
     consumesValue_(consumesValue),
     onSet_(onSet),
     parseArgs_(parseArgs),
@@ -28,34 +24,6 @@ template<typename T>
 TypedOption<T>::TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &)):
     name_(name),
     target_(target),
-    offset_(0),
-    useOffset_(false),
-    consumesValue_(consumesValue),
-    onSet_(onSet),
-    parseArgs_(parseArgs),
-    validate_(validate),
-    transform_(transform) {
-}
-
-template<typename T>
-TypedOption<T>::TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &)):
-    name_(name),
-    target_(nullptr),
-    offset_(offset),
-    useOffset_(true),
-    consumesValue_(consumesValue),
-    onSet_(onSet),
-    parseArgs_(parseArgs),
-    validate_(nullptr),
-    transform_(nullptr) {
-}
-
-template<typename T>
-TypedOption<T>::TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &)):
-    name_(name),
-    target_(nullptr),
-    offset_(offset),
-    useOffset_(true),
     consumesValue_(consumesValue),
     onSet_(onSet),
     parseArgs_(parseArgs),
@@ -74,14 +42,8 @@ int TypedOption<T>::getConsumesValue() const {
 }
 
 template<typename T>
-bool TypedOption<T>::apply(void *context, int argc, char **argv) {
+bool TypedOption<T>::apply(int argc, char **argv) {
     T *target = target_;
-    if ( useOffset_ ) {
-        if ( context == nullptr ) {
-            return false;
-        }
-        target = (T *)((char *)context + offset_);
-    }
     if ( target == nullptr ) {
         return false;
     }
@@ -130,32 +92,19 @@ bool TypedOption<T>::apply(void *context, int argc, char **argv) {
 }
 
 inline OptionBase::OptionBase():
-    name_(nullptr),
-    abbreviationLength_(0),
-    consumesValue_(nullptr),
-    apply_(nullptr),
-    option_(nullptr) {
+    option_(nullptr), abbreviationLength_(0) {
 }
 
-inline OptionBase::OptionBase(
-        const char *name,
-        int abbreviationLength,
-        int (*consumesValue)(void *),
-        bool (*apply)(void *, void *, int, char **),
-        void *option):
-    name_(name),
-    abbreviationLength_(abbreviationLength),
-    consumesValue_(consumesValue),
-    apply_(apply),
-    option_(option) {
+inline OptionBase::OptionBase(OptionValue *option, int abbreviationLength):
+    option_(option), abbreviationLength_(abbreviationLength) {
 }
 
 inline bool OptionBase::isConfigured() const {
-    return name_ != nullptr && apply_ != nullptr;
+    return option_ != nullptr && option_->getName() != nullptr;
 }
 
 inline const char *OptionBase::getName() const {
-    return name_;
+    return option_->getName();
 }
 
 inline int OptionBase::getAbbreviationLength() const {
@@ -163,36 +112,9 @@ inline int OptionBase::getAbbreviationLength() const {
 }
 
 inline int OptionBase::consumesValue() const {
-    if ( consumesValue_ == nullptr ) {
-        return 1;
-    }
-    return consumesValue_(option_);
+    return option_->getConsumesValue();
 }
 
-inline bool OptionBase::apply(void *context, int argc, char **argv) const {
-    if ( apply_ == nullptr ) {
-        return false;
-    }
-    return apply_(option_, context, argc, argv);
-}
-
-template<typename T>
-bool applyOption(TypedOption<T> &opt, void *context, int argc, char **argv) {
-    return opt.apply(context, argc, argv);
-}
-
-template<typename T>
-bool applyAdapter(void *opt, void *context, int argc, char **argv) {
-    if ( opt == nullptr ) {
-        return false;
-    }
-    return applyOption(*(TypedOption<T> *)opt, context, argc, argv);
-}
-
-template<typename T>
-int consumesValueAdapter(void *opt) {
-    if ( opt == nullptr ) {
-        return 1;
-    }
-    return ((TypedOption<T> *)opt)->getConsumesValue();
+inline bool OptionBase::apply(int argc, char **argv) const {
+    return option_ != nullptr && option_->apply(argc, argv);
 }

@@ -213,13 +213,7 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    EnumAppOptions appOptions;
-    appOptions.width = outputImageWidth;
-    appOptions.height = outputImageHeight;
-    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
-    appOptions.yesValue = 1;
-    appOptions.noValue = 0;
-    appOptions.debug = 0;
+    EnumAppOptions appOptions(outputImageWidth, outputImageHeight, numberOfQuarterCircleDivisions);
 
     TypedOption<int> widthOpt = {"-width", &appOptions.width, 1, nullptr, nullptr};
     TypedOption<int> heightOpt = {"-height", &appOptions.height, 1, nullptr, nullptr};
@@ -251,7 +245,7 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
     OptionGroup generalGroups[] = {
         OptionGroup("global", registry, 8)
     };
-    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
+    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1);
 
     outputImageWidth = appOptions.width;
     outputImageHeight = appOptions.height;

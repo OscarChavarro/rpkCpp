@@ -9,10 +9,7 @@ namespace java {
 
 class FileInputStream : public InputStream {
   private:
-    void *stream;
-
-    static FILE *
-    toFileHandle(void *handle);
+    FILE *stream;
 
   public:
     explicit FileInputStream(const char *fileName);

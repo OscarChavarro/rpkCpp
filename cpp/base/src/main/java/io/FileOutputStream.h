@@ -9,12 +9,9 @@ namespace java {
 
 class FileOutputStream : public OutputStream {
   private:
-    void *stream;
+    FILE *stream;
     /// False for a wrapped stream (see `FileOutputStream(FILE*)`)
     bool ownsStream;
-
-    static FILE *
-    toFileHandle(void *handle);
 
   public:
     explicit FileOutputStream(const char *fileName);

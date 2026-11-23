@@ -58,7 +58,7 @@ class PhotonMap {
         short excludeFlags = 0) {
         m_cosinesOk = false;
         return m_kdtree->query(
-            reinterpret_cast<float *>(position),
+            *position,
             numberOfPhotons,
             m_photons,
             m_distances,
@@ -68,7 +68,7 @@ class PhotonMap {
 
     int doQuery(Vector3Df *pos) {
         m_cosinesOk = false;
-        return m_kdtree->query(reinterpret_cast<float *>(pos), *m_estimate_nrp /*pmapstate.reconPhotons*/,
+        return m_kdtree->query(*pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
                                m_photons, m_distances, static_cast<float>(GetMaxR2()));
     }
 
@@ -89,7 +89,6 @@ class PhotonMap {
         float currentD,
         float requiredD,
         const PhotonMapState &photonMapState);
-    static void precomputeIrradianceCallback(void *data, void *nodeData);
 
   public:
     static bool

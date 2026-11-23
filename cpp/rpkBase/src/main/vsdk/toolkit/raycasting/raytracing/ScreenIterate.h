@@ -12,29 +12,36 @@ Several functions are provided for different iterating schemes
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterateState.h"
+#include "vsdk/toolkit/scene/Camera.h"
 
-using SCREEN_ITERATE_CALLBACK = ColorRgbMutable (*)(Camera *, const SceneQuery *, SceneQueryWorkspace *, Background *, int, int, void *);
+class SceneQuery;
+class SceneQueryWorkspace;
+
+template<typename T>
+using ScreenIterateCallback = ColorRgbMutable (*)(Camera *, const SceneQuery *, SceneQueryWorkspace *, Background *, int, int, T *);
 
 class ScreenIterate {
   public:
+    template<typename T>
     static void
     sequential(
         Camera *camera,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        void *data,
+        ScreenIterateCallback<T> callback,
+        T *data,
         const ToneMappingContext &toneMapOptions);
 
+    template<typename T>
     static void
     progressive(
         Camera *camera,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        void *data,
+        ScreenIterateCallback<T> callback,
+        T *data,
         const ToneMappingContext &toneMapOptions);
 
   private:
@@ -54,5 +61,7 @@ class ScreenIterate {
         ColorRgbMutable col,
         ColorRgbMutable *rgb);
 };
+
+#include "vsdk/toolkit/raycasting/raytracing/ScreenIterate.txx"
 
 #endif

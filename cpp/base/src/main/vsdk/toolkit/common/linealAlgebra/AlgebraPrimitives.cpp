@@ -49,18 +49,18 @@ Vector3Dd Vector3Dd::fromSpherical(double r, double theta, double phi)
     return Vector3Dd(r * std::sin(phi) * std::cos(theta), r * std::sin(phi) * std::sin(theta), r * std::cos(phi));
 }
 
-Vector3Df::Vector3Df(const Vector3Dd& other) : x_((float)other.x()), y_((float)other.y()), z_((float)other.z()) {}
+Vector3Df::Vector3Df(const Vector3Dd& other) : components{(float)other.x(), (float)other.y(), (float)other.z()} {}
 Vector3Df Vector3Df::normalized() const
 {
-    float t = x_ * x_ + y_ * y_ + z_ * z_;
+    float t = components[0] * components[0] + components[1] * components[1] + components[2] * components[2];
     if ( std::abs(t) < (float)VSDK::EPSILON ) return *this;
     if ( t != 0.0f && t != 1.0f ) t = 1.0f / std::sqrt(t);
-    return Vector3Df(x_ * t, y_ * t, z_ * t);
+    return Vector3Df(components[0] * t, components[1] * t, components[2] * t);
 }
 bool Vector3Df::epsilonEquals(const Vector3Df& other, float epsilon) const
 {
     if ( epsilon < 0.0f ) throw java::IllegalArgumentException("epsilon must be >= 0");
-    return std::abs(x_ - other.x_) <= epsilon && std::abs(y_ - other.y_) <= epsilon && std::abs(z_ - other.z_) <= epsilon;
+    return std::abs(components[0] - other.components[0]) <= epsilon && std::abs(components[1] - other.components[1]) <= epsilon && std::abs(components[2] - other.components[2]) <= epsilon;
 }
 
 Vector4Dd::Vector4Dd(const Vector3Dd& other) : x_(other.x()), y_(other.y()), z_(other.z()), w_(1.0) {}

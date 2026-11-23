@@ -6,6 +6,7 @@
 #include "vsdk/toolkit/scene/Camera.h"
 
 using OpenGlRenderPatchCallback = void (*)(const Patch *, const Camera *, const RendererConfiguration *);
-using OpenGlRenderPatchCallbackWithData = void (*)(const Patch *, const Camera *, const RendererConfiguration *, void *);
+class FaceColorTable;
+using OpenGlRenderPatchCallbackWithData = void (*)(const Patch *, const Camera *, const RendererConfiguration *, const FaceColorTable *);
 
 #endif
