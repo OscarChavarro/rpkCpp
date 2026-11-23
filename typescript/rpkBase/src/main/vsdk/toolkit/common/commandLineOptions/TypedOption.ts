@@ -4,8 +4,6 @@ import { OptionBase } from "./OptionBase";
 export class TypedOption<T> {
   private name_: string | null;
   private target_: TypedOption.Reference<T> | null;
-  private offset_: number;
-  private useOffset_: boolean;
   private consumesValue_: number;
   private onSet_: TypedOption.OnSet<T> | null;
   private parseArgs_: TypedOption.ParseArgs<T> | null;
@@ -30,24 +28,8 @@ export class TypedOption<T> {
     transform: TypedOption.Transform<T> | null
   );
   public constructor(
-    name: string,
-    offset: number,
-    consumesValue: number,
-    onSet: TypedOption.OnSet<T> | null,
-    parseArgs: TypedOption.ParseArgs<T> | null
-  );
-  public constructor(
-    name: string,
-    offset: number,
-    consumesValue: number,
-    onSet: TypedOption.OnSet<T> | null,
-    parseArgs: TypedOption.ParseArgs<T> | null,
-    validate: TypedOption.Validate<T> | null,
-    transform: TypedOption.Transform<T> | null
-  );
-  public constructor(
     name?: string,
-    targetOrOffset?: TypedOption.Reference<T> | number,
+    target?: TypedOption.Reference<T>,
     consumesValue = 1,
     onSet: TypedOption.OnSet<T> | null = null,
     parseArgs: TypedOption.ParseArgs<T> | null = null,
@@ -55,22 +37,13 @@ export class TypedOption<T> {
     transform: TypedOption.Transform<T> | null = null
   ) {
     this.name_ = name ?? null;
-    this.target_ = null;
-    this.offset_ = 0;
-    this.useOffset_ = false;
+    this.target_ = target ?? null;
     this.consumesValue_ = consumesValue;
     this.onSet_ = onSet;
     this.parseArgs_ = parseArgs;
     this.validate_ = validate;
     this.transform_ = transform;
 
-    if (typeof targetOrOffset === "number") {
-      this.offset_ = targetOrOffset;
-      this.useOffset_ = true;
-    }
-    else if (targetOrOffset !== undefined) {
-      this.target_ = targetOrOffset;
-    }
   }
 
   public static valueRef<T>(initialValue: T): TypedOption.ValueRef<T> {
@@ -92,19 +65,9 @@ export class TypedOption<T> {
     return this.consumesValue_;
   }
 
-  public apply(context: unknown, argc: number, argv: string[] | null): boolean {
+  public apply(argc: number, argv: string[] | null): boolean {
     let target = this.target_;
 
-    if (this.useOffset_) {
-      if (
-        context === null
-        || context === undefined
-        || typeof (context as TypedOption.ContextBinding).resolve !== "function"
-      ) {
-        return false;
-      }
-      target = (context as TypedOption.ContextBinding).resolve<T>(this.offset_);
-    }
 
     if (target === null) {
       return false;
@@ -170,34 +133,6 @@ export class TypedOption<T> {
     return true;
   }
 
-  public static applyOption<T>(
-    opt: TypedOption<T>,
-    context: unknown,
-    argc: number,
-    argv: string[] | null
-  ): boolean {
-    return opt.apply(context, argc, argv);
-  }
-
-  public static applyAdapter<T>(
-    opt: unknown,
-    context: unknown,
-    argc: number,
-    argv: string[] | null
-  ): boolean {
-    if (opt === null || opt === undefined) {
-      return false;
-    }
-    return TypedOption.applyOption(opt as TypedOption<T>, context, argc, argv);
-  }
-
-  public static consumesValueAdapter<T>(opt: unknown): number {
-    if (opt === null || opt === undefined) {
-      return 1;
-    }
-    return (opt as TypedOption<T>).getConsumesValue();
-  }
-
   public static matchOption(input: string | null, name: string | null, abbrLen: number): boolean {
     if (input === null || name === null) {
       return false;
@@ -218,13 +153,7 @@ export class TypedOption<T> {
   }
 
   public static registerOption<T>(optionInstance: TypedOption<T>, abbr: number): OptionBase {
-    return new OptionBase(
-      optionInstance.getName() ?? "",
-      abbr,
-      TypedOption.consumesValueAdapter,
-      TypedOption.applyAdapter,
-      optionInstance
-    );
+    return new OptionBase(optionInstance, abbr);
   }
 
   public static REGISTER_OPTION<T>(optionInstance: TypedOption<T>, abbr: number): OptionBase {
@@ -252,10 +181,6 @@ export namespace TypedOption {
     public set(value: T): void {
       this.value_ = value;
     }
-  }
-
-  export interface ContextBinding {
-    resolve<T>(offset: number): Reference<T> | null;
   }
 
   export class MutableValue<T> {

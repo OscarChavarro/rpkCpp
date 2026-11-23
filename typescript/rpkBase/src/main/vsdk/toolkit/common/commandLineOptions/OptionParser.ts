@@ -15,29 +15,14 @@ export class OptionParser<TOptionBase extends OptionBase> {
   public static parse<TOptionBase extends OptionBase>(
     argc: number[],
     argv: string[],
-    registry: TOptionBase[] | null,
-    registryCount: number,
-    context: unknown
-  ): boolean;
-  public static parse<TOptionBase extends OptionBase>(
-    argc: number[],
-    argv: string[],
     groups: OptionGroupT<TOptionBase>[] | null,
     groupCount: number
   ): boolean;
   public static parse<TOptionBase extends OptionBase>(
     argc: number[],
     argv: string[],
-    groups: OptionGroupT<TOptionBase>[] | null,
-    groupCount: number,
-    context: unknown
-  ): boolean;
-  public static parse<TOptionBase extends OptionBase>(
-    argc: number[],
-    argv: string[],
     registryOrGroups: TOptionBase[] | OptionGroupT<TOptionBase>[] | null,
-    count: number,
-    context: unknown = null
+    count: number
   ): boolean {
     if (
       registryOrGroups === null
@@ -133,7 +118,7 @@ export class OptionParser<TOptionBase extends OptionBase> {
               argsSlice[k - 1] = mutableArgv[i + k] as string;
             }
 
-            if (!option.apply(context, consumesValue, argsSlice)) {
+            if (!option.apply(consumesValue, argsSlice)) {
               return false;
             }
 
@@ -145,7 +130,7 @@ export class OptionParser<TOptionBase extends OptionBase> {
             i += consumesValue;
           }
           else {
-            if (!option.apply(context, 0, null)) {
+            if (!option.apply(0, null)) {
               return false;
             }
             mutableArgv[i] = null;

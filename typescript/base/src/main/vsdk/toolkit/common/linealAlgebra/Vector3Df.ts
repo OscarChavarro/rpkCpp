@@ -124,6 +124,9 @@ export class Vector3Df extends FundamentalEntity {
     public withZ(z: number): Vector3Df {
         return new Vector3Df(this.xv, this.yv, z);
     }
+    public component(axis: number): number {
+        return axis === 0 ? this.xv : (axis === 1 ? this.yv : this.zv);
+    }
     public x(): number {
         return this.xv;
     }

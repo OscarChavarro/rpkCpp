@@ -94,10 +94,7 @@ Raytrace the current scene as seen with the current camera.
       toneMapOptions,
       this.lightList
     );
-    const callbackData = new StochasticRaytracerCallbackData();
-    callbackData.config = config;
-    callbackData.radianceMethod = radianceMethod;
-    callbackData.renderOptions = renderOptions;
+    const callbackData = new StochasticRaytracerCallbackData(config, radianceMethod, renderOptions);
 
     if (this.rayTracingState.doFrameCoherent !== 0) {
       StochasticRaytracer.srand48(this.rayTracingState.baseSeed);
@@ -643,12 +640,11 @@ Raytrace the current scene as seen with the current camera.
     sceneBackground: Background | null,
     nx: number,
     ny: number,
-    data: unknown
+    callbackData: StochasticRaytracerCallbackData
   ): ColorRgbMutable {
-    const callbackData = data as StochasticRaytracerCallbackData;
-    const config = callbackData.config as StochasticRaytracingConfiguration;
-    const radianceMethod = callbackData.radianceMethod as RadianceMethod;
-    const renderOptions = callbackData.renderOptions as RendererConfiguration;
+    const config = callbackData.config;
+    const radianceMethod = callbackData.radianceMethod;
+    const renderOptions = callbackData.renderOptions;
     const eyeNode = new SimpleRaytracingPathNode();
     const pixelNode = new SimpleRaytracingPathNode();
     const x1 = [0.0];

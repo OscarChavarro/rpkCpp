@@ -33,13 +33,13 @@ export class ScreenIterate {
     ScreenIterate.updateCpuSecs();
   }
 
-  public static sequential(
+  public static sequential<T>(
     camera: Camera,
     sceneQuery: SceneQuery,
     sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
-    callback: SCREEN_ITERATE_CALLBACK,
-    data: unknown,
+    callback: SCREEN_ITERATE_CALLBACK<T>,
+    data: T,
     toneMapOptions: ToneMappingContext
   ): void {
     ScreenIterate.init();
@@ -101,13 +101,13 @@ export class ScreenIterate {
     SoftIds.softRenderPixels(width, height, segment, toneMapOptions);
   }
 
-  public static progressive(
+  public static progressive<T>(
     camera: Camera,
     sceneQuery: SceneQuery,
     sceneSceneQueryWorkspace: SceneQueryWorkspace,
     sceneBackground: Background | null,
-    callback: SCREEN_ITERATE_CALLBACK,
-    data: unknown,
+    callback: SCREEN_ITERATE_CALLBACK<T>,
+    data: T,
     toneMapOptions: ToneMappingContext
   ): void {
     let x0: number;

@@ -60,6 +60,12 @@ vsdk/toolkit/common/VSDK.ts
 vsdk/toolkit/common/VSDKFatalException.ts
 vsdk/toolkit/common/VSDKRuntimeSettings.ts
 vsdk/toolkit/common/color/ColorRgb.ts
+vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.ts
+vsdk/toolkit/common/dataStructures/KDQuery.ts
+vsdk/toolkit/common/dataStructures/KDTree.ts
+vsdk/toolkit/common/dataStructures/KDTreeAdapter.ts
+vsdk/toolkit/common/dataStructures/KDTreeNode.ts
+vsdk/toolkit/common/dataStructures/KDTreeVisitor.ts
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.ts
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.ts
 vsdk/toolkit/common/linealAlgebra/Matrix4x4f.ts

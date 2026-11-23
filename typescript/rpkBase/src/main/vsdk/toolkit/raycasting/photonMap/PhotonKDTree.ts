@@ -1,182 +1,80 @@
-/**
-Photon kd-tree : specialized kd-tree with some photon map specific additions
-*/
-
-import { KDTree, NodeCallback } from "../../common/dataStructures/KDTree";
+import { KDTree } from "vitral/dist/vsdk/toolkit/common/dataStructures/KDTree";
+import type { KDTreeAdapter } from "vitral/dist/vsdk/toolkit/common/dataStructures/KDTreeAdapter";
+import type { KDTreeVisitor } from "vitral/dist/vsdk/toolkit/common/dataStructures/KDTreeVisitor";
 import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
 import { IrrPhoton } from "./IrrPhoton";
-import { NormalQuery } from "./NormalQuery";
 import { Photon } from "./Photon";
 
-class NodeData {
-  public photon: Photon;
-  public flags: number;
-  public point: number[];
-
-  public constructor(photon: Photon, flags: number) {
-    this.photon = photon;
-    this.flags = flags;
-    const p = photon.pos();
-    this.point = [p.x(), p.y(), p.z()];
-  }
+class PhotonAdapter implements KDTreeAdapter<Photon> {
+  public getKDPosition(value: Photon): Vector3Df { return value.pos(); }
+  public copy(value: Photon): Photon { return new Photon(value.pos(), value.power(), value.dir()); }
 }
-
-class QueryCandidate {
-  public photon: Photon;
-  public distance: number;
-
-  public constructor(photon: Photon, distance: number) {
-    this.photon = photon;
-    this.distance = distance;
-  }
-}
-
-export class PhotonKDTree extends KDTree {
-  private static qdat_s = new NormalQuery();
-  private readonly nodes: NodeData[];
-
-  private static sqrDistance3DPhoton(a: number[], b: number[]): number {
-    const a0 = a[0] ?? 0.0;
-    const b0 = b[0] ?? 0.0;
-    let tmp = a0 - b0;
-    let result = tmp * tmp;
-
-    const a1 = a[1] ?? 0.0;
-    const b1 = b[1] ?? 0.0;
-    tmp = a1 - b1;
-    result += tmp * tmp;
-
-    const a2 = a[2] ?? 0.0;
-    const b2 = b[2] ?? 0.0;
-    tmp = a2 - b2;
-    result += tmp * tmp;
-
+class IrrPhotonAdapter implements KDTreeAdapter<IrrPhoton> {
+  public getKDPosition(value: IrrPhoton): Vector3Df { return value.pos(); }
+  public copy(value: IrrPhoton): IrrPhoton {
+    const result = new IrrPhoton();
+    result.copy(value);
+    result.setNormal(value.Normal());
+    result.SetIrradiance(value.m_irradiance);
     return result;
   }
+}
+class NormalSearch {
+  public photon: IrrPhoton | null = null;
+  public constructor(public readonly point: Vector3Df, public readonly normal: Vector3Df,
+                     public readonly threshold: number, public maximumDistance: number) {}
+}
+export class PhotonKDTree {
+  private readonly photons: KDTree<Photon> | null;
+  private readonly irradiancePhotons: KDTree<IrrPhoton> | null;
+  private readonly irradianceResults: IrrPhoton[] = [];
 
-  public constructor(dataSize: number, copyData: boolean) {
-    super(dataSize, copyData);
-    this.nodes = [];
+  public constructor(irradiance: boolean) {
+    this.photons = irradiance ? null : new KDTree(new PhotonAdapter());
+    this.irradiancePhotons = irradiance ? new KDTree(new IrrPhotonAdapter()) : null;
   }
-
-  public override addPoint(data: unknown, flags = 0): void {
-    if (!(data instanceof Photon)) {
-      throw new globalThis.Error("PhotonKDTree only accepts Photon data");
-    }
-    this.nodes.push(new NodeData(data, flags));
+  public addPhoton(photon: Photon, flags: number): void { this.photons!.addPoint(photon, flags); }
+  public addIrradiancePhoton(photon: IrrPhoton, flags: number): void { this.irradiancePhotons!.addPoint(photon, flags); }
+  public balance(): void {
+    if (this.irradiancePhotons !== null) this.irradiancePhotons.balance();
+    else this.photons!.balance();
   }
-
-  public override query(point: number[], n: number, results: unknown[]): number;
-  public override query(
-    point: number[],
-    n: number,
-    results: unknown[],
-    inDistances: number[] | null,
-    radius: number,
-    excludeFlags: number
-  ): number;
-  public override query(
-    point: number[],
-    n: number,
-    results: unknown[],
-    inDistances: number[] | null = null,
-    radius = KDTree.KD_MAX_RADIUS,
-    excludeFlags = 0
-  ): number {
-    const candidates: QueryCandidate[] = [];
-
-    for (let i = 0; i < this.nodes.length; i++) {
-      const node = this.nodes[i];
-      if (node === undefined) {
-        continue;
-      }
-      if ((node.flags & excludeFlags) !== 0) {
-        continue;
-      }
-      const dist = PhotonKDTree.sqrDistance3DPhoton(node.point, point);
-      if (dist < radius) {
-        candidates.push(new QueryCandidate(node.photon, dist));
-      }
-    }
-
-    candidates.sort((a, b) => a.distance - b.distance);
-
-    const found = globalThis.Math.min(n, candidates.length);
-    if (found <= 0) {
-      return 0;
-    }
-
-    const usedDistances = inDistances === null ? new Array<number>(globalThis.Math.max(1, found)).fill(0.0) : inDistances;
-
-    const farthest = candidates[found - 1];
-    if (farthest === undefined) {
-      return 0;
-    }
-    results[0] = farthest.photon;
-    usedDistances[0] = farthest.distance;
-
-    let outIndex = 1;
-    for (let i = 0; i < found - 1; i++) {
-      const candidate = candidates[i];
-      if (candidate === undefined) {
-        continue;
-      }
-      results[outIndex] = candidate.photon;
-      usedDistances[outIndex] = candidate.distance;
-      outIndex++;
-    }
-
+  public query(position: Vector3Df, count: number, results: Photon[], distances: number[] | null,
+               radius: number, excluded = 0): number {
+    if (this.irradiancePhotons === null) return this.photons!.query(position, count, results, distances, radius, excluded);
+    const found = this.irradiancePhotons.query(position, count, this.irradianceResults, distances, radius, excluded);
+    for (let i = 0; i < found; ++i) results[i] = this.irradianceResults[i]!;
     return found;
   }
-
-  public override iterateNodes(callback: NodeCallback, data: unknown): void {
-    for (let i = 0; i < this.nodes.length; i++) {
-      const node = this.nodes[i];
-      if (node !== undefined) {
-        callback(data, node.photon);
-      }
+  public iterateIrradiance(visitor: KDTreeVisitor<IrrPhoton>): void { this.irradiancePhotons!.iterateNodes(visitor); }
+  public normalPhotonQuery(position: Vector3Df, normal: Vector3Df, threshold: number, maxR2: number): IrrPhoton | null {
+    const tree = this.irradiancePhotons;
+    if (tree === null || tree.getBalancedCount() === 0 || tree.getUnbalancedCount() !== 0) return null;
+    const query = new NormalSearch(position, normal, threshold, maxR2);
+    this.normalQueryRec(0, query);
+    return query.photon;
+  }
+  private normalQueryRec(index: number, query: NormalSearch): void {
+    const tree = this.irradiancePhotons!;
+    const node = tree.getBalancedNode(index);
+    const position = node.data.pos();
+    if (index < tree.getFirstLeaf()) {
+      const axis = node.discriminator();
+      let d = Math.fround(position.component(axis) - query.point.component(axis));
+      let near = (index << 1) + 1;
+      let far = near + 1;
+      if (d < 0) { const temp = near; near = far; far = temp; }
+      if (near < tree.getBalancedCount()) this.normalQueryRec(near, query);
+      d = Math.fround(d * d);
+      if (far < tree.getBalancedCount() && d < query.maximumDistance) this.normalQueryRec(far, query);
     }
-  }
-
-  public override balance(): void {
-    // This Java migration keeps a linear container. No explicit balancing needed.
-  }
-
-  public normalPhotonQuery(
-    position: Vector3Df,
-    normal: Vector3Df,
-    threshold: number,
-    maxR2: number
-  ): IrrPhoton | null {
-    PhotonKDTree.qdat_s.photon = null;
-    PhotonKDTree.qdat_s.normal = new Vector3Df(normal.x(), normal.y(), normal.z());
-    PhotonKDTree.qdat_s.point = [position.x(), position.y(), position.z()];
-    PhotonKDTree.qdat_s.threshold = threshold;
-    PhotonKDTree.qdat_s.maximumDistance = maxR2;
-
-    for (let i = 0; i < this.nodes.length; i++) {
-      const node = this.nodes[i];
-      if (node === undefined) {
-        continue;
-      }
-      if (!(node.photon instanceof IrrPhoton)) {
-        continue;
-      }
-
-      const dist = PhotonKDTree.sqrDistance3DPhoton(node.point, PhotonKDTree.qdat_s.point as number[]);
-      const photon = node.photon;
-      if (dist < PhotonKDTree.qdat_s.maximumDistance
-        && photon.Normal().dotProduct(PhotonKDTree.qdat_s.normal) > PhotonKDTree.qdat_s.threshold) {
-        PhotonKDTree.qdat_s.maximumDistance = dist;
-        PhotonKDTree.qdat_s.photon = photon;
-      }
+    let d = Math.fround(position.x() - query.point.x());
+    let distance = Math.fround(d * d);
+    d = Math.fround(position.y() - query.point.y()); distance = Math.fround(distance + Math.fround(d * d));
+    d = Math.fround(position.z() - query.point.z()); distance = Math.fround(distance + Math.fround(d * d));
+    if (distance < query.maximumDistance && node.data.Normal().dotProduct(query.normal) > query.threshold) {
+      query.maximumDistance = distance;
+      query.photon = node.data;
     }
-
-    return PhotonKDTree.qdat_s.photon;
-  }
-
-  // Java parity helper name; instance scope avoids static private-name clash with KDTree.
-  private sqrDistance3D(a: number[], b: number[]): number {
-    return PhotonKDTree.sqrDistance3DPhoton(a, b);
   }
 }

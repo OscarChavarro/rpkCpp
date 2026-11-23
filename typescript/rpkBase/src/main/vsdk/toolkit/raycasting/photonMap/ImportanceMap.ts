@@ -1,3 +1,4 @@
+import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 /**
 The real importance map storage
 */
@@ -37,9 +38,9 @@ export class ImportanceMap extends PhotonMap {
     let result = 0.0;
 
     for (let i = 0; i < this.m_nrpFound; i++) {
-      const importon = this.m_photons[i]! as Importon;
+      const importon = this.m_photons[i]!;
       const dir = importon.dir();
-      const importance = importon.Importance();
+      const importance = importon.power().r;
 
       const cosTheta = dir.dotProduct(normal);
       if (cosTheta > 0.0) {
@@ -77,12 +78,12 @@ export class ImportanceMap extends PhotonMap {
         this.precomputeIrradiance();
       }
 
-      const photon = this.DoIrradianceQuery(pos, normal, this.m_totalMaxDistance) as Importon | null;
+      const photon = this.DoIrradianceQuery(pos, normal, this.m_totalMaxDistance);
 
       if (photon !== null) {
         switch (this.photonMapState.importanceOption) {
           case PhotonMapImportanceOptions.USE_IMPORTANCE:
-            density = photon.PImportance();
+            density = photon.m_irradiance.r;
             density *= this.m_impScalePtr[0]!;
             break;
           default:
@@ -153,7 +154,7 @@ export class ImportanceMap extends PhotonMap {
     pot[0] = this.m_distances[0]!;
     this.m_totalMaxDistance = globalThis.Math.max(pot[0], this.m_totalMaxDistance);
 
-    (photon as Importon).PSetAll(imp[0]!, pot[0]!, diff[0]!);
+    photon.SetIrradiance(new ColorRgbMutable(imp[0]!, imp[0]!, imp[0]!));
     if (imp[0]! > this.m_maxImp) {
       this.m_maxImp = imp[0]!;
     }

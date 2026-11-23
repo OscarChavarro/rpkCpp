@@ -3,7 +3,7 @@ import { PrintStream } from "vitral/dist/java/io/PrintStream";
 import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { KDTree } from "../../common/dataStructures/KDTree";
+import { KDTree } from "vitral/dist/vsdk/toolkit/common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
@@ -66,9 +66,9 @@ export class PhotonMap {
 
     if (numberOfPhotons !== undefined && maximumRadius !== undefined && excludeFlags !== undefined) {
       return this.m_kdtree.query(
-        [positionOrPos.x(), positionOrPos.y(), positionOrPos.z()],
+        positionOrPos,
         numberOfPhotons,
-        this.m_photons as unknown[],
+        this.m_photons,
         this.m_distances,
         maximumRadius,
         excludeFlags
@@ -76,9 +76,9 @@ export class PhotonMap {
     }
 
     return this.m_kdtree.query(
-      [positionOrPos.x(), positionOrPos.y(), positionOrPos.z()],
+      positionOrPos,
       this.m_estimate_nrp[0]!,
-      this.m_photons as unknown[],
+      this.m_photons,
       this.m_distances,
       this.GetMaxR2(),
       0
@@ -112,10 +112,10 @@ export class PhotonMap {
       const irrPhoton = new IrrPhoton();
       irrPhoton.copy(photon);
       irrPhoton.setNormal(normal);
-      this.m_kdtree.addPoint(irrPhoton, flags);
+      this.m_kdtree.addIrradiancePhoton(irrPhoton, flags);
     }
     else {
-      this.m_kdtree.addPoint(photon, flags);
+      this.m_kdtree.addPhoton(photon, flags);
     }
   }
 
@@ -213,7 +213,7 @@ export class PhotonMap {
     this.m_precomputeIrradiance = doPrecomputeIrradiance;
     this.m_irradianceComputed = false;
 
-    this.m_kdtree = new PhotonKDTree(0, true);
+    this.m_kdtree = new PhotonKDTree(doPrecomputeIrradiance);
 
     this.m_totalPaths = 0;
     this.m_nrPhotons = 0;
@@ -383,11 +383,10 @@ Get a maximum radius^2 to be used when locating photons
   public precomputeIrradiance(): void {
     process.stderr.write("PhotonMap::precomputeIrradiance\n");
     if (this.m_precomputeIrradiance && !this.m_irradianceComputed) {
-      this.m_kdtree.iterateNodes((data: unknown, nodeData: unknown): void => {
-        const map = data as PhotonMap;
-        const photon = nodeData as IrrPhoton;
-        map.photonPrecomputeIrradiance(null, photon);
-      }, this);
+      const map = this;
+      this.m_kdtree.iterateIrradiance({
+        visit(photon: IrrPhoton): void { map.photonPrecomputeIrradiance(null, photon); }
+      });
       this.m_irradianceComputed = true;
     }
   }

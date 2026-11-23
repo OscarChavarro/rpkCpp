@@ -238,13 +238,9 @@ export class OptionsGroupCore {
     imageOutputHeight: number[],
     glutDebugEnabledOut: boolean[]
   ): void {
-    const appOptions = new EnumAppOptions();
-    appOptions.width = OptionsGroupCore.outputImageWidth;
-    appOptions.height = OptionsGroupCore.outputImageHeight;
-    appOptions.nqcdivs = OptionsGroupCore.numberOfQuarterCircleDivisions;
-    appOptions.yesValue = 1;
-    appOptions.noValue = 0;
-    appOptions.debug = 0;
+    const appOptions = new EnumAppOptions(
+      OptionsGroupCore.outputImageWidth, OptionsGroupCore.outputImageHeight,
+      OptionsGroupCore.numberOfQuarterCircleDivisions, 1, 0, 0);
 
     const widthOpt = new TypedOption<number>(
       "-width",

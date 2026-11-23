@@ -920,9 +920,8 @@ export class BidirectionalPathRaytracer extends RayTracer {
     sceneBackground: Background | null,
     nx: number,
     ny: number,
-    data: unknown
+    config: BidirectionalPathTracingConfiguration
   ): ColorRgbMutable {
-    const config = data as BidirectionalPathTracingConfiguration;
 
     const x1 = [0.0];
     const x2 = [0.0];

@@ -96,7 +96,8 @@ export class SoftIds {
 
     const ids = new Array<number>(currentSglContext.width * currentSglContext.height);
     for (let i = 0; i < ids.length; i++) {
-      ids[i] = currentSglContext.frameBuffer[i]!;
+      const patch = currentSglContext.patchBuffer[i];
+      ids[i] = patch == null ? 0 : patch.id;
     }
     return ids;
   }

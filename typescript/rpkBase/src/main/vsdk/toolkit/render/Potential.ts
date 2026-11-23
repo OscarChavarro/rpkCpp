@@ -28,19 +28,17 @@ export class Potential {
   public static updateDirectPotential(scene: Scene, renderOptions: RendererConfiguration): void {
     Canvas.canvasPushMode();
 
-    const x = [0];
-    const y = [0];
-    const ids = SoftIds.softRenderIds(x, y, scene, renderOptions);
-
-    Canvas.canvasPullMode();
-
-    if (ids === null) {
-      return;
-    }
     const camera = scene.camera;
     if (camera === null) {
+      Canvas.canvasPullMode();
       return;
     }
+    const target = SoftIds.setupSoftFrameBuffer(camera);
+    SoftIds.softRenderPatches(scene, renderOptions, target);
+    const x = [target.width];
+    const y = [target.height];
+
+    Canvas.canvasPullMode();
 
     let lostPixels = 0;
 
@@ -65,7 +63,8 @@ export class Potential {
       const rowStart = j * x[0]!;
       let xSample = f(f(-h * f(x[0]! - 1)) / 2.0);
       for (let i = 0; i < x[0]!; i++, xSample = f(xSample + h)) {
-        const theId = ids[rowStart + i]! & 0x00ffffff;
+        const visible = target.patchBuffer[rowStart + i];
+        const theId = visible == null ? 0 : visible.id & 0x00ffffff;
 
         if (theId > 0 && theId <= maximumPatchId) {
           let pixDir = new Vector3Df();
