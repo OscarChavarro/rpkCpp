@@ -119,7 +119,6 @@ rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/OptionParser.h,rpkBase/s
 rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/OptionParser.txx,rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/OPPATION.TXX,OptionParser.txx,OPPATION.TXX
 rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/TypedOption.h,rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/TYOPPEDT.H,TypedOption.h,TYOPPEDT.H
 rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/TypedOption.txx,rpkBase/src/main/vsdk/toolkit/common/commandLineOptions/TYOPPEDT.TXX,TypedOption.txx,TYOPPEDT.TXX
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/BAKDTRNO.H,BalancedKDTreeNode.h,BAKDTRNO.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularList.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILIRCUL.H,CircularList.h,CILIRCUL.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListBase.cpp,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILIBARC.CPP,CircularListBase.cpp,CILIBARC.CPP
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListBase.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILIBARC.H,CircularListBase.h,CILIBARC.H
@@ -129,11 +128,6 @@ rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListIterator.h,rpkBa
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListLink.cpp,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILILIRC.CPP,CircularListLink.cpp,CILILIRC.CPP
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListLink.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILILIRC.H,CircularListLink.h,CILILIRC.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/CircularListNode.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/CILINORC.H,CircularListNode.h,CILINORC.H
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDQuery.cpp,rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDQUERYK.CPP,KDQuery.cpp,KDQUERYK.CPP
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDQuery.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDQUERYK.H,KDQuery.h,KDQUERYK.H
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTree.cpp,rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTREEKD.CPP,KDTree.cpp,KDTREEKD.CPP
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTree.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTREEKD.H,KDTree.h,KDTREEKD.H
-rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTreeNode.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/KDTRNOEE.H,KDTreeNode.h,KDTRNOEE.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/LookUpBehaviors.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/LOUPBEOK.H,LookUpBehaviors.h,LOUPBEOK.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/LookUpEntity.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/LOUPENOK.H,LookUpEntity.h,LOUPENOK.H
 rpkBase/src/main/vsdk/toolkit/common/dataStructures/LookUpTable.h,rpkBase/src/main/vsdk/toolkit/common/dataStructures/LOUPTAOK.H,LookUpTable.h,LOUPTAOK.H
@@ -789,3 +783,8 @@ scripts/classAudit.allow,scripts/CLASAUDI.ALW,classAudit.allow,CLASAUDI.ALW
 base/src/main/vsdk/toolkit/common/linealAlgebra/Matrix4x4f.cpp,base/src/main/vsdk/toolkit/common/linealAlgebra/MATR4X4F.CPP,Matrix4x4f.cpp,MATR4X4F.CPP
 base/src/main/vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h,base/src/main/vsdk/toolkit/common/linealAlgebra/MATR4X4F.H,Matrix4x4f.h,MATR4X4F.H
 rpkBase/CMakeLists.txt,rpkBase/CMALIKES.TXT,CMakeLists.txt,CMALIKE7.TXT
+base/src/main/vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h,base/src/main/vsdk/toolkit/common/dataStructures/BAKDTRNO.H,BalancedKDTreeNode.h,BAKDTRNO.H
+base/src/main/vsdk/toolkit/common/dataStructures/KDQuery.h,base/src/main/vsdk/toolkit/common/dataStructures/KDQUERYK.H,KDQuery.h,KDQUERYK.H
+base/src/main/vsdk/toolkit/common/dataStructures/KDTree.h,base/src/main/vsdk/toolkit/common/dataStructures/KDTREEKD.H,KDTree.h,KDTREEKD.H
+base/src/main/vsdk/toolkit/common/dataStructures/KDTree.txx,base/src/main/vsdk/toolkit/common/dataStructures/KDTREEKD.TXX,KDTree.txx,KDTREEKD.TXX
+base/src/main/vsdk/toolkit/common/dataStructures/KDTreeNode.h,base/src/main/vsdk/toolkit/common/dataStructures/KDTRNOEE.H,KDTreeNode.h,KDTRNOEE.H

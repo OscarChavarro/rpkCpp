@@ -13,6 +13,17 @@
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracerCallbackData.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracer.h"
 
+class StochasticPixelCallback : public ScreenPixelCallback {
+  private:
+    StochasticRaytracerCallbackData *data;
+  public:
+    explicit StochasticPixelCallback(StochasticRaytracerCallbackData *inData): data(inData) {}
+    ColorRgb call(Camera *camera, const SceneQuery *query, SceneQueryWorkspace *workspace,
+                  Background *background, int x, int y) const {
+        return StochasticRaytracer::calcPixel(camera, query, workspace, background, x, y, data);
+    }
+};
+
 char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";
 
 StochasticRaytracer::StochasticRaytracer(
@@ -65,10 +76,7 @@ StochasticRaytracer::execute(
         radianceMethod,
         toneMapOptions,
         lightList); // config filled in by constructor
-    StochasticRaytracerCallbackData callbackData;
-    callbackData.config = &config;
-    callbackData.radianceMethod = radianceMethod;
-    callbackData.renderOptions = ((RenderOptions *)(renderOptions));
+    StochasticRaytracerCallbackData callbackData(&config, radianceMethod, ((RenderOptions *)(renderOptions)));
 
     // Frame Coherent sampling : init fixed seed
     if ( rayTracingState.doFrameCoherent ) {
@@ -81,8 +89,7 @@ StochasticRaytracer::execute(
                 scene->getSceneQuery(),
                 scene->getSceneQueryWorkspace(),
                 scene->background,
-                StochasticRaytracer::calcPixel,
-                &callbackData,
+                StochasticPixelCallback(&callbackData),
                 *toneMapOptions);
     } else {
         ScreenIterate::progressive(
@@ -90,8 +97,7 @@ StochasticRaytracer::execute(
                 scene->getSceneQuery(),
                 scene->getSceneQueryWorkspace(),
                 scene->background,
-                StochasticRaytracer::calcPixel,
-                &callbackData,
+                StochasticPixelCallback(&callbackData),
                 *toneMapOptions);
     }
 
@@ -666,9 +672,8 @@ StochasticRaytracer::calcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    void *data)
+    StochasticRaytracerCallbackData *callbackData)
 {
-    StochasticRaytracerCallbackData *callbackData = ((StochasticRaytracerCallbackData *)(data));
     StochRaytrConfig *config = callbackData->config;
     RadianceMethod *radianceMethod = callbackData->radianceMethod;
     RenderOptions *renderOptions = callbackData->renderOptions;

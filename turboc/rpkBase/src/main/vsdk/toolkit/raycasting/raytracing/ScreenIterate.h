@@ -13,7 +13,12 @@ Several functions are provided for different iterating schemes
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterateState.h"
 
-typedef ColorRgb (*SCREEN_ITERATE_CALLBACK)(Camera *, const SceneQuery *, SceneQueryWorkspace *, Background *, int, int, void *);
+class ScreenPixelCallback {
+  public:
+    virtual ~ScreenPixelCallback() {}
+    virtual ColorRgb call(Camera *camera, const SceneQuery *query, SceneQueryWorkspace *workspace,
+                          Background *background, int x, int y) const = 0;
+};
 
 class ScreenIterate {
   public:
@@ -23,8 +28,7 @@ class ScreenIterate {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        void *data,
+        const ScreenPixelCallback &callback,
         const ToneMappingContext &toneMapOptions);
 
     static void
@@ -33,8 +37,7 @@ class ScreenIterate {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneSceneQueryWorkspace,
         Background *sceneBackground,
-        SCREEN_ITERATE_CALLBACK callback,
-        void *data,
+        const ScreenPixelCallback &callback,
         const ToneMappingContext &toneMapOptions);
 
   private:

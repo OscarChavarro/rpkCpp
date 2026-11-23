@@ -21,6 +21,17 @@
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
+class BidirPixelCallback : public ScreenPixelCallback {
+  private:
+    BidirPathTraceConfig *config;
+  public:
+    explicit BidirPixelCallback(BidirPathTraceConfig *inConfig): config(inConfig) {}
+    ColorRgb call(Camera *camera, const SceneQuery *query, SceneQueryWorkspace *workspace,
+                  Background *background, int x, int y) const {
+        return BidirectionalPathRaytracer::bpCalcPixel(camera, query, workspace, background, x, y, config);
+    }
+};
+
 char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
 
 BidirectionalPathRaytracer::BidirectionalPathRaytracer(
@@ -154,8 +165,7 @@ BidirectionalPathRaytracer::execute(
                 scene->getSceneQuery(),
                 scene->getSceneQueryWorkspace(),
                 scene->background,
-                BidirectionalPathRaytracer::bpCalcPixel,
-                &config,
+                BidirPixelCallback(&config),
                 *config.toneMapOptions);
     } else {
         ScreenIterate::progressive(
@@ -163,8 +173,7 @@ BidirectionalPathRaytracer::execute(
                 scene->getSceneQuery(),
                 scene->getSceneQueryWorkspace(),
                 scene->background,
-                BidirectionalPathRaytracer::bpCalcPixel,
-                &config,
+                BidirPixelCallback(&config),
                 *config.toneMapOptions);
     }
 
@@ -840,9 +849,8 @@ BidirectionalPathRaytracer::bpCalcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    void *data)
+    BidirPathTraceConfig *config)
 {
-    BidirPathTraceConfig *config = ((BidirPathTraceConfig *)(data));
     double x1;
     double x2;
     ColorRgb result;
@@ -1000,8 +1008,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
             sceneQuery,
             sceneSceneQueryWorkspace,
             sceneBackground,
-            BidirectionalPathRaytracer::bpCalcPixel,
-            config,
+            BidirPixelCallback(config),
             *config->toneMapOptions);
 
         config->screen->render();
@@ -1074,8 +1081,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         sceneQuery,
         sceneSceneQueryWorkspace,
         sceneBackground,
-        BidirectionalPathRaytracer::bpCalcPixel,
-        config,
+        BidirPixelCallback(config),
         *config->toneMapOptions);
 
     // Now we have a noisy screen in dest and hits in double buffer
@@ -1163,8 +1169,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
             sceneQuery,
             sceneSceneQueryWorkspace,
             sceneBackground,
-            BidirectionalPathRaytracer::bpCalcPixel,
-            config,
+            BidirPixelCallback(config),
             *config->toneMapOptions);
 
         // Render screen & write

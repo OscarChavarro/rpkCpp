@@ -3,22 +3,17 @@
 #include "java/io/File.h"
 #include "java/io/FileOutputStream.h"
 
-FILE *
-FileOutputStream::toFileHandle(void *handle) {
-    return ((FILE *)(handle));
-}
-
 FileOutputStream::FileOutputStream(const char *fileName):
     stream(NULL), ownsStream(TRUE)
 {
     if ( fileName != NULL && fileName[0] != '\0' ) {
         const String platformName = File::toPlatformName(fileName);
-        stream = ((void *)(fopen(platformName.toCString(), "wb")));
+        stream = fopen(platformName.toCString(), "wb");
     }
 }
 
 FileOutputStream::FileOutputStream(FILE *openStream):
-    stream((void *)(openStream)), ownsStream(FALSE)
+    stream(openStream), ownsStream(FALSE)
 {
 }
 
@@ -28,7 +23,7 @@ FileOutputStream::~FileOutputStream() {
 
 void
 FileOutputStream::write(int value) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return;
     }
@@ -37,7 +32,7 @@ FileOutputStream::write(int value) {
 
 void
 FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL || buffer == NULL || offset < 0 || length < 0 ) {
         return;
     }
@@ -49,7 +44,7 @@ FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
 
 void
 FileOutputStream::flush() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return;
     }
@@ -58,7 +53,7 @@ FileOutputStream::flush() {
 
 void
 FileOutputStream::close() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return;
     }

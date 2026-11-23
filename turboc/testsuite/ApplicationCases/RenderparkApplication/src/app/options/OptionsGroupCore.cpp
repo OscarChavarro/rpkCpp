@@ -214,13 +214,8 @@ OptionsGroupCore::cmmndLineGenProgParseOpts(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    EnumAppOptions appOptions;
-    appOptions.width = outputImageWidth;
-    appOptions.height = outputImageHeight;
-    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
-    appOptions.yesValue = 1;
-    appOptions.noValue = 0;
-    appOptions.debug = 0;
+    EnumAppOptions appOptions(outputImageWidth, outputImageHeight,
+                              numberOfQuarterCircleDivisions, 1, 0, 0);
     TypedOption<int> widthOpt("-width", &appOptions.width, 1, NULL, NULL);
     TypedOption<int> heightOpt("-height", &appOptions.height, 1, NULL, NULL);
     TypedOption<int> nqcdivsOpt("-nqcdivs", &appOptions.nqcdivs, 1, NULL, NULL);
@@ -251,7 +246,7 @@ OptionsGroupCore::cmmndLineGenProgParseOpts(
     OptionGroup generalGroups[] = {
         OptionGroup("global", registry, 8)
     };
-    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
+    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1);
 
     outputImageWidth = appOptions.width;
     outputImageHeight = appOptions.height;

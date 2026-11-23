@@ -88,6 +88,11 @@ vsdk/toolkit/common/VSDK.h
 vsdk/toolkit/common/VSDKFatalException.h
 vsdk/toolkit/common/color/ColorRgb.cpp
 vsdk/toolkit/common/color/ColorRgb.h
+vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h
+vsdk/toolkit/common/dataStructures/KDQuery.h
+vsdk/toolkit/common/dataStructures/KDTree.h
+vsdk/toolkit/common/dataStructures/KDTree.txx
+vsdk/toolkit/common/dataStructures/KDTreeNode.h
 vsdk/toolkit/common/linealAlgebra/AlgebraPrimitives.cpp
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.h
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.cpp

@@ -9,7 +9,7 @@
 // Non-compact photon representation
 class Photon {
   protected:
-    Vector3Df m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
+    Vector3Df m_pos;  // Position
     ColorRgb m_power;  // power represented by this photon
     //  float m_dcWeight; // Weight for density control
     Vector3Df m_dir;  // Direction
@@ -42,6 +42,8 @@ class Photon {
     dir() const {
         return m_dir;
     }
+
+    const Vector3Df &getKDPosition() const { return m_pos; }
 
     // Importance sampling utility functions
 

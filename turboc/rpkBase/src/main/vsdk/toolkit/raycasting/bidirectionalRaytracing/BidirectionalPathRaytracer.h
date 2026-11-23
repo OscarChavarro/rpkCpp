@@ -26,8 +26,10 @@ class BidirectionalPathRaytracer: public RayTracer{ private:
     void
     doBptDensityEstimation( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, BidirPathTraceConfig *config) const;
 
+  public:
     static ColorRgb
-    bpCalcPixel( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, int nx, int ny, void *data);
+    bpCalcPixel( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, int nx, int ny, BidirPathTraceConfig *config);
+  private:
 
     static bool spikeCheck(ColorRgb color);
 

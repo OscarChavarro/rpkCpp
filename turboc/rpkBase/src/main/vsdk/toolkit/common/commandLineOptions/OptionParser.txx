@@ -1,11 +1,11 @@
 template<typename TOptionBase>
-bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *registry, int registryCount, void *context) {
+bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *registry, int registryCount) {
     OptionGroupT<TOptionBase> singleGroup("default", registry, registryCount);
-    return parse(argc, argv, &singleGroup, 1, context);
+    return parse(argc, argv, &singleGroup, 1);
 }
 
 template<typename TOptionBase>
-bool OptionParser<TOptionBase>::parse(int *argc, char **argv, OptionGroupT<TOptionBase> *groups, int groupCount, void *context) {
+bool OptionParser<TOptionBase>::parse(int *argc, char **argv, OptionGroupT<TOptionBase> *groups, int groupCount) {
     if ( groups == NULL || groupCount <= 0 || argc == NULL || argv == NULL ) {
         return false;
     }
@@ -41,16 +41,16 @@ bool OptionParser<TOptionBase>::parse(int *argc, char **argv, OptionGroupT<TOpti
                     if ( missingValue ) {
                         return false;
                     }
-                    if ( !groups[g].options[j].apply(context, consumesValue, argv + i + 1) ) {
+                    if ( !groups[g].options[j].apply(consumesValue, argv + i + 1) ) {
                         return false;
                     }
                     argv[i] = NULL;
-                    for ( int k = 1; k <= consumesValue; k++ ) {
-                        argv[i + k] = NULL;
+                    for ( int clearIndex = 1; clearIndex <= consumesValue; clearIndex++ ) {
+                        argv[i + clearIndex] = NULL;
                     }
                     i += consumesValue;
                 } else {
-                    if ( !groups[g].options[j].apply(context, 0, NULL) ) {
+                    if ( !groups[g].options[j].apply(0, NULL) ) {
                         return false;
                     }
                     argv[i] = NULL;
@@ -67,8 +67,8 @@ bool OptionParser<TOptionBase>::parse(int *argc, char **argv, OptionGroupT<TOpti
             argv[writeIndex++] = argv[readIndex];
         }
     }
-    for ( int i = writeIndex; i < *argc; i++ ) {
-        argv[i] = NULL;
+    for ( int clearIndex = writeIndex; clearIndex < *argc; clearIndex++ ) {
+        argv[clearIndex] = NULL;
     }
     *argc = writeIndex;
     return true;

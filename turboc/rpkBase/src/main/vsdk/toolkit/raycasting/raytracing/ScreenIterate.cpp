@@ -46,8 +46,7 @@ ScreenIterate::sequential(
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
-    SCREEN_ITERATE_CALLBACK callback,
-    void *data,
+    const ScreenPixelCallback &callback,
     const ToneMappingContext &toneMapOptions)
 {
     int width;
@@ -64,7 +63,7 @@ ScreenIterate::sequential(
     // Shoot rays through all the pixels
     for ( int i = 0; i < height; i++ ) {
         for ( int j = 0; j < width; j++ ) {
-            col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, j, i, data);
+            col = callback.call(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, j, i);
             ToneMap::radianceToRgb(col, &rgb[j], toneMapOptions);
             Statistics::instance().rayTracer.pixelCount++;
         }
@@ -103,8 +102,7 @@ ScreenIterate::progressive(
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneSceneQueryWorkspace,
     Background *sceneBackground,
-    SCREEN_ITERATE_CALLBACK callback,
-    void *data,
+    const ScreenPixelCallback &callback,
     const ToneMappingContext &toneMapOptions)
 {
     int width;
@@ -170,7 +168,7 @@ ScreenIterate::progressive(
                 }
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
-                    col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, x0, height - y0 - 1, data);
+                    col = callback.call(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, x0, height - y0 - 1);
                     ToneMap::radianceToRgb(col, &pixelRGB, toneMapOptions);
                     fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 

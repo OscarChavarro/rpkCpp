@@ -3,17 +3,12 @@
 #include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 
-FILE *
-FileInputStream::toFileHandle(void *handle) {
-    return ((FILE *)(handle));
-}
-
 FileInputStream::FileInputStream(const char *fileName):
     stream(NULL)
 {
     if ( fileName != NULL && fileName[0] != '\0' ) {
         const String platformName = File::toPlatformName(fileName);
-        stream = ((void *)(fopen(platformName.toCString(), "rb")));
+        stream = fopen(platformName.toCString(), "rb");
     }
 }
 
@@ -23,7 +18,7 @@ FileInputStream::~FileInputStream() {
 
 int
 FileInputStream::read() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return -1;
     }
@@ -32,7 +27,7 @@ FileInputStream::read() {
 
 int
 FileInputStream::read(unsigned char *buffer, int offset, int length) {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return -1;
     }
@@ -51,7 +46,7 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
 
 void
 FileInputStream::close() {
-    FILE *fileHandle = toFileHandle(stream);
+    FILE *fileHandle = stream;
     if ( fileHandle == NULL ) {
         return;
     }

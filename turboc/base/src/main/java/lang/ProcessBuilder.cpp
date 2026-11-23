@@ -7,17 +7,17 @@ ProcessBuilder::ProcessBuilder(const char *commandLine):
 {
 }
 
-void *
+FILE *
 ProcessBuilder::startRead() const {
     return start(command, "r");
 }
 
-void *
+FILE *
 ProcessBuilder::startWrite() const {
     return start(command, "w");
 }
 
-void *
+FILE *
 ProcessBuilder::start(const char *commandLine, const char *mode) {
     if ( commandLine == NULL || commandLine[0] == '\0' || mode == NULL || mode[0] == '\0' ) {
         return NULL;
@@ -26,13 +26,13 @@ ProcessBuilder::start(const char *commandLine, const char *mode) {
     // DOS has no pipes
     return NULL;
 #else
-    return ((void *)(popen(commandLine, mode)));
+    return popen(commandLine, mode);
 #endif
 }
 
 int
-ProcessBuilder::close(void *processHandle) {
-    FILE *handle = ((FILE *)(processHandle));
+ProcessBuilder::close(FILE *processHandle) {
+    FILE *handle = processHandle;
     if ( handle == NULL ) {
         return -1;
     }

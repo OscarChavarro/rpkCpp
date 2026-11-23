@@ -3,11 +3,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/ProcessBuilder.h"
 #include "vsdk/toolkit/io/wrapper/PipeInputStream.h"
-FILE *
-PipeInputStream::toFileHandle(void *handle) {
-    return ((FILE *)(handle));
-}
-
 PipeInputStream::PipeInputStream(const char *command):
     pipeHandle(NULL)
 {
@@ -28,7 +23,7 @@ PipeInputStream::isOpen() const {
 
 int
 PipeInputStream::read() {
-    FILE *handle = toFileHandle(pipeHandle);
+    FILE *handle = pipeHandle;
     if ( handle == NULL ) {
         return -1;
     }
@@ -37,7 +32,7 @@ PipeInputStream::read() {
 
 int
 PipeInputStream::read(unsigned char *buffer, int offset, int length) {
-    FILE *handle = toFileHandle(pipeHandle);
+    FILE *handle = pipeHandle;
     if ( handle == NULL ) {
         return -1;
     }
@@ -56,7 +51,7 @@ PipeInputStream::read(unsigned char *buffer, int offset, int length) {
 
 void
 PipeInputStream::close() {
-    FILE *handle = toFileHandle(pipeHandle);
+    FILE *handle = pipeHandle;
     if ( handle == NULL ) {
         return;
     }

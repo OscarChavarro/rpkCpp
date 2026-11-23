@@ -86,6 +86,7 @@ public:
     Vector3Df withX(float nx) const { return Vector3Df(nx, y_, z_); }
     Vector3Df withY(float ny) const { return Vector3Df(x_, ny, z_); }
     Vector3Df withZ(float nz) const { return Vector3Df(x_, y_, nz); }
+    float component(int axis) const { return axis == 0 ? x_ : (axis == 1 ? y_ : z_); }
     float x() const { return x_; }
     float y() const { return y_; }
     float z() const { return z_; }

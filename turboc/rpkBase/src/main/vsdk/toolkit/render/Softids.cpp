@@ -89,7 +89,10 @@ SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions
     *x = currentSglContext->width;
     *y = currentSglContext->height;
     unsigned long *ids = new unsigned long[currentSglContext->width * currentSglContext->height];
-    memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
+    for ( long i = 0; i < ((long)currentSglContext->width) * currentSglContext->height; ++i ) {
+        const Patch *patch = currentSglContext->patchBuffer[i];
+        ids[i] = patch == NULL ? 0 : patch->id;
+    }
 
     delete currentSglContext;
 

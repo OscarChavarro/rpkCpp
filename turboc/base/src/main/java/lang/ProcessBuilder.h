@@ -1,6 +1,8 @@
 #ifndef __PROCESS_BUILDER__
 #define __PROCESS_BUILDER__
 
+#include <stdio.h>
+
 #include "vsdk/toolkit/common/VSDK.h"
 
 
@@ -11,11 +13,11 @@ class ProcessBuilder {
   public:
     explicit ProcessBuilder(const char *commandLine);
 
-    void *startRead() const;
-    void *startWrite() const;
+    FILE *startRead() const;
+    FILE *startWrite() const;
 
-    static void *start(const char *commandLine, const char *mode);
-    static int close(void *processHandle);
+    static FILE *start(const char *commandLine, const char *mode);
+    static int close(FILE *processHandle);
 };
 
 

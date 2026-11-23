@@ -9,11 +9,8 @@
 
 class FileOutputStream : public OutputStream {
   private:
-    void *stream;
+    FILE *stream;
     BOOLEAN ownsStream;
-
-    static FILE *
-    toFileHandle(void *handle);
 
   public:
     explicit FileOutputStream(const char *fileName);

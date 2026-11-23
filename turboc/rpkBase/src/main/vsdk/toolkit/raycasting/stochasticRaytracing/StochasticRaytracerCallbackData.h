@@ -10,6 +10,9 @@ class StochasticRaytracerCallbackData {
     StochRaytrConfig *config;
     RadianceMethod *radianceMethod;
     RenderOptions *renderOptions;
+    StochasticRaytracerCallbackData(StochRaytrConfig *inConfig, RadianceMethod *inRadianceMethod,
+                                    RenderOptions *inRenderOptions):
+        config(inConfig), radianceMethod(inRadianceMethod), renderOptions(inRenderOptions) {}
 };
 
 #endif

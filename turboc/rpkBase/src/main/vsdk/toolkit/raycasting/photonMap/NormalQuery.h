@@ -7,7 +7,7 @@
 class NormalQuery {
   public:
     IrrPhoton *photon;
-    float *point;
+    Vector3Df point;
     Vector3Df normal;
     float threshold;
     float maximumDistance;

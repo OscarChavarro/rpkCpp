@@ -13,6 +13,8 @@
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 
+class StochasticRaytracerCallbackData;
+
 class StochasticRaytracer: public RayTracer{ private:
     #define PHOTON_MAP_MIN_DIST ((float)0.02)
     #define PHOTON_MAP_MIN_DIST2 PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST
@@ -20,8 +22,10 @@ class StochasticRaytracer: public RayTracer{ private:
     LightList *&lightList;
     StochasticRayTracingState &rayTracingState;
 
+  public:
     static ColorRgb
-    calcPixel( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, int nx, int ny, void *data);
+    calcPixel( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, int nx, int ny, StochasticRaytracerCallbackData *data);
+  private:
     static ColorRgb stchsRaytrcGetScttrRadn( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
     static ColorRgb srGetDirectRadiance( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, StochRaytrConfig *config, StorageReadout readout);
     static ColorRgb stochasticRaytracerGetRadiance( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, SimpleRaytracingPathNode *thisNode, StochRaytrConfig *config, StorageReadout readout, int usedScatterSamples, RadianceMethod *radianceMethod, RenderOptions *renderOptions);

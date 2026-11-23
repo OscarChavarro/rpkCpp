@@ -24,23 +24,19 @@ void
 Potential::updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     Canvas::canvasPushMode();
 
-    // Get the patch IDs for each pixel
-    long x;
-    long y;
-    unsigned long *ids = SoftIds::softRenderIds(&x, &y, scene, renderOptions);
+    SglContext *target = SoftIds::setupSoftFrameBuffer(scene->camera);
+    SoftIds::softRenderPatches(scene, renderOptions, target);
+    const long x = target->width;
+    const long y = target->height;
 
     Canvas::canvasPullMode();
-
-    if ( ids == NULL ) {
-        return;
-    }
 
     long lostPixels = 0;
 
     // Build a table to convert a patch ID to the corresponding Patch
     const int nextPatchId = Patch::getNextId();
     if ( nextPatchId <= 0 ) {
-        delete[] ids;
+        delete target;
         return;
     }
     unsigned long maximumPatchId = ((unsigned long)(nextPatchId - 1));
@@ -73,7 +69,8 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
         const long rowStart = j * x;
         float xSample = -h * ((float)(x - 1)) / 2.0f;
         for ( long i = 0; i < x; i++, xSample += h ) {
-            const unsigned long the_id = ids[rowStart + i] & 0xffffff;
+            const Patch *visible = target->patchBuffer[rowStart + i];
+            const unsigned long the_id = visible == NULL ? 0 : visible->id & 0xffffffUL;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 Vector3Df pixDir;
@@ -120,7 +117,7 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
 
     delete[] newDirectImportance;
     delete[] id2patch;
-    delete[] ids;
+    delete target;
 }
 
 void

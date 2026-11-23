@@ -1,28 +1,32 @@
-#ifndef __OPTION_CORE_TYPED_OPTION__
-#define __OPTION_CORE_TYPED_OPTION__
+#ifndef OPTION_CORE_TYPED_OPTION__
+#define OPTION_CORE_TYPED_OPTION__
 
 #include <string.h>
 
 #include "vsdk/toolkit/common/commandLineOptions/DefaultParser.h"
 
+class OptionValue {
+  public:
+    virtual ~OptionValue() {}
+    virtual const char *getName() const = 0;
+    virtual int getConsumesValue() const = 0;
+    virtual bool apply(int argc, char **argv) = 0;
+};
+
 template<typename T>
-class TypedOption {
+class TypedOption : public OptionValue {
   public:
     TypedOption();
     TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
     TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &));
-    TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
-    TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &));
 
     const char *getName() const;
     int getConsumesValue() const;
-    bool apply(void *context, int argc, char **argv);
+    bool apply(int argc, char **argv);
 
   private:
     const char *name_;
     T *target_;
-    int offset_;
-    bool useOffset_;
     int consumesValue_;
     void (*onSet_)(T &);
     bool (*parseArgs_)(int, char **, T &);
@@ -33,38 +37,21 @@ class TypedOption {
 class OptionBase {
   public:
     OptionBase();
-    OptionBase(
-        const char *name,
-        int abbreviationLength,
-        int (*consumesValue)(void *),
-        bool (*apply)(void *, void *, int, char **),
-        void *option);
+    OptionBase(OptionValue *option, int abbreviationLength);
 
     bool isConfigured() const;
     const char *getName() const;
     int getAbbreviationLength() const;
     int consumesValue() const;
-    bool apply(void *context, int argc, char **argv) const;
+    bool apply(int argc, char **argv) const;
 
   private:
-    const char *name_;
+    OptionValue *option_;
     int abbreviationLength_;
-    int (*consumesValue_)(void *);
-    bool (*apply_)(void *, void *, int, char **);
-    void *option_;
 };
 
-template<typename T>
-bool applyOption(TypedOption<T> &opt, void *context, int argc, char **argv);
-
-template<typename T>
-bool applyAdapter(void *opt, void *context, int argc, char **argv);
-
-template<typename T>
-int consumesValueAdapter(void *opt);
-
 #define REGISTER_OPTION(type, optionInstance, abbr) \
-    OptionBase((optionInstance).getName(), abbr, &consumesValueAdapter<type>, &applyAdapter<type>, (void *)&(optionInstance))
+    OptionBase(&(optionInstance), abbr)
 
 inline bool matchOption(const char *input, const char *name, int abbrLen) {
     if ( input == NULL || name == NULL ) {
@@ -76,8 +63,8 @@ inline bool matchOption(const char *input, const char *name, int abbrLen) {
     if ( abbrLen <= 0 ) {
         return false;
     }
-    const unsigned long inputLength = ((unsigned long)(strlen(input)));
-    if ( inputLength > ((unsigned long)(abbrLen)) ) {
+    const unsigned long inputLength = static_cast<unsigned long>(strlen(input));
+    if ( inputLength > static_cast<unsigned long>(abbrLen) ) {
         return false;
     }
     return strncmp(input, name, inputLength) == 0;

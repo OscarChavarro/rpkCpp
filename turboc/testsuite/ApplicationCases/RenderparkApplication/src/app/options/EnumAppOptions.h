@@ -11,6 +11,11 @@ class EnumAppOptions {
     int yesValue;
     int noValue;
     int debug;
+
+    EnumAppOptions(int widthValue, int heightValue, int nqcdivsValue,
+                   int yes, int no, int debugValue):
+        width(widthValue), height(heightValue), nqcdivs(nqcdivsValue),
+        yesValue(yes), noValue(no), debug(debugValue) {}
 };
 
 #endif

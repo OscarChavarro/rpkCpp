@@ -1,23 +1,34 @@
-/**
-Photon kd-tree: specialized kd-tree with some photon map specific additions
-*/
-
-#ifndef __PHOTON_K_D_TREE__
-#define __PHOTON_K_D_TREE__
+#ifndef PHOTON_K_D_TREE__
+#define PHOTON_K_D_TREE__
 
 #include "vsdk/toolkit/common/dataStructures/KDTree.h"
 #include "vsdk/toolkit/raycasting/photonMap/IrrPhoton.h"
 #include "vsdk/toolkit/raycasting/photonMap/NormalQuery.h"
-class PhotonKDTree: public KDTree{ private:
-    static NormalQuery qdat_s;
-    static float sqrDistance3D(const float *a, const float *b);
-    void NormalBQuery_rec(int index);
+
+class PhotonKDTree {
+  private:
+    KDTree<Photon> *photons;
+    KDTree<IrrPhoton> *irradiancePhotons;
+    IrrPhoton **irradianceResults;
+    int resultCapacity;
+
+    static float sqrDistance3D(const Vector3Df &a, const Vector3Df &b);
+    void normalQueryRec(int index, NormalQuery &query);
 
   public:
-    explicit PhotonKDTree(int dataSize, bool copyData = true);
+    explicit PhotonKDTree(bool irradiance);
+    ~PhotonKDTree();
 
-    IrrPhoton *
-    normalPhotonQuery( Vector3Df *position, const Vector3Df *normal, float threshold, float maxR2);
+    void addPoint(Photon *photon, short flags);
+    void addPoint(IrrPhoton *photon, short flags);
+    void balance();
+    int query(const Vector3Df &position, int count, Photon **results, float *distances,
+              float maximumDistance, short excludeFlags = 0);
+    IrrPhoton *normalPhotonQuery(const Vector3Df *position, const Vector3Df *normal,
+                                 float threshold, float maxR2);
+    void iterateIrradiance(KDTreeVisitor<IrrPhoton> &visitor) {
+        irradiancePhotons->iterateNodes(visitor);
+    }
 };
 
 #endif

@@ -34,12 +34,12 @@ ImportanceMap::reconstructImportance(Vector3Df /*pos*/, const Vector3Df &normal)
     maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
-        const Importon *importon = ((Importon *)(m_photons[i]));
+        const Photon *importon = m_photons[i];
 
         Vector3Df dir = importon->dir();
 
         // No bsdf eval : incoming importance !!!!!!
-        importance = importon->Importance();
+        importance = ((float)(importon->power().getR()));
 
         float cos_theta = dir.dotProduct(normal);
         if ( cos_theta > 0.0 ) {
@@ -87,12 +87,12 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3Df pos, Vector3Df
         if ( !m_irradianceComputed || (m_preReconPhotons != *m_estimate_nrp))
             precomputeIrradiance();
 
-        const Importon *photon = ((Importon *)(DoIrradianceQuery(&pos, &normal, m_totalMaxDistance)));
+        const IrrPhoton *photon = DoIrradianceQuery(&pos, &normal, m_totalMaxDistance);
 
         if ( photon ) {
             switch ( photonMapState.importanceOption ) {
                 case USE_IMPORTANCE:
-                    density = photon->PImportance();
+                    density = ((float)(photon->m_irradiance.getR()));
                     density *= *m_impScalePtr;
                     break;
                 default:
@@ -160,7 +160,7 @@ ImportanceMap::photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) {
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree
     m_totalMaxDistance = Math::max(pot, m_totalMaxDistance);
 
-    ((Importon *)(photon))->PSetAll(imp, pot, diff);
+    photon->SetIrradiance(ColorRgb(imp, imp, imp));
     if ( imp > m_maxImp ) {
         m_maxImp = imp;
     }
