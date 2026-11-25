@@ -1,5 +1,16 @@
-#include "vsdk/toolkit/galerkin/GalerkinElementVisibilityBuffer.h"
-#include "vsdk/toolkit/render/FaceVisibilityBuffer.h"
+#ifndef SGL_VISIBILITY_BUFFER_TXX__
+#define SGL_VISIBILITY_BUFFER_TXX__
+
+/**
+Implementation of SglVisibilityBuffer, generic on its Sample payload. sgl does
+not know which payloads exist: each client module that defines one includes
+this file in a single translation unit of its own and instantiates it there
+(see FaceVisibilityBuffer.cpp and GalerkinElementVisibilityBuffer.cpp). That
+keeps the dependency pointing from the client to sgl, and the scan conversion
+implementation out of every other translation unit.
+*/
+
+#include "vsdk/toolkit/render/sgl/SglVisibilityBuffer.h"
 #include "vsdk/toolkit/render/sgl/PolyScanFlat.txx"
 #include "vsdk/toolkit/render/sgl/PolyScanZ.txx"
 
@@ -52,6 +63,4 @@ SglVisibilityBuffer<Sample>::drawPolygon(int numberOfVertices, const Vector3Df *
     }
 }
 
-// Keep the scan conversion implementation private to this translation unit.
-template class SglVisibilityBuffer<SglFaceIndex>;
-template class SglVisibilityBuffer<const GalerkinElement *>;
+#endif

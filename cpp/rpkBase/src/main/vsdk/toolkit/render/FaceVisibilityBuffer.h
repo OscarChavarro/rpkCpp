@@ -15,6 +15,8 @@ class SglFaceIndex {
     int getIndex() const { return index; }
 };
 
+// Instantiated once, in FaceVisibilityBuffer.cpp
+extern template class SglVisibilityBuffer<SglFaceIndex>;
 using FaceVisibilityBuffer = SglVisibilityBuffer<SglFaceIndex>;
 
 #endif

@@ -18,7 +18,7 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 incrementalizeY: put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
-void
+inline void
 Poly::incrementalizeYZ(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
     double dy = p2.sy - p1.sy;
     if ( dy == 0.0 ) {
@@ -33,7 +33,7 @@ Poly::incrementalizeYZ(const PolygonVertex &p1, const PolygonVertex &p2, Polygon
     p->sz = p1.sz + dp->sz * frac;
 }
 
-void
+inline void
 Poly::incrementZ(PolygonVertex *p, const PolygonVertex &dp) {
     // Increment only sx and sz
     p->sx += dp.sx;

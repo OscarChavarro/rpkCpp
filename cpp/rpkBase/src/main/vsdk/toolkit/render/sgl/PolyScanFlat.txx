@@ -20,7 +20,7 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 Put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
-void
+inline void
 Poly::incrementalizeYFlat(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
     double dy = p2.sy - p1.sy;
     if ( dy == 0.0 ) {
@@ -33,7 +33,7 @@ Poly::incrementalizeYFlat(const PolygonVertex &p1, const PolygonVertex &p2, Poly
     p->sx = p1.sx + dp->sx * frac;
 }
 
-void
+inline void
 Poly::incrementFlat(PolygonVertex *p, const PolygonVertex &dp) {
     // Interpolate only sx
     p->sx += dp.sx;

@@ -5,8 +5,7 @@
 
 /**
 Operations over contiguous arrays of colors (Galerkin basis coefficients).
-Single-color arithmetic lives in ColorRgb. These are plain index loops, with
-no STL algorithms, so they map 1:1 onto Java arrays and TypeScript arrays.
+Single-color arithmetic lives in ColorRgb.
 */
 class ColorRgbMath final {
   public:
