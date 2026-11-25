@@ -65,14 +65,14 @@ class StochasticRadiosityElement final : public Element {
     static void stochasticRadiosityElementPushRadiance(
         const StochasticRadiosityElement *parent,
         StochasticRadiosityElement *child,
-        const ColorRgbMutable *parentRadiance,
-        ColorRgbMutable *childRadiance);
+        const ColorRgb *parentRadiance,
+        ColorRgb *childRadiance);
     static void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
     static void stochasticRadiosityElementPullRadiance(
         const StochasticRadiosityElement *parent,
         const StochasticRadiosityElement *child,
-        ColorRgbMutable *parentRad,
-        const ColorRgbMutable *childRad);
+        ColorRgb *parentRad,
+        const ColorRgb *childRad);
     static void stochasticRadiosityElementPullImportance(
         const StochasticRadiosityElement *parent,
         const StochasticRadiosityElement *child,

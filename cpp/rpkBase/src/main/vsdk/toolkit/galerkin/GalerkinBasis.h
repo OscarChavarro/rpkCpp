@@ -32,16 +32,16 @@ class GalerkinBasis {
     static ColorRgb
     radianceAtPoint(
         const GalerkinElement *element,
-        const ColorRgbMutable *coefficients,
+        const ColorRgb *coefficients,
         double u,
         double v);
 
     static void
     push(
         const GalerkinElement *element,
-        const ColorRgbMutable *parentCoefficients,
+        const ColorRgb *parentCoefficients,
         const GalerkinElement *child,
-        ColorRgbMutable *childCoefficients);
+        ColorRgb *childCoefficients);
 
     static void pushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState);
 
@@ -58,15 +58,15 @@ class GalerkinBasis {
     static void
     pull(
         const GalerkinElement *parent,
-        ColorRgbMutable *parentCoefficients,
+        ColorRgb *parentCoefficients,
         const GalerkinElement *child,
-        const ColorRgbMutable *childCoefficients);
+        const ColorRgb *childCoefficients);
 
     static void
     pushPullRadianceRecursive(
         GalerkinElement *element,
-        ColorRgbMutable *Bdown,
-        ColorRgbMutable *Bup,
+        ColorRgb *Bdown,
+        ColorRgb *Bup,
         GalerkinState *galerkinState);
 
     static void

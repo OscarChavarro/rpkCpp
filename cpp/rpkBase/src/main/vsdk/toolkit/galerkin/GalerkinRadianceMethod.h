@@ -38,13 +38,13 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static int numberOfWrites;
     static int vertexId;
 
-    static inline ColorRgbMutable
+    static inline ColorRgb
     galerkinGetRadiance(Patch *patch) {
         return galerkinState.topLevelElement(patch)->radiance[0];
     }
 
     static inline void
-    galerkinSetRadiance(Patch *patch, ColorRgbMutable value) {
+    galerkinSetRadiance(Patch *patch, const ColorRgb &value) {
         galerkinState.topLevelElement(patch)->radiance[0] = value;
     }
 

@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "java/lang/Float.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -67,7 +68,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     galerkinElement->numberOfPatches = 0;
     galerkinElement->minimumArea = java::Float::MAX_VALUE;
     for ( int i = 0; i < galerkinElement->basisSize; i++ ) {
-        galerkinElement->radiance[i].clear();
+        galerkinElement->radiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
     double emittance[3] = {galerkinElement->Ed.getR(), galerkinElement->Ed.getG(), galerkinElement->Ed.getB()};
     for ( int i = 0;
@@ -76,7 +77,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
         galerkinElement->area += subCluster->area;
         galerkinElement->numberOfPatches += subCluster->numberOfPatches;
-        galerkinElement->radiance[0].addScaled(galerkinElement->radiance[0], subCluster->area, subCluster->radiance[0]);
+        galerkinElement->radiance[0] = ColorRgbMath::addScaled(galerkinElement->radiance[0], subCluster->area, subCluster->radiance[0]);
         if ( subCluster->minimumArea < galerkinElement->minimumArea ) {
             galerkinElement->minimumArea = subCluster->minimumArea;
         }
@@ -85,23 +86,22 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         emittance[1] += subCluster->area * subCluster->Ed.getG();
         emittance[2] += subCluster->area * subCluster->Ed.getB();
     }
-    galerkinElement->radiance[0].scale(1.0F / galerkinElement->area);
+    galerkinElement->radiance[0] = galerkinElement->radiance[0].multiply(1.0F / galerkinElement->area);
     const double emittanceScale = 1.0F / galerkinElement->area;
     galerkinElement->Ed = ColorRgb(emittance[0] * emittanceScale, emittance[1] * emittanceScale, emittance[2] * emittanceScale);
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
         for ( int i = 0; i < galerkinElement->basisSize; i++ ) {
-            galerkinElement->unShotRadiance[i].clear();
+            galerkinElement->unShotRadiance[i] = ColorRgb(0.0, 0.0, 0.0);
         }
         for ( int i = 0;
               galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
               i++ ) {
             const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
-            galerkinElement->unShotRadiance[0].addScaled(
-                galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
+            galerkinElement->unShotRadiance[0] = ColorRgbMath::addScaled(galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }
-        galerkinElement->unShotRadiance[0].scale(1.0F / galerkinElement->area);
+        galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].multiply(1.0F / galerkinElement->area);
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility

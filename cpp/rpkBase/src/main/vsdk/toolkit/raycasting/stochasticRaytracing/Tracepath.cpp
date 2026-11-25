@@ -2,6 +2,7 @@
 Random walk generation
 */
 
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include <cstdlib>
 
 #include "vsdk/toolkit/common/VSDK.h"
@@ -196,19 +197,19 @@ Tracepath::tracePaths(
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, static_cast<double>(numberOfPaths) / sumProbabilities);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
+        StochasticRelaxation::activeState().unShotFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
+        StochasticRelaxation::activeState().totalFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);

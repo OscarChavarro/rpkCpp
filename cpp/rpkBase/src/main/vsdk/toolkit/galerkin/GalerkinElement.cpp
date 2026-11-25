@@ -270,28 +270,28 @@ GalerkinElement::reAllocCoefficients() {
         }
     }
 
-    ColorRgbMutable *defaultRadiance = new ColorRgbMutable[localBasisSize];
-    ColorRgbMutable::arrayClear(defaultRadiance, localBasisSize);
+    ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
+    ColorRgbMath::arrayClear(defaultRadiance, localBasisSize);
     if ( radiance != nullptr ) {
-        ColorRgbMutable::arrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgbMath::arrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
 
-    ColorRgbMutable *defaultReceivedRadiance = new ColorRgbMutable[localBasisSize];
-    ColorRgbMutable::arrayClear(defaultReceivedRadiance, localBasisSize);
+    ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
+    ColorRgbMath::arrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance != nullptr ) {
-        ColorRgbMutable::arrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgbMath::arrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-        ColorRgbMutable *defaultUnShotRadiance = new ColorRgbMutable[localBasisSize];
-        ColorRgbMutable::arrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
+        ColorRgbMath::arrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                ColorRgbMutable::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
+                ColorRgbMath::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->getMaterial() != nullptr ) {
                 // While a top-level element is being constructed it is not in the

@@ -2,6 +2,7 @@
 Non diffuse first shot
 */
 
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include <cstdlib>
 
 #include "java/lang/Math.h"
@@ -114,14 +115,18 @@ Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWor
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->getNormal());
-        ColorRgbMutable receivedRadiosity(0.0, 0.0, 0.0);
-        ColorRgbMutable Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
-        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples)), rad);
-        receivedRadiosity.selfScalarProduct(Rd);
-        McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
-        McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
+        const double scale = static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples));
+        double receivedRadiosity[3] = {
+            scale * rad.getR(), scale * rad.getG(), scale * rad.getB()};
+        const auto &reflectance = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
+        receivedRadiosity[0] *= reflectance.getR();
+        receivedRadiosity[1] *= reflectance.getG();
+        receivedRadiosity[2] *= reflectance.getB();
+        const ColorRgb contribution(receivedRadiosity[0], receivedRadiosity[1], receivedRadiosity[2]);
         StochasticRadiosityElement *element = McradP::topLevelStochasticRadiosityElement(hit->getPatch());
-        element->sourceRad = element->sourceRad.add(static_cast<ColorRgb>(receivedRadiosity));
+        element->radiance[0] = element->radiance[0].add(contribution);
+        element->unShotRadiance[0] = element->unShotRadiance[0].add(contribution);
+        element->sourceRad = element->sourceRad.add(contribution);
     }
 }
 
@@ -151,22 +156,22 @@ Nondiff::sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *s
 
 void
 Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors) {
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.clear();
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgb(0.0, 0.0, 0.0);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
+        StochasticRelaxation::activeState().unShotFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
+        StochasticRelaxation::activeState().totalFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
             static_cast<float>(M_PI) * patch->getArea() * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
                                                       McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),

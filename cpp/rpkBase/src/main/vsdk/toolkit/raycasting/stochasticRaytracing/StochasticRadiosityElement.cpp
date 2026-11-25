@@ -613,8 +613,8 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     NiederreiterIndex msb1;
     NiederreiterIndex rMostSignificantBit2;
     NiederreiterIndex n;
-    ColorRgbMutable albedo(0.0, 0.0, 0.0);
-    ColorRgbMutable emittance(0.0, 0.0, 0.0);
+    ColorRgb albedo(0.0, 0.0, 0.0);
+    ColorRgb emittance(0.0, 0.0, 0.0);
     RpkRayHit hit;
     const Vector3Df patchMidPoint = patch->midPoint();
     const Vector3Df patchNormal = patch->getNormal();
@@ -622,20 +622,20 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
 
     isTextured = StochasticRadiosityElement::stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
-    albedo.clear();
-    emittance.clear();
+    albedo = ColorRgb(0.0, 0.0, 0.0);
+    emittance = ColorRgb(0.0, 0.0, 0.0);
     StochasticRadiosityElement::stochasticRadiosityElementRange(elem, &nbits, &msb1, &rMostSignificantBit2);
 
     n = 1;
     for ( int i = 0; i < numberOfSamples; i++, n++ ) {
-        ColorRgbMutable sample(0.0, 0.0, 0.0);
+        ColorRgb sample(0.0, 0.0, 0.0);
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(static_cast<double>(xi[0]) * Niederreiter::RECIP, static_cast<double>(xi[1]) * Niederreiter::RECIP);
         Vector3Df position = hit.getPoint();
         patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
         hit.setPoint(&position);
         if ( patch->getMaterial()->getBsdf() ) {
-            sample.clear();
+            sample = ColorRgb(0.0, 0.0, 0.0);
             if ( patch->getMaterial()->getBsdf() != nullptr ) {
                 bool shctxOk = false;
                 ShadingContext shctx = hit.shadingContext(&shctxOk);
@@ -643,7 +643,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
                     sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
                 }
             }
-            albedo.add(albedo, sample);
+            albedo = albedo.add(sample);
         }
         if ( patch->getMaterial()->getEdf() ) {
             bool shctxOk = false;
@@ -651,13 +651,13 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
             if ( shctxOk ) {
                 sample = patch->getMaterial()->getEdf()->phongEmittance(&shctx, DIFFUSE_COMPONENT);
             } else {
-                sample.clear();
+                sample = ColorRgb(0.0, 0.0, 0.0);
             }
-            emittance.add(emittance, sample);
+            emittance = emittance.add(sample);
         }
     }
-    elem->Rd = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), static_cast<ColorRgb>(albedo));
-    elem->Ed = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), static_cast<ColorRgb>(emittance));
+    elem->Rd = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), albedo);
+    elem->Ed = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), emittance);
 }
 
 /**
@@ -882,11 +882,11 @@ void
 StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(
     const StochasticRadiosityElement *parent,
     StochasticRadiosityElement *child,
-    const ColorRgbMutable *parentRadiance,
-    ColorRgbMutable *childRadiance)
+    const ColorRgb *parentRadiance,
+    ColorRgb *childRadiance)
 {
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        childRadiance[0].add(childRadiance[0], parentRadiance[0]);
+        childRadiance[0] = childRadiance[0].add(parentRadiance[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         Basismcrad::filterColorDown(parentRadiance, &(*child->basis->regularFilter)[child->childNumber], childRadiance,
                         child->basis->size);
@@ -904,12 +904,12 @@ void
 StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
     const StochasticRadiosityElement *parent,
     const StochasticRadiosityElement *child,
-    ColorRgbMutable *parentRad,
-    const ColorRgbMutable *childRad)
+    ColorRgb *parentRad,
+    const ColorRgb *childRad)
 {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
+        parentRad[0] = ColorRgbMath::addScaled(parentRad[0], areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         Basismcrad::filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
                       parentRad, child->basis->size, areaFactor);

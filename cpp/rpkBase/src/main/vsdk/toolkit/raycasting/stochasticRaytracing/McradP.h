@@ -21,15 +21,15 @@ class McradP final {
             ElementHierarchyState::activeState().getRadianceElements()->get(patch->getFaceIndex()));
     }
 
-    static inline ColorRgbMutable *getTopLevelPatchRad(const Patch *patch) {
+    static inline ColorRgb *getTopLevelPatchRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->radiance;
     }
 
-    static inline ColorRgbMutable *getTopLevelPatchUnShotRad(const Patch *patch) {
+    static inline ColorRgb *getTopLevelPatchUnShotRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
     }
 
-    static inline ColorRgbMutable *getTopLevelPatchReceivedRad(const Patch *patch) {
+    static inline ColorRgb *getTopLevelPatchReceivedRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
     }
 

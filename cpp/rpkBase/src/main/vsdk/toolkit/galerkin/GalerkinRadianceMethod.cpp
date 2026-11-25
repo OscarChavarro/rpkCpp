@@ -9,6 +9,7 @@ Galerkin radiosity, with the following variants:
 #include <cstring>
 
 #include "java/lang/Float.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
@@ -265,19 +266,15 @@ GalerkinRadianceMethod::updateCpuSecs() {
 
 void
 GalerkinRadianceMethod::patchInit(Patch *patch, const DirectPotentialTable *directPotentials, FaceColorTable *faceColors) {
-    ColorRgbMutable reflectivity = galerkinState.topLevelElement(patch)->Rd;
-    ColorRgbMutable selfEmittanceRadiance = galerkinState.topLevelElement(patch)->Ed;
-
     if ( galerkinState.useConstantRadiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
         // '95, Dublin, Ireland, June 1995, p 336-344
-        galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
-        galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-            galerkinState.topLevelElement(patch)->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
+            galerkinState.topLevelElement(patch)->unShotRadiance[0] =
+                ColorRgbMath::subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
         }
     } else {
-        galerkinSetRadiance(patch, selfEmittanceRadiance);
+        galerkinSetRadiance(patch, galerkinState.topLevelElement(patch)->Ed);
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             galerkinState.topLevelElement(patch)->unShotRadiance[0] = galerkinGetRadiance(patch);
         }
@@ -307,17 +304,17 @@ Recomputes the color of a patch using ambient radiance term, ... if requested fo
 */
 void
 GalerkinRadianceMethod::recomputePatchColor(Patch *patch, FaceColorTable *faceColors) {
-    ColorRgbMutable reflectivity = galerkinState.topLevelElement(patch)->Rd;
-    ColorRgbMutable radVis(0.0, 0.0, 0.0);
+    const ColorRgb reflectivity = galerkinState.topLevelElement(patch)->Rd;
 
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( galerkinState.useAmbientRadiance ) {
-        radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
-        radVis.add(radVis, galerkinGetRadiance(patch));
-        const ColorRgb patchColor = ToneMap::radianceToRgb(static_cast<ColorRgb>(radVis), *galerkinState.toneMapOptions);
+        const ColorRgb radianceWithAmbient = ColorRgbMath::add(
+            ColorRgbMath::scaledProduct(reflectivity, 1.0, galerkinState.ambientRadiance),
+            galerkinGetRadiance(patch));
+        const ColorRgb patchColor = ToneMap::radianceToRgb(radianceWithAmbient, *galerkinState.toneMapOptions);
         faceColors->set(patch->getFaceIndex(), patchColor);
     } else {
-        const ColorRgb patchColor = ToneMap::radianceToRgb(static_cast<ColorRgb>(galerkinGetRadiance(patch)), *galerkinState.toneMapOptions);
+        const ColorRgb patchColor = ToneMap::radianceToRgb(galerkinGetRadiance(patch), *galerkinState.toneMapOptions);
         faceColors->set(patch->getFaceIndex(), patchColor);
     }
     patch->computeVertexColors(faceColors);

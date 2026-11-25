@@ -43,7 +43,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     static double randomWalkRadiosityPatchArea(const Patch *patch);
     static double randomWalkRadiosityScalarSourcePower(const Patch *patch);
     static double randomWalkRadiosityScalarReflectance(const Patch *patch);
-    static ColorRgbMutable *randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgb *randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem);
     static void randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches);
     static double randomWalkRadiosityScoreWeight(const Path *path, int nodeIndex);
     static void randomWalkRadiosityShootingScore(
@@ -55,7 +55,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches);
-    static ColorRgbMutable randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches);
+    static ColorRgb randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches);
     static void randomWalkRadiosityCollisionGatheringScore(
         const Path *path,
         long numberOfPaths,

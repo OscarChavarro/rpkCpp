@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -287,10 +288,10 @@ FormFactorStrategy::computeInteractionFormFactor(
     const GalerkinElement *receiverElement,
     const GalerkinBasis *sourceBasis,
     const GalerkinBasis *receiverBasis,
-    const ColorRgbMutable *sourceRadiance,
+    const ColorRgb *sourceRadiance,
     double *gMin,
     double *gMax,
-    ColorRgbMutable *deltaRadiance,
+    double deltaRadiance[][3],
     Interaction *twoPatchesInteraction)
 {
     // 1. Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
@@ -316,10 +317,6 @@ FormFactorStrategy::computeInteractionFormFactor(
 
     for ( int i = 0; i < CubatureRule::MAXIMUM_NODES; i++ ) {
         sourcePhi[i] = 0.0;
-    }
-
-    for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
-        deltaRadiance[k].clear();
     }
 
     // 3. Compute form factor and write it to interaction K
@@ -369,8 +366,12 @@ FormFactorStrategy::computeInteractionFormFactor(
             }
         }
 
+        const double source[3] = {sourceRadiance[beta].getR(), sourceRadiance[beta].getG(), sourceRadiance[beta].getB()};
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
-            deltaRadiance[k].addScaled(deltaRadiance[k], static_cast<float>(deltaBeta[k]), sourceRadiance[beta]);
+            const double weight = static_cast<float>(deltaBeta[k]);
+            for ( int channel = 0; channel < 3; channel++ ) {
+                deltaRadiance[k][channel] += weight * source[channel];
+            }
         }
 
         if ( beta == 0 ) {
@@ -393,12 +394,12 @@ FormFactorStrategy::computeInteractionError(
     const GalerkinElement *receiverElement,
     const double gMin,
     const double gMax,
-    const ColorRgbMutable *sourceRadiance,
-    ColorRgbMutable *deltaRadiance,
+    const ColorRgb *sourceRadiance,
+    double deltaRadiance[][3],
     Interaction *link)
 {
     // Compute error and write it to interaction deltaK
-    if ( sourceRadiance[0].isBlack() ) {
+    if ( ColorRgbMath::isBlack(sourceRadiance[0]) ) {
         // No source radiance: use constant radiance error approximation
         double gav = link->K[0] / receiverElement->area;
         link->deltaK = static_cast<float>(gMax - gav);
@@ -408,8 +409,9 @@ FormFactorStrategy::computeInteractionError(
     } else {
         link->deltaK = 0.0;
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
-            deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
-            double delta = java::Math::abs(deltaRadiance[k].maximumComponent());
+            const ColorRgb difference(deltaRadiance[k][0], deltaRadiance[k][1], deltaRadiance[k][2]);
+            const ColorRgb relativeError = ColorRgbMath::divide(difference, sourceRadiance[0]);
+            double delta = java::Math::abs(ColorRgbMath::maximumComponent(relativeError));
             if ( delta > link->deltaK ) {
                 link->deltaK = static_cast<float>(delta);
             }
@@ -449,9 +451,9 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     }
 
     // 2. Compute form factor (sets K)
-    const ColorRgbMutable *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
+    const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
          sourceElement->unShotRadiance : sourceElement->radiance;
-    ColorRgbMutable deltaRadiance[CubatureRule::MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
+    double deltaRadiance[CubatureRule::MAXIMUM_NODES][3]{}; // See Bekaert & Willems, p159 bottom
     double gMin = Numeric::HUGE_DOUBLE_VALUE;
     double gMax = -Numeric::HUGE_DOUBLE_VALUE;
 

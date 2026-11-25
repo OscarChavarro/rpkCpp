@@ -98,29 +98,26 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *radianceMethod) {
     }
 }
 
-void
+SparContribution
 SparList::handlePath(
     SparConfig *config,
-    BiPath *path,
-    ColorRgbMutable *fRad,
-    ColorRgbMutable *fBpt)
+    BiPath *path)
 {
     CSparListIter iter(*this);
     Spar **spar;
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-
-    fBpt->clear();
-    fRad->clear();
+    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgb bptRadiance(0.0, 0.0, 0.0);
 
     while ( (spar = iter.nextOnSequence()) ) {
-        col = (*spar)->handlePath(config, path);
+        const ColorRgb contribution = (*spar)->handlePath(config, path);
 
         if ( *spar == config->leSpar ) {
-            fBpt->add(col, *fBpt);
+            bptRadiance = bptRadiance.add(contribution);
         } else {
-            fRad->add(col, *fRad);
+            radiance = radiance.add(contribution);
         }
     }
+    return {radiance, bptRadiance};
 }
 
 SparList::~SparList() {

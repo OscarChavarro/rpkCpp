@@ -35,7 +35,7 @@ class HierarchicalRefinementStrategy {
         const GalerkinState *galerkinState);
 
     static double
-    hierarchicRefinementColorToError(ColorRgbMutable radiance);
+    hierarchicRefinementColorToError(ColorRgb radiance);
 
     static double
     hierarchicRefinementLinkErrorThreshold(
@@ -46,14 +46,14 @@ class HierarchicalRefinementStrategy {
     static double
     hierarchicRefinementApproximationError(
         Interaction *interaction,
-        ColorRgbMutable srcRho,
-        ColorRgbMutable rcvRho,
+        ColorRgb srcRho,
+        ColorRgb rcvRho,
         GalerkinState *galerkinState);
 
     static double
     sourceClusterRadianceVariationError(
         Interaction *interaction,
-        ColorRgbMutable rcvRho,
+        ColorRgb rcvRho,
         double receiverArea,
         GalerkinState *galerkinState);
 

@@ -41,7 +41,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     static long stochasticRelaxationRadiosityRandomRound(float x);
     static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
     static double stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *elem, double w);
-    static ColorRgbMutable *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgb *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
     static void stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
@@ -56,7 +56,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
-    static ColorRgbMutable *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgb *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintRegularStats();
     static void stochasticRelaxationRadiosityDoRegularRadianceIteration(

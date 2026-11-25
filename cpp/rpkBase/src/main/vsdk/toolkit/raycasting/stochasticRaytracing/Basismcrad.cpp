@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/numericalAnalysis/QuadCubatureRule.h"
@@ -212,7 +213,7 @@ Basismcrad::monteCarloRadiosityInitBasis() {
 Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
-Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v) {
+Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
     double res[3] = {0.0, 0.0, 0.0};
     for ( int i = 0; i < basis->size; i++ ) {
         const double s = static_cast<float>(basis->function[i](u, v));
@@ -228,20 +229,20 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-Basismcrad::filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER *h, ColorRgbMutable *child, int n) {
+Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
-            child[i].addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
+            child[i] = ColorRgbMath::addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
         }
     }
 }
 
 void
-Basismcrad::filterColorUp(const ColorRgbMutable *child, GalerkinBasis::FILTER *h, ColorRgbMutable *parent, int n, double areaFactor) {
+Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i].addScaled(parent[i], static_cast<float>(H), child[j]);
+            parent[i] = ColorRgbMath::addScaled(parent[i], static_cast<float>(H), child[j]);
         }
     }
 }

@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include <cstdlib>
 
 #include "vsdk/toolkit/common/VSDK.h"
@@ -182,7 +183,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityQualityFactor(const
     return w / StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(elem);
 }
 
-ColorRgbMutable *
+ColorRgb *
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem) {
     return elem->unShotRadiance;
 }
@@ -206,7 +207,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementRad
     Coefficientsmcrad::stochasticRadiosityCopyCoefficients(elem->unShotRadiance, elem->receivedRadiance, elem->basis);
     if ( StochasticRelaxation::activeState().setSource ) {
         // Copy direct illumination and forget self emitted illumination
-        elem->sourceRad = static_cast<ColorRgb>(elem->receivedRadiance[0]);
+        elem->sourceRad = elem->receivedRadiance[0];
         elem->radiance[0] = elem->sourceRad;
     }
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
@@ -216,11 +217,11 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
     java::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             StochasticRelaxation::activeState().cpuSeconds, StochasticRelaxation::activeState().tracedRays, StochasticRelaxation::activeState().tracedRays - StochasticRelaxation::activeState().numberOfMisses);
-    StochasticRelaxation::activeState().unShotFlux.print(&java::System::err);
+    java::System::err.printf("%g %g %g", StochasticRelaxation::activeState().unShotFlux.getR(), StochasticRelaxation::activeState().unShotFlux.getG(), StochasticRelaxation::activeState().unShotFlux.getB());
     java::System::err.printf(", total flux = ");
-    StochasticRelaxation::activeState().totalFlux.print(&java::System::err);
+    java::System::err.printf("%g %g %g", StochasticRelaxation::activeState().totalFlux.getR(), StochasticRelaxation::activeState().totalFlux.getG(), StochasticRelaxation::activeState().totalFlux.getB());
     java::System::err.printf(", indirect importance weighted un-shot flux = ");
-    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.print(&java::System::err);
+    java::System::err.printf("%g %g %g", StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.getR(), StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.getG(), StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.getB());
     java::System::err.printf("\n");
 }
 
@@ -242,18 +243,18 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
     StochasticRelaxation::activeState().weightedSampling = false;
 
     stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
-    refUnShot = StochasticRelaxation::activeState().unShotFlux.sumAbsComponents();
+    refUnShot = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().unShotFlux);
     if ( StochasticRelaxation::activeState().incrementalUsesImportance ) {
-        refUnShot = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.sumAbsComponents();
+        refUnShot = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux);
     }
     while ( true ) {
         // Choose nr of rays so that power carried by each ray remains equal, and
         // proportional to the number of basis functions in the rad. approx
         double unShotFraction;
         long numberOfRays;
-        unShotFraction = StochasticRelaxation::activeState().unShotFlux.sumAbsComponents() / refUnShot;
+        unShotFraction = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().unShotFlux) / refUnShot;
         if ( StochasticRelaxation::activeState().incrementalUsesImportance ) {
-            unShotFraction = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.sumAbsComponents() / refUnShot;
+            unShotFraction = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux) / refUnShot;
         }
         if ( unShotFraction < 0.01 ) {
             // Only 1/100th of self-emitted power remains un-shot
@@ -367,7 +368,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
     StochasticRelaxation::activeState().weightedSampling = weighted_sampling;
 }
 
-ColorRgbMutable *
+ColorRgb *
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem) {
     return elem->radiance;
 }
@@ -396,7 +397,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateRadian
     }
 
     // Subtract source radiosity
-    elem->radiance[0].subtract(elem->radiance[0], elem->sourceRad);
+    elem->radiance[0] = ColorRgbMath::subtract(elem->radiance[0], elem->sourceRad);
 
     // Combine with previous results
     Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), elem->radiance, elem->basis);
@@ -404,7 +405,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateRadian
     Coefficientsmcrad::stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
 
     // Re-add source radiosity
-    elem->radiance[0].add(elem->radiance[0], elem->sourceRad);
+    elem->radiance[0] = elem->radiance[0].add(elem->sourceRad);
 
     // Clear un-shot and received radiance
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
@@ -416,7 +417,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintRegularStats()
     java::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             StochasticRelaxation::activeState().cpuSeconds, StochasticRelaxation::activeState().tracedRays, StochasticRelaxation::activeState().tracedRays - StochasticRelaxation::activeState().numberOfMisses);
     java::System::err.printf(", total flux = ");
-    StochasticRelaxation::activeState().totalFlux.print(&java::System::err);
+    java::System::err.printf("%g %g %g", StochasticRelaxation::activeState().totalFlux.getR(), StochasticRelaxation::activeState().totalFlux.getG(), StochasticRelaxation::activeState().totalFlux.getB());
     if ( StochasticRelaxation::activeState().importanceDriven ) {
         java::System::err.printf("\ntotal importance rays = %ld, total importance = %g, total area = %g",
                 StochasticRelaxation::activeState().importanceTracedRays, StochasticRelaxation::activeState().totalYmp, Statistics::instance().radiance.totalArea);

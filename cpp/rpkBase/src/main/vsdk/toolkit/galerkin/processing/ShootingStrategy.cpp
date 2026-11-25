@@ -33,7 +33,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = static_cast<float>(M_PI) * patch->getArea() * galerkinState->topLevelElement(patch)->unShotRadiance[0].sumAbsComponents();
+        power = static_cast<float>(M_PI) * patch->getArea() * ColorRgbMath::sumAbsComponents(galerkinState->topLevelElement(patch)->unShotRadiance[0]);
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -69,7 +69,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     }
 
     for ( int i = 0; i < elem->basisSize; i++ ) {
-        elem->unShotRadiance[i].clear();
+        elem->unShotRadiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
     elem->unShotPotential = 0.0F;
 }
@@ -159,7 +159,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
     galerkinState->ambientRadiance = ColorRgbMath::addScaled(
         galerkinState->ambientRadiance,
         patch->getArea(),
-        static_cast<ColorRgb>(galerkinState->topLevelElement(patch)->unShotRadiance[0]));
+        galerkinState->topLevelElement(patch)->unShotRadiance[0]);
 }
 
 void
@@ -174,7 +174,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
             shootingPushPullPotential(galerkinState->topCluster, 0.0);
         }
         GalerkinBasis::pushPullRadiance(galerkinState->topCluster, galerkinState);
-        galerkinState->ambientRadiance = static_cast<ColorRgb>(galerkinState->topCluster->unShotRadiance[0]);
+        galerkinState->ambientRadiance = galerkinState->topCluster->unShotRadiance[0];
     } else {
         galerkinState->ambientRadiance = ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

@@ -2,7 +2,7 @@
 #include "vsdk/toolkit/galerkin/processing/visitors/DepthVisibilityGathererVisitor.h"
 DepthVisibilityGathererVisitor::DepthVisibilityGathererVisitor(
     Interaction *inLink,
-    ColorRgbMutable *inSourceRadiance,
+    ColorRgb *inSourceRadiance,
     double inPixelArea)
 {
     link = inLink;

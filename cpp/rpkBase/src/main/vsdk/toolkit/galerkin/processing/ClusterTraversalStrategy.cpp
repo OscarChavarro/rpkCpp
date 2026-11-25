@@ -7,6 +7,7 @@ Reference:
 Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -55,7 +56,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 {
     switch ( galerkinState->clusteringStrategy ) {
         case GalerkinClusteringStrategy::ISOTROPIC:
-            return static_cast<ColorRgb>(sourceElement->radiance[0]);
+            return sourceElement->radiance[0];
 
         case GalerkinClusteringStrategy::ORIENTED: {
             // Accumulate the power emitted by the patches in the source cluster
@@ -74,7 +75,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
         case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !sourceElement->isCluster() || !sourceElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
-                return static_cast<ColorRgb>(sourceElement->radiance[0]);
+                return sourceElement->radiance[0];
             } else {
                 double areaFactor;
 
@@ -208,21 +209,18 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     GalerkinElement *rcv,
     double areaFactor,
     const Interaction *link,
-    const ColorRgbMutable *sourceRadiance)
+    const ColorRgb *sourceRadiance)
 {
-    ColorRgbMutable *rcvRad = rcv->receivedRadiance;
+    ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0].addScaled(rcvRad[0], static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
+        rcvRad[0] = ColorRgbMath::addScaled(rcvRad[0], static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
         int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
         int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( int alpha = 0; alpha < a; alpha++ ) {
             for ( int beta = 0; beta < b; beta++ ) {
-                rcvRad[alpha].addScaled(
-                    rcvRad[alpha],
-                    static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
-                    sourceRadiance[beta]);
+                rcvRad[alpha] = ColorRgbMath::addScaled(rcvRad[alpha], static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
             }
         }
     }
@@ -233,7 +231,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *srcRad, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 

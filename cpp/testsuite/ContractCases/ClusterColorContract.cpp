@@ -19,7 +19,7 @@ int main() {
     GalerkinElement element(static_cast<RpkGeometry *>(nullptr), &state);
     element.patch = &patch;
     element.area = 2.0f;
-    element.radiance[0] = ColorRgbMutable(2, -1, 4);
+    element.radiance[0] = ColorRgb(2, -1, 4);
     check(GalerkinBasis::radianceAtPoint(&element, element.radiance, 0.25, 0.5), 2, -1, 4);
     check(GalerkinBasis::radianceAtPoint(&element, nullptr, 0.25, 0.5), 0, 0, 0);
     MaximumRadianceVisitor maximum;
@@ -28,7 +28,7 @@ int main() {
     power.visit(&element, &state);
     check(maximum.getAccumulatedRadiance(), 2, 0, 4);
     check(power.getAccumulatedRadiance(), 5, 0, 11);
-    element.radiance[0] = ColorRgbMutable(-3, 5, 1);
+    element.radiance[0] = ColorRgb(-3, 5, 1);
     maximum.visit(&element, &state);
     power.visit(&element, &state);
     check(maximum.getAccumulatedRadiance(), 2, 5, 4);

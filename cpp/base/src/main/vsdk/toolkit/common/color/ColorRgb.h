@@ -8,21 +8,21 @@ private:
     double b_;
 
 public:
-    ColorRgb();
-    ColorRgb(double r, double g, double b);
-    ~ColorRgb();
+    ColorRgb() : r_(0), g_(0), b_(0) {}
+    ColorRgb(double r, double g, double b) : r_(r), g_(g), b_(b) {}
+    ~ColorRgb() {}
 
-    double r() const;
-    double g() const;
-    double b() const;
+    double r() const { return r_; }
+    double g() const { return g_; }
+    double b() const { return b_; }
 
-    double getR() const;
-    double getG() const;
-    double getB() const;
+    double getR() const { return r_; }
+    double getG() const { return g_; }
+    double getB() const { return b_; }
 
     double distance(const ColorRgb& other) const;
-    ColorRgb add(const ColorRgb& other) const;
-    ColorRgb multiply(double scalar) const;
+    ColorRgb add(const ColorRgb& other) const { return ColorRgb(r_ + other.r_, g_ + other.g_, b_ + other.b_); }
+    ColorRgb multiply(double scalar) const { return ColorRgb(r_ * scalar, g_ * scalar, b_ * scalar); }
 };
 
 #endif

@@ -2,6 +2,7 @@
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
 
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include <cstdlib>
 
 #include "java/lang/Math.h"
@@ -29,7 +30,7 @@ Mcrad::monteCarloRadiosityDefaults() {
     StochasticRelaxation::activeState().rayUnitsPerIt = 10;
     StochasticRelaxation::activeState().bidirectionalTransfers = false;
     StochasticRelaxation::activeState().constantControlVariate = false;
-    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().indirectOnly = false;
     StochasticRelaxation::activeState().sequence = Sampler4DSequence::NIEDERREITER;
     StochasticRelaxation::activeState().approximationOrderType = StochasticRaytracingApproximation::CONSTANT;
@@ -113,7 +114,7 @@ Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
 
     McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = Ed;
     McradP::getTopLevelPatchRad(patch)[0] = McradP::getTopLevelPatchUnShotRad(patch)[0] = Ed;
-    McradP::getTopLevelPatchReceivedRad(patch)[0].clear();
+    McradP::getTopLevelPatchReceivedRad(patch)[0] = ColorRgb(0.0, 0.0, 0.0);
 
     McradP::topLevelStochasticRadiosityElement(patch)->rayIndex = patch->getId() * 11;
     McradP::topLevelStochasticRadiosityElement(patch)->quality = 0.0;
@@ -342,25 +343,25 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *rend
     StochasticRelaxation::activeState().importanceTracedRays = StochasticRelaxation::activeState().prevImportanceTracedRays = 0;
     StochasticRelaxation::activeState().setSource = StochasticRelaxation::activeState().indirectOnly;
     StochasticRelaxation::activeState().tracedPaths = 0;
-    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0, 0.0, 0.0);
 
-    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.clear();
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgb(0.0, 0.0, 0.0);
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
-        StochasticRelaxation::activeState().unShotFlux.addScaled(
+        StochasticRelaxation::activeState().unShotFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux.addScaled(
+        StochasticRelaxation::activeState().totalFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgbMath::addScaled(
             StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
             static_cast<float>(M_PI) * patch->getArea() *
             (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
@@ -508,7 +509,7 @@ Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Ve
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
     const ColorRgb usedRd = renderOptions->isSmoothShading()
         ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v)
-        : static_cast<ColorRgb>(leaf->Rd);
+        : leaf->Rd;
     const ColorRgb displayRadiance = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
     double radiance[3] = {displayRadiance.getR(), displayRadiance.getG(), displayRadiance.getB()};
     const double reflectivity[3] = {trueRd.getR(), trueRd.getG(), trueRd.getB()};

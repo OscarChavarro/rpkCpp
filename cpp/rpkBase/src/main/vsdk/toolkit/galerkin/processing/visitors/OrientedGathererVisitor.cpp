@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/OrientedGathererVisitor.h"
 
-OrientedGathererVisitor::OrientedGathererVisitor(Interaction *inLink, ColorRgbMutable *inSourceRadiance) {
+OrientedGathererVisitor::OrientedGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance) {
     link = inLink;
     sourceRadiance = inSourceRadiance;
 }

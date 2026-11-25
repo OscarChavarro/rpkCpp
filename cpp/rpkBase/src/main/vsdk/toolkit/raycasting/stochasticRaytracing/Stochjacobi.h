@@ -2,7 +2,7 @@
 #define STOCHASTIC_JACOBI__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
@@ -34,7 +34,7 @@ propagation of importance and radiance does not work yet.
 */
 class StochasticJacobi final {
   public:
-    using GetRadianceCallback = ColorRgbMutable *(*)(const StochasticRadiosityElement *);
+    using GetRadianceCallback = ColorRgb *(*)(const StochasticRadiosityElement *);
     using GetImportanceCallback = float (*)(const StochasticRadiosityElement *);
     using UpdateCallback = void (*)(StochasticRadiosityElement *elem, double w);
 
@@ -71,26 +71,26 @@ class StochasticJacobi final {
         StochasticRadiosityElement *rcv,
         double ur,
         double vr,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         const StochasticRadiosityElement *src,
         double fraction,
         double weight);
     static void stochasticJacobiPropagateRadianceToClusterIsotropic(
         StochasticRadiosityElement *cluster,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         const StochasticRadiosityElement *src,
         double fraction,
         double weight);
     static void stochasticJacobiPropagateRadianceClusterRecursive(
         StochasticRadiosityElement *currentElement,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         RpkRay *ray,
         float dir,
         double projectedArea,
         double fraction);
     static void stochasticJacobiPropagateRadianceToClusterOriented(
         StochasticRadiosityElement *cluster,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         RpkRay *ray,
         float dir,
         const StochasticRadiosityElement *src,
