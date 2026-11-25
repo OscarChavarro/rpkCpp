@@ -13,11 +13,13 @@ class RevisedTumblinRushmeierToneMap final : public ToneMap {
 
     static float stevensGamma(float lum);
 
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions) final;
+
   public:
     RevisedTumblinRushmeierToneMap();
     ~RevisedTumblinRushmeierToneMap() final;
 
-    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
     ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };

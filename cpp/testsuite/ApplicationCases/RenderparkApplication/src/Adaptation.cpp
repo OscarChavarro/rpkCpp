@@ -9,7 +9,6 @@ Estimate static adaptation for tone mapping
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
@@ -51,9 +50,9 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 }
 
 float
-Adaptation::patchBrightnessEstimate(Patch *patch) {
+Adaptation::patchBrightnessEstimate(Patch *patch, const Cie &colorSpace) {
     const ColorRgb radiance = patchRadianceEstimate(patch);
-    float brightness = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
+    float brightness = static_cast<float>(colorSpace.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
     }
@@ -61,15 +60,15 @@ Adaptation::patchBrightnessEstimate(Patch *patch) {
 }
 
 void
-Adaptation::patchComputeLogAreaLum(Patch *patch) {
-    const float brightness = Adaptation::patchBrightnessEstimate(patch);
+Adaptation::patchComputeLogAreaLum(Patch *patch, const Cie &colorSpace) {
+    const float brightness = Adaptation::patchBrightnessEstimate(patch, colorSpace);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     logAreaLum += patch->getArea() * java::Math::log(brightness);
 }
 
 void
-Adaptation::patchFillLumArea(Patch *patch) {
-    const float brightness = Adaptation::patchBrightnessEstimate(patch);
+Adaptation::patchFillLumArea(Patch *patch, const Cie &colorSpace) {
+    const float brightness = Adaptation::patchBrightnessEstimate(patch, colorSpace);
 
     LuminanceArea &entry = lumArea[lumAreaIndex];
     entry.luminance = brightness;
@@ -131,7 +130,7 @@ Adaptation::estimateSceneAdaptation(
             // Gibson's static adaptation after [TUMB1999b]
             logAreaLum = 0.0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
+                Adaptation::patchComputeLogAreaLum(scenePatches->get(i), toneMapOptions.getColorSpace());
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
             toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(logAreaLum) / Statistics::instance().radiance.totalArea + 0.84F);
@@ -145,7 +144,7 @@ Adaptation::estimateSceneAdaptation(
             lumAreaIndex = 0;
             numEntries = 0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                Adaptation::patchFillLumArea(scenePatches->get(i));
+                Adaptation::patchFillLumArea(scenePatches->get(i), toneMapOptions.getColorSpace());
             }
             toneMapOptions.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().reader.numberOfPatches);
 

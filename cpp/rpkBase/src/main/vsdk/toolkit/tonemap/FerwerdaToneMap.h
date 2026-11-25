@@ -17,11 +17,13 @@ class FerwerdaToneMap final : public ToneMap {
     static float scotopicOperator(float logLa);
     static float mesopicScaleFactor(float logLwa);
 
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions) final;
+
   public:
     FerwerdaToneMap();
     ~FerwerdaToneMap() final;
 
-    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
     ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };

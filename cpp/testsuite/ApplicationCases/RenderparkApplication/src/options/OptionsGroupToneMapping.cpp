@@ -42,13 +42,12 @@ OptionsGroupToneMapping::redChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xr = value.x();
-    (*toneMapOptions).yr = value.y();
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        value.x(), value.y(),
+        c.getGreenX(), c.getGreenY(),
+        c.getBlueX(), c.getBlueY(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
@@ -56,13 +55,12 @@ OptionsGroupToneMapping::greenChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xg = value.x();
-    (*toneMapOptions).yg = value.y();
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        value.x(), value.y(),
+        c.getBlueX(), c.getBlueY(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
@@ -70,13 +68,12 @@ OptionsGroupToneMapping::blueChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xb = value.x();
-    (*toneMapOptions).yb = value.y();
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        c.getGreenX(), c.getGreenY(),
+        value.x(), value.y(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
@@ -84,13 +81,12 @@ OptionsGroupToneMapping::whiteChromaOption(Vector3Df &value) {
     if ( toneMapOptions == nullptr ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xw = value.x();
-    (*toneMapOptions).yw = value.y();
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        c.getGreenX(), c.getGreenY(),
+        c.getBlueX(), c.getBlueY(),
+        value.x(), value.y()));
 }
 
 void

@@ -6,7 +6,6 @@
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
@@ -367,7 +366,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
     cr = c1.divide(c2);
     java::System::err.printf("Control radiosity value = ");
     java::System::err.printf("%g %g %g", cr.getR(), cr.getG(), cr.getB());
-    java::System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
+    java::System::err.printf(", luminosity = %g\n", StochasticRelaxation::activeState().toneMapOptions->getColorSpace().spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
 
     return cr;
 }

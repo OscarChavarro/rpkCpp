@@ -1,6 +1,7 @@
 #ifndef TONE_MAPPING_CONTEXT_H
 #define TONE_MAPPING_CONTEXT_H
 
+#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/tonemap/ToneMapAdaptationMethod.h"
 
@@ -20,16 +21,6 @@ class ToneMappingContext {
     float maximumDisplayLuminance;
     float maximumDisplayContrast;
 
-    // Conversion from radiance (COLOR type) to display RGB
-    float xr; // Monitor primary colors
-    float yr;
-    float xg;
-    float yg;
-    float xb;
-    float yb;
-    float xw; // Monitor white point
-    float yw;
-
     // Display RGB mapping (corrects display non-linear response)
     ColorRgb gamma; // Gamma factors for red, green, blue
     float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
@@ -37,7 +28,14 @@ class ToneMappingContext {
     ToneMappingContext();
     ~ToneMappingContext();
 
+    // Conversion from radiance (COLOR type) to display RGB: monitor primary
+    // colors and white point
+    const Cie &getColorSpace() const { return colorSpace; }
+    void setColorSpace(const Cie &inColorSpace) { colorSpace = inColorSpace; }
+
   private:
+    Cie colorSpace;
+
     static constexpr float DEFAULT_GAMMA = 1.7F;
     static constexpr float DEFAULT_TM_LWA = 10.0F;
     static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0F;

@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/TumblinRushmeierToneMap.h"
 
 /**
@@ -22,7 +21,7 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 }
 
 void
-TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
+TumblinRushmeierToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
     const float lwa = toneMapOptions.realWorldAdaptionLuminance;
     const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     const float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
@@ -47,7 +46,7 @@ TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForComputations(const ColorRgb &radiance) const {
-    const float rwl = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
+    const float rwl = static_cast<float>(getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
 
     float scale;
     if ( rwl > 0.0 ) {
@@ -63,8 +62,8 @@ TumblinRushmeierToneMap::scaleForComputations(const ColorRgb &radiance) const {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForDisplay(const ColorRgb &radiance) const {
-    const float rwl = static_cast<float>(M_PI) * static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
-    const float eff = static_cast<float>(Cie::getLuminousEfficacy());
+    const float rwl = static_cast<float>(M_PI) * static_cast<float>(getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
+    const float eff = static_cast<float>(getColorSpace().getLuminousEfficacy());
     const ColorRgb photometric = radiance.multiply(eff * static_cast<float>(M_PI));
 
     float scale;

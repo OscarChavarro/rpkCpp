@@ -14,7 +14,6 @@ Galerkin radiosity, with the following variants:
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
@@ -515,9 +514,9 @@ GalerkinRadianceMethod::getStats() const {
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
+                           galerkinState.toneMapOptions->getColorSpace().spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
                    galerkinState.relLinkErrorThreshold *
-                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
+                   galerkinState.toneMapOptions->getColorSpace().spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

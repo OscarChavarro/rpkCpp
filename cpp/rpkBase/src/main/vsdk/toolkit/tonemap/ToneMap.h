@@ -11,11 +11,19 @@ Most of the functions have similar meaning as for a radiance or ray-tracing meth
 class ToneMap {
   private:
     static ToneMap *activeToneMap;
+    Cie colorSpace;
     static int gammaTableEntry(float x);
     static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
     static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
 
   protected:
+    const Cie &getColorSpace() const { return colorSpace; }
+
+    /**
+    Computes the parameters of the concrete operator from the context
+    */
+    virtual void initParameters(const ToneMappingContext &toneMapOptions) = 0;
+
     /**
     Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts
     is needed for example by algorithms that are based on experiments of
@@ -33,7 +41,7 @@ class ToneMap {
   public:
     ToneMap();
     virtual ~ToneMap();
-    virtual void init(const ToneMappingContext &toneMapOptions) = 0;
+    void init(const ToneMappingContext &toneMapOptions);
 
     /**
     Knowing the display luminance "dl" this function determines the

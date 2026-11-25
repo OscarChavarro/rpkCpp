@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/WardToneMap.h"
 
 /**
@@ -16,7 +15,7 @@ WardToneMap::~WardToneMap() {
 }
 
 void
-WardToneMap::init(const ToneMappingContext &toneMapOptions) {
+WardToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
     const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0F;
@@ -35,7 +34,7 @@ WardToneMap::scaleForComputations(const ColorRgb &radiance) const {
 
 ColorRgb
 WardToneMap::scaleForDisplay(const ColorRgb &radiance) const {
-    const float eff = Cie::getLuminousEfficacy();
+    const float eff = getColorSpace().getLuminousEfficacy();
 
     return radiance.multiply(eff * display);
 }

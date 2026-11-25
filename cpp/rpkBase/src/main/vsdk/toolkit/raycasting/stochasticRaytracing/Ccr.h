@@ -6,6 +6,7 @@ Constant Control Radiosity
 #define CCR__
 
 #include "java/util/ArrayList.h"
+#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
@@ -18,7 +19,8 @@ class Ccr final {
     static ColorRgb determineControlRadiosity(
         GetRadianceCallback getRadiance,
         GetScalingCallback getScaling,
-        const java::ArrayList<Patch *> *scenePatches);
+        const java::ArrayList<Patch *> *scenePatches,
+        const Cie &colorSpace);
 
   private:
     static constexpr int NUMBER_OF_INTERVALS = 10;

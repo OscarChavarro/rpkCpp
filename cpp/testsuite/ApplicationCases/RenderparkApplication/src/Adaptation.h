@@ -30,9 +30,9 @@ class Adaptation final {
 
     static ColorRgb initRadianceEstimate(Patch *patch);
     static int adaptationLumAreaComp(const void *la1, const void *la2);
-    static float patchBrightnessEstimate(Patch *patch);
-    static void patchComputeLogAreaLum(Patch *patch);
-    static void patchFillLumArea(Patch *patch);
+    static float patchBrightnessEstimate(Patch *patch, const Cie &colorSpace);
+    static void patchComputeLogAreaLum(Patch *patch, const Cie &colorSpace);
+    static void patchFillLumArea(Patch *patch, const Cie &colorSpace);
     static float meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs);
     static void estimateSceneAdaptation(
         PatchRadianceEstimateFn patchRadiance,

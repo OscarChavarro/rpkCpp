@@ -16,6 +16,7 @@ class MgfMaterialEntitySupport {
   private:
     static constexpr int NUMBER_OF_SAMPLES = 3;
     static RpkMaterial *materialLookup(const char *name, const ParseRuntimeContext *context);
+    static bool clipGamut(double *rgb);
     static void mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context);
     static void specSamples(const ColorRgb &col, double *rgb);
     static double colorMax(const ColorRgb &col);

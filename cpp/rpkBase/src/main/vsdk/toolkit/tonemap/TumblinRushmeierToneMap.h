@@ -11,11 +11,13 @@ class TumblinRushmeierToneMap final : public ToneMap {
     float lrwExponent;
     float lda;
 
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions) final;
+
   public:
     TumblinRushmeierToneMap();
     ~TumblinRushmeierToneMap() final;
 
-    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
     ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };

@@ -6,7 +6,6 @@
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpEntity.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
@@ -26,6 +25,23 @@ MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeCon
         }
     }
     return nullptr;
+}
+
+/**
+Returns true if the color was desaturated during clipping against the
+monitor gamut
+*/
+bool
+MgfMaterialEntitySupport::clipGamut(double *rgb) {
+    // Really SHOULD desaturate instead of just clipping!
+    bool desaturated = false;
+    for ( int i = 0; i < 3; i++ ) {
+        if ( rgb[i] < 0.0 ) {
+            rgb[i] = 0.0;
+            desaturated = true;
+        }
+    }
+    return desaturated;
 }
 
 /**
@@ -53,16 +69,16 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, Color
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;
         }
-        if ( xyz[1] < 1.0 ) {
+        if ( xyz[1] < 0.0 ) {
             xyz[1] = 0.0;
         }
-        if ( xyz[2] < 2.0 ) {
+        if ( xyz[2] < 0.0 ) {
             xyz[2] = 0.0;
         }
     }
 
-    Cie::transformColorFromXYZ2RGB(xyz, rgb);
-    if ( Cie::clipGamut(rgb) ) {
+    context->parserConfig.getColorSpace().transformColorFromXYZ2RGB(xyz, rgb);
+    if ( MgfMaterialEntitySupport::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
     *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
@@ -156,7 +172,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed = Ed.multiply(1.0 / Cie::WHITE_EFFICACY);
+    Ed = Ed.multiply(1.0 / context->parserConfig.getColorSpace().getLuminousEfficacy());
 
     Es = ColorRgb(0.0, 0.0, 0.0);
 
@@ -179,12 +195,13 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
     }
 
     if ( context->monochrome ) {
-        Ed = ColorRgb(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
-        Es = ColorRgb(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
-        Rd = ColorRgb(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
-        Rs = ColorRgb(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
-        Td = ColorRgb(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
-        Ts = ColorRgb(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
+        const Cie &colorSpace = context->parserConfig.getColorSpace();
+        Ed = ColorRgb(colorSpace.spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), colorSpace.spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), colorSpace.spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
+        Es = ColorRgb(colorSpace.spectrumGray(Es.getR(), Es.getG(), Es.getB()), colorSpace.spectrumGray(Es.getR(), Es.getG(), Es.getB()), colorSpace.spectrumGray(Es.getR(), Es.getG(), Es.getB()));
+        Rd = ColorRgb(colorSpace.spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), colorSpace.spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), colorSpace.spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
+        Rs = ColorRgb(colorSpace.spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), colorSpace.spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), colorSpace.spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
+        Td = ColorRgb(colorSpace.spectrumGray(Td.getR(), Td.getG(), Td.getB()), colorSpace.spectrumGray(Td.getR(), Td.getG(), Td.getB()), colorSpace.spectrumGray(Td.getR(), Td.getG(), Td.getB()));
+        Ts = ColorRgb(colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
     // The lobes keep their exponents in single precision

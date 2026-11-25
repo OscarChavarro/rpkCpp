@@ -5,7 +5,6 @@ Determination of constant control radiosity value
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -269,7 +268,8 @@ ColorRgb
 Ccr::determineControlRadiosity(
     GetRadianceCallback getRadiance,
     GetScalingCallback getScaling,
-    const java::ArrayList<Patch *> *scenePatches)
+    const java::ArrayList<Patch *> *scenePatches,
+    const Cie &colorSpace)
 {
     ColorRgb minRad(0.0, 0.0, 0.0);
     ColorRgb maxRad(0.0, 0.0, 0.0);
@@ -302,7 +302,7 @@ Ccr::determineControlRadiosity(
     beta = minRad.add(maxRad);
     beta = beta.multiply(0.5);
     java::System::err.printf("%g %g %g", beta.getR(), beta.getG(), beta.getB());
-    java::System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
+    java::System::err.printf(" (%g lux)", M_PI * colorSpace.spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
     java::System::err.printf("\n");
     return beta;
 }

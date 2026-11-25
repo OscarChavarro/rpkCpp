@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/FerwerdaToneMap.h"
 
 /**
@@ -24,7 +23,7 @@ FerwerdaToneMap::~FerwerdaToneMap() {
 }
 
 void
-FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
+FerwerdaToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
     const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0F;
@@ -44,7 +43,7 @@ FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
 ColorRgb
 FerwerdaToneMap::scaleForComputations(const ColorRgb &radiance) const {
     // Convert to photometric values and compute the scotopic grayscale shift
-    const float eff = Cie::getLuminousEfficacy();
+    const float eff = getColorSpace().getLuminousEfficacy();
     const ColorRgb p = radiance.multiply(eff);
     float sl;
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds

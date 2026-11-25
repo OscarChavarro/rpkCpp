@@ -7,10 +7,20 @@
 
 ToneMap *ToneMap::activeToneMap = nullptr;
 
-ToneMap::ToneMap() {
+ToneMap::ToneMap(): colorSpace() {
 }
 
 ToneMap::~ToneMap() {
+}
+
+/**
+Takes the display color space of the context, then lets the concrete
+operator compute its parameters
+*/
+void
+ToneMap::init(const ToneMappingContext &toneMapOptions) {
+    colorSpace = toneMapOptions.getColorSpace();
+    initParameters(toneMapOptions);
 }
 
 int

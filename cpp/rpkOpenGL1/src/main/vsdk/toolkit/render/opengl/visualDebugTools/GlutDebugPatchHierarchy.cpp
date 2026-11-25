@@ -4,7 +4,6 @@
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "java/lang/Math.h"
@@ -149,7 +148,7 @@ GlutDebugPatchHierarchy::renderElementGray(
         }
 
         const ColorRgb rgbColor = ToneMap::radianceToRgb(radianceSample, *toneMapOptions);
-        grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
+        grayValue = toneMappedGrayAndDarkened(toneMapOptions->getColorSpace().spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
         glColor3f(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
     }
@@ -158,7 +157,7 @@ GlutDebugPatchHierarchy::renderElementGray(
     if ( renderOptions->isDrawSurfaces() ) {
         outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
     } else {
-        outlineGray = toneMappedGrayAndDarkened(Cie::spectrumLuminance(
+        outlineGray = toneMappedGrayAndDarkened(toneMapOptions->getColorSpace().spectrumLuminance(
             renderOptions->getOutlineColor().getR(),
             renderOptions->getOutlineColor().getG(),
             renderOptions->getOutlineColor().getB()));

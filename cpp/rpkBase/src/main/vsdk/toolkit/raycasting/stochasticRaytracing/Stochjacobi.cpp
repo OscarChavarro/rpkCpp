@@ -173,7 +173,8 @@ StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePat
     // Determine constant control radiosity if required
     StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0, 0.0, 0.0);
     if ( useControlVariate ) {
-        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(getRadianceCallback, nullptr, scenePatches);
+        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(
+            getRadianceCallback, nullptr, scenePatches, StochasticRelaxation::activeState().toneMapOptions->getColorSpace());
     }
 
     sumOfProbabilities = 0.0;

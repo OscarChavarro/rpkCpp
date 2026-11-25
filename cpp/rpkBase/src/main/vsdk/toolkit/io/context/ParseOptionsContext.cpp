@@ -4,6 +4,7 @@ ParseOptionsContext::ParseOptionsContext():
     radianceMethod(nullptr),
     singleSided(false),
     numberOfQuarterCircleDivisions(0),
-    monochrome(false)
+    monochrome(false),
+    colorSpace()
 {
 }

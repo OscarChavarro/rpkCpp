@@ -9,11 +9,13 @@ class WardToneMap final : public ToneMap {
     float display;
     float lda;
 
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions) final;
+
   public:
     WardToneMap();
     ~WardToneMap() final;
 
-    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
     ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };

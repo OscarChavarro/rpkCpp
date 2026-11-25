@@ -301,6 +301,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->radianceMethod = selectedRadianceMethod;
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
+    mgfContext->parserConfig.setColorSpace(toneMapOptions.getColorSpace());
     selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
     SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene, toneMapOptions);
     selectToneMapByName(renderToneMapName);

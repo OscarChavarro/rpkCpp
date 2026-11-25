@@ -1,6 +1,5 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/tonemap/LightnessToneMap.h"
 
@@ -11,7 +10,7 @@ LightnessToneMap::~LightnessToneMap() {
 }
 
 void
-LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
+LightnessToneMap::initParameters(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
 ColorRgb
@@ -32,7 +31,7 @@ LightnessToneMap::scaleForDisplay(const ColorRgb &radiance) const {
 
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
-    const float scaleFactor = lightness(Cie::WHITE_EFFICACY * max);
+    const float scaleFactor = lightness(getColorSpace().getLuminousEfficacy() * max);
     if ( scaleFactor == 0.0 ) {
         return radiance;
     }

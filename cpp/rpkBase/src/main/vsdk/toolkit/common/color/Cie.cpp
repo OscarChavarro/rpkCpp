@@ -5,6 +5,8 @@ This code is a modified version of the CIE XYZ<->RGB code
 in the mgf documentation
 */
 
+namespace {
+
 /**
 `MAX_EFFICACY'
 `WHITE_EFFICACY'
@@ -23,75 +25,74 @@ corrected CIE 1988 standard observer curve has been used in this case -
 using the older CIE 1931 curves gives the value of 179 (see the Radiance
 rendering system).
 */
-const double Cie::WHITE_EFFICACY = 183.07;
+constexpr double WHITE_EFFICACY = 183.07;
 
-double Cie::CIE_x_r = 0.640; // Nominal CRT primaries
-double Cie::CIE_y_r = 0.330;
-double Cie::CIE_x_g = 0.290;
-double Cie::CIE_y_g = 0.600;
-double Cie::CIE_x_b = 0.150;
-double Cie::CIE_y_b = 0.060;
-double Cie::CIE_x_w = 0.3333333333;
-double Cie::CIE_y_w = 0.3333333333;
+}
 
-double Cie::luminousEfficacy = Cie::WHITE_EFFICACY;
-double Cie::xyz2RgbMat[3][3] = {};
-double Cie::rgb2XyzMat[3][3] = {};
+Cie::Cie(): Cie(
+    0.640, 0.330, // Nominal CRT primaries
+    0.290, 0.600,
+    0.150, 0.060,
+    0.3333333333, 0.3333333333)
+{
+}
 
-double
-Cie::cieD() {
-    return CIE_x_r * (CIE_y_g - CIE_y_b) +
-           CIE_x_g * (CIE_y_b - CIE_y_r) +
-           CIE_x_b * (CIE_y_r - CIE_y_g);
+/**
+Computes RGB <-> XYZ color transforms based on the given monitor primary
+colors and white point.
+*/
+Cie::Cie(
+    double xr, double yr,
+    double xg, double yg,
+    double xb, double yb,
+    double xw, double yw):
+    xRed(xr),
+    yRed(yr),
+    xGreen(xg),
+    yGreen(yg),
+    xBlue(xb),
+    yBlue(yb),
+    xWhite(xw),
+    yWhite(yw),
+    luminousEfficacy(WHITE_EFFICACY),
+    redGrayFactor(),
+    greenGrayFactor(),
+    blueGrayFactor(),
+    xyz2RgbMat(),
+    rgb2XyzMat()
+{
+    computeColorConversionTransforms();
 }
 
 double
-Cie::cieCrD() {
-    return (1.0 / CIE_y_w) *
-           (CIE_x_w * (CIE_y_g - CIE_y_b) -
-            CIE_y_w * (CIE_x_g - CIE_x_b) +
-            CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g);
+Cie::cieD() const {
+    return xRed * (yGreen - yBlue) +
+           xGreen * (yBlue - yRed) +
+           xBlue * (yRed - yGreen);
 }
 
 double
-Cie::cieCgD() {
-    return (1.0 / CIE_y_w) *
-           (CIE_x_w * (CIE_y_b - CIE_y_r) -
-            CIE_y_w * (CIE_x_b - CIE_x_r) -
-            CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r);
+Cie::cieCrD() const {
+    return (1.0 / yWhite) *
+           (xWhite * (yGreen - yBlue) -
+            yWhite * (xGreen - xBlue) +
+            xGreen * yBlue - xBlue * yGreen);
 }
 
 double
-Cie::cieCbD() {
-    return (1.0 / CIE_y_w) *
-           (CIE_x_w * (CIE_y_r - CIE_y_g) -
-            CIE_y_w * (CIE_x_r - CIE_x_g) +
-            CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r);
+Cie::cieCgD() const {
+    return (1.0 / yWhite) *
+           (xWhite * (yBlue - yRed) -
+            yWhite * (xBlue - xRed) -
+            xRed * yBlue + xBlue * yRed);
 }
 
 double
-Cie::cieRf() {
-    return CIE_y_r * cieCrD() / cieD();
-}
-
-double
-Cie::cieGf() {
-    return CIE_y_g * cieCgD() / cieD();
-}
-
-double
-Cie::cieBf() {
-    return CIE_y_b * cieCbD() / cieD();
-}
-
-double
-Cie::gray(double r, double g, double b) {
-    return cieRf() * r + cieGf() * g + cieBf() * b;
-}
-
-double
-Cie::luminance(double r, double g, double b) {
-    return luminousEfficacy * gray(r, g, b);
+Cie::cieCbD() const {
+    return (1.0 / yWhite) *
+           (xWhite * (yRed - yGreen) -
+            yWhite * (xRed - xGreen) +
+            xRed * yGreen - xGreen * yRed);
 }
 
 void
@@ -119,20 +120,65 @@ Cie::colorTransform(const double *col, const double mat[3][3], double *res) {
     res[2] = mat[2][0] * col[0] + mat[2][1] * col[1] + mat[2][2] * col[2];
 }
 
+void
+Cie::computeColorConversionTransforms() {
+    const double d = cieD();
+    const double crD = cieCrD();
+    const double cgD = cieCgD();
+    const double cbD = cieCbD();
+
+    // Second row of the RGB to XYZ matrix: the Y (gray) of each primary
+    redGrayFactor = yRed * crD / d;
+    greenGrayFactor = yGreen * cgD / d;
+    blueGrayFactor = yBlue * cbD / d;
+
+    setColorTransform(
+        xyz2RgbMat, // XYZ to RGB
+        (yGreen - yBlue - xBlue * yGreen + yBlue * xGreen) / crD,
+        (xBlue - xGreen - xBlue * yGreen + xGreen * yBlue) / crD,
+        (xGreen * yBlue - xBlue * yGreen) / crD,
+        (yBlue - yRed - yBlue * xRed + yRed * xBlue) / cgD,
+        (xRed - xBlue - xRed * yBlue + xBlue * yRed) / cgD,
+        (xBlue * yRed - xRed * yBlue) / cgD,
+        (yRed - yGreen - yRed * xGreen + yGreen * xRed) / cbD,
+        (xGreen - xRed - xGreen * yRed + xRed * yGreen) / cbD,
+        (xRed * yGreen - xGreen * yRed) / cbD);
+
+    setColorTransform(
+        rgb2XyzMat, // RGB to XYZ
+        xRed * crD / d,
+        xGreen * cgD / d,
+        xBlue * cbD / d,
+        redGrayFactor,
+        greenGrayFactor,
+        blueGrayFactor,
+        (1.0 - xRed - yRed) * crD / d,
+        (1.0 - xGreen - yGreen) * cgD / d,
+        (1.0 - xBlue - yBlue) * cbD / d);
+}
+
 /**
-Set/return the value used for tri-stimulus white efficacy.
+CIE XYZ -> RGB
 */
-double
-Cie::getLuminousEfficacy() {
-    return luminousEfficacy;
+void
+Cie::transformColorFromXYZ2RGB(const double *xyz, double *rgb) const {
+    colorTransform(xyz, xyz2RgbMat, rgb);
+}
+
+/**
+RGB -> CIE XYZ
+*/
+void
+Cie::transformColorFromRGB2XYZ(const double *rgb, double *xyz) const {
+    colorTransform(rgb, rgb2XyzMat, xyz);
 }
 
 /**
 Returns an achromatic value representing the spectral quantity.
 */
 double
-Cie::spectrumGray(double r, double g, double b) {
-    return gray(r, g, b);
+Cie::spectrumGray(double r, double g, double b) const {
+    return redGrayFactor * r + greenGrayFactor * g + blueGrayFactor * b;
 }
 
 /**
@@ -140,80 +186,6 @@ Returns the luminance, photometric quantity corresponding to the
 radiance of the given spectrum.
 */
 double
-Cie::spectrumLuminance(double r, double g, double b) {
-    return luminance(r, g, b);
-}
-
-/**
-Computes RGB <-> XYZ color transforms based on the given monitor primary
-colors and white point.
-*/
-void
-Cie::computeColorConversionTransforms(
-    double xr,
-    double yr,
-    double xg,
-    double yg,
-    double xb,
-    double yb,
-    double xw,
-    double yw)
-{
-    CIE_x_r = xr;
-    CIE_y_r = yr;
-    CIE_x_g = xg;
-    CIE_y_g = yg;
-    CIE_x_b = xb;
-    CIE_y_b = yb;
-    CIE_x_w = xw;
-    CIE_y_w = yw;
-
-    setColorTransform(
-            xyz2RgbMat, // XYZ to RGB
-          (CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / cieCrD(),
-            (CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / cieCrD(),
-            (CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / cieCrD(),
-            (CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / cieCgD(),
-            (CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / cieCgD(),
-            (CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / cieCgD(),
-            (CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / cieCbD(),
-            (CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / cieCbD(),
-            (CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / cieCbD());
-
-    setColorTransform(
-            rgb2XyzMat, // RGB to XYZ
-          CIE_x_r * cieCrD() / cieD(),
-            CIE_x_g * cieCgD() / cieD(),
-            CIE_x_b * cieCbD() / cieD(),
-            CIE_y_r * cieCrD() / cieD(),
-            CIE_y_g * cieCgD() / cieD(),
-            CIE_y_b * cieCbD() / cieD(),
-            (1.0 - CIE_x_r - CIE_y_r) * cieCrD() / cieD(),
-            (1.0 - CIE_x_g - CIE_y_g) * cieCgD() / cieD(),
-            (1.0 - CIE_x_b - CIE_y_b) * cieCbD() / cieD());
-}
-
-/**
-CIE XYZ <-> RGB
-*/
-void
-Cie::transformColorFromXYZ2RGB(const double *xyz, double *rgb) {
-    colorTransform(xyz, xyz2RgbMat, rgb);
-}
-
-/**
-Returns TRUE if the color was desaturated during clipping against the
-monitor gamut
-*/
-bool
-Cie::clipGamut(double *rgb) {
-    // Really SHOULD desaturate instead of just clipping!
-    bool desaturated = false;
-    for ( int i = 0; i < 3; i++ ) {
-        if ( rgb[i] < 0.0 ) {
-            rgb[i] = 0.0;
-            desaturated = true;
-        }
-    }
-    return desaturated;
+Cie::spectrumLuminance(double r, double g, double b) const {
+    return luminousEfficacy * spectrumGray(r, g, b);
 }

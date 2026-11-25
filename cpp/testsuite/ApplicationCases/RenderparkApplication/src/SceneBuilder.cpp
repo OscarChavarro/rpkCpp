@@ -9,7 +9,6 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
@@ -609,8 +608,9 @@ SceneBuilder::sceneBuilderReadFile(
 
     Statistics::instance().reader.numberOfPatches = Statistics::instance().reader.numberOfElements;
     SceneBuilder::sceneBuilderComputeStats(scene);
-    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - Cie::spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB())) *
-                                                   Cie::spectrumLuminance(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()));
+    const Cie &colorSpace = toneMapOptions.getColorSpace();
+    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - colorSpace.spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB())) *
+                                                   colorSpace.spectrumLuminance(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()));
 
     t = java::System::nanoTime();
     java::System::err.printf(
@@ -638,11 +638,11 @@ SceneBuilder::sceneBuilderReadFile(
            "         radiance.maxSelfEmittedPower ..............: %f W\n"
            "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
            "         totalArea ........................: %f m2\n",
-           Cie::spectrumGray(Statistics::instance().radiance.totalEmittedPower.getR(), Statistics::instance().radiance.totalEmittedPower.getG(), Statistics::instance().radiance.totalEmittedPower.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.totalEmittedPower.getR(), Statistics::instance().radiance.totalEmittedPower.getG(), Statistics::instance().radiance.totalEmittedPower.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB()),
            toneMapOptions.realWorldAdaptionLuminance,
            Statistics::instance().radiance.totalArea);
     //scene->print();
