@@ -4,14 +4,14 @@
 # scripts/vitralSubset.sh --check compares each with a VITRAL checkout byte for
 # byte and fails on any file of base/src/main missing from this list;
 # --refresh copies them from it.
-# Pin: VITRAL 1fb3bd24 (includes the environment/material files of plan step 2a:
-# PhongLobe, PhongMaterial, ScatteringComponent, Texture, and their test
-# base/src/test/phong_material_tests.cpp; and, for the step 4 replay, the
+# The list includes the environment/material files of plan step 2a
+# (PhongLobe, PhongMaterial, ScatteringComponent, Texture, and their test
+# base/src/test/phong_material_tests.cpp); for the step 4 replay, the
 # environment/geometry/spatialIndex contract with its linear and binned SAH
-# indexes, BinnedSahHierarchy, Ray, RaytraceStatistics, Boolean and AtomicLong;
-# their test is base/src/test/spatial_index_tests.cpp), and the grid port of
-# step 4 item 3, GridSpatialIndex and SpatialGroupTree, committed in 1fb3bd24),
-# plus io/wrapper/FileUncompressWrapper.cpp with RenderPark's Logger::reportMessage
+# indexes, BinnedSahHierarchy, Ray, RaytraceStatistics, Boolean and AtomicLong
+# (their test is base/src/test/spatial_index_tests.cpp); the grid port of
+# step 4 item 3, GridSpatialIndex and SpatialGroupTree;
+# and io/wrapper/FileUncompressWrapper.cpp with RenderPark's Logger::reportMessage
 # calls, taken into VITRAL (which now compiles io/wrapper) in the base/rpkBase split.
 # RenderPark's lineal algebra now uses VITRAL's Vector2Df, Vector3Df, Vector4Df
 # and Matrix4x4f (RenderPark's Vector2D, Vector3D, Vector4D and Matrix4x4 were
@@ -19,6 +19,8 @@
 # joined the list. Matrix4x4f stores floats and computes in float. RenderPark's
 # Matrix2x2 moved into VITRAL as an immutable float affine transform, so
 # io/wrapper/Matrix2x2Printer is compiled there and joined the list too.
+# RenderPark's Cie color space moved into VITRAL's common/color package, with
+# its references to the bibliography, and joined the list.
 java/io/BufferedInputStream.cpp
 java/io/BufferedInputStream.h
 java/io/File.cpp
@@ -82,6 +84,8 @@ java/util/function/_LambdaHolder.h
 vsdk/toolkit/common/VSDK.cpp
 vsdk/toolkit/common/VSDK.h
 vsdk/toolkit/common/VSDKFatalException.h
+vsdk/toolkit/common/color/Cie.cpp
+vsdk/toolkit/common/color/Cie.h
 vsdk/toolkit/common/color/ColorRgb.cpp
 vsdk/toolkit/common/color/ColorRgb.h
 vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h
