@@ -16,7 +16,7 @@ class RayCaster final : public RayTracer {
 
     static void clipUv(int numberOfVertices, double *u, double *v);
 
-    inline ColorRgbMutable
+    inline ColorRgb
     getRadianceAtPixel(
         Camera *camera,
         int x,

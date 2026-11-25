@@ -93,7 +93,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    galerkinState->ambientRadiance.clear();
+    galerkinState->ambientRadiance = ColorRgb(0.0, 0.0, 0.0);
 
     // Update the display colors of the patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

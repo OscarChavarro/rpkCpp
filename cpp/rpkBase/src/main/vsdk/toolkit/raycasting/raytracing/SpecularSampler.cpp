@@ -1,5 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -27,8 +28,7 @@ SpecularSampler::sample(
     bool reflect;
 
     // Choose a scattering mode : reflection vs. refraction
-    ColorRgbMutable reflectance(0.0, 0.0, 0.0);
-    reflectance.clear();
+    ColorRgb reflectance(0.0, 0.0, 0.0);
     if ( thisNode->m_useBsdf != nullptr ) {
         bool shctxOk = false;
         ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
@@ -39,8 +39,7 @@ SpecularSampler::sample(
                 thisContext,
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
-    ColorRgbMutable transmittance(0.0, 0.0, 0.0);
-    transmittance.clear();
+    ColorRgb transmittance(0.0, 0.0, 0.0);
     if ( thisNode->m_useBsdf != nullptr ) {
         bool shctxOk = false;
         ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
@@ -52,8 +51,8 @@ SpecularSampler::sample(
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 
-    float avgReflectance = reflectance.average();
-    float avgTransmittance = transmittance.average();
+    float avgReflectance = static_cast<float>(ColorRgbMath::average(reflectance));
+    float avgTransmittance = static_cast<float>(ColorRgbMath::average(transmittance));
     float avgScattering = avgReflectance + avgTransmittance;
 
     if ( avgScattering < VSDK::EPSILON ) {

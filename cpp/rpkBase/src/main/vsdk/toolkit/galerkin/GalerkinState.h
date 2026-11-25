@@ -2,7 +2,7 @@
 #define GALERKIN_STATE__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/galerkin/GalerkinElementVisibilityBuffer.h"
@@ -30,8 +30,8 @@ class GalerkinState {
     int multiResolutionVisibility; // For multi-resolution visibility determination
     int useConstantRadiance; // Set true for constant radiance initialization
     int useAmbientRadiance; // Ambient radiance (for visualisation only)
-    ColorRgbMutable constantRadiance;
-    ColorRgbMutable ambientRadiance;
+    ColorRgb constantRadiance;
+    ColorRgb ambientRadiance;
     GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors

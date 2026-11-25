@@ -28,7 +28,7 @@ class SurfaceSampler : public Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    ColorRgbMutable
+    ColorRgb
     DoBsdfEval(
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RpkRayHit *hit,

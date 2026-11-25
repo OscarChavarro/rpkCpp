@@ -282,7 +282,7 @@ SamplerConfig::pathNodeConnect(
     // bsdf(EP->E->L)
     if ( nodeEP == nullptr ) {
         // Eye
-        nodeX->m_bsdfEval = ColorRgbMutable(1.0, 1.0, 1.0);
+        nodeX->m_bsdfEval = ColorRgb(1.0, 1.0, 1.0);
         nodeX->m_bsdfComp.Clear();
         nodeX->m_bsdfComp.Fill(nodeX->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
@@ -301,12 +301,12 @@ SamplerConfig::pathNodeConnect(
     if ( nodeLP == nullptr ) {
         // nodeL is  light source
         if ( nodeY->m_hit.getMaterial()->getEdf() == nullptr ) {
-            nodeY->m_bsdfEval.clear();
+            nodeY->m_bsdfEval = ColorRgb(0.0, 0.0, 0.0);
         } else {
             bool shctxOk = false;
             ShadingContext lightContext = nodeY->m_hit.shadingContext(&shctxOk);
             if ( !shctxOk ) {
-                nodeY->m_bsdfEval.clear();
+                nodeY->m_bsdfEval = ColorRgb(0.0, 0.0, 0.0);
             } else {
             nodeY->m_bsdfEval = nodeY->m_hit.getMaterial()->getEdf()->phongEdfEval(
                 &lightContext, &dirLE, bsdfFlagsL, nullptr);

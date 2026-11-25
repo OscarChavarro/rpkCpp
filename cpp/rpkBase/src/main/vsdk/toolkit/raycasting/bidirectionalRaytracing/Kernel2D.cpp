@@ -6,6 +6,7 @@ Olivier Ceulemans.
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "java/lang/System.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/Kernel2D.h"
@@ -62,7 +63,7 @@ IN: The screen buffer to cover.
 OUT: /
 */
 void
-Kernel2D::cover(const Vector2Df &point, float scale, const ColorRgbMutable &col, ScreenBuffer *screen) const {
+Kernel2D::cover(const Vector2Df &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const {
     // For each neighbourhood pixel : eval kernel and add contrib
 
     int nxMin;
@@ -70,7 +71,6 @@ Kernel2D::cover(const Vector2Df &point, float scale, const ColorRgbMutable &col,
     int nyMin;
     int nyMax;
     Vector2Df center;
-    ColorRgbMutable addCol(0.0, 0.0, 0.0);
     float factor;
 
     // Get extents of possible pixels that are affected
@@ -82,8 +82,7 @@ Kernel2D::cover(const Vector2Df &point, float scale, const ColorRgbMutable &col,
             if ( (nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) && (ny < screen->getVRes()) ) {
                 center = screen->getPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
-                addCol.scaledCopy(factor, col);
-                screen->add(nx, ny, addCol);
+                screen->add(nx, ny, col.multiply(factor));
             } else {
                 // Handle boundary bias !
             }
@@ -97,7 +96,7 @@ Add one hit/splat with a size dependend on a reference estimate
 void
 Kernel2D::varCover(
     const Vector2Df &center,
-    const ColorRgbMutable &color,
+    const ColorRgb &color,
     const ScreenBuffer *ref,
     ScreenBuffer *dest,
     int totalSamples,
@@ -118,10 +117,10 @@ Kernel2D::varCover(
     // Now compute h for this sample
 
     // Reference estimated function
-    ColorRgbMutable fe = ref->getBiLinear(center.x(), center.y());
+    const ColorRgb fe = ref->getBiLinear(center.x(), center.y());
 
-    float avgFe = fe.average();
-    float avgG = color.average();
+    float avgFe = static_cast<float>(ColorRgbMath::average(fe));
+    float avgG = static_cast<float>(ColorRgbMath::average(color));
 
     if ( avgFe > VSDK::EPSILON ) {
         h = Bn * java::Math::sqrt(avgG / avgFe);

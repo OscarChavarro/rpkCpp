@@ -47,7 +47,7 @@ Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
 towards the samplePoint point
 */
-ColorRgbMutable
+ColorRgb
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(
     GalerkinElement *sourceElement,
     Vector3Df samplePoint,
@@ -55,30 +55,26 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 {
     switch ( galerkinState->clusteringStrategy ) {
         case GalerkinClusteringStrategy::ISOTROPIC:
-            return sourceElement->radiance[0];
+            return static_cast<ColorRgb>(sourceElement->radiance[0]);
 
         case GalerkinClusteringStrategy::ORIENTED: {
             // Accumulate the power emitted by the patches in the source cluster
             // towards the samplePoint point
-            ColorRgbMutable sourceRadiance(0.0, 0.0, 0.0);
-            sourceRadiance.clear();
-
-            PowerAccumulatorVisitor leafVisitor(sourceRadiance, samplePoint);
+            PowerAccumulatorVisitor leafVisitor(ColorRgb(0.0, 0.0, 0.0), samplePoint);
             ClusterTraversalStrategy::traverseAllLeafElements(
                 &leafVisitor,
                 sourceElement,
                 galerkinState);
-            sourceRadiance = leafVisitor.getAccumulatedRadiance();
+            const ColorRgb sourceRadiance = leafVisitor.getAccumulatedRadiance();
 
             // Divide by the source area used for computing the form factor:
             // sourceElement->area / 4.0 (average projected area)
-            sourceRadiance.scale(4.0F / sourceElement->area);
-            return sourceRadiance;
+            return sourceRadiance.multiply(4.0F / sourceElement->area);
         }
 
         case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !sourceElement->isCluster() || !sourceElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
-                return sourceElement->radiance[0];
+                return static_cast<ColorRgb>(sourceElement->radiance[0]);
             } else {
                 double areaFactor;
 
@@ -88,19 +84,18 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
-                ColorRgbMutable sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
+                const ColorRgb sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
 
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
                 areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
-                sourceRadiance.scale(static_cast<float>(areaFactor));
-                return sourceRadiance;
+                return sourceRadiance.multiply(static_cast<float>(areaFactor));
             }
 
         default:
             Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "clusterRadianceToSamplePoint", java::String::format("Invalid clustering strategy %d\n", galerkinState->clusteringStrategy));
     }
-    return ColorRgbMutable(0.0, 0.0, 0.0); // Not reached: a FATAL_ERROR report throws
+    return ColorRgb(0.0, 0.0, 0.0); // Not reached: a FATAL_ERROR report throws
 }
 
 /**
@@ -108,7 +103,7 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-ColorRgbMutable
+ColorRgb
 ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState) {
     GalerkinElement *sourceElement = link->sourceElement;
     const GalerkinElement *receiverElement = link->receiverElement;
@@ -293,11 +288,9 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
     }
 }
 
-ColorRgbMutable
+ColorRgb
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
-    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     MaximumRadianceVisitor leafVisitor;
     ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
-    radiance = leafVisitor.getAccumulatedRadiance();
-    return radiance;
+    return leafVisitor.getAccumulatedRadiance();
 }

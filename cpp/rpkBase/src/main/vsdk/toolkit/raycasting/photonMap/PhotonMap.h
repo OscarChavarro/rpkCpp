@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonClass.h"
@@ -95,7 +95,7 @@ class PhotonMap {
     zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RpkRayHit *hit, char flags);
 
     // Convert a value val given a maximum into some nice color
-    static ColorRgbMutable getFalseColor(float val, const PhotonMapState &photonMapState);
+    static ColorRgb getFalseColor(float val, const PhotonMapState &photonMapState);
 
     explicit PhotonMap(PhotonMapState &photonMapState, int *estimate_nrp, bool doPrecomputeIrradiance = false);
     virtual ~PhotonMap();
@@ -119,20 +119,20 @@ class PhotonMap {
     virtual void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon);
 
     // reconstruct
-    virtual ColorRgbMutable reconstruct(RpkRayHit *hit, Vector3Df &outDir,
+    virtual ColorRgb reconstruct(RpkRayHit *hit, Vector3Df &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool
     irradianceReconstruct(
         RpkRayHit *hit,
         const Vector3Df &outDir,
-        const ColorRgbMutable &diffuseAlbedo,
-        ColorRgbMutable *result);
+        const ColorRgb &diffuseAlbedo,
+        ColorRgb *result);
 
     virtual float getCurrentDensity(RpkRayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
-    virtual ColorRgbMutable getDensityColor(RpkRayHit &hit);
+    virtual ColorRgb getDensityColor(RpkRayHit &hit);
 
     // Sample values: Random values r,s are transformed into new
     // random values so that importance sampling using the photon

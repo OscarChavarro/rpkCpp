@@ -1,4 +1,5 @@
 #include "vsdk/toolkit/common/VSDK.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
@@ -188,7 +189,7 @@ StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePat
 /**
 Returns radiance to be propagated from the given location of the element
 */
-ColorRgbMutable
+ColorRgb
 StochasticJacobi::stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs) {
     const ColorRgbMutable *srcRad = getRadianceCallback(src);
     return Basismcrad::colorAtUv(src->basis, srcRad, us, vs);
@@ -807,10 +808,10 @@ StochasticJacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
 
     stochasticJacobiPullRdEd(child);
 
-    parent->Ed.addScaled(parent->Ed, child->area / parent->area, child->Ed);
-    parent->Rd.addScaled(parent->Rd, child->area / parent->area, child->Rd);
+    parent->Ed = ColorRgbMath::addScaled(parent->Ed, child->area / parent->area, child->Ed);
+    parent->Rd = ColorRgbMath::addScaled(parent->Rd, child->area / parent->area, child->Rd);
     if ( parent->isCluster() )
-        parent->Rd = ColorRgbMutable(1.0, 1.0, 1.0);
+        parent->Rd = ColorRgb(1.0, 1.0, 1.0);
 }
 
 void
@@ -819,8 +820,8 @@ StochasticJacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) 
         return;
     }
 
-    element->Ed.clear();
-    element->Rd.clear();
+    element->Ed = ColorRgb(0.0, 0.0, 0.0);
+    element->Rd = ColorRgb(0.0, 0.0, 0.0);
     element->traverseAllChildren(stochasticJacobiPullRdEdFromChild);
 }
 

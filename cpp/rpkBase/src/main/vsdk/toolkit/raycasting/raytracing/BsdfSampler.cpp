@@ -1,6 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -53,8 +54,7 @@ BsdfSampler::sample(
 
     newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
     if ( doRR ) {
-        ColorRgbMutable albedo(0.0, 0.0, 0.0);
-        albedo.clear();
+        ColorRgb albedo(0.0, 0.0, 0.0);
         if ( thisNode->m_useBsdf != nullptr ) {
             bool shctxOk = false;
             ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
@@ -62,7 +62,7 @@ BsdfSampler::sample(
                 albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisContext, flags);
             }
         }
-        newNode->accumulatedRussianRouletteFactors *= albedo.average();
+        newNode->accumulatedRussianRouletteFactors *= ColorRgbMath::average(albedo);
     }
 
     // Reflection Type, changes thisNode->m_rayType and newNode->m_inBsdf

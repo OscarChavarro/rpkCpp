@@ -28,16 +28,14 @@ WardToneMap::init(const ToneMappingContext &toneMapOptions) {
     display = comp / maximumDisplayLuminance;
 }
 
-ColorRgbMutable
-WardToneMap::scaleForComputations(ColorRgbMutable radiance) const {
-    radiance.scale(comp);
-    return radiance;
+ColorRgb
+WardToneMap::scaleForComputations(const ColorRgb &radiance) const {
+    return radiance.multiply(comp);
 }
 
-ColorRgbMutable
-WardToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
+ColorRgb
+WardToneMap::scaleForDisplay(const ColorRgb &radiance) const {
     const float eff = Cie::getLuminousEfficacy();
 
-    radiance.scale(eff * display);
-    return radiance;
+    return radiance.multiply(eff * display);
 }

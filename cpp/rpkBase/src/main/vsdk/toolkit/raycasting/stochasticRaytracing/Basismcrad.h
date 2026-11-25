@@ -43,7 +43,7 @@ class StochasticRadiosityBasisState {
 class Basismcrad final {
   public:
     static void monteCarloRadiosityInitBasis();
-    static ColorRgbMutable colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v);
+    static ColorRgb colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v);
     static void filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER *h, ColorRgbMutable *child, int n);
     static void filterColorUp(const ColorRgbMutable *child, GalerkinBasis::FILTER *h, ColorRgbMutable *parent, int n, double areaFactor);
     static double oneBasis(double u, double v);

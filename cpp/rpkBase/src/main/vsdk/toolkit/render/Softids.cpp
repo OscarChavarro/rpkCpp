@@ -78,7 +78,7 @@ Renders in memory an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-SoftIds::softRenderPixels(int width, int height, const ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions) {
+SoftIds::softRenderPixels(int width, int height, const ColorRgb *rgb, const ToneMappingContext &toneMapOptions) {
     // Length of one row of RGBA image data rounded up to a multiple of 8
     const int rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
     unsigned char * const c = new unsigned char[height * rowLength + 8];
@@ -87,8 +87,8 @@ SoftIds::softRenderPixels(int width, int height, const ColorRgbMutable *rgb, con
         const int rowRgbStart = j * width;
         const int rowStart = j * rowLength;
         for ( int i = 0; i < width; i++ ) {
-            ColorRgbMutable corrected_rgb = rgb[rowRgbStart + i];
-            ToneMap::toneMappingGammaCorrection(corrected_rgb, toneMapOptions);
+            const ColorRgb corrected_rgb = ToneMap::toneMappingGammaCorrection(
+                rgb[rowRgbStart + i], toneMapOptions);
             const int pixelOffset = rowStart + 4 * i;
             c[pixelOffset] = static_cast<unsigned char>(corrected_rgb.getR() * 255.0);
             c[pixelOffset + 1] = static_cast<unsigned char>(corrected_rgb.getG() * 255.0);

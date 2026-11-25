@@ -165,7 +165,7 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
                 value = 1.0;
             }
 
-            ColorRgbMutable matte(value, value, value);
+            ColorRgb matte(value, value, value);
             screenBuffer->add(x, y, matte);
         }
 

@@ -31,19 +31,21 @@ BiPath::init() {
 Evaluate the radiance contribution of a bipath. Only Function
 evaluation, no pdf involved
 */
-ColorRgbMutable
+ColorRgb
 BiPath::evalRadiance() const {
-    ColorRgbMutable col(0.0, 0.0, 0.0);
+    double red = 1.0;
+    double green = 1.0;
+    double blue = 1.0;
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;
 
-    col = ColorRgbMutable(1.0, 1.0, 1.0);
-
     node = m_eyePath;
 
     for ( i = 0; i < m_eyeSize; i++ ) {
-        col.selfScalarProduct(node->m_bsdfEval);
+        red *= node->m_bsdfEval.getR();
+        green *= node->m_bsdfEval.getG();
+        blue *= node->m_bsdfEval.getB();
         factor *= node->m_G;
         node = node->next();
     }
@@ -51,16 +53,17 @@ BiPath::evalRadiance() const {
     node = m_lightPath;
 
     for ( i = 0; i < m_lightSize; i++ ) {
-        col.selfScalarProduct(node->m_bsdfEval);
+        red *= node->m_bsdfEval.getR();
+        green *= node->m_bsdfEval.getG();
+        blue *= node->m_bsdfEval.getB();
         factor *= node->m_G;
         node = node->next();
     }
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    col.scale(static_cast<float>(factor));
-
-    return col;
+    const float scale = static_cast<float>(factor);
+    return ColorRgb(red * scale, green * scale, blue * scale);
 }
 
 /**

@@ -50,8 +50,8 @@ ScreenIterate::fillRect(
     int y0,
     int x1,
     int y1,
-    ColorRgbMutable col,
-    ColorRgbMutable *rgb)
+    ColorRgb col,
+    ColorRgb *rgb)
 {
     for ( int x = x0; x < x1; x++ ) {
         for ( int y = y0; y < y1; y++ ) {

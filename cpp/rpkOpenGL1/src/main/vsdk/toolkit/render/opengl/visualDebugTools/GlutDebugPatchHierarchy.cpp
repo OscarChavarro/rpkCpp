@@ -3,7 +3,7 @@
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
@@ -130,24 +130,25 @@ GlutDebugPatchHierarchy::renderElementGray(
     float grayValue = OUTLINE_MIN_GRAY;
 
     if ( renderOptions->isDrawSurfaces() ) {
-        ColorRgbMutable radianceSample{};
+        ColorRgb radianceSample{};
         if ( element->radiance != nullptr ) {
-            radianceSample = element->radiance[0];
+            radianceSample = static_cast<ColorRgb>(element->radiance[0]);
         }
 
         if ( element->galerkinState != nullptr
              && element->galerkinState->useAmbientRadiance
              && element->patch != nullptr
              && GalerkinRadianceMethod::galerkinState.boundElement(element->patch) != nullptr ) {
-            ColorRgbMutable ambient;
-            ambient.scalarProduct(
-                GalerkinRadianceMethod::galerkinState.boundElement(element->patch)->Rd,
-                element->galerkinState->ambientRadiance);
-            radianceSample.add(radianceSample, ambient);
+            const ColorRgb &reflectance =
+                GalerkinRadianceMethod::galerkinState.boundElement(element->patch)->Rd;
+            const ColorRgb &ambient = element->galerkinState->ambientRadiance;
+            radianceSample = ColorRgb(
+                radianceSample.getR() + reflectance.getR() * ambient.getR(),
+                radianceSample.getG() + reflectance.getG() * ambient.getG(),
+                radianceSample.getB() + reflectance.getB() * ambient.getB());
         }
 
-        ColorRgbMutable rgbColor{};
-        ToneMap::radianceToRgb(radianceSample, &rgbColor, *toneMapOptions);
+        const ColorRgb rgbColor = ToneMap::radianceToRgb(radianceSample, *toneMapOptions);
         grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
         glColor3f(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
@@ -273,7 +274,7 @@ GlutDebugPatchHierarchy::drawCenterMark(
         return;
     }
 
-    const ColorRgbMutable yellow(1.0F, 1.0F, 0.0F);
+    const ColorRgb yellow(1.0F, 1.0F, 0.0F);
     Opengl::openGlRenderSetColor(&yellow, renderOptions);
 
     constexpr float TWO_PI = 6.28318530717958647692F;

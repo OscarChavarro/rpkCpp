@@ -6,6 +6,7 @@ Stores eyePath and lightPath, lengths and end nodes
 #define BI_PATH__
 
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 
 class BiPath {
@@ -32,7 +33,7 @@ class BiPath {
 
     // Some interesting methods, only to be called for
     // valid bidirectional paths
-    ColorRgbMutable evalRadiance() const;
+    ColorRgb evalRadiance() const;
 
     // Evaluate accumulated PDF of a bipath (no weighting)
     double evalPdfAcc() const;

@@ -128,7 +128,7 @@ SurfaceSampler::DetermineRayType(
     }
 }
 
-ColorRgbMutable
+ColorRgb
 SurfaceSampler::DoBsdfEval(
     const PhongBidirectionalScatteringDistributionFunction *bsdf,
     RpkRayHit *hit,
@@ -144,9 +144,7 @@ SurfaceSampler::DoBsdfEval(
 
     if ( m_computeBsdfComponents ) {
         if ( bsdf == nullptr ) {
-            ColorRgbMutable black;
-            black.clear();
-            return black;
+            return ColorRgb(0.0, 0.0, 0.0);
         }
         java::ArrayList<ColorRgb> componentArray(BsdfComponentInfo::BSDF_COMPONENTS);
         for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
@@ -155,19 +153,16 @@ SurfaceSampler::DoBsdfEval(
         const ColorRgb radiance = bsdf->bsdfEvalComponents(
             context, inBsdf, outBsdf, in, out, flags, componentArray.data());
         for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
-            (*bsdfComp)[i] = static_cast<ColorRgbMutable>(componentArray[i]);
+            (*bsdfComp)[i] = componentArray[i];
         }
-        return static_cast<ColorRgbMutable>(radiance);
+        return radiance;
     }
 
     bsdfComp->Clear();
-    ColorRgbMutable radiance;
     if ( bsdf == nullptr ) {
-        radiance.clear();
-    } else {
-        radiance = bsdf->evaluate(context, inBsdf, outBsdf, in, out, flags);
+        return ColorRgb(0.0, 0.0, 0.0);
     }
-    return radiance;
+    return bsdf->evaluate(context, inBsdf, outBsdf, in, out, flags);
 }
 
 #endif

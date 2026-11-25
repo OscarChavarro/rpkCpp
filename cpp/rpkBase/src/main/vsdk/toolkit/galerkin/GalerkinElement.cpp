@@ -1,5 +1,6 @@
 #include "java/lang/Float.h"
 #include "java/lang/Math.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -132,7 +133,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     if ( patch->getMaterial() != nullptr && patch->getMaterial()->getEdf() != nullptr ) {
         flags |= ElementFlags::IS_LIGHT_SOURCE_MASK;
         Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-        Ed.scaleInverse(M_PI, Ed);
+        Ed = ColorRgbMath::scaleInverse(M_PI, Ed);
     }
 
     reAllocCoefficients();
@@ -150,7 +151,7 @@ GalerkinElement::GalerkinElement(RpkGeometry *inGeometry, GalerkinState *inGaler
     flags |= ElementFlags::IS_CLUSTER_MASK;
     reAllocCoefficients();
 
-    Rd = ColorRgbMutable(1.0, 1.0, 1.0);
+    Rd = ColorRgb(1.0, 1.0, 1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     numberOfClusters++;

@@ -91,9 +91,9 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
-ColorRgbMutable
+ColorRgb
 ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
-    ColorRgbMutable rad(0.0, 0.0, 0.0);
+    double rad[3] = {0.0, 0.0, 0.0};
 
     const GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
     const Window &viewport = scratch.getViewport();
@@ -105,18 +105,25 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
             if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
                      galerkinState->isJacobi() ) {
-                    rad.add(rad, element->radiance[0]);
+                    rad[0] += element->radiance[0].getR();
+                    rad[1] += element->radiance[0].getG();
+                    rad[2] += element->radiance[0].getB();
                 } else {
-                    rad.add(rad, element->unShotRadiance[0]);
+                    rad[0] += element->unShotRadiance[0].getR();
+                    rad[1] += element->unShotRadiance[0].getG();
+                    rad[2] += element->unShotRadiance[0].getB();
                 }
                 nonBackground++;
             }
         }
     }
     if ( nonBackground > 0 ) {
-        rad.scale(1.0F / static_cast<float>(scratch.getViewportWidth() * scratch.getViewportHeight()));
+        const double scale = 1.0F / static_cast<float>(scratch.getViewportWidth() * scratch.getViewportHeight());
+        rad[0] *= scale;
+        rad[1] *= scale;
+        rad[2] *= scale;
     }
-    return rad;
+    return ColorRgb(rad[0], rad[1], rad[2]);
 }
 
 /** Computes the number of covered samples in the scratch viewport. */

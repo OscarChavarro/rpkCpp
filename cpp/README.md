@@ -23,6 +23,11 @@ so there is no VITRAL OpenGL copy here.
 
 ## Parallel final tracing after Random Walk
 
+Run Soda with 72 workers as part of parallel performance comparisons, for
+example `scripts/runAllParallel.sh --threads 72 08_soda`. Check its completion
+status and include it in the image and timing reports. Its earlier serial
+runtime does not describe the 72-worker run.
+
 With `-radiance-method RandomWalk -raytracing-method StochasticRaytracing`,
 `-gr-threads N` enables parallel final image tracing when `N > 1`. For example,
 on Linux with the first socket mapped to CPUs 0–17 and 36–53, run from `cpp/`:

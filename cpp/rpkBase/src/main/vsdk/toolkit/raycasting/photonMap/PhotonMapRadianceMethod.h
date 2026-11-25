@@ -20,7 +20,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     static void appendStatsText(char *buffer, int *offset, const char *format, ...);
     void photonMapRadiosityUpdateCpuSecs();
     void photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr);
-    ColorRgbMutable
+    ColorRgb
     photonMapDoComputePixelFluxEstimate(
         Camera *camera,
         PhotonMapConfig *config,
@@ -36,7 +36,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     photonMapDoPhotonStore(
         const Camera *camera,
         SimpleRaytracingPathNode *node,
-        ColorRgbMutable power);
+        const ColorRgb &power);
     void
     photonMapHandlePath(
         Camera *camera,
@@ -78,7 +78,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -88,8 +88,8 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
         java::OutputStream *outputStream,
         const RendererConfiguration *renderOptions) const final;
 
-    ColorRgbMutable getNodeGRadiance(SimpleRaytracingPathNode *node) const;
-    ColorRgbMutable getNodeCRadiance(SimpleRaytracingPathNode *node) const;
+    ColorRgb getNodeGRadiance(SimpleRaytracingPathNode *node) const;
+    ColorRgb getNodeCRadiance(SimpleRaytracingPathNode *node) const;
 };
 
 #endif

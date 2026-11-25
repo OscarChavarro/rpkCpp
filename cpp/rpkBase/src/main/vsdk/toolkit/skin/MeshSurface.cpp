@@ -111,7 +111,7 @@ MeshSurface::normalizeVertexColor(RpkVertex *vertex) {
 
     if ( numberOfPatches > 0 ) {
         const double invPatchCount = 1.0 / static_cast<double>(numberOfPatches);
-        vertex->color = ColorRgbMutable(
+        vertex->color = ColorRgb(
             vertex->color.getR() * invPatchCount,
             vertex->color.getG() * invPatchCount,
             vertex->color.getB() * invPatchCount);

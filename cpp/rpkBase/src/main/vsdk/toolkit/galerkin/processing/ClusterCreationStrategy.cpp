@@ -66,7 +66,10 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     galerkinElement->area = 0.0;
     galerkinElement->numberOfPatches = 0;
     galerkinElement->minimumArea = java::Float::MAX_VALUE;
-    ColorRgbMutable::arrayClear(galerkinElement->radiance, galerkinElement->basisSize);
+    for ( int i = 0; i < galerkinElement->basisSize; i++ ) {
+        galerkinElement->radiance[i].clear();
+    }
+    double emittance[3] = {galerkinElement->Ed.getR(), galerkinElement->Ed.getG(), galerkinElement->Ed.getB()};
     for ( int i = 0;
           galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
           i++ ) {
@@ -78,14 +81,19 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
             galerkinElement->minimumArea = subCluster->minimumArea;
         }
         galerkinElement->flags |= (subCluster->flags & ElementFlags::IS_LIGHT_SOURCE_MASK);
-        galerkinElement->Ed.addScaled(galerkinElement->Ed, subCluster->area, subCluster->Ed);
+        emittance[0] += subCluster->area * subCluster->Ed.getR();
+        emittance[1] += subCluster->area * subCluster->Ed.getG();
+        emittance[2] += subCluster->area * subCluster->Ed.getB();
     }
     galerkinElement->radiance[0].scale(1.0F / galerkinElement->area);
-    galerkinElement->Ed.scale(1.0F / galerkinElement->area);
+    const double emittanceScale = 1.0F / galerkinElement->area;
+    galerkinElement->Ed = ColorRgb(emittance[0] * emittanceScale, emittance[1] * emittanceScale, emittance[2] * emittanceScale);
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-        ColorRgbMutable::arrayClear(galerkinElement->unShotRadiance, galerkinElement->basisSize);
+        for ( int i = 0; i < galerkinElement->basisSize; i++ ) {
+            galerkinElement->unShotRadiance[i].clear();
+        }
         for ( int i = 0;
               galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
               i++ ) {

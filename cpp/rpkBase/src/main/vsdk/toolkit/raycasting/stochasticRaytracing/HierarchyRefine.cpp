@@ -1,4 +1,5 @@
 #include "java/lang/Math.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 /**
@@ -125,20 +126,25 @@ Hierarchy::lowPowerLink(
 {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
-    ColorRgbMutable rhoSrcRad(0.0, 0.0, 0.0);
     float ff = formFactorEstimate(rcv, src);
     float threshold;
     float propagatedPower;
 
     // Compute receiver reflectance times source radiosity
-    rhoSrcRad.scaledCopy(static_cast<float>(M_PI), src->radiance[0]);
+    const double scale = static_cast<float>(M_PI);
+    double rhoR = scale * src->radiance[0].getR();
+    double rhoG = scale * src->radiance[0].getG();
+    double rhoB = scale * src->radiance[0].getB();
     if ( !rcv->isCluster() ) {
-        ColorRgbMutable Rd = McradP::topLevelStochasticRadiosityElement(rcv->patch)->Rd;
-        rhoSrcRad.selfScalarProduct(Rd);
+        const auto &reflectance = McradP::topLevelStochasticRadiosityElement(rcv->patch)->Rd;
+        rhoR *= reflectance.getR();
+        rhoG *= reflectance.getG();
+        rhoB *= reflectance.getB();
     }
+    const ColorRgb rhoSrcRad(rhoR, rhoG, rhoB);
 
-    threshold = ElementHierarchyState::activeState().epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
-    propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
+    threshold = ElementHierarchyState::activeState().epsilon * ColorRgbMath::maximumComponent(statistics->radiance.maxSelfEmittedPower);
+    propagatedPower = rcv->area * ff * ColorRgbMath::maximumComponent(rhoSrcRad);
     if ( StochasticRelaxation::activeState().importanceDriven ) {
         propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {

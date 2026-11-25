@@ -32,8 +32,8 @@ Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, cons
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        ColorRgbMutable emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
-        double flux = M_PI * light->getArea() * emittedRadiance.sumAbsComponents();
+        const ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
+        double flux = M_PI * light->getArea() * (java::Math::abs(emittedRadiance.getR()) + java::Math::abs(emittedRadiance.getG()) + java::Math::abs(emittedRadiance.getB()));
         totalFlux += flux;
         lights[i] = LightSourceTable(light, flux);
     }
@@ -43,7 +43,7 @@ Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, cons
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
-        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad.clear();
+        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = ColorRgb(0.0, 0.0, 0.0);
     }
 }
 
@@ -66,7 +66,7 @@ Nondiff::nextLightSample(const Patch *patch, double *zeta) {
 }
 
 RpkRay
-Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
+Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
     RpkRay ray;
     do {
         double zeta[4];
@@ -89,7 +89,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *poin
             ColorRgb emittedRadiance(0.0, 0.0, 0.0);
             ray.direction = patch->getMaterial()->getEdf()->phongEdfSample(
                 &shctx, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], &emittedRadiance, dirSelectionPdf);
-            *emitted_rad = static_cast<ColorRgbMutable>(emittedRadiance);
+            *emitted_rad = emittedRadiance;
         }
     } while ( *dirSelectionPdf == 0.0 );
 
@@ -102,7 +102,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *poin
 
 void
 Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, LightSourceTable *light, double light_selection_pdf) {
-    ColorRgbMutable rad(0.0, 0.0, 0.0);
+    ColorRgb rad(0.0, 0.0, 0.0);
     double pointSelectionPdf;
     double dirSelectionPdf;
     RpkRay ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
@@ -120,8 +120,8 @@ Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWor
         receivedRadiosity.selfScalarProduct(Rd);
         McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
         McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
-        McradP::topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad.add(
-            McradP::topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad, receivedRadiosity);
+        StochasticRadiosityElement *element = McradP::topLevelStochasticRadiosityElement(hit->getPatch());
+        element->sourceRad = element->sourceRad.add(static_cast<ColorRgb>(receivedRadiosity));
     }
 }
 

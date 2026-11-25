@@ -8,8 +8,8 @@ class PatchVisitor {
     static int getNumberOfSamples(const Patch *patch);
 
   public:
-    static ColorRgbMutable averageNormalAlbedo(const Patch *patch, char components);
-    static ColorRgbMutable averageEmittance(const Patch *patch, char components);
+    static ColorRgb averageNormalAlbedo(const Patch *patch, char components);
+    static ColorRgb averageEmittance(const Patch *patch, char components);
 };
 
 #endif

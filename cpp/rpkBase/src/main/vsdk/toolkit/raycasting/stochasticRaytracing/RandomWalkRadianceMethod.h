@@ -22,7 +22,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;

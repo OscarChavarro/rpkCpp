@@ -354,7 +354,7 @@ BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const RpkVe
     }
     vsdk::PersistenceElement::writeInt32LE(output, textureIndex);
 
-    writeColor(output, ColorRgb(vertex->color));
+    writeColor(output, vertex->color);
 
     int backIndex = -1;
     if ( !indexOfPointer(vertex->back, context.vertexIndices, "vertex.back", backIndex) ) {

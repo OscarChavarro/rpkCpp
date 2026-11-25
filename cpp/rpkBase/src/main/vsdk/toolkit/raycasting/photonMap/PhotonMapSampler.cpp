@@ -2,6 +2,7 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
@@ -38,24 +39,22 @@ PhotonMapSampler::chooseComponent(
         return false;
     }
 
-    ColorRgbMutable color(0.0, 0.0, 0.0);
+    ColorRgb color(0.0, 0.0, 0.0);
     float power1;
     float power2;
     float totalPower;
 
     // Choose between flags1 or flags2 scattering
-    color.clear();
-
     if ( bsdf != nullptr ) {
         color = bsdf->splitBsdfScatteredPower(shctx, flags1);
     }
-    power1 = color.average();
+    power1 = static_cast<float>(ColorRgbMath::average(color));
 
-    color.clear();
+    color = ColorRgb(0.0, 0.0, 0.0);
     if ( bsdf != nullptr ) {
         color = bsdf->splitBsdfScatteredPower(shctx, flags2);
     }
-    power2 = color.average();
+    power2 = static_cast<float>(ColorRgbMath::average(color));
 
     totalPower = power1 + power2;
 
@@ -187,7 +186,7 @@ PhotonMapSampler::chooseFresnelDirection(
     double x2,
     Vector3Df *dir,
     double *pdfDir,
-    ColorRgbMutable *scatteringColor,
+    ColorRgb *scatteringColor,
     bool *doCosInverse)
 {
     // Index of refractions are taken
@@ -202,20 +201,18 @@ PhotonMapSampler::chooseFresnelDirection(
     if ( !shctxOk ) {
         return false;
     }
-    ColorRgbMutable reflectance(0.0, 0.0, 0.0);
-    reflectance.clear();
+    ColorRgb reflectance(0.0, 0.0, 0.0);
     if ( bsdf != nullptr ) {
         reflectance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
-    ColorRgbMutable transmittance(0.0, 0.0, 0.0);
-    transmittance.clear();
+    ColorRgb transmittance(0.0, 0.0, 0.0);
     if ( bsdf != nullptr ) {
         transmittance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
-    bool reflective = (reflectance.average() > VSDK::EPSILON);
-    bool trans = (transmittance.average() > VSDK::EPSILON);
+    bool reflective = (ColorRgbMath::average(reflectance) > VSDK::EPSILON);
+    bool trans = (ColorRgbMath::average(transmittance) > VSDK::EPSILON);
 
     if ( reflective && trans ) {
         Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
@@ -318,14 +315,14 @@ PhotonMapSampler::chooseFresnelDirection(
     // specular transmission
     if ( reflected ) {
         if ( reflective ) {
-            scatteringColor->scaledCopy(F, reflectance);
+            *scatteringColor = reflectance.multiply(F);
             *doCosInverse = false;
         } else {
-            scatteringColor->scaledCopy(F, transmittance);
+            *scatteringColor = transmittance.multiply(F);
             *doCosInverse = true;
         }
     } else {
-        scatteringColor->scaledCopy(T, transmittance);
+        *scatteringColor = transmittance.multiply(T);
         *doCosInverse = true;
     }
 
@@ -346,7 +343,7 @@ PhotonMapSampler::fresnelSample(
     Vector3Df dir;
     double pdfDir;
     bool doCosInverse;
-    ColorRgbMutable scatteringColor(0.0, 0.0, 0.0);
+    ColorRgb scatteringColor(0.0, 0.0, 0.0);
 
     if ( !PhotonMapSampler::chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
                                  &scatteringColor, &doCosInverse) ) {
@@ -367,7 +364,7 @@ PhotonMapSampler::fresnelSample(
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
         float cosB = java::Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
-        thisNode->m_bsdfEval.scaleInverse(cosB, scatteringColor);
+        thisNode->m_bsdfEval = ColorRgbMath::scaleInverse(cosB, scatteringColor);
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }

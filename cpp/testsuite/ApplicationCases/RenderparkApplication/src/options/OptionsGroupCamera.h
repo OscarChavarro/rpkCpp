@@ -17,7 +17,7 @@ class OptionsGroupCamera final {
     static const Vector3Df DEFAULT_CAMERA_EYE_POSITION;
     static const Vector3Df DEFAULT_CAMERA_LOOK_POSITION;
     static const Vector3Df DEFAULT_CAMERA_UP_DIRECTION;
-    static const ColorRgbMutable DEFAULT_BACKGROUND_COLOR;
+    static const ColorRgb DEFAULT_BACKGROUND_COLOR;
     static Camera cameraState;
 
     static void cameraSetEyePositionOption(Vector3Df &val);

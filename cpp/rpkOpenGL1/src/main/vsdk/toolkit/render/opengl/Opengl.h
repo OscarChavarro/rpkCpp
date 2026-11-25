@@ -14,7 +14,7 @@
 class Opengl {
   private:
     static const ToneMappingContext *activeToneMapOptions;
-    static void openGlRenderPatchFlat(const Patch *patch, const ColorRgbMutable &color, const RendererConfiguration *renderOptions);
+    static void openGlRenderPatchFlat(const Patch *patch, const ColorRgb &color, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchSmooth(const Patch *patch, const RendererConfiguration *renderOptions);
     static void
     openGlInvokeRenderPatch(
@@ -61,14 +61,13 @@ class Opengl {
   public:
     static void openGlRenderLine(Vector3Df *x, Vector3Df *y);
     static void openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions);
-    static void openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchOutline(const Patch *patch);
     static void openGlRenderPolygonFlat(int numberOfVertices, Vector3Df *vertices);
     static void
     openGlRenderPolygonGouraud(
         int numberOfVertices,
         Vector3Df *vertices,
-        const ColorRgbMutable *verticesColors,
+        const ColorRgb *verticesColors,
         const RendererConfiguration *renderOptions);
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, const FaceColorTable *faceColors);
     static void openGlRenderClearWindow(const Camera *camera);

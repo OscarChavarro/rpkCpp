@@ -3,6 +3,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
 #include "java/lang/Math.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/render/Potential.h"
@@ -67,7 +68,9 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         clearUnShotRadianceAndPotential(static_cast<GalerkinElement *>(elem->irregularSubElements->get(i)));
     }
 
-    ColorRgbMutable::arrayClear(elem->unShotRadiance, elem->basisSize);
+    for ( int i = 0; i < elem->basisSize; i++ ) {
+        elem->unShotRadiance[i].clear();
+    }
     elem->unShotPotential = 0.0F;
 }
 
@@ -153,10 +156,10 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
     }
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
 
-    galerkinState->ambientRadiance.addScaled(
+    galerkinState->ambientRadiance = ColorRgbMath::addScaled(
         galerkinState->ambientRadiance,
         patch->getArea(),
-        galerkinState->topLevelElement(patch)->unShotRadiance[0]);
+        static_cast<ColorRgb>(galerkinState->topLevelElement(patch)->unShotRadiance[0]));
 }
 
 void
@@ -171,13 +174,13 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
             shootingPushPullPotential(galerkinState->topCluster, 0.0);
         }
         GalerkinBasis::pushPullRadiance(galerkinState->topCluster, galerkinState);
-        galerkinState->ambientRadiance = galerkinState->topCluster->unShotRadiance[0];
+        galerkinState->ambientRadiance = static_cast<ColorRgb>(galerkinState->topCluster->unShotRadiance[0]);
     } else {
-        galerkinState->ambientRadiance.clear();
+        galerkinState->ambientRadiance = ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             patchUpdateRadianceAndPotential(scene->patchList->get(i), galerkinState);
         }
-        galerkinState->ambientRadiance.scale(1.0F / Statistics::instance().radiance.totalArea);
+        galerkinState->ambientRadiance = galerkinState->ambientRadiance.multiply(1.0F / Statistics::instance().radiance.totalArea);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

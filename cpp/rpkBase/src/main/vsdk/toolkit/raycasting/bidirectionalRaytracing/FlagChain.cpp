@@ -108,11 +108,11 @@ FlagChain::combine(const FlagChain *c1, const FlagChain *c2) {
 Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
-ColorRgbMutable
+ColorRgb
 FlagChain::compute(BiPath *path) const {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
-    result = ColorRgbMutable(1.0, 1.0, 1.0);
+    double red = 1.0;
+    double green = 1.0;
+    double blue = 1.0;
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -120,31 +120,37 @@ FlagChain::compute(BiPath *path) const {
 
     if ( lightSize + eyeSize != length ) {
         Logger::reportMessage("FlagChain", Logger::ERROR, "FlagChain::Compute", "Wrong path length");
-        return result;
+        return ColorRgb(red, green, blue);
     }
 
     // Flag chain start at the light node and end at the eye node
     node = path->m_lightPath;
 
     for ( int i = 0; i < lightSize; i++ ) {
-        tmpCol = node->m_bsdfComp.Sum(chain[i]);
-        result.selfScalarProduct(tmpCol);
+        const ColorRgb tmpCol = node->m_bsdfComp.Sum(chain[i]);
+        red *= tmpCol.getR();
+        green *= tmpCol.getG();
+        blue *= tmpCol.getB();
         node = node->next();
     }
 
     node = path->m_eyePath;
 
     for ( int i = 0; i < eyeSize; i++ ) {
-        tmpCol = node->m_bsdfComp.Sum(chain[length - 1 - i]);
-        result.selfScalarProduct(tmpCol);
+        const ColorRgb tmpCol = node->m_bsdfComp.Sum(chain[length - 1 - i]);
+        red *= tmpCol.getR();
+        green *= tmpCol.getG();
+        blue *= tmpCol.getB();
         node = node->next();
     }
 
     if ( subtract ) {
-        result.scale(-1);
+        red = -red;
+        green = -green;
+        blue = -blue;
     }
 
-    return result;
+    return ColorRgb(red, green, blue);
 }
 
 FlagChainList::FlagChainList() {
@@ -209,23 +215,23 @@ FlagChainList::addDisjoint(const FlagChain &chain) {
     }
 }
 
-ColorRgbMutable
+ColorRgb
 FlagChainList::compute(BiPath *path) {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
-
-    result.clear();
+    double red = 0.0;
+    double green = 0.0;
+    double blue = 0.0;
 
     FlagChainIterator iter(*this);
     const FlagChain *chain;
 
     while ( (chain = iter.nextOnSequence()) != nullptr ) {
-        tmpCol = chain->compute(path);
-
-        result.add(tmpCol, result);
+        const ColorRgb tmpCol = chain->compute(path);
+        red = red + tmpCol.getR();
+        green = green + tmpCol.getG();
+        blue = blue + tmpCol.getB();
     }
 
-    return result;
+    return ColorRgb(red, green, blue);
 }
 
 /**
@@ -283,18 +289,15 @@ ContribHandler::~ContribHandler() {
     delete[] array;
 }
 
-ColorRgbMutable
+ColorRgb
 ContribHandler::compute(BiPath *path) {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
     int length;
-
-    result.clear();
 
     length = path->m_eyeSize + path->m_lightSize;
 
     if ( length > maxLength ) {
         Logger::reportMessage("FlagChain", Logger::ERROR, "CContribHandler::Compute", "Path too long !!");
-        return result;
+        return ColorRgb(0.0, 0.0, 0.0);
     }
 
     return array[length].compute(path);

@@ -6,7 +6,7 @@ Monte Carlo radiosity
 #define _MONTE_CARLO_RADIOSITY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
@@ -31,7 +31,7 @@ class Mcrad final {
     static void monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *renderOptions);
     static void monteCarloRadiosityPreStep(Scene *scene, const RendererConfiguration *renderOptions);
     static void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
-    static ColorRgbMutable monteCarloRadiosityGetRadiance(
+    static ColorRgb monteCarloRadiosityGetRadiance(
         const Patch *patch,
         double u,
         double v,
@@ -54,9 +54,9 @@ class Mcrad final {
     static void monteCarloRadiosityDetermineInitialNrRays(
         const java::ArrayList<Patch *> *scenePatches,
         const java::ArrayList<RpkGeometry *> *sceneGeometries);
-    static ColorRgbMutable monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u, double v);
-    static ColorRgbMutable vertexReflectance(const RpkVertex *vertex);
-    static ColorRgbMutable monteCarloRadiosityInterpolatedReflectanceAtPoint(
+    static ColorRgb monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u, double v);
+    static ColorRgb vertexReflectance(const RpkVertex *vertex);
+    static ColorRgb monteCarloRadiosityInterpolatedReflectanceAtPoint(
         const StochasticRadiosityElement *leaf,
         double u,
         double v);

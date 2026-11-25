@@ -7,6 +7,7 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/common/color/Cie.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
@@ -67,7 +68,7 @@ void
 RandomWalkRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 }
 
-ColorRgbMutable
+ColorRgb
 RandomWalkRadianceMethod::getRadiance(
     Camera */*camera*/,
     const Patch *patch,
@@ -176,7 +177,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<
         newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
         newSourceRadiance.selfScalarProduct(StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
         newSourceRadiance.subtract(McradP::topLevelStochasticRadiosityElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
-        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = newSourceRadiance;
+        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = static_cast<ColorRgb>(newSourceRadiance);
     }
 }
 
@@ -316,13 +317,13 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size, 1. / (1. -
-                              Statistics::instance().radiance.averageReflectivity.maximumComponent())));
+                              ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity))));
     }
 
     java::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             StochasticRelaxation::activeState().currentIteration,
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
-                                                               (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
+                                                               (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity)))));
 
     Tracepath::tracePaths(
         sceneQuery,
@@ -459,7 +460,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size,
-            1.0 / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent())));
+            1.0 / (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity))));
     }
 
     if ( StochasticRelaxation::activeState().constantControlVariate && StochasticRelaxation::activeState().currentIteration == 1 ) {
@@ -470,7 +471,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
 
     java::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         StochasticRelaxation::activeState().currentIteration,
-        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
+        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity)))));
 
     Tracepath::tracePaths(
         sceneQuery,
@@ -486,7 +487,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
  void
 RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, double /*w*/) {
     Coefficientsmcrad::stochasticRadiosityCopyCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
-    elem->sourceRad = elem->receivedRadiance[0];
+    elem->sourceRad = static_cast<ColorRgb>(elem->receivedRadiance[0]);
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 }

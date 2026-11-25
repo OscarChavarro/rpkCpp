@@ -62,21 +62,23 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
         }
 
         if ( mode & GalerkinElementRenderMode::FLAT ) {
-            ColorRgbMutable color{};
-            ColorRgbMutable rho = element->galerkinState->topLevelElement(element->patch)->Rd;
+            ColorRgb color{};
+            const ColorRgb &rho = element->galerkinState->topLevelElement(element->patch)->Rd;
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgbMutable radVis;
-                radVis.scalarProduct(rho, element->galerkinState->ambientRadiance);
-                radVis.add(radVis, element->radiance[0]);
-                ToneMap::radianceToRgb(radVis, &color, *toneMapOptions);
+                const ColorRgb &ambient = element->galerkinState->ambientRadiance;
+                const ColorRgb radiance = static_cast<ColorRgb>(element->radiance[0]);
+                const ColorRgb radVis(rho.getR() * ambient.getR() + radiance.getR(),
+                                      rho.getG() * ambient.getG() + radiance.getG(),
+                                      rho.getB() * ambient.getB() + radiance.getB());
+                color = ToneMap::radianceToRgb(radVis, *toneMapOptions);
             } else {
-                ToneMap::radianceToRgb(element->radiance[0], &color, *toneMapOptions);
+                color = ToneMap::radianceToRgb(static_cast<ColorRgb>(element->radiance[0]), *toneMapOptions);
             }
             Opengl::openGlRenderSetColor(&color, renderOptions);
             Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
         } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
-            ColorRgbMutable vertRadiosity[4];
+            ColorRgb vertRadiosity[4];
 
             if ( numberOfVertices == 3 ) {
                 vertRadiosity[0] = GalerkinBasis::radianceAtPoint(element, element->radiance, 0.0, 0.0);
@@ -90,18 +92,19 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             }
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgbMutable reflectivity = element->galerkinState->topLevelElement(element->patch)->Rd;
-                ColorRgbMutable ambient;
-
-                ambient.scalarProduct(reflectivity, element->galerkinState->ambientRadiance);
+                const ColorRgb &reflectivity = element->galerkinState->topLevelElement(element->patch)->Rd;
+                const ColorRgb &ambientRadiance = element->galerkinState->ambientRadiance;
+                const ColorRgb ambient(reflectivity.getR() * ambientRadiance.getR(),
+                                       reflectivity.getG() * ambientRadiance.getG(),
+                                       reflectivity.getB() * ambientRadiance.getB());
                 for ( int i = 0; i < numberOfVertices; i++ ) {
-                    vertRadiosity[i].add(vertRadiosity[i], ambient);
+                    vertRadiosity[i] = vertRadiosity[i].add(ambient);
                 }
             }
 
-            ColorRgbMutable vertexColors[4];
+            ColorRgb vertexColors[4];
             for ( int i = 0; i < numberOfVertices; i++ ) {
-                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *toneMapOptions);
+                vertexColors[i] = ToneMap::radianceToRgb(vertRadiosity[i], *toneMapOptions);
             }
 
             Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors, renderOptions);
@@ -118,7 +121,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             Opengl::openGlRenderLine(&p[1], &p[2]);
             Opengl::openGlRenderLine(&p[2], &p[0]);
         } else {
-            ColorRgbMutable green = {0.0, 1.0, 0.0};
+            const ColorRgb green(0.0, 1.0, 0.0);
 
             Opengl::openGlRenderSetColor(&green, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);

@@ -23,7 +23,7 @@ CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi|01_cube
 22_tonemapTumblinRushmeier|22_tonemap_TumblinRushmeier|22|22_tonemapTumblinRushmeier'
 
 # Scenes outside the corpus, with the same columns. scripts/runAll.sh starts
-# them beside the corpus and does not wait for them (08 soda takes hours), so
+# them beside the corpus and does not wait for them, so
 # testReviewResults.sh compares one only when its run has finished, that is
 # when output/<log>.status (the run's exit status, written at its end) exists,
 # and otherwise reports that it was not compared.

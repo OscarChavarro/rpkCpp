@@ -373,25 +373,29 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
             java::System::out.printf("-> ");
             break;
     }
-    const ColorRgbMutable *c = element->radiance;
+    const auto *sourceRadiance = element->radiance;
+    const bool hasRadiance = sourceRadiance != nullptr;
+    const ColorRgb radiance = hasRadiance
+        ? ColorRgb(sourceRadiance->getR(), sourceRadiance->getG(), sourceRadiance->getB())
+        : ColorRgb(0.0, 0.0, 0.0);
     long int numberOfInteractions = 0;
     if ( element->interactions != nullptr ) {
         numberOfInteractions = element->interactions->size();
     }
 
     if ( element->regularSubElements == nullptr ) {
-        if ( c == nullptr ) {
+        if ( !hasRadiance ) {
             java::System::out.printf("Child element no radiance\n");
         } else {
             java::System::out.printf("Child element radiance <%0.4F, %0.4F, %0.4F>, interactions: %ld\n",
-               c->getR(), c->getG(), c->getB(), numberOfInteractions);
+               radiance.getR(), radiance.getG(), radiance.getB(), numberOfInteractions);
         }
     } else {
-        if ( c == nullptr ) {
+        if ( !hasRadiance ) {
             java::System::out.printf("Container element no radiance\n");
         } else {
             java::System::out.printf("Container element radiance <%0.4F, %0.4F, %0.4F>, interactions: %ld\n",
-               c->getR(), c->getG(), c->getB(), numberOfInteractions);
+               radiance.getR(), radiance.getG(), radiance.getB(), numberOfInteractions);
         }
         for ( int i = 0; i < 4; i++ ) {
             const GalerkinElement *child = static_cast<GalerkinElement *>(element->regularSubElements[i]);

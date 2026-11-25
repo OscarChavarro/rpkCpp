@@ -5,16 +5,16 @@
 
 class PowerAccumulatorVisitor final : public ClusterLeafVisitor {
   private:
-    ColorRgbMutable sourceRadiance;
+    double sourceRadiance[3];
     Vector3Df samplePoint;
-    ColorRgbMutable accumulatedRadiance;
+    double accumulatedRadiance[3];
 
   public:
     explicit
-    PowerAccumulatorVisitor(ColorRgbMutable inSourceRadiance, Vector3Df inSamplePoint);
+    PowerAccumulatorVisitor(const ColorRgb &inSourceRadiance, Vector3Df inSamplePoint);
     ~PowerAccumulatorVisitor() final;
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
-    ColorRgbMutable getAccumulatedRadiance() const;
+    ColorRgb getAccumulatedRadiance() const;
 };
 
 #endif

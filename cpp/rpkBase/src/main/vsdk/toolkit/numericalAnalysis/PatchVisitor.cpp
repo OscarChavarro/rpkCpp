@@ -30,9 +30,9 @@ Each sample sets its own (u,v) on the hit record, which invalidates the
 texture coordinate cached for the previous sample, so every sample reads the
 texel at its own position.
 */
-ColorRgbMutable
+ColorRgb
 PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
-    ColorRgbMutable albedo(0.0, 0.0, 0.0);
+    double albedo[3] = {0.0, 0.0, 0.0};
     const PhongMaterial *material = patch->getMaterial()->getSurfaceMaterial();
     RpkRayHit hit;
 
@@ -41,9 +41,8 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
     hit.init(patch, &patchMidPoint, &patchNormal, patch->getMaterial());
 
     const int numberOfSamples = getNumberOfSamples(patch);
-    albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgbMutable sample(0.0, 0.0, 0.0);
+        ColorRgb sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         if ( material->isTextured() ) {
@@ -57,11 +56,12 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
         } else {
             sample = material->scatteredPower(components, nullptr);
         }
-        albedo.add(albedo, sample);
+        albedo[0] += sample.getR();
+        albedo[1] += sample.getG();
+        albedo[2] += sample.getB();
     }
-    albedo.scaleInverse(static_cast<float>(numberOfSamples), albedo);
-
-    return albedo;
+    const double inverse = 1.0 / static_cast<float>(numberOfSamples);
+    return ColorRgb(inverse * albedo[0], inverse * albedo[1], inverse * albedo[2]);
 }
 
 /**
@@ -70,19 +70,18 @@ emittance does not vary over the patch, but it is still accumulated over the
 same number of samples as the albedo so that the rounding of the result is
 the established one.
 */
-ColorRgbMutable
+ColorRgb
 PatchVisitor::averageEmittance(const Patch *patch, char components) {
-    ColorRgbMutable emittance(0.0, 0.0, 0.0);
+    double emittance[3] = {0.0, 0.0, 0.0};
     const PhongMaterial *material = patch->getMaterial()->getSurfaceMaterial();
 
     const int numberOfSamples = getNumberOfSamples(patch);
-    emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgbMutable sample(0.0, 0.0, 0.0);
-        sample = material->emittance(components);
-        emittance.add(emittance, sample);
+        const ColorRgb sample = material->emittance(components);
+        emittance[0] += sample.getR();
+        emittance[1] += sample.getG();
+        emittance[2] += sample.getB();
     }
-    emittance.scaleInverse(static_cast<float>(numberOfSamples), emittance);
-
-    return emittance;
+    const double inverse = 1.0 / static_cast<float>(numberOfSamples);
+    return ColorRgb(inverse * emittance[0], inverse * emittance[1], inverse * emittance[2]);
 }

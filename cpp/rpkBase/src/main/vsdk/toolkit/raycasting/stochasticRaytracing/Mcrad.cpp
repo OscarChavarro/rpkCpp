@@ -104,14 +104,15 @@ Initialises patch data
 */
  void
 Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
-    ColorRgbMutable Ed = McradP::topLevelStochasticRadiosityElement(patch)->Ed;
+    const ColorRgb Ed = McradP::topLevelStochasticRadiosityElement(patch)->Ed;
 
     Coefficientsmcrad::reAllocCoefficients(McradP::topLevelStochasticRadiosityElement(patch));
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
 
-    McradP::getTopLevelPatchRad(patch)[0] = McradP::getTopLevelPatchUnShotRad(patch)[0] = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = Ed;
+    McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = Ed;
+    McradP::getTopLevelPatchRad(patch)[0] = McradP::getTopLevelPatchUnShotRad(patch)[0] = Ed;
     McradP::getTopLevelPatchReceivedRad(patch)[0].clear();
 
     McradP::topLevelStochasticRadiosityElement(patch)->rayIndex = patch->getId() * 11;
@@ -402,7 +403,7 @@ Mcrad::monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches
     StochasticRelaxation::activeState().inited = false;
 }
 
- ColorRgbMutable
+ColorRgb
 Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u, double v) {
     RpkRayHit hit;
     Vector3Df point;
@@ -410,26 +411,21 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u
     const Vector3Df patchNormal = patch->getNormal();
     hit.init(patch, &point, &patchNormal, patch->getMaterial());
     hit.setUv(u, v);
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-    result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {
         bool shctxOk = false;
         ShadingContext shctx = hit.shadingContext(&shctxOk);
         if ( shctxOk ) {
-            result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
-        } else {
-            result.clear();
+            return hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
         }
     }
-    return result;
+    return ColorRgb(0.0, 0.0, 0.0);
 }
 
- ColorRgbMutable
+ColorRgb
 Mcrad::vertexReflectance(const RpkVertex *v) {
     int count = 0;
-    ColorRgbMutable rd(0.0, 0.0, 0.0);
+    double rd[3] = {0.0, 0.0, 0.0};
 
-    rd.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
         Element *genericElement = v->radianceData->get(i);
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -437,82 +433,111 @@ Mcrad::vertexReflectance(const RpkVertex *v) {
         }
         const StochasticRadiosityElement *element = static_cast<StochasticRadiosityElement *>(genericElement);
         if ( !element->regularSubElements ) {
-            rd.add(rd, element->Rd);
+            rd[0] += element->Rd.getR();
+            rd[1] += element->Rd.getG();
+            rd[2] += element->Rd.getB();
             count++;
         }
     }
 
     if ( count > 0 ) {
-        rd.scaleInverse(static_cast<float>(count), rd);
+        const double scale = 1.0 / static_cast<float>(count);
+        rd[0] = scale * rd[0];
+        rd[1] = scale * rd[1];
+        rd[2] = scale * rd[2];
     }
 
-    return rd;
+    return ColorRgb(rd[0], rd[1], rd[2]);
 }
 
- ColorRgbMutable
+ColorRgb
 Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosityElement *leaf, double u, double v) {
     static const StochasticRadiosityElement *cachedLeaf = nullptr;
-    static ColorRgbMutable vrd[4];
-    static ColorRgbMutable rd(0.0, 0.0, 0.0);
+    static double vertexReflectance[4][3] = {};
+    static double rd[3] = {};
 
     if ( leaf != nullptr ) {
         if ( leaf != cachedLeaf ) {
             for ( int i = 0; i < leaf->numberOfVertices; i++ ) {
-                vrd[i] = vertexReflectance(leaf->vertices[i]);
+                const ColorRgb reflectance = Mcrad::vertexReflectance(leaf->vertices[i]);
+                vertexReflectance[i][0] = reflectance.getR();
+                vertexReflectance[i][1] = reflectance.getG();
+                vertexReflectance[i][2] = reflectance.getB();
             }
         }
         cachedLeaf = leaf;
 
-        rd.clear();
+        const double uu = static_cast<float>(u);
+        const double vv = static_cast<float>(v);
         switch ( leaf->numberOfVertices ) {
-            case 3:
-                rd.interpolateBarycentric(vrd[0], vrd[1], vrd[2], static_cast<float>(u), static_cast<float>(v));
+            case 3: {
+                for ( int channel = 0; channel < 3; channel++ ) {
+                    rd[channel] = vertexReflectance[0][channel] +
+                        uu * (vertexReflectance[1][channel] - vertexReflectance[0][channel]) +
+                        vv * (vertexReflectance[2][channel] - vertexReflectance[0][channel]);
+                }
                 break;
-            case 4:
-                rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], static_cast<float>(u), static_cast<float>(v));
+            }
+            case 4: {
+                const double c = uu * vv;
+                const double bb = uu - c;
+                const double d = vv - c;
+                for ( int channel = 0; channel < 3; channel++ ) {
+                    rd[channel] = vertexReflectance[0][channel] +
+                        bb * (vertexReflectance[1][channel] - vertexReflectance[0][channel]) +
+                        c * (vertexReflectance[2][channel] - vertexReflectance[0][channel]) +
+                        d * (vertexReflectance[3][channel] - vertexReflectance[0][channel]);
+                }
                 break;
+            }
             default:
                 Logger::reportMessage("Mcrad", Logger::FATAL_ERROR, "monteCarloRadiosityInterpolatedReflectanceAtPoint", java::String::format("Invalid nr of vertices %d", leaf->numberOfVertices));
         }
     }
-    return rd;
+    return ColorRgb(rd[0], rd[1], rd[2]);
 }
 
 /**
 Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
-ColorRgbMutable
+ColorRgb
 Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Vector3Df /*dir*/, const RendererConfiguration *renderOptions) {
-    ColorRgbMutable TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
+    const ColorRgb trueRd = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
-    ColorRgbMutable UsedRdAtPoint = renderOptions->isSmoothShading() ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    ColorRgbMutable radianceAtPoint = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
-    ColorRgbMutable sourceRad(0.0, 0.0, 0.0);
-    sourceRad.clear();
+    const ColorRgb usedRd = renderOptions->isSmoothShading()
+        ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v)
+        : static_cast<ColorRgb>(leaf->Rd);
+    const ColorRgb displayRadiance = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
+    double radiance[3] = {displayRadiance.getR(), displayRadiance.getG(), displayRadiance.getB()};
+    const double reflectivity[3] = {trueRd.getR(), trueRd.getG(), trueRd.getB()};
+    const double usedReflectivity[3] = {usedRd.getR(), usedRd.getG(), usedRd.getB()};
+    double source[3] = {0.0, 0.0, 0.0};
 
     // Subtract source radiance
     if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
         // sourceRad is self-emitted radiance when indirect-only is disabled.
         // Otherwise it represents direct illumination.
         if ( !StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
-            sourceRad = leaf->sourceRad;
+            source[0] = leaf->sourceRad.getR();
+            source[1] = leaf->sourceRad.getG();
+            source[2] = leaf->sourceRad.getB();
         }
         if ( StochasticRelaxation::activeState().indirectOnly || StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             // Subtract self-emitted radiance
-            sourceRad.add(sourceRad, leaf->Ed);
+            source[0] += leaf->Ed.getR();
+            source[1] += leaf->Ed.getG();
+            source[2] += leaf->Ed.getB();
         }
     }
-    radianceAtPoint.subtract(radianceAtPoint, sourceRad);
-
-    radianceAtPoint.scalarProduct(radianceAtPoint, TrueRdAtPoint);
-    radianceAtPoint.divide(radianceAtPoint, UsedRdAtPoint);
-
-    // Re-add source radiance
-    radianceAtPoint.add(radianceAtPoint, sourceRad);
-
-    return radianceAtPoint;
+    for ( int i = 0; i < 3; i++ ) {
+        radiance[i] = radiance[i] - source[i];
+        radiance[i] = radiance[i] * reflectivity[i];
+        radiance[i] = usedReflectivity[i] != 0.0 ? radiance[i] / usedReflectivity[i] : radiance[i];
+        radiance[i] = radiance[i] + source[i];
+    }
+    return ColorRgb(radiance[0], radiance[1], radiance[2]);
 }
 
 /**

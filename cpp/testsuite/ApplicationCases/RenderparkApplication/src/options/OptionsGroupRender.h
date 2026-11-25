@@ -1,7 +1,7 @@
 #ifndef COMMAND_LINE_RENDER_OPTIONS_GROUP__
 #define COMMAND_LINE_RENDER_OPTIONS_GROUP__
 
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 class OptionsGroupRender final {
@@ -14,13 +14,13 @@ class OptionsGroupRender final {
   private:
     static int trueValue;
     static RendererConfiguration renderOptionsState;
-    static ColorRgbMutable outlineColor;
+    static ColorRgb outlineColor;
 
     static void flatOption(int &value);
     static void noCullingOption(int &value);
     static void outlinesOption(int &value);
     static void traceOption(int &value);
-    static bool parseColor3(int argc, char **argv, ColorRgbMutable &value);
+    static bool parseColor3(int argc, char **argv, ColorRgb &value);
 };
 
 #endif

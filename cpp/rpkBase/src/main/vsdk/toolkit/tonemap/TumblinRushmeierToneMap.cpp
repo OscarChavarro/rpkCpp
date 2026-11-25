@@ -45,8 +45,8 @@ TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
     invCMaximum = 1.0F / maximumDisplayContrast;
 }
 
-ColorRgbMutable
-TumblinRushmeierToneMap::scaleForComputations(ColorRgbMutable radiance) const {
+ColorRgb
+TumblinRushmeierToneMap::scaleForComputations(const ColorRgb &radiance) const {
     const float rwl = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
 
     float scale;
@@ -58,15 +58,14 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgbMutable radiance) const {
         scale = 0.0F;
     }
 
-    radiance.scale(scale);
-    return radiance;
+    return radiance.multiply(scale);
 }
 
-ColorRgbMutable
-TumblinRushmeierToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
+ColorRgb
+TumblinRushmeierToneMap::scaleForDisplay(const ColorRgb &radiance) const {
     const float rwl = static_cast<float>(M_PI) * static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     const float eff = static_cast<float>(Cie::getLuminousEfficacy());
-    radiance.scale(eff * static_cast<float>(M_PI));
+    const ColorRgb photometric = radiance.multiply(eff * static_cast<float>(M_PI));
 
     float scale;
     if ( rwl > 0.0 ) {
@@ -76,6 +75,5 @@ TumblinRushmeierToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
         scale = 0.0F;
     }
 
-    radiance.scale(scale);
-    return radiance;
+    return photometric.multiply(scale);
 }

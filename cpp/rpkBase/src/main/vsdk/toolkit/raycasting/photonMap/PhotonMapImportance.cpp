@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -32,9 +33,9 @@ PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node)
 }
 
 bool
-PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgbMutable importance) {
+PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, const ColorRgb &importance) {
     if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
-        float importanceF = importance.average();
+        float importanceF = static_cast<float>(ColorRgbMath::average(importance));
         float potentialF = 1.0;
 
         // Compute footprint
@@ -68,12 +69,15 @@ PhotonMapImportance::tracePotentialPath(
     }
     photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-    ColorRgbMutable accImportance(0.0, 0.0, 0.0);  // Track importance along the ray
-    accImportance = ColorRgbMutable(1.0, 1.0, 1.0);
+    double importanceR = 1.0;
+    double importanceG = 1.0;
+    double importanceB = 1.0;
 
     // Adjust importance for eye ray
     float factor = static_cast<float>(path->m_G / path->m_pdfFromPrev);
-    accImportance.scale(factor);
+    importanceR *= factor;
+    importanceG *= factor;
+    importanceB *= factor;
 
     bool indirectImportance = false; // Can we store in the indirect importance map
 
@@ -111,15 +115,19 @@ PhotonMapImportance::tracePotentialPath(
         }
 
         // Adjust importance
-        accImportance.selfScalarProduct(prev->m_bsdfEval);
+        importanceR *= prev->m_bsdfEval.getR();
+        importanceG *= prev->m_bsdfEval.getG();
+        importanceB *= prev->m_bsdfEval.getB();
         factor = static_cast<float>(node->m_G / node->m_pdfFromPrev);
-        accImportance.scale(factor);
+        importanceR *= factor;
+        importanceG *= factor;
+        importanceB *= factor;
 
         // Store in map
         ImportanceMap *imap = (indirectImportance ? photonMapConfig.importanceMap :
                                 photonMapConfig.importanceCMap);
         if ( imap ) {
-            PhotonMapImportance::doImportanceStore(imap, node, accImportance);
+            PhotonMapImportance::doImportanceStore(imap, node, ColorRgb(importanceR, importanceG, importanceB));
         }
 
         // New node

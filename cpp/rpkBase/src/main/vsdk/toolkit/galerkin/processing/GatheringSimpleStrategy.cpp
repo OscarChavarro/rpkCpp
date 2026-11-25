@@ -133,7 +133,7 @@ GatheringSimpleStrategy::doGatheringIteration(
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    galerkinState->ambientRadiance.clear();
+    galerkinState->ambientRadiance = ColorRgb(0.0, 0.0, 0.0);
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

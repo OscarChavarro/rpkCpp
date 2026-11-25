@@ -79,7 +79,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
     Mcrad::monteCarloRadiosityTerminate(scenePatches);
 }
 
-ColorRgbMutable
+ColorRgb
 StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
@@ -206,7 +206,8 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementRad
     Coefficientsmcrad::stochasticRadiosityCopyCoefficients(elem->unShotRadiance, elem->receivedRadiance, elem->basis);
     if ( StochasticRelaxation::activeState().setSource ) {
         // Copy direct illumination and forget self emitted illumination
-        elem->radiance[0] = elem->sourceRad = elem->receivedRadiance[0];
+        elem->sourceRad = static_cast<ColorRgb>(elem->receivedRadiance[0]);
+        elem->radiance[0] = elem->sourceRad;
     }
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 }

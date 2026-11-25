@@ -4,9 +4,9 @@ FaceColorTable::FaceColorTable(const int inNumberOfFaces):
     colors(nullptr),
     numberOfFaces(inNumberOfFaces)
 {
-    colors = new ColorRgbMutable[numberOfFaces > 0 ? numberOfFaces : 1];
+    colors = new ColorRgb[numberOfFaces > 0 ? numberOfFaces : 1];
     for ( int i = 0; i < numberOfFaces; i++ ) {
-        colors[i] = ColorRgbMutable(0.0, 0.0, 0.0);
+        colors[i] = ColorRgb(0.0, 0.0, 0.0);
     }
 }
 

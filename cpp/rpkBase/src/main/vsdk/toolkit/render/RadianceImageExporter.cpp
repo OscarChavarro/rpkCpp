@@ -41,7 +41,7 @@ RadianceImageExporter::exportImage(
         for ( int x = 0; x < width; x++ ) {
             const Patch *patch = idRenderer.getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                const ColorRgbMutable radiance = RadianceImageExporter::getRadianceAtPixel(
+                const ColorRgb radiance = RadianceImageExporter::getRadianceAtPixel(
                     &screenBuffer,
                     scene->camera,
                     x,
@@ -91,7 +91,7 @@ RadianceImageExporter::clipUv(int numberOfVertices, double *u, double *v) {
     }
 }
 
-ColorRgbMutable
+ColorRgb
 RadianceImageExporter::getRadianceAtPixel(
     const ScreenBuffer *screenBuffer,
     Camera *camera,
@@ -101,8 +101,7 @@ RadianceImageExporter::getRadianceAtPixel(
     const RadianceMethod *radianceMethod,
     const RendererConfiguration *renderOptions)
 {
-    ColorRgbMutable radiance{};
-    radiance.clear();
+    const ColorRgb radiance{};
 
     if ( screenBuffer == nullptr || camera == nullptr || patch == nullptr || radianceMethod == nullptr || renderOptions == nullptr ) {
         return radiance;

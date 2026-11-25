@@ -5,7 +5,7 @@
 
 class FerwerdaToneMap final : public ToneMap {
   private:
-    ColorRgbMutable sf;
+    ColorRgb sf;
     float msf;
     float pmComp;
     float pmDisplay;
@@ -22,8 +22,8 @@ class FerwerdaToneMap final : public ToneMap {
     ~FerwerdaToneMap() final;
 
     void init(const ToneMappingContext &toneMapOptions) final;
-    ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) const final;
-    ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) const final;
+    ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
+    ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };
 
 #endif

@@ -15,7 +15,7 @@ class SceneBuilder final {
         ToneMappingContext &toneMapOptions);
 
   private:
-    static void sceneBuilderPatchAccumulateStats(Patch *patch);
+    static void sceneBuilderPatchAccumulateStats(Patch *patch, double *powerSum, double *reflectivitySum);
     static void sceneBuilderComputeStats(Scene *scene);
     static void sceneBuilderAddBackgroundToLightSourceList(Scene *scene);
     static void sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch);

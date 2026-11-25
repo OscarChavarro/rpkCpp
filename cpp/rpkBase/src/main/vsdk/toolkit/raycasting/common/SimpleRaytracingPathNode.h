@@ -8,7 +8,7 @@ and contain necessary information for raytracing-like algorithms
 
 #include "java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/raycasting/common/BsdfComp.h"
 #include "vsdk/toolkit/raycasting/common/PathRayType.h"
@@ -42,7 +42,7 @@ class SimpleRaytracingPathNode {
     //  known beforehand => separate components needed.
     double accumulatedRussianRouletteFactors;
 
-    ColorRgbMutable m_bsdfEval;
+    ColorRgb m_bsdfEval;
     BsdfComp m_bsdfComp;
 
     char m_usedComponents; // Components used for scattering in this

@@ -271,7 +271,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
         }
 
         if ( config->deStoreHits && db ) {
-            db->add(pix_x, pix_y, f);
+            db->add(pix_x, pix_y, ColorRgb(f.getR(), f.getG(), f.getB()));
         } else {
             // Now splat directly into the dest screen
             Vector2Df center;
@@ -287,7 +287,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
             if ( f.average() > VSDK::EPSILON ) {
                 g.scaledCopy(factor, f); // Undo part of flux to rad factor
 
-                config->kernel.varCover(center, g, rs, ds,
+                config->kernel.varCover(center, ColorRgb(g.getR(), g.getG(), g.getB()), rs, ds,
                                         static_cast<int>(config->baseConfig->totalSamples), config->scaleSamples,
                                         baseSize);
             }
@@ -297,13 +297,13 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
 
     if ( config->baseConfig->eliminateSpikes ) {
         if ( !spikeCheck(f) ) {
-            config->screen->add(nx, ny, f);
+            config->screen->add(nx, ny, static_cast<ColorRgb>(f));
         } else {
             // Wanna see the spikes !
             //  config->screen->Add(config->nx, config->ny, f);
         }
     } else {
-        config->screen->add(nx, ny, f);
+        config->screen->add(nx, ny, static_cast<ColorRgb>(f));
     }
 }
 
@@ -362,12 +362,12 @@ BidirectionalPathRaytracer::handlePathX0(
         if ( endingEdf != nullptr ) {
             // Landed on a light : fill in values for BPT
             if ( endingEdf == nullptr ) {
-                eyeEndNode->m_bsdfEval.clear();
+                eyeEndNode->m_bsdfEval = ColorRgb(0.0, 0.0, 0.0);
             } else {
                 bool shctxOk = false;
                 ShadingContext endContext = eyeEndNode->m_hit.shadingContext(&shctxOk);
                 if ( !shctxOk ) {
-                    eyeEndNode->m_bsdfEval.clear();
+                    eyeEndNode->m_bsdfEval = ColorRgb(0.0, 0.0, 0.0);
                 } else {
                 eyeEndNode->m_bsdfEval = endingEdf->phongEdfEval(
                     &endContext,
@@ -453,7 +453,7 @@ BidirectionalPathRaytracer::handlePathX0(
 
         // Restore the Brdf and PDF evaluations
         path->m_pdfLNE = oldPdfLNE;
-        eyeEndNode->m_bsdfEval = oldBsdfEval;
+        eyeEndNode->m_bsdfEval = static_cast<ColorRgb>(oldBsdfEval);
         eyeEndNode->m_bsdfComp = oldBsdfComp;
         eyeEndNode->m_pdfFromNext = oldPDFLightEval;
         eyePrevNode->m_pdfFromNext = oldPDFDirEval;
@@ -538,10 +538,10 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
     }
 
     // Restore old values
-    lightEndNode->m_bsdfEval = oldBsdfL;
+    lightEndNode->m_bsdfEval = static_cast<ColorRgb>(oldBsdfL);
     lightEndNode->m_bsdfComp = oldBsdfCompL;
 
-    eyeEndNode->m_bsdfEval = oldBsdfE;
+    eyeEndNode->m_bsdfEval = static_cast<ColorRgb>(oldBsdfE);
     eyeEndNode->m_bsdfComp = oldBsdfCompE;
 
     lightEndNode->m_pdfFromNext = oldPdfL;
@@ -810,7 +810,7 @@ BidirectionalPathRaytracer::bpCombinePaths(
     }
 }
 
-ColorRgbMutable
+ColorRgb
 BidirectionalPathRaytracer::bpCalcPixel(
     Camera *camera,
     const SceneQuery *sceneQuery,
@@ -897,7 +897,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
         result = config->screen->get(nx, ny);
     }
 
-    return result;
+    return static_cast<ColorRgb>(result);
 }
 
 void

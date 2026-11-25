@@ -10,6 +10,7 @@
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/Cie.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
@@ -30,57 +31,58 @@
 #include "SceneBuilder.h"
 
 void
-SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
-    ColorRgbMutable E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
-    const ColorRgbMutable R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
-    ColorRgbMutable power(0.0, 0.0, 0.0);
+SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch, double *powerSum, double *reflectivitySum) {
+    const ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
+    const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    const double area = patch->getArea();
+    const ColorRgb power(area * E.getR(), area * E.getG(), area * E.getB());
 
     Statistics::instance().radiance.totalArea += patch->getArea();
-    power.scaledCopy(patch->getArea(), E);
-    Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, power);
-    Statistics::instance().radiance.averageReflectivity.addScaled(Statistics::instance().radiance.averageReflectivity, patch->getArea(), R);
-    E.scale(1.0F / static_cast<float>(M_PI));
-    Statistics::instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics::instance().radiance.maxSelfEmittedRadiance);
-    Statistics::instance().radiance.maxSelfEmittedPower.maximum(power, Statistics::instance().radiance.maxSelfEmittedPower);
+    powerSum[0] += power.getR();
+    powerSum[1] += power.getG();
+    powerSum[2] += power.getB();
+    reflectivitySum[0] += area * R.getR();
+    reflectivitySum[1] += area * R.getG();
+    reflectivitySum[2] += area * R.getB();
+    Statistics::instance().radiance.maxSelfEmittedRadiance = ColorRgbMath::maximum(E.multiply(1.0F / static_cast<float>(M_PI)), Statistics::instance().radiance.maxSelfEmittedRadiance);
+    Statistics::instance().radiance.maxSelfEmittedPower = ColorRgbMath::maximum(power, Statistics::instance().radiance.maxSelfEmittedPower);
 }
 
 void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     Vector3Df zero;
-    ColorRgbMutable one(0.0, 0.0, 0.0);
-    ColorRgbMutable averageAbsorption(0.0, 0.0, 0.0);
-    ColorRgbMutable BP(0.0, 0.0, 0.0);
-
-    one = ColorRgbMutable(1.0F, 1.0F, 1.0F);
+    double powerSum[3] = {0.0, 0.0, 0.0};
+    double reflectivitySum[3] = {0.0, 0.0, 0.0};
     zero = Vector3Df(0, 0, 0);
 
     // Initialize
-    Statistics::instance().radiance.totalEmittedPower.clear();
-    Statistics::instance().radiance.averageReflectivity.clear();
-    Statistics::instance().radiance.maxSelfEmittedRadiance.clear();
-    Statistics::instance().radiance.maxSelfEmittedPower.clear();
+    Statistics::instance().radiance.totalEmittedPower = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.averageReflectivity = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.maxSelfEmittedRadiance = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.maxSelfEmittedPower = ColorRgb(0.0, 0.0, 0.0);
     Statistics::instance().radiance.totalArea = 0.0;
 
     // Accumulate
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
-        SceneBuilder::sceneBuilderPatchAccumulateStats(scene->patchList->get(i));
+        SceneBuilder::sceneBuilderPatchAccumulateStats(scene->patchList->get(i), powerSum, reflectivitySum);
     }
 
     // Averages
-    Statistics::instance().radiance.averageReflectivity.scaleInverse(
+    Statistics::instance().radiance.totalEmittedPower = ColorRgb(powerSum[0], powerSum[1], powerSum[2]);
+    Statistics::instance().radiance.averageReflectivity = ColorRgbMath::scaleInverse(
             Statistics::instance().radiance.totalArea,
-            Statistics::instance().radiance.averageReflectivity);
-    averageAbsorption.subtract(one, Statistics::instance().radiance.averageReflectivity);
-    Statistics::instance().radiance.estimatedAverageRadiance.scaleInverse(
+            ColorRgb(reflectivitySum[0], reflectivitySum[1], reflectivitySum[2]));
+    const ColorRgb &reflectivity = Statistics::instance().radiance.averageReflectivity;
+    const ColorRgb averageAbsorption(1.0 - reflectivity.getR(), 1.0 - reflectivity.getG(), 1.0 - reflectivity.getB());
+    Statistics::instance().radiance.estimatedAverageRadiance = ColorRgbMath::scaleInverse(
             static_cast<float>(M_PI) * Statistics::instance().radiance.totalArea,
             Statistics::instance().radiance.totalEmittedPower);
 
     // Include background radiation
-    BP = Background::backgroundPower(scene->background, &zero);
-    BP.scale(1.0F / (4.0F * static_cast<float>(M_PI)));
-    Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, BP);
-    Statistics::instance().radiance.estimatedAverageRadiance.add(Statistics::instance().radiance.estimatedAverageRadiance, BP);
-    Statistics::instance().radiance.estimatedAverageRadiance.divide(Statistics::instance().radiance.estimatedAverageRadiance, averageAbsorption);
+    const ColorRgb BP = Background::backgroundPower(scene->background, &zero).multiply(1.0F / (4.0F * static_cast<float>(M_PI)));
+    Statistics::instance().radiance.totalEmittedPower = Statistics::instance().radiance.totalEmittedPower.add(BP);
+    Statistics::instance().radiance.estimatedAverageRadiance = ColorRgbMath::divide(
+        Statistics::instance().radiance.estimatedAverageRadiance.add(BP), averageAbsorption);
 
     Statistics::instance().potential.totalDirectPotential = 0.0;
     Statistics::instance().potential.maxDirectPotential = 0.0;

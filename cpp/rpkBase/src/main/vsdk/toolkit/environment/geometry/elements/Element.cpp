@@ -22,8 +22,6 @@ Element::Element():
     transformToParent()
 {
     flags = 0x00;
-    Ed.clear();
-    Rd.clear();
 }
 
 /**

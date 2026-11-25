@@ -4,15 +4,14 @@
 ConstantColorBackground::ConstantColorBackground():
     color()
 {
-    color.clear();
 }
 
-ConstantColorBackground::ConstantColorBackground(const ColorRgbMutable &backgroundColor):
+ConstantColorBackground::ConstantColorBackground(const ColorRgb &backgroundColor):
     color(backgroundColor)
 {
 }
 
-ColorRgbMutable
+ColorRgb
 ConstantColorBackground::radiance(
     Vector3Df * /*position*/,
     Vector3Df * /*direction*/,
@@ -29,7 +28,7 @@ ConstantColorBackground::sample(
     Vector3Df * /*position*/,
     float xi1,
     float xi2,
-    ColorRgbMutable *radianceValue,
+    ColorRgb *radianceValue,
     float *probabilityDensityFunction) const
 {
     const double phi = 2.0 * static_cast<double>(java::Math::PI) * static_cast<double>(xi1);
@@ -49,9 +48,9 @@ ConstantColorBackground::sample(
     return direction;
 }
 
-ColorRgbMutable
+ColorRgb
 ConstantColorBackground::power(Vector3Df * /*position*/) const {
-    ColorRgbMutable emittedPower(0.0, 0.0, 0.0);
-    emittedPower.scaledCopy(ConstantColorBackground::FOUR_PI, color);
-    return emittedPower;
+    return ColorRgb(ConstantColorBackground::FOUR_PI * color.getR(),
+                    ConstantColorBackground::FOUR_PI * color.getG(),
+                    ConstantColorBackground::FOUR_PI * color.getB());
 }

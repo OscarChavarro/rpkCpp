@@ -62,11 +62,9 @@ Sets the current color for line or outline drawing
 void
 Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions) {
     (void) renderOptions;
-    ColorRgbMutable correctedRgb{};
-
-    correctedRgb = static_cast<ColorRgbMutable>(*rgb);
+    ColorRgb correctedRgb = *rgb;
     if ( Opengl::activeToneMapOptions != nullptr ) {
-        ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
+        correctedRgb = ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
     } else if ( !openGlMissingToneMapWarningShown ) {
         Logger::reportMessage("Opengl", Logger::WARNING, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
         openGlMissingToneMapWarningShown = true;
@@ -74,12 +72,6 @@ Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *r
 #ifdef OPEN_GL_ENABLED
     glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif
-}
-
-void
-Opengl::openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions) {
-    const ColorRgb color(*rgb);
-    Opengl::openGlRenderSetColor(&color, renderOptions);
 }
 
 /**
@@ -103,7 +95,7 @@ void
 Opengl::openGlRenderPolygonGouraud(
     int numberOfVertices,
     Vector3Df *vertices,
-    const ColorRgbMutable *verticesColors,
+    const ColorRgb *verticesColors,
     const RendererConfiguration *renderOptions)
 {
 #ifdef OPEN_GL_ENABLED
@@ -197,7 +189,7 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3Df *axisU, Vector3Df *axi
 }
 
 void
-Opengl::openGlRenderPatchFlat(const Patch *patch, const ColorRgbMutable &color, const RendererConfiguration *renderOptions) {
+Opengl::openGlRenderPatchFlat(const Patch *patch, const ColorRgb &color, const RendererConfiguration *renderOptions) {
     Opengl::openGlRenderSetColor(&color, renderOptions);
     switch ( patch->getNumberOfVertices() ) {
         case 3:

@@ -1,7 +1,7 @@
 #ifndef FACE_COLOR_TABLE__
 #define FACE_COLOR_TABLE__
 
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 /**
 Display color of every face of a scene, indexed by the dense face index
@@ -12,7 +12,7 @@ Owned by the scene.
 */
 class FaceColorTable {
   private:
-    ColorRgbMutable *colors;
+    ColorRgb *colors;
     const int numberOfFaces;
 
   public:
@@ -22,8 +22,8 @@ class FaceColorTable {
     FaceColorTable &operator=(const FaceColorTable &) = delete;
 
     int getNumberOfFaces() const;
-    const ColorRgbMutable &get(int faceIndex) const;
-    void set(int faceIndex, const ColorRgbMutable &color);
+    const ColorRgb &get(int faceIndex) const;
+    void set(int faceIndex, const ColorRgb &color);
 };
 
 inline int
@@ -31,13 +31,13 @@ FaceColorTable::getNumberOfFaces() const {
     return numberOfFaces;
 }
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 FaceColorTable::get(const int faceIndex) const {
     return colors[faceIndex];
 }
 
 inline void
-FaceColorTable::set(const int faceIndex, const ColorRgbMutable &color) {
+FaceColorTable::set(const int faceIndex, const ColorRgb &color) {
     colors[faceIndex] = color;
 }
 

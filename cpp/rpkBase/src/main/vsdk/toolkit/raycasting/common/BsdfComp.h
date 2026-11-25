@@ -5,41 +5,37 @@ Some bsdf component stuff.
 #ifndef BSDF_COMP__
 #define BSDF_COMP__
 
+#include "vsdk/toolkit/common/color/ColorRgb.h"
+
 class BsdfComp {
   public:
-    ColorRgbMutable comp[BsdfComponentInfo::BSDF_COMPONENTS];
+    ColorRgb comp[BsdfComponentInfo::BSDF_COMPONENTS];
 
     BsdfComp();
-    ColorRgbMutable &operator[](int index);
-    operator ColorRgbMutable *();
+    ColorRgb &operator[](int index);
     void Clear(const char flags);
-    void Fill(const ColorRgbMutable col, const char flags);
-    ColorRgbMutable Sum(const char flags) const;
+    void Fill(const ColorRgb &col, const char flags);
+    ColorRgb Sum(const char flags) const;
 };
 
 inline BsdfComp::BsdfComp():comp() {}
 
-inline ColorRgbMutable &
+inline ColorRgb &
 BsdfComp::operator[](int index) {
     return comp[index];
-}
-
-inline
-BsdfComp::operator ColorRgbMutable *() {
-    return comp;
 }
 
 inline void
 BsdfComp::Clear(const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) {
     for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
-            comp[i].clear();
+            comp[i] = ColorRgb(0.0, 0.0, 0.0);
         }
     }
 }
 
 inline void
-BsdfComp::Fill(const ColorRgbMutable col, const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) {
+BsdfComp::Fill(const ColorRgb &col, const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) {
     for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
             comp[i] = col;
@@ -47,19 +43,21 @@ BsdfComp::Fill(const ColorRgbMutable col, const char flags = BsdfComponentInfo::
     }
 }
 
-inline ColorRgbMutable
+inline ColorRgb
 BsdfComp::Sum(const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) const {
-    ColorRgbMutable result;
-
-    result.clear();
+    double red = 0.0;
+    double green = 0.0;
+    double blue = 0.0;
 
     for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
-            result.add(result, comp[i]);
+            red = red + comp[i].getR();
+            green = green + comp[i].getG();
+            blue = blue + comp[i].getB();
         }
     }
 
-    return result;
+    return ColorRgb(red, green, blue);
 }
 
 #endif

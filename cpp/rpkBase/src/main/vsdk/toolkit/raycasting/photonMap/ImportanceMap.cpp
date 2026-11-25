@@ -160,7 +160,7 @@ ImportanceMap::photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) {
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree
     m_totalMaxDistance = java::Math::max(pot, m_totalMaxDistance);
 
-    photon->SetIrradiance(ColorRgbMutable(imp, imp, imp));
+    photon->SetIrradiance(ColorRgb(imp, imp, imp));
     if ( imp > m_maxImp ) {
         m_maxImp = imp;
     }

@@ -55,13 +55,9 @@ Handles a bidirectional path. Image contribution
 is returned. Normally this is a contribution for the pixel
 affected by the path
 */
-ColorRgbMutable
+ColorRgb
 Spar::handlePath(SparConfig */*config*/, BiPath */*path*/) {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-
-    result.clear();
-
-    return result;
+    return ColorRgb(0.0, 0.0, 0.0);
 }
 
 void

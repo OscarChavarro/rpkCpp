@@ -305,7 +305,7 @@ CUBIC (10 terms) degree polynomial.
 Given the radiance coefficients, this routine computes the radiance
 at the given point on the element
 */
-ColorRgbMutable
+ColorRgb
 GalerkinBasis::radianceAtPoint(
     const GalerkinElement *element,
     const ColorRgbMutable *coefficients,
@@ -314,18 +314,19 @@ GalerkinBasis::radianceAtPoint(
 {
     const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(element->patch->getNumberOfVertices());
 
-    ColorRgbMutable rad(0.0, 0.0, 0.0);
-    rad.clear();
+    double rad[3] = {0.0, 0.0, 0.0};
     if ( coefficients == nullptr ) {
-        return rad;
+        return ColorRgb(0.0, 0.0, 0.0);
     }
 
     for ( int i = 0; i < element->basisSize; i++ ) {
         float evaluatedTerm = static_cast<float>(basis->function[i](u, v));
-        rad.addScaled(rad, evaluatedTerm, coefficients[i]);
+        rad[0] += evaluatedTerm * coefficients[i].getR();
+        rad[1] += evaluatedTerm * coefficients[i].getG();
+        rad[2] += evaluatedTerm * coefficients[i].getB();
     }
 
-    return rad;
+    return ColorRgb(rad[0], rad[1], rad[2]);
 }
 
 const GalerkinBasis *

@@ -3,20 +3,24 @@
 #include "vsdk/toolkit/galerkin/processing/visitors/PowerAccumulatorVisitor.h"
 
 PowerAccumulatorVisitor::PowerAccumulatorVisitor(
-    ColorRgbMutable inSourceRadiance,
+    const ColorRgb &inSourceRadiance,
     Vector3Df inSamplePoint)
 {
-    sourceRadiance = inSourceRadiance;
+    sourceRadiance[0] = inSourceRadiance.getR();
+    sourceRadiance[1] = inSourceRadiance.getG();
+    sourceRadiance[2] = inSourceRadiance.getB();
     samplePoint = inSamplePoint;
-    accumulatedRadiance.clear();
+    accumulatedRadiance[0] = 0.0;
+    accumulatedRadiance[1] = 0.0;
+    accumulatedRadiance[2] = 0.0;
 }
 
 PowerAccumulatorVisitor::~PowerAccumulatorVisitor() {
 }
 
-ColorRgbMutable
+ColorRgb
 PowerAccumulatorVisitor::getAccumulatedRadiance() const {
-    return accumulatedRadiance;
+    return ColorRgb(accumulatedRadiance[0], accumulatedRadiance[1], accumulatedRadiance[2]);
 }
 
 /**
@@ -33,7 +37,6 @@ PowerAccumulatorVisitor::visit(
     float srcOs;
     float dist;
     Vector3Df dir;
-    ColorRgbMutable rad(0.0, 0.0, 0.0);
 
     dir = samplePoint.subtract(galerkinElement->patch->midPoint());
     dist = dir.length();
@@ -47,12 +50,13 @@ PowerAccumulatorVisitor::visit(
         return;
     }
 
-    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
-         galerkinState->isJacobi() ) {
-        rad = galerkinElement->radiance[0];
-    } else {
-        rad = galerkinElement->unShotRadiance[0];
-    }
-
-    accumulatedRadiance.addScaled(sourceRadiance, srcOs * galerkinElement->area, rad);
+    const auto *source =
+        galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
+        galerkinState->isJacobi()
+        ? &galerkinElement->radiance[0]
+        : &galerkinElement->unShotRadiance[0];
+    const double scale = srcOs * galerkinElement->area;
+    accumulatedRadiance[0] = sourceRadiance[0] + scale * source->getR();
+    accumulatedRadiance[1] = sourceRadiance[1] + scale * source->getG();
+    accumulatedRadiance[2] = sourceRadiance[2] + scale * source->getB();
 }

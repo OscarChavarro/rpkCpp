@@ -29,7 +29,7 @@ class GalerkinBasis {
     // sigma. See PushRadiance() and PullRadiance() in basis.c
     double regularFilter[4][MAX_BASIS_SIZE][MAX_BASIS_SIZE];
 
-    static ColorRgbMutable
+    static ColorRgb
     radianceAtPoint(
         const GalerkinElement *element,
         const ColorRgbMutable *coefficients,

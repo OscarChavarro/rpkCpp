@@ -6,13 +6,13 @@
 class IrrPhoton : public Photon {
   public:
     Vector3Df m_normal;
-    ColorRgbMutable m_irradiance;
+    ColorRgb m_irradiance;
 
     inline Vector3Df Normal() const { return m_normal; }
 
     inline void setNormal(const Vector3Df &normal) { m_normal = normal; }
 
-    inline void SetIrradiance(const ColorRgbMutable &irr) { m_irradiance = irr; }
+    inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
 
     inline void
     copy(const Photon &photon) {

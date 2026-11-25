@@ -1,6 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/common/color/ColorRgbMath.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -44,15 +45,13 @@ DensityBuffer::~DensityBuffer() {
 Add a hit
 */
 void
-DensityBuffer::add(float x, float y, ColorRgbMutable color) {
+DensityBuffer::add(float x, float y, const ColorRgb &color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * static_cast<float>(baseConfig->totalSamples);
-    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
+    if ( ColorRgbMath::average(color) > VSDK::EPSILON ) {
+        const ColorRgb scaledColor = color.multiply(factor); // Undo part of flux to rad factor
 
-    if ( color.average() > VSDK::EPSILON ) {
-        tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
-
-        DensityHit hit(x, y, tmpCol);
+        DensityHit hit(x, y, scaledColor);
 
         hitGrid[xIndex(x)][yIndex(y)].add(hit);
     }
@@ -89,7 +88,8 @@ DensityBuffer::reconstruct() {
 
                 center = Vector2Df(hit.m_x, hit.m_y);
 
-                kernel.cover(center, 1.0F / static_cast<float>(baseConfig->totalSamples), hit.color, screenBuffer);
+                const ColorRgb color(hit.color.getR(), hit.color.getG(), hit.color.getB());
+                kernel.cover(center, 1.0F / static_cast<float>(baseConfig->totalSamples), color, screenBuffer);
             }
         }
     }
@@ -120,7 +120,8 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
 
                 center = Vector2Df(hit.m_x, hit.m_y);
 
-                kernel.varCover(center, hit.color, screenBuffer, dest, static_cast<int>(baseConfig->totalSamples),
+                const ColorRgb color(hit.color.getR(), hit.color.getG(), hit.color.getB());
+                kernel.varCover(center, color, screenBuffer, dest, static_cast<int>(baseConfig->totalSamples),
                                 baseConfig->samplesPerPixel, baseSize);
             }
         }

@@ -9,7 +9,7 @@ Background::Background():
 Background::~Background() {
 }
 
-ColorRgbMutable
+ColorRgb
 Background::radiance(
     Vector3Df * /*position*/,
     Vector3Df * /*direction*/,
@@ -18,9 +18,7 @@ Background::radiance(
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
     }
-    ColorRgbMutable black(0.0, 0.0, 0.0);
-    black = ColorRgbMutable(0.0F, 0.0F, 0.0F);
-    return black;
+    return ColorRgb(0.0F, 0.0F, 0.0F);
 }
 
 Vector3Df
@@ -28,11 +26,11 @@ Background::sample(
     Vector3Df * /*position*/,
     float /*xi1*/,
     float /*xi2*/,
-    ColorRgbMutable *radianceValue,
+    ColorRgb *radianceValue,
     float *probabilityDensityFunction) const
 {
     if ( radianceValue != nullptr ) {
-        *radianceValue = ColorRgbMutable(0.0F, 0.0F, 0.0F);
+        *radianceValue = ColorRgb(0.0F, 0.0F, 0.0F);
     }
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
@@ -40,35 +38,29 @@ Background::sample(
     return Vector3Df();
 }
 
-ColorRgbMutable
+ColorRgb
 Background::power(Vector3Df * /*position*/) const {
-    ColorRgbMutable black(0.0, 0.0, 0.0);
-    black = ColorRgbMutable(0.0F, 0.0F, 0.0F);
-    return black;
+    return ColorRgb(0.0F, 0.0F, 0.0F);
 }
 
-ColorRgbMutable
+ColorRgb
 Background::backgroundPower(Background *bkg, Vector3Df *position) {
     if ( !bkg ) {
-        ColorRgbMutable black(0.0, 0.0, 0.0);
-        black = ColorRgbMutable(0.0, 0.0, 0.0);
-        return black;
+        return ColorRgb(0.0, 0.0, 0.0);
     } else {
         return bkg->power(position);
     }
 }
 
 #ifdef RAYTRACING_ENABLED
-ColorRgbMutable
+ColorRgb
 Background::backgroundRadiance(
         Background *bkg,
         Vector3Df *position,
         Vector3Df *direction,
         float *probabilityDensityFunction) {
     if ( !bkg ) {
-        ColorRgbMutable black(0.0, 0.0, 0.0);
-        black = ColorRgbMutable(0.0, 0.0, 0.0);
-        return black;
+        return ColorRgb(0.0, 0.0, 0.0);
     } else {
         return bkg->radiance(position, direction, probabilityDensityFunction);
     }

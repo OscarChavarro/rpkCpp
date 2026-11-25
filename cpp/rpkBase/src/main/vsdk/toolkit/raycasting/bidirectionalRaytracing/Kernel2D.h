@@ -6,6 +6,7 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 #define DENSITY_KERNEL__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 
 class Kernel2D final {
@@ -21,12 +22,12 @@ class Kernel2D final {
     void Init(float h, float w);
     void SetH(float newH);
     float Evaluate(const Vector2Df &point, const Vector2Df &center) const;
-    void cover(const Vector2Df &point, float scale, const ColorRgbMutable &col, ScreenBuffer *screen) const;
+    void cover(const Vector2Df &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const;
 
     void
     varCover(
         const Vector2Df &center,
-        const ColorRgbMutable &color,
+        const ColorRgb &color,
         const ScreenBuffer *ref,
         ScreenBuffer *dest,
         int totalSamples,

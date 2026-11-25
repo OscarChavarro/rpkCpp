@@ -14,8 +14,8 @@ class WardToneMap final : public ToneMap {
     ~WardToneMap() final;
 
     void init(const ToneMappingContext &toneMapOptions) final;
-    ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) const final;
-    ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) const final;
+    ColorRgb scaleForComputations(const ColorRgb &radiance) const final;
+    ColorRgb scaleForDisplay(const ColorRgb &radiance) const final;
 };
 
 #endif

@@ -23,7 +23,7 @@ class SoftIds {
     /** Renders into a cleared target with the camera's dimensions and full viewport. */
     static void renderVisibleFaces(const Scene &scene, const RendererConfiguration *renderOptions, FaceVisibilityBuffer &target);
     static unsigned long *softRenderIds(long *x, long *y, const Scene *scene, const RendererConfiguration *renderOptions);
-    static void softRenderPixels(int width, int height, const ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions);
+    static void softRenderPixels(int width, int height, const ColorRgb *rgb, const ToneMappingContext &toneMapOptions);
 };
 
 #endif

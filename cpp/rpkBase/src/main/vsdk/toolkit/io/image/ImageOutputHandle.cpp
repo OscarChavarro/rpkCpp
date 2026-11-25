@@ -70,9 +70,7 @@ ImageOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgbMutable displayRgbMutable{};
-        ToneMap::radianceToRgb(static_cast<ColorRgbMutable>(rgbRadiance[i]), &displayRgbMutable, *toneMapOptions);
-        ColorRgb displayRgb(displayRgbMutable);
+        ColorRgb displayRgb = ToneMap::radianceToRgb(rgbRadiance[i], *toneMapOptions);
 
         // Apply gamma correction
         displayRgb = gammaCorrect(displayRgb, gamma);

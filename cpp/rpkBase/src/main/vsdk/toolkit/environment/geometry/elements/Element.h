@@ -11,8 +11,8 @@
 class Element {
   public:
     int id; // Unique ID number for the element
-    ColorRgbMutable Ed; // Diffuse emittance radiance
-    ColorRgbMutable Rd; // Reflectance
+    ColorRgb Ed; // Diffuse emittance radiance
+    ColorRgb Rd; // Reflectance
     ColorRgbMutable *radiance; // Total radiance on the element as computed so far
     ColorRgbMutable *receivedRadiance; // Radiance received during iteration
     ColorRgbMutable *unShotRadiance; // For progressive refinement radiosity

@@ -16,20 +16,20 @@ ScreenIterate::sequential(
 {
     int width;
     int height;
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-    ColorRgbMutable *rgb;
+    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgb *rgb;
 
     init();
 
     width = camera->xSize;
     height = camera->ySize;
-    rgb = new ColorRgbMutable[width];
+    rgb = new ColorRgb[width];
 
     // Shoot rays through all the pixels
     for ( int i = 0; i < height; i++ ) {
         for ( int j = 0; j < width; j++ ) {
             col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, j, i, data);
-            ToneMap::radianceToRgb(col, &rgb[j], toneMapOptions);
+            rgb[j] = ToneMap::radianceToRgb(col, toneMapOptions);
             Statistics::instance().rayTracer.pixelCount++;
         }
 
@@ -54,9 +54,9 @@ ScreenIterate::progressive(
 {
     int width;
     int height;
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-    ColorRgbMutable pixelRGB{};
-    ColorRgbMutable *rgb;
+    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgb pixelRGB{};
+    ColorRgb *rgb;
     int x0;
     int y0;
     int x1;
@@ -74,9 +74,9 @@ ScreenIterate::progressive(
 
     width = camera->xSize;
     height = camera->ySize;
-    rgb = new ColorRgbMutable[width * height]; // We need a full screen!
+    rgb = new ColorRgb[width * height]; // We need a full screen!
 
-    ColorRgbMutable white = {1.0, 1.0, 1.0};
+    ColorRgb white = {1.0, 1.0, 1.0};
 
     for ( int i = 0; i < width * height; i++ ) {
         rgb[i] = white;
@@ -116,7 +116,7 @@ ScreenIterate::progressive(
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
                     col = callback(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, x0, height - y0 - 1, data);
-                    ToneMap::radianceToRgb(col, &pixelRGB, toneMapOptions);
+                    pixelRGB = ToneMap::radianceToRgb(col, toneMapOptions);
                     fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
                     Statistics::instance().rayTracer.pixelCount++;

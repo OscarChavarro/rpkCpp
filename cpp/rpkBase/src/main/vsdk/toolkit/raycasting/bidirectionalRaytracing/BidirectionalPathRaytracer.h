@@ -33,7 +33,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
-    static ColorRgbMutable
+    static ColorRgb
     bpCalcPixel(
         Camera *camera,
         const SceneQuery *sceneQuery,

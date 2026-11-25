@@ -2,7 +2,7 @@
 #define RADIANCE_IMAGE_EXPORTER__
 
 #include "java/io/OutputStream.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
@@ -24,7 +24,7 @@ class RadianceImageExporter final {
 
   private:
     static void clipUv(int numberOfVertices, double *u, double *v);
-    static ColorRgbMutable getRadianceAtPixel(
+    static ColorRgb getRadianceAtPixel(
         const ScreenBuffer *screenBuffer,
         Camera *camera,
         int x,

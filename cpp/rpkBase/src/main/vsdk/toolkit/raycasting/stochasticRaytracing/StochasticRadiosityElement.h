@@ -23,7 +23,7 @@ class StochasticRadiosityElement final : public Element {
 
     GalerkinBasis *basis; // Radiosity approximation data
         // Higher order approximations need an array of color values for representing radiance
-    ColorRgbMutable sourceRad; // Always constant source radiosity
+    ColorRgb sourceRad; // Always constant source radiosity
 
     float importance; // For view-importance driven sampling
     float unShotImportance;
@@ -79,15 +79,15 @@ class StochasticRadiosityElement final : public Element {
         float *parentImportance,
         const float *childImportance);
 
-    static ColorRgbMutable stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem);
-    static ColorRgbMutable stochasticRadiosityElementDisplayRadianceAtPoint(
+    static ColorRgb stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(
         const StochasticRadiosityElement *elem,
         double u,
         double v,
         const RendererConfiguration *renderOptions);
     static void stochasticRadiosityElementComputeNewVertexColors(Element *element);
     static void stochasticRadiosityElementAdjustTVertexColors(Element *element);
-    static ColorRgbMutable stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
+    static ColorRgb stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
     static bool coefficientPoolsAreInitialized();
     static void markCoefficientPoolsInitialized();
 
@@ -152,9 +152,9 @@ class StochasticRadiosityElement final : public Element {
     static void monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem);
     static void monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem);
     static bool regularChild(const StochasticRadiosityElement *child);
-    static ColorRgbMutable vertexRadiance(const RpkVertex *vertex);
+    static ColorRgb vertexRadiance(const RpkVertex *vertex);
     static float vertexImportance(const RpkVertex *vertex);
-    static ColorRgbMutable vertexColor(RpkVertex *vertex);
+    static ColorRgb vertexColor(RpkVertex *vertex);
 };
 
 #endif

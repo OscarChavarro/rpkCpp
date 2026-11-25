@@ -39,7 +39,7 @@ class RadianceMethod {
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    virtual ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const = 0;
+    virtual ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const = 0;
 
     // Creates the top-level radiance element of the given patch (nullptr when the
     // method keeps no per-face data); the caller binds it in the scene's

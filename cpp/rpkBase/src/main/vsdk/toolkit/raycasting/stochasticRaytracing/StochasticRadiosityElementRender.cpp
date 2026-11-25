@@ -12,16 +12,15 @@ Rendering elements
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-ColorRgbMutable
+ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
-    ColorRgbMutable color{};
+    ColorRgb color{};
 
     switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            ToneMap::radianceToRgb(
+            color = ToneMap::radianceToRgb(
                 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(element),
-                &color,
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
@@ -33,7 +32,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
                 gray = element->importance < 0.0 ? 0.0F : element->importance;
             }
 
-            color = ColorRgbMutable(gray, gray, gray);
+            color = ColorRgb(gray, gray, gray);
             break;
         }
         default:
@@ -43,12 +42,11 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
     return color;
 }
 
-ColorRgbMutable
+ColorRgb
 StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
     int count = 0;
-    ColorRgbMutable radiance(0.0, 0.0, 0.0);
+    double radiance[3] = {0.0, 0.0, 0.0};
 
-    radiance.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
         Element *element = v->radianceData->get(i);
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -56,17 +54,22 @@ StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
         }
         const StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(element);
         if ( !elem->regularSubElements ) {
-            ColorRgbMutable elementRadiosity = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
-            radiance.add(radiance, elementRadiosity);
+            ColorRgb elementRadiosity = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
+            radiance[0] += elementRadiosity.getR();
+            radiance[1] += elementRadiosity.getG();
+            radiance[2] += elementRadiosity.getB();
             count++;
         }
     }
 
     if ( count > 0 ) {
-        radiance.scaleInverse(static_cast<float>(count), radiance);
+        const double scale = 1.0 / static_cast<float>(count);
+        radiance[0] = scale * radiance[0];
+        radiance[1] = scale * radiance[1];
+        radiance[2] = scale * radiance[2];
     }
 
-    return radiance;
+    return ColorRgb(radiance[0], radiance[1], radiance[2]);
 }
 
 /**
@@ -96,14 +99,13 @@ StochasticRadiosityElement::vertexImportance(const RpkVertex *v) {
     return imp;
 }
 
-ColorRgbMutable
+ColorRgb
 StochasticRadiosityElement::vertexColor(RpkVertex *v) {
     switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            ToneMap::radianceToRgb(
+            v->color = ToneMap::radianceToRgb(
                 vertexRadiance(v),
-                &v->color,
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
@@ -114,7 +116,7 @@ StochasticRadiosityElement::vertexColor(RpkVertex *v) {
             if ( gray < 0.0 ) {
                 gray = 0.0;
             }
-            v->color = ColorRgbMutable(gray, gray, gray);
+            v->color = ColorRgb(gray, gray, gray);
             break;
         }
         default:
@@ -152,10 +154,10 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
     }
 
     if ( n > 0 ) {
-        ColorRgbMutable color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color = ColorRgbMutable(
+                m[i]->color = ColorRgb(
                     (m[i]->color.getR() + color.getR()) * 0.5,
                     (m[i]->color.getG() + color.getG()) * 0.5,
                     (m[i]->color.getB() + color.getB()) * 0.5);
@@ -164,40 +166,59 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
     }
 }
 
-ColorRgbMutable
+ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
-    ColorRgbMutable radiance(0.0, 0.0, 0.0);
-    radiance.subtract(elem->radiance[0], elem->sourceRad);
+    double radiance[3] = {
+        elem->radiance[0].getR() - elem->sourceRad.getR(),
+        elem->radiance[0].getG() - elem->sourceRad.getG(),
+        elem->radiance[0].getB() - elem->sourceRad.getB()
+    };
 
     if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
         // sourceRad is self-emitted radiance when indirect-only is disabled.
         // Otherwise it represents direct illumination.
-        radiance.add(radiance, elem->sourceRad);
+        radiance[0] += elem->sourceRad.getR();
+        radiance[1] += elem->sourceRad.getG();
+        radiance[2] += elem->sourceRad.getB();
         if ( StochasticRelaxation::activeState().indirectOnly || StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             // Add self-emitted radiance
-            radiance.add(radiance, elem->Ed);
+            radiance[0] += elem->Ed.getR();
+            radiance[1] += elem->Ed.getG();
+            radiance[2] += elem->Ed.getB();
         }
     }
-    return radiance;
+    return ColorRgb(radiance[0], radiance[1], radiance[2]);
 }
 
-ColorRgbMutable
+ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RendererConfiguration *renderOptions) {
-    ColorRgbMutable radiance(0.0, 0.0, 0.0);
+    ColorRgb radiance(0.0, 0.0, 0.0);
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->isSmoothShading() ) {
             // Do Gouraud interpolation if required
-            ColorRgbMutable rad[4];
+            ColorRgb rad[4];
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertices[i]);
             }
+            const double x = static_cast<float>(u);
+            const double y = static_cast<float>(v);
             switch ( elem->numberOfVertices ) {
                 case 3:
-                    radiance.interpolateBarycentric(rad[0], rad[1], rad[2], static_cast<float>(u), static_cast<float>(v));
+                    radiance = ColorRgb(
+                        rad[0].getR() + x * (rad[1].getR() - rad[0].getR()) + y * (rad[2].getR() - rad[0].getR()),
+                        rad[0].getG() + x * (rad[1].getG() - rad[0].getG()) + y * (rad[2].getG() - rad[0].getG()),
+                        rad[0].getB() + x * (rad[1].getB() - rad[0].getB()) + y * (rad[2].getB() - rad[0].getB()));
                     break;
-                case 4:
-                    radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], static_cast<float>(u), static_cast<float>(v));
+                case 4: {
+                    const double c = x * y;
+                    const double bb = x - c;
+                    const double d = y - c;
+                    radiance = ColorRgb(
+                        rad[0].getR() + bb * (rad[1].getR() - rad[0].getR()) + c * (rad[2].getR() - rad[0].getR()) + d * (rad[3].getR() - rad[0].getR()),
+                        rad[0].getG() + bb * (rad[1].getG() - rad[0].getG()) + c * (rad[2].getG() - rad[0].getG()) + d * (rad[3].getG() - rad[0].getG()),
+                        rad[0].getB() + bb * (rad[1].getB() - rad[0].getB()) + c * (rad[2].getB() - rad[0].getB()) + d * (rad[3].getB() - rad[0].getB()));
                     break;
+                }
                 default:
                     Logger::reportMessage("StochasticRadiosityElementRender", Logger::FATAL_ERROR, "stochasticRadiosityElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
             }
@@ -209,7 +230,9 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(con
         // Higher order approximations
         radiance = Basismcrad::colorAtUv(elem->basis, elem->radiance, u, v);
         if ( StochasticRelaxation::activeState().show == WhatToShow::SHOW_INDIRECT_RADIANCE ) {
-            radiance.subtract(radiance, elem->sourceRad);
+            radiance = ColorRgb(radiance.getR() - elem->sourceRad.getR(),
+                                radiance.getG() - elem->sourceRad.getG(),
+                                radiance.getB() - elem->sourceRad.getB());
         }
     }
     return radiance;

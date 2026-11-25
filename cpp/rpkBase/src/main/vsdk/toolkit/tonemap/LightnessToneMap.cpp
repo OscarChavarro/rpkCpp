@@ -14,15 +14,18 @@ void
 LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
-ColorRgbMutable
-LightnessToneMap::scaleForComputations(ColorRgbMutable radiance) const {
+ColorRgb
+LightnessToneMap::scaleForComputations(const ColorRgb &radiance) const {
     Logger::reportMessage("LightnessToneMap", Logger::WARNING, "ScaleForComputations", java::String::format("%s %d not yet implemented", __FILE__, __LINE__));
     return radiance;
 }
 
-ColorRgbMutable
-LightnessToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
-    const float max = radiance.maximumComponent();
+ColorRgb
+LightnessToneMap::scaleForDisplay(const ColorRgb &radiance) const {
+    const double r = radiance.getR();
+    const double g = radiance.getG();
+    const double b = radiance.getB();
+    const float max = r > g ? (r > b ? r : b) : (g > b ? g : b);
     if ( max < 1e-32 ) {
         return radiance;
     }
@@ -34,8 +37,7 @@ LightnessToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
         return radiance;
     }
 
-    radiance.scale(scaleFactor / max);
-    return radiance;
+    return radiance.multiply(scaleFactor / max);
 }
 
 float

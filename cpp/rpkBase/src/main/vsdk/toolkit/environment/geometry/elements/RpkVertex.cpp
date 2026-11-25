@@ -23,7 +23,7 @@ RpkVertex::RpkVertex(
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
     patches = inPatches;
-    color = ColorRgbMutable(0.0, 0.0, 0.0);
+    color = ColorRgb(0.0, 0.0, 0.0);
     radianceData = nullptr;
     back = static_cast<RpkVertex *>(nullptr);
 }
@@ -45,7 +45,7 @@ void
 RpkVertex::computeColor(const FaceColorTable *faceColors) {
     long numberOfPatches;
 
-    color = ColorRgbMutable(0.0, 0.0, 0.0);
+    color = ColorRgb(0.0, 0.0, 0.0);
     numberOfPatches = 0;
 
     if ( patches != nullptr ) {
@@ -55,19 +55,19 @@ RpkVertex::computeColor(const FaceColorTable *faceColors) {
         for ( int i = 0; i < patches->size(); i++) {
             // Before the scene's face table exists (loading) every face is black
             if ( faceColors != nullptr ) {
-                const ColorRgbMutable &patchColor = faceColors->get(patches->get(i)->getFaceIndex());
+                const ColorRgb &patchColor = faceColors->get(patches->get(i)->getFaceIndex());
                 r += patchColor.getR();
                 g += patchColor.getG();
                 b += patchColor.getB();
             }
         }
-        color = ColorRgbMutable(r, g, b);
+        color = ColorRgb(r, g, b);
         numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
         const double invPatchCount = 1.0 / static_cast<double>(numberOfPatches);
-        color = ColorRgbMutable(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
+        color = ColorRgb(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
     }
 }
 

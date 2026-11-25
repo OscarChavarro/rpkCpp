@@ -36,14 +36,14 @@ OptionsGroupCore::equalsIgnoreCase(const char *a, const char *b) {
     return a[i] == '\0' && b[i] == '\0';
 }
 
-const ColorRgbMutable OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
+const ColorRgb OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 int OptionsGroupCore::numberOfQuarterCircleDivisions = OptionsGroupCore::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 int OptionsGroupCore::fileOptionsForceOneSidedSurfaces = 0;
 int OptionsGroupCore::outputImageWidth = 1920;
 int OptionsGroupCore::outputImageHeight = 1080;
 int OptionsGroupCore::glutDebugEnabled = false;
 EnumBackgroundMode OptionsGroupCore::backgroundMode = EnumBackgroundMode::NONE;
-ColorRgbMutable OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BACKGROUND_COLOR;
+ColorRgb OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BACKGROUND_COLOR;
 SceneAccelerationMethod OptionsGroupCore::sceneAccelerationMethod = SceneAccelerationMethod::WALD2007_ACCELERATION;
 
 /**
@@ -116,7 +116,7 @@ OptionsGroupCore::commandLineParseFloat(const char *text, float *value) {
 }
 
 bool
-OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgbMutable *color) {
+OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
     float red = 0.0F;
     float green = 0.0F;
     float blue = 0.0F;
@@ -130,7 +130,7 @@ OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *
         return false;
     }
 
-    *color = ColorRgbMutable(red, green, blue);
+    *color = ColorRgb(red, green, blue);
     return true;
 }
 
@@ -167,7 +167,7 @@ OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
             continue;
         }
 
-        ColorRgbMutable parsedColor(0.0, 0.0, 0.0);
+        ColorRgb parsedColor(0.0, 0.0, 0.0);
         if ( !OptionsGroupCore::commandLineParseBackgroundColor(
                  argv[readIndex + 2],
                  argv[readIndex + 3],

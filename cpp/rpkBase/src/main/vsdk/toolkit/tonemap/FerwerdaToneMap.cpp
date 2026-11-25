@@ -41,54 +41,45 @@ FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
     pmDisplay = pmComp / maximumDisplayLuminance;
 }
 
-ColorRgbMutable
-FerwerdaToneMap::scaleForComputations(ColorRgbMutable radiance) const {
-    ColorRgbMutable p{};
-    float sl;
-
-    // Convert to photometric values
+ColorRgb
+FerwerdaToneMap::scaleForComputations(const ColorRgb &radiance) const {
+    // Convert to photometric values and compute the scotopic grayscale shift
     const float eff = Cie::getLuminousEfficacy();
-    radiance.scale(eff);
-
-    // Compute the scotopic grayscale shift
-    p = ColorRgbMutable(radiance.getR(), radiance.getG(), radiance.getB());
+    const ColorRgb p = radiance.multiply(eff);
+    float sl;
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = static_cast<float>(smComp * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 
     // Scale the photopic luminance
-    radiance.scale(pmComp);
+    const ColorRgb photopic = p.multiply(pmComp);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
-        radiance.addConstant(radiance, sl);
+        return ColorRgb(photopic.getR() + sl, photopic.getG() + sl, photopic.getB() + sl);
     }
 
-    return radiance;
+    return photopic;
 }
 
-ColorRgbMutable
-FerwerdaToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
-    ColorRgbMutable p{};
+ColorRgb
+FerwerdaToneMap::scaleForDisplay(const ColorRgb &/*radiance*/) const {
+    const ColorRgb p;
     float sl;
 
-    // Convert to photometric values
-    const float eff = Cie::getLuminousEfficacy();
-    radiance.scale(eff);
-
-    // Compute the scotopic grayscale shift
-    radiance = ColorRgbMutable(p.getR(), p.getG(), p.getB());
+    // The legacy display path uses the zero-initialized scotopic color.
+    // Keep this behavior while changing the color value type.
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = static_cast<float>(smDisplay * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 
     // Scale the photopic luminance
-    radiance.scale(pmDisplay);
+    const ColorRgb photopic = p.multiply(pmDisplay);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
-        radiance.addConstant(radiance, sl);
+        return ColorRgb(photopic.getR() + sl, photopic.getG() + sl, photopic.getB() + sl);
     }
 
-    return radiance;
+    return photopic;
 }
 
 float

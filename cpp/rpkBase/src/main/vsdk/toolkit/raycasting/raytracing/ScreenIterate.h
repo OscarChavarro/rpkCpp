@@ -8,7 +8,7 @@ Several functions are provided for different iterating schemes
 #ifndef SCREEN_ITERATE__
 #define SCREEN_ITERATE__
 
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterateState.h"
@@ -18,7 +18,7 @@ class SceneQuery;
 class SceneQueryWorkspace;
 
 template<typename T>
-using ScreenIterateCallback = ColorRgbMutable (*)(Camera *, const SceneQuery *, SceneQueryWorkspace *, Background *, int, int, T *);
+using ScreenIterateCallback = ColorRgb (*)(Camera *, const SceneQuery *, SceneQueryWorkspace *, Background *, int, int, T *);
 
 class ScreenIterate {
   public:
@@ -58,8 +58,8 @@ class ScreenIterate {
         int y0,
         int x1,
         int y1,
-        ColorRgbMutable col,
-        ColorRgbMutable *rgb);
+        ColorRgb col,
+        ColorRgb *rgb);
 };
 
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterate.txx"

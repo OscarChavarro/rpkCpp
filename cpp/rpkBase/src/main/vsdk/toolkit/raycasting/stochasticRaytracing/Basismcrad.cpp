@@ -211,15 +211,16 @@ Basismcrad::monteCarloRadiosityInitBasis() {
 /**
 Returns color at a given point, with parameters (u,v)
 */
-ColorRgbMutable
+ColorRgb
 Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v) {
-    ColorRgbMutable res(0.0, 0.0, 0.0);
-    res.clear();
+    double res[3] = {0.0, 0.0, 0.0};
     for ( int i = 0; i < basis->size; i++ ) {
-        double s = basis->function[i](u, v);
-        res.addScaled(res, static_cast<float>(s), rad[i]);
+        const double s = static_cast<float>(basis->function[i](u, v));
+        res[0] += s * rad[i].getR();
+        res[1] += s * rad[i].getG();
+        res[2] += s * rad[i].getB();
     }
-    return res;
+    return ColorRgb(res[0], res[1], res[2]);
 }
 
 /**

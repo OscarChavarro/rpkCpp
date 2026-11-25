@@ -207,7 +207,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpt
 /**
 Adapted from bi-directional path, this is a bit overkill for here
 */
-ColorRgbMutable
+ColorRgb
 PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     Camera *camera,
     PhotonMapConfig *config,
@@ -216,8 +216,8 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     BiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    ColorRgbMutable oldBsdfL(0.0, 0.0, 0.0);
-    ColorRgbMutable oldBsdfE(0.0, 0.0, 0.0);
+    ColorRgb oldBsdfL(0.0, 0.0, 0.0);
+    ColorRgb oldBsdfE(0.0, 0.0, 0.0);
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -228,7 +228,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    ColorRgbMutable f(0.0, 0.0, 0.0);
+    ColorRgb f(0.0, 0.0, 0.0);
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -275,7 +275,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
 
     float factor = 1.0F / static_cast<float>(bp->evalPdfAcc());
 
-    f.scale(factor); // Flux estimate
+    f = f.multiply(factor); // Flux estimate
 
     // Restore old values
     lightEndNode->m_bsdfEval = oldBsdfL;
@@ -320,7 +320,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
     int ny;
     float pixX;
     float pixY;
-    ColorRgbMutable f(0.0, 0.0, 0.0);
+    ColorRgb f(0.0, 0.0, 0.0);
     const BiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
@@ -352,7 +352,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
                       / static_cast<float>(photonMapState.totalCPaths));
         }
 
-        f.scale(factor);
+        f = f.multiply(factor);
 
         config->screen->add(nx, ny, f);
     }
@@ -366,7 +366,7 @@ bool
 PhotonMapRadianceMethod::photonMapDoPhotonStore(
     const Camera *camera,
     SimpleRaytracingPathNode *node,
-    ColorRgbMutable power)
+    const ColorRgb &power)
 {
     if ( node->m_hit.getPatch() && node->m_hit.getPatch()->getMaterial() ) {
         // Only add photons on surfaces with a certain reflection
@@ -419,7 +419,9 @@ PhotonMapRadianceMethod::photonMapHandlePath(
 {
     bool lDone;
     BiPath *bp = &config->biPath;
-    ColorRgbMutable accPower(0.0, 0.0, 0.0);
+    double powerR = 1.0;
+    double powerG = 1.0;
+    double powerB = 1.0;
     float factor;
 
     // Iterate over all light nodes
@@ -431,12 +433,13 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     bp->m_geomConnect = 1.0; // No connection yet
 
     lDone = false;
-    accPower = ColorRgbMutable(1.0, 1.0, 1.0);
-
     while ( !lDone ) {
         // Adjust accPower
         factor = static_cast<float>(currentNode->m_G / currentNode->m_pdfFromPrev);
-        accPower.scale(factor);
+        powerR *= factor;
+        powerG *= factor;
+        powerB *= factor;
+        const ColorRgb accPower(powerR, powerG, powerB);
 
         // Store photon, but not emitted light
         if ( config->currentMap == config->map ) {
@@ -460,7 +463,9 @@ PhotonMapRadianceMethod::photonMapHandlePath(
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
         if ( !(currentNode->ends()) ) {
-            accPower.selfScalarProduct(currentNode->m_bsdfEval);
+            powerR *= currentNode->m_bsdfEval.getR();
+            powerG *= currentNode->m_bsdfEval.getG();
+            powerB *= currentNode->m_bsdfEval.getB();
 
             currentNode = currentNode->next();
             bp->m_lightSize++;
@@ -673,33 +678,24 @@ PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
 /**
 Returns the radiance emitted in the node related direction
 */
-ColorRgbMutable
+ColorRgb
 PhotonMapRadianceMethod::getNodeGRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-
     photonMapConfig.map->doBalancing(photonMapState.balanceKDTree);
-    col = photonMapConfig.map->reconstruct(&node->m_hit, node->m_inDirF,
-                                           node->m_useBsdf,
-                                           node->m_inBsdf, node->m_outBsdf);
-    return col;
+    return static_cast<ColorRgb>(photonMapConfig.map->reconstruct(
+        &node->m_hit, node->m_inDirF, node->m_useBsdf, node->m_inBsdf, node->m_outBsdf));
 }
 
 /**
 Returns the radiance emitted in the node related direction
 */
-ColorRgbMutable
+ColorRgb
 PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-
     photonMapConfig.causticMap->doBalancing(photonMapState.balanceKDTree);
-
-    col = photonMapConfig.causticMap->reconstruct(&node->m_hit, node->m_inDirF,
-                                                          node->m_useBsdf,
-                                                          node->m_inBsdf, node->m_outBsdf);
-    return col;
+    return static_cast<ColorRgb>(photonMapConfig.causticMap->reconstruct(
+        &node->m_hit, node->m_inDirF, node->m_useBsdf, node->m_inBsdf, node->m_outBsdf));
 }
 
-ColorRgbMutable
+ColorRgb
 PhotonMapRadianceMethod::getRadiance(
     Camera *camera,
     const Patch *patch,
@@ -711,7 +707,7 @@ PhotonMapRadianceMethod::getRadiance(
     RpkRayHit hit;
     Vector3Df point;
     PhongBidirectionalScatteringDistributionFunction *bsdf = patch->getMaterial()->getBsdf();
-    ColorRgbMutable radiance(0.0, 0.0, 0.0);
+    ColorRgb radiance(0.0, 0.0, 0.0);
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);
@@ -722,8 +718,7 @@ PhotonMapRadianceMethod::getRadiance(
     hit.setNormal(&normal);
 
     if ( PhotonMap::zeroAlbedo(bsdf, &hit, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT) ) {
-        radiance.clear();
-        return radiance;
+        return ColorRgb(0.0, 0.0, 0.0);
     }
 
     RadiosityReturnOption radiosityReturn = RadiosityReturnOption::GLOBAL_RADIANCE;
@@ -734,16 +729,16 @@ PhotonMapRadianceMethod::getRadiance(
 
     switch ( radiosityReturn ) {
         case RadiosityReturnOption::GLOBAL_DENSITY:
-            radiance = photonMapConfig.map->getDensityColor(hit);
+            radiance = static_cast<ColorRgb>(photonMapConfig.map->getDensityColor(hit));
             break;
         case RadiosityReturnOption::CAUSTIC_DENSITY:
-            radiance = photonMapConfig.causticMap->getDensityColor(hit);
+            radiance = static_cast<ColorRgb>(photonMapConfig.causticMap->getDensityColor(hit));
             break;
         case RadiosityReturnOption::IMPORTANCE_C_DENSITY:
-            radiance = photonMapConfig.importanceCMap->getDensityColor(hit);
+            radiance = static_cast<ColorRgb>(photonMapConfig.importanceCMap->getDensityColor(hit));
             break;
         case RadiosityReturnOption::IMPORTANCE_G_DENSITY:
-            radiance = photonMapConfig.importanceMap->getDensityColor(hit);
+            radiance = static_cast<ColorRgb>(photonMapConfig.importanceMap->getDensityColor(hit));
             break;
         case RadiosityReturnOption::REC_C_DENSITY:
             {
@@ -752,25 +747,25 @@ PhotonMapRadianceMethod::getRadiance(
                 density = photonMapConfig.importanceCMap->getRequiredDensity(
                         camera, hit.getPoint(), nn);
                 hit.setNormal(&nn);
-                radiance = PhotonMap::getFalseColor(density, photonMapState);
+                radiance = static_cast<ColorRgb>(PhotonMap::getFalseColor(density, photonMapState));
             }
             break;
         case RadiosityReturnOption::REC_G_DENSITY:
             photonMapConfig.importanceMap->doBalancing(photonMapState.balanceKDTree);
             density = photonMapConfig.importanceMap->getRequiredDensity(
                     camera, hit.getPoint(), hit.getNormal());
-            radiance = PhotonMap::getFalseColor(density, photonMapState);
+            radiance = static_cast<ColorRgb>(PhotonMap::getFalseColor(density, photonMapState));
             break;
         case RadiosityReturnOption::GLOBAL_RADIANCE:
-            radiance = photonMapConfig.map->reconstruct(
-                    &hit, dir, bsdf, nullptr, bsdf);
+            radiance = static_cast<ColorRgb>(photonMapConfig.map->reconstruct(
+                    &hit, dir, bsdf, nullptr, bsdf));
             break;
         case RadiosityReturnOption::CAUSTIC_RADIANCE:
-            radiance = photonMapConfig.causticMap->reconstruct(
-                    &hit, dir, bsdf, nullptr, bsdf);
+            radiance = static_cast<ColorRgb>(photonMapConfig.causticMap->reconstruct(
+                    &hit, dir, bsdf, nullptr, bsdf));
             break;
         default:
-            radiance.clear();
+            radiance = ColorRgb(0.0, 0.0, 0.0);
             Logger::reportMessage("PhotonMapRadianceMethod", Logger::ERROR, "photonMapGetRadiance", "Unknown radiance return");
     }
 

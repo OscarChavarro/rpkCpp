@@ -14,6 +14,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 
 #include "vsdk/toolkit/raycasting/raytracing/BsdfSampler.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMap.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 class PhotonMapSampler final : public BsdfSampler {
   private:
@@ -29,7 +30,7 @@ class PhotonMapSampler final : public BsdfSampler {
         double x2,
         Vector3Df *dir,
         double *pdfDir,
-        ColorRgbMutable *scatteringColor,
+        ColorRgb *scatteringColor,
         bool *doCosInverse);
 
     bool
