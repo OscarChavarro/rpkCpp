@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -51,8 +51,8 @@ SpecularSampler::sample(
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 
-    float avgReflectance = static_cast<float>(ColorRgbMath::average(reflectance));
-    float avgTransmittance = static_cast<float>(ColorRgbMath::average(transmittance));
+    float avgReflectance = static_cast<float>(reflectance.average());
+    float avgTransmittance = static_cast<float>(transmittance.average());
     float avgScattering = avgReflectance + avgTransmittance;
 
     if ( avgScattering < VSDK::EPSILON ) {

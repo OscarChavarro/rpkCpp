@@ -3,7 +3,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/render/Potential.h"
@@ -33,7 +33,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = static_cast<float>(M_PI) * patch->getArea() * ColorRgbMath::sumAbsComponents(galerkinState->topLevelElement(patch)->unShotRadiance[0]);
+        power = static_cast<float>(M_PI) * patch->getArea() * galerkinState->topLevelElement(patch)->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -156,10 +156,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
     }
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
 
-    galerkinState->ambientRadiance = ColorRgbMath::addScaled(
-        galerkinState->ambientRadiance,
-        patch->getArea(),
-        galerkinState->topLevelElement(patch)->unShotRadiance[0]);
+    galerkinState->ambientRadiance = galerkinState->ambientRadiance.addScaled(patch->getArea(), galerkinState->topLevelElement(patch)->unShotRadiance[0]);
 }
 
 void

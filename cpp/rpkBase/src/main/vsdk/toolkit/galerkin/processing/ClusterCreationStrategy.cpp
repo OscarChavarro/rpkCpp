@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/lang/Float.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -77,7 +77,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
         galerkinElement->area += subCluster->area;
         galerkinElement->numberOfPatches += subCluster->numberOfPatches;
-        galerkinElement->radiance[0] = ColorRgbMath::addScaled(galerkinElement->radiance[0], subCluster->area, subCluster->radiance[0]);
+        galerkinElement->radiance[0] = galerkinElement->radiance[0].addScaled(subCluster->area, subCluster->radiance[0]);
         if ( subCluster->minimumArea < galerkinElement->minimumArea ) {
             galerkinElement->minimumArea = subCluster->minimumArea;
         }
@@ -99,7 +99,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
               galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
               i++ ) {
             const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
-            galerkinElement->unShotRadiance[0] = ColorRgbMath::addScaled(galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
+            galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].addScaled(subCluster->area, subCluster->unShotRadiance[0]);
         }
         galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].multiply(1.0F / galerkinElement->area);
     }

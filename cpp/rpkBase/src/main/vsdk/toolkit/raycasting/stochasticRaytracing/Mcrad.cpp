@@ -2,7 +2,7 @@
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
 
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include <cstdlib>
 
 #include "java/lang/Math.h"
@@ -353,19 +353,10 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *rend
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
-        StochasticRelaxation::activeState().unShotFlux = ColorRgbMath::addScaled(
-            StochasticRelaxation::activeState().unShotFlux,
-            static_cast<float>(M_PI) * patch->getArea(),
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux = ColorRgbMath::addScaled(
-            StochasticRelaxation::activeState().totalFlux,
-            static_cast<float>(M_PI) * patch->getArea(),
-            McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgbMath::addScaled(
-            StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
-            static_cast<float>(M_PI) * patch->getArea() *
-            (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
-            McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea() *
+            (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance), McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
         StochasticRelaxation::activeState().sourceYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;

@@ -4,7 +4,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
@@ -23,7 +23,7 @@ PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bs
         return true;
     } else {
         const ColorRgb color = bsdf->splitBsdfScatteredPower(shctx, flags);
-        return ColorRgbMath::average(color) < VSDK::EPSILON;
+        return color.average() < VSDK::EPSILON;
     }
 }
 
@@ -385,8 +385,8 @@ PhotonMap::reconstruct(
 
     checkNBalance();
 
-    if ( ColorRgbMath::average(glossyAlbedo) < VSDK::EPSILON ) {
-        if ( ColorRgbMath::average(diffuseAlbedo) < VSDK::EPSILON ) {
+    if ( glossyAlbedo.average() < VSDK::EPSILON ) {
+        if ( diffuseAlbedo.average() < VSDK::EPSILON ) {
             return ColorRgb(resultR, resultG, resultB); // No reflectance
         } else {
             if ( m_precomputeIrradiance ) {
@@ -508,7 +508,7 @@ PhotonMap::sample(
 
             const ColorRgb color = m_photons[i]->power();
 
-            m_grid->add(pr, ps, ColorRgbMath::average(color) / static_cast<float>(m_nrPhotons));
+            m_grid->add(pr, ps, color.average() / static_cast<float>(m_nrPhotons));
         }
 
         m_grid->EnsureNonZeroEntries();

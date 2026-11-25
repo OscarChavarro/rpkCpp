@@ -13,22 +13,6 @@
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/context/MaterialContext.h"
 
-namespace {
-inline ColorRgb addColor(const ColorRgb &a, const ColorRgb &b) {
-    return {a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB()};
-}
-
-inline ColorRgb scaleColor(const ColorRgb &c, double s) {
-    return {c.getR() * s, c.getG() * s, c.getB() * s};
-}
-
-inline bool isBlack(const ColorRgb &c) {
-    return java::Math::abs(c.getR()) < VSDK::EPSILON
-        && java::Math::abs(c.getG()) < VSDK::EPSILON
-        && java::Math::abs(c.getB()) < VSDK::EPSILON;
-}
-}
-
 /**
 Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
@@ -153,26 +137,26 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
     MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
-    A = addColor(Rd, Rs);
+    A = Rd.add(Rs);
     double a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0 - Numeric::EPSILON_FLOAT) / a;
-        Rd = scaleColor(Rd, a);
-        Rs = scaleColor(Rs, a);
+        Rd = Rd.multiply(a);
+        Rs = Rs.multiply(a);
     }
 
-    A = addColor(Td, Ts);
+    A = Td.add(Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0 - Numeric::EPSILON_FLOAT) / a;
-        Td = scaleColor(Td, a);
-        Ts = scaleColor(Ts, a);
+        Td = Td.multiply(a);
+        Ts = Ts.multiply(a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed = scaleColor(Ed, 1.0 / Cie::WHITE_EFFICACY);
+    Ed = Ed.multiply(1.0 / Cie::WHITE_EFFICACY);
 
     Es = ColorRgb(0.0, 0.0, 0.0);
 
@@ -205,20 +189,20 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
 
     // The lobes keep their exponents in single precision
     const PhongLobe *emission = nullptr;
-    if ( !isBlack(Ed) || !isBlack(Es) ) {
+    if ( !Ed.isBlack() || !Es.isBlack() ) {
         constexpr double Ne = 0.0;
         emission = new PhongLobe(Ed, Es, static_cast<float>(Ne));
     }
 
     const PhongLobe *reflection = nullptr;
-    if ( !isBlack(Rd) || !isBlack(Rs) ) {
+    if ( !Rd.isBlack() || !Rs.isBlack() ) {
         reflection = new PhongLobe(Rd, Rs, static_cast<float>(Nr));
     }
 
     const PhongLobe *transmission = nullptr;
     float refractionIndexReal = 1.0F;
     float refractionIndexImaginary = 0.0F;
-    if ( !isBlack(Td) || !isBlack(Ts) ) {
+    if ( !Td.isBlack() || !Ts.isBlack() ) {
         transmission = new PhongLobe(Td, Ts, static_cast<float>(Nt));
         refractionIndexReal = static_cast<float>(currentMaterialContext->nr);
         refractionIndexImaginary = static_cast<float>(currentMaterialContext->ni);

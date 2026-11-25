@@ -7,7 +7,7 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/common/color/Cie.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
@@ -142,7 +142,7 @@ stochasticJacobiProbability proportional to power to be propagated
  double
 RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower(const Patch *P) {
     ColorRgb radiance = McradP::topLevelStochasticRadiosityElement(P)->sourceRad;
-    return P->getArea() * ColorRgbMath::sumAbsComponents(radiance);
+    return P->getArea() * radiance.sumAbsComponents();
 }
 
 /**
@@ -174,9 +174,9 @@ RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<
 
         newSourceRadiance = ColorRgb(1.0, 1.0, 1.0);
         rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd; // Reflectance
-        newSourceRadiance = ColorRgbMath::subtract(newSourceRadiance, rho); // 1 - rho
-        newSourceRadiance = ColorRgbMath::product(newSourceRadiance, StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
-        newSourceRadiance = ColorRgbMath::subtract(McradP::topLevelStochasticRadiosityElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
+        newSourceRadiance = newSourceRadiance.subtract(rho); // 1 - rho
+        newSourceRadiance = newSourceRadiance.multiply(StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
+        newSourceRadiance = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad.subtract(newSourceRadiance); // E - (1-rho) * beta
         McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = newSourceRadiance;
     }
 }
@@ -233,7 +233,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
-    accumPow = ColorRgbMath::scale(static_cast<float>(firstNode.patch->getArea() / firstNode.probability), McradP::topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
+    accumPow = McradP::topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad.multiply(static_cast<float>(firstNode.patch->getArea() / firstNode.probability));
     for ( int n = 1; n < path->numberOfNodes; n++ ) {
         const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
@@ -244,7 +244,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
         double w;
         const Patch *P = node.patch;
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
-        accumPow = ColorRgbMath::product(accumPow, Rd);
+        accumPow = accumPow.multiply(Rd);
 
         P->uniformUv(&node.inPoint, &uin, &vin);
         if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
@@ -259,7 +259,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
 
         for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->getArea();
-            McradP::getTopLevelPatchReceivedRad(P)[i] = ColorRgbMath::addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], static_cast<float>(w * dual / static_cast<double>(nr_paths)), accumPow);
+            McradP::getTopLevelPatchReceivedRad(P)[i] = McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(static_cast<float>(w * dual / static_cast<double>(nr_paths)), accumPow);
 
             if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uOut, vOut);
@@ -283,7 +283,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate(const Patch *P, doub
     k = oldQuality / McradP::topLevelStochasticRadiosityElement(P)->quality;
 
     // Subtract self-emitted rad
-    McradP::getTopLevelPatchRad(P)[0] = ColorRgbMath::subtract(McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
+    McradP::getTopLevelPatchRad(P)[0] = McradP::getTopLevelPatchRad(P)[0].subtract(McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
 
     // Weight with previous results
     Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
@@ -313,13 +313,13 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size, 1. / (1. -
-                              ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity))));
+                              Statistics::instance().radiance.averageReflectivity.maximumComponent())));
     }
 
     java::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             StochasticRelaxation::activeState().currentIteration,
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
-                                                               (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity)))));
+                                                               (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
         sceneQuery,
@@ -354,17 +354,17 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
 
         absorb = ColorRgb(1.0, 1.0, 1.0);
         rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd;
-        absorb = ColorRgbMath::subtract(absorb, rho); // 1-rho
+        absorb = absorb.subtract(rho); // 1-rho
 
         Ed = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad;
-        num = ColorRgbMath::product(absorb, Ed);
-        c1 = ColorRgbMath::addScaled(c1, patch->getArea(), num); // A_P (1-rho_P) E_P
+        num = absorb.multiply(Ed);
+        c1 = c1.addScaled(patch->getArea(), num); // A_P (1-rho_P) E_P
 
-        denominator = ColorRgbMath::product(absorb, absorb);
-        c2 = ColorRgbMath::addScaled(c2, patch->getArea(), denominator); // A_P (1-rho_P)^2
+        denominator = absorb.multiply(absorb);
+        c2 = c2.addScaled(patch->getArea(), denominator); // A_P (1-rho_P)^2
     }
 
-    cr = ColorRgbMath::divide(c1, c2);
+    cr = c1.divide(c2);
     java::System::err.printf("Control radiosity value = ");
     java::System::err.printf("%g %g %g", cr.getR(), cr.getG(), cr.getB());
     java::System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
@@ -386,7 +386,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path 
         double r = 1.0;
         const Patch *P = node.patch;
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
-        accumRad = ColorRgbMath::product(accumRad, Rd);
+        accumRad = accumRad.multiply(Rd);
 
         P->uniformUv(&node.outpoint, &uOut, &vOut);
         if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
@@ -399,7 +399,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path 
 
         for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
-            McradP::getTopLevelPatchReceivedRad(P)[i] = ColorRgbMath::addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], static_cast<float>(dual), accumRad);
+            McradP::getTopLevelPatchReceivedRad(P)[i] = McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(static_cast<float>(dual), accumRad);
 
             if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uin, vin);
@@ -432,7 +432,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate(const Patch *P, dou
         ColorRgb cr = StochasticRelaxation::activeState().controlRadiance;
         if ( StochasticRelaxation::activeState().indirectOnly ) {
             ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
-            cr = ColorRgbMath::product(Rd, StochasticRelaxation::activeState().controlRadiance);
+            cr = Rd.multiply(StochasticRelaxation::activeState().controlRadiance);
         }
         McradP::getTopLevelPatchRad(P)[0] = McradP::getTopLevelPatchRad(P)[0].add(cr);
     }
@@ -456,7 +456,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size,
-            1.0 / (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity))));
+            1.0 / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent())));
     }
 
     if ( StochasticRelaxation::activeState().constantControlVariate && StochasticRelaxation::activeState().currentIteration == 1 ) {
@@ -467,7 +467,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
 
     java::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         StochasticRelaxation::activeState().currentIteration,
-        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - ColorRgbMath::maximumComponent(Statistics::instance().radiance.averageReflectivity)))));
+        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
         sceneQuery,

@@ -6,7 +6,7 @@ Olivier Ceulemans.
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/lang/System.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/Kernel2D.h"
@@ -119,8 +119,8 @@ Kernel2D::varCover(
     // Reference estimated function
     const ColorRgb fe = ref->getBiLinear(center.x(), center.y());
 
-    float avgFe = static_cast<float>(ColorRgbMath::average(fe));
-    float avgG = static_cast<float>(ColorRgbMath::average(color));
+    float avgFe = static_cast<float>(fe.average());
+    float avgG = static_cast<float>(color.average());
 
     if ( avgFe > VSDK::EPSILON ) {
         h = Bn * java::Math::sqrt(avgG / avgFe);

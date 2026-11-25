@@ -133,7 +133,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     if ( patch->getMaterial() != nullptr && patch->getMaterial()->getEdf() != nullptr ) {
         flags |= ElementFlags::IS_LIGHT_SOURCE_MASK;
         Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-        Ed = ColorRgbMath::scaleInverse(M_PI, Ed);
+        Ed = Ed.scaleInverse(M_PI);
     }
 
     reAllocCoefficients();

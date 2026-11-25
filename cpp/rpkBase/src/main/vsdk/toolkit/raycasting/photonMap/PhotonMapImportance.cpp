@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -35,7 +35,7 @@ PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node)
 bool
 PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, const ColorRgb &importance) {
     if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
-        float importanceF = static_cast<float>(ColorRgbMath::average(importance));
+        float importanceF = static_cast<float>(importance.average());
         float potentialF = 1.0;
 
         // Compute footprint

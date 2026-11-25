@@ -1,14 +1,14 @@
 #include <cassert>
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 static void check(const ColorRgb &c, double r, double g, double b) {
     assert(c.getR() == r && c.getG() == g && c.getB() == b);
 }
 int main() {
-    check(ColorRgbMath::scaleInverse(0.0, ColorRgb(2, 4, 6)), 2, 4, 6);
-    check(ColorRgbMath::divide(ColorRgb(2, 4, 6), ColorRgb(0, 2, 3)), 2, 2, 2);
-    check(ColorRgbMath::maximum(ColorRgb(2, -1, 6), ColorRgb(1, 4, 7)), 2, 4, 7);
-    assert(ColorRgbMath::average(ColorRgb(2, -1, 8)) == 3.0);
+    check(ColorRgb(2, 4, 6).scaleInverse(0.0), 2, 4, 6);
+    check(ColorRgb(2, 4, 6).divide(ColorRgb(0, 2, 3)), 2, 2, 2);
+    check(ColorRgb(2, -1, 6).maximum(ColorRgb(1, 4, 7)), 2, 4, 7);
+    assert(ColorRgb(2, -1, 8).average() == 3.0);
     Camera camera;
     camera.xSize = 2; camera.ySize = 2;
     camera.pixelWidth = 1.0f; camera.pixelHeight = 1.0f;

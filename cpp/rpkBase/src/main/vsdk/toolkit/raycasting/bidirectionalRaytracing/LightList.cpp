@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -56,10 +56,10 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
                 } else {
                     e = light->getMaterial()->getEdf()->phongEmittance(nullptr, DIFFUSE_COMPONENT);
                 }
-                info.emittedFlux = ColorRgbMath::average(e);
+                info.emittedFlux = e.average();
             } else {
                 lightColor = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
-                info.emittedFlux = ColorRgbMath::average(lightColor) * light->getArea();
+                info.emittedFlux = lightColor.average() * light->getArea();
             }
 
             totalFlux += info.emittedFlux;
@@ -141,7 +141,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3Df */*point*/) const 
     } else {
         e = light->getMaterial()->getEdf()->phongEmittance(nullptr, all);
     }
-    probabilityDensityFunction = ColorRgbMath::average(e) / totalFlux;
+    probabilityDensityFunction = e.average() / totalFlux;
 
     return probabilityDensityFunction;
 }
@@ -155,7 +155,7 @@ LightList::evalPdfReal(const Patch *light, const Vector3Df */*point*/) const {
     color = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
-    pdf = ColorRgbMath::average(color) * light->getArea() / totalFlux;
+    pdf = color.average() * light->getArea() / totalFlux;
 
     return pdf;
 }
@@ -193,7 +193,7 @@ LightList::computeOneLightImportanceVirtual(
     } else {
         e = light->getMaterial()->getEdf()->phongEmittance(nullptr, all);
     }
-    return ColorRgbMath::average(e);
+    return e.average();
 }
 
 double

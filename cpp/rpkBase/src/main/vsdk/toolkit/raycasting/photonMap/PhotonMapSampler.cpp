@@ -2,7 +2,7 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
@@ -48,13 +48,13 @@ PhotonMapSampler::chooseComponent(
     if ( bsdf != nullptr ) {
         color = bsdf->splitBsdfScatteredPower(shctx, flags1);
     }
-    power1 = static_cast<float>(ColorRgbMath::average(color));
+    power1 = static_cast<float>(color.average());
 
     color = ColorRgb(0.0, 0.0, 0.0);
     if ( bsdf != nullptr ) {
         color = bsdf->splitBsdfScatteredPower(shctx, flags2);
     }
-    power2 = static_cast<float>(ColorRgbMath::average(color));
+    power2 = static_cast<float>(color.average());
 
     totalPower = power1 + power2;
 
@@ -211,8 +211,8 @@ PhotonMapSampler::chooseFresnelDirection(
         transmittance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
-    bool reflective = (ColorRgbMath::average(reflectance) > VSDK::EPSILON);
-    bool trans = (ColorRgbMath::average(transmittance) > VSDK::EPSILON);
+    bool reflective = (reflectance.average() > VSDK::EPSILON);
+    bool trans = (transmittance.average() > VSDK::EPSILON);
 
     if ( reflective && trans ) {
         Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "FresnelFactor", "Cannot deal with simultaneous reflective & transit materials");
@@ -364,7 +364,7 @@ PhotonMapSampler::fresnelSample(
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
         float cosB = java::Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
-        thisNode->m_bsdfEval = ColorRgbMath::scaleInverse(cosB, scatteringColor);
+        thisNode->m_bsdfEval = scatteringColor.scaleInverse(cosB);
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }

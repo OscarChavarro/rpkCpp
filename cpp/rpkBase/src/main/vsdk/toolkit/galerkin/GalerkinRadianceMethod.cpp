@@ -9,7 +9,7 @@ Galerkin radiosity, with the following variants:
 #include <cstring>
 
 #include "java/lang/Float.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
@@ -271,7 +271,7 @@ GalerkinRadianceMethod::patchInit(Patch *patch, const DirectPotentialTable *dire
         // '95, Dublin, Ireland, June 1995, p 336-344
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             galerkinState.topLevelElement(patch)->unShotRadiance[0] =
-                ColorRgbMath::subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
+                galerkinGetRadiance(patch).subtract(galerkinState.constantRadiance);
         }
     } else {
         galerkinSetRadiance(patch, galerkinState.topLevelElement(patch)->Ed);
@@ -308,9 +308,7 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch, FaceColorTable *faceCo
 
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( galerkinState.useAmbientRadiance ) {
-        const ColorRgb radianceWithAmbient = ColorRgbMath::add(
-            ColorRgbMath::scaledProduct(reflectivity, 1.0, galerkinState.ambientRadiance),
-            galerkinGetRadiance(patch));
+        const ColorRgb radianceWithAmbient = reflectivity.multiply(galerkinState.ambientRadiance).add(galerkinGetRadiance(patch));
         const ColorRgb patchColor = ToneMap::radianceToRgb(radianceWithAmbient, *galerkinState.toneMapOptions);
         faceColors->set(patch->getFaceIndex(), patchColor);
     } else {

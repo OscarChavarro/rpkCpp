@@ -39,7 +39,7 @@ GalerkinBasis::pull(
         // Clusters only have irregular sub-elements and a constant
         // radiance approximation is used on them
         ColorRgbMath::arrayClear(parentCoefficients, parent->basisSize);
-        parentCoefficients[0] = ColorRgbMath::scale(child->area / parent->area, childCoefficients[0]);
+        parentCoefficients[0] = childCoefficients[0].multiply(child->area / parent->area);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Logger::reportMessage("GalerkinBasis", Logger::ERROR, "stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
@@ -55,7 +55,7 @@ GalerkinBasis::pull(
             for ( int beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK::EPSILON || f > VSDK::EPSILON )
-                    parentCoefficients[alpha] = ColorRgbMath::addScaled(parentCoefficients[alpha], static_cast<float>(f), childCoefficients[beta]);
+                    parentCoefficients[alpha] = parentCoefficients[alpha].addScaled(static_cast<float>(f), childCoefficients[beta]);
             }
             parentCoefficients[alpha] = parentCoefficients[alpha].multiply(0.25F);
         }
@@ -74,7 +74,7 @@ GalerkinBasis::pushPullRadianceRecursive(
 {
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
-        Bdown[i] = ColorRgbMath::addScaled(Bdown[i], 1.0F / element->area, element->receivedRadiance[i]);
+        Bdown[i] = Bdown[i].addScaled(1.0F / element->area, element->receivedRadiance[i]);
         element->receivedRadiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
 
@@ -84,7 +84,7 @@ GalerkinBasis::pushPullRadianceRecursive(
         // Leaf-element, multiply with reflectivity at the lowest level
         ColorRgb rho = element->galerkinState->topLevelElement(element->patch)->Rd;
         for ( int i = 0; i < element->basisSize; i++ ) {
-            Bup[i] = ColorRgbMath::product(rho, Bdown[i]);
+            Bup[i] = rho.multiply(Bdown[i]);
         }
 
         if ( galerkinState->isJacobi()
@@ -275,7 +275,7 @@ GalerkinBasis::push(
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK::EPSILON || f > VSDK::EPSILON )
-                    childCoefficients[beta] = ColorRgbMath::addScaled(childCoefficients[beta], static_cast<float>(f), parentCoefficients[alpha]);
+                    childCoefficients[beta] = childCoefficients[beta].addScaled(static_cast<float>(f), parentCoefficients[alpha]);
             }
         }
     }

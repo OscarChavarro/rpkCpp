@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include <cstdlib>
 
 #include "vsdk/toolkit/common/VSDK.h"
@@ -243,18 +243,18 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
     StochasticRelaxation::activeState().weightedSampling = false;
 
     stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
-    refUnShot = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().unShotFlux);
+    refUnShot = StochasticRelaxation::activeState().unShotFlux.sumAbsComponents();
     if ( StochasticRelaxation::activeState().incrementalUsesImportance ) {
-        refUnShot = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux);
+        refUnShot = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.sumAbsComponents();
     }
     while ( true ) {
         // Choose nr of rays so that power carried by each ray remains equal, and
         // proportional to the number of basis functions in the rad. approx
         double unShotFraction;
         long numberOfRays;
-        unShotFraction = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().unShotFlux) / refUnShot;
+        unShotFraction = StochasticRelaxation::activeState().unShotFlux.sumAbsComponents() / refUnShot;
         if ( StochasticRelaxation::activeState().incrementalUsesImportance ) {
-            unShotFraction = ColorRgbMath::sumAbsComponents(StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux) / refUnShot;
+            unShotFraction = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.sumAbsComponents() / refUnShot;
         }
         if ( unShotFraction < 0.01 ) {
             // Only 1/100th of self-emitted power remains un-shot
@@ -397,7 +397,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateRadian
     }
 
     // Subtract source radiosity
-    elem->radiance[0] = ColorRgbMath::subtract(elem->radiance[0], elem->sourceRad);
+    elem->radiance[0] = elem->radiance[0].subtract(elem->sourceRad);
 
     // Combine with previous results
     Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), elem->radiance, elem->basis);

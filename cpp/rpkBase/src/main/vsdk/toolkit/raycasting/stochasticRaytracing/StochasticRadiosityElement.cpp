@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
@@ -137,7 +137,7 @@ StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(Patch *pat
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
     elem->Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-    elem->Ed = ColorRgbMath::scaleInverse(static_cast<float>(M_PI), elem->Ed);
+    elem->Ed = elem->Ed.scaleInverse(static_cast<float>(M_PI));
     elem->Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -210,7 +210,7 @@ StochasticRadiosityElement::monteCarloRadiosityInitClusterPull(StochasticRadiosi
 
     // Needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
     // all children elements
-    parent->Ed = ColorRgbMath::addScaled(parent->Ed, child->area, child->Ed);
+    parent->Ed = parent->Ed.addScaled(child->area, child->Ed);
 }
 
 void
@@ -233,7 +233,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateClusterChildren(StochasticR
     for ( int i = 0; parent->irregularSubElements != nullptr && i < parent->irregularSubElements->size(); i++ ) {
         monteCarloRadiosityInitClusterPull(parent, static_cast<StochasticRadiosityElement *>(parent->irregularSubElements->get(i)));
     }
-    parent->Ed = ColorRgbMath::scaleInverse(parent->area, parent->Ed);
+    parent->Ed = parent->Ed.scaleInverse(parent->area);
 }
 
 StochasticRadiosityElement *
@@ -593,7 +593,7 @@ StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(const St
         return 1.0;
     }
 
-    rd = ColorRgbMath::maximumComponent(elem->Rd);
+    rd = elem->Rd.maximumComponent();
     if ( rd < VSDK::EPSILON ) {
         // Avoid divisions by zero
         rd = Numeric::EPSILON_FLOAT;
@@ -656,8 +656,8 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
             emittance = emittance.add(sample);
         }
     }
-    elem->Rd = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), albedo);
-    elem->Ed = ColorRgbMath::scaleInverse(static_cast<float>(numberOfSamples), emittance);
+    elem->Rd = albedo.scaleInverse(static_cast<float>(numberOfSamples));
+    elem->Ed = emittance.scaleInverse(static_cast<float>(numberOfSamples));
 }
 
 /**
@@ -909,7 +909,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
 {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        parentRad[0] = ColorRgbMath::addScaled(parentRad[0], areaFactor, childRad[0]);
+        parentRad[0] = parentRad[0].addScaled(areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         Basismcrad::filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
                       parentRad, child->basis->size, areaFactor);

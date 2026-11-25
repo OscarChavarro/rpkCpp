@@ -1,7 +1,7 @@
 /**
 Determination of constant control radiosity value
 */
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
@@ -37,9 +37,9 @@ Ccr::initialControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
-        *totalFluxColor = ColorRgbMath::addScaled(*totalFluxColor, weightedArea, rad);
+        *totalFluxColor = totalFluxColor->addScaled(weightedArea, rad);
         *area += weightedArea;
-        *maxRadColor = ColorRgbMath::maximum(*maxRadColor, rad);
+        *maxRadColor = maxRadColor->maximum(rad);
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
@@ -90,8 +90,8 @@ Ccr::initialControlRadiosity(
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
-    *fMax = ColorRgbMath::scale(area, maxRadColor);
-    *fMax = ColorRgbMath::subtract(*fMax, totalFluxColor);
+    *fMax = maxRadColor.multiply(area);
+    *fMax = fMax->subtract(totalFluxColor);
 }
 
 void
@@ -159,10 +159,10 @@ Ccr::refineControlRadiosityRecursive(
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             ColorRgb t(0.0, 0.0, 0.0);
-            t = ColorRgbMath::product(s, rad[i]);
-            t = ColorRgbMath::subtract(B, t);
-            t = ColorRgbMath::absolute(t);
-            f[i] = ColorRgbMath::addScaled(f[i], weightedArea, t);
+            t = s.multiply(rad[i]);
+            t = B.subtract(t);
+            t = t.absolute();
+            f[i] = f[i].addScaled(weightedArea, t);
         }
     } else {
         // Recursive case
@@ -193,10 +193,10 @@ Ccr::refineControlRadiosity(
     colorOne = ColorRgb(1.0, 1.0, 1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
-    d = ColorRgbMath::subtract(*maxRad, *minRad);
+    d = maxRad->subtract(*minRad);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         f[i] = ColorRgb(0.0, 0.0, 0.0);
-        rad[i] = ColorRgbMath::addScaled(*minRad, static_cast<double>(i) / static_cast<double>(NUMBER_OF_INTERVALS), d);
+        rad[i] = minRad->addScaled(static_cast<double>(i) / static_cast<double>(NUMBER_OF_INTERVALS), d);
     }
 
     // Determine value of F(beta) = sum_i (area_i * java::Math::abs(B_i - beta)) on
@@ -290,13 +290,13 @@ Ccr::determineControlRadiosity(
     java::System::err.printf("Determining optimal control radiosity value ... ");
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
-    delta = ColorRgbMath::subtract(fMax, fMin);
-    delta = ColorRgbMath::addScaled(delta, (-eps), fMin);
-    while ( (ColorRgbMath::maximumComponent(delta) > 0.0) || sweep < 4 ) {
+    delta = fMax.subtract(fMin);
+    delta = delta.addScaled((-eps), fMin);
+    while ( (delta.maximumComponent() > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
-        delta = ColorRgbMath::subtract(fMax, fMin);
-        delta = ColorRgbMath::addScaled(delta, (-eps), fMin);
+        delta = fMax.subtract(fMin);
+        delta = delta.addScaled((-eps), fMin);
     }
 
     beta = minRad.add(maxRad);

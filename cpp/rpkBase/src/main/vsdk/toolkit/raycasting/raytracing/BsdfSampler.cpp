@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -62,7 +62,7 @@ BsdfSampler::sample(
                 albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisContext, flags);
             }
         }
-        newNode->accumulatedRussianRouletteFactors *= ColorRgbMath::average(albedo);
+        newNode->accumulatedRussianRouletteFactors *= albedo.average();
     }
 
     // Reflection Type, changes thisNode->m_rayType and newNode->m_inBsdf
@@ -146,7 +146,7 @@ BsdfSampler::evalPDF(
     double dist;
     Vector3Df outDir;
 
-    outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
+    outDir = newNode->m_hit.getPoint().subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = java::Math::sqrt(dist2);
     outDir = outDir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
@@ -207,7 +207,7 @@ BsdfSampler::EvalPDFPrev(
     }
 
     // More efficient with extra params?
-    outDir = (prevNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
+    outDir = prevNode->m_hit.getPoint().subtract(thisNode->m_hit.getPoint());
     outDir = outDir.normalized(Numeric::EPSILON_FLOAT);
 
     // Beware : NOT RECIPROCAL!

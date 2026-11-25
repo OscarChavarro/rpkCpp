@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/numericalAnalysis/QuadCubatureRule.h"
@@ -232,7 +232,7 @@ void
 Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
-            child[i] = ColorRgbMath::addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
+            child[i] = child[i].addScaled(static_cast<float>((*h)[j][i]), parent[j]);
         }
     }
 }
@@ -242,7 +242,7 @@ Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, Color
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i] = ColorRgbMath::addScaled(parent[i], static_cast<float>(H), child[j]);
+            parent[i] = parent[i].addScaled(static_cast<float>(H), child[j]);
         }
     }
 }

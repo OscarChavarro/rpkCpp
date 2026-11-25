@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -25,7 +25,7 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
 {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
 
-    if ( !ColorRgbMath::isBlack(topLevelElement->radiance[0])
+    if ( !topLevelElement->radiance[0].isBlack()
       && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
             scene,

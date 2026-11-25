@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 /**
@@ -143,8 +143,8 @@ Hierarchy::lowPowerLink(
     }
     const ColorRgb rhoSrcRad(rhoR, rhoG, rhoB);
 
-    threshold = ElementHierarchyState::activeState().epsilon * ColorRgbMath::maximumComponent(statistics->radiance.maxSelfEmittedPower);
-    propagatedPower = rcv->area * ff * ColorRgbMath::maximumComponent(rhoSrcRad);
+    threshold = ElementHierarchyState::activeState().epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
+    propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
     if ( StochasticRelaxation::activeState().importanceDriven ) {
         propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {

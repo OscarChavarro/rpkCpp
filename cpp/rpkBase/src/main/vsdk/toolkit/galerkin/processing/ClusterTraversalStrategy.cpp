@@ -7,7 +7,7 @@ Reference:
 Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -214,13 +214,13 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0] = ColorRgbMath::addScaled(rcvRad[0], static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
+        rcvRad[0] = rcvRad[0].addScaled(static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
         int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
         int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( int alpha = 0; alpha < a; alpha++ ) {
             for ( int beta = 0; beta < b; beta++ ) {
-                rcvRad[alpha] = ColorRgbMath::addScaled(rcvRad[alpha], static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
+                rcvRad[alpha] = rcvRad[alpha].addScaled(static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
             }
         }
     }

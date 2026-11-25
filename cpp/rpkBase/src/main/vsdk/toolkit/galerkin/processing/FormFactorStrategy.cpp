@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -196,7 +196,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     RpkRay ray;
     ray.position = *y;
-    ray.direction = (*x).subtract(*y);
+    ray.direction = x->subtract(*y);
     double distance = ray.direction.length();
     ray.direction = ray.direction.multiplyByInverse(static_cast<float>(distance), Numeric::EPSILON_FLOAT);
 
@@ -399,7 +399,7 @@ FormFactorStrategy::computeInteractionError(
     Interaction *link)
 {
     // Compute error and write it to interaction deltaK
-    if ( ColorRgbMath::isBlack(sourceRadiance[0]) ) {
+    if ( sourceRadiance[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
         double gav = link->K[0] / receiverElement->area;
         link->deltaK = static_cast<float>(gMax - gav);
@@ -410,8 +410,8 @@ FormFactorStrategy::computeInteractionError(
         link->deltaK = 0.0;
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
             const ColorRgb difference(deltaRadiance[k][0], deltaRadiance[k][1], deltaRadiance[k][2]);
-            const ColorRgb relativeError = ColorRgbMath::divide(difference, sourceRadiance[0]);
-            double delta = java::Math::abs(ColorRgbMath::maximumComponent(relativeError));
+            const ColorRgb relativeError = difference.divide(sourceRadiance[0]);
+            double delta = java::Math::abs(relativeError.maximumComponent());
             if ( delta > link->deltaK ) {
                 link->deltaK = static_cast<float>(delta);
             }

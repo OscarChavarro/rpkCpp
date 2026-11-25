@@ -1,20 +1,7 @@
 #include <cstring>
-#include "vsdk/toolkit/common/VSDK.h"
-#include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
-
-namespace {
-
-bool
-isBlack(const ColorRgb &c) {
-    return java::Math::abs(c.getR()) < VSDK::EPSILON
-        && java::Math::abs(c.getG()) < VSDK::EPSILON
-        && java::Math::abs(c.getB()) < VSDK::EPSILON;
-}
-
-}
 
 RpkMaterial::RpkMaterial(
     const char *inName,
@@ -38,7 +25,7 @@ RpkMaterial::RpkMaterial(
     surfaceMaterial = new PhongMaterial(
         inName, reflection, transmission, emission, texture, inSided, refractionIndexReal, refractionIndexImaginary);
     if ( emission != nullptr ) {
-        if ( !isBlack(emission->getNonDiffuse()) ) {
+        if ( !emission->getNonDiffuse().isBlack() ) {
             Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
         }
         edf = new PhongEmittanceDistributionFunction(surfaceMaterial);

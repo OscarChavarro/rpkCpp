@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -285,8 +285,8 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
             float factor = rs->getPixXSize() * rs->getPixYSize()
                            * static_cast<float>(config->baseConfig->totalSamples);
 
-            if ( ColorRgbMath::average(f) > VSDK::EPSILON ) {
-                g = ColorRgbMath::scale(factor, f); // Undo part of flux to rad factor
+            if ( f.average() > VSDK::EPSILON ) {
+                g = f.multiply(factor); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,
                                         static_cast<int>(config->baseConfig->totalSamples), config->scaleSamples,

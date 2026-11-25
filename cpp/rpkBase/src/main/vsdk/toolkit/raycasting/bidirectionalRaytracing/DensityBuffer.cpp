@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -48,7 +48,7 @@ void
 DensityBuffer::add(float x, float y, const ColorRgb &color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * static_cast<float>(baseConfig->totalSamples);
-    if ( ColorRgbMath::average(color) > VSDK::EPSILON ) {
+    if ( color.average() > VSDK::EPSILON ) {
         const ColorRgb scaledColor = color.multiply(factor); // Undo part of flux to rad factor
 
         DensityHit hit(x, y, scaledColor);

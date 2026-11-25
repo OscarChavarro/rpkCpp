@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -312,7 +312,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
                     albedo = ColorRgb(0.0, 0.0, 0.0);
                 }
             }
-            if ( ColorRgbMath::average(albedo) < VSDK::EPSILON ) {
+            if ( albedo.average() < VSDK::EPSILON ) {
                 // Skip, no contribution anyway
                 numberOfSamples = 0;
             }
@@ -546,11 +546,10 @@ StochasticRaytracer::srGetDirectRadiance(
 
                             factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                       config->nextEventSamples);
-                            const ColorRgb radiance = ColorRgbMath::scaledProduct(
-                                prevNode->m_bsdfEval, static_cast<float>(factor), lightNode.m_bsdfEval);
+                            const ColorRgb radiance = prevNode->m_bsdfEval.multiply(static_cast<float>(factor)).multiply(lightNode.m_bsdfEval);
 
                             // Collect outgoing radiance
-                            result = ColorRgbMath::add(result, radiance);
+                            result = result.add(radiance);
                         } // if not photon map or no caustic path
 
                         // Next scatter info block
@@ -680,10 +679,10 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                     }
                 }
 
-                radiance = ColorRgbMath::subtract(radiance, diffEmit);
+                radiance = radiance.subtract(diffEmit);
             }
 
-            result = ColorRgbMath::add(result, radiance);
+            result = result.add(radiance);
 
         } // Done: Stored radiance, no self emitted light included!
 
@@ -691,11 +690,11 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
         if ( (config->radMode == RayTracingRadMode::STORED_PHOTON_MAP) && readout == StorageReadout::SCATTER ) {
             const PhotonMapRadianceMethod *photonMapMethod = static_cast<const PhotonMapRadianceMethod *>(radianceMethod);
             radiance = photonMapMethod->getNodeCRadiance(thisNode);
-            result = ColorRgbMath::add(result, radiance);
+            result = result.add(radiance);
         }
 
         radiance = srGetDirectRadiance(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, config, readout);
-        result = ColorRgbMath::add(result, radiance);
+        result = result.add(radiance);
 
         // Scattered light
         radiance = stochasticRaytracerGetScatteredRadiance(
@@ -708,7 +707,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 readout,
                 radianceMethod,
                 renderOptions);
-        result = ColorRgbMath::add(result, radiance);
+        result = result.add(radiance);
 
         // Emitted Light
         if ( config->radMode == RayTracingRadMode::STORED_PHOTON_MAP
@@ -767,7 +766,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 }
             }
 
-            result = ColorRgbMath::addScaled(result, static_cast<float>(weight), col);
+            result = result.addScaled(static_cast<float>(weight), col);
         }
     }
 
