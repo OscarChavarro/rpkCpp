@@ -16,6 +16,7 @@ class StratifiedSampling2D {
     int yStratum;
 
     static void getNumberOfDivisions(int samples, int *divs1, int *divs2);
+    static double sampleUnitInterval(uint64_t *sampleIndex);
 
  public:
     explicit StratifiedSampling2D(int nrSamples);

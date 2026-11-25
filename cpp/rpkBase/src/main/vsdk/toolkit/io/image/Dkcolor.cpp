@@ -47,7 +47,7 @@ DkColor::writeByteColors(BYTE_COLOR *scanline, int len, java::OutputStream *outp
 
     if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {
         // OOBs, write out flat
-        vsdk::PersistenceElement::writeBytes(
+        PersistenceElement::writeBytes(
             *outputStream,
             reinterpret_cast<unsigned char *>(scanline),
             static_cast<int>(sizeof(BYTE_COLOR) * len));

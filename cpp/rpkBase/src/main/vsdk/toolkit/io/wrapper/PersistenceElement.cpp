@@ -6,8 +6,6 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 
-namespace vsdk {
-
 const bool PersistenceElement::bigEndianArchitecture = false;
 unsigned char PersistenceElement::byteBuffer1byte[1] = {0};
 unsigned char PersistenceElement::byteBuffer2byte[2] = {0, 0};
@@ -1016,5 +1014,3 @@ PersistenceElement::extractExtensionFromFile(const java::File &fd) {
     javaFilename.dispose();
     return output;
 }
-
-} // namespace vsdk

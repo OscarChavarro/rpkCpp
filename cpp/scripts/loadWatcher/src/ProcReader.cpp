@@ -11,9 +11,8 @@
 
 #include "java/util/ArrayList.txx"
 
-namespace {
-
-bool isNumericName(const char *name) {
+bool
+ProcReader::isNumericName(const char *name) {
     if ( name == nullptr || *name == '\0' ) {
         return false;
     }
@@ -27,7 +26,8 @@ bool isNumericName(const char *name) {
     return true;
 }
 
-bool readProcessName(pid_t pid, std::string *name) {
+bool
+ProcReader::readProcessName(pid_t pid, std::string *name) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/comm", pid);
 
@@ -53,7 +53,8 @@ bool readProcessName(pid_t pid, std::string *name) {
     return true;
 }
 
-bool readCommandLine(pid_t pid, java::ArrayList<std::string> *arguments) {
+bool
+ProcReader::readCommandLine(pid_t pid, java::ArrayList<std::string> *arguments) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/cmdline", pid);
 
@@ -87,7 +88,8 @@ bool readCommandLine(pid_t pid, java::ArrayList<std::string> *arguments) {
     return arguments->size() > 0;
 }
 
-std::string chooseInputFile(const java::ArrayList<std::string> &arguments) {
+std::string
+ProcReader::chooseInputFile(const java::ArrayList<std::string> &arguments) {
     for ( long int i = 1; i < arguments.size(); i++ ) {
         if ( arguments[i].find("etc") != std::string::npos ) {
             return arguments[i];
@@ -101,7 +103,8 @@ std::string chooseInputFile(const java::ArrayList<std::string> &arguments) {
     return std::string();
 }
 
-bool readVirtualBytes(pid_t pid, unsigned long long *virtualBytes) {
+bool
+ProcReader::readVirtualBytes(pid_t pid, unsigned long long *virtualBytes) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/status", pid);
 
@@ -124,7 +127,8 @@ bool readVirtualBytes(pid_t pid, unsigned long long *virtualBytes) {
     return false;
 }
 
-bool readResidentBytes(pid_t pid, unsigned long long *rssBytes) {
+bool
+ProcReader::readResidentBytes(pid_t pid, unsigned long long *rssBytes) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/status", pid);
 
@@ -147,7 +151,8 @@ bool readResidentBytes(pid_t pid, unsigned long long *rssBytes) {
     return false;
 }
 
-bool readUserSeconds(pid_t pid, double *userSeconds) {
+bool
+ProcReader::readUserSeconds(pid_t pid, double *userSeconds) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/stat", pid);
 
@@ -188,7 +193,8 @@ bool readUserSeconds(pid_t pid, double *userSeconds) {
     return false;
 }
 
-bool readSnapshot(pid_t pid, ProcessSnapshot *snapshot) {
+bool
+ProcReader::readSnapshot(pid_t pid, ProcessSnapshot *snapshot) {
     java::ArrayList<std::string> arguments;
     unsigned long long rssBytes = 0;
     unsigned long long virtualBytes = 0;
@@ -211,8 +217,6 @@ bool readSnapshot(pid_t pid, ProcessSnapshot *snapshot) {
     snapshot->virtualBytes = virtualBytes;
     snapshot->userSeconds = userSeconds;
     return true;
-}
-
 }
 
 java::ArrayList<ProcessSnapshot>

@@ -1009,15 +1009,13 @@ HierarchicalRefinementStrategy::collectRefinementItems(
     }
 }
 
-namespace {
-
 /**
 Runs body(w) for w = 0 .. numberOfThreads - 1, each in its own thread, and
 waits for all
 */
 template<class F>
 void
-runWorkers(int numberOfThreads, const F &body) {
+HierarchicalRefinementStrategy::runWorkers(int numberOfThreads, const F &body) {
     java::ArrayList<java::Runnable *> tasks;
     java::ArrayList<java::Thread *> threads;
     for ( int w = 0; w < numberOfThreads; w++ ) {
@@ -1037,13 +1035,11 @@ runWorkers(int numberOfThreads, const F &body) {
 /**
 Worker owning the light transport writes of an element
 */
-inline int
-ownerOf(const GalerkinElement *element, int numberOfThreads) {
+int
+HierarchicalRefinementStrategy::ownerOf(const GalerkinElement *element, int numberOfThreads) {
     unsigned long long x = static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(element)) >> 4;
     x *= 0x9E3779B97F4A7C15ULL;
     return static_cast<int>((x >> 32) % static_cast<unsigned long long>(numberOfThreads));
-}
-
 }
 
 /**

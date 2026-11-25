@@ -23,6 +23,8 @@ class PhongBidirectionalScatteringDistributionFunction {
   private:
     const PhongMaterial *material;
 
+    static const PhongMaterial *mediumOf(const PhongBidirectionalScatteringDistributionFunction *bsdf);
+
   public:
     explicit PhongBidirectionalScatteringDistributionFunction(const PhongMaterial *inMaterial);
     virtual ~PhongBidirectionalScatteringDistributionFunction();

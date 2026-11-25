@@ -49,7 +49,7 @@ PicOutputHandle::writeFormatted(java::OutputStream *outputStream, const char *fo
     if ( text.isEmpty() ) {
         return;
     }
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBytes(
         *outputStream,
         reinterpret_cast<const unsigned char *>(text.toCString()),
         text.length());

@@ -45,7 +45,7 @@ VrmlWriter::writeFormatted(java::OutputStream *outputStream, const char *format,
         return;
     }
 
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBytes(
         *outputStream,
         reinterpret_cast<const unsigned char *>(text.toCString()),
         text.length());

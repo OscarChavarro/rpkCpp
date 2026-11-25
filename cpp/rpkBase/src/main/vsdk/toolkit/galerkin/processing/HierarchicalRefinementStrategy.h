@@ -184,6 +184,10 @@ class HierarchicalRefinementStrategy {
         GalerkinState *galerkinState,
         int numberOfThreads);
 
+    template<class F>
+    static void runWorkers(int numberOfThreads, const F &body);
+    static int ownerOf(const GalerkinElement *element, int numberOfThreads);
+
     static void receiverLightTransport(const Interaction *interaction, GalerkinState *galerkinState);
     static void sourceLightTransport(const Interaction *interaction, const GalerkinState *galerkinState);
 

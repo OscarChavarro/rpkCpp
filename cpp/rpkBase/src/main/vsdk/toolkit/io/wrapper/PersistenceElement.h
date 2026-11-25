@@ -5,8 +5,6 @@
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"
 
-namespace vsdk {
-
 /**
 A `PersistenceElement` in VitralSDK is a software element with
 algorithms and data structures (i.e. a class) with the specific functionality
@@ -142,7 +140,5 @@ class PersistenceElement {
     static bool endsWithCString(const char *text, const char *suffix);
     static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
 };
-
-}
 
 #endif

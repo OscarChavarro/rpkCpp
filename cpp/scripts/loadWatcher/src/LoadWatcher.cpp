@@ -9,12 +9,10 @@
 #include "ProcReader.h"
 #include "ProcessSnapshot.h"
 
-namespace {
+const char *const LoadWatcher::TARGET_PROCESS_NAME = "rpk";
 
-const char *TARGET_PROCESS_NAME = "rpk";
-const unsigned int POLL_INTERVAL_SECONDS = 1;
-
-void printProcessReport(const ProcessStats &stats) {
+void
+LoadWatcher::printProcessReport(const ProcessStats &stats) {
     const char *inputFile = stats.inputFile.empty() ? "<unknown>" : stats.inputFile.c_str();
     printf(
         "Process rpk file=%s pid=%d rss_min_bytes=%llu rss_max_bytes=%llu vmem_min_bytes=%llu vmem_max_bytes=%llu user_time_min_seconds=%.6f user_time_max_seconds=%.6f\n",
@@ -27,8 +25,6 @@ void printProcessReport(const ProcessStats &stats) {
         stats.minUserSeconds,
         stats.maxUserSeconds);
     fflush(stdout);
-}
-
 }
 
 int

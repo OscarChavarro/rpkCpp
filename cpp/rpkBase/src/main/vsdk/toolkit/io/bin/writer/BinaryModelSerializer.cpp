@@ -51,7 +51,7 @@ BinaryModelSerializer::writeBytesChunked(java::OutputStream &output, const unsig
     while ( offset < length ) {
         const long long remaining = length - offset;
         const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
-        vsdk::PersistenceElement::writeBytes(output, data + offset, chunk);
+        PersistenceElement::writeBytes(output, data + offset, chunk);
         offset += static_cast<long long>(chunk);
     }
     return true;
@@ -59,7 +59,7 @@ BinaryModelSerializer::writeBytesChunked(java::OutputStream &output, const unsig
 
 void
 BinaryModelSerializer::writeTag(java::OutputStream &output, const char tag[4]) {
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(tag),
         4);
@@ -79,7 +79,7 @@ BinaryModelSerializer::checkedLongToInt32(long value, const char *what, int &res
 bool
 BinaryModelSerializer::writeString(java::OutputStream &output, const char *text) {
     if ( text == nullptr ) {
-        vsdk::PersistenceElement::writeInt32LE(output, -1);
+        PersistenceElement::writeInt32LE(output, -1);
         return true;
     }
     const long size = static_cast<long>(std::strlen(text));
@@ -87,9 +87,9 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
     if ( !checkedLongToInt32(size, "string length", sizeAsInt32) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, sizeAsInt32);
+    PersistenceElement::writeInt32LE(output, sizeAsInt32);
     if ( size > 0 ) {
-        vsdk::PersistenceElement::writeBytes(
+        PersistenceElement::writeBytes(
             output,
             reinterpret_cast<const unsigned char *>(text),
             static_cast<int>(size));
@@ -99,22 +99,22 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
 
 void
 BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
-    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
-    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
-    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));
+    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
+    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
+    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));
 }
 
 void
 BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3Df &vector) {
-    vsdk::PersistenceElement::writeFloatLE(output, vector.x());
-    vsdk::PersistenceElement::writeFloatLE(output, vector.y());
-    vsdk::PersistenceElement::writeFloatLE(output, vector.z());
+    PersistenceElement::writeFloatLE(output, vector.x());
+    PersistenceElement::writeFloatLE(output, vector.y());
+    PersistenceElement::writeFloatLE(output, vector.z());
 }
 
 void
 BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const RpkAxisAlignedBoundingBox &boundingBox) {
     for ( int i = 0; i < 6; i++ ) {
-        vsdk::PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
+        PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
     }
 }
 
@@ -148,7 +148,7 @@ BinaryModelSerializer::writeIndexList(
     const char *what)
 {
     if ( list == nullptr ) {
-        vsdk::PersistenceElement::writeInt32LE(output, -1);
+        PersistenceElement::writeInt32LE(output, -1);
         return true;
     }
 
@@ -156,14 +156,14 @@ BinaryModelSerializer::writeIndexList(
     if ( !checkedLongToInt32(list->size(), what, size) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, size);
+    PersistenceElement::writeInt32LE(output, size);
     for ( int i = 0; i < size; i++ ) {
         const T *element = list->get(i);
         int elementIndex = -1;
         if ( !indexOfPointer(element, indices, what, elementIndex) ) {
             return false;
         }
-        vsdk::PersistenceElement::writeInt32LE(output, elementIndex);
+        PersistenceElement::writeInt32LE(output, elementIndex);
     }
     return true;
 }
@@ -173,42 +173,42 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Rpk
     if ( !writeString(output, material->getName()) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeBool(output, material->isSided());
+    PersistenceElement::writeBool(output, material->isSided());
 
     const PhongMaterial *surfaceMaterial = material->getSurfaceMaterial();
     const PhongLobe *emission = material->getEdf() != nullptr ? surfaceMaterial->getEmission() : nullptr;
-    vsdk::PersistenceElement::writeBool(output, emission != nullptr);
+    PersistenceElement::writeBool(output, emission != nullptr);
     if ( emission != nullptr ) {
         writeColor(output, emission->getDiffuse());
         writeColor(output, emission->getNonDiffuse());
-        vsdk::PersistenceElement::writeFloatLE(output, emission->getExponent());
+        PersistenceElement::writeFloatLE(output, emission->getExponent());
     }
 
-    vsdk::PersistenceElement::writeBool(output, material->getBsdf() != nullptr);
+    PersistenceElement::writeBool(output, material->getBsdf() != nullptr);
     if ( material->getBsdf() == nullptr ) {
         return true;
     }
 
     const PhongLobe *reflection = surfaceMaterial->getReflection();
-    vsdk::PersistenceElement::writeBool(output, reflection != nullptr);
+    PersistenceElement::writeBool(output, reflection != nullptr);
     if ( reflection != nullptr ) {
         writeColor(output, reflection->getDiffuse());
         writeColor(output, reflection->getNonDiffuse());
-        vsdk::PersistenceElement::writeFloatLE(output, reflection->getExponent());
+        PersistenceElement::writeFloatLE(output, reflection->getExponent());
     }
 
     const PhongLobe *transmission = surfaceMaterial->getTransmission();
-    vsdk::PersistenceElement::writeBool(output, transmission != nullptr);
+    PersistenceElement::writeBool(output, transmission != nullptr);
     if ( transmission != nullptr ) {
         writeColor(output, transmission->getDiffuse());
         writeColor(output, transmission->getNonDiffuse());
-        vsdk::PersistenceElement::writeFloatLE(output, transmission->getExponent());
-        vsdk::PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexReal());
-        vsdk::PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexImaginary());
+        PersistenceElement::writeFloatLE(output, transmission->getExponent());
+        PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexReal());
+        PersistenceElement::writeFloatLE(output, surfaceMaterial->getStoredRefractionIndexImaginary());
     }
 
     const Texture *texture = surfaceMaterial->getTexture();
-    vsdk::PersistenceElement::writeBool(output, texture != nullptr);
+    PersistenceElement::writeBool(output, texture != nullptr);
     if ( texture != nullptr ) {
         const int width = texture->getWidth();
         const int height = texture->getHeight();
@@ -218,14 +218,14 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Rpk
             return false;
         }
 
-        vsdk::PersistenceElement::writeInt32LE(output, width);
-        vsdk::PersistenceElement::writeInt32LE(output, height);
-        vsdk::PersistenceElement::writeInt32LE(output, channels);
+        PersistenceElement::writeInt32LE(output, width);
+        PersistenceElement::writeInt32LE(output, height);
+        PersistenceElement::writeInt32LE(output, channels);
 
         const long long dataBytes = static_cast<long long>(width)
                                   * static_cast<long long>(height)
                                   * static_cast<long long>(channels);
-        vsdk::PersistenceElement::writeInt64LE(output, dataBytes);
+        PersistenceElement::writeInt64LE(output, dataBytes);
 
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
@@ -243,15 +243,15 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Rpk
 
 void
 BinaryModelSerializer::writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext) {
-    vsdk::PersistenceElement::writeInt32LE(output, colorContext->clock);
-    vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->flags);
+    PersistenceElement::writeInt32LE(output, colorContext->clock);
+    PersistenceElement::writeSignedShortLE(output, colorContext->flags);
     for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-        vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->straightSamples[i]);
+        PersistenceElement::writeSignedShortLE(output, colorContext->straightSamples[i]);
     }
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(colorContext->spectralStraightSum));
-    vsdk::PersistenceElement::writeFloatLE(output, colorContext->cx);
-    vsdk::PersistenceElement::writeFloatLE(output, colorContext->cy);
-    vsdk::PersistenceElement::writeFloatLE(output, colorContext->eff);
+    PersistenceElement::writeInt64LE(output, static_cast<long long>(colorContext->spectralStraightSum));
+    PersistenceElement::writeFloatLE(output, colorContext->cx);
+    PersistenceElement::writeFloatLE(output, colorContext->cy);
+    PersistenceElement::writeFloatLE(output, colorContext->eff);
 }
 
 bool
@@ -260,37 +260,37 @@ BinaryModelSerializer::writeReaderContextRecord(
     const ReaderContext *readerContext,
     const BinaryModelSerializationGraph &context)
 {
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(readerContext->fileName),
         96);
-    vsdk::PersistenceElement::writeBool(output, readerContext->inputStream != nullptr);
-    vsdk::PersistenceElement::writeInt32LE(output, readerContext->fileContextId);
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBool(output, readerContext->inputStream != nullptr);
+    PersistenceElement::writeInt32LE(output, readerContext->fileContextId);
+    PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(readerContext->inputLine),
         ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH);
-    vsdk::PersistenceElement::writeInt32LE(output, readerContext->lineNumber);
-    vsdk::PersistenceElement::writeByte(output, static_cast<unsigned char>(readerContext->isPipe));
+    PersistenceElement::writeInt32LE(output, readerContext->lineNumber);
+    PersistenceElement::writeByte(output, static_cast<unsigned char>(readerContext->isPipe));
 
     int previousIndex = -1;
     if ( !indexOfPointer(readerContext->prev, context.readerContextIndices, "readerContext.prev", previousIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, previousIndex);
+    PersistenceElement::writeInt32LE(output, previousIndex);
     return true;
 }
 
 void
 BinaryModelSerializer::writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray) {
-    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
-    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
-    vsdk::PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
+    PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
+    PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
+    PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
+    PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
     for ( int i = 0; i < TransformSequenceContext::TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
-        vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].i);
-        vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].n);
-        vsdk::PersistenceElement::writeBytes(
+        PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].i);
+        PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].n);
+        PersistenceElement::writeBytes(
             output,
             reinterpret_cast<const unsigned char *>(transformArray->transformArguments[i].arg),
             8);
@@ -303,16 +303,16 @@ BinaryModelSerializer::writeTransformContextRecord(
     const TransformStackContext *transformContext,
     const BinaryModelSerializationGraph &context)
 {
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformContext->xid));
-    vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->xac);
-    vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->rev);
+    PersistenceElement::writeInt64LE(output, static_cast<long long>(transformContext->xid));
+    PersistenceElement::writeSignedShortLE(output, transformContext->xac);
+    PersistenceElement::writeSignedShortLE(output, transformContext->rev);
 
     for ( int i = 0; i < 4; i++ ) {
         for ( int j = 0; j < 4; j++ ) {
-            vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.transformMatrix.get(i, j));
+            PersistenceElement::writeDoubleLE(output, transformContext->xf.transformMatrix.get(i, j));
         }
     }
-    vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.scaleFactor);
+    PersistenceElement::writeDoubleLE(output, transformContext->xf.scaleFactor);
 
     int transformArrayIndex = -1;
     if ( !indexOfPointer(
@@ -322,37 +322,37 @@ BinaryModelSerializer::writeTransformContextRecord(
              transformArrayIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, transformArrayIndex);
+    PersistenceElement::writeInt32LE(output, transformArrayIndex);
 
     int previousIndex = -1;
     if ( !indexOfPointer(transformContext->prev, context.transformContextIndices, "transformContext.prev", previousIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, previousIndex);
+    PersistenceElement::writeInt32LE(output, previousIndex);
     return true;
 }
 
 bool
 BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const RpkVertex *vertex, const BinaryModelSerializationGraph &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
+    PersistenceElement::writeInt32LE(output, vertex->id);
 
     int pointIndex = -1;
     if ( !indexOfPointer(vertex->point, context.vectorIndices, "vertex.point", pointIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, pointIndex);
+    PersistenceElement::writeInt32LE(output, pointIndex);
 
     int normalIndex = -1;
     if ( !indexOfPointer(vertex->normal, context.vectorIndices, "vertex.normal", normalIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, normalIndex);
+    PersistenceElement::writeInt32LE(output, normalIndex);
 
     int textureIndex = -1;
     if ( !indexOfPointer(vertex->textureCoordinates, context.vectorIndices, "vertex.textureCoordinates", textureIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, textureIndex);
+    PersistenceElement::writeInt32LE(output, textureIndex);
 
     writeColor(output, vertex->color);
 
@@ -360,62 +360,62 @@ BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const RpkVe
     if ( !indexOfPointer(vertex->back, context.vertexIndices, "vertex.back", backIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, backIndex);
+    PersistenceElement::writeInt32LE(output, backIndex);
 
-    vsdk::PersistenceElement::writeInt32LE(output, vertex->tmp);
-    vsdk::PersistenceElement::writeBool(output, vertex->radianceData != nullptr);
+    PersistenceElement::writeInt32LE(output, vertex->tmp);
+    PersistenceElement::writeBool(output, vertex->radianceData != nullptr);
     return writeIndexList(output, vertex->patches, context.patchIndices, "vertex.patches");
 }
 
 bool
 BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelSerializationGraph &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getId()));
+    PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getId()));
 
     int twinIndex = -1;
     if ( !indexOfPointer(patch->getTwin(), context.patchIndices, "patch.twin", twinIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, twinIndex);
+    PersistenceElement::writeInt32LE(output, twinIndex);
 
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getNumberOfVertices()));
+    PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getNumberOfVertices()));
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
         int vertexIndex = -1;
         if ( !indexOfPointer(patch->getVertices()[i], context.vertexIndices, "patch.vertex", vertexIndex) ) {
             return false;
         }
-        vsdk::PersistenceElement::writeInt32LE(output, vertexIndex);
+        PersistenceElement::writeInt32LE(output, vertexIndex);
     }
 
     // The format keeps the patch's box; it is derived from the vertices
     RpkAxisAlignedBoundingBox patchBounds;
     patch->computeBounds(&patchBounds);
-    vsdk::PersistenceElement::writeBool(output, true);
+    PersistenceElement::writeBool(output, true);
     writeBoundingBox(output, patchBounds);
 
     writeVector(output, patch->getNormal());
-    vsdk::PersistenceElement::writeFloatLE(output, patch->getPlaneConstant());
-    vsdk::PersistenceElement::writeFloatLE(output, patch->getTolerance());
-    vsdk::PersistenceElement::writeFloatLE(output, patch->getArea());
+    PersistenceElement::writeFloatLE(output, patch->getPlaneConstant());
+    PersistenceElement::writeFloatLE(output, patch->getTolerance());
+    PersistenceElement::writeFloatLE(output, patch->getArea());
     writeVector(output, patch->midPoint());
 
     const PlanarFace &face = patch->getFace();
-    vsdk::PersistenceElement::writeBool(output, face.hasJacobian());
+    PersistenceElement::writeBool(output, face.hasJacobian());
     if ( face.hasJacobian() ) {
-        vsdk::PersistenceElement::writeFloatLE(output, face.getJacobianA());
-        vsdk::PersistenceElement::writeFloatLE(output, face.getJacobianB());
-        vsdk::PersistenceElement::writeFloatLE(output, face.getJacobianC());
+        PersistenceElement::writeFloatLE(output, face.getJacobianA());
+        PersistenceElement::writeFloatLE(output, face.getJacobianB());
+        PersistenceElement::writeFloatLE(output, face.getJacobianC());
     }
 
     // Direct potential: per-face solver data, not part of the model; written as
     // zero, the value every face starts with, so the file format is unchanged
-    vsdk::PersistenceElement::writeFloatLE(output, 0.0F);
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
+    PersistenceElement::writeFloatLE(output, 0.0F);
+    PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
     // Omit flag: faces are excluded per query by the shaft's omit set, never
     // by a per-face flag; written false, as it always was
-    vsdk::PersistenceElement::writeBool(output, false);
+    PersistenceElement::writeBool(output, false);
     // Flags byte (direct visibility): per-face solver data, written cleared, the
     // value every face starts with, so the file format is unchanged
-    vsdk::PersistenceElement::writeByte(output, 0);
+    PersistenceElement::writeByte(output, 0);
     // Display color: per-face display data, written black, the color every face
     // starts with, so the file format is unchanged
     writeColor(output, ColorRgb(0.0, 0.0, 0.0));
@@ -424,41 +424,41 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     if ( !indexOfPointer(patch->getMaterial(), context.materialIndices, "patch.material", materialIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
+    PersistenceElement::writeInt32LE(output, materialIndex);
 
     // Radiance elements are per-face solver state held by the scene's
     // RadianceElementTable, never serialized
-    vsdk::PersistenceElement::writeBool(output, false);
+    PersistenceElement::writeBool(output, false);
     return true;
 }
 
 bool
 BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const RpkGeometry *geometry, const BinaryModelSerializationGraph &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
-    vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
-    vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
-    vsdk::PersistenceElement::writeBool(output, geometry->bounded != 0);
-    vsdk::PersistenceElement::writeBool(output, geometry->shaftCullGeometry != 0);
+    PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
+    PersistenceElement::writeInt32LE(output, geometry->id);
+    PersistenceElement::writeInt32LE(output, geometry->itemCount);
+    PersistenceElement::writeBool(output, geometry->bounded != 0);
+    PersistenceElement::writeBool(output, geometry->shaftCullGeometry != 0);
     // Omit flag: geometries were never omitted at run time (the shaft's omit set
     // excludes patches per query); written false, as it always was
-    vsdk::PersistenceElement::writeBool(output, false);
-    vsdk::PersistenceElement::writeBool(output, geometry->isDuplicate);
+    PersistenceElement::writeBool(output, false);
+    PersistenceElement::writeBool(output, geometry->isDuplicate);
     writeBoundingBox(output, geometry->boundingBox);
-    vsdk::PersistenceElement::writeBool(output, false);
-    vsdk::PersistenceElement::writeBool(output, geometry->radianceData != nullptr);
+    PersistenceElement::writeBool(output, false);
+    PersistenceElement::writeBool(output, geometry->radianceData != nullptr);
 
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         const MeshSurface *surface = static_cast<const MeshSurface *>(geometry);
         if ( !writeString(output, surface->objectName) ) {
             return false;
         }
-        vsdk::PersistenceElement::writeInt32LE(output, surface->meshId);
+        PersistenceElement::writeInt32LE(output, surface->meshId);
 
         int materialIndex = -1;
         if ( !indexOfPointer(surface->material, context.materialIndices, "surface.material", materialIndex) ) {
             return false;
         }
-        vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
+        PersistenceElement::writeInt32LE(output, materialIndex);
 
         if ( !writeIndexList(output, surface->positions, context.vectorIndices, "surface.positions") ) {
             return false;
@@ -495,7 +495,7 @@ BinaryModelSerializer::writeModelRecord(java::OutputStream &output, const ParseS
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, currentColorIndex);
+    PersistenceElement::writeInt32LE(output, currentColorIndex);
 
     if ( !writeString(output, model->currentMaterialName) ) {
         return false;
@@ -507,22 +507,22 @@ BinaryModelSerializer::writeModelRecord(java::OutputStream &output, const ParseS
         return false;
     }
 
-    vsdk::PersistenceElement::writeInt32LE(output, model->geometryStackHeadIndex);
-    vsdk::PersistenceElement::writeBool(output, model->inComplex);
-    vsdk::PersistenceElement::writeBool(output, model->inSurface);
-    vsdk::PersistenceElement::writeBool(output, model->monochrome);
+    PersistenceElement::writeInt32LE(output, model->geometryStackHeadIndex);
+    PersistenceElement::writeBool(output, model->inComplex);
+    PersistenceElement::writeBool(output, model->inSurface);
+    PersistenceElement::writeBool(output, model->monochrome);
 
     int readerContextIndex = -1;
     if ( !indexOfPointer(model->readerContext, context.readerContextIndices, "model.readerContext", readerContextIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, readerContextIndex);
+    PersistenceElement::writeInt32LE(output, readerContextIndex);
 
     int transformContextIndex = -1;
     if ( !indexOfPointer(model->transformContext, context.transformContextIndices, "model.transformContext", transformContextIndex) ) {
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, transformContextIndex);
+    PersistenceElement::writeInt32LE(output, transformContextIndex);
 
     if ( !writeIndexList(output, model->currentFaceList, context.patchIndices, "model.currentFaceList") ) {
         return false;
@@ -568,74 +568,74 @@ BinaryModelSerializer::write(const ParseSnapshotContext *model, const char *file
         return false;
     }
 
-    vsdk::PersistenceElement::writeBytes(output, BINARY_MODEL_MAGIC, 16);
-    vsdk::PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(void *)));
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(long)));
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(ParseSnapshotContext)));
+    PersistenceElement::writeBytes(output, BINARY_MODEL_MAGIC, 16);
+    PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
+    PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(void *)));
+    PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(long)));
+    PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(ParseSnapshotContext)));
 
     int vectorsCount = 0;
     if ( !checkedLongToInt32(context.vectors.size(), "vectors count", vectorsCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, vectorsCount);
+    PersistenceElement::writeInt32LE(output, vectorsCount);
 
     int verticesCount = 0;
     if ( !checkedLongToInt32(context.vertices.size(), "vertices count", verticesCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, verticesCount);
+    PersistenceElement::writeInt32LE(output, verticesCount);
 
     int patchesCount = 0;
     if ( !checkedLongToInt32(context.patches.size(), "patches count", patchesCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, patchesCount);
+    PersistenceElement::writeInt32LE(output, patchesCount);
 
     int materialsCount = 0;
     if ( !checkedLongToInt32(context.materials.size(), "materials count", materialsCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, materialsCount);
+    PersistenceElement::writeInt32LE(output, materialsCount);
 
     int geometriesCount = 0;
     if ( !checkedLongToInt32(context.geometries.size(), "geometries count", geometriesCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, geometriesCount);
+    PersistenceElement::writeInt32LE(output, geometriesCount);
 
     int colorContextsCount = 0;
     if ( !checkedLongToInt32(context.colorContexts.size(), "color contexts count", colorContextsCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, colorContextsCount);
+    PersistenceElement::writeInt32LE(output, colorContextsCount);
 
     int readerContextsCount = 0;
     if ( !checkedLongToInt32(context.readerContexts.size(), "reader contexts count", readerContextsCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, readerContextsCount);
+    PersistenceElement::writeInt32LE(output, readerContextsCount);
 
     int transformArraysCount = 0;
     if ( !checkedLongToInt32(context.transformArrays.size(), "transform arrays count", transformArraysCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, transformArraysCount);
+    PersistenceElement::writeInt32LE(output, transformArraysCount);
 
     int transformContextsCount = 0;
     if ( !checkedLongToInt32(context.transformContexts.size(), "transform contexts count", transformContextsCount) ) {
         output.close();
         return false;
     }
-    vsdk::PersistenceElement::writeInt32LE(output, transformContextsCount);
+    PersistenceElement::writeInt32LE(output, transformContextsCount);
 
     writeTag(output, "VEC3");
     for ( long int i = 0; i < context.vectors.size(); i++ ) {

@@ -75,7 +75,7 @@ GalerkinRadianceMethod::writeFormatted(const char *format, ...) {
         return;
     }
 
-    vsdk::PersistenceElement::writeBytes(
+    PersistenceElement::writeBytes(
         *vrmlOutputStream,
         reinterpret_cast<const unsigned char *>(text.toCString()),
         text.length());

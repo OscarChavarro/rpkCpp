@@ -40,7 +40,7 @@ BinaryModelReadPrimitives::readBytes(java::InputStream &input, unsigned char *bu
     if ( length <= 0 ) {
         return;
     }
-    vsdk::PersistenceElement::readBytes(input, buffer, length);
+    PersistenceElement::readBytes(input, buffer, length);
 }
 
 bool
@@ -62,7 +62,7 @@ BinaryModelReadPrimitives::readBytesChunked(java::InputStream &input, unsigned c
 
 unsigned char
 BinaryModelReadPrimitives::readByte(java::InputStream &input) {
-    return static_cast<unsigned char>(vsdk::PersistenceElement::readByteUnsignedInt(input));
+    return static_cast<unsigned char>(PersistenceElement::readByteUnsignedInt(input));
 }
 
 bool
@@ -72,12 +72,12 @@ BinaryModelReadPrimitives::readBool(java::InputStream &input) {
 
 short
 BinaryModelReadPrimitives::readInt16LE(java::InputStream &input) {
-    return static_cast<short>(vsdk::PersistenceElement::readSignedShortLE(input));
+    return static_cast<short>(PersistenceElement::readSignedShortLE(input));
 }
 
 int
 BinaryModelReadPrimitives::readInt32LE(java::InputStream &input) {
-    const long value = vsdk::PersistenceElement::readLongLE(input);
+    const long value = PersistenceElement::readLongLE(input);
     return static_cast<int>(value);
 }
 
@@ -94,12 +94,12 @@ BinaryModelReadPrimitives::readInt64LE(java::InputStream &input) {
 
 float
 BinaryModelReadPrimitives::readFloatLE(java::InputStream &input) {
-    return vsdk::PersistenceElement::readFloatLE(input);
+    return PersistenceElement::readFloatLE(input);
 }
 
 double
 BinaryModelReadPrimitives::readDoubleLE(java::InputStream &input) {
-    return vsdk::PersistenceElement::readDoubleLE(input);
+    return PersistenceElement::readDoubleLE(input);
 }
 
 bool

@@ -14,18 +14,14 @@
     #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 #endif
 
-namespace {
-
 void
-countRay(SceneQueryWorkspace *workspace) {
+RayTools::countRay(SceneQueryWorkspace *workspace) {
     long *count = workspace->getRayCount();
     if ( count != nullptr ) {
         ++*count;
     } else {
         Statistics::instance().rayTracer.rayCount++;
     }
-}
-
 }
 
 int

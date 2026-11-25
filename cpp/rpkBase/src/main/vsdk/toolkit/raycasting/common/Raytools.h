@@ -42,6 +42,7 @@ class RayTools {
 
   private:
     static int pathFrontHitFlags();
+    static void countRay(SceneQueryWorkspace *workspace);
 
     static RpkRayHit *
     traceWorld(
