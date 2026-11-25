@@ -1,5 +1,5 @@
-#ifndef BI_DIRECTIONAL_PATH__
-#define BI_DIRECTIONAL_PATH__
+#ifndef __BIDIRECTIONAL_PATH_RAYTRACER__
+#define __BIDIRECTIONAL_PATH_RAYTRACER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

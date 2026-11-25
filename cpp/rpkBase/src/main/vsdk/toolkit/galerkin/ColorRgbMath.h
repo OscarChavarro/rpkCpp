@@ -1,5 +1,5 @@
-#ifndef COLOR_RGB_MATH__
-#define COLOR_RGB_MATH__
+#ifndef __COLOR_RGB_MATH__
+#define __COLOR_RGB_MATH__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 

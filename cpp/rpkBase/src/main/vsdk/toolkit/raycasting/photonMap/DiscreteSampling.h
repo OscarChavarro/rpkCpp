@@ -1,5 +1,5 @@
-#ifndef SAMPLING__
-#define SAMPLING__
+#ifndef __DISCRETE_SAMPLING__
+#define __DISCRETE_SAMPLING__
 
 class DiscreteSampling {
   public:

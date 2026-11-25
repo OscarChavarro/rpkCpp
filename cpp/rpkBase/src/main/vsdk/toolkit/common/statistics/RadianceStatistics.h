@@ -1,5 +1,5 @@
-#ifndef RADIANCE_STATISTICS__
-#define RADIANCE_STATISTICS__
+#ifndef __RADIANCE_STATISTICS__
+#define __RADIANCE_STATISTICS__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 

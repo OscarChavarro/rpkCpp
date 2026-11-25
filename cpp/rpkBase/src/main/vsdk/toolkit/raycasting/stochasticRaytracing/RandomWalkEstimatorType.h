@@ -1,5 +1,5 @@
-#ifndef RANDOM_WALK_ESTIMATOR_TYPE__
-#define RANDOM_WALK_ESTIMATOR_TYPE__
+#ifndef __RANDOM_WALK_ESTIMATOR_TYPE__
+#define __RANDOM_WALK_ESTIMATOR_TYPE__
 
 enum RandomWalkEstimatorType {
     RW_SHOOTING,

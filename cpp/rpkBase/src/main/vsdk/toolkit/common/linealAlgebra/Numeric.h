@@ -1,5 +1,5 @@
-#ifndef NUMERIC__
-#define NUMERIC__
+#ifndef __NUMERIC__
+#define __NUMERIC__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 

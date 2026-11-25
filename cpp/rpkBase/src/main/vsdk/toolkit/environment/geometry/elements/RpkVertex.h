@@ -1,5 +1,5 @@
-#ifndef RPK_VERTEX__
-#define RPK_VERTEX__
+#ifndef __RPK_VERTEX__
+#define __RPK_VERTEX__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

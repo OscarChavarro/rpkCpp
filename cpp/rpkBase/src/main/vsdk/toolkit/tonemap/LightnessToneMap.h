@@ -1,5 +1,5 @@
-#ifndef TONE_MAP_LIGHTNESS__
-#define TONE_MAP_LIGHTNESS__
+#ifndef __LIGHTNESS_TONE_MAP__
+#define __LIGHTNESS_TONE_MAP__
 
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 

@@ -1,5 +1,5 @@
-#ifndef TRANSFORM_STACK__
-#define TRANSFORM_STACK__
+#ifndef __TRANSFORM_SCOPE_CONTEXT__
+#define __TRANSFORM_SCOPE_CONTEXT__
 
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
 

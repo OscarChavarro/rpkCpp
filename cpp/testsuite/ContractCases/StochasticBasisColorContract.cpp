@@ -8,7 +8,7 @@ static double negativeHalf(double, double) { return -0.5; }
 
 int main() {
     double (*functions[])(double, double) = {one, quarter, negativeHalf};
-    GalerkinBasis basis = {"contract", 3, functions, functions, nullptr};
+    StochasticRadiosityBasis basis = {"contract", 3, functions, functions, nullptr};
     const ColorRgb coefficients[] = {
         ColorRgb(1, 2, 3), ColorRgb(4, 8, 12), ColorRgb(4, 2, 8)
     };

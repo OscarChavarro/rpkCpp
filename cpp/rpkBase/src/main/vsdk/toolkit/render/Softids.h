@@ -3,8 +3,8 @@ Software ID rendering: because hardware ID rendering is tricky
 due to frame buffer formats, etc.
 */
 
-#ifndef SOFT_IDS__
-#define SOFT_IDS__
+#ifndef __SOFTIDS__
+#define __SOFTIDS__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"

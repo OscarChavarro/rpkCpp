@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_BUILD_STATE__
-#define GEOMETRY_BUILD_STATE__
+#ifndef __GEOMETRY_ASSEMBLY_CONTEXT__
+#define __GEOMETRY_ASSEMBLY_CONTEXT__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

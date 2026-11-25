@@ -1,5 +1,5 @@
-#ifndef SPAR_PATH_GROUP__
-#define SPAR_PATH_GROUP__
+#ifndef __SPAR_PATH_GROUP__
+#define __SPAR_PATH_GROUP__
 
 class SparPathGroupInfo final {
   public:

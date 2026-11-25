@@ -1,5 +1,5 @@
-#ifndef UNIFORM_LIGHT_SAMPLER__
-#define UNIFORM_LIGHT_SAMPLER__
+#ifndef __UNIFORM_LIGHT_SAMPLER__
+#define __UNIFORM_LIGHT_SAMPLER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

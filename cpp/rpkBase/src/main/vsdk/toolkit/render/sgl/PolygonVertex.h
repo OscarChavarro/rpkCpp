@@ -1,5 +1,5 @@
-#ifndef POLYGON_VERTEX__
-#define POLYGON_VERTEX__
+#ifndef __POLYGON_VERTEX__
+#define __POLYGON_VERTEX__
 
 class PolygonVertex {
   public:

@@ -1,5 +1,5 @@
-#ifndef RAY_MATTER__
-#define RAY_MATTER__
+#ifndef __RAY_MATTER__
+#define __RAY_MATTER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

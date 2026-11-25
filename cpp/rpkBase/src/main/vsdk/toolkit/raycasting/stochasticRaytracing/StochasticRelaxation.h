@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACING_STATE__
-#define STOCHASTIC_RAYTRACING_STATE__
+#ifndef __STOCHASTIC_RELAXATION__
+#define __STOCHASTIC_RELAXATION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorKind.h"

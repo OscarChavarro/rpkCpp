@@ -1,5 +1,5 @@
-#ifndef OPTIONS_GROUP_STOCHASTIC_RAYTRACING__
-#define OPTIONS_GROUP_STOCHASTIC_RAYTRACING__
+#ifndef __OPTIONS_GROUP_STOCHASTIC_RAYTRACING__
+#define __OPTIONS_GROUP_STOCHASTIC_RAYTRACING__
 
 #include "options/EnumDesc.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRayTracingState.h"

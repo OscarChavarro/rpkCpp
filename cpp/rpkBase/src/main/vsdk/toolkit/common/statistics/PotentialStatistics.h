@@ -1,5 +1,5 @@
-#ifndef POTENTIAL_STATISTICS__
-#define POTENTIAL_STATISTICS__
+#ifndef __POTENTIAL_STATISTICS__
+#define __POTENTIAL_STATISTICS__
 
 class PotentialStatistics {
   public:

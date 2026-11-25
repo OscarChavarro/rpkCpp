@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_CLASS_ID__
-#define GEOMETRY_CLASS_ID__
+#ifndef __GEOMETRY_CLASS_ID__
+#define __GEOMETRY_CLASS_ID__
 
 enum GeometryClassId {
     PATCH_SET,

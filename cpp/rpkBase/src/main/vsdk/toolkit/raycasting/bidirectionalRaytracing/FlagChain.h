@@ -6,8 +6,8 @@ A flag chain corresponds to a scattering mode
 A chain list is a set of scattering modes
 */
 
-#ifndef FLAG_CHAIN__
-#define FLAG_CHAIN__
+#ifndef __FLAG_CHAIN__
+#define __FLAG_CHAIN__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/dataStructures/CircularList.h"

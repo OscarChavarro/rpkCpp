@@ -1,5 +1,5 @@
-#ifndef GALERKIN_OPENGL_RENDERER__
-#define GALERKIN_OPENGL_RENDERER__
+#ifndef __GALERKIN_OPEN_GL_RENDERER__
+#define __GALERKIN_OPEN_GL_RENDERER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"

@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_CAMERA_OPTIONS_GROUP__
-#define COMMAND_LINE_CAMERA_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_CAMERA__
+#define __OPTIONS_GROUP_CAMERA__
 
 #include "vsdk/toolkit/scene/Camera.h"
 

@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_RENDER_OPTIONS_GROUP__
-#define COMMAND_LINE_RENDER_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_RENDER__
+#define __OPTIONS_GROUP_RENDER__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"

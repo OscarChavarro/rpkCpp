@@ -1,5 +1,5 @@
-#ifndef REFINEMENT_WORKSPACE__
-#define REFINEMENT_WORKSPACE__
+#ifndef __REFINEMENT_WORKSPACE__
+#define __REFINEMENT_WORKSPACE__
 
 #include "java/util/ArrayList.h"
 #include "java/util/concurrent/atomic/AtomicLong.h"

@@ -1,5 +1,5 @@
-#ifndef LOAD_WATCHER_H
-#define LOAD_WATCHER_H
+#ifndef __LOAD_WATCHER__
+#define __LOAD_WATCHER__
 
 #include "ProcessSnapshot.h"
 

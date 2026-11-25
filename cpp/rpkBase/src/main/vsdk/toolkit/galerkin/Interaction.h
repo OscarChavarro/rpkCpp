@@ -1,5 +1,5 @@
-#ifndef INTERACTION__
-#define INTERACTION__
+#ifndef __INTERACTION__
+#define __INTERACTION__
 
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 

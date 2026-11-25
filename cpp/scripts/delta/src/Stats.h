@@ -1,5 +1,5 @@
-#ifndef STATS_H
-#define STATS_H
+#ifndef __STATS__
+#define __STATS__
 
 #include "PixelRGB.h"
 

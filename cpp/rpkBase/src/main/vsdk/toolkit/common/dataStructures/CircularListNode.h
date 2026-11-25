@@ -1,5 +1,5 @@
-#ifndef CIRCULAR_LIST_NODE__
-#define CIRCULAR_LIST_NODE__
+#ifndef __CIRCULAR_LIST_NODE__
+#define __CIRCULAR_LIST_NODE__
 
 #include "vsdk/toolkit/common/dataStructures/CircularListLink.h"
 

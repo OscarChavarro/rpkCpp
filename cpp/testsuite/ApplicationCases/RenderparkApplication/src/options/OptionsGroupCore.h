@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_CORE_OPTIONS_GROUP__
-#define COMMAND_LINE_CORE_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_CORE__
+#define __OPTIONS_GROUP_CORE__
 
 #include "options/EnumBackgroundMode.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

@@ -1,5 +1,5 @@
-#ifndef C_NEXT_EVENT_SAMPLER__
-#define C_NEXT_EVENT_SAMPLER__
+#ifndef __NEXT_EVENT_SAMPLER__
+#define __NEXT_EVENT_SAMPLER__
 
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"
 

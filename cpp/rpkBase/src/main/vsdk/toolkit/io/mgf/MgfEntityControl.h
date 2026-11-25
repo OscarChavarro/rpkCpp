@@ -1,5 +1,5 @@
-#ifndef MGF_DEFINITIONS__
-#define MGF_DEFINITIONS__
+#ifndef __MGF_ENTITY_CONTROL__
+#define __MGF_ENTITY_CONTROL__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/io/context/FilePositionContext.h"

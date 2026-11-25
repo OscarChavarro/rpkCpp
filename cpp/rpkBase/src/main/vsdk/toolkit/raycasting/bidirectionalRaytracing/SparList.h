@@ -1,5 +1,5 @@
-#ifndef SPAR_LIST__
-#define SPAR_LIST__
+#ifndef __SPAR_LIST__
+#define __SPAR_LIST__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/dataStructures/CircularList.h"

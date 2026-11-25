@@ -1,5 +1,5 @@
-#ifndef SHOOTING__
-#define SHOOTING__
+#ifndef __SHOOTING_STRATEGY__
+#define __SHOOTING_STRATEGY__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"

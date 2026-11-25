@@ -1,10 +1,10 @@
-#ifndef STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
-#define STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
+#ifndef __STOCHASTIC_RADIOSITY_BASIS__
+#define __STOCHASTIC_RADIOSITY_BASIS__
 
 /**
 All bases are orthonormal on their standard domain
 */
-class GalerkinBasis {
+class StochasticRadiosityBasis {
   public:
     static constexpr int MAX_BASIS_SIZE = 10;
     using FILTER = double[MAX_BASIS_SIZE][MAX_BASIS_SIZE];

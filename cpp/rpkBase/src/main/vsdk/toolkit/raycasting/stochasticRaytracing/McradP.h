@@ -1,5 +1,5 @@
-#ifndef MONTE_CARLO_RADIOSITY__
-#define MONTE_CARLO_RADIOSITY__
+#ifndef __MCRAD_P__
+#define __MCRAD_P__
 
 
 #include "java/util/ArrayList.h"
@@ -33,7 +33,7 @@ class McradP final {
         return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
     }
 
-    static inline GalerkinBasis *getTopLevelPatchBasis(const Patch *patch) {
+    static inline StochasticRadiosityBasis *getTopLevelPatchBasis(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->basis;
     }
 };

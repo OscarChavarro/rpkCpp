@@ -1,5 +1,5 @@
-#ifndef SHAFT_CULLING__
-#define SHAFT_CULLING__
+#ifndef __SHAFT__
+#define __SHAFT__
 
 /**
 References:
@@ -13,7 +13,7 @@ References:
 #include "vsdk/toolkit/common/memoryManagement/MemoryPool.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/scene/Polygon.h"
+#include "vsdk/toolkit/scene/ConvexPolygon.h"
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
 #include "vsdk/toolkit/galerkin/ShaftPlane.h"
 #include "vsdk/toolkit/galerkin/ShaftPlanePosition.h"
@@ -60,12 +60,12 @@ class Shaft {
     // occluder in question is the first patch in the returned candidate list.
     // The candidate list does not contain all occluder!
 
-    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Df *normal, double d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Df *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
 
     static bool
     verifyPolygonWithRespectToPlane(
-        const Polygon *polygon,
+        const ConvexPolygon *polygon,
         const Vector3Df *normal,
         double d,
         ShaftPlanePosition side);
@@ -76,7 +76,7 @@ class Shaft {
     PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches) const;
     void keep(RpkGeometry *geometry, java::ArrayList<RpkGeometry *> *candidateList) const;
 
-    void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
+    void constructPolygonToPolygonPlanes(const ConvexPolygon *p1, const ConvexPolygon *p2);
     ShaftPlanePosition shaftPatchTest(Patch *patch);
     bool closedGeometry(const RpkGeometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
@@ -92,7 +92,7 @@ public:
 
     bool isCut() const;
     void constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAxisAlignedBoundingBox *boundingBox2);
-    void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
+    void constructFromPolygonToPolygon(const ConvexPolygon *polygon1, const ConvexPolygon *polygon2);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(RpkGeometry *geometry);
 

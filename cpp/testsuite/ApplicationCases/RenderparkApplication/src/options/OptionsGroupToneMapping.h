@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
-#define COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_TONE_MAPPING__
+#define __OPTIONS_GROUP_TONE_MAPPING__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

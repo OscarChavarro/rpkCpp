@@ -1,5 +1,5 @@
-#ifndef MGF_HANDLER_MATERIAL__
-#define MGF_HANDLER_MATERIAL__
+#ifndef __MGF_MATERIAL_ENTITY_SUPPORT__
+#define __MGF_MATERIAL_ENTITY_SUPPORT__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"

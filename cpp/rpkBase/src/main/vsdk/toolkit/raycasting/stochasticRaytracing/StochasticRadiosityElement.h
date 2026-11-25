@@ -2,8 +2,8 @@
 Monte Carlo radiosity element type
 */
 
-#ifndef STOCHASTIC_RADIOSITY_ELEMENT__
-#define STOCHASTIC_RADIOSITY_ELEMENT__
+#ifndef __STOCHASTIC_RADIOSITY_ELEMENT__
+#define __STOCHASTIC_RADIOSITY_ELEMENT__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter.h"
@@ -21,7 +21,7 @@ class StochasticRadiosityElement final : public Element {
     float samplingProbability;
     float ng; // Number of samples gathered on the patch
 
-    GalerkinBasis *basis; // Radiosity approximation data
+    StochasticRadiosityBasis *basis; // Radiosity approximation data
         // Higher order approximations need an array of color values for representing radiance
     ColorRgb sourceRad; // Always constant source radiosity
 

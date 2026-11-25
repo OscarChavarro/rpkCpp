@@ -2,8 +2,8 @@
 Encapsulates option handling for bidirectional path tracing
 */
 
-#ifndef BI_DIR_OPTIONS__
-#define BI_DIR_OPTIONS__
+#ifndef __BIDIRECTIONAL_PATH_RAYTRACER_CONFIG__
+#define __BIDIRECTIONAL_PATH_RAYTRACER_CONFIG__
 
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 

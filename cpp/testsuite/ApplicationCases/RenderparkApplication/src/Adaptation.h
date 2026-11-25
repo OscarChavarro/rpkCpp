@@ -2,8 +2,8 @@
 Estimate static adaptation luminance in the current scene
 */
 
-#ifndef ADAPTATION__
-#define ADAPTATION__
+#ifndef __ADAPTATION__
+#define __ADAPTATION__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

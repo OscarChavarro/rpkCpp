@@ -2,8 +2,8 @@
 Constant Control Radiosity
 */
 
-#ifndef CCR__
-#define CCR__
+#ifndef __CCR__
+#define __CCR__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/Cie.h"

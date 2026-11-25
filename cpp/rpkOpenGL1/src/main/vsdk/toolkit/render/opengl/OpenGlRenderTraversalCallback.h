@@ -1,5 +1,5 @@
-#ifndef OPENGL_RENDER_TRAVERSAL_CALLBACK__
-#define OPENGL_RENDER_TRAVERSAL_CALLBACK__
+#ifndef __OPEN_GL_RENDER_TRAVERSAL_CALLBACK__
+#define __OPEN_GL_RENDER_TRAVERSAL_CALLBACK__
 
 #include "vsdk/toolkit/render/opengl/OpenGLCallbacks.h"
 

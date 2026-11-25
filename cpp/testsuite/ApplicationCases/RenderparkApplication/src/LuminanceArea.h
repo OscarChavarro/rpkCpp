@@ -1,5 +1,5 @@
-#ifndef LUMINANCE_AREA__
-#define LUMINANCE_AREA__
+#ifndef __LUMINANCE_AREA__
+#define __LUMINANCE_AREA__
 
 /**
 Stores luminance-area pairs for median area-weighted luminance

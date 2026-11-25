@@ -1,5 +1,5 @@
-#ifndef MGF_PARSE_SESSION__
-#define MGF_PARSE_SESSION__
+#ifndef __PARSE_RUNTIME_CONTEXT__
+#define __PARSE_RUNTIME_CONTEXT__
 
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

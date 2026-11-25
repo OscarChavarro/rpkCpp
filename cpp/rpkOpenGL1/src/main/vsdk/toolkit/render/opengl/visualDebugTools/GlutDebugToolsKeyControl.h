@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_KEY_CONTROL__
-#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_KEY_CONTROL__
+#ifndef __GLUT_DEBUG_TOOLS_KEY_CONTROL__
+#define __GLUT_DEBUG_TOOLS_KEY_CONTROL__
 
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsModel.h"
 #include "vsdk/toolkit/scene/Scene.h"

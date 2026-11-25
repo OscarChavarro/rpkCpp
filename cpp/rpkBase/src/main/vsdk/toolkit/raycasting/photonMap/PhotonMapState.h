@@ -1,5 +1,5 @@
-#ifndef PHOTON_MAP_OPTIONS__
-#define PHOTON_MAP_OPTIONS__
+#ifndef __PHOTON_MAP_STATE__
+#define __PHOTON_MAP_STATE__
 
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapDCAcceptPDFType.h"

@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_OPTIONS__
-#define COMMAND_LINE_OPTIONS__
+#ifndef __OPTIONS_GROUP_RAY_MATTER__
+#define __OPTIONS_GROUP_RAY_MATTER__
 
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 #include "vsdk/toolkit/raycasting/simple/RayMatterState.h"

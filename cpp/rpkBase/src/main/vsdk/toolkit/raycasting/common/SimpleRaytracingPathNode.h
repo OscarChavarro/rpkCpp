@@ -3,8 +3,8 @@ Class definition of path nodes. These node are building blocks of paths.
 and contain necessary information for raytracing-like algorithms
 */
 
-#ifndef PATH_NODE__
-#define PATH_NODE__
+#ifndef __SIMPLE_RAYTRACING_PATH_NODE__
+#define __SIMPLE_RAYTRACING_PATH_NODE__
 
 #include "java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"

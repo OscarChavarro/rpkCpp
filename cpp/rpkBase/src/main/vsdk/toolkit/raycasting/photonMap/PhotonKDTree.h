@@ -1,5 +1,5 @@
-#ifndef PHOTON_K_D_TREE__
-#define PHOTON_K_D_TREE__
+#ifndef __PHOTON_KD_TREE__
+#define __PHOTON_KD_TREE__
 
 #include "vsdk/toolkit/common/dataStructures/KDTree.h"
 #include "vsdk/toolkit/raycasting/photonMap/IrrPhoton.h"

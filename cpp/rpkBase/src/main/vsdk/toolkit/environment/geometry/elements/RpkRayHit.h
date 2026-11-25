@@ -3,8 +3,8 @@ Hit record structure, returned by ray-object intersection routines and
 used as a parameter for BSDF/EDF queries
 */
 
-#ifndef RPK_RAY_HIT__
-#define RPK_RAY_HIT__
+#ifndef __RPK_RAY_HIT__
+#define __RPK_RAY_HIT__
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"

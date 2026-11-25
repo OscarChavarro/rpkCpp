@@ -2,7 +2,7 @@
 Higher order approximations for Galerkin radiosity
 */
 
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/galerkin/ColorRgbMath.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"

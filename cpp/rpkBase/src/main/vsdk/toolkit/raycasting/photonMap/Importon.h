@@ -1,5 +1,5 @@
-#ifndef IMPORTON__
-#define IMPORTON__
+#ifndef __IMPORTON__
+#define __IMPORTON__
 
 #include "vsdk/toolkit/raycasting/photonMap/IrrPhoton.h"
 

@@ -1,5 +1,5 @@
-#ifndef MATERIAL_STATE__
-#define MATERIAL_STATE__
+#ifndef __MATERIAL_SELECTION_CONTEXT__
+#define __MATERIAL_SELECTION_CONTEXT__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"

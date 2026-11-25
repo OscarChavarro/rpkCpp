@@ -1,5 +1,5 @@
-#ifndef PERSISTENCE_ELEMENT__
-#define PERSISTENCE_ELEMENT__
+#ifndef __PERSISTENCE_ELEMENT__
+#define __PERSISTENCE_ELEMENT__
 
 #include "java/io/File.h"
 #include "java/io/InputStream.h"

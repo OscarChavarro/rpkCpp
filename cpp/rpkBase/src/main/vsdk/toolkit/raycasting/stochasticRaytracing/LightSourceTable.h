@@ -1,5 +1,5 @@
-#ifndef LIGHT_SOURCE_TABLE__
-#define LIGHT_SOURCE_TABLE__
+#ifndef __LIGHT_SOURCE_TABLE__
+#define __LIGHT_SOURCE_TABLE__
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 

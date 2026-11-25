@@ -1,5 +1,5 @@
-#ifndef PPM_WRITER_H
-#define PPM_WRITER_H
+#ifndef __PPM_WRITER__
+#define __PPM_WRITER__
 
 #include "ImagePPM.h"
 

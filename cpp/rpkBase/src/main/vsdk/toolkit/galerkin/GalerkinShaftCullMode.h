@@ -1,5 +1,5 @@
-#ifndef GALERKIN_SHAFT_CULL_MODE__
-#define GALERKIN_SHAFT_CULL_MODE__
+#ifndef __GALERKIN_SHAFT_CULL_MODE__
+#define __GALERKIN_SHAFT_CULL_MODE__
 
 /**
 When the Galerkin solver culls the candidate occluders of an interaction with

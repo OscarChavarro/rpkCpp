@@ -7,8 +7,8 @@ path nodes and have to possible actions :
               bsdf's and pdf's.
 */
 
-#ifndef SAMPLER__
-#define SAMPLER__
+#ifndef __SAMPLER__
+#define __SAMPLER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

@@ -1,5 +1,5 @@
-#ifndef MGF_HANDLER_COLOR__
-#define MGF_HANDLER_COLOR__
+#ifndef __MGF_COLOR_ENTITY_SUPPORT__
+#define __MGF_COLOR_ENTITY_SUPPORT__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

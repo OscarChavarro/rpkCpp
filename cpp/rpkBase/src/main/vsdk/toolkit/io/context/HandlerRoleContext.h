@@ -1,5 +1,5 @@
-#ifndef MGF_HANDLER_TYPE__
-#define MGF_HANDLER_TYPE__
+#ifndef __HANDLER_ROLE_CONTEXT__
+#define __HANDLER_ROLE_CONTEXT__
 
 enum class HandlerRoleContext {
     DISCARD_UNNEEDED,

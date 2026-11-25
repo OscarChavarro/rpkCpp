@@ -1,5 +1,5 @@
-#ifndef RPK_MATERIAL__
-#define RPK_MATERIAL__
+#ifndef __RPK_MATERIAL__
+#define __RPK_MATERIAL__
 
 #include "vsdk/toolkit/environment/material/PhongLobe.h"
 #include "vsdk/toolkit/environment/material/PhongMaterial.h"

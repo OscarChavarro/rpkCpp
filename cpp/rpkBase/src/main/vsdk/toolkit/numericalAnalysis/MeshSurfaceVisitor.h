@@ -1,5 +1,5 @@
-#ifndef MESH_SURFACE_VISITOR__
-#define MESH_SURFACE_VISITOR__
+#ifndef __MESH_SURFACE_VISITOR__
+#define __MESH_SURFACE_VISITOR__
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"

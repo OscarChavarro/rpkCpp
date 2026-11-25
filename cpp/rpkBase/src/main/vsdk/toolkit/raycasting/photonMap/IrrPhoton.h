@@ -1,5 +1,5 @@
-#ifndef IRR_PHOTON__
-#define IRR_PHOTON__
+#ifndef __IRR_PHOTON__
+#define __IRR_PHOTON__
 
 #include "vsdk/toolkit/raycasting/photonMap/PhotonClass.h"
 // IrrPhoton: photon with extra irradiance info

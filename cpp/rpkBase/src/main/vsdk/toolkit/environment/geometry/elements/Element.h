@@ -1,5 +1,5 @@
-#ifndef ELEMENT__
-#define ELEMENT__
+#ifndef __ELEMENT__
+#define __ELEMENT__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix2x2.h"

@@ -1,5 +1,5 @@
-#ifndef NORMAL_FILTER__
-#define NORMAL_FILTER__
+#ifndef __NORMAL_FILTER__
+#define __NORMAL_FILTER__
 
 #include "vsdk/toolkit/raycasting/common/PixelFilter.h"
 

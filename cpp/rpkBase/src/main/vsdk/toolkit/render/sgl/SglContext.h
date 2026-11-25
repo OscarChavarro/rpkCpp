@@ -1,11 +1,11 @@
-#ifndef SGL_CONTEXT__
-#define SGL_CONTEXT__
+#ifndef __SGL_CONTEXT__
+#define __SGL_CONTEXT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"
 #include "vsdk/toolkit/render/sgl/SglConstants.h"
 #include "vsdk/toolkit/render/sgl/Window.h"
 
-class Polygon;
+class ScreenPolygon;
 
 /** Projection, viewport and optional depth plane shared by typed SGL targets. */
 class SglContext {
@@ -31,7 +31,7 @@ class SglContext {
 
     void setViewport(int x, int y, int viewportWidth, int viewportHeight);
     void setTransform(const Matrix4x4f &matrix) { transform = matrix; }
-    bool projectPolygon(int numberOfVertices, const Vector3Df *vertices, Polygon &result) const;
+    bool projectPolygon(int numberOfVertices, const Vector3Df *vertices, ScreenPolygon &result) const;
 };
 
 #endif

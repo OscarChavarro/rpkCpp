@@ -1,5 +1,5 @@
-#ifndef RAYTRACING_SAMPLING_MODE__
-#define RAYTRACING_SAMPLING_MODE__
+#ifndef __RAY_TRACING_SAMPLING_MODE__
+#define __RAY_TRACING_SAMPLING_MODE__
 
 enum RayTracingSamplingMode {
     BRDF_SAMPLING,

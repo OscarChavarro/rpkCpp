@@ -1,5 +1,5 @@
-#ifndef PARSER_CONFIG__
-#define PARSER_CONFIG__
+#ifndef __PARSE_OPTIONS_CONTEXT__
+#define __PARSE_OPTIONS_CONTEXT__
 
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"

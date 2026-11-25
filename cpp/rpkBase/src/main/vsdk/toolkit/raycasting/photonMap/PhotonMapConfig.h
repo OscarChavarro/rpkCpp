@@ -2,8 +2,8 @@
 Photon map configuration structure, used during construction
 */
 
-#ifndef PHOTON_MAP_CONFIG__
-#define PHOTON_MAP_CONFIG__
+#ifndef __PHOTON_MAP_CONFIG__
+#define __PHOTON_MAP_CONFIG__
 
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 #include "vsdk/toolkit/raycasting/raytracing/SamplerConfig.h"

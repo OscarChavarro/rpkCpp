@@ -1,5 +1,5 @@
-#ifndef FORM_FACTOR_WORKSPACE__
-#define FORM_FACTOR_WORKSPACE__
+#ifndef __FORM_FACTOR_WORKSPACE__
+#define __FORM_FACTOR_WORKSPACE__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

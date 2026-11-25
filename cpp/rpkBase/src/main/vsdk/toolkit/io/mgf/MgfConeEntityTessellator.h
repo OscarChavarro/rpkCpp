@@ -1,5 +1,5 @@
-#ifndef MGF_CONE_GEOMETRY__
-#define MGF_CONE_GEOMETRY__
+#ifndef __MGF_CONE_ENTITY_TESSELLATOR__
+#define __MGF_CONE_ENTITY_TESSELLATOR__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

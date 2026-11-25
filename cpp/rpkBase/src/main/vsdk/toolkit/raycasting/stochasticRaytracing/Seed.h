@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACING_CSEED__
-#define STOCHASTIC_RAYTRACING_CSEED__
+#ifndef __SEED__
+#define __SEED__
 
 /**
 Configuration class

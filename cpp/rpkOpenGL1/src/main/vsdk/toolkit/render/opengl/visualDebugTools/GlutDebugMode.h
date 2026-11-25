@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_MODE__
-#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_MODE__
+#ifndef __GLUT_DEBUG_MODE__
+#define __GLUT_DEBUG_MODE__
 
 enum class GlutDebugMode {
     RADIANCE_SCENE,

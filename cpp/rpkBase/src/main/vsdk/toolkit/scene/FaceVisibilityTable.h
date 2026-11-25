@@ -1,5 +1,5 @@
-#ifndef FACE_VISIBILITY_TABLE__
-#define FACE_VISIBILITY_TABLE__
+#ifndef __FACE_VISIBILITY_TABLE__
+#define __FACE_VISIBILITY_TABLE__
 
 /**
 Whether each face of a scene is directly visible from the camera, indexed by

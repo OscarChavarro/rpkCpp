@@ -1,5 +1,5 @@
-#ifndef MGF_GEOMETRY__
-#define MGF_GEOMETRY__
+#ifndef __MGF_TESSELLATION_MATH__
+#define __MGF_TESSELLATION_MATH__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 

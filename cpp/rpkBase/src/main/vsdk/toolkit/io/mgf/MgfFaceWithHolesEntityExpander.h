@@ -1,5 +1,5 @@
-#ifndef MGF_FACE_WITH_HOLES_GEOMETRY__
-#define MGF_FACE_WITH_HOLES_GEOMETRY__
+#ifndef __MGF_FACE_WITH_HOLES_ENTITY_EXPANDER__
+#define __MGF_FACE_WITH_HOLES_ENTITY_EXPANDER__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

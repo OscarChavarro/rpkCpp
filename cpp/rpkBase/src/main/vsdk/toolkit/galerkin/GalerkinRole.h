@@ -1,5 +1,5 @@
-#ifndef GALERKIN_ROLE__
-#define GALERKIN_ROLE__
+#ifndef __GALERKIN_ROLE__
+#define __GALERKIN_ROLE__
 
 enum GalerkinRole {
     SOURCE,

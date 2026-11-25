@@ -1,5 +1,5 @@
-#ifndef POWER_ACCUMULATOR_VISITOR__
-#define POWER_ACCUMULATOR_VISITOR__
+#ifndef __POWER_ACCUMULATOR_VISITOR__
+#define __POWER_ACCUMULATOR_VISITOR__
 
 #include "vsdk/toolkit/galerkin/processing/visitors/ClusterLeafVisitor.h"
 

@@ -1,5 +1,5 @@
-#ifndef LIGHT_INFO__
-#define LIGHT_INFO__
+#ifndef __LIGHT_INFO__
+#define __LIGHT_INFO__
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 

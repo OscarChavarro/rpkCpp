@@ -1,5 +1,5 @@
-#ifndef CLUSTER_GALERKIN__
-#define CLUSTER_GALERKIN__
+#ifndef __CLUSTER_TRAVERSAL_STRATEGY__
+#define __CLUSTER_TRAVERSAL_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"

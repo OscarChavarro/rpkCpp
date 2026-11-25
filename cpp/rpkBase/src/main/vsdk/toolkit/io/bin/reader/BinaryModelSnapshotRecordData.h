@@ -1,5 +1,5 @@
-#ifndef BINARY_MODEL_READER_MODEL_RECORD__
-#define BINARY_MODEL_READER_MODEL_RECORD__
+#ifndef __BINARY_MODEL_SNAPSHOT_RECORD_DATA__
+#define __BINARY_MODEL_SNAPSHOT_RECORD_DATA__
 
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 

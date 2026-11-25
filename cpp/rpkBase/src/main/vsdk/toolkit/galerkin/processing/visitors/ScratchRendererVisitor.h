@@ -1,5 +1,5 @@
-#ifndef SCRATCH_RENDERER_VISITOR__
-#define SCRATCH_RENDERER_VISITOR__
+#ifndef __SCRATCH_RENDERER_VISITOR__
+#define __SCRATCH_RENDERER_VISITOR__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/ClusterLeafVisitor.h"

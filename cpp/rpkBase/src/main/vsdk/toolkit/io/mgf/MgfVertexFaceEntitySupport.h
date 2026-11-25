@@ -1,5 +1,5 @@
-#ifndef MGF_HANDLER_GEOMETRY__
-#define MGF_HANDLER_GEOMETRY__
+#ifndef __MGF_VERTEX_FACE_ENTITY_SUPPORT__
+#define __MGF_VERTEX_FACE_ENTITY_SUPPORT__
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateAxis.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"

@@ -1,5 +1,5 @@
-#ifndef GALERKIN_RADIOSITY_METHOD__
-#define GALERKIN_RADIOSITY_METHOD__
+#ifndef __GALERKIN_RADIANCE_METHOD__
+#define __GALERKIN_RADIANCE_METHOD__
 
 #include <cstdarg>
 

@@ -1,5 +1,5 @@
-#ifndef MGF_SPHERE_GEOMETRY__
-#define MGF_SPHERE_GEOMETRY__
+#ifndef __MGF_SPHERE_ENTITY_EXPANDER__
+#define __MGF_SPHERE_ENTITY_EXPANDER__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

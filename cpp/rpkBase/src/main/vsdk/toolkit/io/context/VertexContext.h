@@ -1,5 +1,5 @@
-#ifndef MGF_VERTEX_CONTEXT__
-#define MGF_VERTEX_CONTEXT__
+#ifndef __VERTEX_CONTEXT__
+#define __VERTEX_CONTEXT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"

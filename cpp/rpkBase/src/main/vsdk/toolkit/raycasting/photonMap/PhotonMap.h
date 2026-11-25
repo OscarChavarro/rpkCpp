@@ -1,5 +1,5 @@
-#ifndef PHOTON_MAP__
-#define PHOTON_MAP__
+#ifndef __PHOTON_MAP__
+#define __PHOTON_MAP__
 
 #include "java/lang/Float.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"

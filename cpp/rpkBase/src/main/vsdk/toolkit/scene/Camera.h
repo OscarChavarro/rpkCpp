@@ -1,5 +1,5 @@
-#ifndef CAMERA__
-#define CAMERA__
+#ifndef __CAMERA__
+#define __CAMERA__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"

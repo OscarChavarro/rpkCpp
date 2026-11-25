@@ -91,10 +91,10 @@ StochasticRadiosityBasisState::createTransform(float m00, float m01, float m10, 
     return Matrix2x2(m00, m01, m10, m11, t0, t1);
 }
 
-GalerkinBasis
+StochasticRadiosityBasis
 Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
     StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
-    GalerkinBasis basis = basisState.quadBasis;
+    StochasticRadiosityBasis basis = basisState.quadBasis;
     char desc[100];
     const char *elem = "";
 
@@ -136,13 +136,13 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
 void
 Basismcrad::computeFilterCoefficients(
-    const GalerkinBasis *parent_basis,
+    const StochasticRadiosityBasis *parent_basis,
     const int parent_size,
-    const GalerkinBasis *child_basis,
+    const StochasticRadiosityBasis *child_basis,
     const int child_size,
     const Matrix2x2 *upxfm,
     const CubatureRule *cr,
-    GalerkinBasis::FILTER *filter)
+    StochasticRadiosityBasis::FILTER *filter)
 {
     for ( int a = 0; a < parent_size; a++ ) {
         for ( int b = 0; b < child_size; b++ ) {
@@ -167,7 +167,7 @@ basis->regular_filter table
 */
 void
 Basismcrad::basisGalerkinComputeRegularFilterCoefficients(
-    GalerkinBasis *basis,
+    StochasticRadiosityBasis *basis,
     const Matrix2x2 *upxfm,
     const CubatureRule *cr)
 {
@@ -213,7 +213,7 @@ Basismcrad::monteCarloRadiosityInitBasis() {
 Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
-Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
+Basismcrad::colorAtUv(const StochasticRadiosityBasis *basis, const ColorRgb *rad, double u, double v) {
     double res[3] = {0.0, 0.0, 0.0};
     for ( int i = 0; i < basis->size; i++ ) {
         const double s = static_cast<float>(basis->function[i](u, v));
@@ -229,7 +229,7 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
+Basismcrad::filterColorDown(const ColorRgb *parent, StochasticRadiosityBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             child[i] = child[i].addScaled(static_cast<float>((*h)[j][i]), parent[j]);
@@ -238,7 +238,7 @@ Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, Co
 }
 
 void
-Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
+Basismcrad::filterColorUp(const ColorRgb *child, StochasticRadiosityBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;

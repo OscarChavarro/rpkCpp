@@ -1,5 +1,5 @@
-#ifndef DIRECT_POTENTIAL_TABLE__
-#define DIRECT_POTENTIAL_TABLE__
+#ifndef __DIRECT_POTENTIAL_TABLE__
+#define __DIRECT_POTENTIAL_TABLE__
 
 /**
 Direct potential (importance received straight from the eye) of every face of

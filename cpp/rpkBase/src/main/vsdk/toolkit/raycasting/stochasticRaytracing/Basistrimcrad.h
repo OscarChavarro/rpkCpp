@@ -2,14 +2,14 @@
 Orthonormal basis for the standard triangle (0, 0), (1, 0), (0, 1)
 */
 
-#ifndef BASIS_TRI_MCRAD__
-#define BASIS_TRI_MCRAD__
+#ifndef __BASISTRIMCRAD__
+#define __BASISTRIMCRAD__
 
-#include "vsdk/toolkit/raycasting/stochasticRaytracing/GalerkinBasis.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityBasis.h"
 
 class Basistrimcrad final {
   public:
-    static GalerkinBasis createBasis();
+    static StochasticRadiosityBasis createBasis();
     static double tm0(double u, double v);
     static double tm1(double u, double v);
     static double tm2(double u, double v);
@@ -23,9 +23,9 @@ class Basistrimcrad final {
 
   private:
     using BasisFunction = double (*)(double, double);
-    static BasisFunction f[GalerkinBasis::MAX_BASIS_SIZE];
-    static GalerkinBasis::FILTER_TABLE h;
-    static GalerkinBasis stochasticRadiosityCreateTriBasis();
+    static BasisFunction f[StochasticRadiosityBasis::MAX_BASIS_SIZE];
+    static StochasticRadiosityBasis::FILTER_TABLE h;
+    static StochasticRadiosityBasis stochasticRadiosityCreateTriBasis();
 };
 
 #endif

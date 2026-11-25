@@ -1,5 +1,5 @@
-#ifndef OBJECT_HIERARCHY_STATE__
-#define OBJECT_HIERARCHY_STATE__
+#ifndef __OBJECT_SCOPE_CONTEXT__
+#define __OBJECT_SCOPE_CONTEXT__
 
 #include "vsdk/toolkit/io/context/ParseErrorContext.h"
 

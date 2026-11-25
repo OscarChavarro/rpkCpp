@@ -1,5 +1,5 @@
-#ifndef BACKGROUND_MODE__
-#define BACKGROUND_MODE__
+#ifndef __ENUM_BACKGROUND_MODE__
+#define __ENUM_BACKGROUND_MODE__
 
 enum class EnumBackgroundMode {
     NONE,

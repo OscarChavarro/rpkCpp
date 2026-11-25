@@ -1,5 +1,5 @@
-#ifndef RANDOM_WALK_RADIANCE_METHOD__
-#define RANDOM_WALK_RADIANCE_METHOD__
+#ifndef __RANDOM_WALK_RADIANCE_METHOD__
+#define __RANDOM_WALK_RADIANCE_METHOD__
 
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"

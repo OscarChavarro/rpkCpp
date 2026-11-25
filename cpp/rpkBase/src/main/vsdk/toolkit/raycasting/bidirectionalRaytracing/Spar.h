@@ -2,8 +2,8 @@
 Specification of the Stored Partial Radiance class
 */
 
-#ifndef SPAR__
-#define SPAR__
+#ifndef __SPAR__
+#define __SPAR__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"

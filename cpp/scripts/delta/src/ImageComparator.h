@@ -1,5 +1,5 @@
-#ifndef IMAGE_COMPARATOR_H
-#define IMAGE_COMPARATOR_H
+#ifndef __IMAGE_COMPARATOR__
+#define __IMAGE_COMPARATOR__
 
 #include "ImagePPM.h"
 

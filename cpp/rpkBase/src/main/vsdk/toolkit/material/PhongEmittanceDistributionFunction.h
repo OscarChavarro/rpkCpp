@@ -1,5 +1,5 @@
-#ifndef PhongEmittanceDistributionFunctions__
-#define PhongEmittanceDistributionFunctions__
+#ifndef __PHONG_EMITTANCE_DISTRIBUTION_FUNCTION__
+#define __PHONG_EMITTANCE_DISTRIBUTION_FUNCTION__
 
 #include "vsdk/toolkit/environment/material/PhongMaterial.h"
 #include "vsdk/toolkit/material/ShadingContext.h"

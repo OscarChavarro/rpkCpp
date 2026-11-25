@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
-#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
+#ifndef __GLUT_DEBUG_PATCH_HIERARCHY__
+#define __GLUT_DEBUG_PATCH_HIERARCHY__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"

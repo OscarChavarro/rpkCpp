@@ -1,5 +1,5 @@
-#ifndef SCREEN_BUFFER__
-#define SCREEN_BUFFER__
+#ifndef __SCREEN_BUFFER__
+#define __SCREEN_BUFFER__
 
 #include "java/io/OutputStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"

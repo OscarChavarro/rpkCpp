@@ -1,5 +1,5 @@
-#ifndef ENUM_DESC__
-#define ENUM_DESC__
+#ifndef __ENUM_DESC__
+#define __ENUM_DESC__
 
 class EnumDesc {
   public:

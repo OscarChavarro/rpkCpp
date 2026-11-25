@@ -2,8 +2,8 @@
 Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
-#ifndef ELEMENT_HIERARCHY__
-#define ELEMENT_HIERARCHY__
+#ifndef __HIERARCHY__
+#define __HIERARCHY__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"

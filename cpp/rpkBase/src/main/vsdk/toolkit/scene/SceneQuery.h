@@ -1,5 +1,5 @@
-#ifndef SCENE_QUERY__
-#define SCENE_QUERY__
+#ifndef __SCENE_QUERY__
+#define __SCENE_QUERY__
 
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"

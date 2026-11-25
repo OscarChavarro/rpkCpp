@@ -1,5 +1,5 @@
-#ifndef READ_MGF__
-#define READ_MGF__
+#ifndef __MGF_PARSER_LOADER__
+#define __MGF_PARSER_LOADER__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"

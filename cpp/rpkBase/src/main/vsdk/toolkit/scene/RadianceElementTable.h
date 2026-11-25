@@ -1,5 +1,5 @@
-#ifndef RADIANCE_ELEMENT_TABLE__
-#define RADIANCE_ELEMENT_TABLE__
+#ifndef __RADIANCE_ELEMENT_TABLE__
+#define __RADIANCE_ELEMENT_TABLE__
 
 class Element;
 

@@ -1,5 +1,5 @@
-#ifndef PHOTON_CLASS__
-#define PHOTON_CLASS__
+#ifndef __PHOTON_CLASS__
+#define __PHOTON_CLASS__
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

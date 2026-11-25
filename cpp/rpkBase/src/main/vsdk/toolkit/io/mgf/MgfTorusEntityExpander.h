@@ -1,5 +1,5 @@
-#ifndef MGF_TORUS_GEOMETRY__
-#define MGF_TORUS_GEOMETRY__
+#ifndef __MGF_TORUS_ENTITY_EXPANDER__
+#define __MGF_TORUS_ENTITY_EXPANDER__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

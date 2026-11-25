@@ -1,5 +1,5 @@
-#ifndef SCENE_ACCELERATION_METHOD__
-#define SCENE_ACCELERATION_METHOD__
+#ifndef __SCENE_ACCELERATION_METHOD__
+#define __SCENE_ACCELERATION_METHOD__
 
 /**
 The spatial index behind the scene query (option -scene-acceleration):

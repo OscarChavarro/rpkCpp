@@ -1,5 +1,5 @@
-#ifndef BATCH_OPTIONS__
-#define BATCH_OPTIONS__
+#ifndef __BATCH_OPTIONS__
+#define __BATCH_OPTIONS__
 
 class BatchOptions {
   public:

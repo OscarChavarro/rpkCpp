@@ -1,5 +1,5 @@
-#ifndef BINARY_MODEL_READER_SUPPORT__
-#define BINARY_MODEL_READER_SUPPORT__
+#ifndef __BINARY_MODEL_READ_PRIMITIVES__
+#define __BINARY_MODEL_READ_PRIMITIVES__
 
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

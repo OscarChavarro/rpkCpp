@@ -1,5 +1,5 @@
-#ifndef OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
-#define OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
+#ifndef __OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
+#define __OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 

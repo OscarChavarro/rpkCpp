@@ -2,8 +2,8 @@
 Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 or 63 bits, skip 4096)
 */
 
-#ifndef NIEDERREITER__
-#define NIEDERREITER__
+#ifndef __NIEDERREITER__
+#define __NIEDERREITER__
 
 #ifndef NOINT64
     // Use 63bit sequence by default

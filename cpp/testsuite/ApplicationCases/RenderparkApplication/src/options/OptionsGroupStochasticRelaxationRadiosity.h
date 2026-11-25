@@ -1,5 +1,5 @@
-#ifndef OPTIONS_GROUP_STOCHASTIC_RELAXATION_RADIOSITY__
-#define OPTIONS_GROUP_STOCHASTIC_RELAXATION_RADIOSITY__
+#ifndef __OPTIONS_GROUP_STOCHASTIC_RELAXATION_RADIOSITY__
+#define __OPTIONS_GROUP_STOCHASTIC_RELAXATION_RADIOSITY__
 
 #include "options/EnumDesc.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"

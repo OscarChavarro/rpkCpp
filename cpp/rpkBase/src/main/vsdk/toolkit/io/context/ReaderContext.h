@@ -1,5 +1,5 @@
-#ifndef READER_CONTEXT__
-#define READER_CONTEXT__
+#ifndef __READER_CONTEXT__
+#define __READER_CONTEXT__
 
 #include "java/io/InputStream.h"
 

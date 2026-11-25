@@ -2,8 +2,8 @@
 Just fills in the eye point in the node
 */
 
-#ifndef _EYE_SAMPLER__
-#define _EYE_SAMPLER__
+#ifndef __EYE_SAMPLER__
+#define __EYE_SAMPLER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

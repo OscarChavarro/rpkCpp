@@ -1,5 +1,5 @@
-#ifndef HIERARCHICAL_REFINE__
-#define HIERARCHICAL_REFINE__
+#ifndef __HIERARCHICAL_REFINEMENT_STRATEGY__
+#define __HIERARCHICAL_REFINEMENT_STRATEGY__
 
 #include "vsdk/toolkit/common/memoryManagement/MemoryPool.h"
 #include "vsdk/toolkit/scene/Scene.h"

@@ -1,5 +1,5 @@
-#ifndef RPK_RAY__
-#define RPK_RAY__
+#ifndef __RPK_RAY__
+#define __RPK_RAY__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 

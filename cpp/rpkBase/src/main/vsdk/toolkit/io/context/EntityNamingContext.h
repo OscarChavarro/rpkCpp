@@ -1,5 +1,5 @@
-#ifndef ENTITY_CONTEXT_INFO__
-#define ENTITY_CONTEXT_INFO__
+#ifndef __ENTITY_NAMING_CONTEXT__
+#define __ENTITY_NAMING_CONTEXT__
 
 class EntityNamingContext final {
   public:

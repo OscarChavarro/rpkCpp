@@ -69,8 +69,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         Shaft shaft(scene->getFaceBounds());
         // Keep these temporaries alive during the full culling pass because Shaft
         // stores references used later in cullGeometry/doCulling.
-        Polygon rcvPolygon;
-        Polygon srcPolygon;
+        ConvexPolygon rcvPolygon;
+        ConvexPolygon srcPolygon;
         RpkAxisAlignedBoundingBox srcBounds;
         RpkAxisAlignedBoundingBox rcvBounds;
 

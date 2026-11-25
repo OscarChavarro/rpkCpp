@@ -5,8 +5,8 @@ that pixel. This color is transformed into RGB and displayed.
 Several functions are provided for different iterating schemes
 */
 
-#ifndef SCREEN_ITERATE__
-#define SCREEN_ITERATE__
+#ifndef __SCREEN_ITERATE__
+#define __SCREEN_ITERATE__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/scene/Background.h"

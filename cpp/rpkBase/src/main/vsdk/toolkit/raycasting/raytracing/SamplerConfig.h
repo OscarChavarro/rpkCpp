@@ -3,8 +3,8 @@ A configuration structure, that determines the sampling
 procedure of a monte carlo ray tracing like algorithm
 */
 
-#ifndef SAMPLER_CONFIG__
-#define SAMPLER_CONFIG__
+#ifndef __SAMPLER_CONFIG__
+#define __SAMPLER_CONFIG__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

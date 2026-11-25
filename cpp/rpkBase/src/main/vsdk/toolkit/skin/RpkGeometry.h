@@ -1,5 +1,5 @@
-#ifndef RPK_GEOMETRY__
-#define RPK_GEOMETRY__
+#ifndef __RPK_GEOMETRY__
+#define __RPK_GEOMETRY__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"

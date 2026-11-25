@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_GLUT_HUD_CONSOLE__
-#define VISUAL_DEBUG_TOOLS_GLUT_HUD_CONSOLE__
+#ifndef __GLUT_HUD_CONSOLE__
+#define __GLUT_HUD_CONSOLE__
 
 class GlutHudConsole final {
   public:

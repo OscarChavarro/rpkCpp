@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
-#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
+#ifndef __GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
+#define __GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
 
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

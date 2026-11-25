@@ -1,5 +1,5 @@
-#ifndef RENDER_HOOK_LIST__
-#define RENDER_HOOK_LIST__
+#ifndef __RENDER_HOOK_LIST__
+#define __RENDER_HOOK_LIST__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/render/RenderHook.h"

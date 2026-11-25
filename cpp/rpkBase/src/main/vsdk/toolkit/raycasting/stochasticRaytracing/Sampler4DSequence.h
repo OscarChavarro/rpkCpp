@@ -1,5 +1,5 @@
-#ifndef SAMPLER_4D_SEQUENCE__
-#define SAMPLER_4D_SEQUENCE__
+#ifndef __SAMPLER_4_D_SEQUENCE__
+#define __SAMPLER_4_D_SEQUENCE__
 
 enum Sampler4DSequence {
     RANDOM,

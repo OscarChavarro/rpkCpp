@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_GALERKIN_OPTIONS_GROUP__
-#define COMMAND_LINE_GALERKIN_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_GALERKIN__
+#define __OPTIONS_GROUP_GALERKIN__
 
 class OptionsGroupGalerkin final {
   public:

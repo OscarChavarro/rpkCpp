@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACING_CSEED_CONFIG__
-#define STOCHASTIC_RAYTRACING_CSEED_CONFIG__
+#ifndef __SEED_CONFIG__
+#define __SEED_CONFIG__
 
 #include <cstdlib>
 

@@ -1,5 +1,5 @@
-#ifndef LOAD_WATCHER_PROC_READER_H
-#define LOAD_WATCHER_PROC_READER_H
+#ifndef __PROC_READER__
+#define __PROC_READER__
 
 #include <string>
 

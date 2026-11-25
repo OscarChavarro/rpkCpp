@@ -1,5 +1,5 @@
-#ifndef VERTEX_REPOSITORY__
-#define VERTEX_REPOSITORY__
+#ifndef __VERTEX_REGISTRY_CONTEXT__
+#define __VERTEX_REGISTRY_CONTEXT__
 
 #include "vsdk/toolkit/common/dataStructures/LookUpTable.h"
 #include "vsdk/toolkit/io/context/VertexContext.h"

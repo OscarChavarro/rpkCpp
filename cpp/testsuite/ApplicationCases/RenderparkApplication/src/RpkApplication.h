@@ -1,5 +1,5 @@
-#ifndef RPK_APPLICATION__
-#define RPK_APPLICATION__
+#ifndef __RPK_APPLICATION__
+#define __RPK_APPLICATION__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Scene.h"

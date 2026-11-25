@@ -1,5 +1,5 @@
-#ifndef LOAD_WATCHER_PROCESS_SNAPSHOT_H
-#define LOAD_WATCHER_PROCESS_SNAPSHOT_H
+#ifndef __PROCESS_SNAPSHOT__
+#define __PROCESS_SNAPSHOT__
 
 #include <sys/types.h>
 

@@ -1,5 +1,5 @@
-#ifndef BSDF_COMPONENT_FLAG__
-#define BSDF_COMPONENT_FLAG__
+#ifndef __BSDF_COMPONENT_FLAG__
+#define __BSDF_COMPONENT_FLAG__
 
 #include "vsdk/toolkit/material/XxdfComponentFlag.h"
 

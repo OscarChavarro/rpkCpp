@@ -1,5 +1,5 @@
-#ifndef CONSTANT_COLOR_BACKGROUND__
-#define CONSTANT_COLOR_BACKGROUND__
+#ifndef __CONSTANT_COLOR_BACKGROUND__
+#define __CONSTANT_COLOR_BACKGROUND__
 
 #include "vsdk/toolkit/scene/Background.h"
 

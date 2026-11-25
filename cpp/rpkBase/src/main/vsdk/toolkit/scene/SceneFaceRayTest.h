@@ -1,5 +1,5 @@
-#ifndef SCENE_FACE_RAY_TEST__
-#define SCENE_FACE_RAY_TEST__
+#ifndef __SCENE_FACE_RAY_TEST__
+#define __SCENE_FACE_RAY_TEST__
 
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"

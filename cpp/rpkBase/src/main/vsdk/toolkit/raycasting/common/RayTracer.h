@@ -1,5 +1,5 @@
-#ifndef RAYTRACER__
-#define RAYTRACER__
+#ifndef __RAY_TRACER__
+#define __RAY_TRACER__
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"

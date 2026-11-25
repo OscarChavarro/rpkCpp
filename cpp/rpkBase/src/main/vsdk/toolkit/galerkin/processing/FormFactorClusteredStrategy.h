@@ -1,5 +1,5 @@
-#ifndef FORM_FACTOR_CLUSTERED_STRATEGY__
-#define FORM_FACTOR_CLUSTERED_STRATEGY__
+#ifndef __FORM_FACTOR_CLUSTERED_STRATEGY__
+#define __FORM_FACTOR_CLUSTERED_STRATEGY__
 
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"

@@ -1,5 +1,5 @@
-#ifndef OPENGL_OCTREE_CHILD__
-#define OPENGL_OCTREE_CHILD__
+#ifndef __OCTREE_CHILD__
+#define __OCTREE_CHILD__
 
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 

@@ -1,5 +1,5 @@
-#ifndef FILE_POSITION_CONTEXT__
-#define FILE_POSITION_CONTEXT__
+#ifndef __FILE_POSITION_CONTEXT__
+#define __FILE_POSITION_CONTEXT__
 
 class FilePositionContext {
   public:

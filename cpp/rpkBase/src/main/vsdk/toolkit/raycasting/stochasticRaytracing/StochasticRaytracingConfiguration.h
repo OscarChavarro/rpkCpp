@@ -1,5 +1,5 @@
-#ifndef RT_STOCHASTIC_PHOTON_MAP__
-#define RT_STOCHASTIC_PHOTON_MAP__
+#ifndef __STOCHASTIC_RAYTRACING_CONFIGURATION__
+#define __STOCHASTIC_RAYTRACING_CONFIGURATION__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

@@ -1,5 +1,5 @@
-#ifndef STATISTICS__
-#define STATISTICS__
+#ifndef __STATISTICS__
+#define __STATISTICS__
 
 #include "vsdk/toolkit/common/statistics/ReaderStatistics.h"
 #include "vsdk/toolkit/common/statistics/RadianceStatistics.h"

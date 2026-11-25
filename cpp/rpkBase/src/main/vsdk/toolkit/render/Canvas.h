@@ -1,5 +1,5 @@
-#ifndef CANVAS__
-#define CANVAS__
+#ifndef __CANVAS__
+#define __CANVAS__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"

@@ -1,5 +1,5 @@
-#ifndef RADIANCE_OPTIONS_GROUP__
-#define RADIANCE_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_RADIANCE__
+#define __OPTIONS_GROUP_RADIANCE__
 
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 

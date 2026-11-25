@@ -1,5 +1,5 @@
-#ifndef VISIBILITY_QUERY_RECORDER__
-#define VISIBILITY_QUERY_RECORDER__
+#ifndef __VISIBILITY_QUERY_RECORDER__
+#define __VISIBILITY_QUERY_RECORDER__
 
 #include <cstdio>
 #include "java/util/ArrayList.h"

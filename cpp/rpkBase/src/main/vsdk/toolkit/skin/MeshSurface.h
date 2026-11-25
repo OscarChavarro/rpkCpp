@@ -2,8 +2,8 @@
 Surfaces are basically a list of patches representing a simple object with given material
 */
 
-#ifndef SURFACE__
-#define SURFACE__
+#ifndef __MESH_SURFACE__
+#define __MESH_SURFACE__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"

@@ -2,8 +2,8 @@
 Stores eyePath and lightPath, lengths and end nodes
 */
 
-#ifndef BI_PATH__
-#define BI_PATH__
+#ifndef __BI_PATH__
+#define __BI_PATH__
 
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

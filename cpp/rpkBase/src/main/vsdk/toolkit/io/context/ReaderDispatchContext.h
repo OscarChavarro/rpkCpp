@@ -1,5 +1,5 @@
-#ifndef READER_STACK_STATE__
-#define READER_STACK_STATE__
+#ifndef __READER_DISPATCH_CONTEXT__
+#define __READER_DISPATCH_CONTEXT__
 
 #include "vsdk/toolkit/io/context/EntityTypeContext.h"
 #include "vsdk/toolkit/io/context/EntityNamingContext.h"

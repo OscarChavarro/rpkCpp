@@ -1,5 +1,5 @@
-#ifndef GALERKIN_CLUSTER_CREATION__
-#define GALERKIN_CLUSTER_CREATION__
+#ifndef __CLUSTER_CREATION_STRATEGY__
+#define __CLUSTER_CREATION_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 

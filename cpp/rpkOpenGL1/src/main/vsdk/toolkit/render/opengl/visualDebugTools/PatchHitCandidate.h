@@ -1,5 +1,5 @@
-#ifndef VISUAL_DEBUG_TOOLS_PATCH_HIT_CANDIDATE__
-#define VISUAL_DEBUG_TOOLS_PATCH_HIT_CANDIDATE__
+#ifndef __PATCH_HIT_CANDIDATE__
+#define __PATCH_HIT_CANDIDATE__
 
 class PatchHitCandidate final {
   public:

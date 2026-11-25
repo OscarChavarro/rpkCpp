@@ -1,5 +1,5 @@
-#ifndef PHOTON_MAP_IMPORTANCE__
-#define PHOTON_MAP_IMPORTANCE__
+#ifndef __PHOTON_MAP_IMPORTANCE__
+#define __PHOTON_MAP_IMPORTANCE__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"

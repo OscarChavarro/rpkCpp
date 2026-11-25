@@ -1,5 +1,5 @@
-#ifndef OPTION_CORE_TYPED_OPTION__
-#define OPTION_CORE_TYPED_OPTION__
+#ifndef __TYPED_OPTION__
+#define __TYPED_OPTION__
 
 #include <cstring>
 

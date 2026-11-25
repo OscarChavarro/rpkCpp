@@ -1,5 +1,5 @@
-#ifndef PATCH_LIST__
-#define PATCH_LIST__
+#ifndef __PATCH_SET__
+#define __PATCH_SET__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"

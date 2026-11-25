@@ -28,7 +28,7 @@ SglContext::setViewport(int x, int y, int viewportWidth, int viewportHeight) {
 }
 
 bool
-SglContext::projectPolygon(int numberOfVertices, const Vector3Df *vertices, Polygon &pol) const {
+SglContext::projectPolygon(int numberOfVertices, const Vector3Df *vertices, ScreenPolygon &pol) const {
     const PolygonBox clipBox = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
 
     if ( numberOfVertices < 3 || numberOfVertices > PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - 6 ) {

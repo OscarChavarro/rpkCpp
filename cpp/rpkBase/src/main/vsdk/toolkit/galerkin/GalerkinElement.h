@@ -2,13 +2,13 @@
 Galerkin finite elements: one structure for both surface and cluster elements
 */
 
-#ifndef GALERKIN_ELEMENT__
-#define GALERKIN_ELEMENT__
+#ifndef __GALERKIN_ELEMENT__
+#define __GALERKIN_ELEMENT__
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/scene/Polygon.h"
+#include "vsdk/toolkit/scene/ConvexPolygon.h"
 #include "vsdk/toolkit/galerkin/GalerkinElementRenderMode.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
 
@@ -78,7 +78,7 @@ class GalerkinElement final : public Element {
     int vertices(Vector3Df *p) const;
     RpkAxisAlignedBoundingBox *bounds(RpkAxisAlignedBoundingBox *boundingBox) const;
     Vector3Df midPoint() const;
-    void initPolygon(Polygon *polygon) const;
+    void initPolygon(ConvexPolygon *polygon) const;
     void reAllocCoefficients();
 
     Patch *getPatch() const {

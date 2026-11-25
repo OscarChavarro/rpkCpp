@@ -155,7 +155,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance(const Patch *P) {
 
  ColorRgb *
 RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem) {
-    static ColorRgb Ed[GalerkinBasis::MAX_BASIS_SIZE];
+    static ColorRgb Ed[StochasticRadiosityBasis::MAX_BASIS_SIZE];
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = McradP::topLevelStochasticRadiosityElement(elem->patch)->Ed; // Emittance
     return Ed;

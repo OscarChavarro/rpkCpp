@@ -1,5 +1,5 @@
-#ifndef BINARY_MODEL_WRITER_SERIALIZATION_CONTEXT__
-#define BINARY_MODEL_WRITER_SERIALIZATION_CONTEXT__
+#ifndef __BINARY_MODEL_SERIALIZATION_GRAPH__
+#define __BINARY_MODEL_SERIALIZATION_GRAPH__
 
 #include "java/util/ArrayList.h"
 #include "java/util/HashMap.h"

@@ -2,8 +2,8 @@
 Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 63 bits, skip 4096)
 */
 
-#ifndef NIED63__
-#define NIED63__
+#ifndef __NIEDERREITER_63__
+#define __NIEDERREITER_63__
 
 #ifdef __NIED_31__
     #error "Niederreiter63.h and Niederreiter31.h cannot be included in the same source file"

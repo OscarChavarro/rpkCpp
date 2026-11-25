@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACER_CALLBACK_DATA__
-#define STOCHASTIC_RAYTRACER_CALLBACK_DATA__
+#ifndef __STOCHASTIC_RAYTRACER_CALLBACK_DATA__
+#define __STOCHASTIC_RAYTRACER_CALLBACK_DATA__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"

@@ -1,5 +1,5 @@
-#ifndef BACKGROUND__
-#define BACKGROUND__
+#ifndef __BACKGROUND__
+#define __BACKGROUND__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

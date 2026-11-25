@@ -1,5 +1,5 @@
-#ifndef SGL_CONSTANTS__
-#define SGL_CONSTANTS__
+#ifndef __SGL_CONSTANTS__
+#define __SGL_CONSTANTS__
 
 using SglDepthValue = unsigned long;
 

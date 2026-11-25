@@ -1,5 +1,5 @@
-#ifndef RPK_AXIS_ALIGNED_BOUNDING_BOX__
-#define RPK_AXIS_ALIGNED_BOUNDING_BOX__
+#ifndef __RPK_AXIS_ALIGNED_BOUNDING_BOX__
+#define __RPK_AXIS_ALIGNED_BOUNDING_BOX__
 
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"

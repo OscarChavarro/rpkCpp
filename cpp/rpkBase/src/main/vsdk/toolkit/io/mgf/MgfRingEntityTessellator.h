@@ -1,5 +1,5 @@
-#ifndef MGF_RING_GEOMETRY__
-#define MGF_RING_GEOMETRY__
+#ifndef __MGF_RING_ENTITY_TESSELLATOR__
+#define __MGF_RING_ENTITY_TESSELLATOR__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

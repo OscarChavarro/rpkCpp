@@ -1,5 +1,5 @@
-#ifndef COMMAND_LINE_BATCH_OPTIONS_GROUP__
-#define COMMAND_LINE_BATCH_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_BATCH__
+#define __OPTIONS_GROUP_BATCH__
 
 #include "options/BatchOptions.h"
 

@@ -1,5 +1,5 @@
-#ifndef RENDER_OPTIONS__
-#define RENDER_OPTIONS__
+#ifndef __RENDERER_CONFIGURATION__
+#define __RENDERER_CONFIGURATION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 

@@ -2,8 +2,8 @@
 Interface for writing image data in different file formats
 */
 
-#ifndef IMAGE_OUTPUT_HANDLE__
-#define IMAGE_OUTPUT_HANDLE__
+#ifndef __IMAGE_OUTPUT_HANDLE__
+#define __IMAGE_OUTPUT_HANDLE__
 
 #include "java/io/OutputStream.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

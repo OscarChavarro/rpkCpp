@@ -1,5 +1,5 @@
-#ifndef PIXEL_RGB_H
-#define PIXEL_RGB_H
+#ifndef __PIXEL_RGB__
+#define __PIXEL_RGB__
 
 class PixelRGB {
 public:

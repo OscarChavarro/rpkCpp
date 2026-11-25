@@ -1,5 +1,5 @@
-#ifndef PPM_READER_H
-#define PPM_READER_H
+#ifndef __PPM_READER__
+#define __PPM_READER__
 
 #include "ImagePPM.h"
 

@@ -1,5 +1,5 @@
-#ifndef IMAGE_PPM_H
-#define IMAGE_PPM_H
+#ifndef __IMAGE_PPM__
+#define __IMAGE_PPM__
 
 #include "PixelRGB.h"
 

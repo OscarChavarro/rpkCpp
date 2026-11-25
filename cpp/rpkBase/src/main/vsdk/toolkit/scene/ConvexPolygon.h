@@ -1,5 +1,5 @@
-#ifndef POLYGON__
-#define POLYGON__
+#ifndef __CONVEX_POLYGON__
+#define __CONVEX_POLYGON__
 
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
@@ -10,7 +10,7 @@ A structure describing polygons. Only used for shaft culling for the moment.
 Note this is not able to represent a general polygon, just a convex polygon with
 MAXIMUM_VERTICES_PER_PATCH or less (namely, triangles and quads only)
 */
-class Polygon {
+class ConvexPolygon {
   public:
     Vector3Df normal;
     float planeConstant;
@@ -19,11 +19,11 @@ class Polygon {
     int numberOfVertices;
     char index;
 
-    Polygon();
+    ConvexPolygon();
 };
 
 inline
-Polygon::Polygon():
+ConvexPolygon::ConvexPolygon():
     normal(),
     planeConstant(),
     bounds(),

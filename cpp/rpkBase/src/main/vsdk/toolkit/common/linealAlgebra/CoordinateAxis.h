@@ -1,5 +1,5 @@
-#ifndef COORDINATE_AXIS__
-#define COORDINATE_AXIS__
+#ifndef __COORDINATE_AXIS__
+#define __COORDINATE_AXIS__
 
 enum CoordinateAxis {
     X = 0,

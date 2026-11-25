@@ -104,7 +104,7 @@ sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
 */
 template<class Sample>
 void
-Poly::scanZ(Sample *samples, SglDepthValue *depth, int stride, Sample value, const Polygon *p,  const Window *window)
+Poly::scanZ(Sample *samples, SglDepthValue *depth, int stride, Sample value, const ScreenPolygon *p,  const Window *window)
 {
     int i;
 

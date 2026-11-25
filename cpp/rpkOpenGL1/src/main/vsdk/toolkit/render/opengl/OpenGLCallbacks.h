@@ -1,5 +1,5 @@
-#ifndef OPEN_GL_CALLBACKS__
-#define OPEN_GL_CALLBACKS__
+#ifndef __OPEN_GL_CALLBACKS__
+#define __OPEN_GL_CALLBACKS__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"

@@ -1,5 +1,5 @@
-#ifndef PATCH__
-#define PATCH__
+#ifndef __PATCH__
+#define __PATCH__
 
 #include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
 #include "vsdk/toolkit/environment/geometry/element/PlanarFace.h"

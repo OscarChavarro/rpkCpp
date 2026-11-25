@@ -1,5 +1,5 @@
-#ifndef SGL_VISIBILITY_BUFFER__
-#define SGL_VISIBILITY_BUFFER__
+#ifndef __SGL_VISIBILITY_BUFFER__
+#define __SGL_VISIBILITY_BUFFER__
 
 #include "vsdk/toolkit/render/sgl/SglContext.h"
 

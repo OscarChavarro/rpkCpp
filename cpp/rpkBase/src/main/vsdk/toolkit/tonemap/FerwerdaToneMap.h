@@ -1,5 +1,5 @@
-#ifndef FERWERDA_TONE_MAP__
-#define FERWERDA_TONE_MAP__
+#ifndef __FERWERDA_TONE_MAP__
+#define __FERWERDA_TONE_MAP__
 
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 

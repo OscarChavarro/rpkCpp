@@ -1,5 +1,5 @@
-#ifndef GATHERING_CLUSTERED_STRATEGY__
-#define GATHERING_CLUSTERED_STRATEGY__
+#ifndef __GATHERING_CLUSTERED_STRATEGY__
+#define __GATHERING_CLUSTERED_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/processing/GatheringStrategy.h"
 

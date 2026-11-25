@@ -1,5 +1,5 @@
-#ifndef RANDOM_WALK_ESTIMATOR_KIND__
-#define RANDOM_WALK_ESTIMATOR_KIND__
+#ifndef __RANDOM_WALK_ESTIMATOR_KIND__
+#define __RANDOM_WALK_ESTIMATOR_KIND__
 
 enum RandomWalkEstimatorKind {
     RW_COLLISION,

@@ -1,5 +1,5 @@
-#ifndef _SOFT_IDS_WRAPPER__
-#define _SOFT_IDS_WRAPPER__
+#ifndef __SOFT_IDS_WRAPPER__
+#define __SOFT_IDS_WRAPPER__
 
 #include "vsdk/toolkit/render/FaceVisibilityBuffer.h"
 #include "vsdk/toolkit/scene/Scene.h"

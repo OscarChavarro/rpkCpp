@@ -1,5 +1,5 @@
-#ifndef TONE_MAPPING_CONTEXT_H
-#define TONE_MAPPING_CONTEXT_H
+#ifndef __TONE_MAPPING_CONTEXT__
+#define __TONE_MAPPING_CONTEXT__
 
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

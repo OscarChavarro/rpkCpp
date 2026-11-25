@@ -2,8 +2,8 @@
 Samples a random point on the view screen and traces the viewing ray.
 */
 
-#ifndef SCREEN_SAMPLER__
-#define SCREEN_SAMPLER__
+#ifndef __SCREEN_SAMPLER__
+#define __SCREEN_SAMPLER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

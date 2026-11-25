@@ -174,7 +174,7 @@ if the polygon is cut by the plane and COPLANAR if the polygon lay on the
 plane within tolerance distance d*VSDK::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Df *normal, const double d) {
+Shaft::testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Df *normal, const double d) {
     bool out = false; // out = there are positions on the positive side of the plane
     bool in = false; // in  = there are positions on the negative side of the plane
 
@@ -201,7 +201,7 @@ so, and false if not
 */
 bool
 Shaft::verifyPolygonWithRespectToPlane(
-    const Polygon *polygon,
+    const ConvexPolygon *polygon,
     const Vector3Df *normal,
     const double d,
     const ShaftPlanePosition side)
@@ -324,7 +324,7 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
 Construct the planes determining the shaft that use edges of p1 and vertices of p2
 */
 void
-Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *polygon2) {
+Shaft::constructPolygonToPolygonPlanes(const ConvexPolygon *polygon1, const ConvexPolygon *polygon2) {
     Vector3Df normal;
     int localPlaneIndex = numberOfPlanesInSet;
     int maxPlanesPerEdge;
@@ -427,7 +427,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
 Constructs a shaft enclosing the two given polygons
 */
 void
-Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2) {
+Shaft::constructFromPolygonToPolygon(const ConvexPolygon *polygon1, const ConvexPolygon *polygon2) {
     // No "reference" bounding boxes to test with
     referenceItem1 = nullptr;
     referenceItem2 = nullptr;

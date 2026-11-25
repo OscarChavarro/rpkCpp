@@ -1,5 +1,5 @@
-#ifndef RAY_MATTER_STATE__
-#define RAY_MATTER_STATE__
+#ifndef __RAY_MATTER_STATE__
+#define __RAY_MATTER_STATE__
 
 #include "vsdk/toolkit/raycasting/simple/RayMatterFilterType.h"
 

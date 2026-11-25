@@ -1,5 +1,5 @@
-#ifndef FACE_BOUNDS_TABLE__
-#define FACE_BOUNDS_TABLE__
+#ifndef __FACE_BOUNDS_TABLE__
+#define __FACE_BOUNDS_TABLE__
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"

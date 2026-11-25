@@ -1,5 +1,5 @@
-#ifndef IMPORTANT_LIGHT_SAMPLER__
-#define IMPORTANT_LIGHT_SAMPLER__
+#ifndef __IMPORTANT_LIGHT_SAMPLER__
+#define __IMPORTANT_LIGHT_SAMPLER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

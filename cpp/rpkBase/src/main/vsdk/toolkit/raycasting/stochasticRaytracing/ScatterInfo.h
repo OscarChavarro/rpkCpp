@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACING_CSCATTER_INFO__
-#define STOCHASTIC_RAYTRACING_CSCATTER_INFO__
+#ifndef __SCATTER_INFO__
+#define __SCATTER_INFO__
 
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
 

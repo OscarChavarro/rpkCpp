@@ -1,5 +1,5 @@
-#ifndef CIRCULAR_LIST_LINK__
-#define CIRCULAR_LIST_LINK__
+#ifndef __CIRCULAR_LIST_LINK__
+#define __CIRCULAR_LIST_LINK__
 
 class CircularListLink {
   public:

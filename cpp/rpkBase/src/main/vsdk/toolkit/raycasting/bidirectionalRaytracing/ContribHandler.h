@@ -1,5 +1,5 @@
-#ifndef CONTRIB_HANDLER__
-#define CONTRIB_HANDLER__
+#ifndef __CONTRIB_HANDLER__
+#define __CONTRIB_HANDLER__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BiPath.h"

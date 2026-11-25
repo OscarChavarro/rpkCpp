@@ -1,5 +1,5 @@
-#ifndef MATERIAL_REPOSITORY__
-#define MATERIAL_REPOSITORY__
+#ifndef __MATERIAL_REGISTRY_CONTEXT__
+#define __MATERIAL_REGISTRY_CONTEXT__
 
 #include "vsdk/toolkit/common/dataStructures/LookUpTable.h"
 #include "vsdk/toolkit/io/context/MaterialContext.h"

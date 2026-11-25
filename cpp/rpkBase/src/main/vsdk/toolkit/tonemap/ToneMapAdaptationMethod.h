@@ -1,5 +1,5 @@
-#ifndef TONE_MAP_ADAPTATION_METHOD__
-#define TONE_MAP_ADAPTATION_METHOD__
+#ifndef __TONE_MAP_ADAPTATION_METHOD__
+#define __TONE_MAP_ADAPTATION_METHOD__
 
 /**
 Static adaptation estimation methods

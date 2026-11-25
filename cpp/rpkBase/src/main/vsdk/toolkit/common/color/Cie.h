@@ -7,8 +7,8 @@ Instances are immutable values. Whoever selects the display primaries (the
 tone mapping context) owns one and hands it to the code that needs it.
 */
 
-#ifndef CIE__
-#define CIE__
+#ifndef __CIE__
+#define __CIE__
 
 class Cie final {
   private:

@@ -1,5 +1,5 @@
-#ifndef CLUSTER__
-#define CLUSTER__
+#ifndef __PATCH_CLUSTER_OCTREE_NODE__
+#define __PATCH_CLUSTER_OCTREE_NODE__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"

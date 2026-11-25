@@ -1,5 +1,5 @@
-#ifndef BINARY_MODEL_WRITTER__
-#define BINARY_MODEL_WRITTER__
+#ifndef __BINARY_MODEL_SERIALIZER__
+#define __BINARY_MODEL_SERIALIZER__
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"

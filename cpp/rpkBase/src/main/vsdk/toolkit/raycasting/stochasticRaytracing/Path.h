@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACING_PATH__
-#define STOCHASTIC_RAYTRACING_PATH__
+#ifndef __PATH__
+#define __PATH__
 
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingPathNode.h"
 

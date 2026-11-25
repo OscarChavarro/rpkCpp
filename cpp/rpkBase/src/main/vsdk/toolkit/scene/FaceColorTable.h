@@ -1,5 +1,5 @@
-#ifndef FACE_COLOR_TABLE__
-#define FACE_COLOR_TABLE__
+#ifndef __FACE_COLOR_TABLE__
+#define __FACE_COLOR_TABLE__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 

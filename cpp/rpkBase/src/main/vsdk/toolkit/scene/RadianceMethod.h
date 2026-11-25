@@ -1,5 +1,5 @@
-#ifndef RADIANCE_METHOD__
-#define RADIANCE_METHOD__
+#ifndef __RADIANCE_METHOD__
+#define __RADIANCE_METHOD__
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"

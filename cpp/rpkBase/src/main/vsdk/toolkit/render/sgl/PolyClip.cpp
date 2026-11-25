@@ -13,8 +13,8 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 #include "java/lang/System.h"
 #include "vsdk/toolkit/render/sgl/Poly.h"
 void
-Poly::polygonSwap(Polygon *a, Polygon *b) {
-    Polygon temporary = *a;
+Poly::polygonSwap(ScreenPolygon *a, ScreenPolygon *b) {
+    ScreenPolygon temporary = *a;
     *a = *b;
     *b = temporary;
 }
@@ -74,7 +74,7 @@ Poly::setPolygonVertexCoord(PolygonVertex *vertex, int index, double value) {
 }
 
 void
-Poly::clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
+Poly::clipToHalfSpace(ScreenPolygon *p, ScreenPolygon *q, int index, double sign, double k) {
     q->n = 0;
     q->mask = p->mask;
 
@@ -117,7 +117,7 @@ Poly::clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) 
 }
 
 void
-Poly::clipAndSwap(int elementIndex, double sign, double k, Polygon *p, Polygon *q, Polygon *p1) {
+Poly::clipAndSwap(int elementIndex, double sign, double k, ScreenPolygon *p, ScreenPolygon *q, ScreenPolygon *p1) {
     Poly::clipToHalfSpace(p, q, elementIndex, sign, sign * k);
     if ( q->n == 0 ) {
         p1->n = 0;
@@ -139,14 +139,14 @@ Given an n-gon as input, clipping against 6 planes could generate an
 (n+6)gon, so POLY_N_MAX in poly.h must be big enough to allow that.
 */
 int
-Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
+Poly::clipToBox(ScreenPolygon *p1, const PolygonBox *box) {
     int x0out = 0;
     int x1out = 0;
     int y0out = 0;
     int y1out = 0;
     int z0out = 0;
     int z1out = 0;
-    Polygon p2{};
+    ScreenPolygon p2{};
 
     if ( p1->n + 6 > PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON ) {
         java::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
@@ -197,8 +197,8 @@ Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
 
     // Now clip against each of the planes that might cut the polygon,
     // at each step toggling between polygons p1 and p2
-    Polygon *p = p1;
-    Polygon *q = &p2;
+    ScreenPolygon *p = p1;
+    ScreenPolygon *q = &p2;
     if ( x0out ) {
         Poly::clipAndSwap(0 /*sx*/, -1.0, box->x0, p, q, p1);
     }
@@ -220,7 +220,7 @@ Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        int n = static_cast<int>(sizeof(Polygon) - (PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
+        int n = static_cast<int>(sizeof(ScreenPolygon) - (PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
         memcpy(p1, &p2, n);
     }
     return POLY_CLIP_PARTIAL;

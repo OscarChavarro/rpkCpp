@@ -1,5 +1,5 @@
-#ifndef LE_SPAR__
-#define LE_SPAR__
+#ifndef __LE_SPAR__
+#define __LE_SPAR__
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/Spar.h"
 

@@ -1,5 +1,5 @@
-#ifndef SPAR_CONFIG__
-#define SPAR_CONFIG__
+#ifndef __SPAR_CONFIG__
+#define __SPAR_CONFIG__
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 class Spar;

@@ -1,5 +1,5 @@
-#ifndef CLUSTER_LEAF_VISITOR__
-#define CLUSTER_LEAF_VISITOR__
+#ifndef __CLUSTER_LEAF_VISITOR__
+#define __CLUSTER_LEAF_VISITOR__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 class ClusterLeafVisitor {

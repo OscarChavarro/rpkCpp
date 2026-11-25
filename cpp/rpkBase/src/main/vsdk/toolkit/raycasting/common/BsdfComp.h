@@ -2,8 +2,8 @@
 Some bsdf component stuff.
 */
 
-#ifndef BSDF_COMP__
-#define BSDF_COMP__
+#ifndef __BSDF_COMP__
+#define __BSDF_COMP__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 

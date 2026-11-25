@@ -1,6 +1,6 @@
 #include "java/lang/Float.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/ColorRgbMath.h"
+#include "vsdk/toolkit/galerkin/ColorRgbMath.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -549,7 +549,7 @@ Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
 void
-GalerkinElement::initPolygon(Polygon *polygon) const {
+GalerkinElement::initPolygon(ConvexPolygon *polygon) const {
     if ( isCluster() ) {
         Logger::reportMessage("GalerkinElement", Logger::FATAL_ERROR, "galerkinElementPolygon", "Cannot use this function for cluster elements");
     }

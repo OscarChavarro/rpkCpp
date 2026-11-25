@@ -1,5 +1,5 @@
-#ifndef COMPOUND__
-#define COMPOUND__
+#ifndef __COMPOUND__
+#define __COMPOUND__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"

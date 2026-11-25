@@ -1,5 +1,5 @@
-#ifndef FACE_VISIBILITY_BUFFER__
-#define FACE_VISIBILITY_BUFFER__
+#ifndef __FACE_VISIBILITY_BUFFER__
+#define __FACE_VISIBILITY_BUFFER__
 
 #include "vsdk/toolkit/render/sgl/SglVisibilityBuffer.h"
 

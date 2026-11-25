@@ -1,5 +1,5 @@
-#ifndef HIERARCHY_CLUSTERING_MODE__
-#define HIERARCHY_CLUSTERING_MODE__
+#ifndef __HIERARCHY_CLUSTERING_MODE__
+#define __HIERARCHY_CLUSTERING_MODE__
 
 enum HierarchyClusteringMode {
     NO_CLUSTERING,

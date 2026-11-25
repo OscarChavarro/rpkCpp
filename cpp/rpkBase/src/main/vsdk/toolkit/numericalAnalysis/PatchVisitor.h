@@ -1,5 +1,5 @@
-#ifndef PATCH_VISITOR__
-#define PATCH_VISITOR__
+#ifndef __PATCH_VISITOR__
+#define __PATCH_VISITOR__
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 

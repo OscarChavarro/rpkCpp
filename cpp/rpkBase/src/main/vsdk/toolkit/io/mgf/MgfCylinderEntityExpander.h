@@ -1,5 +1,5 @@
-#ifndef MGF_CYLINDER_GEOMETRY__
-#define MGF_CYLINDER_GEOMETRY__
+#ifndef __MGF_CYLINDER_ENTITY_EXPANDER__
+#define __MGF_CYLINDER_ENTITY_EXPANDER__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

@@ -21,7 +21,7 @@ Coefficientsmcrad::disposeCoefficients(StochasticRadiosityElement *elem) {
 /**
 Determines basis based on element type and currently desired approximation
 */
-GalerkinBasis *
+StochasticRadiosityBasis *
 Coefficientsmcrad::actualBasis(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         return &StochasticRadiosityBasisState::activeState().clusterBasis;

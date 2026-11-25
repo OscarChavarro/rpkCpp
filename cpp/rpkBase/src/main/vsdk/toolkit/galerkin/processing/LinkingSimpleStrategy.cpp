@@ -55,8 +55,8 @@ LinkingSimpleStrategy::createInitialLink(
 
         if ( galerkinState->exactVisibility ) {
             if ( rcv != nullptr && src != nullptr ) {
-                Polygon rcvPolygon;
-                Polygon srcPolygon;
+                ConvexPolygon rcvPolygon;
+                ConvexPolygon srcPolygon;
                 rcv->initPolygon(&rcvPolygon);
                 src->initPolygon(&srcPolygon);
                 shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);

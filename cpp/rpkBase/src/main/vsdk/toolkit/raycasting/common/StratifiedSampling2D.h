@@ -1,5 +1,5 @@
-#ifndef STRATIFIED_SAMPLING_2D__
-#define STRATIFIED_SAMPLING_2D__
+#ifndef __STRATIFIED_SAMPLING_2_D__
+#define __STRATIFIED_SAMPLING_2_D__
 
 #include <cstdint>
 

@@ -1,5 +1,5 @@
-#ifndef GALERKIN_STATE__
-#define GALERKIN_STATE__
+#ifndef __GALERKIN_STATE__
+#define __GALERKIN_STATE__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

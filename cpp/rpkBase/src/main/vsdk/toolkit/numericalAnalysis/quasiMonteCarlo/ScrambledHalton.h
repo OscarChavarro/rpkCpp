@@ -2,8 +2,8 @@
 Scrambled Halton quasiMonteCarlo sequence
 */
 
-#ifndef SCRAMBLED_HALTON__
-#define SCRAMBLED_HALTON__
+#ifndef __SCRAMBLED_HALTON__
+#define __SCRAMBLED_HALTON__
 
 class ScrambledHalton {
   private:

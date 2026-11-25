@@ -1,5 +1,5 @@
-#ifndef PERSISTED_SCENE_MODEL__
-#define PERSISTED_SCENE_MODEL__
+#ifndef __PARSE_SNAPSHOT_CONTEXT__
+#define __PARSE_SNAPSHOT_CONTEXT__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"

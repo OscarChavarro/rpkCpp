@@ -1,5 +1,5 @@
-#ifndef RAY_EXCLUSION_SET__
-#define RAY_EXCLUSION_SET__
+#ifndef __RAY_EXCLUSION_SET__
+#define __RAY_EXCLUSION_SET__
 
 #include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
 

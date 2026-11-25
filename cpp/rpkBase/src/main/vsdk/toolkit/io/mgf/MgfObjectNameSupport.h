@@ -1,5 +1,5 @@
-#ifndef MGF_HANDLER_OBJECT__
-#define MGF_HANDLER_OBJECT__
+#ifndef __MGF_OBJECT_NAME_SUPPORT__
+#define __MGF_OBJECT_NAME_SUPPORT__
 
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 

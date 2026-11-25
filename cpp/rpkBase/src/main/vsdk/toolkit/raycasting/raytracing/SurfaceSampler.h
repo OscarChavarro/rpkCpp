@@ -1,5 +1,5 @@
-#ifndef C_SURFACE_SAMPLER__
-#define C_SURFACE_SAMPLER__
+#ifndef __SURFACE_SAMPLER__
+#define __SURFACE_SAMPLER__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"

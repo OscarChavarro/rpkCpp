@@ -2,8 +2,8 @@
 Monte Carlo radiosity
 */
 
-#ifndef _MONTE_CARLO_RADIOSITY__
-#define _MONTE_CARLO_RADIOSITY__
+#ifndef __MCRAD__
+#define __MCRAD__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

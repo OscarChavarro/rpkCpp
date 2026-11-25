@@ -90,7 +90,7 @@ win: 2-D screen space clipping window
 */
 template<class Sample>
 void
-Poly::scanFlat(Sample *samples, int stride, Sample value, const Polygon *p, const Window *win)
+Poly::scanFlat(Sample *samples, int stride, Sample value, const ScreenPolygon *p, const Window *win)
 {
     int i;
     int ri;

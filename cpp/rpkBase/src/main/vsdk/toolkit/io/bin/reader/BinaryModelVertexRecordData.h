@@ -1,5 +1,5 @@
-#ifndef BINARY_MODEL_READER_VERTEX_RECORD__
-#define BINARY_MODEL_READER_VERTEX_RECORD__
+#ifndef __BINARY_MODEL_VERTEX_RECORD_DATA__
+#define __BINARY_MODEL_VERTEX_RECORD_DATA__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"

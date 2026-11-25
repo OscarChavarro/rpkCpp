@@ -2,8 +2,8 @@
 General definitions for edf, brdf, btdf, etc.
 */
 
-#ifndef XXDF__
-#define XXDF__
+#ifndef __XXDF__
+#define __XXDF__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
 #include "vsdk/toolkit/material/XxdfComponentFlag.h"

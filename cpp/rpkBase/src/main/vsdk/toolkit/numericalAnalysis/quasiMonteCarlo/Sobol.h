@@ -2,8 +2,8 @@
 Sobol quasiMonteCarlo sequence
 */
 
-#ifndef SOBOL__
-#define SOBOL__
+#ifndef __SOBOL__
+#define __SOBOL__
 
 class Sobol {
   private:

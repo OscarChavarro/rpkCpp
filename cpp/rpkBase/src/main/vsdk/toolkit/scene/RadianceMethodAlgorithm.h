@@ -1,5 +1,5 @@
-#ifndef RADIANCE_METHOD_ALGORITHM__
-#define RADIANCE_METHOD_ALGORITHM__
+#ifndef __RADIANCE_METHOD_ALGORITHM__
+#define __RADIANCE_METHOD_ALGORITHM__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

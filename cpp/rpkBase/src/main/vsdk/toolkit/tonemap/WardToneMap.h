@@ -1,5 +1,5 @@
-#ifndef WARD_TONE_MAP__
-#define WARD_TONE_MAP__
+#ifndef __WARD_TONE_MAP__
+#define __WARD_TONE_MAP__
 
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 

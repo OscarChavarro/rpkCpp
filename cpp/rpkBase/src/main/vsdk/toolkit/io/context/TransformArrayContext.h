@@ -1,5 +1,5 @@
-#ifndef TRANSFORM_ARRAY_CONTEXT__
-#define TRANSFORM_ARRAY_CONTEXT__
+#ifndef __TRANSFORM_ARRAY_CONTEXT__
+#define __TRANSFORM_ARRAY_CONTEXT__
 
 class TransformArrayContext {
   public:

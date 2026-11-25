@@ -1,5 +1,5 @@
-#ifndef STOCHASTIC_RAYTRACER__
-#define STOCHASTIC_RAYTRACER__
+#ifndef __STOCHASTIC_RAYTRACER__
+#define __STOCHASTIC_RAYTRACER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

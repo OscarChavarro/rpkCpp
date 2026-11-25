@@ -1,5 +1,5 @@
-#ifndef SCENE__
-#define SCENE__
+#ifndef __SCENE__
+#define __SCENE__
 
 #include "vsdk/toolkit/skin/Compound.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"

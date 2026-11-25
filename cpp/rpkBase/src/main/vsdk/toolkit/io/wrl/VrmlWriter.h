@@ -2,8 +2,8 @@
 Saves the result of a radiosity computation as a VRML file
 */
 
-#ifndef VRML_WRITER__
-#define VRML_WRITER__
+#ifndef __VRML_WRITER__
+#define __VRML_WRITER__
 
 #include "java/io/OutputStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"

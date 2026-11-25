@@ -1,5 +1,5 @@
-#ifndef SCENE_BUILDER__
-#define SCENE_BUILDER__
+#ifndef __SCENE_BUILDER__
+#define __SCENE_BUILDER__
 
 #include "vsdk/toolkit/scene/Scene.h"
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"

@@ -2,14 +2,14 @@
 Definitions for polygon package
 */
 
-#ifndef POLY_HDR__
-#define POLY_HDR__
+#ifndef __POLY__
+#define __POLY__
 
 #include <cstddef>
 
 #include "vsdk/toolkit/render/sgl/PolygonClipResult.h"
 #include "vsdk/toolkit/render/sgl/PolygonVertex.h"
-#include "vsdk/toolkit/render/sgl/Polygon.h"
+#include "vsdk/toolkit/render/sgl/ScreenPolygon.h"
 #include "vsdk/toolkit/render/sgl/PolygonBox.h"
 #include "vsdk/toolkit/render/sgl/Window.h"
 #include "vsdk/toolkit/render/sgl/SglConstants.h"
@@ -24,10 +24,10 @@ mask = Poly::mask(offsetof(PolygonVertex, sx)) |
 
 class Poly {
   private:
-    static void polygonSwap(Polygon *a, Polygon *b);
+    static void polygonSwap(ScreenPolygon *a, ScreenPolygon *b);
     static void setPolygonVertexCoord(PolygonVertex *vertex, int index, double value);
-    static void clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k);
-    static void clipAndSwap(int elementIndex, double sign, double k, Polygon *p, Polygon *q, Polygon *p1);
+    static void clipToHalfSpace(ScreenPolygon *p, ScreenPolygon *q, int index, double sign, double k);
+    static void clipAndSwap(int elementIndex, double sign, double k, ScreenPolygon *p, ScreenPolygon *q, ScreenPolygon *p1);
 
     static void incrementalizeYFlat(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y);
     static void incrementFlat(PolygonVertex *p, const PolygonVertex &dp);
@@ -47,13 +47,13 @@ class Poly {
         return 1UL << (elementOffset / sizeof(double));
     }
 
-    static int clipToBox(Polygon *p1, const PolygonBox *box);
+    static int clipToBox(ScreenPolygon *p1, const PolygonBox *box);
     template<class Sample>
-    static void scanFlat(Sample *samples, int stride, Sample value, const Polygon *p, const Window *win);
+    static void scanFlat(Sample *samples, int stride, Sample value, const ScreenPolygon *p, const Window *win);
 
     template<class Sample>
     static void scanZ(Sample *samples, SglDepthValue *depth, int stride, Sample value,
-                      const Polygon *p, const Window *window);
+                      const ScreenPolygon *p, const Window *window);
 };
 
 #endif
