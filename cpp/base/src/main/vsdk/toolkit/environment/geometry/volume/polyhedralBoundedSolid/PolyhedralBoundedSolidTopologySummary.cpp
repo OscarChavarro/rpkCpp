@@ -197,7 +197,7 @@ PolyhedralBoundedSolidTopologySummary::PolyhedralBoundedSolidTopologySummary(
         int adjustedFaceTerm = 0;
         bool closed = true;
 
-        for ( size_t f = 0; f < faces.size(); f++ ) {
+        for ( long int f = 0; f < faces.size(); f++ ) {
             adjustedFaceTerm += 2 - (int)faces[f]->boundariesList.size();
             collectFaceVertices(faces[f], shellVertices);
         }
@@ -259,7 +259,7 @@ bool PolyhedralBoundedSolidTopologySummary::hasUniversalContradiction() const
     if ( !everyFaceReachedExactlyOnce || invalidEdgeAdjacencyCount > 0 ) {
         return true;
     }
-    for ( size_t i = 0; i < shells.size(); i++ ) {
+    for ( long int i = 0; i < shells.size(); i++ ) {
         if ( !shells[i].isClosedOrientableEulerCompatible() ) {
             return true;
         }
@@ -270,7 +270,7 @@ bool PolyhedralBoundedSolidTopologySummary::hasUniversalContradiction() const
 java::String PolyhedralBoundedSolidTopologySummary::toString() const
 {
     java::String perShell = "[";
-    for ( size_t i = 0; i < shells.size(); i++ ) {
+    for ( long int i = 0; i < shells.size(); i++ ) {
         if ( i > 0 ) {
             perShell += ", ";
         }

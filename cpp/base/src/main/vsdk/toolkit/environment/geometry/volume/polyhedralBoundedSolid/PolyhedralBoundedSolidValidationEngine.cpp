@@ -35,7 +35,7 @@ bool runStrategies(
     java::String* msg)
 {
     bool ok = true;
-    size_t i;
+    long int i;
 
     for ( i = 0; i < strategies.size(); i++ ) {
         if ( !strategies[i]->validate(solid, numericContext, msg) ) {

@@ -54,6 +54,7 @@ public:
     explicit RayHit(int requiredDetailMask);
     RayHit(int requiredDetailMask, bool storeRay);
     RayHit(const RayHit& other);
+    RayHit& operator=(const RayHit& other) = default;
     ~RayHit();
 
     void clear();

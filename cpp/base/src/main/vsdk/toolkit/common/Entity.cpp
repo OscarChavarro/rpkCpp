@@ -94,13 +94,13 @@ java::String
 Entity::controlNameOf(const java::String &specification)
 {
     java::String text(specification.c_str());
-    size_t begin = text.find(';');
-    if ( begin == -1 ) {
+    int begin = text.find(';');
+    if ( begin == java::String::npos ) {
         return java::String();
     }
     begin++;
-    size_t end = text.find(';', begin);
-    if ( end == -1 ) {
+    int end = text.find(';', begin);
+    if ( end == java::String::npos ) {
         end = text.size();
     }
     while ( begin < end && std::isspace((unsigned char)text[begin]) ) {
@@ -215,13 +215,13 @@ Entity::getClassSimpleName() const
     std::free(demangled);
 #else
     // MSVC names are "class Sphere"
-    size_t space = name.rfind(' ');
-    if ( space != -1 ) {
+    int space = name.rfind(' ');
+    if ( space != java::String::npos ) {
         name = name.substr(space + 1);
     }
 #endif
-    size_t scope = name.rfind("::");
-    if ( scope != -1 ) {
+    int scope = name.rfind("::");
+    if ( scope != java::String::npos ) {
         name = name.substr(scope + 2);
     }
     return java::String(name.c_str());

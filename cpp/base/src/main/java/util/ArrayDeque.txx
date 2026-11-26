@@ -99,7 +99,6 @@ void ArrayDeque<E>::clear() {
 
 template <class E>
 void ArrayDeque<E>::doubleCapacity() {
-    long m = mask();
     long p = head;
     long n = capacity;
     long r = n - p;

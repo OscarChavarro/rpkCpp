@@ -37,7 +37,7 @@ bool containsApproxDistance(
     double value,
     double tolerance)
 {
-    for (size_t i = 0; i < values.size(); ++i) {
+    for (long int i = 0; i < values.size(); ++i) {
         if (std::abs(values[i] - value) < tolerance) {
             return true;
         }
@@ -178,7 +178,7 @@ bool PolyhedralBoundedSolidPredicates::isPointInside(
     int lastCrossings = 0;
 
     const java::ArrayList<Vector3Dd>& probes = probeDirections();
-    for (size_t i = 0; i < probes.size(); ++i) {
+    for (long int i = 0; i < probes.size(); ++i) {
         int crossings = countBoundaryCrossingsToInfinity(
             solid, point, probes[i], maxT, bigEps);
         if (crossings >= 0) {
@@ -246,7 +246,7 @@ int PolyhedralBoundedSolidPredicates::quantitativeInvisibility(
     int qi = 0;
     bool previousInterior = false;
     double previousBound = 0.0;
-    for (size_t i = 0; i <= crossings.size(); ++i) {
+    for (long int i = 0; i <= crossings.size(); ++i) {
         double upper = i < crossings.size() ? crossings[i] : reach;
         if (upper - previousBound > eps) {
             Vector3Dd mid = eye.add(

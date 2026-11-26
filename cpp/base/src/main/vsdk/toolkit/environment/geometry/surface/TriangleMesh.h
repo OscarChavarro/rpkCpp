@@ -69,6 +69,7 @@ private:
 public:
     TriangleMesh();
     TriangleMesh(const TriangleMesh& other);
+    TriangleMesh& operator=(const TriangleMesh& other) = default;
     ~TriangleMesh();
 
     TriangleMesh* clone() const;

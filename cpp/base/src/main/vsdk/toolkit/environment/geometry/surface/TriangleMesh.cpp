@@ -44,8 +44,9 @@ TriangleMesh::TriangleMesh(const TriangleMesh& o)
       vertexColors(o.vertexColors), vertexSelections(o.vertexSelections),
       vertexUvs(o.vertexUvs), incidentTrianglesPerVertexArray(o.incidentTrianglesPerVertexArray),
       triangleIndexes(o.triangleIndexes), triangleNormals(o.triangleNormals),
-      materials(o.materials), textureRanges(o.textureRanges), materialRanges(o.materialRanges),
-      textures(o.textures), intersectionTriangleIndex(o.intersectionTriangleIndex),
+      materials(o.materials), textures(o.textures),
+      textureRanges(o.textureRanges), materialRanges(o.materialRanges),
+      intersectionTriangleIndex(o.intersectionTriangleIndex),
       ownsMaterials(false), accelerationStructure(o.accelerationStructure)
 {
 }
