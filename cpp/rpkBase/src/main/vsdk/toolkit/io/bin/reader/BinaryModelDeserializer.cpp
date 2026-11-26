@@ -3,7 +3,7 @@
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
@@ -44,7 +44,7 @@ BinaryModelDeserializer::read(const char *fileName) {
     java::FileInputStream fileInput(fileName);
     java::BufferedInputStream input(&fileInput);
 
-    java::ArrayList<Vector3Df *> vectors;
+    java::ArrayList<Vector3Dd *> vectors;
     java::ArrayList<RpkVertex *> vertices;
     java::ArrayList<Patch *> patches;
     java::ArrayList<RpkMaterial *> materials;
@@ -82,7 +82,7 @@ BinaryModelDeserializer::read(const char *fileName) {
         if ( !BinaryModelReadPrimitives::readNonNegativeCount(input, "transform arrays", &transformArrayCount) ) goto fail;
         if ( !BinaryModelReadPrimitives::readNonNegativeCount(input, "transform contexts", &transformContextCount) ) goto fail;
 
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&vectors, vectorCount, static_cast<Vector3Df *>(nullptr), "vectors") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&vectors, vectorCount, static_cast<Vector3Dd *>(nullptr), "vectors") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&vertices, vertexCount, static_cast<RpkVertex *>(nullptr), "vertices") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&patches, patchCount, static_cast<Patch *>(nullptr), "patches") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&materials, materialCount, static_cast<RpkMaterial *>(nullptr), "materials") ) goto fail;
@@ -97,7 +97,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "VEC3") ) goto fail;
         for ( int i = 0; i < vectorCount; i++ ) {
-            Vector3Df * const vector = new Vector3Df();
+            Vector3Dd * const vector = new Vector3Dd();
             if ( !BinaryModelReadPrimitives::readVector(input, vector) ) {
                 delete vector;
                 goto fail;
@@ -117,8 +117,8 @@ BinaryModelDeserializer::read(const char *fileName) {
             const PhongLobe *emission = nullptr;
             const PhongLobe *reflection = nullptr;
             const PhongLobe *transmission = nullptr;
-            float refractionIndexReal = 1.0F;
-            float refractionIndexImaginary = 0.0F;
+            double refractionIndexReal = 1.0;
+            double refractionIndexImaginary = 0.0;
             Texture *texture = nullptr;
             const bool hasEdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasEdf ) {
@@ -126,7 +126,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                 ColorRgb ks(0.0, 0.0, 0.0);
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                const float ns = BinaryModelReadPrimitives::readFloatLE(input);
+                const double ns = BinaryModelReadPrimitives::readFloatLE(input);
                 emission = new PhongLobe(kd, ks, ns);
             }
 
@@ -139,7 +139,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                     ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                    const float ns = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ns = BinaryModelReadPrimitives::readFloatLE(input);
                     reflection = new PhongLobe(kd, ks, ns);
                 }
 
@@ -149,9 +149,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                     ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                    const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                    const float nr = BinaryModelReadPrimitives::readFloatLE(input);
-                    const float ni = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ns = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double nr = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ni = BinaryModelReadPrimitives::readFloatLE(input);
                     transmission = new PhongLobe(kd, ks, ns);
                     refractionIndexReal = nr;
                     refractionIndexImaginary = ni;
@@ -331,9 +331,9 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
             if ( !BinaryModelReadPrimitives::readIndexList(input, "vertex.patches", &record.patchIndices) ) goto fail;
 
-            Vector3Df *point = nullptr;
-            Vector3Df *normal = nullptr;
-            Vector3Df *texCoords = nullptr;
+            Vector3Dd *point = nullptr;
+            Vector3Dd *normal = nullptr;
+            Vector3Dd *texCoords = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.pointIndex, "vertex.point", &point) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.normalIndex, "vertex.normal", &normal) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.textureCoordinateIndex, "vertex.textureCoordinates", &texCoords) ) goto fail;
@@ -380,9 +380,9 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( !BinaryModelReadPrimitives::readVector(input, &record.midPoint) ) goto fail;
 
             record.hasJacobian = BinaryModelReadPrimitives::readBool(input);
-            record.jacobianA = 0.0F;
-            record.jacobianB = 0.0F;
-            record.jacobianC = 0.0F;
+            record.jacobianA = 0.0;
+            record.jacobianB = 0.0;
+            record.jacobianC = 0.0;
             if ( record.hasJacobian ) {
                 record.jacobianA = BinaryModelReadPrimitives::readFloatLE(input);
                 record.jacobianB = BinaryModelReadPrimitives::readFloatLE(input);
@@ -531,8 +531,8 @@ BinaryModelDeserializer::read(const char *fileName) {
                 char *objectName = nullptr;
                 if ( !BinaryModelReadPrimitives::duplicateNullableString(record.hasObjectName, record.objectName, &objectName) ) goto fail;
 
-                java::ArrayList<Vector3Df *> *positions = nullptr;
-                java::ArrayList<Vector3Df *> *normals = nullptr;
+                java::ArrayList<Vector3Dd *> *positions = nullptr;
+                java::ArrayList<Vector3Dd *> *normals = nullptr;
                 java::ArrayList<RpkVertex *> *surfaceVertices = nullptr;
                 java::ArrayList<Patch *> *faces = nullptr;
                 RpkMaterial *material = nullptr;

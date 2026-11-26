@@ -16,7 +16,7 @@ See [COHE1993] section 5.3.2.
 */
 class GatheringStrategy {
   protected:
-    static float pushPullPotential(GalerkinElement *element, float down, const DirectPotentialTable *directPotentials);
+    static double pushPullPotential(GalerkinElement *element, double down, const DirectPotentialTable *directPotentials);
 
   public:
     GatheringStrategy();

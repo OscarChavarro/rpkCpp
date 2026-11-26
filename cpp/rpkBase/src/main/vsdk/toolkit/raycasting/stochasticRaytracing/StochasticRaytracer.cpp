@@ -183,12 +183,11 @@ StochasticRaytracer::execute(
         && rayTracingState.randomWalkFinalThreads > 1;
     const bool parallelSupported = rayTracingState.radMode == RayTracingRadMode::STORED_NONE
         && rayTracingState.reflectionSampling == RayTracingSamplingMode::BRDF_SAMPLING
-        && !rayTracingState.doFrameCoherent && !rayTracingState.doCorrelatedSampling
-        && scene->getSceneQueryWorkspace()->getRecorder() == nullptr;
+        && !rayTracingState.doFrameCoherent && !rayTracingState.doCorrelatedSampling;
     if ( parallelRequested && !parallelSupported ) {
         Logger::reportMessage("StochasticRaytracer", Logger::WARNING, "execute",
             "Random Walk parallel final tracing requires BRDF sampling without stored radiance, "
-            "coherent or correlated sampling, or ray capture; tracing serially");
+            "or coherent or correlated sampling; tracing serially");
     }
 
     if ( parallelRequested && parallelSupported ) {
@@ -395,7 +394,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
                     // Collect outgoing radiance
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * numberOfSamples);
 
-                    const float scale = static_cast<float>(factor);
+                    const double scale = static_cast<double>(factor);
                     radianceR = radianceR * scale * thisNode->m_bsdfEval.getR();
                     radianceG = radianceG * scale * thisNode->m_bsdfEval.getG();
                     radianceB = radianceB * scale * thisNode->m_bsdfEval.getB();
@@ -428,7 +427,7 @@ StochasticRaytracer::srGetDirectRadiance(
     StorageReadout readout)
 {
     ColorRgb result(0.0, 0.0, 0.0);
-    Vector3Df dirEL;
+    Vector3Dd dirEL;
 
     if ( readout == StorageReadout::READ_NOW && config->radMode == RayTracingRadMode::STORED_PHOTON_MAP ) {
         // We're reading out D|G, specular not with direct light
@@ -546,7 +545,7 @@ StochasticRaytracer::srGetDirectRadiance(
 
                             factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                       config->nextEventSamples);
-                            const ColorRgb radiance = prevNode->m_bsdfEval.multiply(static_cast<float>(factor)).multiply(lightNode.m_bsdfEval);
+                            const ColorRgb radiance = prevNode->m_bsdfEval.multiply(static_cast<double>(factor)).multiply(lightNode.m_bsdfEval);
 
                             // Collect outgoing radiance
                             result = result.add(radiance);
@@ -618,10 +617,10 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             weight = cr / (cr + cl);
         }
 
-        Vector3Df position = thisNode->previous()->m_hit.getPoint();
+        Vector3Dd position = thisNode->previous()->m_hit.getPoint();
         result = Background::backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), nullptr);
 
-        result = result.multiply(static_cast<float>(weight));
+        result = result.multiply(static_cast<double>(weight));
     } else {
         // Handle non-background
         const PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.getMaterial()->getEdf();
@@ -636,7 +635,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 if ( config->radMode == RayTracingRadMode::STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = thisNode->m_hit.getPoint().distanceSquared(thisNode->previous()->m_hit.getPoint());
+                    double dist2 = thisNode->m_hit.getPoint().distanceSquared(thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapMethod->getNodeGRadiance(thisNode);
@@ -655,7 +654,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 double v;
 
                 // (u, v) coordinates of intersection point
-                Vector3Df position = thisNode->m_hit.getPoint();
+                Vector3Dd position = thisNode->m_hit.getPoint();
                 thisNode->m_hit.getPatch()->uv(&position, &u, &v);
 
                 radiance = radianceMethod->getRadiance(
@@ -766,7 +765,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 }
             }
 
-            result = result.addScaled(static_cast<float>(weight), col);
+            result = result.addScaled(static_cast<double>(weight), col);
         }
     }
 
@@ -851,7 +850,7 @@ StochasticRaytracer::calcPixel(
             // -- Not needed yet ...
 
             // Account for pixel sampling
-            const float scale = static_cast<float>(pixelNode.m_G / pixelNode.m_pdfFromPrev);
+            const double scale = static_cast<double>(pixelNode.m_G / pixelNode.m_pdfFromPrev);
             resultR = col.getR() * scale + resultR;
             resultG = col.getG() * scale + resultG;
             resultB = col.getB() * scale + resultB;
@@ -859,11 +858,11 @@ StochasticRaytracer::calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->samplesPerPixel));
+    double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<double>(config->samplesPerPixel));
 
-    resultR *= static_cast<float>(factor);
-    resultG *= static_cast<float>(factor);
-    resultB *= static_cast<float>(factor);
+    resultR *= static_cast<double>(factor);
+    resultG *= static_cast<double>(factor);
+    resultB *= static_cast<double>(factor);
     const ColorRgb result(resultR, resultG, resultB);
     if ( config->screen != nullptr ) {
         config->screen->add(nx, ny, result);

@@ -5,7 +5,7 @@
 
 class RadianceStatistics {
   public:
-    float totalArea;
+    double totalArea;
     ColorRgb maxSelfEmittedRadiance;
     ColorRgb maxSelfEmittedPower;
     double referenceLuminance;

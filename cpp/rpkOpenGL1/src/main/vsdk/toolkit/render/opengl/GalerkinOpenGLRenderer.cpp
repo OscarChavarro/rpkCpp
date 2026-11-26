@@ -50,7 +50,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
         return;
     }
 
-    Vector3Df p[4];
+    Vector3Dd p[4];
     int numberOfVertices = element->vertices(p);
 
     // Draw surfaces
@@ -159,15 +159,15 @@ GalerkinOpenGLRenderer::renderScene(
         if ( debugState->showSelectedPathOnly ) {
             if ( i == debugState->primarySelectedPatch ) {
                 modifiedRenderOptions.setDrawOutlines(true);
-                modifiedRenderOptions.setOutlineColor({1.0F, 0.0F, 0.0F});
+                modifiedRenderOptions.setOutlineColor({1.0, 0.0, 0.0});
             } else {
                 modifiedRenderOptions.setDrawOutlines(false);
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         } else {
-            modifiedRenderOptions.setOutlineColor({0.4F, 0.1F, 0.1F});
+            modifiedRenderOptions.setOutlineColor({0.4, 0.1, 0.1});
             if ( i == debugState->primarySelectedPatch ) {
-                modifiedRenderOptions.setOutlineColor({0.0F, 0.0F, 1.0F});
+                modifiedRenderOptions.setOutlineColor({0.0, 0.0, 1.0});
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         }

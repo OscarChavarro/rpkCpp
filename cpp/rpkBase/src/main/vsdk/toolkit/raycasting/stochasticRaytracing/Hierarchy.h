@@ -32,8 +32,8 @@ class Hierarchy final {
     static void elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches);
 
   private:
-    static constexpr float DEFAULT_EH_EPSILON = 5e-4F;
-    static constexpr float DEFAULT_EH_MINIMUM_AREA = 1e-6F;
+    static constexpr double DEFAULT_EH_EPSILON = 5e-4;
+    static constexpr double DEFAULT_EH_MINIMUM_AREA = 1e-6;
     static constexpr bool DEFAULT_EH_HIERARCHICAL_MESHING = true;
     static constexpr bool DEFAULT_EH_T_VERTEX_ELIMINATION = true;
     static constexpr HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyClusteringMode::ORIENTED_CLUSTERING;
@@ -66,7 +66,7 @@ class Hierarchy final {
         double *vs,
         const RendererConfiguration *renderOptions);
     static bool selfLink(const Link *link);
-    static float formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
+    static double formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
     static bool lowPowerLink(const Link *link, const Statistics *statistics);
     static REFINE_ACTION subDivideLargest(const Link *link);
 };

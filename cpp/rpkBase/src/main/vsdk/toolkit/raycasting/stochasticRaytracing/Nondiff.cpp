@@ -66,21 +66,23 @@ Nondiff::nextLightSample(const Patch *patch, double *zeta) {
     zeta[3] = xi[3];
 }
 
-RpkRay
+Ray
 Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
-    RpkRay ray;
+    Ray ray;
     do {
         double zeta[4];
         RpkRayHit hit;
         nextLightSample(patch, zeta);
 
-        patch->uniformPoint(zeta[0], zeta[1], &ray.position);
+        Vector3Dd origin;
+        patch->uniformPoint(zeta[0], zeta[1], &origin);
+        ray.setOrigin(origin);
 
-        const Vector3Df patchNormal = patch->getNormal();
+        const Vector3Dd patchNormal = patch->getNormal();
 
-        hit.init(patch, &ray.position, &patchNormal, patch->getMaterial());
+        hit.init(patch, &ray.getOrigin(), &patchNormal, patch->getMaterial());
         *dirSelectionPdf = 0.0;
-        ray.direction = Vector3Df(0.0, 0.0, 0.0);
+        ray.setDirection(Vector3Dd(0.0, 0.0, 0.0));
         if ( patch->getMaterial()->getEdf() != nullptr ) {
             bool shctxOk = false;
             ShadingContext shctx = hit.shadingContext(&shctxOk);
@@ -88,8 +90,8 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
                 continue;
             }
             ColorRgb emittedRadiance(0.0, 0.0, 0.0);
-            ray.direction = patch->getMaterial()->getEdf()->phongEdfSample(
-                &shctx, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], &emittedRadiance, dirSelectionPdf);
+            ray.setDirection(patch->getMaterial()->getEdf()->phongEdfSample(
+                &shctx, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], &emittedRadiance, dirSelectionPdf));
             *emitted_rad = emittedRadiance;
         }
     } while ( *dirSelectionPdf == 0.0 );
@@ -106,7 +108,7 @@ Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWor
     ColorRgb rad(0.0, 0.0, 0.0);
     double pointSelectionPdf;
     double dirSelectionPdf;
-    RpkRay ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
+    Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
     RpkRayHit hitStore;
     const RpkRayHit *hit;
 
@@ -114,8 +116,8 @@ Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWor
     hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
-        double outCos = ray.direction.dotProduct(light->patch->getNormal());
-        const double scale = static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples));
+        double outCos = ray.getDirection().dotProduct(light->patch->getNormal());
+        const double scale = static_cast<double>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples));
         double receivedRadiosity[3] = {
             scale * rad.getR(), scale * rad.getG(), scale * rad.getB()};
         const auto &reflectance = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
@@ -163,9 +165,9 @@ Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches, FaceColorTable 
     StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = ColorRgb(0.0, 0.0, 0.0);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea() * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
+        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(static_cast<double>(M_PI) * patch->getArea() * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
                                                       McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance), McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(
                 McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);

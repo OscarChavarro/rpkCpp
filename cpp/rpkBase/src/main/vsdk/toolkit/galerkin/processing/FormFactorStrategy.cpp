@@ -9,9 +9,6 @@
 #include "vsdk/toolkit/galerkin/processing/FormFactorClusteredStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorStrategy.h"
 
-#ifdef RPK_RAY_CAPTURE
-    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
-#endif
 
 /**
 References:
@@ -30,13 +27,13 @@ further away than minimumDistance are ignored.
 */
 RpkRayHit *
 FormFactorStrategy::shadowTestDiscretization(
-    RpkRay *ray,
+    Ray *ray,
     const java::ArrayList<RpkGeometry *> *geometrySceneList,
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneQueryWorkspace,
     FormFactorWorkspace *formFactorWorkspace,
     ShadowCache *shadowCache,
-    float minimumDistance,
+    double minimumDistance,
     RpkRayHit *hitStore,
     bool isSceneGeometry,
     bool isClusteredGeometry,
@@ -47,20 +44,12 @@ FormFactorStrategy::shadowTestDiscretization(
     RpkRayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore, exclusions);
     if ( hit != nullptr ) {
         shadowStatistics->numberOfShadowCacheHits++;
-#ifdef RPK_RAY_CAPTURE
-        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
-            sceneQueryWorkspace->getRecorder()->countCacheResolved();
-        }
-#endif
     } else {
-#ifdef RPK_RAY_CAPTURE
-        const float queryMaximumDistance = minimumDistance;
-#endif
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = RpkGeometry::listDiscretizationIntersect(
                 geometrySceneList,
                 ray,
-                Numeric::EPSILON_FLOAT * minimumDistance,
+                Numeric::EPSILON * minimumDistance,
                 &minimumDistance,
                 RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore,
@@ -68,27 +57,13 @@ FormFactorStrategy::shadowTestDiscretization(
         } else {
             hit = sceneQuery->intersect(
                 ray,
-                Numeric::EPSILON_FLOAT * minimumDistance,
+                Numeric::EPSILON * minimumDistance,
                 &minimumDistance,
                 RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore,
                 exclusions,
                 sceneQueryWorkspace);
         }
-#ifdef RPK_RAY_CAPTURE
-        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
-            sceneQueryWorkspace->getRecorder()->recordQuery(
-                (!isClusteredGeometry && !isSceneGeometry) ?
-                    VisibilityQueryRecorder::GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder::GALERKIN_FULL_SCENE,
-                ray,
-                Numeric::EPSILON_FLOAT * queryMaximumDistance,
-                queryMaximumDistance,
-                RayHitFlag::FRONT | RayHitFlag::ANY,
-                exclusions,
-                hit,
-                minimumDistance);
-        }
-#endif
         if ( hit != nullptr ) {
             shadowCache->addToShadowCache(hit->getPatch());
         }
@@ -114,7 +89,7 @@ FormFactorStrategy::determineNodes(
         const GalerkinRole role,
         const GalerkinState *galerkinState,
         CubatureRule **cr,
-        Vector3Df x[CubatureRule::MAXIMUM_NODES])
+        Vector3Dd x[CubatureRule::MAXIMUM_NODES])
 {
     Matrix2x2 topTransform{};
 
@@ -128,12 +103,12 @@ FormFactorStrategy::determineNodes(
         double dy = boundingBox.dy();
         double dz = boundingBox.dz();
 
-        const float minX = boundingBox.minX();
-        const float minY = boundingBox.minY();
-        const float minZ = boundingBox.minZ();
+        const double minX = boundingBox.minX();
+        const double minY = boundingBox.minY();
+        const double minZ = boundingBox.minZ();
 
         for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
-            x[k] = Vector3Df(static_cast<float>(minX + (*cr)->u[k] * dx), static_cast<float>(minY + (*cr)->v[k] * dy), static_cast<float>(minZ + (*cr)->t[k] * dz));
+            x[k] = Vector3Dd(static_cast<double>(minX + (*cr)->u[k] * dx), static_cast<double>(minY + (*cr)->v[k] * dy), static_cast<double>(minZ + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -157,12 +132,12 @@ FormFactorStrategy::determineNodes(
         // Compute the positions x[k] corresponding to the nodes of the cubature rule
         // in the unit square or triangle used to parametrise the element
         for ( int k = 0; *cr != nullptr && k < (*cr)->numberOfNodes; k++ ) {
-            Vector2Df node;
-            node = Vector2Df(static_cast<float>((*cr)->u[k]), static_cast<float>((*cr)->v[k]));
+            Vector2Dd node;
+            node = Vector2Dd(static_cast<double>((*cr)->u[k]), static_cast<double>((*cr)->v[k]));
             if ( element->transformToParent != nullptr ) {
                 node = topTransform.transformPoint(node);
             }
-            element->patch->uniformPoint(node.x(), node.y(), &x[k]);
+            element->patch->uniformPoint(node.x, node.y, &x[k]);
         }
     }
 }
@@ -183,8 +158,8 @@ FormFactorStrategy::evaluatePointsPairKernel(
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneQueryWorkspace,
     FormFactorWorkspace *formFactorWorkspace,
-    const Vector3Df *x,
-    const Vector3Df *y,
+    const Vector3Dd *x,
+    const Vector3Dd *y,
     const GalerkinElement *receiverElement,
     const GalerkinElement *sourceElement,
     const java::ArrayList<RpkGeometry *> *shadowGeometryList,
@@ -194,11 +169,11 @@ FormFactorStrategy::evaluatePointsPairKernel(
     const RayExclusionSet &exclusions)
 {
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
-    RpkRay ray;
-    ray.position = *y;
-    ray.direction = x->subtract(*y);
-    double distance = ray.direction.length();
-    ray.direction = ray.direction.multiplyByInverse(static_cast<float>(distance), Numeric::EPSILON_FLOAT);
+    Ray ray;
+    ray.setOrigin(*y);
+    ray.setDirection(x->subtract(*y));
+    double distance = ray.getDirection().length();
+    ray.setDirection(ray.getDirection().multiplyByInverse(static_cast<double>(distance), Numeric::EPSILON));
 
     // Don't allow too nearby nodes to interact
     if ( distance < VSDK::EPSILON ) {
@@ -213,7 +188,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( sourceElement->isCluster() ) {
         cosThetaY = 0.25;
     } else {
-        cosThetaY = ray.direction.dotProduct(sourceElement->patch->getNormal());
+        cosThetaY = ray.getDirection().dotProduct(sourceElement->patch->getNormal());
         if ( cosThetaY <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
@@ -225,7 +200,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( receiverElement->isCluster() ) {
         cosThetaX = 0.25;
     } else {
-        cosThetaX = -ray.direction.dotProduct(receiverElement->patch->getNormal());
+        cosThetaX = -ray.getDirection().dotProduct(receiverElement->patch->getNormal());
         if ( cosThetaX <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;
@@ -234,7 +209,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Equation [BEKA1996](1): unoccluded transport kernel (without reflectivity term)
     double formFactorKernelTerm = cosThetaX * cosThetaY / (M_PI * distance * distance);
-    float shortenedDistance = static_cast<float>(distance * (1.0F - VSDK::EPSILON));
+    double shortenedDistance = static_cast<double>(distance * (1.0 - VSDK::EPSILON));
 
     // Determine transmissivity (visibility)
     RpkRayHit hitStore;
@@ -262,21 +237,56 @@ FormFactorStrategy::evaluatePointsPairKernel(
             visibilityFactor = 0.0;
         }
     } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore, exclusions) ) {
-#ifdef RPK_RAY_CAPTURE
-        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr ) {
-            sceneQueryWorkspace->getRecorder()->countCacheResolved();
-        }
-#endif
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
-        float minimumFeatureSize = 2.0F
-            * static_cast<float>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
+        double minimumFeatureSize = 2.0
+            * static_cast<double>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize, exclusions);
     }
 
     return formFactorKernelTerm * visibilityFactor;
+}
+
+/**
+Bounds the point-to-area form factor at every receiver node by 1. The form
+factor from a point x_k to the source, G(x_k) = A_s sum_l w_l G(x_k, y_l), is
+the fraction of the hemisphere over x_k that the source covers, so it never
+exceeds 1: summed over all sources it is at most 1, the bound [BEKA1996]
+section 4.1 states after its equation (11). The cubature estimate is the
+imprecise numerical integration of [BEKA1996] section 7, and it exceeds it when
+nodes of two elements nearly touch (elements meeting at an edge or a corner),
+where 1 / (pi r^2) explodes. With elements already at the minimum area the
+refinement cannot remove such a link, and a link with G > 1 and its reciprocal
+form a feedback loop of gain above 1 that makes the solution diverge (a tiny
+element turns into a bright emitter). The kernel values of a receiver node
+whose estimate exceeds 1 are scaled by the same factor, so that the node's
+estimate is 1 and its shape over the source (the higher order coefficients
+and the error estimate) is kept. Legitimate estimates are below 1 and stay
+untouched. With nodes on cluster bounding boxes (0.25 cosine terms) the same
+bound holds
+*/
+void
+FormFactorStrategy::boundPointToAreaFormFactors(
+    const CubatureRule *receiverCubatureRule,
+    const CubatureRule *sourceCubatureRule,
+    const double sourceArea,
+    double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES])
+{
+    for ( int k = 0; receiverCubatureRule != nullptr && sourceCubatureRule != nullptr && k < receiverCubatureRule->numberOfNodes; k++ ) {
+        double g = 0.0;
+        for ( int l = 0; l < sourceCubatureRule->numberOfNodes; l++ ) {
+            g += sourceCubatureRule->w[l] * Gxy[k][l];
+        }
+        g *= sourceArea;
+        if ( g > 1.0 ) {
+            const double scale = 1.0 / g;
+            for ( int l = 0; l < sourceCubatureRule->numberOfNodes; l++ ) {
+                Gxy[k][l] *= scale;
+            }
+        }
+    }
 }
 
 inline void
@@ -358,7 +368,7 @@ FormFactorStrategy::computeInteractionFormFactor(
             for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
                 gAlphaBeta += receiverCubatureRule->w[k] * receiverPhi[alpha][k] * gBeta[k];
             }
-            twoPatchesInteraction->K[alpha * twoPatchesInteraction->numberOfBasisFunctionsOnSource + beta] = static_cast<float>(receiverElement->area * gAlphaBeta);
+            twoPatchesInteraction->K[alpha * twoPatchesInteraction->numberOfBasisFunctionsOnSource + beta] = static_cast<double>(receiverElement->area * gAlphaBeta);
 
             // Second part of error estimate at receiver node x_k
             for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
@@ -368,7 +378,7 @@ FormFactorStrategy::computeInteractionFormFactor(
 
         const double source[3] = {sourceRadiance[beta].getR(), sourceRadiance[beta].getG(), sourceRadiance[beta].getB()};
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
-            const double weight = static_cast<float>(deltaBeta[k]);
+            const double weight = static_cast<double>(deltaBeta[k]);
             for ( int channel = 0; channel < 3; channel++ ) {
                 deltaRadiance[k][channel] += weight * source[channel];
             }
@@ -402,9 +412,9 @@ FormFactorStrategy::computeInteractionError(
     if ( sourceRadiance[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
         double gav = link->K[0] / receiverElement->area;
-        link->deltaK = static_cast<float>(gMax - gav);
+        link->deltaK = static_cast<double>(gMax - gav);
         if ( gav - gMin > link->deltaK ) {
-            link->deltaK = static_cast<float>(gav - gMin);
+            link->deltaK = static_cast<double>(gav - gMin);
         }
     } else {
         link->deltaK = 0.0;
@@ -413,7 +423,7 @@ FormFactorStrategy::computeInteractionError(
             const ColorRgb relativeError = difference.divide(sourceRadiance[0]);
             double delta = java::Math::abs(relativeError.maximumComponent());
             if ( delta > link->deltaK ) {
-                link->deltaK = static_cast<float>(delta);
+                link->deltaK = static_cast<double>(delta);
             }
         }
     }
@@ -539,17 +549,17 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         if ( !receiverBoundingBox.disjointToOtherBoundingBox(&sourceBoundingBox) ) {
             // Take 0 as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0F;
+                link->K[0] = 0.0;
             } else {
                 for ( int i = 0;
                       i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
                       i++ ) {
-                    link->K[i] = 0.0F;
+                    link->K[i] = 0.0;
                 }
             }
 
             // And a large error on the form factor
-            link->deltaK = 1.0F;
+            link->deltaK = 1.0;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
@@ -562,17 +572,17 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         if ( receiverElement == sourceElement ) {
             // Take 0. as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0F;
+                link->K[0] = 0.0;
             } else {
                 for ( int i = 0;
                       i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
                       i++ ) {
-                    link->K[i] = 0.0F;
+                    link->K[i] = 0.0;
                 }
             }
 
             // And a 0 error on the form factor
-            link->deltaK = 0.0F;
+            link->deltaK = 0.0;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion
@@ -586,8 +596,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. The cubature rules, nodes and kernel
     // values of the last pair are kept in the form factor workspace
-    Vector3Df *x = formFactorWorkspace->getReceiverNodes();
-    Vector3Df *y = formFactorWorkspace->getSourceNodes();
+    Vector3Dd *x = formFactorWorkspace->getReceiverNodes();
+    Vector3Dd *y = formFactorWorkspace->getSourceNodes();
     double (*Gxy)[CubatureRule::MAXIMUM_NODES] = formFactorWorkspace->getKernel();
     const bool sameReceiver = receiverElement == formFactorWorkspace->getLastReceiver();
     const bool sameSource = sourceElement == formFactorWorkspace->getLastSource();
@@ -623,13 +633,6 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             receiverElement->isCluster() ? receiverElement->geometry : nullptr,
             sourceElement->isCluster() ? sourceElement->geometry : nullptr);
 
-#ifdef RPK_RAY_CAPTURE
-        if ( sceneQueryWorkspace != nullptr && sceneQueryWorkspace->getRecorder() != nullptr
-          && geometryShadowList != nullptr && geometryShadowList->size() > 0
-          && !isClusteredGeometry && !isSceneGeometry ) {
-            sceneQueryWorkspace->getRecorder()->recordGeometryList(geometryShadowList);
-        }
-#endif
 
         double maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
         unsigned visibilityCount = 0; // Count the number of rays that "pass" occluders
@@ -661,6 +664,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
         formFactorWorkspace->setMaximumKernelValue(maximumKernelValue);
         formFactorWorkspace->setVisibilityCount(visibilityCount);
+        boundPointToAreaFormFactors(receiveCubatureRule, sourceCubatureRule, sourceElement->area, Gxy);
     }
 
     const double maximumKernelValue = formFactorWorkspace->getMaximumKernelValue();
@@ -682,7 +686,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
     if ( galerkinState->clusteringStrategy == GalerkinClusteringStrategy::ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
-        link->deltaK = static_cast<float>(maximumKernelValue * sourceElement->area);
+        link->deltaK = static_cast<double>(maximumKernelValue * sourceElement->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder

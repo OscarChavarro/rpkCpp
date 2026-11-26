@@ -24,16 +24,16 @@ class Adaptation final {
     static double logAreaLum;
     static LuminanceArea *lumArea;
     static int lumAreaIndex;
-    static float lumMin;
-    static float lumMax;
+    static double lumMin;
+    static double lumMax;
     static PatchRadianceEstimateFn patchRadianceEstimate;
 
     static ColorRgb initRadianceEstimate(Patch *patch);
     static int adaptationLumAreaComp(const void *la1, const void *la2);
-    static float patchBrightnessEstimate(Patch *patch, const Cie &colorSpace);
+    static double patchBrightnessEstimate(Patch *patch, const Cie &colorSpace);
     static void patchComputeLogAreaLum(Patch *patch, const Cie &colorSpace);
     static void patchFillLumArea(Patch *patch, const Cie &colorSpace);
-    static float meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs);
+    static double meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs);
     static void estimateSceneAdaptation(
         PatchRadianceEstimateFn patchRadiance,
         const java::ArrayList<Patch *> *scenePatches,

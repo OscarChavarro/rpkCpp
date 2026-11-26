@@ -26,7 +26,6 @@ Scene::Scene():
     geometryList(),
     clusteredGeometryList(),
     clusteredRootGeometry(),
-    visibilityQueryRecorder(),
     patchList(),
     lightSourcePatchList()
 {
@@ -65,10 +64,6 @@ Scene::~Scene() {
     }
     delete sceneQueryWorkspace;
     sceneQueryWorkspace = nullptr;
-    if ( visibilityQueryRecorder != nullptr ) {
-        delete visibilityQueryRecorder;
-        visibilityQueryRecorder = nullptr;
-    }
     delete sceneQuery;
     sceneQuery = nullptr;
     if ( background != nullptr ) {
@@ -265,7 +260,7 @@ Scene::buildSceneQuery() {
     delete sceneQueryWorkspace;
     delete sceneQuery;
     sceneQuery = new SceneQuery(this, accelerationMethod);
-    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery, visibilityQueryRecorder);
+    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery);
 }
 
 void

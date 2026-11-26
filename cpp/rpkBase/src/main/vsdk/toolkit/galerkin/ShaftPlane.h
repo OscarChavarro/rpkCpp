@@ -3,8 +3,8 @@
 
 class ShaftPlane {
   public:
-    float n[3];
-    float d;
+    double n[3];
+    double d;
     int coordinateOffset[3]; // Coordinate offset for nearest corner in box-plane tests
 };
 

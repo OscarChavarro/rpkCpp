@@ -1,37 +1,37 @@
 #ifndef K_D_TREE__
 #define K_D_TREE__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/dataStructures/KDQuery.h"
 #include "vsdk/toolkit/common/dataStructures/KDTreeNode.h"
 #include "vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h"
 
-// T provides const Vector3Df &getKDPosition() const. Radius arguments and
+// T provides const Vector3Dd &getKDPosition() const. Radius arguments and
 // returned distances are squared distances. The tree may own copies of T.
 template<typename T>
 class KDTree {
   private:
     int numberOfNodes;
-    int numUnbalanced;
+    int unbalancedCount;
     KDTreeNode<T> *root;
-    int numBalanced;
+    int balancedCount;
     int firstLeaf;
     BalancedKDTreeNode<T> *balancedRootNode;
     bool copyData;
 
-    static float coordinate(const T *data, int axis) {
-        const Vector3Df &position = data->getKDPosition();
+    static double coordinate(const T *data, int axis) {
+        const Vector3Dd &position = data->getKDPosition();
         return position.component(axis);
     }
-    static float sqrDistance3D(const T *data, const float *point);
+    static double sqrDistance3D(const T *data, const double *point);
     static void fixUp(KDQuery<T> &queryData);
-    static void mhInsert(KDQuery<T> &queryData, T *data, float dist);
+    static void mhInsert(KDQuery<T> &queryData, T *data, double dist);
     static void fixDown(KDQuery<T> &queryData);
-    static void mhReplaceMax(KDQuery<T> &queryData, T *data, float dist);
+    static void mhReplaceMax(KDQuery<T> &queryData, T *data, double dist);
     static void bkdswap(BalancedKDTreeNode<T> root[], int a, int b);
-    static float bkdval(BalancedKDTreeNode<T> root[], int index, int discr);
+    static double bkdval(BalancedKDTreeNode<T> root[], int index, int discr);
     static void eSwap(BalancedKDTreeNode<T> root[], int a, int b);
-    static float eVal(BalancedKDTreeNode<T> root[], int index, int discr);
+    static double eVal(BalancedKDTreeNode<T> root[], int index, int discr);
     static int getBalancedMedian(int low, int high);
     static int quickSelect(BalancedKDTreeNode<T> root[], int low, int high, int discr);
     static void copyUnbalancedRec(KDTreeNode<T> *node, BalancedKDTreeNode<T> *root, int *index);
@@ -45,7 +45,7 @@ class KDTree {
     void balanceRec(BalancedKDTreeNode<T> root[], BalancedKDTreeNode<T> dest[], int index, int low, int high);
 
   public:
-    static constexpr float KD_MAX_RADIUS = 1e10F;
+    static constexpr double KD_MAX_RADIUS = 1e10;
     explicit KDTree(bool copyData = true);
     ~KDTree();
     KDTree(const KDTree &) = delete;
@@ -54,10 +54,10 @@ class KDTree {
     void balance();
     template<typename Visitor>
     void iterateNodes(Visitor &visitor);
-    int query(const Vector3Df &position, int count, T **results, float *distances = nullptr,
-              float radius = KD_MAX_RADIUS, short excludeFlags = 0);
-    int getBalancedCount() const { return numBalanced; }
-    int getUnbalancedCount() const { return numUnbalanced; }
+    int query(const Vector3Dd &position, int count, T **results, double *distances = nullptr,
+              double radius = KD_MAX_RADIUS, short excludeFlags = 0);
+    int getBalancedCount() const { return balancedCount; }
+    int getUnbalancedCount() const { return unbalancedCount; }
     int getFirstLeaf() const { return firstLeaf; }
     const BalancedKDTreeNode<T> &getBalancedNode(int index) const { return balancedRootNode[index]; }
 };

@@ -62,7 +62,7 @@ BiPath::evalRadiance() const {
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    const float scale = static_cast<float>(factor);
+    const double scale = static_cast<double>(factor);
     return ColorRgb(red * scale, green * scale, blue * scale);
 }
 
@@ -94,11 +94,11 @@ BiPath::evalPdfAcc() const {
 
 // Evaluate weight/pdf for a bipath, taking into account other pdf's
 // depending on the config (baseConfig).
-float
+double
 BiPath::evalPdfAndWeight(
     const BidirectionalPathRaytracerConfig *baseConfig,
-    float *pPdf,
-    float *pWeight) const
+    double *pPdf,
+    double *pWeight) const
 {
     int currentConnect;
     double pdfAcc;
@@ -218,12 +218,12 @@ BiPath::evalPdfAndWeight(
     weight = weight / pdfSum;
 
     if ( pWeight ) {
-        *pWeight = static_cast<float>(weight);
+        *pWeight = static_cast<double>(weight);
     }
 
     if ( pPdf ) {
-        *pPdf = static_cast<float>(realPdf);
+        *pPdf = static_cast<double>(realPdf);
     }
 
-    return static_cast<float>(weight / realPdf);
+    return static_cast<double>(weight / realPdf);
 }

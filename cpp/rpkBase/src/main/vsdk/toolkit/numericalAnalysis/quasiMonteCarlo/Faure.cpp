@@ -35,7 +35,7 @@ Faure::setFaureC() {
     for ( int i = dimension - 1; i >= 0; i-- ) {
         for ( int j = 0; j < nDigits; j++ ) {
             for ( int k = j; k < nDigits; k++ ) {
-                generatorMatrix[i][j][k] = (generatorMatrix[0][j][k] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(k - j)))) % primeBase;
+                generatorMatrix[i][j][k] = (generatorMatrix[0][j][k] * static_cast<int>(java::Math::pow(static_cast<double>(i), static_cast<double>(k - j)))) % primeBase;
             }
         }
     }
@@ -70,7 +70,7 @@ Faure::setGFaureC() {
                 int Q = m < n ? m : n;
                 generatorMatrix[i][m][n] = 0;
                 for ( int q = 0; q <= Q; q++ ) {
-                    generatorMatrix[i][m][n] = static_cast<int>(generatorMatrix[i][m][n] + P[m][q] * P[n][q] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(m + n - 2 * q)))) % primeBase;
+                    generatorMatrix[i][m][n] = static_cast<int>(generatorMatrix[i][m][n] + P[m][q] * P[n][q] * static_cast<int>(java::Math::pow(static_cast<double>(i), static_cast<double>(m + n - 2 * q)))) % primeBase;
                 }
             }
         }
@@ -152,7 +152,7 @@ Faure::initOriginalFaureSequence(int iDim) {
         }
     }
 
-    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0F)) - 1;
+    skip = static_cast<int>(java::Math::pow(static_cast<double>(primeBase), 4.0)) - 1;
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();
@@ -175,7 +175,7 @@ Faure::initGeneralizedFaureSequence(int iDim) {
         }
     }
 
-    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0F) - 1);
+    skip = static_cast<int>(java::Math::pow(static_cast<double>(primeBase), 4.0) - 1);
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();

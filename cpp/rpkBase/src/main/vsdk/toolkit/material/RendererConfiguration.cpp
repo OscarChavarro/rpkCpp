@@ -35,7 +35,7 @@ RendererConfiguration::~RendererConfiguration() {
 }
 
 void
-RendererConfiguration::setLineWidth(const float width) {
+RendererConfiguration::setLineWidth(const double width) {
     lineWidth = width;
 }
 

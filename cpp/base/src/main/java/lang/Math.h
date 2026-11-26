@@ -179,12 +179,14 @@ Math::pow(double a, double e) {
 
 inline double
 Math::abs(double a) {
-    return a < 0.0 ? -a : a;
+    // Same as java.lang.Math.abs: -0.0 yields +0.0 and NaN stays NaN
+    return (a <= 0.0) ? 0.0 - a : a;
 }
 
 inline float
 Math::abs(float a) {
-    return a < 0.0 ? -a : a;
+    // Same as java.lang.Math.abs: -0.0f yields +0.0f and NaN stays NaN
+    return (a <= 0.0f) ? 0.0f - a : a;
 }
 
 inline int

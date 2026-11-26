@@ -60,9 +60,9 @@ Hierarchy::elementHierarchyDefaults() {
 void
 Hierarchy::elementHierarchyInit(RpkGeometry *clusteredWorldGeometry) {
     // These lists hold vertices created during hierarchical refinement
-    ElementHierarchyState::activeState().coords = new java::ArrayList<Vector3Df *>();
-    ElementHierarchyState::activeState().normals = new java::ArrayList<Vector3Df *>();
-    ElementHierarchyState::activeState().texCoords = new java::ArrayList<Vector3Df *>();
+    ElementHierarchyState::activeState().coords = new java::ArrayList<Vector3Dd *>();
+    ElementHierarchyState::activeState().normals = new java::ArrayList<Vector3Dd *>();
+    ElementHierarchyState::activeState().texCoords = new java::ArrayList<Vector3Dd *>();
     ElementHierarchyState::activeState().vertices = new java::ArrayList<RpkVertex *>();
     ElementHierarchyState::activeState().topCluster =
         StochasticRadiosityElement::stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
@@ -119,7 +119,7 @@ Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatche
           ElementHierarchyState::activeState().texCoords != nullptr &&
           i < ElementHierarchyState::activeState().texCoords->size();
           i++ ) {
-        Vector3Df *texCoord = ElementHierarchyState::activeState().texCoords->get(i);
+        Vector3Dd *texCoord = ElementHierarchyState::activeState().texCoords->get(i);
         delete texCoord;
     }
 

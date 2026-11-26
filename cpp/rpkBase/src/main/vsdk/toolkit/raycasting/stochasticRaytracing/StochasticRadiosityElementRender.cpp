@@ -24,12 +24,12 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
-            float gray;
+            double gray;
 
             if ( element->importance > 1.0 ) {
-                gray = 1.0F;
+                gray = 1.0;
             } else {
-                gray = element->importance < 0.0 ? 0.0F : element->importance;
+                gray = element->importance < 0.0 ? 0.0 : element->importance;
             }
 
             color = ColorRgb(gray, gray, gray);
@@ -63,7 +63,7 @@ StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
     }
 
     if ( count > 0 ) {
-        const double scale = 1.0 / static_cast<float>(count);
+        const double scale = 1.0 / static_cast<double>(count);
         radiance[0] = scale * radiance[0];
         radiance[1] = scale * radiance[1];
         radiance[2] = scale * radiance[2];
@@ -75,10 +75,10 @@ StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
 /**
 Same as above but for importance
 */
-float
+double
 StochasticRadiosityElement::vertexImportance(const RpkVertex *v) {
     int count = 0;
-    float imp = 0.0;
+    double imp = 0.0;
 
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
         Element *genericElement = v->radianceData->get(i);
@@ -93,7 +93,7 @@ StochasticRadiosityElement::vertexImportance(const RpkVertex *v) {
     }
 
     if ( count > 0 ) {
-        imp /= static_cast<float>(count);
+        imp /= static_cast<double>(count);
     }
 
     return imp;
@@ -109,7 +109,7 @@ StochasticRadiosityElement::vertexColor(RpkVertex *v) {
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
-            float gray = vertexImportance(v);
+            double gray = vertexImportance(v);
             if ( gray > 1.0 ) {
                 gray = 1.0;
             }
@@ -200,8 +200,8 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(con
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertices[i]);
             }
-            const double x = static_cast<float>(u);
-            const double y = static_cast<float>(v);
+            const double x = static_cast<double>(u);
+            const double y = static_cast<double>(v);
             switch ( elem->numberOfVertices ) {
                 case 3:
                     radiance = ColorRgb(

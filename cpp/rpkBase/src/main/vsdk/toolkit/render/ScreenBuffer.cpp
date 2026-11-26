@@ -161,9 +161,9 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
     ip->setToneMappingContext(&activeToneMapOptions);
-    ip->gamma[0] = static_cast<float>(activeToneMapOptions.gamma.getR()); // For default radiance -> display RGB
-    ip->gamma[1] = static_cast<float>(activeToneMapOptions.gamma.getG());
-    ip->gamma[2] = static_cast<float>(activeToneMapOptions.gamma.getB());
+    ip->gamma[0] = static_cast<double>(activeToneMapOptions.gamma.getR()); // For default radiance -> display RGB
+    ip->gamma[1] = static_cast<double>(activeToneMapOptions.gamma.getG());
+    ip->gamma[2] = static_cast<double>(activeToneMapOptions.gamma.getB());
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
@@ -174,12 +174,12 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
             }
             ip->writeRadianceRGB(scanline.data());
         } else {
-            java::ArrayList<float> scanline(camera.xSize * 3 > 0 ? camera.xSize * 3 : 1);
+            java::ArrayList<double> scanline(camera.xSize * 3 > 0 ? camera.xSize * 3 : 1);
             for ( int x = 0; x < camera.xSize; x++ ) {
                 const int index = 3 * (i * camera.xSize + x);
-                scanline.add(static_cast<float>(radiance[index]));
-                scanline.add(static_cast<float>(radiance[index + 1]));
-                scanline.add(static_cast<float>(radiance[index + 2]));
+                scanline.add(static_cast<double>(radiance[index]));
+                scanline.add(static_cast<double>(radiance[index + 1]));
+                scanline.add(static_cast<double>(radiance[index + 2]));
             }
             ip->writeDisplayRGB(scanline.data());
         }
@@ -241,49 +241,49 @@ ScreenBuffer::setToneMappingContext(ToneMappingContext *inToneMapOptions) {
     toneMapOptions = inToneMapOptions;
 }
 
-float
+double
 ScreenBuffer::getScreenXMin() const {
-    return -camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0F;
+    return -camera.pixelWidth * static_cast<double>(camera.xSize) / 2.0;
 }
 
-float
+double
 ScreenBuffer::getScreenYMin() const {
-    return -camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0F;
+    return -camera.pixelHeight * static_cast<double>(camera.ySize) / 2.0;
 }
 
-float
+double
 ScreenBuffer::getPixXSize() const {
     return camera.pixelWidth;
 }
 
-float
+double
 ScreenBuffer::getPixYSize() const {
     return camera.pixelHeight;
 }
 
-Vector2Df
-ScreenBuffer::getPixelPoint(int nx, int ny, float xOffset, float yOffset) const {
-    return {getScreenXMin() + (static_cast<float>(nx) + xOffset) * getPixXSize(),
-            getScreenYMin() + (static_cast<float>(ny) + yOffset) * getPixYSize()};
+Vector2Dd
+ScreenBuffer::getPixelPoint(int nx, int ny, double xOffset, double yOffset) const {
+    return {getScreenXMin() + (static_cast<double>(nx) + xOffset) * getPixXSize(),
+            getScreenYMin() + (static_cast<double>(ny) + yOffset) * getPixYSize()};
 }
 
-Vector2Df
+Vector2Dd
 ScreenBuffer::getPixelCenter(int nx, int ny) const {
     return getPixelPoint(nx, ny, 0.5, 0.5);
 }
 
 int
-ScreenBuffer::getNx(float x) const {
+ScreenBuffer::getNx(double x) const {
     return static_cast<int>(java::Math::floor((x - getScreenXMin()) / getPixXSize()));
 }
 
 int
-ScreenBuffer::getNy(float y) const {
+ScreenBuffer::getNy(double y) const {
     return static_cast<int>(java::Math::floor((y - getScreenYMin()) / getPixYSize()));
 }
 
 void
-ScreenBuffer::getPixel(float x, float y, int *nx, int *ny) const {
+ScreenBuffer::getPixel(double x, double y, int *nx, int *ny) const {
     *nx = getNx(x);
     *ny = getNy(y);
 }
@@ -292,11 +292,11 @@ ScreenBuffer::getPixel(float x, float y, int *nx, int *ny) const {
 Un-normalized vector pointing from the eye point to the
 point with given fractional pixel coordinates
 */
-Vector3Df
-ScreenBuffer::getPixelVector(int nx, int ny, float xOffset, float yOffset) const {
-    const Vector2Df pix = getPixelPoint(nx, ny, xOffset, yOffset);
-    Vector3Df dir;
-    dir = camera.Z.add(camera.X.multiply(pix.x())).add(camera.Y.multiply(pix.y()));
+Vector3Dd
+ScreenBuffer::getPixelVector(int nx, int ny, double xOffset, double yOffset) const {
+    const Vector2Dd pix = getPixelPoint(nx, ny, xOffset, yOffset);
+    Vector3Dd dir;
+    dir = camera.Z.add(camera.X.multiply(pix.x)).add(camera.Y.multiply(pix.y));
     return dir;
 }
 
@@ -315,9 +315,9 @@ ScreenBuffer::getVRes() const {
 
 #ifdef RAYTRACING_ENABLED
 
-float
+double
 ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
-    Vector3Df dir;
+    Vector3Dd dir;
     const double h = camera->pixelWidth;
     const double v = camera->pixelHeight;
 
@@ -327,42 +327,42 @@ ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     const double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
     const double ySample = y + v * 0.5;
 
-    dir = camera->Z.add(camera->X.multiply(static_cast<float>(xSample))).add(camera->Y.multiply(static_cast<float>(ySample)));
+    dir = camera->Z.add(camera->X.multiply(static_cast<double>(xSample))).add(camera->Y.multiply(static_cast<double>(ySample)));
     const double distPixel2 = dir.lengthSquared();
     const double distPixel = java::Math::sqrt(distPixel2);
-    dir = dir.multiplyByInverse(static_cast<float>(distPixel), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(static_cast<double>(distPixel), Numeric::EPSILON);
 
     double factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
     factor /= java::Math::pow(dir.dotProduct(camera->Z), 2);  // cos^2
 
-    return static_cast<float>(factor);
+    return static_cast<double>(factor);
 }
 
-float
+double
 ScreenBuffer::getScreenXMax() const {
-    return camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0F;
+    return camera.pixelWidth * static_cast<double>(camera.xSize) / 2.0;
 }
 
-float
+double
 ScreenBuffer::getScreenYMax() const {
-    return camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0F;
+    return camera.pixelHeight * static_cast<double>(camera.ySize) / 2.0;
 }
 
 ColorRgb
-ScreenBuffer::getBiLinear(float x, float y) const {
+ScreenBuffer::getBiLinear(double x, double y) const {
     int nx0;
     int nx1;
     int ny0;
     int ny1;
-    Vector2Df center;
+    Vector2Dd center;
 
     getPixel(x, y, &nx0, &ny0);
     center = getPixelCenter(nx0, ny0);
 
-    x = (x - center.x()) / getPixXSize();
-    y = (y - center.y()) / getPixYSize();
+    x = (x - center.x) / getPixXSize();
+    y = (y - center.y) / getPixYSize();
 
     if ( x < 0 ) {
         // Point on left side of pixel center
@@ -395,7 +395,7 @@ ScreenBuffer::getBiLinear(float x, float y) const {
 }
 
 void
-ScreenBuffer::scaleRadiance(float inFactor) {
+ScreenBuffer::scaleRadiance(double inFactor) {
     for ( int i = 0; i < 3 * camera.xSize * camera.ySize; i++ ) {
         radiance[i] *= inFactor;
     }
@@ -404,12 +404,12 @@ ScreenBuffer::scaleRadiance(float inFactor) {
 }
 
 void
-ScreenBuffer::setAddScaleFactor(float inFactor) {
+ScreenBuffer::setAddScaleFactor(double inFactor) {
     addFactor = inFactor;
 }
 
 void
-ScreenBuffer::setFactor(float inFactor) {
+ScreenBuffer::setFactor(double inFactor) {
     factor = inFactor;
 }
 

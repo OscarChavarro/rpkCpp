@@ -7,11 +7,11 @@
 
 class ScratchRendererVisitor final: public ClusterLeafVisitor {
   private:
-    Vector3Df eyePoint;
+    Vector3Dd eyePoint;
     GalerkinElementVisibilityBuffer &target;
 
   public:
-    ScratchRendererVisitor(Vector3Df inEyePoint, GalerkinElementVisibilityBuffer &inTarget);
+    ScratchRendererVisitor(Vector3Dd inEyePoint, GalerkinElementVisibilityBuffer &inTarget);
     ~ScratchRendererVisitor() final;
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
 };

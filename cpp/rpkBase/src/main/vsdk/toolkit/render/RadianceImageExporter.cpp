@@ -107,24 +107,24 @@ RadianceImageExporter::getRadianceAtPixel(
         return radiance;
     }
 
-    Vector3Df rayDirection = screenBuffer->getPixelVector(x, y);
-    rayDirection = rayDirection.normalized(Numeric::EPSILON_FLOAT);
+    Vector3Dd rayDirection = screenBuffer->getPixelVector(x, y);
+    rayDirection = rayDirection.normalized(Numeric::EPSILON);
 
-    const float denominator = patch->getNormal().dotProduct(rayDirection);
-    if ( denominator <= Numeric::EPSILON_FLOAT && denominator >= -Numeric::EPSILON_FLOAT ) {
+    const double denominator = patch->getNormal().dotProduct(rayDirection);
+    if ( denominator <= Numeric::EPSILON && denominator >= -Numeric::EPSILON ) {
         return radiance;
     }
 
-    const float distance =
+    const double distance =
         -(patch->getNormal().dotProduct(camera->eyePosition) + patch->getPlaneConstant()) / denominator;
-    Vector3Df hitPoint;
-    hitPoint = camera->eyePosition.add(rayDirection.multiply(static_cast<float>(distance)));
+    Vector3Dd hitPoint;
+    hitPoint = camera->eyePosition.add(rayDirection.multiply(static_cast<double>(distance)));
 
     double u;
     double v;
     patch->uv(&hitPoint, &u, &v);
     RadianceImageExporter::clipUv(patch->getNumberOfVertices(), &u, &v);
 
-    const Vector3Df eyeDirection(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
+    const Vector3Dd eyeDirection(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
     return radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions);
 }

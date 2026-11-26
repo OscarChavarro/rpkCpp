@@ -86,14 +86,14 @@ class Cie final {
     */
     static constexpr double WHITE_EFFICACY = 183.07;
 
-    double xRed;
-    double yRed;
-    double xGreen;
-    double yGreen;
-    double xBlue;
-    double yBlue;
-    double xWhite;
-    double yWhite;
+    double redX;
+    double redY;
+    double greenX;
+    double greenY;
+    double blueX;
+    double blueY;
+    double whiteX;
+    double whiteY;
 
     double luminousEfficacy;
     double redGrayFactor;
@@ -123,14 +123,14 @@ class Cie final {
         double xb, double yb,
         double xw, double yw);
 
-    double getRedX() const { return xRed; }
-    double getRedY() const { return yRed; }
-    double getGreenX() const { return xGreen; }
-    double getGreenY() const { return yGreen; }
-    double getBlueX() const { return xBlue; }
-    double getBlueY() const { return yBlue; }
-    double getWhiteX() const { return xWhite; }
-    double getWhiteY() const { return yWhite; }
+    double getRedX() const { return redX; }
+    double getRedY() const { return redY; }
+    double getGreenX() const { return greenX; }
+    double getGreenY() const { return greenY; }
+    double getBlueX() const { return blueX; }
+    double getBlueY() const { return blueY; }
+    double getWhiteX() const { return whiteX; }
+    double getWhiteY() const { return whiteY; }
     double getLuminousEfficacy() const { return luminousEfficacy; }
 
     void transformColorFromXYZ2RGB(const double *xyz, double *rgb) const;

@@ -12,7 +12,6 @@
 #include "vsdk/toolkit/scene/FaceColorTable.h"
 #include "vsdk/toolkit/scene/RadianceElementTable.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
-#include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
   private:
@@ -53,7 +52,6 @@ public:
     java::ArrayList<RpkGeometry *> *geometryList;
     java::ArrayList<RpkGeometry *> *clusteredGeometryList;
     RpkGeometry *clusteredRootGeometry;
-    VisibilityQueryRecorder *visibilityQueryRecorder; // Ray capture builds only, otherwise null
 
     // The list of all patches in the current scene
     java::ArrayList<Patch *> *patchList;
@@ -83,8 +81,7 @@ public:
 
     /**
     Builds the scene query over the face table with the acceleration method,
-    and the scene's workspace for it (reporting to visibilityQueryRecorder in
-    ray capture builds). Called once, after buildFaceTable.
+    and the scene's workspace for it. Called once, after buildFaceTable.
     */
     void buildSceneQuery();
     const SceneQuery *getSceneQuery() const;

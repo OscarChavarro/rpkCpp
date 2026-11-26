@@ -40,8 +40,8 @@ than hit positions returned by ray intersection routines
 bool
 RpkRayHit::init(
     const Patch *inPatch,
-    const Vector3Df *inPoint,
-    const Vector3Df *inGeometryNormal,
+    const Vector3Dd *inPoint,
+    const Vector3Dd *inGeometryNormal,
     const RpkMaterial *inMaterial)
 {
     flags = 0;
@@ -60,8 +60,8 @@ RpkRayHit::init(
     material = inMaterial;
     flags |= RayHitFlag::MATERIAL;
     flags |= RayHitFlag::DISTANCE;
-    Vector3Df localNormal;
-    localNormal = Vector3Df(0, 0, 0);
+    Vector3Dd localNormal;
+    localNormal = Vector3Dd(0, 0, 0);
     texCoord = localNormal;
     shadingFrame.setX(localNormal);
     shadingFrame.setY(localNormal);
@@ -96,7 +96,7 @@ RpkRayHit::computeUv(Vector2Dd *inUv) {
 Fills in/computes texture coordinates of hit point
 */
 bool
-RpkRayHit::getTexCoord(Vector3Df *outTexCoord) {
+RpkRayHit::getTexCoord(Vector3Dd *outTexCoord) {
     if ( flags & RayHitFlag::TEXTURE_COORDINATE ) {
         *outTexCoord = texCoord;
         return true;
@@ -121,13 +121,13 @@ Fills in shading normal (Z axis of shading frame) only, avoiding computation
 of shading X and Y axis if possible
 */
 bool
-RpkRayHit::shadingNormal(Vector3Df *inNormal) {
+RpkRayHit::shadingNormal(Vector3Dd *inNormal) {
     if ( flags & RayHitFlag::SHADING_FRAME || flags & RayHitFlag::NORMAL ) {
         *inNormal = shadingFrame.getZ();
         return true;
     }
 
-    Vector3Df localNormal = shadingFrame.getZ();
+    Vector3Dd localNormal = shadingFrame.getZ();
     if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
         return false;
     }
@@ -140,14 +140,14 @@ RpkRayHit::shadingNormal(Vector3Df *inNormal) {
 
 ShadingContext
 RpkRayHit::shadingContext(bool *ok) const {
-    Vector3Df normal;
-    Vector3Df texCoord;
+    Vector3Dd normal;
+    Vector3Dd texCoord;
     unsigned int localFlags = 0;
     bool localOk = true;
 
     if ( !const_cast<RpkRayHit *>(this)->shadingNormal(&normal) ) {
         localOk = false;
-        normal = Vector3Df(0.0, 0.0, 1.0);
+        normal = Vector3Dd(0.0, 0.0, 1.0);
     } else {
         localFlags |= SHCTX_NORMAL;
     }
@@ -155,7 +155,7 @@ RpkRayHit::shadingContext(bool *ok) const {
     if ( const_cast<RpkRayHit *>(this)->getTexCoord(&texCoord) ) {
         localFlags |= SHCTX_TEXTURE_COORDINATE;
     } else {
-        texCoord = Vector3Df(0.0, 0.0, 0.0);
+        texCoord = Vector3Dd(0.0, 0.0, 0.0);
     }
 
     if ( ok != nullptr ) {
@@ -180,7 +180,7 @@ If X and Y are null pointers, only the shading normal is returned in Z
 possibly avoiding computations of the X and Y axis
 */
 bool
-RpkRayHit::pointShadingFrame(Vector3Df *inX, Vector3Df *inY, Vector3Df *inZ) {
+RpkRayHit::pointShadingFrame(Vector3Dd *inX, Vector3Dd *inY, Vector3Dd *inZ) {
     bool success = false;
 
     if ( !hitInitialised() ) {
@@ -235,9 +235,9 @@ RpkRayHit::setShadingFrame(CoordinateSystem *frame) {
         return true;
     }
 
-    Vector3Df shadingX = shadingFrame.getX();
-    Vector3Df shadingY = shadingFrame.getY();
-    Vector3Df shadingZ = shadingFrame.getZ();
+    Vector3Dd shadingX = shadingFrame.getX();
+    Vector3Dd shadingY = shadingFrame.getY();
+    Vector3Dd shadingZ = shadingFrame.getZ();
 
     if ( !pointShadingFrame(&shadingX, &shadingY, &shadingZ) ) {
         return false;

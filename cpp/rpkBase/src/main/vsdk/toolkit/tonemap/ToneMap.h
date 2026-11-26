@@ -12,7 +12,7 @@ class ToneMap {
   private:
     static ToneMap *activeToneMap;
     Cie colorSpace;
-    static int gammaTableEntry(float x);
+    static int gammaTableEntry(double x);
     static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
     static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
 
@@ -31,12 +31,12 @@ class ToneMap {
     transformation rule comes from Glassner's book, table 13.3, seems to
     be OK.
     */
-    static float tmoCandelaLambert(float a);
+    static double tmoCandelaLambert(double a);
 
     /**
     Transforms luminance from lamberts to cd/m^2 to lamberts.
     */
-    static float tmoLambertCandela(float a);
+    static double tmoLambertCandela(double a);
 
   public:
     ToneMap();

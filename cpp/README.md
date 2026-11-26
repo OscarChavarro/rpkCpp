@@ -37,19 +37,16 @@ taskset -c 0-17,36-53 ./scripts/13_floorStochasticRaytracingRandomWalk.sh -gr-th
 ```
 
 The radiosity iterations run serially. The parallel tracer requires BRDF
-sampling and falls back to serial tracing when stored radiance, coherent or
-correlated sampling, or ray capture is requested. Parallel results are
+sampling and falls back to serial tracing when stored radiance, or coherent or
+correlated sampling, is requested. Parallel results are
 reproducible across worker counts, but use a different random sequence from
 the serial golden image. Omit the option or use `-gr-threads 1` for the
 historical serial result.
 
 For test 13, `scripts/testReviewResults.sh` detects parallel final tracing in
-the run log. It checks the statistics fingerprint and compares the output and
-golden images at 50% size, with a normalized RMSE limit of 0.006. The limit
+the run log. It compares the output and golden images at 50% size, with a normalized RMSE limit of 0.006. The limit
 allows for the parallel random sequence (the measured 72-worker result is
-0.00481165); serial runs retain the exact image and original golden checks.
-In `--exact` mode the parallel image check is skipped, so use the default or
-`--golden` mode to check its image.
+0.00481165); serial runs keep the exact image check.
 
 ## Modernized features from original ANSI C to current C++-11 code
 

@@ -167,9 +167,9 @@ RpkGeometry::clone() const {
 
 bool
 RpkGeometry::discretizationIntersectPreTest(
-    const RpkRay *ray,
-    float minimumDistance,
-    const float *maximumDistance,
+    const Ray *ray,
+    double minimumDistance,
+    const double *maximumDistance,
     const RayExclusionSet &exclusions) const
 {
     if ( exclusions.excludesGeometry(this) ) {
@@ -177,12 +177,12 @@ RpkGeometry::discretizationIntersectPreTest(
     }
 
     if ( bounded ) {
-        Vector3Df vTmp;
+        Vector3Dd vTmp;
 
         // Check ray/bounding volume intersection
-        vTmp = ray->position.add(ray->direction.multiply(static_cast<float>(minimumDistance)));
+        vTmp = ray->getOrigin().add(ray->getDirection().multiply(static_cast<double>(minimumDistance)));
         if ( boundingBox.outOfBounds(&vTmp) ) {
-            float nMaximumDistance = *maximumDistance;
+            double nMaximumDistance = *maximumDistance;
             if ( !boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
                 return false;
             }
@@ -205,9 +205,9 @@ properties) to return.
 */
 RpkRayHit *
 RpkGeometry::discretizationIntersect(
-    RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions) const
@@ -229,9 +229,9 @@ RpkGeometry::discretizationIntersect(
 RpkRayHit *
 RpkGeometry::listDiscretizationIntersect(
     const java::ArrayList<RpkGeometry *> *geometryList,
-    RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions)
@@ -273,9 +273,9 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 RpkRayHit *
 RpkGeometry::patchListIntersect(
     const java::ArrayList<Patch *> *patchList,
-    const RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    const Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions)

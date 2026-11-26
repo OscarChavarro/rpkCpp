@@ -2,12 +2,12 @@
 
 PatchHitCandidate::PatchHitCandidate():
     patchIndex(-1),
-    distance(0.0F),
+    distance(0.0),
     frontFacing(false)
 {
 }
 
-PatchHitCandidate::PatchHitCandidate(int patchIndex, float distance, bool frontFacing):
+PatchHitCandidate::PatchHitCandidate(int patchIndex, double distance, bool frontFacing):
     patchIndex(patchIndex),
     distance(distance),
     frontFacing(frontFacing)

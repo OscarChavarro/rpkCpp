@@ -37,7 +37,7 @@ class StochasticRadiosityBasisState {
     static BasisFunction oneBasisTable[1];
     static StochasticRadiosityBasis stochasticRadiosityCreateQuadBasis();
     static StochasticRadiosityBasisState *&activeStatePtr();
-    static Matrix2x2 createTransform(float m00, float m01, float m10, float m11, float t0, float t1);
+    static Matrix2x2 createTransform(double m00, double m01, double m10, double m11, double t0, double t1);
 };
 
 class Basismcrad final {

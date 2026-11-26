@@ -35,14 +35,14 @@ class Opengl {
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RendererConfiguration *renderOptions);
     static bool openGlViewCullBounds(const Camera *camera, const RpkAxisAlignedBoundingBox *bounds);
-    static float openGlBoundsDistance2(Vector3Df p, const RpkAxisAlignedBoundingBox *boundingBox);
+    static double openGlBoundsDistance2(Vector3Dd p, const RpkAxisAlignedBoundingBox *boundingBox);
     static void
     openGlRenderOctreeNonLeaf(
         Camera *camera,
         const RpkGeometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RendererConfiguration *renderOptions);
-    static void openGlRenderSetLineWidth(float width);
+    static void openGlRenderSetLineWidth(double width);
     static void
     openGlReallyRender(
         const Scene *scene,
@@ -55,18 +55,18 @@ class Opengl {
         const RadianceMethod *radianceMethod,
         const RendererConfiguration *renderOptions,
         const GlutDebugState *debugState);
-    static Vector3Df sceneRotationPivot(const Scene *scene);
-    static void viewportAxesInWorld(const Scene *scene, Vector3Df *axisU, Vector3Df *axisV);
+    static Vector3Dd sceneRotationPivot(const Scene *scene);
+    static void viewportAxesInWorld(const Scene *scene, Vector3Dd *axisU, Vector3Dd *axisV);
 
   public:
-    static void openGlRenderLine(Vector3Df *x, Vector3Df *y);
+    static void openGlRenderLine(Vector3Dd *x, Vector3Dd *y);
     static void openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchOutline(const Patch *patch);
-    static void openGlRenderPolygonFlat(int numberOfVertices, Vector3Df *vertices);
+    static void openGlRenderPolygonFlat(int numberOfVertices, Vector3Dd *vertices);
     static void
     openGlRenderPolygonGouraud(
         int numberOfVertices,
-        Vector3Df *vertices,
+        Vector3Dd *vertices,
         const ColorRgb *verticesColors,
         const RendererConfiguration *renderOptions);
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions, const FaceColorTable *faceColors);

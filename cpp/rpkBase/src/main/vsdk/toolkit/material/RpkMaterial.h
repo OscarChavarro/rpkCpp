@@ -42,8 +42,8 @@ class RpkMaterial {
         const PhongLobe *reflection,
         const PhongLobe *transmission,
         Texture *inTexture,
-        float refractionIndexReal,
-        float refractionIndexImaginary,
+        double refractionIndexReal,
+        double refractionIndexImaginary,
         bool inSided);
     virtual ~RpkMaterial();
     RpkMaterial(const RpkMaterial &) = delete;

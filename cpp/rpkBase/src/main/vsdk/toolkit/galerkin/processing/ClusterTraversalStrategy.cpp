@@ -51,7 +51,7 @@ towards the samplePoint point
 ColorRgb
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(
     GalerkinElement *sourceElement,
-    Vector3Df samplePoint,
+    Vector3Dd samplePoint,
     GalerkinState *galerkinState)
 {
     switch ( galerkinState->clusteringStrategy ) {
@@ -70,7 +70,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
             // Divide by the source area used for computing the form factor:
             // sourceElement->area / 4.0 (average projected area)
-            return sourceRadiance.multiply(4.0F / sourceElement->area);
+            return sourceRadiance.multiply(4.0 / sourceElement->area);
         }
 
         case GalerkinClusteringStrategy::Z_VISIBILITY:
@@ -90,7 +90,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
                 areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
-                return sourceRadiance.multiply(static_cast<float>(areaFactor));
+                return sourceRadiance.multiply(static_cast<double>(areaFactor));
             }
 
         default:
@@ -126,8 +126,8 @@ double
 ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElement *receiverElement) {
     double rcvCos;
     double distance;
-    Vector3Df dir;
-    Vector3Df samplePoint;
+    Vector3Dd dir;
+    Vector3Dd samplePoint;
 
     dir = samplePoint.subtract(receiverElement->patch->midPoint());
     distance = dir.length();
@@ -152,7 +152,7 @@ double
 ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
-    Vector3Df samplePoint;
+    Vector3Dd samplePoint;
     double projectedArea;
 
     if ( !receiverElement->isCluster() || sourceElement == receiverElement ) {
@@ -214,13 +214,13 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0] = rcvRad[0].addScaled(static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
+        rcvRad[0] = rcvRad[0].addScaled(static_cast<double>(areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
         int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
         int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( int alpha = 0; alpha < a; alpha++ ) {
             for ( int beta = 0; beta < b; beta++ ) {
-                rcvRad[alpha] = rcvRad[alpha].addScaled(static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
+                rcvRad[alpha] = rcvRad[alpha].addScaled(static_cast<double>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
             }
         }
     }
@@ -252,7 +252,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
             break;
         }
         case GalerkinClusteringStrategy::Z_VISIBILITY: {
-            Vector3Df samplePoint = sourceElement->midPoint();
+            Vector3Dd samplePoint = sourceElement->midPoint();
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 OrientedGathererVisitor leafVisitor(link, srcRad);
                 ClusterTraversalStrategy::traverseAllLeafElements(

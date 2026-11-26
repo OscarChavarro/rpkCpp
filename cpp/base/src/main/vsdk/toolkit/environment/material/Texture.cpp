@@ -37,7 +37,7 @@ Texture::~Texture() {
 }
 
 ColorRgb
-Texture::evaluateColor(float u, float v) const {
+Texture::evaluateColor(double u, double v) const {
     double u1 = u - java::Math::floor(u);
     double u0 = 1.0 - u1;
     double v1 = v - java::Math::floor(v);
@@ -75,7 +75,7 @@ Texture::evaluateColor(float u, float v) const {
     const int pixelIndex11 = (j1 * width + i1) * channels;
 
     auto channelValue = [this](int pixelIndex, int channel) {
-        return static_cast<float>(data[pixelIndex + channel]) / 255.0F;
+        return static_cast<double>(data[pixelIndex + channel]) / 255.0;
     };
 
     double r00 = 0.0;

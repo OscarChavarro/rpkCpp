@@ -49,9 +49,9 @@ class Shaft {
     int geometryIdsToAvoidOpening[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToAvoidOpen;
 
-    Vector3Df center1; // The line segment from center1 to center2 is guaranteed
+    Vector3Dd center1; // The line segment from center1 to center2 is guaranteed
     // to lay within the shaft
-    Vector3Df center2;
+    Vector3Dd center2;
     bool cut; // A boolean initialized to FALSE when the shaft is created and set
     // to TRUE during shaft culling if there are patches that cut the shaft. If
     // after shaft culling, this flag is TRUE, there is full occlusion due to
@@ -60,17 +60,17 @@ class Shaft {
     // occluder in question is the first patch in the returned candidate list.
     // The candidate list does not contain all occluder!
 
-    static ShaftPlanePosition testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Df *normal, double d);
-    static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Dd *normal, double d);
+    static void fillInPlane(ShaftPlane *plane, double nx, double ny, double nz, double d);
 
     static bool
     verifyPolygonWithRespectToPlane(
         const ConvexPolygon *polygon,
-        const Vector3Df *normal,
+        const Vector3Dd *normal,
         double d,
         ShaftPlanePosition side);
 
-    static ShaftPlanePosition testPointWithRespectToPlane(const Vector3Df *p, const Vector3Df *normal, double d);
+    static ShaftPlanePosition testPointWithRespectToPlane(const Vector3Dd *p, const Vector3Dd *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
     static void ensurePatchSetPoolInitialized();
     PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches) const;

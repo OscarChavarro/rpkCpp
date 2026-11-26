@@ -152,6 +152,6 @@ This port is built as 32-bit code (`-m32`), as Turbo C targets do, so a process
 can address at most 4 GB. Scene `08_soda` needs more than that for its
 radiosity hierarchy: the render still finishes and writes an image, but the
 solution is not the one the 64-bit ports converge to, so it does not match
-`doc/testBaseImages/08_soda.ppm`. For that reason `scripts/testReviewResults.sh`
+the golden `cpp/etc/goldenImagesForTests/08_soda.ppm`. For that reason `scripts/testReviewResults.sh`
 leaves `08_soda` out of the golden image test. `scripts/08_runSoda.sh` is kept
 so the scene can still be rendered by hand.

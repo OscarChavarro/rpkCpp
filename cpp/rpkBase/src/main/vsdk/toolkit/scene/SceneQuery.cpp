@@ -146,18 +146,16 @@ SceneQuery::methodFromName(const char *name, SceneAccelerationMethod *method) {
 
 RpkRayHit *
 SceneQuery::intersect(
-    RpkRay *ray,
-    const float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    const double minimumDistance,
+    double *maximumDistance,
     const int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions,
     SceneQueryWorkspace *workspace) const
 {
     SceneFaceRayTest test(*scene, ray, hitFlags, exclusions, hitStore);
-    const Ray indexRay = Ray::fromAffine(
-        Vector3Dd(ray->position.x(), ray->position.y(), ray->position.z()),
-        Vector3Dd(ray->direction.x(), ray->direction.y(), ray->direction.z()));
+    const Ray indexRay = Ray::fromAffine(ray->getOrigin(), ray->getDirection());
     const SpatialQueryMode mode = (hitFlags & RayHitFlag::ANY) != 0
         ? SpatialQueryMode::ANY_HIT : SpatialQueryMode::CLOSEST_HIT;
     // The ported grid takes the face test by its type, so the compiler can
@@ -169,13 +167,12 @@ SceneQuery::intersect(
     if ( !result.hasHit() ) {
         return nullptr;
     }
-    *maximumDistance = static_cast<float>(result.getParameter());
+    *maximumDistance = static_cast<double>(result.getParameter());
     return hitStore;
 }
 
-SceneQueryWorkspace::SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder):
-    indexWorkspace(new SpatialIndexWorkspace(query.getIndex()->getWorkspaceSize())),
-    recorder(inRecorder)
+SceneQueryWorkspace::SceneQueryWorkspace(const SceneQuery &query):
+    indexWorkspace(new SpatialIndexWorkspace(query.getIndex()->getWorkspaceSize()))
 {
 }
 

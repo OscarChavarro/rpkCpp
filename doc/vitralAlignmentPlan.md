@@ -14,8 +14,9 @@ measurements, precision decisions, replay results and accepted image changes.
 
 - The image gates, ray capture, class audit and VITRAL source subset are in
   place. The standalone ray replay used during the migration was retired.
-- RPK uses VITRAL's float vectors and matrices, `PlanarFace` and the integrated
-  and directional operations of `PhongMaterial`. The RPK EDF and BSDF classes
+- RPK computes in double precision. It uses VITRAL's double vectors and
+  matrices, its `Ray`, `PlanarFace` and the integrated and directional
+  operations of `PhongMaterial`, all in double precision. The RPK EDF and BSDF classes
   that remain are forwarding views. Both C++ builds use strict IEEE arithmetic
   with GCC and Clang.
 - The scene assigns dense face indices and stores bounds, direct potential,
@@ -76,16 +77,19 @@ measurements, precision decisions, replay results and accepted image changes.
 | Tier | Check | When |
 | --- | --- | --- |
 | T0 | Build with and without `RAYTRACING_ENABLED` where supported, with `-Wall -Wextra -pedantic` and the class audit | Each code change |
-| T1 | Exact image comparison (AE = 0) against port references and unchanged statistics fingerprints | Result-preserving changes |
+| T1 | Exact image comparison (AE = 0) against port references (and, outside C++, unchanged statistics fingerprints) | Result-preserving changes |
 | T2 | Focused contract tests for the changed interface | When a contract changes |
-| T3 | Full corpus within the recorded RMSE bounds against `doc/testBaseImages` | End of a stage |
+| T3 | Full corpus within the recorded RMSE bounds against the golden images in `cpp/etc/goldenImagesForTests` | End of a stage |
 | T4 | CPU time, wall time and peak RSS against the recorded baseline | End of a stage and changes to hot paths |
 | T5 | Concurrent queries or solves under ThreadSanitizer, with results compared to the serial run | When shared state or concurrency changes |
 
-Run the existing corpus and `scripts/testReviewResults.sh --exact` /
-`--golden` from the port directory. The C++ port references and timing
-artifacts are local. [The README](../README.md#rebuilding-the-c-test-references)
-gives the capture commands. Changing a golden image or its bound requires the
+Run the existing corpus and `scripts/testReviewResults.sh` from the port
+directory. In C++, T1 and T3 are one check since 2026-11-26: every output must
+equal its golden image in `cpp/etc/goldenImagesForTests` (AE = 0, scene 13 with
+parallel tracing within its RMSE bound at 50% size); that folder holds only the
+images, and T4 compares against the timings of a previous run kept by hand. The
+other ports keep `--exact` (with fingerprints) and `--golden`. [The README](../README.md#rebuilding-the-c-golden-images)
+gives the capture command. Changing a golden image or its bound requires the
 owner's decision. Preserve floating-point precision and operation order in
 result-preserving changes. Stop and report if an exact check fails, a legacy
 answer disagrees with the reference implementation, a measured slowdown

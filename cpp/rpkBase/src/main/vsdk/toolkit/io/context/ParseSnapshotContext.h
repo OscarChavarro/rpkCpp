@@ -2,7 +2,7 @@
 #define __PARSE_SNAPSHOT_CONTEXT__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
@@ -18,9 +18,9 @@ class ParseSnapshotContext {
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<RpkGeometry *> *currentGeometryList;
     char *currentMaterialName;
-    java::ArrayList<Vector3Df *> *currentNormalList;
+    java::ArrayList<Vector3Dd *> *currentNormalList;
     char *currentObjectName;
-    java::ArrayList<Vector3Df *> *currentPointList;
+    java::ArrayList<Vector3Dd *> *currentPointList;
     java::ArrayList<RpkVertex *> *currentVertexList;
     char *currentVertexName;
     java::ArrayList<RpkGeometry *> *geometries;

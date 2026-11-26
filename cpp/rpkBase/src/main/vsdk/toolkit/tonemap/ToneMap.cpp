@@ -24,16 +24,16 @@ ToneMap::init(const ToneMappingContext &toneMapOptions) {
 }
 
 int
-ToneMap::gammaTableEntry(float x) {
-    return static_cast<int>(x * static_cast<float>(1 << ToneMappingContext::GAMMA_TABLE_BITS));
+ToneMap::gammaTableEntry(double x) {
+    return static_cast<int>(x * static_cast<double>(1 << ToneMappingContext::GAMMA_TABLE_BITS));
 }
 
 ColorRgb
 ToneMap::toneMappingGammaCorrection(const ColorRgb &rgb, const ToneMappingContext &toneMapOptions) {
     return ColorRgb(
-        toneMapOptions.gammaTab[0][gammaTableEntry(static_cast<float>(rgb.getR()))],
-        toneMapOptions.gammaTab[1][gammaTableEntry(static_cast<float>(rgb.getG()))],
-        toneMapOptions.gammaTab[2][gammaTableEntry(static_cast<float>(rgb.getB()))]);
+        toneMapOptions.gammaTab[0][gammaTableEntry(static_cast<double>(rgb.getR()))],
+        toneMapOptions.gammaTab[1][gammaTableEntry(static_cast<double>(rgb.getG()))],
+        toneMapOptions.gammaTab[2][gammaTableEntry(static_cast<double>(rgb.getB()))]);
 }
 
 ColorRgb
@@ -44,14 +44,14 @@ ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
     return activeToneMap->scaleForDisplay(radiance);
 }
 
-float
-ToneMap::tmoCandelaLambert(float a) {
-    return a * static_cast<float>(java::Math::PI) * 1e-4F;
+double
+ToneMap::tmoCandelaLambert(double a) {
+    return a * static_cast<double>(java::Math::PI) * 1e-4;
 }
 
-float
-ToneMap::tmoLambertCandela(float a) {
-    return a / (static_cast<float>(java::Math::PI) * 1e-4F);
+double
+ToneMap::tmoLambertCandela(double a) {
+    return a / (static_cast<double>(java::Math::PI) * 1e-4);
 }
 
 void
@@ -61,7 +61,7 @@ ToneMap::recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, doub
     }
     for ( int i = 0; i <= (1 << ToneMappingContext::GAMMA_TABLE_BITS); i++ ) {
         toneMapOptions.gammaTab[index][i] =
-            static_cast<float>(java::Math::pow(static_cast<double>(i) / static_cast<double>(1 << ToneMappingContext::GAMMA_TABLE_BITS),
+            static_cast<double>(java::Math::pow(static_cast<double>(i) / static_cast<double>(1 << ToneMappingContext::GAMMA_TABLE_BITS),
             1.0 / gamma));
     }
 }

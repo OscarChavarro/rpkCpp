@@ -5,7 +5,7 @@
 #include "java/util/ArrayList.h"
 #include "java/util/HashMap.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/bin/writer/BinaryModelSerializationGraph.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
@@ -32,7 +32,7 @@ class BinaryModelSerializer {
     static bool checkedLongToInt32(long value, const char *what, int &result);
     static bool writeString(java::OutputStream &output, const char *text);
     static void writeColor(java::OutputStream &output, const ColorRgb &color);
-    static void writeVector(java::OutputStream &output, const Vector3Df &vector);
+    static void writeVector(java::OutputStream &output, const Vector3Dd &vector);
     static void writeBoundingBox(java::OutputStream &output, const RpkAxisAlignedBoundingBox &boundingBox);
 
     template <typename T>

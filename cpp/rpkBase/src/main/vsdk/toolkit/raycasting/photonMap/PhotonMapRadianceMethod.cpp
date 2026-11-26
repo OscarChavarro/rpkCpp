@@ -81,7 +81,7 @@ For counting how much CPU time was used for the computations
 void
 PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
     const long long t = java::System::nanoTime();
-    photonMapState.cpuSecs += static_cast<float>(
+    photonMapState.cpuSecs += static_cast<double>(
         static_cast<double>(t - photonMapState.lastClock) / 1000000000.0);
     photonMapState.lastClock = t;
 }
@@ -273,7 +273,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     // Evaluate radiance and probabilityDensityFunction and weight
     f = bp->evalRadiance();
 
-    float factor = 1.0F / static_cast<float>(bp->evalPdfAcc());
+    double factor = 1.0 / static_cast<double>(bp->evalPdfAcc());
 
     f = f.multiply(factor); // Flux estimate
 
@@ -318,8 +318,8 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
 {
     int nx;
     int ny;
-    float pixX;
-    float pixY;
+    double pixX;
+    double pixY;
     ColorRgb f(0.0, 0.0, 0.0);
     const BiPath *bp = &config->biPath;
 
@@ -342,14 +342,14 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor;
+        double factor;
 
         if ( config->currentMap == config->map ) {
             factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny)
-                      / static_cast<float>(photonMapState.totalGPaths));
+                      / static_cast<double>(photonMapState.totalGPaths));
         } else {
             factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny)
-                      / static_cast<float>(photonMapState.totalCPaths));
+                      / static_cast<double>(photonMapState.totalCPaths));
         }
 
         f = f.multiply(factor);
@@ -389,7 +389,7 @@ PhotonMapRadianceMethod::photonMapDoPhotonStore(
             if ( photonMapState.densityControl == PhotonMapDensityControlOption::NO_DENSITY_CONTROL ) {
                 return photonMapConfig.currentMap->addPhoton(photon, node->m_hit.getNormal(), flags);
             } else {
-                float reqDensity;
+                double reqDensity;
                 if ( photonMapState.densityControl == PhotonMapDensityControlOption::CONSTANT_RD ) {
                     reqDensity = photonMapState.constantRD;
                 } else {
@@ -422,7 +422,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     double powerR = 1.0;
     double powerG = 1.0;
     double powerB = 1.0;
-    float factor;
+    double factor;
 
     // Iterate over all light nodes
     bp->m_lightSize = 1;
@@ -435,7 +435,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     lDone = false;
     while ( !lDone ) {
         // Adjust accPower
-        factor = static_cast<float>(currentNode->m_G / currentNode->m_pdfFromPrev);
+        factor = static_cast<double>(currentNode->m_G / currentNode->m_pdfFromPrev);
         powerR *= factor;
         powerG *= factor;
         powerB *= factor;
@@ -544,7 +544,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
     java::System::err.printf("PhotonMapRadianceMethod Iteration %li\n", static_cast<long>(photonMapState.iterationNumber));
 
     if ( (photonMapState.iterationNumber > 1) && (photonMapState.doGlobalMap || photonMapState.doCausticMap) ) {
-        float scaleFactor = (static_cast<float>(photonMapState.iterationNumber) - 1.0F) / static_cast<float>(photonMapState.iterationNumber);
+        double scaleFactor = (static_cast<double>(photonMapState.iterationNumber) - 1.0) / static_cast<double>(photonMapState.iterationNumber);
         photonMapConfig.screen->scaleRadiance(scaleFactor);
     }
 
@@ -701,19 +701,19 @@ PhotonMapRadianceMethod::getRadiance(
     const Patch *patch,
     double u,
     double v,
-    Vector3Df dir,
+    Vector3Dd dir,
     const RendererConfiguration */*renderOptions*/) const
 {
     RpkRayHit hit;
-    Vector3Df point;
+    Vector3Dd point;
     PhongBidirectionalScatteringDistributionFunction *bsdf = patch->getMaterial()->getBsdf();
     ColorRgb radiance(0.0, 0.0, 0.0);
-    float density;
+    double density;
 
     patch->pointBarycentricMapping(u, v, &point);
-    const Vector3Df patchNormal = patch->getNormal();
+    const Vector3Dd patchNormal = patch->getNormal();
     hit.init(patch, &point, &patchNormal, patch->getMaterial());
-    Vector3Df normal = hit.getNormal();
+    Vector3Dd normal = hit.getNormal();
     hit.shadingNormal(&normal);
     hit.setNormal(&normal);
 
@@ -742,7 +742,7 @@ PhotonMapRadianceMethod::getRadiance(
             break;
         case RadiosityReturnOption::REC_C_DENSITY:
             {
-                Vector3Df nn = hit.getNormal();
+                Vector3Dd nn = hit.getNormal();
                 photonMapConfig.importanceCMap->doBalancing(photonMapState.balanceKDTree);
                 density = photonMapConfig.importanceCMap->getRequiredDensity(
                         camera, hit.getPoint(), nn);

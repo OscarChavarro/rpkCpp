@@ -9,18 +9,20 @@ and its verification.
 
 ## 1. Linear algebra
 
-RenderPark uses the shared `Vector2Df`, `Vector3Df`, `Vector4Df`,
-`Matrix4x4f` and `Matrix2x2`. The shared double-precision variants also
-exist where higher precision is needed. `PlanarFace` computes its geometry
-in float, while the spatial indices traverse double-precision bounds.
-Retain that precision boundary when preparing faces from VITRAL meshes.
+RenderPark uses the shared `Vector2Dd`, `Vector3Dd`, `Vector4Dd`,
+`Matrix4x4d` and `Matrix2x2`, all in double precision. `PlanarFace` computes
+its geometry in double, as the spatial indices traverse double-precision
+bounds, so faces prepared from VITRAL meshes need no precision boundary. The
+float variants (`Vector3Df` and the others) remain in VITRAL for other
+clients.
 
 ## 2. Ray model
 
-RenderPark's `RpkRay` has public float-vector `position` and `direction`.
-Distances travel separately in its query contract. VITRAL's `Ray` under
-`environment/geometry/element/` encapsulates double-vector origin and
-direction and a ray parameter `t`. A radiosity visibility interface needs
+RenderPark uses VITRAL's `Ray` under `environment/geometry/element/`
+(its former `RpkRay` was removed). `Ray` encapsulates double-vector origin
+and direction and a ray parameter `t`; RenderPark builds it with
+`fromAffine` or the setters, which keep the direction as given. Distances
+travel separately in its query contract. A radiosity visibility interface needs
 an explicit distance interval and documented direction and distance
 conventions. Existing VITRAL raytracer entry points can keep their API.
 

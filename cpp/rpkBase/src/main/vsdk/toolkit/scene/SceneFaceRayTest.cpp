@@ -4,7 +4,7 @@
 
 SceneFaceRayTest::SceneFaceRayTest(
     const Scene &inScene,
-    const RpkRay *inRay,
+    const Ray *inRay,
     const int inHitFlags,
     const RayExclusionSet &inExclusions,
     RpkRayHit *inHitStore):

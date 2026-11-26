@@ -15,7 +15,7 @@ class ImageOutputHandle {
     int height;
 
     void init(const char *_name, int _width, int _height);
-    static ColorRgb gammaCorrect(const ColorRgb &rgb, const float gamma[3]);
+    static ColorRgb gammaCorrect(const ColorRgb &rgb, const double gamma[3]);
 
   public:
     ImageOutputHandle();
@@ -26,14 +26,14 @@ class ImageOutputHandle {
     const char *driverName;
 
     // Gamma correction factors for red, green and blue  used by default
-    float gamma[3];
+    double gamma[3];
     const ToneMappingContext *toneMapOptions;
 
     // Writes a scanline of gamma-corrected display RGB pixels
     // returns the number of pixels written
     virtual int writeDisplayRGB(unsigned char *rgb);
 
-    virtual int writeDisplayRGB(float *rgbFloatArray);
+    virtual int writeDisplayRGB(double *rgbFloatArray);
 
     virtual int writeRadianceRGB(const ColorRgb *rgbRadiance);
     void setToneMappingContext(const ToneMappingContext *inToneMapOptions);

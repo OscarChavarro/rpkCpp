@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
@@ -24,16 +24,16 @@ class BinaryModelReadPrimitives {
     static short readInt16LE(java::InputStream &input);
     static int readInt32LE(java::InputStream &input);
     static long long readInt64LE(java::InputStream &input);
-    static float readFloatLE(java::InputStream &input);
+    static double readFloatLE(java::InputStream &input);
     static double readDoubleLE(java::InputStream &input);
     static bool expectTag(java::InputStream &input, const char expected[4]);
     static bool readNonNegativeCount(java::InputStream &input, const char *what, int *count);
     static bool readNullableString(java::InputStream &input, char **value, bool *hasValue);
     static bool duplicateNullableString(bool hasValue, const char *value, char **text);
     static bool readColor(java::InputStream &input, ColorRgb *color);
-    static bool readVector(java::InputStream &input, Vector3Df *vector);
-    static bool readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]);
-    static bool setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox *boundingBox, const float coordinates[6]);
+    static bool readVector(java::InputStream &input, Vector3Dd *vector);
+    static bool readBoundingBoxCoordinates(java::InputStream &input, double coordinates[6]);
+    static bool setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox *boundingBox, const double coordinates[6]);
     static bool readIndexList(java::InputStream &input, const char *what, BinaryModelIndexListRef *record);
 
     template <typename T>

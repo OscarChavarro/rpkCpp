@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/galerkin/processing/ClusterCreationStrategy.h"
@@ -66,7 +66,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     // Total area of surfaces inside the galerkinElement is sum of the areas of the sub-clusters + pull radiance
     galerkinElement->area = 0.0;
     galerkinElement->numberOfPatches = 0;
-    galerkinElement->minimumArea = java::Float::MAX_VALUE;
+    galerkinElement->minimumArea = java::Double::MAX_VALUE;
     for ( int i = 0; i < galerkinElement->basisSize; i++ ) {
         galerkinElement->radiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
@@ -86,8 +86,8 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         emittance[1] += subCluster->area * subCluster->Ed.getG();
         emittance[2] += subCluster->area * subCluster->Ed.getB();
     }
-    galerkinElement->radiance[0] = galerkinElement->radiance[0].multiply(1.0F / galerkinElement->area);
-    const double emittanceScale = 1.0F / galerkinElement->area;
+    galerkinElement->radiance[0] = galerkinElement->radiance[0].multiply(1.0 / galerkinElement->area);
+    const double emittanceScale = 1.0 / galerkinElement->area;
     galerkinElement->Ed = ColorRgb(emittance[0] * emittanceScale, emittance[1] * emittanceScale, emittance[2] * emittanceScale);
 
     // Also pull un-shot radiance for the "shooting" methods
@@ -101,7 +101,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
             const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
             galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].addScaled(subCluster->area, subCluster->unShotRadiance[0]);
         }
-        galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].multiply(1.0F / galerkinElement->area);
+        galerkinElement->unShotRadiance[0] = galerkinElement->unShotRadiance[0].multiply(1.0 / galerkinElement->area);
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility

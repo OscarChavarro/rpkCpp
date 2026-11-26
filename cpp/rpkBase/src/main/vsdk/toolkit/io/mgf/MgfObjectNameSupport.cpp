@@ -74,8 +74,8 @@ void
 MgfObjectNameSupport::mgfObjectNewSurface(ParseRuntimeContext *context) {
     // Note: lists created here will be transferred to new MeshSurface,
     // should not be deleted from MgfParseSession
-    context->currentPointList = new java::ArrayList<Vector3Df *>();
-    context->currentNormalList = new java::ArrayList<Vector3Df *>();
+    context->currentPointList = new java::ArrayList<Vector3Dd *>();
+    context->currentNormalList = new java::ArrayList<Vector3Dd *>();
     context->currentVertexList = new java::ArrayList<RpkVertex *>();
     context->currentFaceList = new java::ArrayList<Patch *>();
     context->inSurface = true;

@@ -86,8 +86,8 @@ OptionsGroupStochasticRelaxationRadiosity::parse(
     TypedOption<EnumBinding<StochasticRaytracingApproximation>> srrApproximationOpt = {"-srr-approximation", &approximationBinding, 1, nullptr, parseEnumBinding<StochasticRaytracingApproximation>};
     TypedOption<int> srrHierarchicalOpt = {"-srr-hierarchical", &elementHierarchyState.do_h_meshing, 1, nullptr, parseBoolInt};
     TypedOption<EnumBinding<HierarchyClusteringMode>> srrClusteringOpt = {"-srr-clustering", &clusteringBinding, 1, nullptr, parseEnumBinding<HierarchyClusteringMode>};
-    TypedOption<float> srrEpsilonOpt = {"-srr-epsilon", &elementHierarchyState.epsilon, 1, nullptr, nullptr};
-    TypedOption<float> srrMinAreaOpt = {"-srr-minarea", &elementHierarchyState.minimumArea, 1, nullptr, nullptr};
+    TypedOption<double> srrEpsilonOpt = {"-srr-epsilon", &elementHierarchyState.epsilon, 1, nullptr, nullptr};
+    TypedOption<double> srrMinAreaOpt = {"-srr-minarea", &elementHierarchyState.minimumArea, 1, nullptr, nullptr};
     TypedOption<EnumBinding<WhatToShow>> srrDisplayOpt = {"-srr-display", &showBinding, 1, nullptr, parseEnumBinding<WhatToShow>};
     TypedOption<int> srrDiscardIncrementalOpt = {"-srr-discard-incremental", &stochasticRelaxationState.discardIncremental, 1, nullptr, parseBoolInt};
     TypedOption<int> srrIncrementalImportanceOpt = {"-srr-incremental-uses-importance", &stochasticRelaxationState.incrementalUsesImportance, 1, nullptr, parseBoolInt};
@@ -104,8 +104,8 @@ OptionsGroupStochasticRelaxationRadiosity::parse(
         REGISTER_OPTION(EnumBinding<StochasticRaytracingApproximation>, srrApproximationOpt, 7),
         REGISTER_OPTION(int, srrHierarchicalOpt, 7),
         REGISTER_OPTION(EnumBinding<HierarchyClusteringMode>, srrClusteringOpt, 7),
-        REGISTER_OPTION(float, srrEpsilonOpt, 7),
-        REGISTER_OPTION(float, srrMinAreaOpt, 7),
+        REGISTER_OPTION(double, srrEpsilonOpt, 7),
+        REGISTER_OPTION(double, srrMinAreaOpt, 7),
         REGISTER_OPTION(EnumBinding<WhatToShow>, srrDisplayOpt, 7),
         REGISTER_OPTION(int, srrDiscardIncrementalOpt, 7),
         REGISTER_OPTION(int, srrIncrementalImportanceOpt, 7),

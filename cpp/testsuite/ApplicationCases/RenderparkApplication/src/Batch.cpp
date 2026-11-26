@@ -117,7 +117,7 @@ Batch::batchSaveRadianceImage(
 
     java::System::out.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
+        static_cast<double>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
     Canvas::canvasPullMode();
 }
 
@@ -149,7 +149,7 @@ Batch::batchSaveRadianceModel(
 
     java::System::out.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
+        static_cast<double>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
     Canvas::canvasPullMode();
 }
 
@@ -160,8 +160,8 @@ same way with or without an OpenGL display
 void
 Batch::fitCameraClippingPlanes(Scene *scene) {
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
-        scene->camera->far = 10.0F;
-        scene->camera->near = 0.1F;
+        scene->camera->far = 10.0;
+        scene->camera->near = 0.1;
         return;
     }
     RpkAxisAlignedBoundingBox bounds;
@@ -179,7 +179,7 @@ Batch::batchExecuteRadianceSimulation(
 {
     long long startTime;
     long long wasted_start;
-    float wastedSecs;
+    double wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
         java::System::out.printf("Empty world? Missing argument to some command line parameter option?\n");
@@ -269,7 +269,7 @@ Batch::batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            wastedSecs += static_cast<float>(
+            wastedSecs += static_cast<double>(
                 static_cast<double>(wasted_start - java::System::nanoTime()) / 1000000000.0);
 
             java::System::out.flush();
@@ -281,7 +281,7 @@ Batch::batchExecuteRadianceSimulation(
 
     if ( batchOptions.timings ) {
         java::System::out.printf("Radiance total time %g secs.\n",
-                static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
+                static_cast<double>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
@@ -301,7 +301,7 @@ Batch::batchExecuteRadianceSimulation(
 
             if ( batchOptions.timings ) {
                 java::System::out.printf("Raytracing total time %g secs.\n",
-                        static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0));
+                        static_cast<double>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0));
             }
 
             Batch::batchProcessFile(

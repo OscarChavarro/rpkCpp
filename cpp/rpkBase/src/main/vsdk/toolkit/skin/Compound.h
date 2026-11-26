@@ -13,9 +13,9 @@ class Compound final : public RpkGeometry {
 
     RpkRayHit *
     discretizationIntersect(
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions) const override;

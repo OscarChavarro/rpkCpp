@@ -32,10 +32,10 @@ class MeshSurface final : public RpkGeometry {
     java::ArrayList<RpkVertex *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
-    java::ArrayList<Vector3Df *> *positions;
+    java::ArrayList<Vector3Dd *> *positions;
 
     // A list of normals at the vertices of the patches
-    java::ArrayList<Vector3Df *> *normals;
+    java::ArrayList<Vector3Dd *> *normals;
 
     /**
     The patches making up the MeshSurface. Each patch contains pointers to three
@@ -52,9 +52,9 @@ class MeshSurface final : public RpkGeometry {
     MeshSurface(
         char *inObjectName,
         RpkMaterial *inMaterial,
-        java::ArrayList<Vector3Df *> *inPoints,
-        java::ArrayList<Vector3Df *> *inNormals,
-        const java::ArrayList<Vector3Df *> * /*texCoords*/,
+        java::ArrayList<Vector3Dd *> *inPoints,
+        java::ArrayList<Vector3Dd *> *inNormals,
+        const java::ArrayList<Vector3Dd *> * /*texCoords*/,
         java::ArrayList<RpkVertex *> *inVertices,
         java::ArrayList<Patch *> *inFaces,
         MaterialColorFlags inFlags);
@@ -62,9 +62,9 @@ class MeshSurface final : public RpkGeometry {
 
     RpkRayHit *
     discretizationIntersect(
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions) const final;

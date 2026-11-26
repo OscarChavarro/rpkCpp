@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -100,7 +100,7 @@ MgfMaterialEntitySupport::colorMax(const ColorRgb &col) {
 
     MgfMaterialEntitySupport::specSamples(col, samples);
 
-    double mx = -java::Float::MAX_VALUE;
+    double mx = -java::Double::MAX_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
@@ -155,18 +155,18 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
     // Check/correct range of reflectances and transmittances
     A = Rd.add(Rs);
     double a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0 - Numeric::EPSILON ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
-        a = (1.0 - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON) / a;
         Rd = Rd.multiply(a);
         Rs = Rs.multiply(a);
     }
 
     A = Td.add(Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0 - Numeric::EPSILON ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
-        a = (1.0 - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON) / a;
         Td = Td.multiply(a);
         Ts = Ts.multiply(a);
     }
@@ -204,25 +204,24 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool all
         Ts = ColorRgb(colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
-    // The lobes keep their exponents in single precision
     const PhongLobe *emission = nullptr;
     if ( !Ed.isBlack() || !Es.isBlack() ) {
         constexpr double Ne = 0.0;
-        emission = new PhongLobe(Ed, Es, static_cast<float>(Ne));
+        emission = new PhongLobe(Ed, Es, static_cast<double>(Ne));
     }
 
     const PhongLobe *reflection = nullptr;
     if ( !Rd.isBlack() || !Rs.isBlack() ) {
-        reflection = new PhongLobe(Rd, Rs, static_cast<float>(Nr));
+        reflection = new PhongLobe(Rd, Rs, static_cast<double>(Nr));
     }
 
     const PhongLobe *transmission = nullptr;
-    float refractionIndexReal = 1.0F;
-    float refractionIndexImaginary = 0.0F;
+    double refractionIndexReal = 1.0;
+    double refractionIndexImaginary = 0.0;
     if ( !Td.isBlack() || !Ts.isBlack() ) {
-        transmission = new PhongLobe(Td, Ts, static_cast<float>(Nt));
-        refractionIndexReal = static_cast<float>(currentMaterialContext->nr);
-        refractionIndexImaginary = static_cast<float>(currentMaterialContext->ni);
+        transmission = new PhongLobe(Td, Ts, static_cast<double>(Nt));
+        refractionIndexReal = static_cast<double>(currentMaterialContext->nr);
+        refractionIndexImaginary = static_cast<double>(currentMaterialContext->ni);
     }
 
     (*material) = new RpkMaterial(
@@ -356,8 +355,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->nr = strtof(av[1], nullptr);
-            currentMaterialContext->ni = strtof(av[2], nullptr);
+            currentMaterialContext->nr = strtod(av[1], nullptr);
+            currentMaterialContext->ni = strtod(av[2], nullptr);
             if ( currentMaterialContext->nr <= VSDK::EPSILON ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
@@ -372,7 +371,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->rd = strtof(av[1], nullptr);
+            currentMaterialContext->rd = strtod(av[1], nullptr);
             if ( currentMaterialContext->rd < 0. || currentMaterialContext->rd > 1.0 ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
@@ -388,7 +387,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->ed = strtof(av[1], nullptr);
+            currentMaterialContext->ed = strtod(av[1], nullptr);
             if ( currentMaterialContext->ed < 0.0 ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
@@ -404,7 +403,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->td = strtof(av[1], nullptr);
+            currentMaterialContext->td = strtod(av[1], nullptr);
             if ( currentMaterialContext->td < 0.0 || currentMaterialContext->td > 1.0 ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
@@ -420,8 +419,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->rs = strtof(av[1], nullptr);
-            currentMaterialContext->rs_a = strtof(av[2], nullptr);
+            currentMaterialContext->rs = strtod(av[1], nullptr);
+            currentMaterialContext->rs_a = strtod(av[2], nullptr);
             if ( currentMaterialContext->rs < 0.0 || currentMaterialContext->rs > 1.0 ||
                  currentMaterialContext->rs_a < 0.0 ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -438,8 +437,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->ts = strtof(av[1], nullptr);
-            currentMaterialContext->ts_a = strtof(av[2], nullptr);
+            currentMaterialContext->ts = strtod(av[1], nullptr);
+            currentMaterialContext->ts_a = strtod(av[2], nullptr);
             if ( currentMaterialContext->ts < 0.0 || currentMaterialContext->ts > 1.0 ||
                  currentMaterialContext->ts_a < 0.0 ) {
                 return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;

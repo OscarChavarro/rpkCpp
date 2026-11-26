@@ -23,17 +23,17 @@ Patch *
 ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState) {
     Patch *shooting_patch;
     Patch *pot_shooting_patch;
-    float power;
-    float maximumPower;
-    float powerImportance;
-    float maximumPowerImportance;
+    double power;
+    double maximumPower;
+    double powerImportance;
+    double maximumPowerImportance;
 
-    maximumPower = maximumPowerImportance = 0.0F;
+    maximumPower = maximumPowerImportance = 0.0;
     shooting_patch = pot_shooting_patch = nullptr;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = static_cast<float>(M_PI) * patch->getArea() * galerkinState->topLevelElement(patch)->unShotRadiance[0].sumAbsComponents();
+        power = static_cast<double>(M_PI) * patch->getArea() * galerkinState->topLevelElement(patch)->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -71,7 +71,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     for ( int i = 0; i < elem->basisSize; i++ ) {
         elem->unShotRadiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
-    elem->unShotPotential = 0.0F;
+    elem->unShotPotential = 0.0;
 }
 
 /**
@@ -115,12 +115,12 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 Makes the hierarchical representation of potential consistent over all
 all levels
 */
-float
-ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down) {
+double
+ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, double down) {
     down += element->receivedPotential / element->area;
-    element->receivedPotential = 0.0F;
+    element->receivedPotential = 0.0;
 
-    float up = 0.0F;
+    double up = 0.0;
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         up = down;
@@ -128,7 +128,7 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down
 
     if ( element->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25F * shootingPushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
+            up += 0.25 * shootingPushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
         }
     }
 
@@ -152,7 +152,7 @@ void
 ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
     if ( galerkinState->importanceDriven ) {
-        shootingPushPullPotential(topLevelElement, 0.0F);
+        shootingPushPullPotential(topLevelElement, 0.0);
     }
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
 
@@ -177,7 +177,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             patchUpdateRadianceAndPotential(scene->patchList->get(i), galerkinState);
         }
-        galerkinState->ambientRadiance = galerkinState->ambientRadiance.multiply(1.0F / Statistics::instance().radiance.totalArea);
+        galerkinState->ambientRadiance = galerkinState->ambientRadiance.multiply(1.0 / Statistics::instance().radiance.totalArea);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -212,8 +212,8 @@ based on the potential of the contained patches
 void
 ShootingStrategy::clusterUpdatePotential(GalerkinElement *clusterElement) {
     if ( clusterElement->isCluster() ) {
-        clusterElement->potential = 0.0F;
-        clusterElement->unShotPotential = 0.0F;
+        clusterElement->potential = 0.0;
+        clusterElement->unShotPotential = 0.0;
         for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = static_cast<GalerkinElement *>(clusterElement->irregularSubElements->get(i));
             clusterUpdatePotential(subCluster);
@@ -231,12 +231,12 @@ area), see Bekaert & Willems, EGRW'95 (Dublin)
 */
 Patch *
 ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState) {
-    float maximumImportance = 0.0F;
+    double maximumImportance = 0.0;
     Patch *shootingPatch = nullptr;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->getArea() * java::Math::abs(galerkinGetUnShotPotential(galerkinState, patch));
+        double imp = patch->getArea() * java::Math::abs(galerkinGetUnShotPotential(galerkinState, patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;
@@ -267,7 +267,7 @@ Called for each patch after direct potential has changed (because the
 virtual camera has changed)
 */
 void
-ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement) {
+ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *galerkinElement, double potentialIncrement) {
     if ( galerkinElement->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
             shootingUpdateDirectPotential(static_cast<GalerkinElement *>(galerkinElement->regularSubElements[i]), potentialIncrement);
@@ -291,7 +291,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 const Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
-                float potential_increment = scene->getDirectPotentials()->get(patch->getFaceIndex()) - topLevelElement->directPotential;
+                double potential_increment = scene->getDirectPotentials()->get(patch->getFaceIndex()) - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             scene->camera->changed = false;

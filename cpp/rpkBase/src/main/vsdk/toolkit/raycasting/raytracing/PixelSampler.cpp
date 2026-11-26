@@ -21,7 +21,7 @@ PixelSampler::sample(
     bool /*doRR*/,
     char /*flags*/)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
 
     // Pre-conditions: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
@@ -29,10 +29,10 @@ PixelSampler::sample(
     double xSample = (m_px + camera->pixelWidth * x1);
     double ySample = (m_py + camera->pixelHeight * x2);
 
-    dir = camera->Z.add(camera->X.multiply(static_cast<float>(xSample))).add(camera->Y.multiply(static_cast<float>(ySample)));
+    dir = camera->Z.add(camera->X.multiply(static_cast<double>(xSample))).add(camera->Y.multiply(static_cast<double>(ySample)));
     double distPixel2 = dir.lengthSquared();
     double distPixel = java::Math::sqrt(distPixel2);
-    dir = dir.multiplyByInverse(static_cast<float>(distPixel), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(static_cast<double>(distPixel), Numeric::EPSILON);
 
     double cosPixel = java::Math::abs(camera->Z.dotProduct(dir));
 
@@ -92,13 +92,13 @@ PixelSampler::evalPDF(
     double cosA;
     double cosB;
     double pdf;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     // More efficient with extra params?
     outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = java::Math::sqrt(dist2);
-    outDir = outDir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
 
     // pdf = 1 / A_pixel transformed to area measure
 

@@ -14,7 +14,7 @@ Shaft culling stuff for hierarchical refinement
 */
 class HierarchicalRefinementStrategy {
   private:
-    static MemoryPool<float> hierarchicalCoefficientsPool;
+    static MemoryPool<double> hierarchicalCoefficientsPool;
     static bool hierarchicalCoefficientsPoolInitialized;
 
     static void ensureHierarchicalCoefficientsPool();
@@ -161,7 +161,7 @@ class HierarchicalRefinementStrategy {
         GalerkinState *galerkinState,
         RefinementWorkspace *workspace);
 
-    static bool parallelRefinementSupported(const Scene *scene, const GalerkinState *galerkinState);
+    static bool parallelRefinementSupported(const GalerkinState *galerkinState);
     static int numberOfRefinementThreads(const GalerkinState *galerkinState);
 
     static void
@@ -205,7 +205,7 @@ class HierarchicalRefinementStrategy {
     transport, new interactions, element ids, warnings) is then committed in
     the serial order. Configurations whose refinement reads or writes shared
     scratch (non isotropic clustering, shaft culling, multi-resolution
-    visibility, ray capture) are refined serially
+    visibility) are refined serially
     */
     static void
     refineInteractionsInParallel(

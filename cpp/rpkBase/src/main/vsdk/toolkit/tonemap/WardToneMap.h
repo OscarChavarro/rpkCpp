@@ -5,9 +5,9 @@
 
 class WardToneMap final : public ToneMap {
   private:
-    float comp;
-    float display;
-    float lda;
+    double comp;
+    double display;
+    double lda;
 
   protected:
     void initParameters(const ToneMappingContext &toneMapOptions) final;

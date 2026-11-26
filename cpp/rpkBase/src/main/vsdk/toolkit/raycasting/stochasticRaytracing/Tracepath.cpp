@@ -44,7 +44,7 @@ Tracepath::clearPath(Path *path) {
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 void
-Tracepath::pathAddNode(Path *path, const Patch *patch, double prob, Vector3Df inPoint, Vector3Df outpoint) {
+Tracepath::pathAddNode(Path *path, const Patch *patch, double prob, Vector3Dd inPoint, Vector3Dd outpoint) {
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
@@ -102,11 +102,11 @@ Tracepath::tracePath(
     PatchProbabilityCallback survivalProbabilityCallBack,
     Path *path)
 {
-    Vector3Df inPoint = {0.0, 0.0, 0.0};
-    Vector3Df outpoint = {0.0, 0.0, 0.0};
+    Vector3Dd inPoint = {0.0, 0.0, 0.0};
+    Vector3Dd outpoint = {0.0, 0.0, 0.0};
     const Patch *P = origin;
     double survivalProb;
-    RpkRay ray;
+    Ray ray;
     const RpkRayHit *hit;
     RpkRayHit hitStore;
 
@@ -119,9 +119,9 @@ Tracepath::tracePath(
         McradP::topLevelStochasticRadiosityElement(P)->rayIndex++;
         if ( path->numberOfNodes > 1 && StochasticRelaxation::activeState().continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
-            ray.position = path->nodes[path->numberOfNodes - 1].inPoint;
+            ray.setOrigin(path->nodes[path->numberOfNodes - 1].inPoint);
         }
-        path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
+        path->nodes[path->numberOfNodes - 1].outpoint = ray.getOrigin();
 
         hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, &ray, &hitStore);
         if ( !hit ) {
@@ -205,8 +205,8 @@ Tracepath::tracePaths(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, static_cast<double>(numberOfPaths) / sumProbabilities);
-        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
     }
 }
 

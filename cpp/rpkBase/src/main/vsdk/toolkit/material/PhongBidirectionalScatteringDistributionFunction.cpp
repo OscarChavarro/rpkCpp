@@ -23,9 +23,9 @@ No material defines its own shading frame: callers build a default one
 bool
 PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
     const ShadingContext & /*context*/,
-    const Vector3Df * /*X*/,
-    const Vector3Df * /*Y*/,
-    const Vector3Df * /*Z*/)
+    const Vector3Dd * /*X*/,
+    const Vector3Dd * /*Y*/,
+    const Vector3Dd * /*Z*/)
 {
     return false;
 }
@@ -35,7 +35,7 @@ Scattered power (diffuse/glossy/specular reflectance and/or transmittance) accor
 */
 ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const ShadingContext &context, const char flags) const {
-    const Vector3Df textureCoordinate = context.getTexCoord();
+    const Vector3Dd textureCoordinate = context.getTexCoord();
     return material->scatteredPower(
         flags, context.hasFlag(SHCTX_TEXTURE_COORDINATE) ? &textureCoordinate : nullptr);
 }
@@ -52,12 +52,12 @@ PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(RefractionIn
     index->set(material->getRefractionIndex(), material->getRefractionIndexImaginary());
 }
 
-Vector3Df
+Vector3Dd
 PhongBidirectionalScatteringDistributionFunction::sample(
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
     const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3Df *in,
+    const Vector3Dd *in,
     const int doRussianRoulette,
     const char flags,
     const double x1,
@@ -74,8 +74,8 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
     const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3Df *in,
-    const Vector3Df *out,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
     const char flags) const
 {
     return material->scatteringEvaluate(
@@ -88,8 +88,8 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
     const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3Df *in,
-    const Vector3Df *out,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
     const char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
@@ -105,8 +105,8 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
     const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3Df *in,
-    const Vector3Df *out,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
     const char flags,
     ColorRgb *colArray) const
 {

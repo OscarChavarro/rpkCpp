@@ -4,7 +4,7 @@
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
@@ -19,13 +19,13 @@
     #include <GL/gl.h>
 #endif
 
-float
-GlutDebugPatchHierarchy::clamp01(float value) {
-    if ( value < 0.0F ) {
-        return 0.0F;
+double
+GlutDebugPatchHierarchy::clamp01(double value) {
+    if ( value < 0.0 ) {
+        return 0.0;
     }
-    if ( value > 1.0F ) {
-        return 1.0F;
+    if ( value > 1.0 ) {
+        return 1.0;
     }
     return value;
 }
@@ -47,10 +47,10 @@ GlutDebugPatchHierarchy::addPatchIfNotPresent(
     patches->add(patch);
 }
 
-float
-GlutDebugPatchHierarchy::toneMappedGrayAndDarkened(float value01) {
-    float adjusted = GlutDebugPatchHierarchy::clamp01(value01);
-    adjusted = static_cast<float>(java::Math::pow(adjusted, GlutDebugPatchHierarchy::GRAY_CONTRAST_GAMMA));
+double
+GlutDebugPatchHierarchy::toneMappedGrayAndDarkened(double value01) {
+    double adjusted = GlutDebugPatchHierarchy::clamp01(value01);
+    adjusted = static_cast<double>(java::Math::pow(adjusted, GlutDebugPatchHierarchy::GRAY_CONTRAST_GAMMA));
     adjusted *= GlutDebugPatchHierarchy::GRAY_DARKEN_FACTOR;
     return GlutDebugPatchHierarchy::clamp01(adjusted);
 }
@@ -120,13 +120,13 @@ GlutDebugPatchHierarchy::renderElementGray(
         return;
     }
 
-    Vector3Df vertices[4];
+    Vector3Dd vertices[4];
     const int numberOfVertices = element->vertices(vertices);
     if ( numberOfVertices < 3 ) {
         return;
     }
 
-    float grayValue = OUTLINE_MIN_GRAY;
+    double grayValue = OUTLINE_MIN_GRAY;
 
     if ( renderOptions->isDrawSurfaces() ) {
         ColorRgb radianceSample{};
@@ -149,11 +149,11 @@ GlutDebugPatchHierarchy::renderElementGray(
 
         const ColorRgb rgbColor = ToneMap::radianceToRgb(radianceSample, *toneMapOptions);
         grayValue = toneMappedGrayAndDarkened(toneMapOptions->getColorSpace().spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
-        glColor3f(grayValue, grayValue, grayValue);
+        glColor3d(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
     }
 
-    float outlineGray = grayValue;
+    double outlineGray = grayValue;
     if ( renderOptions->isDrawSurfaces() ) {
         outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
     } else {
@@ -167,7 +167,7 @@ GlutDebugPatchHierarchy::renderElementGray(
         outlineGray = OUTLINE_MIN_GRAY;
     }
 
-    glColor3f(outlineGray, outlineGray, outlineGray);
+    glColor3d(outlineGray, outlineGray, outlineGray);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const int nextIndex = (i + 1) % numberOfVertices;
         Opengl::openGlRenderLine(&vertices[i], &vertices[nextIndex]);
@@ -262,29 +262,29 @@ GlutDebugPatchHierarchy::renderElementAtLevel(
 
 void
 GlutDebugPatchHierarchy::drawCenterMark(
-    const Vector3Df &center,
-    float radius,
+    const Vector3Dd &center,
+    double radius,
     int sides,
-    const Vector3Df &axisU,
-    const Vector3Df &axisV,
+    const Vector3Dd &axisU,
+    const Vector3Dd &axisV,
     const RendererConfiguration *renderOptions)
 {
     if ( renderOptions == nullptr || sides < 3 || radius < VSDK::EPSILON ) {
         return;
     }
 
-    const ColorRgb yellow(1.0F, 1.0F, 0.0F);
+    const ColorRgb yellow(1.0, 1.0, 0.0);
     Opengl::openGlRenderSetColor(&yellow, renderOptions);
 
-    constexpr float TWO_PI = 6.28318530717958647692F;
-    Vector3Df firstVertex;
-    Vector3Df previousVertex;
+    constexpr double TWO_PI = 6.28318530717958647692;
+    Vector3Dd firstVertex;
+    Vector3Dd previousVertex;
     for ( int i = 0; i < sides; i++ ) {
-        const float angle = TWO_PI * static_cast<float>(i) / static_cast<float>(sides);
-        const float u = radius * java::Math::cos(angle);
-        const float v = radius * java::Math::sin(angle);
+        const double angle = TWO_PI * static_cast<double>(i) / static_cast<double>(sides);
+        const double u = radius * java::Math::cos(angle);
+        const double v = radius * java::Math::sin(angle);
 
-        Vector3Df currentVertex;
+        Vector3Dd currentVertex;
         currentVertex = center.add(axisU.multiply(u)).add(axisV.multiply(v));
 
         if ( i == 0 ) {
@@ -306,72 +306,72 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
         return;
     }
 
-    Vector3Df vertices[8];
+    Vector3Dd vertices[8];
     const int numberOfVertices = topLevelElement->vertices(vertices);
     if ( numberOfVertices < 3 ) {
         return;
     }
 
-    Vector3Df axisU;
+    Vector3Dd axisU;
     axisU = vertices[1].subtract(vertices[0]);
     if ( axisU.lengthSquared() < VSDK::EPSILON ) {
         axisU = vertices[2].subtract(vertices[0]);
     }
     if ( axisU.lengthSquared() < VSDK::EPSILON ) {
-        axisU = Vector3Df(1.0F, 0.0F, 0.0F);
+        axisU = Vector3Dd(1.0, 0.0, 0.0);
     } else {
         axisU = axisU.normalized(VSDK::EPSILON);
     }
 
-    Vector3Df normal;
+    Vector3Dd normal;
     if ( topLevelElement->patch != nullptr ) {
         normal = topLevelElement->patch->getNormal();
     } else {
-        Vector3Df edgeA;
-        Vector3Df edgeB;
+        Vector3Dd edgeA;
+        Vector3Dd edgeB;
         edgeA = vertices[1].subtract(vertices[0]);
         edgeB = vertices[2].subtract(vertices[0]);
         normal = edgeA.crossProduct(edgeB);
     }
     if ( normal.lengthSquared() < VSDK::EPSILON ) {
-        normal = Vector3Df(0.0F, 0.0F, 1.0F);
+        normal = Vector3Dd(0.0, 0.0, 1.0);
     } else {
         normal = normal.normalized(VSDK::EPSILON);
     }
 
-    Vector3Df axisV;
+    Vector3Dd axisV;
     axisV = normal.crossProduct(axisU);
     if ( axisV.lengthSquared() < VSDK::EPSILON ) {
-        axisV = Vector3Df(0.0F, 1.0F, 0.0F);
+        axisV = Vector3Dd(0.0, 1.0, 0.0);
     } else {
         axisV = axisV.normalized(VSDK::EPSILON);
     }
 
-    float averageEdgeSize = 0.0F;
+    double averageEdgeSize = 0.0;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const int nextIndex = (i + 1) % numberOfVertices;
         averageEdgeSize += vertices[i].distance(vertices[nextIndex]);
     }
-    averageEdgeSize /= static_cast<float>(numberOfVertices);
+    averageEdgeSize /= static_cast<double>(numberOfVertices);
     if ( averageEdgeSize < VSDK::EPSILON ) {
-        averageEdgeSize = 0.1F;
+        averageEdgeSize = 0.1;
     }
 
-    const float radius = 0.08F * averageEdgeSize;
-    const Vector3Df center = topLevelElement->midPoint();
+    const double radius = 0.08 * averageEdgeSize;
+    const Vector3Dd center = topLevelElement->midPoint();
     drawCenterMark(center, radius, 8, axisU, axisV, renderOptions);
 }
 
 void
 GlutDebugPatchHierarchy::drawGradientLine(
-    const Vector3Df &start,
-    const Vector3Df &end)
+    const Vector3Dd &start,
+    const Vector3Dd &end)
 {
     glBegin(GL_LINES);
-    glColor3f(0.5F, 0.5F, 0.5F);
-    glVertex3f(start.x(), start.y(), start.z());
-    glColor3f(1.0F, 1.0F, 1.0F);
-    glVertex3f(end.x(), end.y(), end.z());
+    glColor3d(0.5, 0.5, 0.5);
+    glVertex3d(start.x(), start.y(), start.z());
+    glColor3d(1.0, 1.0, 1.0);
+    glVertex3d(end.x(), end.y(), end.z());
     glEnd();
 }
 
@@ -387,9 +387,9 @@ GlutDebugPatchHierarchy::drawInteractions(
     glGetIntegerv(GL_SHADE_MODEL, &previousShadeModel);
     glShadeModel(GL_SMOOTH);
 
-    GLfloat previousLineWidth = 1.0F;
-    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
-    glLineWidth(2.0F);
+    GLdouble previousLineWidth = 1.0;
+    glGetDoublev(GL_LINE_WIDTH, &previousLineWidth);
+    glLineWidth(2.0);
 
     for ( int i = 0; i < interactionsToRender->size(); i++ ) {
         const Interaction *interaction = interactionsToRender->get(i);
@@ -404,7 +404,7 @@ GlutDebugPatchHierarchy::drawInteractions(
             interaction->receiverElement->midPoint());
     }
 
-    glLineWidth(previousLineWidth);
+    glLineWidth(static_cast<GLfloat>(previousLineWidth)); // OpenGL has no double line width
     glShadeModel(previousShadeModel);
 }
 
@@ -476,14 +476,14 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     RendererConfiguration interactingRenderOptions = *renderOptions;
     interactingRenderOptions.setDrawSurfaces(true);
     interactingRenderOptions.setDrawOutlines(true);
-    interactingRenderOptions.setOutlineColor({1.0F, 1.0F, 0.0F});
+    interactingRenderOptions.setOutlineColor({1.0, 1.0, 0.0});
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
-    GLfloat previousLineWidth = 1.0F;
-    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
+    GLdouble previousLineWidth = 1.0;
+    glGetDoublev(GL_LINE_WIDTH, &previousLineWidth);
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(2.0F);
+    glLineWidth(2.0);
 
     for ( int i = 0; i < interactingPatches.size(); i++ ) {
         const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(&GalerkinRadianceMethod::galerkinState, interactingPatches.get(i));
@@ -496,7 +496,7 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
         renderElementAtLevel(topLevelElement, clampedLevel, &interactingRenderOptions);
     }
 
-    glLineWidth(previousLineWidth);
+    glLineWidth(static_cast<GLfloat>(previousLineWidth)); // OpenGL has no double line width
     glDepthFunc(previousDepthFunc);
 }
 
@@ -516,18 +516,18 @@ GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     RendererConfiguration secondaryRenderOptions = *renderOptions;
     secondaryRenderOptions.setDrawSurfaces(true);
     secondaryRenderOptions.setDrawOutlines(true);
-    secondaryRenderOptions.setOutlineColor({1.0F, 1.0F, 0.0F});
+    secondaryRenderOptions.setOutlineColor({1.0, 1.0, 0.0});
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
-    GLfloat previousLineWidth = 1.0F;
-    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
+    GLdouble previousLineWidth = 1.0;
+    glGetDoublev(GL_LINE_WIDTH, &previousLineWidth);
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(2.0F);
+    glLineWidth(2.0);
 
     renderElementAtLevel(topLevelElement, secondaryHierarchyLevel, &secondaryRenderOptions);
 
-    glLineWidth(previousLineWidth);
+    glLineWidth(static_cast<GLfloat>(previousLineWidth)); // OpenGL has no double line width
     glDepthFunc(previousDepthFunc);
 }
 

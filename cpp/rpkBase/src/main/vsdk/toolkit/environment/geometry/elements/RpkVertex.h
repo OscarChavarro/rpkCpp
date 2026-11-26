@@ -2,7 +2,7 @@
 #define __RPK_VERTEX__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/environment/geometry/elements/VertexCompareFlags.h"
 
@@ -17,9 +17,9 @@ class RpkVertex {
 
   public:
     int id;
-    Vector3Df *point;
-    Vector3Df *normal;
-    Vector3Df *textureCoordinates;
+    Vector3Dd *point;
+    Vector3Dd *normal;
+    Vector3Dd *textureCoordinates;
     ColorRgb color; // Used when rendering with Gouraud interpolation
     java::ArrayList<Element *> *radianceData; // Data for the vertex maintained by the current radiance method
     RpkVertex *back; // Vertex at the same position, but with reversed normal, for back faces
@@ -28,9 +28,9 @@ class RpkVertex {
              // this storage remain unchanged after leaving control to the user
 
     explicit RpkVertex(
-        Vector3Df *inPoint,
-        Vector3Df *inNormal,
-        Vector3Df *inTextureCoordinates,
+        Vector3Dd *inPoint,
+        Vector3Dd *inNormal,
+        Vector3Dd *inTextureCoordinates,
         java::ArrayList<Patch *> *inPatches);
     virtual ~RpkVertex();
 
@@ -59,7 +59,7 @@ The vertex comparison routines return
 - A code from 0 to 7 if the vertices are not equal. This code can be used
   to sort vertices in an octree. The code is a combination of the flags
   X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK and is the same as for Vertex::setCompareFlags in
-  Vector3Df
+  Vector3Dd
 */
 
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"

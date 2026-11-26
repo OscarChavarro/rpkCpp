@@ -34,10 +34,10 @@ class ColorContext {
     static ColorContext cie_yf;
     static ColorContext cie_zf;
 
-    inline static constexpr float
+    inline static constexpr double
     colorWaveLengthDeltaI() {
-        return static_cast<float>(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
-               static_cast<float>(NUMBER_OF_SPECTRAL_SAMPLES - 1);
+        return static_cast<double>(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
+               static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES - 1);
     }
 
     inline static constexpr double
@@ -60,9 +60,9 @@ class ColorContext {
     short flags; // What's been set
     short straightSamples[NUMBER_OF_SPECTRAL_SAMPLES]; // Spectral samples, min wl to max
     long spectralStraightSum; // Straight sum of spectral values
-    float cx; // Chromaticity X value
-    float cy; // Chromaticity Y value
-    float eff; // Efficacy (lumens / watt)
+    double cx; // Chromaticity X value
+    double cy; // Chromaticity Y value
+    double eff; // Efficacy (lumens / watt)
 
     int setBlackBodyTemperature(double tk);
     void fixColorRepresentation(int fl);

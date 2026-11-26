@@ -7,7 +7,7 @@ Monte Carlo radiosity
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
@@ -20,7 +20,7 @@ class StochasticRadiosityElement;
 
 class Mcrad final {
   public:
-    static float monteCarloRadiosityScalarReflectance(const Patch *patch);
+    static double monteCarloRadiosityScalarReflectance(const Patch *patch);
     static void monteCarloRadiosityDefaults();
     static void monteCarloRadiosityUpdateCpuSecs();
     static Element *monteCarloRadiosityCreatePatchData(Patch *patch);
@@ -35,7 +35,7 @@ class Mcrad final {
         const Patch *patch,
         double u,
         double v,
-        Vector3Df dir,
+        Vector3Dd dir,
         const RendererConfiguration *renderOptions);
 
   private:

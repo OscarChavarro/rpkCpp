@@ -77,9 +77,8 @@ out/
 AGENTS.md
 
 
-# Port references: the C++ ones stay local (see README.md, "Rebuilding the C++ test references");
+# Port references: the C++ golden images are the golden images of every port and are versioned;
 # for the other ports, images stay local and checksums and fingerprints are versioned
-cpp/etc/goldenImagesForTests/
 turboc/etc/goldenImagesForTests/*.ppm
 java/etc/goldenImagesForTests/*.ppm
 typescript/etc/goldenImagesForTests/*.ppm

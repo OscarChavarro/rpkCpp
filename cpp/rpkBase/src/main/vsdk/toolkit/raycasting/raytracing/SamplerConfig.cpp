@@ -175,7 +175,7 @@ SamplerConfig::pathNodeConnect(
     CONNECT_FLAGS flags,
     char bsdfFlagsE,
     char bsdfFlagsL,
-    Vector3Df *pDirEl)
+    Vector3Dd *pDirEl)
 {
     SimpleRaytracingPathNode *nodeEP; // previous nodes
     SimpleRaytracingPathNode *nodeLP;
@@ -184,13 +184,13 @@ SamplerConfig::pathNodeConnect(
     double dist2;
     double dist;
     double geom;
-    Vector3Df dirLE;
-    Vector3Df dirEL;
+    Vector3Dd dirLE;
+    Vector3Dd dirEL;
 
     dirEL = (nodeY->m_hit.getPoint()).subtract(nodeX->m_hit.getPoint());
     dist2 = dirEL.lengthSquared();
     dist = java::Math::sqrt(dist2);
-    dirEL = dirEL.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    dirEL = dirEL.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
     dirLE = dirEL.multiply(-1);
 
     if ( pDirEl ) {

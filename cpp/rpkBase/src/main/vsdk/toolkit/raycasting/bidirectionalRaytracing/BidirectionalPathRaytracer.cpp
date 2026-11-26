@@ -248,8 +248,8 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
     const BiPath * /*path*/,
     int nx,
     int ny,
-    float pix_x,
-    float pix_y,
+    double pix_x,
+    double pix_y,
     ColorRgb f,
     bool radSample)
 {
@@ -257,7 +257,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
         const ScreenBuffer *rs;
         ScreenBuffer *ds;
         DensityBuffer *db;
-        float baseSize;
+        double baseSize;
 
         if ( radSample ) {
             rs = config->ref2;
@@ -275,15 +275,15 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
             db->add(pix_x, pix_y, f);
         } else {
             // Now splat directly into the dest screen
-            Vector2Df center;
+            Vector2Dd center;
             ColorRgb g(0.0, 0.0, 0.0);
 
             // Get the center:
-            center = Vector2Df(pix_x, pix_y);
+            center = Vector2Dd(pix_x, pix_y);
 
             // Convert f into DE quantities
-            float factor = rs->getPixXSize() * rs->getPixYSize()
-                           * static_cast<float>(config->baseConfig->totalSamples);
+            double factor = rs->getPixXSize() * rs->getPixYSize()
+                           * static_cast<double>(config->baseConfig->totalSamples);
 
             if ( f.average() > VSDK::EPSILON ) {
                 g = f.multiply(factor); // Undo part of flux to rad factor
@@ -322,15 +322,15 @@ BidirectionalPathRaytracer::handlePathX0(
     ColorRgb f(0.0, 0.0, 0.0);
     ColorRgb fRad(0.0, 0.0, 0.0);
     BsdfComp oldBsdfComp;
-    float factor;
+    double factor;
     double pdfLNE;
     double oldPdfLNE;
     double oldPDFLightEval;
     double oldPDFDirEval;
     double oldRRPDFLightEval;
     double oldRRPDFDirEval;
-    float pdf = 1.0F;
-    float weight = 1.0;
+    double pdf = 1.0;
+    double weight = 1.0;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode*eyeEndNode;
 
@@ -439,7 +439,7 @@ BidirectionalPathRaytracer::handlePathX0(
             factor = path->evalPdfAndWeight(config->baseConfig, &pdf, &weight);
         }
 
-        factor *= static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
+        factor *= static_cast<double>(config->fluxToRadFactor) / static_cast<double>(config->baseConfig->samplesPerPixel);
 
         if ( config->baseConfig->useSpars ) {
             fRad = fRad.multiply(factor);
@@ -470,8 +470,8 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
     Camera *camera,
     BidirectionalPathTracingConfiguration *config,
     BiPath *path,
-    float *pPdf,
-    float *pWeight,
+    double *pPdf,
+    double *pWeight,
     ColorRgb *fRad)
 {
     SimpleRaytracingPathNode *eyePrevNode;
@@ -538,7 +538,7 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
     } else {
         f = path->evalRadiance();
 
-        float factor = path->evalPdfAndWeight(config->baseConfig, pPdf, pWeight);
+        double factor = path->evalPdfAndWeight(config->baseConfig, pPdf, pWeight);
         f = f.multiply(factor); // Flux estimate
     }
 
@@ -584,8 +584,8 @@ BidirectionalPathRaytracer::handlePathXx(
     ColorRgb f(0.0, 0.0, 0.0);
     ColorRgb fRad(0.0, 0.0, 0.0);
     double oldPdfLNE = 0.0;
-    float pdf;
-    float weight;
+    double pdf;
+    double weight;
     bool doLNE;
     SimpleRaytracingPathNode newLightNode;
     SimpleRaytracingPathNode *oldLightPath = nullptr;
@@ -639,7 +639,7 @@ BidirectionalPathRaytracer::handlePathXx(
     if ( RayTools::pathNodesVisible(sceneQuery, sceneWorldSceneQueryWorkspace, path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
-        float factor = static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
+        double factor = static_cast<double>(config->fluxToRadFactor) / static_cast<double>(config->baseConfig->samplesPerPixel);
         f = f.multiply(factor);
         addWithSpikeCheck(config, path, config->nx, config->ny,
                           config->xSample, config->ySample, f);
@@ -680,8 +680,8 @@ BidirectionalPathRaytracer::handlePath1X(
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    float pixX;
-    float pixY;
+    double pixX;
+    double pixY;
     if ( RayTools::eyeNodeVisible(
             camera,
             sceneQuery,
@@ -694,15 +694,15 @@ BidirectionalPathRaytracer::handlePath1X(
         int ny;
         ColorRgb f(0.0, 0.0, 0.0);
         ColorRgb fRad(0.0, 0.0, 0.0);
-        float pdf;
-        float weight;
+        double pdf;
+        double weight;
 
         // Visible !
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->baseConfig->totalSamples));
+        double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<double>(config->baseConfig->totalSamples));
         f = f.multiply(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
@@ -867,9 +867,9 @@ BidirectionalPathRaytracer::bpCalcPixel(
 
             config->eyePath->m_rayType = PathRayType::STARTS;
 
-            Vector2Df tmpVec2D = config->screen->getPixelCenter(static_cast<int>(x1), static_cast<int>(x2));
-            config->xSample = tmpVec2D.x(); // pix_x + (camera.pixelWidth * x1)
-            config->ySample = tmpVec2D.y(); // pix_y + (camera.pixelHeight * x2)
+            Vector2Dd tmpVec2D = config->screen->getPixelCenter(static_cast<int>(x1), static_cast<int>(x2));
+            config->xSample = tmpVec2D.x; // pix_x + (camera.pixelWidth * x1)
+            config->ySample = tmpVec2D.y; // pix_y + (camera.pixelHeight * x2)
 
             if ( config->eyeConfig.dirSampler->sample(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
@@ -1118,17 +1118,17 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         }
 
         // Rescale dest: nOld / nNew
-        config->dest->scaleRadiance(static_cast<float>(oldTotalSPP) / static_cast<float>(newTotalSPP));
+        config->dest->scaleRadiance(static_cast<double>(oldTotalSPP) / static_cast<double>(newTotalSPP));
 
         // Set scale factor for added radiance in this run
-        config->dest->setAddScaleFactor(static_cast<float>(newSPP) / static_cast<float>(newTotalSPP));
+        config->dest->setAddScaleFactor(static_cast<double>(newSPP) / static_cast<double>(newTotalSPP));
 
         if ( config->dest2 ) {
             // Rescale dest: nOld / nNew
-            config->dest2->scaleRadiance(static_cast<float>(oldTotalSPP) / static_cast<float>(newTotalSPP));
+            config->dest2->scaleRadiance(static_cast<double>(oldTotalSPP) / static_cast<double>(newTotalSPP));
 
             // Set scale factor for added radiance in this run
-            config->dest2->setAddScaleFactor(static_cast<float>(newSPP) / static_cast<float>(newTotalSPP));
+            config->dest2->setAddScaleFactor(static_cast<double>(newSPP) / static_cast<double>(newTotalSPP));
         }
 
         // Set current vars

@@ -17,7 +17,7 @@
 #include "vsdk/toolkit/io/bin/writer/BinaryModelSerializationGraph.h"
 
 bool
-BinaryModelSerializationGraph::ensureVector(const Vector3Df *value) {
+BinaryModelSerializationGraph::ensureVector(const Vector3Dd *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -301,7 +301,7 @@ BinaryModelSerializationGraph::ensureTransformContext(const TransformStackContex
 }
 
 bool
-BinaryModelSerializationGraph::collectVectorList(const java::ArrayList<Vector3Df *> *list) {
+BinaryModelSerializationGraph::collectVectorList(const java::ArrayList<Vector3Dd *> *list) {
     if ( list == nullptr ) {
         return true;
     }

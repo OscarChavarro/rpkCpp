@@ -24,7 +24,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static java::String formatToString(const char *format, va_list arguments);
     static void writeFormatted(const char *format, ...);
     static void appendStatsText(char *buffer, int *offset, const char *format, ...);
-    static void writeVertexCoord(const Vector3Df *point);
+    static void writeVertexCoord(const Vector3Dd *point);
     static void writeVertexCoords(Element *element);
     static void writeCoords();
     static void writeVertexColor(const ColorRgb &color);
@@ -49,12 +49,12 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     }
 
     static inline void
-    galerkinSetPotential(Patch *patch, float value) {
+    galerkinSetPotential(Patch *patch, double value) {
         galerkinState.topLevelElement(patch)->potential = value;
     }
 
     static inline void
-    galerkinSetUnShotPotential(Patch *patch, float value) {
+    galerkinSetUnShotPotential(Patch *patch, double value) {
         galerkinState.topLevelElement(patch)->unShotPotential = value;
     }
 
@@ -73,7 +73,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *rendererConfiguration) const final;
+    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Dd dir, const RendererConfiguration *rendererConfiguration) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;

@@ -468,15 +468,15 @@ Prism::computeInteriorIntervals(const Vector3Dd& origin,
             // Insertion in increasing order of t
             long int position = crossings.size();
             crossings.add(EdgeCrossing(t, (int)i));
-            while ( position > 0 && crossings[position - 1].t > t ) {
+            while ( position > 0 && crossings[position - 1].lineParameter > t ) {
                 crossings[position] = crossings[position - 1];
                 position--;
             }
             crossings[position] = EdgeCrossing(t, (int)i);
         }
         for ( long int i = 0; i + 1 < crossings.size(); i += 2 ) {
-            double start = crossings[i].t;
-            double end = crossings[i + 1].t;
+            double start = crossings[i].lineParameter;
+            double end = crossings[i + 1].lineParameter;
             if ( !(start < end) ) {
                 // The line only touches a vertex
                 continue;

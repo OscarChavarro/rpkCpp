@@ -10,13 +10,13 @@ an approximation to the sampled function into a screen buffer
 */
 class DensityHit {
   public:
-    float m_x; // Screen/Polygon Coordinates
-    float m_y;
+    double m_x; // Screen/Polygon Coordinates
+    double m_y;
     ColorRgb color; // Estimate of the function, NOT divided by number of samples
 
     DensityHit();
-    void init(float x, float y, const ColorRgb &col);
-    explicit DensityHit(float x, float y, const ColorRgb &col);
+    void init(double x, double y, const ColorRgb &col);
+    explicit DensityHit(double x, double y, const ColorRgb &col);
 };
 
 inline
@@ -24,12 +24,12 @@ DensityHit::DensityHit(): m_x(), m_y() {
 }
 
 inline
-DensityHit::DensityHit(float x, float y, const ColorRgb &col): m_x(), m_y() {
+DensityHit::DensityHit(double x, double y, const ColorRgb &col): m_x(), m_y() {
     init(x, y, col);
 }
 
 inline void
-DensityHit::init(float x, float y, const ColorRgb &col) {
+DensityHit::init(double x, double y, const ColorRgb &col) {
     m_x = x;
     m_y = y;
     color = col;

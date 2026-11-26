@@ -19,9 +19,9 @@ No emitter defines its own shading frame: callers build a default one
 bool
 PhongEmittanceDistributionFunction::edfShadingFrame(
     const ShadingContext & /*context*/,
-    const Vector3Df * /*X*/,
-    const Vector3Df * /*Y*/,
-    const Vector3Df * /*Z*/) {
+    const Vector3Dd * /*X*/,
+    const Vector3Dd * /*Y*/,
+    const Vector3Dd * /*Z*/) {
     return false;
 }
 
@@ -33,7 +33,7 @@ PhongEmittanceDistributionFunction::phongEmittance(const ShadingContext * /*cont
 ColorRgb
 PhongEmittanceDistributionFunction::phongEdfEval(
     const ShadingContext *context,
-    const Vector3Df *out,
+    const Vector3Dd *out,
     const char flags,
     double *probabilityDensityFunction) const
 {
@@ -44,7 +44,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     return material->emissionEvaluate(&point, *out, flags, probabilityDensityFunction);
 }
 
-Vector3Df
+Vector3Dd
 PhongEmittanceDistributionFunction::phongEdfSample(
     const ShadingContext *context,
     const char flags,

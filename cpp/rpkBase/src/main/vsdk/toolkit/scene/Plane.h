@@ -1,12 +1,12 @@
 #ifndef __PLANE__
 #define __PLANE__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 
 class Plane {
   public:
-    Vector3Df normal;
-    float d;
+    Vector3Dd normal;
+    double d;
 
     Plane();
 };

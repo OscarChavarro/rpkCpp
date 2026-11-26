@@ -21,7 +21,7 @@ class ClusterTraversalStrategy {
     static double receiverArea(Interaction *link, GalerkinState *galerkinState);
     static void gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState);
     static ColorRgb maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
-    static ColorRgb clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3Df samplePoint, GalerkinState *galerkinState);
+    static ColorRgb clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3Dd samplePoint, GalerkinState *galerkinState);
 };
 
 #endif

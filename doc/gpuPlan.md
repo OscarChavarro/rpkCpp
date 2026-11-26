@@ -41,7 +41,7 @@ Corridor scene, 21 iterations, serial Jacobi, WALD2007 scene acceleration, `perf
 | ≈ 0.1 % | Push-pull | `pushPullRadianceRecursive` |
 | ≈ 5 % | Recursion, lists, allocation, unresolved symbols | |
 
-Problem sizes, from the reference fingerprints in `cpp/etc/goldenImagesForTests/fingerprints`:
+Problem sizes, from the statistics of the corpus run logs (the C++ fingerprint files were removed on 2026-11-26):
 
 | Scene | Elements | Links | Shadow rays (shadow cache hits) | Iterations |
 | --- | --- | --- | --- | --- |
@@ -113,7 +113,7 @@ Note: `flatBinaryTreeContract.md` describes `VulkanComputeAccelerationStructure`
 
 These steps precede every alternative. G1 and G2 change no result and must pass T1 at 1, 2 and N threads.
 
-**G0. Measure before building.** The capture build (`WITH_RAY_CAPTURE`, `scripts/captureRays.sh`) already records the solver's visibility queries with their answers. Write a standalone console program that loads a captured corpus and the scene's faces, traces the corpus on the GPU with each traversal, and reports rays per second and the number of answers that differ from the CPU. This gives the two numbers the rest of the plan depends on, throughput and disagreement rate, before the solver is touched. Stop and report if hardware disagreement exceeds what the gate of section 6 can absorb.
+**G0. Measure before building.** The capture build (`WITH_RAY_CAPTURE`, `scripts/captureRays.sh`) recorded the solver's visibility queries with their answers; it was removed from the C++ port on 2026-11-26 together with the ray corpus and remains in the Java and Turbo C ports, so it must be brought back first. Write a standalone console program that loads a captured corpus and the scene's faces, traces the corpus on the GPU with each traversal, and reports rays per second and the number of answers that differ from the CPU. This gives the two numbers the rest of the plan depends on, throughput and disagreement rate, before the solver is touched. Stop and report if hardware disagreement exceeds what the gate of section 6 can absorb.
 
 **G1. One `maxRadiance` per cluster and iteration.** Compute the table once after push-pull and read it in `hierarchicRefinementApproximationError`. Same values, so T1 holds. It removes the cost that would otherwise dominate after offloading, and B needs the table anyway.
 

@@ -24,7 +24,7 @@ ScreenSampler::sample(
     bool /* doRR */,
     char /* flags */)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
 
     // Pre-condition2: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
@@ -32,15 +32,15 @@ ScreenSampler::sample(
     double xSample = camera->pixelWidth * static_cast<double>(camera->xSize) * (-0.5 + x1);
     double ySample = camera->pixelHeight * static_cast<double>(camera->ySize) * (-0.5 + x2);
 
-    dir = camera->Z.add(camera->X.multiply(static_cast<float>(xSample))).add(camera->Y.multiply(static_cast<float>(ySample)));
+    dir = camera->Z.add(camera->X.multiply(static_cast<double>(xSample))).add(camera->Y.multiply(static_cast<double>(ySample)));
     double distScreen2 = dir.lengthSquared();
     double distScreen = java::Math::sqrt(distScreen2);
-    dir = dir.multiplyByInverse(static_cast<float>(distScreen), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(static_cast<double>(distScreen), Numeric::EPSILON);
 
     double cosScreen = java::Math::abs(camera->Z.dotProduct(dir));
 
-    double pdfDir = ((1.0 / (camera->pixelWidth * static_cast<float>(camera->xSize) *
-                            camera->pixelHeight * static_cast<float>(camera->ySize))) * // 1 / Area pixel
+    double pdfDir = ((1.0 / (camera->pixelWidth * static_cast<double>(camera->xSize) *
+                            camera->pixelHeight * static_cast<double>(camera->ySize))) * // 1 / Area pixel
                      (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
@@ -82,13 +82,13 @@ ScreenSampler::evalPDF(
     double cosA;
     double cosB;
     double probabilityDensityFunction;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     // More efficient with extra params?
     outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = java::Math::sqrt(dist2);
-    outDir = outDir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
     cosA = thisNode->m_normal.dotProduct(outDir);
@@ -99,7 +99,7 @@ ScreenSampler::evalPDF(
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
     probabilityDensityFunction = 1.0 /
-        (camera->pixelHeight * static_cast<float>(camera->ySize) * camera->pixelWidth * static_cast<float>(camera->xSize) * cosA * cosA * cosA);
+        (camera->pixelHeight * static_cast<double>(camera->ySize) * camera->pixelWidth * static_cast<double>(camera->xSize) * cosA * cosA * cosA);
 
     cosB = -newNode->m_normal.dotProduct(outDir);
     probabilityDensityFunction = probabilityDensityFunction * cosB / dist2;

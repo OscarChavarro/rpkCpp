@@ -4,15 +4,15 @@
 /**
 Compute an approximate geometric IOR from a complex IOR (cfr. Gr.Gems II, p289)
 */
-float
+double
 RefractionIndex::complexToGeometricRefractionIndex() const {
-    float f1 = (nr - 1.0F);
+    double f1 = (nr - 1.0);
     f1 = f1 * f1 + ni * ni;
 
-    float f2 = (nr + 1.0F);
+    double f2 = (nr + 1.0);
     f2 = f2 * f2 + ni * ni;
 
-    float sqrtF = java::Math::sqrt(f1 / f2);
+    double sqrtF = java::Math::sqrt(f1 / f2);
 
-    return (1.0F + sqrtF) / (1.0F - sqrtF);
+    return (1.0 + sqrtF) / (1.0 - sqrtF);
 }

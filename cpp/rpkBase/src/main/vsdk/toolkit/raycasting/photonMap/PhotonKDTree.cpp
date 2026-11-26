@@ -28,8 +28,8 @@ void PhotonKDTree::balance() {
     }
 }
 
-int PhotonKDTree::query(const Vector3Df &position, int count, Photon **results,
-                        float *distances, float maximumDistance, short excludeFlags) {
+int PhotonKDTree::query(const Vector3Dd &position, int count, Photon **results,
+                        double *distances, double maximumDistance, short excludeFlags) {
     if ( irradiancePhotons == nullptr ) {
         return photons->query(position, count, results, distances, maximumDistance, excludeFlags);
     }
@@ -47,9 +47,9 @@ int PhotonKDTree::query(const Vector3Df &position, int count, Photon **results,
     return found;
 }
 
-float PhotonKDTree::sqrDistance3D(const Vector3Df &a, const Vector3Df &b) {
-    float tmp = a.x() - b.x();
-    float result = tmp * tmp;
+double PhotonKDTree::sqrDistance3D(const Vector3Dd &a, const Vector3Dd &b) {
+    double tmp = a.x() - b.x();
+    double result = tmp * tmp;
     tmp = a.y() - b.y();
     result += tmp * tmp;
     tmp = a.z() - b.z();
@@ -59,16 +59,16 @@ float PhotonKDTree::sqrDistance3D(const Vector3Df &a, const Vector3Df &b) {
 
 void PhotonKDTree::normalQueryRec(int index, NormalQuery &query) {
     const BalancedKDTreeNode<IrrPhoton> &node = irradiancePhotons->getBalancedNode(index);
-    const Vector3Df &position = node.m_data->getKDPosition();
+    const Vector3Dd &position = node.data->getKDPosition();
     const int discriminator = node.discriminator();
     if ( index < irradiancePhotons->getFirstLeaf() ) {
-        float distance;
+        double distance;
         if ( discriminator == 0 ) distance = position.x() - query.point.x();
         else if ( discriminator == 1 ) distance = position.y() - query.point.y();
         else distance = position.z() - query.point.z();
         int nearIndex = (index << 1) + 1;
         int farIndex = nearIndex + 1;
-        if ( distance < 0.0f ) {
+        if ( distance < 0.0 ) {
             const int temp = nearIndex;
             nearIndex = farIndex;
             farIndex = temp;
@@ -79,15 +79,15 @@ void PhotonKDTree::normalQueryRec(int index, NormalQuery &query) {
             normalQueryRec(farIndex, query);
         }
     }
-    const float distance = sqrDistance3D(position, query.point);
-    if ( distance < query.maximumDistance && node.m_data->Normal().dotProduct(query.normal) > query.threshold ) {
+    const double distance = sqrDistance3D(position, query.point);
+    if ( distance < query.maximumDistance && node.data->Normal().dotProduct(query.normal) > query.threshold ) {
         query.maximumDistance = distance;
-        query.photon = node.m_data;
+        query.photon = node.data;
     }
 }
 
-IrrPhoton *PhotonKDTree::normalPhotonQuery(const Vector3Df *position, const Vector3Df *normal,
-                                          float threshold, float maxR2) {
+IrrPhoton *PhotonKDTree::normalPhotonQuery(const Vector3Dd *position, const Vector3Dd *normal,
+                                          double threshold, double maxR2) {
     NormalQuery query;
     query.photon = nullptr;
     query.normal = *normal;

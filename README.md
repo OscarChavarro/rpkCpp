@@ -104,7 +104,7 @@ RenderPark's Galerkin radiosity culls the candidate occluders of each interactio
 
 Without shaft culling more shadow rays are traced (soda: 1.53 against 1.40 billion), but each one is cheap. The default is therefore `-scene-acceleration wald2007` with `-gr-shaft-culling never`, in all four ports; `-gr-shaft-culling refinement` (or `always`) gives back RenderPark's original method (with `-scene-acceleration voxel` for its grid traversal; `legacy` in the ports that still have it).
 
-The results are not bit-identical to the original method. In the `refinement` mode the shaft also enters the error estimate that decides which interactions are refined, so the element and interaction counts differ slightly from the first iteration on (soda after 11 iterations: 320,451 against 321,619 elements, 21,928,099 against 21,938,082 interactions), and so do the images: for soda, 8,925 of 2,073,600 pixels differ, RMSE 0.00015 (normalized). The golden images in `doc/testBaseImages` and the C++ references were captured again with the new default (2026-11-21), so the golden tests check the new method from now on; the other ports record their bounds against them when they are synchronized. The corpus entries `16_cubeJacobiNoShaftCulling` and `18_corridorNoShaftCulling`, which ran the cube and the corridor with `-gr-shaft-culling never`, were removed: with the new default they repeat `01_cubeJacobi` and `02_corridor` (identical images in all four ports). The corpus has therefore no scene with shaft culling; the mode stays available through the option. Shaft culling still pays in small scenes refined very finely: the cube of `21_tonemapWard` takes 33 s with `refinement` and 129 s with `never` (C++, CPU time), because the shaft spares 186 million of its 298 million shadow rays.
+The results are not bit-identical to the original method. In the `refinement` mode the shaft also enters the error estimate that decides which interactions are refined, so the element and interaction counts differ slightly from the first iteration on (soda after 11 iterations: 320,451 against 321,619 elements, 21,928,099 against 21,938,082 interactions), and so do the images: for soda, 8,925 of 2,073,600 pixels differ, RMSE 0.00015 (normalized). The golden images (then in `doc/testBaseImages`) and the C++ references were captured again with the new default (2026-11-21), so the golden tests check the new method from now on; the other ports record their bounds against them when they are synchronized. The corpus entries `16_cubeJacobiNoShaftCulling` and `18_corridorNoShaftCulling`, which ran the cube and the corridor with `-gr-shaft-culling never`, were removed: with the new default they repeat `01_cubeJacobi` and `02_corridor` (identical images in all four ports). The corpus has therefore no scene with shaft culling; the mode stays available through the option. Shaft culling still pays in small scenes refined very finely: the cube of `21_tonemapWard` takes 33 s with `refinement` and 129 s with `never` (C++, CPU time), because the shaft spares 186 million of its 298 million shadow rays.
 
 
 ## Selecting Niederreiter variant (31-bit vs 63-bit)
@@ -172,45 +172,30 @@ To check a change, run the test corpus and then the image gate (ImageMagick `com
 
 ```bash
 ./scripts/runCorpus.sh                   # whole corpus in parallel, or name images to run a subset
-./scripts/testReviewResults.sh --exact   # every output pixel-identical to its port reference in etc/goldenImagesForTests
-./scripts/testReviewResults.sh --golden  # every output within its recorded RMSE bound of ./doc/testBaseImages
+./scripts/testReviewResults.sh           # C++: every output pixel-identical to its golden image in etc/goldenImagesForTests
 ```
 
-With no option the script runs both checks. Port references and statistics fingerprints are captured
-from an unchanged tree with `--capture-references`; the golden images and their bounds change only by
-decision of the project owner. Failed comparisons leave difference images in `./output/diff`.
+Failed comparisons leave difference images in `./output/diff`. The Java, TypeScript and Turbo C ports
+keep their own references in `<port>/etc/goldenImagesForTests` (`--exact`, with statistics fingerprints)
+and compare against the C++ golden images within recorded RMSE bounds (`--golden`).
 
-### Rebuilding the C++ test references
+### Rebuilding the C++ golden images
 
-`cpp/etc/goldenImagesForTests` is not versioned (the ray corpus alone takes more than 30 GB), so a fresh clone
-does not have it. Rebuild it locally, from `cpp/`, on a tree whose outputs you trust:
+`cpp/etc/goldenImagesForTests` holds only the golden images, `<image>.ppm`, one per corpus output; they
+are versioned and they are the golden images of every port. On 2026-11-26 they replaced the former
+`doc/testBaseImages` set, captured again after the C++ port moved to double precision and two Galerkin
+fixes (links appended during an element's own refinement are no longer refined in the same pass, and the
+point-to-area form factor of the higher order cubature is bounded by 1), which removed the bright spots
+of `03_hospital` and `04_office1`. Rebuild them, from `cpp/`, only by decision of the project owner, on a
+tree whose outputs you trust:
 
 ```bash
 ./scripts/compile.sh
 ./scripts/runCorpus.sh
-./scripts/testReviewResults.sh --capture-references   # <image>.ppm, fingerprints/<image>.txt and manifest.txt
-./scripts/testReviewResults.sh --record-bounds        # goldenBounds.txt: RMSE of each output against ../doc/testBaseImages
+./scripts/testReviewResults.sh --capture-references   # copies output/<image>.ppm to etc/goldenImagesForTests
 ```
 
-Both commands accept image or script names to rebuild only part of the corpus. Recording the bounds
-anew accepts the current distance to the golden images, so it is a decision of the project owner.
-
-The ray corpus files (`etc/goldenImagesForTests/rayCorpus/<image>.vqc`) need a build configured with
-`-DWITH_RAY_CAPTURE=ON`; the exact `cmake` command is in the header of `scripts/captureRays.sh`. The
-ray corpus replay that consumed them was removed, so no test depends on this folder:
-
-```bash
-./scripts/captureRays.sh <capture build directory> etc/goldenImagesForTests/rayCorpus 01_cubeJacobi 02_corridor \
-  11_floorRayCasting 12_floorBidirectionalPathTracing 14_floorStochasticRaytracingJacobi
-```
-
-The notes of the ray corpus are versioned in `doc/rayCorpus`: `captureRays.sh` writes the ray
-accounting of each scene there (`<image>.accounting.txt`), and `manifest.txt`, written by hand at each
-capture, records the pins, the build and the sha256 to check the regenerated `.vqc` files against.
-
-`etc/goldenImagesForTests/vitralMeshAcceleration.txt` (VITRAL `RaytracingOfflineExample` control runs) is also
-written by hand and no script regenerates it. Until 2026-11-21 it was versioned, so the last committed
-copy can be recovered with `git show a4d00720:cpp/testReferences/vitralMeshAcceleration.txt`.
+The command accepts image or script names to rebuild only part of the set.
 
 ## Running program on old hardware
 

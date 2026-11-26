@@ -3,7 +3,7 @@
 #include "java/io/FileOutputStream.h"
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
@@ -99,13 +99,13 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
 
 void
 BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
-    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
-    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
-    PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));
+    PersistenceElement::writeFloatLE(output, static_cast<double>(color.getR()));
+    PersistenceElement::writeFloatLE(output, static_cast<double>(color.getG()));
+    PersistenceElement::writeFloatLE(output, static_cast<double>(color.getB()));
 }
 
 void
-BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3Df &vector) {
+BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3Dd &vector) {
     PersistenceElement::writeFloatLE(output, vector.x());
     PersistenceElement::writeFloatLE(output, vector.y());
     PersistenceElement::writeFloatLE(output, vector.z());
@@ -408,7 +408,7 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
 
     // Direct potential: per-face solver data, not part of the model; written as
     // zero, the value every face starts with, so the file format is unchanged
-    PersistenceElement::writeFloatLE(output, 0.0F);
+    PersistenceElement::writeFloatLE(output, 0.0);
     PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
     // Omit flag: faces are excluded per query by the shaft's omit set, never
     // by a per-face flag; written false, as it always was

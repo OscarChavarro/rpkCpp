@@ -5,8 +5,8 @@
 
 class LightInfo {
   public:
-    float emittedFlux;
-    float importance; // Cumulative probability : for importance sampling
+    double emittedFlux;
+    double importance; // Cumulative probability : for importance sampling
     Patch *light;
 };
 

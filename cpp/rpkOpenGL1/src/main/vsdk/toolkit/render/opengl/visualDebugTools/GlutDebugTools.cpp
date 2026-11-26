@@ -339,8 +339,8 @@ GlutDebugTools::syncCameraToViewport() const {
     Camera *camera = model.scene->camera;
     if ( camera->xSize == model.width &&
          camera->ySize == model.height &&
-         camera->pixelWidth > Numeric::EPSILON_FLOAT &&
-         camera->pixelHeight > Numeric::EPSILON_FLOAT ) {
+         camera->pixelWidth > Numeric::EPSILON &&
+         camera->pixelHeight > Numeric::EPSILON ) {
         return;
     }
 

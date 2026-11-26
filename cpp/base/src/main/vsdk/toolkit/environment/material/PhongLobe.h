@@ -2,7 +2,7 @@
 #define __PHONG_LOBE__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 
 /**
 Immutable Phong lobe as MGF materials define one: a diffuse color Kd, a
@@ -11,7 +11,7 @@ the SPECULAR component when Ns reaches LOWEST_SPECULAR_EXPONENT and as the
 GLOSSY component below it. The same lobe describes reflection, transmission
 or emission; PhongMaterial composes them.
 
-The exponent is stored in single precision, as RenderPark stores it, so that
+The exponent is stored in double precision, as RenderPark stores it, so that
 the glossy/specular threshold classifies every material the same way.
 
 Directional functions (RenderPark's modified Phong model, which is symmetric
@@ -35,30 +35,29 @@ indices when in . normal < 0). Densities are per unit solid angle; the
 diffuse transmission density keeps RenderPark's sign, cos(theta) / pi with
 theta measured from the normal on the side of `in`, so it is negative; the caller supplies the variates x1 and x2. A density of 0 means no
 direction was produced (absorption or a direction below the surface).
-The arithmetic, its precision and its order are RenderPark's, so results are
-bit-identical to RenderPark's BRDF and BTDF.
+The arithmetic and its order are RenderPark's, in double precision.
 */
 class PhongLobe {
   private:
     const ColorRgb diffuse;
     const ColorRgb nonDiffuse;
-    const float exponent;
-    const float averageDiffuse;
-    const float averageNonDiffuse;
+    const double exponent;
+    const double averageDiffuse;
+    const double averageNonDiffuse;
 
     double sampledDiffuse(int components) const;
     double sampledNonDiffuse(int components) const;
 
   public:
-    static const float LOWEST_SPECULAR_EXPONENT;
+    static const double LOWEST_SPECULAR_EXPONENT;
 
-    PhongLobe(const ColorRgb &inDiffuse, const ColorRgb &inNonDiffuse, float inExponent);
+    PhongLobe(const ColorRgb &inDiffuse, const ColorRgb &inNonDiffuse, double inExponent);
     PhongLobe(const PhongLobe &other);
     PhongLobe &operator=(const PhongLobe &) = delete;
 
     const ColorRgb &getDiffuse() const;
     const ColorRgb &getNonDiffuse() const;
-    float getExponent() const;
+    double getExponent() const;
     bool isSpecular() const;
 
     /**
@@ -70,12 +69,12 @@ class PhongLobe {
     ColorRgb integrated(int components) const;
 
     /** Reflected radiance factor (BRDF value) of the requested components */
-    ColorRgb reflectionEvaluate(const Vector3Df &in, const Vector3Df &out, const Vector3Df &normal, int components) const;
+    ColorRgb reflectionEvaluate(const Vector3Dd &in, const Vector3Dd &out, const Vector3Dd &normal, int components) const;
 
     /** Samples a reflected direction; its density goes to *density */
-    Vector3Df reflectionSample(
-        const Vector3Df &in,
-        const Vector3Df &normal,
+    Vector3Dd reflectionSample(
+        const Vector3Dd &in,
+        const Vector3Dd &normal,
         bool russianRoulette,
         int components,
         double x1,
@@ -88,9 +87,9 @@ class PhongLobe {
     turned to the side of `in`
     */
     void reflectionDensity(
-        const Vector3Df &in,
-        const Vector3Df &out,
-        const Vector3Df &normal,
+        const Vector3Dd &in,
+        const Vector3Dd &out,
+        const Vector3Dd &normal,
         int components,
         double *density,
         double *survival) const;
@@ -100,19 +99,19 @@ class PhongLobe {
     with the real refraction indices on the side of `in` and beyond
     */
     ColorRgb transmissionEvaluate(
-        float inIndex,
-        float outIndex,
-        const Vector3Df &in,
-        const Vector3Df &out,
-        const Vector3Df &normal,
+        double inIndex,
+        double outIndex,
+        const Vector3Dd &in,
+        const Vector3Dd &out,
+        const Vector3Dd &normal,
         int components) const;
 
     /** Samples a transmitted direction; its density goes to *density */
-    Vector3Df transmissionSample(
-        float inIndex,
-        float outIndex,
-        const Vector3Df &in,
-        const Vector3Df &normal,
+    Vector3Dd transmissionSample(
+        double inIndex,
+        double outIndex,
+        const Vector3Dd &in,
+        const Vector3Dd &normal,
         bool russianRoulette,
         int components,
         double x1,
@@ -121,11 +120,11 @@ class PhongLobe {
 
     /** Density with which transmissionSample produces `out`, and the roulette survival */
     void transmissionDensity(
-        float inIndex,
-        float outIndex,
-        const Vector3Df &in,
-        const Vector3Df &out,
-        const Vector3Df &normal,
+        double inIndex,
+        double outIndex,
+        const Vector3Dd &in,
+        const Vector3Dd &out,
+        const Vector3Dd &normal,
         int components,
         double *density,
         double *survival) const;
@@ -141,7 +140,7 @@ PhongLobe::getNonDiffuse() const {
     return nonDiffuse;
 }
 
-inline float
+inline double
 PhongLobe::getExponent() const {
     return exponent;
 }

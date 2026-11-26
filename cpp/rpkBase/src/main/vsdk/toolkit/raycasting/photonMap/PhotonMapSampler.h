@@ -28,7 +28,7 @@ class PhotonMapSampler final : public BsdfSampler {
         SimpleRaytracingPathNode *thisNode,
         char flags,
         double x2,
-        Vector3Df *dir,
+        Vector3Dd *dir,
         double *pdfDir,
         ColorRgb *scatteringColor,
         bool *doCosInverse);
@@ -68,7 +68,7 @@ class PhotonMapSampler final : public BsdfSampler {
         RpkRayHit *hit,
         bool doRR,
         double *x,
-        float *probabilityDensityFunction,
+        double *probabilityDensityFunction,
         bool *chose1);
 
   public:

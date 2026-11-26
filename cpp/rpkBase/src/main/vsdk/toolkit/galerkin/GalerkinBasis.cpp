@@ -55,9 +55,9 @@ GalerkinBasis::pull(
             for ( int beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK::EPSILON || f > VSDK::EPSILON )
-                    parentCoefficients[alpha] = parentCoefficients[alpha].addScaled(static_cast<float>(f), childCoefficients[beta]);
+                    parentCoefficients[alpha] = parentCoefficients[alpha].addScaled(static_cast<double>(f), childCoefficients[beta]);
             }
-            parentCoefficients[alpha] = parentCoefficients[alpha].multiply(0.25F);
+            parentCoefficients[alpha] = parentCoefficients[alpha].multiply(0.25);
         }
     }
 }
@@ -74,7 +74,7 @@ GalerkinBasis::pushPullRadianceRecursive(
 {
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
-        Bdown[i] = Bdown[i].addScaled(1.0F / element->area, element->receivedRadiance[i]);
+        Bdown[i] = Bdown[i].addScaled(1.0 / element->area, element->receivedRadiance[i]);
         element->receivedRadiance[i] = ColorRgb(0.0, 0.0, 0.0);
     }
 
@@ -185,10 +185,10 @@ GalerkinBasis::computeFilterCoefficients(
         for ( int beta = 0; beta < childSize; beta++ ) {
             x = 0.0;
             for ( int k = 0; k < cubatureRule->numberOfNodes; k++ ) {
-                Vector2Df up;
-                up = Vector2Df(static_cast<float>(cubatureRule->u[k]), static_cast<float>(cubatureRule->v[k]));
+                Vector2Dd up;
+                up = Vector2Dd(static_cast<double>(cubatureRule->u[k]), static_cast<double>(cubatureRule->v[k]));
                 up = upTransform->transformPoint(up);
-                x += cubatureRule->w[k] * parentBasis->function[alpha](up.x(), up.y()) *
+                x += cubatureRule->w[k] * parentBasis->function[alpha](up.x, up.y) *
                      childBasis->function[beta](cubatureRule->u[k], cubatureRule->v[k]);
             }
             filter[alpha][beta] = x;
@@ -275,7 +275,7 @@ GalerkinBasis::push(
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK::EPSILON || f > VSDK::EPSILON )
-                    childCoefficients[beta] = childCoefficients[beta].addScaled(static_cast<float>(f), parentCoefficients[alpha]);
+                    childCoefficients[beta] = childCoefficients[beta].addScaled(static_cast<double>(f), parentCoefficients[alpha]);
             }
         }
     }
@@ -315,7 +315,7 @@ GalerkinBasis::radianceAtPoint(
     }
 
     for ( int i = 0; i < element->basisSize; i++ ) {
-        float evaluatedTerm = static_cast<float>(basis->function[i](u, v));
+        double evaluatedTerm = static_cast<double>(basis->function[i](u, v));
         rad[0] += evaluatedTerm * coefficients[i].getR();
         rad[1] += evaluatedTerm * coefficients[i].getG();
         rad[2] += evaluatedTerm * coefficients[i].getB();

@@ -44,30 +44,30 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
-    float *newDirectImportance = new float[maximumPatchId + 1];
+    double *newDirectImportance = new double[maximumPatchId + 1];
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         newDirectImportance[i] = 0.0;
     }
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    const float h = 2.0F * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0F) / static_cast<float>(x);
-    const float v = 2.0F * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0F) / static_cast<float>(y);
-    const float pixelArea = h * v;
+    const double h = 2.0 * java::Math::tan(scene->camera->horizontalFov * static_cast<double>(M_PI) / 180.0) / static_cast<double>(x);
+    const double v = 2.0 * java::Math::tan(scene->camera->verticalFov * static_cast<double>(M_PI) / 180.0) / static_cast<double>(y);
+    const double pixelArea = h * v;
 
-    float ySample;
+    double ySample;
     long j;
-    for ( j = y - 1, ySample = -v * static_cast<float>(y - 1) / 2.0F;
+    for ( j = y - 1, ySample = -v * static_cast<double>(y - 1) / 2.0;
           j >= 0;
           j--, ySample += v ) {
-        float xSample = -h * static_cast<float>(x - 1) / 2.0F;
+        double xSample = -h * static_cast<double>(x - 1) / 2.0;
         for ( long i = 0; i < x; i++, xSample += h ) {
             const SglFaceIndex face = target.getSample(static_cast<int>(i), static_cast<int>(j));
             const unsigned long the_id = face.isBackground() ? 0 :
                 scene->getFace(face.getIndex())->getId() & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
-                Vector3Df pixDir;
+                Vector3Dd pixDir;
 
                 // Compute direction to center of pixel
                 pixDir = scene->camera->Z.add(scene->camera->X.multiply(xSample)).add(scene->camera->Y.multiply(ySample));
@@ -75,7 +75,7 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                float deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
+                double deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
                 newDirectImportance[the_id] += deltaImportance;
             } else if ( the_id > maximumPatchId ) {
@@ -96,7 +96,7 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
         if ( patch != nullptr ) {
             DirectPotentialTable * const directPotentials = scene->getDirectPotentials();
             const int faceIndex = patch->getFaceIndex();
-            directPotentials->set(faceIndex, static_cast<float>(newDirectImportance[i] / patch->getArea()));
+            directPotentials->set(faceIndex, static_cast<double>(newDirectImportance[i] / patch->getArea()));
 
             if ( directPotentials->get(faceIndex) > Statistics::instance().potential.maxDirectPotential ) {
                 Statistics::instance().potential.maxDirectPotential = directPotentials->get(faceIndex);
@@ -136,7 +136,7 @@ Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfigur
     }
 
     java::System::err.printf("Determining visible patches in software took %g sec\n",
-        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
+        static_cast<double>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
 }
 
 /**

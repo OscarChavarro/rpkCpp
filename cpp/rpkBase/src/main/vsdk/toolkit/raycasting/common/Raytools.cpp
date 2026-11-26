@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -10,9 +10,6 @@
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/raycasting/common/Raytools.h"
 
-#ifdef RPK_RAY_CAPTURE
-    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
-#endif
 
 void
 RayTools::countRay(SceneQueryWorkspace *workspace) {
@@ -33,29 +30,22 @@ RpkRayHit *
 RayTools::traceWorld(
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-    RpkRay *ray,
+    Ray *ray,
     const Patch *patch,
     unsigned int flags,
     const Patch *extraPatch,
     RpkRayHit *hitStore)
 {
     static thread_local RpkRayHit myHitStore;
-    float dist;
+    double dist;
     RpkRayHit *result;
     if ( !hitStore ) {
         hitStore = &myHitStore;
     }
 
-    dist = java::Float::MAX_VALUE;
+    dist = java::Double::MAX_VALUE;
     const RayExclusionSet exclusions(patch, patch ? patch->getTwin() : nullptr, extraPatch);
     result = sceneQuery->intersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore, exclusions, sceneWorldSceneQueryWorkspace);
-#ifdef RPK_RAY_CAPTURE
-    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
-        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
-            VisibilityQueryRecorder::RAYTRACER_CLOSEST_HIT, ray, 0.0F, java::Float::MAX_VALUE,
-            static_cast<int>(flags), exclusions, result, dist);
-    }
-#endif
 
     if ( result ) {
         // Compute shading frame (Z-axis = shading normal) at intersection point
@@ -70,7 +60,7 @@ RpkRayHit *
 RayTools::findRayIntersection(
     const SceneQuery *sceneQuery,
     SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-    RpkRay *ray,
+    Ray *ray,
     const Patch *patch,
     const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
     RpkRayHit *hitStore)
@@ -112,15 +102,15 @@ RayTools::pathNodesVisible(
     const SimpleRaytracingPathNode *node1,
     const SimpleRaytracingPathNode *node2)
 {
-    Vector3Df dir;
-    RpkRay ray;
+    Vector3Dd dir;
+    Ray ray;
     const RpkRayHit *hit;
     RpkRayHit hitStore;
     double cosRay1;
     double cosRay2;
     double dist;
     double dist2;
-    float fDistance;
+    double fDistance;
     bool visible;
     bool doTest;
 
@@ -136,12 +126,12 @@ RayTools::pathNodesVisible(
     dist2 = dir.lengthSquared();
     dist = java::Math::sqrt(dist2);
 
-    dir = dir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
 
     dist = dist * (1 - VSDK::EPSILON);
 
-    ray.position = node1->m_hit.getPoint();
-    ray.direction = dir;
+    ray.setOrigin(node1->m_hit.getPoint());
+    ray.setDirection(dir);
 
     cosRay1 = dir.dotProduct(node1->m_normal);
     cosRay2 = -dir.dotProduct(node2->m_normal);
@@ -172,14 +162,11 @@ RayTools::pathNodesVisible(
 
     if ( doTest ) {
         if ( node2->m_hit.getPatch()->hasZeroVertices() ) {
-            fDistance = java::Float::MAX_VALUE;
+            fDistance = java::Double::MAX_VALUE;
         } else {
-            fDistance = static_cast<float>(dist);
+            fDistance = static_cast<double>(dist);
         }
 
-#ifdef RPK_RAY_CAPTURE
-        const float queryMaximumDistance = fDistance;
-#endif
         const RayExclusionSet exclusions(
             node2->m_hit.getPatch(),
             node1->m_hit.getPatch(),
@@ -192,13 +179,6 @@ RayTools::pathNodesVisible(
             &hitStore,
             exclusions,
             sceneWorldSceneQueryWorkspace);
-#ifdef RPK_RAY_CAPTURE
-        if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
-            sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
-                VisibilityQueryRecorder::RAYTRACER_VISIBILITY, &ray, 0.0F, queryMaximumDistance,
-                RayHitFlag::FRONT | RayHitFlag::BACK | RayHitFlag::ANY, exclusions, hit, fDistance);
-        }
-#endif
         visible = (hit == nullptr);
 
         countRay(sceneWorldSceneQueryWorkspace);
@@ -219,18 +199,18 @@ RayTools::eyeNodeVisible(
     SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
     const SimpleRaytracingPathNode *eyeNode,
     const SimpleRaytracingPathNode *node,
-    float *pixX,
-    float *pixY)
+    double *pixX,
+    double *pixY)
 {
-    Vector3Df dir;
-    RpkRay ray;
+    Vector3Dd dir;
+    Ray ray;
     const RpkRayHit *hit;
     RpkRayHit hitStore;
     double cosRayLight;
     double cosRayEye;
     double dist;
     double dist2;
-    float fDistance;
+    double fDistance;
     double x;
     double y;
     double z;
@@ -244,7 +224,7 @@ RayTools::eyeNodeVisible(
     dist2 = dir.lengthSquared();
     dist = java::Math::sqrt(dist2);
 
-    dir = dir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
 
     // Determine which pixel is visible
     z = dir.dotProduct(camera->Z);
@@ -264,17 +244,14 @@ RayTools::eyeNodeVisible(
                 // Check normal directions
                 dist = dist * (1 - VSDK::EPSILON);
 
-                ray.position = eyeNode->m_hit.getPoint();
-                ray.direction = dir;
+                ray.setOrigin(eyeNode->m_hit.getPoint());
+                ray.setDirection(dir);
 
                 cosRayEye = dir.dotProduct(eyeNode->m_normal);
                 cosRayLight = -dir.dotProduct(node->m_normal);
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
-                    fDistance = static_cast<float>(dist);
-#ifdef RPK_RAY_CAPTURE
-                    const float queryMaximumDistance = fDistance;
-#endif
+                    fDistance = static_cast<double>(dist);
                     const RayExclusionSet exclusions(
                         node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
                         eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->getTwin() : nullptr);
@@ -282,20 +259,13 @@ RayTools::eyeNodeVisible(
                                                              0.0, &fDistance,
                                                              RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore,
                                                              exclusions, sceneWorldSceneQueryWorkspace);
-#ifdef RPK_RAY_CAPTURE
-                    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
-                        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
-                            VisibilityQueryRecorder::RAYTRACER_VISIBILITY, &ray, 0.0F, queryMaximumDistance,
-                            RayHitFlag::FRONT | RayHitFlag::ANY, exclusions, hit, fDistance);
-                    }
-#endif
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
 
                     // Geometry factor
                     if ( visible ) {
-                        *pixX = static_cast<float>(xz);
-                        *pixY = static_cast<float>(yz);
+                        *pixX = static_cast<double>(xz);
+                        *pixY = static_cast<double>(yz);
                     }
                 }
             }

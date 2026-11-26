@@ -2,7 +2,7 @@
 #define __BINARY_MODEL_READ_CLEANUP__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelGeometryRecordData.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelVertexRecordData.h"
@@ -19,7 +19,7 @@
 class BinaryModelReadCleanup {
   public:
     static void cleanupPartialModel(
-        java::ArrayList<Vector3Df *> &vectors,
+        java::ArrayList<Vector3Dd *> &vectors,
         java::ArrayList<RpkVertex *> &vertices,
         java::ArrayList<Patch *> &patches,
         java::ArrayList<RpkMaterial *> &materials,

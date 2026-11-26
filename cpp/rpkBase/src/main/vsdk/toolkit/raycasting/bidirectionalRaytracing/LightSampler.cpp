@@ -67,7 +67,7 @@ UniformLightSampler::sample(
     double pdfLight;
     double pdfPoint;
     Patch *light;
-    Vector3Df point;
+    Vector3Dd point;
 
     // thisNode is NOT used or altered. If you want the nodes connected,
     // use the Connect method of a surface sampler and a light direction
@@ -107,7 +107,7 @@ UniformLightSampler::sample(
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
         double pdf = 0.0;
-        Vector3Df dir(0.0F, 0.0F, 0.0F);
+        Vector3Dd dir(0.0, 0.0, 0.0);
 
         if ( light->getMaterial()->getEdf() != nullptr ) {
             bool shctxOk = false;
@@ -133,9 +133,9 @@ UniformLightSampler::sample(
         pdfPoint = 1.0 / light->getArea();
 
         // Fake a hit record
-        const Vector3Df lightNormal = light->getNormal();
+        const Vector3Dd lightNormal = light->getNormal();
         newNode->m_hit.init(light, &point, &lightNormal, light->getMaterial());
-        Vector3Df normal = newNode->m_hit.getNormal();
+        Vector3Dd normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
         newNode->m_normal = newNode->m_hit.getNormal();
@@ -171,7 +171,7 @@ UniformLightSampler::evalPDF(
         if ( lightList == nullptr ) {
             return 0.0;
         }
-        Vector3Df position = newNode->m_hit.getPoint();
+        Vector3Dd position = newNode->m_hit.getPoint();
         pdf = lightList->evalPdf(newNode->m_hit.getPatch(), &position);
     }
 
@@ -227,7 +227,7 @@ ImportantLightSampler::sample(
     double pdfLight;
     double pdfPoint;
     Patch *light;
-    Vector3Df point;
+    Vector3Dd point;
 
     // thisNode is NOT used or altered. If you want the nodes connected,
     // use the Connect method of a surface sampler and a light direction
@@ -247,11 +247,11 @@ ImportantLightSampler::sample(
 
     if ( thisNode->m_hit.getFlags() & RayHitFlag::BACK ) {
         if ( thisNode->m_outBsdf == nullptr ) {
-            Vector3Df invNormal;
+            Vector3Dd invNormal;
 
             invNormal = thisNode->m_normal.multiply(-1);
 
-            Vector3Df position = thisNode->m_hit.getPoint();
+            Vector3Dd position = thisNode->m_hit.getPoint();
             light = lightList->sampleImportant(&position, &invNormal, &x1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
@@ -259,7 +259,7 @@ ImportantLightSampler::sample(
         }
     } else {
         if ( thisNode->m_inBsdf == nullptr ) {
-            Vector3Df position = thisNode->m_hit.getPoint();
+            Vector3Dd position = thisNode->m_hit.getPoint();
             light = lightList->sampleImportant(&position, &thisNode->m_normal, &x1, &pdfLight);
         } else {
             light = nullptr;
@@ -274,7 +274,7 @@ ImportantLightSampler::sample(
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
         double pdf = 0.0;
-        Vector3Df dir(0.0F, 0.0F, 0.0F);
+        Vector3Dd dir(0.0, 0.0, 0.0);
 
         if ( light->getMaterial()->getEdf() != nullptr ) {
             dir = light->getMaterial()->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
@@ -298,9 +298,9 @@ ImportantLightSampler::sample(
         // Light position and value are known now
 
         // Fake a hit record
-        const Vector3Df lightNormal = light->getNormal();
+        const Vector3Dd lightNormal = light->getNormal();
         newNode->m_hit.init(light, &point, &lightNormal, light->getMaterial());
-        Vector3Df normal = newNode->m_hit.getNormal();
+        Vector3Dd normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
         newNode->m_normal = newNode->m_hit.getNormal();
@@ -329,8 +329,8 @@ ImportantLightSampler::evalPDF(
     if ( lightList == nullptr ) {
         return 0.0;
     }
-    Vector3Df newPosition = newNode->m_hit.getPoint();
-    Vector3Df thisPosition = thisNode->m_hit.getPoint();
+    Vector3Dd newPosition = newNode->m_hit.getPoint();
+    Vector3Dd thisPosition = thisNode->m_hit.getPoint();
     pdf = lightList->evalPdfImportant(
         newNode->m_hit.getPatch(),
         &newPosition,

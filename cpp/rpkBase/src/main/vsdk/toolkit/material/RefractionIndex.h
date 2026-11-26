@@ -3,29 +3,29 @@
 
 class RefractionIndex {
   private:
-    float nr;
-    float ni;
+    double nr;
+    double ni;
 
   public:
-    float complexToGeometricRefractionIndex() const;
+    double complexToGeometricRefractionIndex() const;
 
-    float getNr() const;
-    float getNi() const;
-    void set(float inNr, float inNi);
+    double getNr() const;
+    double getNi() const;
+    void set(double inNr, double inNi);
 };
 
-inline float
+inline double
 RefractionIndex::getNr() const {
     return nr;
 }
 
-inline float
+inline double
 RefractionIndex::getNi() const {
     return ni;
 }
 
 inline void
-RefractionIndex::set(float inNr, float inNi) {
+RefractionIndex::set(double inNr, double inNi) {
     nr = inNr;
     ni = inNi;
 }

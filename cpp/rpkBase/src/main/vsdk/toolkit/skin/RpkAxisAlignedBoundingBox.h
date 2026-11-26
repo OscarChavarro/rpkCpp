@@ -3,8 +3,8 @@
 
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/skin/BoundingBoxCoordinateIndex.h"
 
 /**
@@ -13,80 +13,80 @@ The meaning of the numbers is given by the constants MIN_X
 */
 class RpkAxisAlignedBoundingBox {
   private:
-    float coordinates[6];
+    double coordinates[6];
 
     static void inline
-    setIfLess(float &a, float b) {
+    setIfLess(double &a, double b) {
         a = a < b ? a : b;
     }
 
     static void inline
-    setIfGreater(float &a, float b) {
+    setIfGreater(double &a, double b) {
         a = a > b ? a : b;
     }
 
     static bool inline
     clipAxisSlab(
-        float minimumBound,
-        float maximumBound,
-        float origin,
-        float direction,
-        float toleranceScale,
-        float *nearDistance,
-        float *farDistance);
+        double minimumBound,
+        double maximumBound,
+        double origin,
+        double direction,
+        double toleranceScale,
+        double *nearDistance,
+        double *farDistance);
 
   public:
     RpkAxisAlignedBoundingBox();
 
-    float maxExtent() const;
-    bool outOfBounds(const Vector3Df *p) const;
-    Vector3Df center() const;
+    double maxExtent() const;
+    bool outOfBounds(const Vector3Dd *p) const;
+    Vector3Dd center() const;
     void setAsUnion(const RpkAxisAlignedBoundingBox *a, const RpkAxisAlignedBoundingBox *b);
     bool disjointToOtherBoundingBox(const RpkAxisAlignedBoundingBox *other) const;
-    bool behindPlane(const Vector3Df &normal, float distance) const;
+    bool behindPlane(const Vector3Dd &normal, double distance) const;
     void copyFrom(const RpkAxisAlignedBoundingBox *other);
     void enlarge(const RpkAxisAlignedBoundingBox *other);
-    void enlargeToIncludePoint(const Vector3Df *point);
+    void enlargeToIncludePoint(const Vector3Dd *point);
     void enlargeTinyBit();
     void computeContributionFlags(const RpkAxisAlignedBoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const;
-    float dx() const;
-    float dy() const;
-    float dz() const;
-    Vector3Df voxelSize(const short nx, const short ny, const short nz) const;
-    void enlargeByFactor(float factor);
-    Vector3Df minPoint() const;
-    Vector3Df maxPoint() const;
-    float minX() const;
-    float minY() const;
-    float minZ() const;
-    float maxX() const;
-    float maxY() const;
-    float maxZ() const;
-    const float *rawCoordinates() const;
-    float valueAt(int idx) const;
-    void corners(Vector3Df out[8]) const;
-    bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
-    bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
+    double dx() const;
+    double dy() const;
+    double dz() const;
+    Vector3Dd voxelSize(const short nx, const short ny, const short nz) const;
+    void enlargeByFactor(double factor);
+    Vector3Dd minPoint() const;
+    Vector3Dd maxPoint() const;
+    double minX() const;
+    double minY() const;
+    double minZ() const;
+    double maxX() const;
+    double maxY() const;
+    double maxZ() const;
+    const double *rawCoordinates() const;
+    double valueAt(int idx) const;
+    void corners(Vector3Dd out[8]) const;
+    bool intersect(const Ray *ray, double minimumDistance, double *maximumDistance) const;
+    bool intersectingSegment(const Ray *ray, double *tMin, double *tMax) const;
 };
 
 inline bool
 RpkAxisAlignedBoundingBox::clipAxisSlab(
-    float minimumBound,
-    float maximumBound,
-    float origin,
-    float direction,
-    float toleranceScale,
-    float *nearDistance,
-    float *farDistance) {
-    if ( direction == 0.0F ) {
+    double minimumBound,
+    double maximumBound,
+    double origin,
+    double direction,
+    double toleranceScale,
+    double *nearDistance,
+    double *farDistance) {
+    if ( direction == 0.0 ) {
         return !(origin < minimumBound || origin > maximumBound);
     }
 
-    const float invDirection = 1.0F / direction;
-    float entryDistance = (minimumBound - origin) * invDirection;
-    float exitDistance = (maximumBound - origin) * invDirection;
+    const double invDirection = 1.0 / direction;
+    double entryDistance = (minimumBound - origin) * invDirection;
+    double exitDistance = (maximumBound - origin) * invDirection;
     if ( entryDistance > exitDistance ) {
-        const float swapValue = entryDistance;
+        const double swapValue = entryDistance;
         entryDistance = exitDistance;
         exitDistance = swapValue;
     }
@@ -104,34 +104,34 @@ RpkAxisAlignedBoundingBox::clipAxisSlab(
 }
 
 inline bool
-RpkAxisAlignedBoundingBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
+RpkAxisAlignedBoundingBox::intersectingSegment(const Ray *ray, double *tMin, double *tMax) const {
     if ( ray == nullptr || tMin == nullptr || tMax == nullptr ) {
         return false;
     }
 
-    const float minimumDistance = *tMin;
-    const float maximumDistance = *tMax;
-    float nearDistance = minimumDistance;
-    float farDistance = maximumDistance;
-    const float toleranceScale = 1.0F + Numeric::EPSILON_FLOAT;
+    const double minimumDistance = *tMin;
+    const double maximumDistance = *tMax;
+    double nearDistance = minimumDistance;
+    double farDistance = maximumDistance;
+    const double toleranceScale = 1.0 + Numeric::EPSILON;
 
     if ( !clipAxisSlab(
             coordinates[MIN_X], coordinates[MAX_X],
-            ray->position.x(), ray->direction.x(),
+            ray->getOrigin().x(), ray->getDirection().x(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
     }
     if ( !clipAxisSlab(
             coordinates[MIN_Y], coordinates[MAX_Y],
-            ray->position.y(), ray->direction.y(),
+            ray->getOrigin().y(), ray->getDirection().y(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
     }
     if ( !clipAxisSlab(
             coordinates[MIN_Z], coordinates[MAX_Z],
-            ray->position.z(), ray->direction.z(),
+            ray->getOrigin().z(), ray->getDirection().z(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
@@ -153,13 +153,13 @@ RpkAxisAlignedBoundingBox::intersectingSegment(const RpkRay *ray, float *tMin, f
 }
 
 inline bool
-RpkAxisAlignedBoundingBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
+RpkAxisAlignedBoundingBox::intersect(const Ray *ray, double minimumDistance, double *maximumDistance) const {
     if ( maximumDistance == nullptr ) {
         return false;
     }
 
-    float tMin = minimumDistance;
-    float tMax = *maximumDistance;
+    double tMin = minimumDistance;
+    double tMax = *maximumDistance;
     const bool hit = intersectingSegment(ray, &tMin, &tMax);
     if ( hit ) {
         if ( tMin == minimumDistance ) {
@@ -175,29 +175,29 @@ RpkAxisAlignedBoundingBox::intersect(const RpkRay *ray, float minimumDistance, f
     return hit;
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::maxExtent() const {
-    const float dx = coordinates[MAX_X] - coordinates[MIN_X];
-    const float dy = coordinates[MAX_Y] - coordinates[MIN_Y];
-    const float dz = coordinates[MAX_Z] - coordinates[MIN_Z];
+    const double dx = coordinates[MAX_X] - coordinates[MIN_X];
+    const double dy = coordinates[MAX_Y] - coordinates[MIN_Y];
+    const double dz = coordinates[MAX_Z] - coordinates[MIN_Z];
     return dx > dy
            ? (dx > dz ? dx : dz)
            : (dy > dz ? dy : dz);
 }
 
 inline bool
-RpkAxisAlignedBoundingBox::outOfBounds(const Vector3Df *p) const {
+RpkAxisAlignedBoundingBox::outOfBounds(const Vector3Dd *p) const {
     return p->x() < coordinates[MIN_X] || p->x() > coordinates[MAX_X] ||
            p->y() < coordinates[MIN_Y] || p->y() > coordinates[MAX_Y] ||
            p->z() < coordinates[MIN_Z] || p->z() > coordinates[MAX_Z];
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkAxisAlignedBoundingBox::center() const {
-    return Vector3Df(
-        0.5F * (coordinates[MIN_X] + coordinates[MAX_X]),
-        0.5F * (coordinates[MIN_Y] + coordinates[MAX_Y]),
-        0.5F * (coordinates[MIN_Z] + coordinates[MAX_Z])
+    return Vector3Dd(
+        0.5 * (coordinates[MIN_X] + coordinates[MAX_X]),
+        0.5 * (coordinates[MIN_Y] + coordinates[MAX_Y]),
+        0.5 * (coordinates[MIN_Z] + coordinates[MAX_Z])
     );
 }
 
@@ -256,44 +256,44 @@ RpkAxisAlignedBoundingBox::computeContributionFlags(const RpkAxisAlignedBounding
     }
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::dx() const {
     return coordinates[MAX_X] - coordinates[MIN_X];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::dy() const {
     return coordinates[MAX_Y] - coordinates[MIN_Y];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::dz() const {
     return coordinates[MAX_Z] - coordinates[MIN_Z];
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkAxisAlignedBoundingBox::voxelSize(const short nx, const short ny, const short nz) const {
-    return Vector3Df(
-            dx() / static_cast<float>(nx),
-            dy() / static_cast<float>(ny),
-            dz() / static_cast<float>(nz)
+    return Vector3Dd(
+            dx() / static_cast<double>(nx),
+            dy() / static_cast<double>(ny),
+            dz() / static_cast<double>(nz)
     );
 }
 
 inline void
-RpkAxisAlignedBoundingBox::enlargeByFactor(float factor) {
-    float fdx = dx() * factor;
-    float fdy = dy() * factor;
-    float fdz = dz() * factor;
+RpkAxisAlignedBoundingBox::enlargeByFactor(double factor) {
+    double fdx = dx() * factor;
+    double fdy = dy() * factor;
+    double fdz = dz() * factor;
 
-    if (fdx < Numeric::EPSILON_FLOAT) {
-        fdx = Numeric::EPSILON_FLOAT;
+    if (fdx < Numeric::EPSILON) {
+        fdx = Numeric::EPSILON;
     }
-    if (fdy < Numeric::EPSILON_FLOAT) {
-        fdy = Numeric::EPSILON_FLOAT;
+    if (fdy < Numeric::EPSILON) {
+        fdy = Numeric::EPSILON;
     }
-    if (fdz < Numeric::EPSILON_FLOAT) {
-        fdz = Numeric::EPSILON_FLOAT;
+    if (fdz < Numeric::EPSILON) {
+        fdz = Numeric::EPSILON;
     }
 
     coordinates[MIN_X] -= fdx;
@@ -304,60 +304,60 @@ RpkAxisAlignedBoundingBox::enlargeByFactor(float factor) {
     coordinates[MAX_Z] += fdz;
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkAxisAlignedBoundingBox::minPoint() const {
-    return Vector3Df(
+    return Vector3Dd(
             coordinates[MIN_X],
             coordinates[MIN_Y],
             coordinates[MIN_Z]
     );
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkAxisAlignedBoundingBox::maxPoint() const {
-    return Vector3Df(
+    return Vector3Dd(
             coordinates[MAX_X],
             coordinates[MAX_Y],
             coordinates[MAX_Z]
     );
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::minX() const {
     return coordinates[MIN_X];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::minY() const {
     return coordinates[MIN_Y];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::minZ() const {
     return coordinates[MIN_Z];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::maxX() const {
     return coordinates[MAX_X];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::maxY() const {
     return coordinates[MAX_Y];
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::maxZ() const {
     return coordinates[MAX_Z];
 }
 
-inline const float *
+inline const double *
 RpkAxisAlignedBoundingBox::rawCoordinates() const {
     return coordinates;
 }
 
-inline float
+inline double
 RpkAxisAlignedBoundingBox::valueAt(int idx) const {
     switch (idx) {
         case MIN_X: return minX();
@@ -366,27 +366,27 @@ RpkAxisAlignedBoundingBox::valueAt(int idx) const {
         case MAX_X: return maxX();
         case MAX_Y: return maxY();
         case MAX_Z: return maxZ();
-        default: return 0.0F;
+        default: return 0.0;
     }
 }
 
 inline void
-RpkAxisAlignedBoundingBox::corners(Vector3Df out[8]) const {
-    const float minX = coordinates[MIN_X];
-    const float minY = coordinates[MIN_Y];
-    const float minZ = coordinates[MIN_Z];
-    const float maxX = coordinates[MAX_X];
-    const float maxY = coordinates[MAX_Y];
-    const float maxZ = coordinates[MAX_Z];
+RpkAxisAlignedBoundingBox::corners(Vector3Dd out[8]) const {
+    const double minX = coordinates[MIN_X];
+    const double minY = coordinates[MIN_Y];
+    const double minZ = coordinates[MIN_Z];
+    const double maxX = coordinates[MAX_X];
+    const double maxY = coordinates[MAX_Y];
+    const double maxZ = coordinates[MAX_Z];
 
-    out[0] = Vector3Df(minX, minY, minZ);
-    out[1] = Vector3Df(maxX, minY, minZ);
-    out[2] = Vector3Df(minX, maxY, minZ);
-    out[3] = Vector3Df(maxX, maxY, minZ);
-    out[4] = Vector3Df(minX, minY, maxZ);
-    out[5] = Vector3Df(maxX, minY, maxZ);
-    out[6] = Vector3Df(minX, maxY, maxZ);
-    out[7] = Vector3Df(maxX, maxY, maxZ);
+    out[0] = Vector3Dd(minX, minY, minZ);
+    out[1] = Vector3Dd(maxX, minY, minZ);
+    out[2] = Vector3Dd(minX, maxY, minZ);
+    out[3] = Vector3Dd(maxX, maxY, minZ);
+    out[4] = Vector3Dd(minX, minY, maxZ);
+    out[5] = Vector3Dd(maxX, minY, maxZ);
+    out[6] = Vector3Dd(minX, maxY, maxZ);
+    out[7] = Vector3Dd(maxX, maxY, maxZ);
 }
 
 #endif

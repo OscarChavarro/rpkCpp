@@ -122,7 +122,7 @@ Raytrace::rayTraceSaveImage(
 
     java::System::out.printf(
         "Raytrace save image: %g secs.\n",
-        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
+        static_cast<double>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
 }
 
 void

@@ -35,7 +35,7 @@ GlutHudConsole::printTextLine(
     glLoadIdentity();
 
     glDisable(GL_DEPTH_TEST);
-    glColor3f(1.0F, 1.0F, 0.0F);
+    glColor3d(1.0, 1.0, 0.0);
 
     const int x = HUD_PADDING_X + textColumn * HUD_CHAR_WIDTH;
     const int y = HUD_PADDING_Y + textLine * HUD_LINE_HEIGHT + HUD_BASELINE_OFFSET;

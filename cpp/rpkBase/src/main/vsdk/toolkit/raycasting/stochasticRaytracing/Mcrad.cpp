@@ -60,7 +60,7 @@ For counting how much CPU time was used for the computations
 void
 Mcrad::monteCarloRadiosityUpdateCpuSecs() {
     const long long t = java::System::nanoTime();
-    StochasticRelaxation::activeState().cpuSeconds += static_cast<float>(
+    StochasticRelaxation::activeState().cpuSeconds += static_cast<double>(
         static_cast<double>(t - StochasticRelaxation::activeState().lastClock) / 1000000000.0);
     StochasticRelaxation::activeState().lastClock = t;
 }
@@ -185,7 +185,7 @@ Mcrad::monteCarloRadiosityUpdateImportance(Element *element, const FaceVisibilit
 
     if ( !monteCarloRadiosityVisitChildren(stochasticRadiosityElement, monteCarloRadiosityUpdateImportance, faceVisibility) ) {
         // Leaf element
-        float delta_imp = static_cast<float>(faceVisibility->isVisible(stochasticRadiosityElement->patch->getFaceIndex()) ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
+        double delta_imp = static_cast<double>(faceVisibility->isVisible(stochasticRadiosityElement->patch->getFaceIndex()) ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
         stochasticRadiosityElement->importance += delta_imp;
         stochasticRadiosityElement->sourceImportance += delta_imp;
         stochasticRadiosityElement->unShotImportance += delta_imp;
@@ -260,15 +260,15 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
     const java::ArrayList<Patch *> *scenePatches,
     const java::ArrayList<RpkGeometry *> *sceneGeometries)
 {
-    float *areas;
-    float cumulative;
-    float areaFrac;
+    double *areas;
+    double cumulative;
+    double areaFrac;
     int numberOfPatchIds = Patch::getNextId();
     int i;
 
     auto qSortFloatCompare = [](const void *a, const void *b) -> int {
-        const float left = *static_cast<const float *>(a);
-        const float right = *static_cast<const float *>(b);
+        const double left = *static_cast<const double *>(a);
+        const double right = *static_cast<const double *>(b);
         if ( Numeric::floatCompare(left, right) ) {
             return 1;
         }
@@ -284,7 +284,7 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
     }
 
     // Build a table of patch areas
-    areas = new float[numberOfPatchIds];
+    areas = new double[numberOfPatchIds];
     for ( i = 0; i < numberOfPatchIds; i++ ) {
         areas[i] = 0.0;
     }
@@ -296,14 +296,14 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
     // Sort the table to decreasing areas
     qsort(areas,
         numberOfPatchIds,
-        sizeof(float),
+        sizeof(double),
         qSortFloatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
     for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < Statistics::instance().radiance.totalArea * 0.1; i-- ) {
         cumulative += areas[i];
     }
-    areaFrac = (i >= 0 && areas[i] > 0.0) ? Statistics::instance().radiance.totalArea / areas[i] : static_cast<float>(Statistics::instance().reader.numberOfPatches);
+    areaFrac = (i >= 0 && areas[i] > 0.0) ? Statistics::instance().radiance.totalArea / areas[i] : static_cast<double>(Statistics::instance().reader.numberOfPatches);
 
     delete[] areas;
 
@@ -353,9 +353,9 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *rend
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
-        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<float>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
-        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(static_cast<float>(M_PI) * patch->getArea() *
+        StochasticRelaxation::activeState().unShotFlux = StochasticRelaxation::activeState().unShotFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchUnShotRad(patch)[0]);
+        StochasticRelaxation::activeState().totalFlux = StochasticRelaxation::activeState().totalFlux.addScaled(static_cast<double>(M_PI) * patch->getArea(), McradP::getTopLevelPatchRad(patch)[0]);
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux = StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(static_cast<double>(M_PI) * patch->getArea() *
             (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance), McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
@@ -398,9 +398,9 @@ Mcrad::monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches
 ColorRgb
 Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(const Patch *patch, double u, double v) {
     RpkRayHit hit;
-    Vector3Df point;
+    Vector3Dd point;
     patch->uniformPoint(u, v, &point);
-    const Vector3Df patchNormal = patch->getNormal();
+    const Vector3Dd patchNormal = patch->getNormal();
     hit.init(patch, &point, &patchNormal, patch->getMaterial());
     hit.setUv(u, v);
     if ( hit.getMaterial()->getBsdf() != nullptr ) {
@@ -433,7 +433,7 @@ Mcrad::vertexReflectance(const RpkVertex *v) {
     }
 
     if ( count > 0 ) {
-        const double scale = 1.0 / static_cast<float>(count);
+        const double scale = 1.0 / static_cast<double>(count);
         rd[0] = scale * rd[0];
         rd[1] = scale * rd[1];
         rd[2] = scale * rd[2];
@@ -459,8 +459,8 @@ Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosi
         }
         cachedLeaf = leaf;
 
-        const double uu = static_cast<float>(u);
-        const double vv = static_cast<float>(v);
+        const double uu = static_cast<double>(u);
+        const double vv = static_cast<double>(v);
         switch ( leaf->numberOfVertices ) {
             case 3: {
                 for ( int channel = 0; channel < 3; channel++ ) {
@@ -494,7 +494,7 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 ColorRgb
-Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Vector3Df /*dir*/, const RendererConfiguration *renderOptions) {
+Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Vector3Dd /*dir*/, const RendererConfiguration *renderOptions) {
     const ColorRgb trueRd = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
@@ -535,7 +535,7 @@ Mcrad::monteCarloRadiosityGetRadiance(const Patch *patch, double u, double v, Ve
 /**
 Returns scalar reflectance, for importance propagation
 */
-float
+double
 Mcrad::monteCarloRadiosityScalarReflectance(const Patch *P) {
     return StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(McradP::topLevelStochasticRadiosityElement(P));
 }

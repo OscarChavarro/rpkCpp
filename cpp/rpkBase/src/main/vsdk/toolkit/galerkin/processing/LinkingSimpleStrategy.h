@@ -12,7 +12,7 @@
 
 class LinkingSimpleStrategy {
   private:
-    static MemoryPool<float> interactionCoefficientsPool;
+    static MemoryPool<double> interactionCoefficientsPool;
     static bool interactionCoefficientsPoolInitialized;
 
     static void ensureInteractionCoefficientsPool();

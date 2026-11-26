@@ -36,8 +36,8 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
     const PhongMaterial *material = patch->getMaterial()->getSurfaceMaterial();
     RpkRayHit hit;
 
-    const Vector3Df patchMidPoint = patch->midPoint();
-    const Vector3Df patchNormal = patch->getNormal();
+    const Vector3Dd patchMidPoint = patch->midPoint();
+    const Vector3Dd patchNormal = patch->getNormal();
     hit.init(patch, &patchMidPoint, &patchNormal, patch->getMaterial());
 
     const int numberOfSamples = getNumberOfSamples(patch);
@@ -46,9 +46,9 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         if ( material->isTextured() ) {
-            Vector3Df texCoord;
+            Vector3Dd texCoord;
             if ( hit.getTexCoord(&texCoord) ) {
-                const Vector3Df textureCoordinate(texCoord.x(), texCoord.y(), texCoord.z());
+                const Vector3Dd textureCoordinate(texCoord.x(), texCoord.y(), texCoord.z());
                 sample = material->scatteredPower(components, &textureCoordinate);
             } else {
                 sample = material->scatteredPower(components, nullptr);
@@ -60,7 +60,7 @@ PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
         albedo[1] += sample.getG();
         albedo[2] += sample.getB();
     }
-    const double inverse = 1.0 / static_cast<float>(numberOfSamples);
+    const double inverse = 1.0 / static_cast<double>(numberOfSamples);
     return ColorRgb(inverse * albedo[0], inverse * albedo[1], inverse * albedo[2]);
 }
 
@@ -82,6 +82,6 @@ PatchVisitor::averageEmittance(const Patch *patch, char components) {
         emittance[1] += sample.getG();
         emittance[2] += sample.getB();
     }
-    const double inverse = 1.0 / static_cast<float>(numberOfSamples);
+    const double inverse = 1.0 / static_cast<double>(numberOfSamples);
     return ColorRgb(inverse * emittance[0], inverse * emittance[1], inverse * emittance[2]);
 }

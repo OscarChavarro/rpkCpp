@@ -7,7 +7,7 @@
 
 class LinkingClusteredStrategy {
   private:
-    static MemoryPool<float> linkingClusteredPool;
+    static MemoryPool<double> linkingClusteredPool;
     static bool linkingClusteredPoolInitialized;
 
     static void ensureLinkingClusteredPool();

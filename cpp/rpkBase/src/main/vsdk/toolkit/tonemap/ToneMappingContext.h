@@ -12,18 +12,18 @@ class ToneMappingContext {
     static constexpr int GAMMA_TABLE_SIZE = (1 << GAMMA_TABLE_BITS) + 1;
 
     // Fixed radiance rescaling before tone mapping
-    float brightness_adjust; // Brightness adjustment factor
-    float pow_bright_adjust; // pow(2, brightness_adjust)
+    double brightness_adjust; // Brightness adjustment factor
+    double pow_bright_adjust; // pow(2, brightness_adjust)
 
     // Variable / non-linear radiance rescaling parameters
     ToneMapAdaptationMethod staticAdaptationMethod;
-    float realWorldAdaptionLuminance;
-    float maximumDisplayLuminance;
-    float maximumDisplayContrast;
+    double realWorldAdaptionLuminance;
+    double maximumDisplayLuminance;
+    double maximumDisplayContrast;
 
     // Display RGB mapping (corrects display non-linear response)
     ColorRgb gamma; // Gamma factors for red, green, blue
-    float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
+    double gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
 
     ToneMappingContext();
     ~ToneMappingContext();
@@ -36,10 +36,10 @@ class ToneMappingContext {
   private:
     Cie colorSpace;
 
-    static constexpr float DEFAULT_GAMMA = 1.7F;
-    static constexpr float DEFAULT_TM_LWA = 10.0F;
-    static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0F;
-    static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0F;
+    static constexpr double DEFAULT_GAMMA = 1.7;
+    static constexpr double DEFAULT_TM_LWA = 10.0;
+    static constexpr double DEFAULT_TM_LD_MAXIMUM = 100.0;
+    static constexpr double DEFAULT_TM_C_MAXIMUM = 50.0;
 };
 
 #endif

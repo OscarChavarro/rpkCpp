@@ -9,7 +9,7 @@
 #                         (compare -metric AE = 0) and its run log must give the
 #                         reference statistics fingerprint
 #   --golden              T3: compare -metric RMSE of every output against its
-#                         golden image in ../doc/testBaseImages must not exceed
+#                         golden image in ../cpp/etc/goldenImagesForTests must not exceed
 #                         the bound recorded in etc/goldenImagesForTests/goldenBounds.txt
 #   --capture-references  store the current outputs as port references, with
 #                         checksums and fingerprints (unchanged tree only)
@@ -23,7 +23,7 @@
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
 
-golden_dir="../doc/testBaseImages"
+golden_dir="../cpp/etc/goldenImagesForTests"
 reference_dir="etc/goldenImagesForTests"
 manifest="$reference_dir/manifest.txt"
 bounds="$reference_dir/goldenBounds.txt"

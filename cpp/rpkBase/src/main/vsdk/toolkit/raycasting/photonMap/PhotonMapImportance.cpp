@@ -35,11 +35,11 @@ PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node)
 bool
 PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, const ColorRgb &importance) {
     if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
-        float importanceF = static_cast<float>(importance.average());
-        float potentialF = 1.0;
+        double importanceF = static_cast<double>(importance.average());
+        double potentialF = 1.0;
 
         // Compute footprint
-        float footprintF = 1.0;
+        double footprintF = 1.0;
 
         Importon importon(node->m_hit.getPoint(), importanceF, potentialF, footprintF, node->m_inDirF);
 
@@ -74,7 +74,7 @@ PhotonMapImportance::tracePotentialPath(
     double importanceB = 1.0;
 
     // Adjust importance for eye ray
-    float factor = static_cast<float>(path->m_G / path->m_pdfFromPrev);
+    double factor = static_cast<double>(path->m_G / path->m_pdfFromPrev);
     importanceR *= factor;
     importanceG *= factor;
     importanceB *= factor;
@@ -118,7 +118,7 @@ PhotonMapImportance::tracePotentialPath(
         importanceR *= prev->m_bsdfEval.getR();
         importanceG *= prev->m_bsdfEval.getG();
         importanceB *= prev->m_bsdfEval.getB();
-        factor = static_cast<float>(node->m_G / node->m_pdfFromPrev);
+        factor = static_cast<double>(node->m_G / node->m_pdfFromPrev);
         importanceR *= factor;
         importanceG *= factor;
         importanceB *= factor;

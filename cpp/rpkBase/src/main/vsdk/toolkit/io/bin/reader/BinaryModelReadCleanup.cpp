@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
@@ -18,7 +18,7 @@
 
 void
 BinaryModelReadCleanup::cleanupPartialModel(
-    java::ArrayList<Vector3Df *> &vectors,
+    java::ArrayList<Vector3Dd *> &vectors,
     java::ArrayList<RpkVertex *> &vertices,
     java::ArrayList<Patch *> &patches,
     java::ArrayList<RpkMaterial *> &materials,

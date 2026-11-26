@@ -45,16 +45,16 @@ class GalerkinElement final : public Element {
   public:
     Patch *patch;
     RpkGeometry *geometry;
-    float potential; // Total potential of the element
-    float receivedPotential; // Potential received during the last iteration
-    float unShotPotential; // Un-shot potential (progressive refinement radiosity)
-    float directPotential;
+    double potential; // Total potential of the element
+    double receivedPotential; // Potential received during the last iteration
+    double unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    double directPotential;
     java::ArrayList<Interaction *> *interactions; // Links with other patches: when using
 			 // a shooting algorithm, the links are kept with the source element. When doing gathering,
 			 // the links are kept with the receiver element
-    float minimumArea; // Equal to area for a surface element or the area
+    double minimumArea; // Equal to area for a surface element or the area
                        // of the smallest surface element in a cluster
-    float blockerSize; // Equivalent blocker size for multi-resolution visibility
+    double blockerSize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int scratchVisibilityUsageCounter; // Used only on Z-depth visibility clustering strategy
     GalerkinElementRenderMode childNumber; // Rang nr of regular sub-element in parent
@@ -75,9 +75,9 @@ class GalerkinElement final : public Element {
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
-    int vertices(Vector3Df *p) const;
+    int vertices(Vector3Dd *p) const;
     RpkAxisAlignedBoundingBox *bounds(RpkAxisAlignedBoundingBox *boundingBox) const;
-    Vector3Df midPoint() const;
+    Vector3Dd midPoint() const;
     void initPolygon(ConvexPolygon *polygon) const;
     void reAllocCoefficients();
 

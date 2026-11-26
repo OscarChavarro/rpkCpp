@@ -6,12 +6,12 @@
 template<typename T>
 class BalancedKDTreeNode {
   public:
-    T *m_data;
-    int m_flags;
+    T *data;
+    int flags;
 
-    void copy(const KDTreeNode<T> &node) { m_data = node.m_data; m_flags = node.flags(); }
-    int discriminator() const { return m_flags & 0xF; }
-    void setDiscriminator(int discriminator) { m_flags = (m_flags & 0xFFF0) | discriminator; }
+    void copy(const KDTreeNode<T> &node) { data = node.data; flags = node.getFlags(); }
+    int discriminator() const { return flags & 0xF; }
+    void setDiscriminator(int discriminator) { flags = (flags & 0xFFF0) | discriminator; }
 };
 
 #endif

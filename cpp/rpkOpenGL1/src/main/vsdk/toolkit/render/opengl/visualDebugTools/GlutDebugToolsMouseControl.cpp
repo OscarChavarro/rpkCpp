@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugToolsMouseControl.h"
@@ -9,7 +9,7 @@
     #include <GL/glut.h>
 #endif
 
-#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"
+#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
@@ -70,8 +70,8 @@ GlutDebugToolsMouseControl::syncCameraToViewport(const GlutDebugToolsModel &mode
     Camera *camera = model.scene->camera;
     if ( camera->xSize == model.width &&
          camera->ySize == model.height &&
-         camera->pixelWidth > Numeric::EPSILON_FLOAT &&
-         camera->pixelHeight > Numeric::EPSILON_FLOAT ) {
+         camera->pixelWidth > Numeric::EPSILON &&
+         camera->pixelHeight > Numeric::EPSILON ) {
         return;
     }
 
@@ -106,10 +106,10 @@ GlutDebugToolsMouseControl::clampSelectedHierarchyLevel(GlutDebugToolsModel &mod
     }
 }
 
-Vector3Df
+Vector3Dd
 GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
     if ( scene == nullptr ) {
-        return Vector3Df(0.0F, 0.0F, 0.0F);
+        return Vector3Dd(0.0, 0.0, 0.0);
     }
 
     if ( scene->clusteredRootGeometry != nullptr && scene->clusteredRootGeometry->bounded ) {
@@ -122,17 +122,17 @@ GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
         return sceneBounds.center();
     }
 
-    return Vector3Df(0.0F, 0.0F, 0.0F);
+    return Vector3Dd(0.0, 0.0, 0.0);
 }
 
 void
-GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3Df *axisU, Vector3Df *axisV) {
+GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3Dd *axisU, Vector3Dd *axisV) {
     if ( axisU == nullptr || axisV == nullptr ) {
         return;
     }
 
-    *axisU = Vector3Df(1.0F, 0.0F, 0.0F);
-    *axisV = Vector3Df(0.0F, 1.0F, 0.0F);
+    *axisU = Vector3Dd(1.0, 0.0, 0.0);
+    *axisV = Vector3Dd(0.0, 1.0, 0.0);
 
     if ( scene == nullptr || scene->camera == nullptr ) {
         return;
@@ -140,57 +140,57 @@ GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3Df *a
 
     const Camera *camera = scene->camera;
 
-    Vector3Df cameraU;
+    Vector3Dd cameraU;
     cameraU = camera->X;
-    Vector3Df cameraV;
+    Vector3Dd cameraV;
     cameraV = camera->Y;
 
-    if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT || cameraV.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-        Vector3Df viewDirection;
+    if ( cameraU.lengthSquared() < Numeric::EPSILON || cameraV.lengthSquared() < Numeric::EPSILON ) {
+        Vector3Dd viewDirection;
         viewDirection = camera->lookPosition.subtract(camera->eyePosition);
-        if ( viewDirection.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+        if ( viewDirection.lengthSquared() < Numeric::EPSILON ) {
             return;
         }
-        viewDirection = viewDirection.normalized(Numeric::EPSILON_FLOAT);
+        viewDirection = viewDirection.normalized(Numeric::EPSILON);
 
-        Vector3Df upDirection;
+        Vector3Dd upDirection;
         upDirection = camera->upDirection;
-        if ( upDirection.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-            upDirection = Vector3Df(0.0F, 0.0F, 1.0F);
+        if ( upDirection.lengthSquared() < Numeric::EPSILON ) {
+            upDirection = Vector3Dd(0.0, 0.0, 1.0);
         } else {
-            upDirection = upDirection.normalized(Numeric::EPSILON_FLOAT);
+            upDirection = upDirection.normalized(Numeric::EPSILON);
         }
 
         cameraU = viewDirection.crossProduct(upDirection);
-        if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-            upDirection = Vector3Df(0.0F, 1.0F, 0.0F);
+        if ( cameraU.lengthSquared() < Numeric::EPSILON ) {
+            upDirection = Vector3Dd(0.0, 1.0, 0.0);
             cameraU = viewDirection.crossProduct(upDirection);
         }
-        if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+        if ( cameraU.lengthSquared() < Numeric::EPSILON ) {
             return;
         }
 
-        cameraU = cameraU.normalized(Numeric::EPSILON_FLOAT);
+        cameraU = cameraU.normalized(Numeric::EPSILON);
         cameraV = viewDirection.crossProduct(cameraU);
     }
 
-    if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT || cameraV.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+    if ( cameraU.lengthSquared() < Numeric::EPSILON || cameraV.lengthSquared() < Numeric::EPSILON ) {
         return;
     }
 
-    cameraU = cameraU.normalized(Numeric::EPSILON_FLOAT);
-    cameraV = cameraV.normalized(Numeric::EPSILON_FLOAT);
+    cameraU = cameraU.normalized(Numeric::EPSILON);
+    cameraV = cameraV.normalized(Numeric::EPSILON);
     *axisU = cameraU;
     *axisV = cameraV;
 }
 
 void
-GlutDebugToolsMouseControl::rotateVectorAroundAxis(Vector3Df *vector, const Vector3Df &axis, float angleDegrees) {
-    if ( vector == nullptr || axis.lengthSquared() < Numeric::EPSILON_FLOAT || angleDegrees == 0.0F ) {
+GlutDebugToolsMouseControl::rotateVectorAroundAxis(Vector3Dd *vector, const Vector3Dd &axis, double angleDegrees) {
+    if ( vector == nullptr || axis.lengthSquared() < Numeric::EPSILON || angleDegrees == 0.0 ) {
         return;
     }
 
-    const Matrix4x4f rotation = Matrix4x4f().axisRotation(angleDegrees * DEGREES_TO_RADIANS, axis);
+    const Matrix4x4d rotation = Matrix4x4d().axisRotation(angleDegrees * DEGREES_TO_RADIANS, axis);
     *vector = rotation.withoutTranslation().multiply(*vector);
 }
 
@@ -203,26 +203,26 @@ GlutDebugToolsMouseControl::dollyCameraAlongFront(GlutDebugToolsModel &model, in
     syncCameraToViewport(model);
 
     Camera *camera = model.scene->camera;
-    Vector3Df viewDirection;
+    Vector3Dd viewDirection;
     viewDirection = camera->lookPosition.subtract(camera->eyePosition);
-    const float viewDistance = viewDirection.length();
-    if ( viewDistance < Numeric::EPSILON_FLOAT ) {
+    const double viewDistance = viewDirection.length();
+    if ( viewDistance < Numeric::EPSILON ) {
         return false;
     }
-    viewDirection = viewDirection.multiplyByInverse(viewDistance, Numeric::EPSILON_FLOAT);
+    viewDirection = viewDirection.multiplyByInverse(viewDistance, Numeric::EPSILON);
 
-    const float translationDistance =
-        -static_cast<float>(deltaY) * viewDistance * DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL;
-    if ( java::Math::abs(translationDistance) < Numeric::EPSILON_FLOAT ) {
+    const double translationDistance =
+        -static_cast<double>(deltaY) * viewDistance * DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL;
+    if ( java::Math::abs(translationDistance) < Numeric::EPSILON ) {
         return false;
     }
 
-    Vector3Df translation;
+    Vector3Dd translation;
     translation = viewDirection.multiply(translationDistance);
 
-    Vector3Df newEyePosition;
+    Vector3Dd newEyePosition;
     newEyePosition = camera->eyePosition.add(translation);
-    Vector3Df newLookPosition;
+    Vector3Dd newLookPosition;
     newLookPosition = camera->lookPosition.add(translation);
 
     const int viewportWidth = model.width > 0 ? model.width : camera->xSize;
@@ -239,7 +239,7 @@ GlutDebugToolsMouseControl::dollyCameraAlongFront(GlutDebugToolsModel &model, in
 }
 
 void
-GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, RpkRay *ray) {
+GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, Ray *ray) {
     if ( ray == nullptr ) {
         return;
     }
@@ -247,36 +247,37 @@ GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsM
         return;
     }
 
-    const float angleAroundU = model.debugState->angleAroundViewportU;
-    const float angleAroundV = model.debugState->angleAroundViewportV;
-    if ( angleAroundU == 0.0F && angleAroundV == 0.0F ) {
+    const double angleAroundU = model.debugState->angleAroundViewportU;
+    const double angleAroundV = model.debugState->angleAroundViewportV;
+    if ( angleAroundU == 0.0 && angleAroundV == 0.0 ) {
         return;
     }
 
-    const Vector3Df pivot = sceneRotationPivot(model.scene);
-    Vector3Df axisU;
-    Vector3Df axisV;
+    const Vector3Dd pivot = sceneRotationPivot(model.scene);
+    Vector3Dd axisU;
+    Vector3Dd axisV;
     viewportAxesInWorld(model.scene, &axisU, &axisV);
 
-    Vector3Df translatedOrigin;
-    translatedOrigin = ray->position.subtract(pivot);
+    Vector3Dd translatedOrigin;
+    translatedOrigin = ray->getOrigin().subtract(pivot);
     rotateVectorAroundAxis(&translatedOrigin, axisU, -angleAroundU);
     rotateVectorAroundAxis(&translatedOrigin, axisV, -angleAroundV);
-    ray->position = pivot.add(translatedOrigin);
+    ray->setOrigin(pivot.add(translatedOrigin));
 
-    rotateVectorAroundAxis(&ray->direction, axisU, -angleAroundU);
-    rotateVectorAroundAxis(&ray->direction, axisV, -angleAroundV);
-    ray->direction = ray->direction.normalized(Numeric::EPSILON_FLOAT);
+    Vector3Dd direction = ray->getDirection();
+    rotateVectorAroundAxis(&direction, axisU, -angleAroundU);
+    rotateVectorAroundAxis(&direction, axisV, -angleAroundV);
+    ray->setDirection(direction.normalized(Numeric::EPSILON));
 }
 
 void
-GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x, int y, RpkRay *ray) {
+GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x, int y, Ray *ray) {
     if ( ray == nullptr ) {
         return;
     }
 
-    ray->position = Vector3Df(0.0F, 0.0F, 0.0F);
-    ray->direction = Vector3Df(0.0F, 0.0F, 1.0F);
+    ray->setOrigin(Vector3Dd(0.0, 0.0, 0.0));
+    ray->setDirection(Vector3Dd(0.0, 0.0, 1.0));
 
     if ( model.scene == nullptr || model.scene->camera == nullptr || model.width <= 0 || model.height <= 0 ) {
         return;
@@ -287,34 +288,34 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
     Camera *camera = model.scene->camera;
     RenderOpenGL::renderGetNearFar(camera, model.scene->geometryList);
 
-    float nearDistance = camera->near;
-    if ( nearDistance < Numeric::EPSILON_FLOAT ) {
-        if ( camera->viewDistance > Numeric::EPSILON_FLOAT ) {
-            nearDistance = camera->viewDistance / 100.0F;
+    double nearDistance = camera->near;
+    if ( nearDistance < Numeric::EPSILON ) {
+        if ( camera->viewDistance > Numeric::EPSILON ) {
+            nearDistance = camera->viewDistance / 100.0;
         } else {
-            nearDistance = 0.1F;
+            nearDistance = 0.1;
         }
     }
 
     const int pixelX = clampCoord(x, model.width);
     const int pixelY = clampCoord(y, model.height);
 
-    const float normalizedU =
-        (2.0F * ((static_cast<float>(pixelX) + 0.5F) / static_cast<float>(model.width))) - 1.0F;
-    const float normalizedV =
-        (2.0F * ((static_cast<float>(pixelY) + 0.5F) / static_cast<float>(model.height))) - 1.0F;
+    const double normalizedU =
+        (2.0 * ((static_cast<double>(pixelX) + 0.5) / static_cast<double>(model.width))) - 1.0;
+    const double normalizedV =
+        (2.0 * ((static_cast<double>(pixelY) + 0.5) / static_cast<double>(model.height))) - 1.0;
 
     // Point (u, v, n) on the near plane in camera coordinates.
-    const float nearPlaneU = normalizedU * camera->pixelWidthTangent * nearDistance;
-    const float nearPlaneV = normalizedV * camera->pixelHeightTangent * nearDistance;
+    const double nearPlaneU = normalizedU * camera->pixelWidthTangent * nearDistance;
+    const double nearPlaneV = normalizedV * camera->pixelHeightTangent * nearDistance;
 
     // Direction from eye to that near-plane point.
-    const float uAtUnitDepth = nearPlaneU / nearDistance;
-    const float vAtUnitDepth = nearPlaneV / nearDistance;
+    const double uAtUnitDepth = nearPlaneU / nearDistance;
+    const double vAtUnitDepth = nearPlaneV / nearDistance;
 
-    ray->position = camera->eyePosition;
-    ray->direction = camera->Z.add(camera->X.multiply(uAtUnitDepth)).add(camera->Y.multiply(vAtUnitDepth));
-    ray->direction = ray->direction.normalized(Numeric::EPSILON_FLOAT);
+    ray->setOrigin(camera->eyePosition);
+    ray->setDirection(camera->Z.add(camera->X.multiply(uAtUnitDepth)).add(camera->Y.multiply(vAtUnitDepth)));
+    ray->setDirection(ray->getDirection().normalized(Numeric::EPSILON));
 
     applyInverseDebugRotationToRay(model, ray);
 }
@@ -335,7 +336,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         return false;
     }
 
-    RpkRay ray;
+    Ray ray;
     buildPickRay(model, x, y, &ray);
 
     java::ArrayList<PatchHitCandidate> hitCandidates(model.scene->patchList->size());
@@ -349,12 +350,12 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
             continue;
         }
 
-        float maxDistance = java::Float::MAX_VALUE;
+        double maxDistance = java::Double::MAX_VALUE;
         RpkRayHit hit;
         const RayExclusionSet noExclusions;
         RpkRayHit *intersection = patch->intersect(
             &ray,
-            Numeric::EPSILON_FLOAT,
+            Numeric::EPSILON,
             &maxDistance,
             RayHitFlag::FRONT | RayHitFlag::BACK,
             &hit,
@@ -370,9 +371,9 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         return false;
     }
 
-    float nearestFrontDistance = java::Float::MAX_VALUE;
+    double nearestFrontDistance = java::Double::MAX_VALUE;
     int nearestFrontPatchIndex = -1;
-    float nearestBackDistance = java::Float::MAX_VALUE;
+    double nearestBackDistance = java::Double::MAX_VALUE;
     int nearestBackPatchIndex = -1;
 
     for ( int i = 0; i < hitCandidates.size(); i++ ) {
@@ -521,8 +522,8 @@ GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel 
     }
 
     if ( !GlutDebugToolsMouseControl::dragging ) {
-        const int fromPressX = static_cast<int>(java::Math::abs(static_cast<float>(clampedX - GlutDebugToolsMouseControl::pressX)));
-        const int fromPressY = static_cast<int>(java::Math::abs(static_cast<float>(clampedY - GlutDebugToolsMouseControl::pressY)));
+        const int fromPressX = static_cast<int>(java::Math::abs(static_cast<double>(clampedX - GlutDebugToolsMouseControl::pressX)));
+        const int fromPressY = static_cast<int>(java::Math::abs(static_cast<double>(clampedY - GlutDebugToolsMouseControl::pressY)));
         if ( fromPressX >= DRAG_START_THRESHOLD_PIXELS || fromPressY >= DRAG_START_THRESHOLD_PIXELS ) {
             GlutDebugToolsMouseControl::dragging = true;
         }
@@ -536,8 +537,8 @@ GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel 
         if ( model.debugState == nullptr ) {
             return false;
         }
-        model.debugState->angleAroundViewportV -= static_cast<float>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
-        model.debugState->angleAroundViewportU += static_cast<float>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        model.debugState->angleAroundViewportV -= static_cast<double>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        model.debugState->angleAroundViewportU += static_cast<double>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
         return true;
     }
 

@@ -25,7 +25,7 @@ java::ArrayList<RpkGeometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToD
 Creates an empty cluster with initialized bounding box
 */
 PatchClusterOctreeNode::PatchClusterOctreeNode() {
-    boundingBoxCentroid = Vector3Df(0.0, 0.0, 0.0);
+    boundingBoxCentroid = Vector3Dd(0.0, 0.0, 0.0);
     patches = new java::ArrayList<Patch *>();
 
     for ( int i = 0; i < 8; i++ ) {
@@ -37,7 +37,7 @@ PatchClusterOctreeNode::PatchClusterOctreeNode() {
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
 PatchClusterOctreeNode::PatchClusterOctreeNode(const java::ArrayList<Patch *> *inPatches) {
-    boundingBoxCentroid = Vector3Df(0.0, 0.0, 0.0);
+    boundingBoxCentroid = Vector3Dd(0.0, 0.0, 0.0);
 
     for ( int i = 0; i < 8; i++ ) {
         children[i] = nullptr;
@@ -129,17 +129,17 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     const RpkAxisAlignedBoundingBox *patchBoundingBox = &patchBoundsStore;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
-    float smallestBoxDimension = 10.0F * Numeric::EPSILON_FLOAT;
+    double smallestBoxDimension = 10.0 * Numeric::EPSILON;
 
-    if ( (patchBoundingBox->dx() > smallestBoxDimension && patchBoundingBox->dx() > boundingBox.dx() * 0.5F) ||
-         (patchBoundingBox->dy() > smallestBoxDimension && patchBoundingBox->dy() > boundingBox.dy() * 0.5F) ||
-         (patchBoundingBox->dz() > smallestBoxDimension && patchBoundingBox->dz() > boundingBox.dz() * 0.5F) ) {
+    if ( (patchBoundingBox->dx() > smallestBoxDimension && patchBoundingBox->dx() > boundingBox.dx() * 0.5) ||
+         (patchBoundingBox->dy() > smallestBoxDimension && patchBoundingBox->dy() > boundingBox.dy() * 0.5) ||
+         (patchBoundingBox->dz() > smallestBoxDimension && patchBoundingBox->dz() > boundingBox.dz() * 0.5) ) {
         return false;
     }
 
     // Check the position of the centroid of the bounding box of the patch with reference to the
     // centroid of the cluster
-    Vector3Df midPatch = patchBoundingBox->center();
+    Vector3Dd midPatch = patchBoundingBox->center();
 
     int selectedChildOctantIndex = octantIndex(midPatch);
 

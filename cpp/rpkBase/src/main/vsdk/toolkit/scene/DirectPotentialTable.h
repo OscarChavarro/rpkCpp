@@ -9,7 +9,7 @@ changes, and the importance-driven solvers read them. Owned by the scene.
 */
 class DirectPotentialTable {
   private:
-    float *potentials;
+    double *potentials;
     const int numberOfFaces;
 
   public:
@@ -19,8 +19,8 @@ class DirectPotentialTable {
     DirectPotentialTable &operator=(const DirectPotentialTable &) = delete;
 
     int getNumberOfFaces() const;
-    float get(int faceIndex) const;
-    void set(int faceIndex, float potential);
+    double get(int faceIndex) const;
+    void set(int faceIndex, double potential);
 };
 
 inline int
@@ -28,13 +28,13 @@ DirectPotentialTable::getNumberOfFaces() const {
     return numberOfFaces;
 }
 
-inline float
+inline double
 DirectPotentialTable::get(const int faceIndex) const {
     return potentials[faceIndex];
 }
 
 inline void
-DirectPotentialTable::set(const int faceIndex, const float potential) {
+DirectPotentialTable::set(const int faceIndex, const double potential) {
     potentials[faceIndex] = potential;
 }
 

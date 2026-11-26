@@ -2,7 +2,7 @@
 #define __SCREEN_BUFFER__
 
 #include "java/io/OutputStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Camera.h"
@@ -15,7 +15,7 @@ and an associated RGB framebuffer
 
 12/10/99 : The screen buffer has now a camera variable that states
            from where the image is made. Several functions
-           are provided to handle pixel float coordinates,
+           are provided to handle pixel double coordinates,
            pixel numbers and screen boundaries. These are
            derived from the camera variable
 */
@@ -27,8 +27,8 @@ class ScreenBuffer {
     Camera camera;
 
     bool synced;
-    float factor;
-    float addFactor;
+    double factor;
+    double addFactor;
     bool rgbImage; // Indicates an RGB image ( = no radiance conversion!)
     ToneMappingContext *toneMapOptions;
 
@@ -44,16 +44,16 @@ class ScreenBuffer {
     bool isRgbImage() const;
     void copy(const ScreenBuffer *source, const Camera *defaultCamera);
     void merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Camera *defaultCamera);
-    float getScreenXMin() const;
-    float getScreenYMin() const;
-    float getPixXSize() const;
-    float getPixYSize() const;
-    Vector2Df getPixelPoint(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
-    Vector2Df getPixelCenter(int nx, int ny) const;
-    int getNx(float x) const;
-    int getNy(float y) const;
-    void getPixel(float x, float y, int *nx, int *ny) const;
-    Vector3Df getPixelVector(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
+    double getScreenXMin() const;
+    double getScreenYMin() const;
+    double getPixXSize() const;
+    double getPixYSize() const;
+    Vector2Dd getPixelPoint(int nx, int ny, double xOffset = 0.5, double yOffset = 0.5) const;
+    Vector2Dd getPixelCenter(int nx, int ny) const;
+    int getNx(double x) const;
+    int getNy(double y) const;
+    void getPixel(double x, double y, int *nx, int *ny) const;
+    Vector3Dd getPixelVector(int nx, int ny, double xOffset = 0.5, double yOffset = 0.5) const;
     int getHRes() const;
     int getVRes() const;
     ColorRgb get(int x, int y) const;
@@ -66,13 +66,13 @@ class ScreenBuffer {
     void setToneMappingContext(ToneMappingContext *inToneMapOptions);
 
 #ifdef RAYTRACING_ENABLED
-    float getScreenXMax() const;
-    float getScreenYMax() const;
-    static float computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
-    ColorRgb getBiLinear(float x, float y) const;
-    void scaleRadiance(float inFactor);
-    void setAddScaleFactor(float inFactor);
-    void setFactor(float inFactor);
+    double getScreenXMax() const;
+    double getScreenYMax() const;
+    static double computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
+    ColorRgb getBiLinear(double x, double y) const;
+    void scaleRadiance(double inFactor);
+    void setAddScaleFactor(double inFactor);
+    void setFactor(double inFactor);
     void setRgbImage(bool isRGB);
     void writeFile(const char *fileName, java::OutputStream *outputStream, int isPipe);
     void writeFile(const char *fileName);

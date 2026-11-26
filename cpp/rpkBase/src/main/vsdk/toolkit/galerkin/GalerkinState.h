@@ -1,7 +1,7 @@
 #ifndef __GALERKIN_STATE__
 #define __GALERKIN_STATE__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
@@ -48,9 +48,9 @@ class GalerkinState {
 
     // Parameters that control accuracy
     GalerkinErrorNorm errorNorm; // Control radiance or power error?
-    float relMinElemArea; // Subdivision of elements that are smaller than the total
+    double relMinElemArea; // Subdivision of elements that are smaller than the total
         // surface area of the scene times this number, will not be allowed
-    float relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
+    double relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
         // when controlling the radiance error and to the maximum
         // self-emitted power when controlling the power error
     double refinementMinimumArea;
@@ -67,10 +67,10 @@ class GalerkinState {
     GalerkinElementVisibilityBuffer *scratch;
     int scratchFrameBufferSize;
     int lastClusterId; // Used for caching cluster and eye point
-    Vector3Df lastEye; // Rendered into the scratch frame buffer
+    Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     long long lastClock; // For CPU timing (nanoseconds)
-    float cpuSeconds;
+    double cpuSeconds;
 
     ShaftCullStrategy shaftCullStrategy;
     ToneMappingContext *toneMapOptions;
@@ -99,8 +99,8 @@ class GalerkinState {
     const RadianceElementTable *radianceElements;
     static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;
     static constexpr GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod::JACOBI;
-    static constexpr float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6F;
-    static constexpr float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5F;
+    static constexpr double DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6;
+    static constexpr double DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5;
     static constexpr bool DEFAULT_GAL_IMPORTANCE_DRIVEN = false;
     static constexpr bool DEFAULT_GAL_CLUSTERED = true;
     static constexpr bool DEFAULT_GAL_LAZY_LINKING = true;

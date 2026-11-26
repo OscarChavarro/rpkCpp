@@ -6,7 +6,7 @@ Hierarchical refinement
 #include <cstdint>
 #include <unistd.h>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/lang/Runnable.h"
@@ -21,7 +21,7 @@ Hierarchical refinement
 #include "vsdk/toolkit/galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
-MemoryPool<float> HierarchicalRefinementStrategy::hierarchicalCoefficientsPool;
+MemoryPool<double> HierarchicalRefinementStrategy::hierarchicalCoefficientsPool;
 bool HierarchicalRefinementStrategy::hierarchicalCoefficientsPoolInitialized = false;
 
 void
@@ -274,15 +274,15 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
         return 0.0;
     }
 
-    Vector3Df rcVertices[8];
+    Vector3Dd rcVertices[8];
     int numberOfRcVertices = interaction->receiverElement->vertices(rcVertices);
 
     ColorRgb minimumSrcRad(0.0, 0.0, 0.0);
     ColorRgb maximumSrcRad(0.0, 0.0, 0.0);
     ColorRgb error(0.0, 0.0, 0.0);
 
-    minimumSrcRad = ColorRgb(java::Float::MAX_VALUE, java::Float::MAX_VALUE, java::Float::MAX_VALUE);
-    maximumSrcRad = ColorRgb(-java::Float::MAX_VALUE, -java::Float::MAX_VALUE, -java::Float::MAX_VALUE);
+    minimumSrcRad = ColorRgb(java::Double::MAX_VALUE, java::Double::MAX_VALUE, java::Double::MAX_VALUE);
+    maximumSrcRad = ColorRgb(-java::Double::MAX_VALUE, -java::Double::MAX_VALUE, -java::Double::MAX_VALUE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad(0.0, 0.0, 0.0);
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(
@@ -292,7 +292,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     }
     error = maximumSrcRad.subtract(minimumSrcRad);
 
-    error = rcvRho.multiply(static_cast<float>(K / receiverArea)).multiply(error);
+    error = rcvRho.multiply(static_cast<double>(K / receiverArea)).multiply(error);
     error = error.absolute();
     return hierarchicRefinementColorToError(error);
 }
@@ -327,7 +327,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
 
     // Determine source reflectivity
     if ( interaction->sourceElement->isCluster() ) {
-        srcRho = ColorRgb(1.0F, 1.0F, 1.0F);
+        srcRho = ColorRgb(1.0, 1.0, 1.0);
     } else {
         srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
     }
@@ -434,15 +434,15 @@ HierarchicalRefinementStrategy::receiverLightTransport(
     }
 
     if ( galerkinState->importanceDriven && galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-        float K = interaction->K[0];
+        double K = interaction->K[0];
         ColorRgb srcRho(0.0, 0.0, 0.0);
         if ( interaction->sourceElement->isCluster() ) {
-            srcRho = ColorRgb(1.0F, 1.0F, 1.0F);
+            srcRho = ColorRgb(1.0, 1.0, 1.0);
         } else {
             srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
         }
         interaction->receiverElement->receivedPotential +=
-            static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
+            static_cast<double>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
     }
 }
 
@@ -464,15 +464,15 @@ HierarchicalRefinementStrategy::sourceLightTransport(
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
              galerkinState->isJacobi() ) {
-            float K = interaction->K[0];
+            double K = interaction->K[0];
             ColorRgb rcvRho(0.0, 0.0, 0.0);
             if ( interaction->receiverElement->isCluster() ) {
-                rcvRho = ColorRgb(1.0F, 1.0F, 1.0F);
+                rcvRho = ColorRgb(1.0, 1.0, 1.0);
             } else {
                 rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
             }
             interaction->sourceElement->receivedPotential +=
-                static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
+                static_cast<double>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
         } else if ( galerkinState->galerkinIterationMethod != GalerkinIterationMethod::SOUTH_WELL ) {
             Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
         }
@@ -625,7 +625,7 @@ HierarchicalRefinementStrategy::refineSubInteraction(
 {
     Interaction subInteraction{};
     constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
-    MemoryPool<float> *coefficientsPool = workspace->getCoefficientsPool();
+    MemoryPool<double> *coefficientsPool = workspace->getCoefficientsPool();
     bool usingPool = true;
     subInteraction.K = coefficientsPool->allocate(KSize);
     if ( subInteraction.K == nullptr ) {
@@ -634,7 +634,7 @@ HierarchicalRefinementStrategy::refineSubInteraction(
         }
         if ( subInteraction.K == nullptr ) {
             usingPool = false;
-            subInteraction.K = new float[KSize];
+            subInteraction.K = new double[KSize];
         }
     }
     subInteraction.ownsK = !usingPool;
@@ -904,11 +904,18 @@ HierarchicalRefinementStrategy::refineInteractionsRecursive(
 
     // Iterate over the interactions. Refined interactions are removed with
     // order-preserving in-place compaction to avoid one temporary list per element.
+    // Only the interactions present when the loop starts are refined: the links
+    // that their refinement stores in this same list (the receiver kept, the
+    // source subdivided) already had their light transport when created. The
+    // original RenderPark prepends them (InteractionListAdd), out of the
+    // iteration's way; this list appends them, so they are kept but not
+    // visited, or their light would be transported twice in the iteration
     java::ArrayList<Interaction *> *interactions = parentElement->interactions;
+    const long int numberOfInteractions = interactions != nullptr ? interactions->size() : 0;
     long int writeIndex = 0;
     for ( long int readIndex = 0; interactions != nullptr && readIndex < interactions->size(); readIndex++ ) {
         Interaction *interaction = interactions->get(readIndex);
-        if ( refineInteraction(scene, interaction, galerkinState, workspace) ) {
+        if ( readIndex < numberOfInteractions && refineInteraction(scene, interaction, galerkinState, workspace) ) {
             Interaction::interactionDestroy(interaction);
         } else {
             if ( writeIndex != readIndex ) {
@@ -954,17 +961,16 @@ factors with their own scratch and record those changes; the commit then does
 them in the order of the serial refinement (refineInteractionsRecursive), so
 that every floating point sum and every list is the serial one.
 Interactions are those of the element lists when the iteration starts, in the
-serial post-order. The serial refinement of an element also visits the links
-that the element's own refinement appends to its list (receiver kept, source
-subdivided); the commit visits them serially, as the serial loop does.
+serial post-order. Neither the serial refinement nor the commit visits the links
+that an element's own refinement appends to its list (receiver kept, source
+subdivided): their light transport was done when they were created.
 */
 
 bool
-HierarchicalRefinementStrategy::parallelRefinementSupported(const Scene *scene, const GalerkinState *galerkinState) {
+HierarchicalRefinementStrategy::parallelRefinementSupported(const GalerkinState *galerkinState) {
     return galerkinState->clusteringStrategy == GalerkinClusteringStrategy::ISOTROPIC
         && galerkinState->shaftCullMode == GalerkinShaftCullMode::NEVER_DO_SHAFT_CULLING
-        && !galerkinState->multiResolutionVisibility
-        && scene->getSceneQueryWorkspace()->getRecorder() == nullptr;
+        && !galerkinState->multiResolutionVisibility;
 }
 
 int
@@ -1161,11 +1167,11 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
     const GalerkinElement *parentElement,
     GalerkinState *galerkinState)
 {
-    if ( !parallelRefinementSupported(scene, galerkinState) ) {
+    if ( !parallelRefinementSupported(galerkinState) ) {
         if ( galerkinState->iterationNumber <= 1 ) {
             Logger::reportMessage("HierarchicalRefinementStrategy", Logger::WARNING, "refineInteractionsInParallel",
-                "Parallel Jacobi needs isotropic clustering, no shaft culling, no multi-resolution visibility "
-                "and no ray capture: refining serially");
+                "Parallel Jacobi needs isotropic clustering, no shaft culling "
+                "and no multi-resolution visibility: refining serially");
         }
         refineInteractions(scene, parentElement, galerkinState);
         return;
@@ -1195,7 +1201,7 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
         SceneQueryWorkspace sceneQueryWorkspace(*scene->getSceneQuery());
         FormFactorWorkspace formFactorWorkspace(&shadowStatistics[w]);
         formFactorWorkspace.setDeferredNodesTooClose(records[w].getNodesTooClose());
-        MemoryPool<float> coefficientsPool;
+        MemoryPool<double> coefficientsPool;
         coefficientsPool.init(16 * 1024 * 1024);
         RefinementWorkspace workspace(
             &sceneQueryWorkspace,
@@ -1246,14 +1252,6 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
 
     // Phase 2: commit in the serial order; light transport is collected, in
     // that order, and done at the end (in parallel, keeping each element's order)
-    ensureHierarchicalCoefficientsPool();
-    RefinementWorkspace serialWorkspace(
-        scene->getSceneQueryWorkspace(),
-        galerkinState->formFactorWorkspace,
-        &hierarchicalCoefficientsPool,
-        nullptr,
-        nullptr,
-        nullptr);
     java::ArrayList<Interaction *> transports;
     int nextElementId = firstNewElementId;
     for ( long int g = 0; g < groups.size(); g++ ) {
@@ -1262,21 +1260,12 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
         long int writeIndex = 0;
         for ( long int readIndex = 0; readIndex < interactions->size(); readIndex++ ) {
             Interaction *interaction = interactions->get(readIndex);
-            bool refined;
+            // A link appended by this element's refinement (readIndex beyond the
+            // items) is kept: its light transport was collected when committed
+            bool refined = false;
             if ( readIndex < group.getNumberOfItems() ) {
                 refined = commitRefinementTask(
                     &scheduler, scheduler.getItem(group.getFirstItem() + readIndex), records, &transports, &nextElementId);
-            } else if ( hierarchicRefinementEvaluateInteraction(interaction, galerkinState)
-                        == InteractionEvaluationCode::ACCURATE_ENOUGH ) {
-                // A link appended by this element's refinement, visited as the serial loop does
-                transports.add(interaction);
-                refined = false;
-            } else {
-                // Not expected (the link was accurate enough when stored): refine it
-                // serially, after the light transport collected so far
-                applyLightTransports(&transports, galerkinState, 1);
-                transports.clear();
-                refined = refineInteraction(scene, interaction, galerkinState, &serialWorkspace);
             }
             if ( refined ) {
                 Interaction::interactionDestroy(interaction);

@@ -47,9 +47,9 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 RpkRayHit *
 PatchSet::discretizationIntersect(
-    RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions) const

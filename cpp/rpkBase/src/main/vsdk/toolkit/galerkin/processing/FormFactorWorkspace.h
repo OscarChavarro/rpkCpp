@@ -2,7 +2,7 @@
 #define __FORM_FACTOR_WORKSPACE__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/statistics/ShadowStatistics.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 
@@ -27,8 +27,8 @@ class FormFactorWorkspace {
     const GalerkinElement *lastSource;
     CubatureRule *receiverCubatureRule;
     CubatureRule *sourceCubatureRule;
-    Vector3Df receiverNodes[CubatureRule::MAXIMUM_NODES];
-    Vector3Df sourceNodes[CubatureRule::MAXIMUM_NODES];
+    Vector3Dd receiverNodes[CubatureRule::MAXIMUM_NODES];
+    Vector3Dd sourceNodes[CubatureRule::MAXIMUM_NODES];
     double kernel[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES];
     double maximumKernelValue;
     unsigned visibilityCount; // Number of rays that "pass" occluders
@@ -48,8 +48,8 @@ class FormFactorWorkspace {
     inline CubatureRule *getSourceCubatureRule() const;
     inline void setReceiverCubatureRule(CubatureRule *rule);
     inline void setSourceCubatureRule(CubatureRule *rule);
-    inline Vector3Df *getReceiverNodes();
-    inline Vector3Df *getSourceNodes();
+    inline Vector3Dd *getReceiverNodes();
+    inline Vector3Dd *getSourceNodes();
 
     inline double (*getKernel())[CubatureRule::MAXIMUM_NODES];
     inline double getMaximumKernelValue() const;
@@ -97,12 +97,12 @@ FormFactorWorkspace::setSourceCubatureRule(CubatureRule *rule) {
     sourceCubatureRule = rule;
 }
 
-inline Vector3Df *
+inline Vector3Dd *
 FormFactorWorkspace::getReceiverNodes() {
     return receiverNodes;
 }
 
-inline Vector3Df *
+inline Vector3Dd *
 FormFactorWorkspace::getSourceNodes() {
     return sourceNodes;
 }

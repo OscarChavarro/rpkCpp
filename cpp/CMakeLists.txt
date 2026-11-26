@@ -11,7 +11,6 @@ endif()
 option(WITH_RAYTRACING "Enable raytracing modules" ON)
 option(WITH_OPENGL "Enable OpenGL modules" ON)
 option(WITH_MGF "Enable MGF reader modules" ON)
-option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
 
 get_filename_component(RPK_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
 set(RPK_VITRAL_BINARY_DIR "${RPK_ROOT_DIR}/base/build" CACHE PATH "Binary directory for the vitral library build (base/, the VITRAL copy)")

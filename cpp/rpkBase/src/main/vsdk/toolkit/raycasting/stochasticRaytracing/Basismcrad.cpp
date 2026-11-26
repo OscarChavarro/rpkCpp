@@ -55,15 +55,15 @@ StochasticRadiosityBasisState::StochasticRadiosityBasisState():
         nullptr
     };
 
-    quadUpTransform[0] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F);
-    quadUpTransform[1] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.0F);
-    quadUpTransform[2] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.5F);
-    quadUpTransform[3] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    quadUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+    quadUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+    quadUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+    quadUpTransform[3] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.5);
 
-    triangleUpTransform[0] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F);
-    triangleUpTransform[1] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.0F);
-    triangleUpTransform[2] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.5F);
-    triangleUpTransform[3] = createTransform(-0.5F, 0.0F, 0.0F, -0.5F, 0.5F, 0.5F);
+    triangleUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+    triangleUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+    triangleUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+    triangleUpTransform[3] = createTransform(-0.5, 0.0, 0.0, -0.5, 0.5, 0.5);
 }
 
 void
@@ -87,7 +87,7 @@ StochasticRadiosityBasisState::activeStatePtr() {
 }
 
 Matrix2x2
-StochasticRadiosityBasisState::createTransform(float m00, float m01, float m10, float m11, float t0, float t1) {
+StochasticRadiosityBasisState::createTransform(double m00, double m01, double m10, double m11, double t0, double t1) {
     return Matrix2x2(m00, m01, m10, m11, t0, t1);
 }
 
@@ -148,10 +148,10 @@ Basismcrad::computeFilterCoefficients(
         for ( int b = 0; b < child_size; b++ ) {
             double x = 0.0;
             for ( int k = 0; k < cr->numberOfNodes; k++ ) {
-                Vector2Df up;
-                up = Vector2Df(static_cast<float>(cr->u[k]), static_cast<float>(cr->v[k]));
+                Vector2Dd up;
+                up = Vector2Dd(static_cast<double>(cr->u[k]), static_cast<double>(cr->v[k]));
                 up = upxfm->transformPoint(up);
-                x += cr->w[k] * parent_basis->function[a](up.x(), up.y()) *
+                x += cr->w[k] * parent_basis->function[a](up.x, up.y) *
                      child_basis->function[b](cr->u[k], cr->v[k]);
             }
             (*filter)[a][b] = x;
@@ -216,7 +216,7 @@ ColorRgb
 Basismcrad::colorAtUv(const StochasticRadiosityBasis *basis, const ColorRgb *rad, double u, double v) {
     double res[3] = {0.0, 0.0, 0.0};
     for ( int i = 0; i < basis->size; i++ ) {
-        const double s = static_cast<float>(basis->function[i](u, v));
+        const double s = static_cast<double>(basis->function[i](u, v));
         res[0] += s * rad[i].getR();
         res[1] += s * rad[i].getG();
         res[2] += s * rad[i].getB();
@@ -232,7 +232,7 @@ void
 Basismcrad::filterColorDown(const ColorRgb *parent, StochasticRadiosityBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
-            child[i] = child[i].addScaled(static_cast<float>((*h)[j][i]), parent[j]);
+            child[i] = child[i].addScaled(static_cast<double>((*h)[j][i]), parent[j]);
         }
     }
 }
@@ -242,7 +242,7 @@ Basismcrad::filterColorUp(const ColorRgb *child, StochasticRadiosityBasis::FILTE
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i] = parent[i].addScaled(static_cast<float>(H), child[j]);
+            parent[i] = parent[i].addScaled(static_cast<double>(H), child[j]);
         }
     }
 }

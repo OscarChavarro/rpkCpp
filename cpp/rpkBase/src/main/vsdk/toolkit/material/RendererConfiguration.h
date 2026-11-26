@@ -15,7 +15,7 @@ class RendererConfiguration {
     ColorRgb outlineColor; // Color in which to draw outlines
     ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
     ColorRgb clusterColor; // Color in which to show cluster bounding boxes
-    float lineWidth;
+    double lineWidth;
     bool drawOutlines; // True for drawing facet outlines
     bool drawSurfaces;
     char noShading; // False for using any kind of shading
@@ -40,7 +40,7 @@ class RendererConfiguration {
     RendererConfiguration();
     virtual ~RendererConfiguration();
 
-    float getLineWidth() const;
+    double getLineWidth() const;
     bool isDrawOutlines() const;
     bool isDrawSurfaces() const;
     char isNoShading() const;
@@ -52,7 +52,7 @@ class RendererConfiguration {
     char isRenderRayTracedImage() const;
     char isTrace() const;
 
-    void setLineWidth(float width);
+    void setLineWidth(double width);
     void setDrawOutlines(bool enabled);
     void setDrawSurfaces(bool enabled);
     void setNoShading(char enabled);
@@ -87,7 +87,7 @@ RendererConfiguration::getClusterColor() const {
     return clusterColor;
 }
 
-inline float
+inline double
 RendererConfiguration::getLineWidth() const { return lineWidth; }
 inline bool
 RendererConfiguration::isDrawOutlines() const { return drawOutlines; }

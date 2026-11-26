@@ -36,13 +36,13 @@ class GlutDebugPatchHierarchy final {
         int hierarchyLevel);
 
   private:
-    static constexpr float GRAY_DARKEN_FACTOR = 0.42F;
-    static constexpr float GRAY_CONTRAST_GAMMA = 1.20F;
-    static constexpr float OUTLINE_MIN_GRAY = 0.05F;
-    static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65F;
+    static constexpr double GRAY_DARKEN_FACTOR = 0.42;
+    static constexpr double GRAY_CONTRAST_GAMMA = 1.20;
+    static constexpr double OUTLINE_MIN_GRAY = 0.05;
+    static constexpr double OUTLINE_FROM_SURFACE_FACTOR = 0.65;
 
-    static float clamp01(float value);
-    static float toneMappedGrayAndDarkened(float value01);
+    static double clamp01(double value);
+    static double toneMappedGrayAndDarkened(double value01);
     static int clampLevel(int level, int maxLevel);
     static void renderNonSelectedPatchesGray(
         const Scene *scene,
@@ -55,15 +55,15 @@ class GlutDebugPatchHierarchy final {
     static int maxLevelFromElement(const GalerkinElement *element);
     static void renderElementAtLevel(const GalerkinElement *element, int hierarchyLevel, const RendererConfiguration *renderOptions);
     static void drawCenterMark(
-        const Vector3Df &center,
-        float radius,
+        const Vector3Dd &center,
+        double radius,
         int sides,
-        const Vector3Df &axisU,
-        const Vector3Df &axisV,
+        const Vector3Dd &axisU,
+        const Vector3Dd &axisV,
         const RendererConfiguration *renderOptions);
     static void drawGradientLine(
-        const Vector3Df &start,
-        const Vector3Df &end);
+        const Vector3Dd &start,
+        const Vector3Dd &end);
     static void drawSelectedPatchCenterMarker(const GalerkinElement *topLevelElement, const RendererConfiguration *renderOptions);
     static void drawInteractions(const java::ArrayList<Interaction *> *interactionsToRender);
     static void addPatchIfNotPresent(

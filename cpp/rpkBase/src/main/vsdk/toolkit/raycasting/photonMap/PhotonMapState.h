@@ -26,14 +26,14 @@ class PhotonMapState {
     PhotonMapDensityControlOption densityControl;
     PhotonMapImportanceOption importanceOption;
     PhotonMapDCAcceptPDFType acceptPdfType;
-    float constantRD;
-    float minimumImpRD;
+    double constantRD;
+    double minimumImpRD;
     int doImportanceMap;
     long iPathsPerIteration;
-    float cImpScale;
-    float gImpScale;
-    float gThreshold;
-    float falseColMax;
+    double cImpScale;
+    double gImpScale;
+    double gThreshold;
+    double falseColMax;
     int falseColLog;
     int falseColMono;
     RadiosityReturnOption radianceReturn;
@@ -49,7 +49,7 @@ class PhotonMapState {
     int runStopNumber; // Number of 'external iterations'. This is
 		     // different from currentIteration only when
 		     // statistics are gathered
-    float cpuSecs; // For counting computing times
+    double cpuSecs; // For counting computing times
     long long lastClock;
 
     PhotonMapState();

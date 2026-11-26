@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/galerkin/processing/LinkingSimpleStrategy.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
-MemoryPool<float> LinkingSimpleStrategy::interactionCoefficientsPool;
+MemoryPool<double> LinkingSimpleStrategy::interactionCoefficientsPool;
 bool LinkingSimpleStrategy::interactionCoefficientsPoolInitialized = false;
 
 void
@@ -92,7 +92,7 @@ LinkingSimpleStrategy::createInitialLink(
         }
         if ( link.K == nullptr ) {
             usingPool = false;
-            link.K = new float[KSize];
+            link.K = new double[KSize];
         }
     }
     link.ownsK = !usingPool;

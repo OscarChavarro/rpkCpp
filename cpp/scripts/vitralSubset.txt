@@ -13,12 +13,15 @@
 # step 4 item 3, GridSpatialIndex and SpatialGroupTree;
 # and io/wrapper/FileUncompressWrapper.cpp with RenderPark's Logger::reportMessage
 # calls, taken into VITRAL (which now compiles io/wrapper) in the base/rpkBase split.
-# RenderPark's lineal algebra now uses VITRAL's Vector2Df, Vector3Df, Vector4Df
-# and Matrix4x4f (RenderPark's Vector2D, Vector3D, Vector4D and Matrix4x4 were
-# removed), and io/wrapper/Vector3DPrinter, rewritten for Vector3Df in VITRAL,
-# joined the list. Matrix4x4f stores floats and computes in float. RenderPark's
-# Matrix2x2 moved into VITRAL as an immutable float affine transform, so
-# io/wrapper/Matrix2x2Printer is compiled there and joined the list too.
+# RenderPark's lineal algebra uses VITRAL's double precision Vector2Dd,
+# Vector3Dd, Vector4Dd and Matrix4x4d (RenderPark's Vector2D, Vector3D,
+# Vector4D and Matrix4x4 were removed, and later its use of the float variants
+# Vector2Df, Vector3Df, Vector4Df and Matrix4x4f, which stay in the list because
+# AlgebraPrimitives.cpp defines them), and io/wrapper/Vector3DPrinter, written
+# for Vector3Dd in VITRAL, joined the list. RenderPark's Matrix2x2 moved into
+# VITRAL as an immutable double affine transform, so io/wrapper/Matrix2x2Printer
+# is compiled there and joined the list too. PlanarFace, the Phong material
+# classes and KDTree compute in double; RenderPark's RpkRay gave way to Ray.
 # RenderPark's Cie color space moved into VITRAL's common/color package, with
 # its references to the bibliography, and joined the list.
 # For the MGF reader, the parametric primitives Sphere, Cone (with Tube, whose

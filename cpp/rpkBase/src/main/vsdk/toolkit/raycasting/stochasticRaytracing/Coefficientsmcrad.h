@@ -26,7 +26,7 @@ class Coefficientsmcrad final {
         }
     }
 
-    static inline void stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, const StochasticRadiosityBasis *galerkinBasis) {
+    static inline void stochasticRadiosityScaleCoefficients(double scale, ColorRgb *color, const StochasticRadiosityBasis *galerkinBasis) {
         for ( int i = 0; i < galerkinBasis->size; i++ ) {
             color[i] = color[i].multiply(scale);
         }

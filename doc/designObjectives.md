@@ -31,7 +31,7 @@ class-by-class comparison.
    - `turboc/` — Borland Turbo C 3.0 (DOS) port, with an 8.3-filename mapping
      workflow (`turboc/mappings.csv`).
    Parity is verified by comparing rendered output images across ports against
-   the golden references in `doc/testBaseImages` (see also
+   the golden references in `cpp/etc/goldenImagesForTests` (see also
    `typescript/parity-report.json` and `cpp/scripts/delta/`).
 4. **Parallel/concurrent readiness** — keep the pure (no external dependency)
    CPU engine compatible with serial and future concurrent multi-thread
@@ -85,7 +85,7 @@ class-by-class comparison.
 - **Golden scene corpus**: `cpp/scripts/01..08_*` (Galerkin: cube with three
   iteration methods, corridor, hospital, office1–3, salón, soda), `10..14_*`
   (raytracers) and `21..22_*` (tone mapping), rendered from the MGF models in
-  `etc/` and compared against `doc/testBaseImages`.
+  `etc/` and compared against `cpp/etc/goldenImagesForTests`.
 
 ## Strengths
 
@@ -94,7 +94,7 @@ class-by-class comparison.
 | P1 | **Package-per-concern architecture**, one class or enum per `.h`/`.cpp` module | `cpp/README.md` checklist; `base/src/main/vsdk/toolkit/*` layout | #1 didactic; #3 file-per-class maps 1:1 to Java/TypeScript |
 | P2 | **Annotated math against archived references** | `doc/references/`, `doc/annotatedEquationsInCode.png` | #1: the code doubles as a guided reading of the radiosity/MC literature |
 | P3 | **JDK mirror already built and consumed** (`java::*`) | `base/src/main/java/**`; Java/TS ports exist | #3: three ports already derived from it |
-| P4 | **Golden-image corpus across engines** — Galerkin (8 scenes × iteration methods), 5 raytracer modes, tone-mapping cases | `cpp/scripts/*.sh`, `doc/testBaseImages`, `cpp/scripts/delta/imageDiff` | #3 the parity oracle; #1 reproducible experiments |
+| P4 | **Golden-image corpus across engines** — Galerkin (8 scenes × iteration methods), 5 raytracer modes, tone-mapping cases | `cpp/scripts/*.sh`, `cpp/etc/goldenImagesForTests`, `cpp/scripts/delta/imageDiff` | #3 the parity oracle; #1 reproducible experiments |
 | P5 | **Disciplined C++11, no exotic features** — no STL/iterators/operator overloading/`#define` function macros; vanilla printf | `cpp/base/CMakeLists.txt` (`-std=c++11 -Wall -Wextra -pedantic`), `cpp/README.md` | #2 clean migration; #3 the same code shape compiles under Turbo C 3.0 discipline |
 | P6 | **Four live ports with parity fixes flowing between them** | `java/`, `typescript/`, `turboc/`; parity bug-fix history (shaft-culling omit bug, energy conservation, BPT RNG parity) | #3 fulfilled as an ongoing discipline, not an aspiration |
 | P7 | **Physically-based material model already encapsulated** — `Material`, Phong EDF/BRDF/BTDF/BSDF, `RefractionIndex` with private attributes, constructors and const getters | `toolkit/material/*` | #1 readable; #4 read-mostly materials are thread-shareable |

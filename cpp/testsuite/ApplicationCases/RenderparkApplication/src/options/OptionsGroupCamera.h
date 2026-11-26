@@ -13,19 +13,19 @@ class OptionsGroupCamera final {
         int imageHeight);
 
   private:
-    static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5F;
-    static const Vector3Df DEFAULT_CAMERA_EYE_POSITION;
-    static const Vector3Df DEFAULT_CAMERA_LOOK_POSITION;
-    static const Vector3Df DEFAULT_CAMERA_UP_DIRECTION;
+    static constexpr double DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5;
+    static const Vector3Dd DEFAULT_CAMERA_EYE_POSITION;
+    static const Vector3Dd DEFAULT_CAMERA_LOOK_POSITION;
+    static const Vector3Dd DEFAULT_CAMERA_UP_DIRECTION;
     static const ColorRgb DEFAULT_BACKGROUND_COLOR;
     static Camera cameraState;
 
-    static void cameraSetEyePositionOption(Vector3Df &val);
-    static void cameraSetLookPositionOption(Vector3Df &val);
-    static void cameraSetUpDirectionOption(Vector3Df &val);
-    static void cameraSetFieldOfViewOption(float &val);
+    static void cameraSetEyePositionOption(Vector3Dd &val);
+    static void cameraSetLookPositionOption(Vector3Dd &val);
+    static void cameraSetUpDirectionOption(Vector3Dd &val);
+    static void cameraSetFieldOfViewOption(double &val);
     static void cameraDefaults(Camera *camera, int imageWidth, int imageHeight);
-    static bool parseVector3(int argc, char **argv, Vector3Df &value);
+    static bool parseVector3(int argc, char **argv, Vector3Dd &value);
 };
 
 #endif

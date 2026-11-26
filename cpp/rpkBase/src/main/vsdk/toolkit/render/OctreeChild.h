@@ -6,7 +6,7 @@
 class OctreeChild {
   public:
     RpkGeometry *geometry;
-    float distance;
+    double distance;
 };
 
 #endif

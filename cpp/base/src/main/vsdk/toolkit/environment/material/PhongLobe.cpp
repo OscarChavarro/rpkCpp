@@ -11,16 +11,16 @@ namespace {
 // Scattered power below which nothing is sampled (RenderPark's EPSILON)
 const double NO_SCATTERING = 1e-6;
 
-float
+double
 averageOf(const ColorRgb &color) {
-    return static_cast<float>((color.getR() + color.getG() + color.getB()) / 3.0);
+    return static_cast<double>((color.getR() + color.getG() + color.getB()) / 3.0);
 }
 
 }
 
-const float PhongLobe::LOWEST_SPECULAR_EXPONENT = 250.0F;
+const double PhongLobe::LOWEST_SPECULAR_EXPONENT = 250.0;
 
-PhongLobe::PhongLobe(const ColorRgb &inDiffuse, const ColorRgb &inNonDiffuse, const float inExponent):
+PhongLobe::PhongLobe(const ColorRgb &inDiffuse, const ColorRgb &inNonDiffuse, const double inExponent):
     diffuse(inDiffuse),
     nonDiffuse(inNonDiffuse),
     exponent(inExponent),
@@ -74,11 +74,11 @@ PhongLobe::integrated(const int components) const {
 }
 
 ColorRgb
-PhongLobe::reflectionEvaluate(const Vector3Df &in, const Vector3Df &out, const Vector3Df &normal, const int components) const {
+PhongLobe::reflectionEvaluate(const Vector3Dd &in, const Vector3Dd &out, const Vector3Dd &normal, const int components) const {
     double r = 0.0;
     double g = 0.0;
     double b = 0.0;
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
 
     if ( dot(out, normal) < 0 ) {
         // Below the surface: transmission, not reflection
@@ -93,11 +93,11 @@ PhongLobe::reflectionEvaluate(const Vector3Df &in, const Vector3Df &out, const V
 
     const int nonDiffuseComponent = isSpecular() ? ScatteringComponent::SPECULAR : ScatteringComponent::GLOSSY;
     if ( (components & nonDiffuseComponent) && (averageNonDiffuse > 0.0) ) {
-        const Vector3Df idealReflected = ScatteringFrame::idealReflection(inReversed, normal);
-        const float cosAlpha = dot(idealReflected, out);
+        const Vector3Dd idealReflected = ScatteringFrame::idealReflection(inReversed, normal);
+        const double cosAlpha = dot(idealReflected, out);
         if ( cosAlpha > 0 ) {
-            float factor = java::Math::pow(cosAlpha, exponent); // cos(a)^Ns
-            factor *= (exponent + 2.0F) / (2.0F * static_cast<float>(M_PI)); // Ks -> ks
+            double factor = java::Math::pow(cosAlpha, exponent); // cos(a)^Ns
+            factor *= (exponent + 2.0) / (2.0 * static_cast<double>(M_PI)); // Ks -> ks
             r += factor * nonDiffuse.getR();
             g += factor * nonDiffuse.getG();
             b += factor * nonDiffuse.getB();
@@ -106,35 +106,35 @@ PhongLobe::reflectionEvaluate(const Vector3Df &in, const Vector3Df &out, const V
     return ColorRgb(r, g, b);
 }
 
-Vector3Df
+Vector3Dd
 PhongLobe::reflectionSample(
-    const Vector3Df &in,
-    const Vector3Df &normal,
+    const Vector3Dd &in,
+    const Vector3Dd &normal,
     const bool russianRoulette,
     const int components,
     double x1,
     const double x2,
     double *density) const
 {
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
     *density = 0;
 
     const double localDiffuse = sampledDiffuse(components);
     const double localNonDiffuse = sampledNonDiffuse(components);
     const double scatteredPower = localDiffuse + localNonDiffuse;
     if ( scatteredPower < NO_SCATTERING ) {
-        return Vector3Df(0.0F, 0.0F, 0.0F);
+        return Vector3Dd(0.0, 0.0, 0.0);
     }
 
     if ( russianRoulette ) {
         if ( x1 > scatteredPower ) {
             // Absorption
-            return Vector3Df(0.0F, 0.0F, 0.0F);
+            return Vector3Dd(0.0, 0.0, 0.0);
         }
         x1 /= scatteredPower;
     }
 
-    const Vector3Df idealDirection = ScatteringFrame::idealReflection(inReversed, normal);
+    const Vector3Dd idealDirection = ScatteringFrame::idealReflection(inReversed, normal);
     // The first variate chooses the part, then is rescaled into [0, 1) within it
     const bool diffusePart = x1 < (localDiffuse / scatteredPower);
     const double xPart = diffusePart
@@ -144,12 +144,12 @@ PhongLobe::reflectionSample(
     double nonDiffuseDensity = 0.0;
     // Diffuse part cosine distributed around the normal; glossy or specular
     // part cos^Ns distributed around the mirror direction
-    const Vector3Df newDirection = diffusePart
+    const Vector3Dd newDirection = diffusePart
         ? ScatteringFrame(normal).sampleCosine(xPart, x2, &diffuseDensity)
         : ScatteringFrame(idealDirection).samplePhong(exponent, xPart, x2, &nonDiffuseDensity);
 
     if ( diffusePart ) {
-        const float cosAlpha = dot(idealDirection, newDirection);
+        const double cosAlpha = dot(idealDirection, newDirection);
         if ( cosAlpha > 0 ) {
             nonDiffuseDensity = (exponent + 1.0) * java::Math::pow(cosAlpha, exponent) / (2.0 * M_PI);
         }
@@ -170,20 +170,20 @@ PhongLobe::reflectionSample(
 
 void
 PhongLobe::reflectionDensity(
-    const Vector3Df &in,
-    const Vector3Df &out,
-    const Vector3Df &normal,
+    const Vector3Dd &in,
+    const Vector3Dd &out,
+    const Vector3Dd &normal,
     const int components,
     double *density,
     double *survival) const
 {
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
     *density = 0;
     *survival = 0;
 
     // The normal on the side of 'in'
     const double cosIn = dot(in, normal);
-    const Vector3Df goodNormal = cosIn >= 0 ? normal : scale(-1.0F, normal);
+    const Vector3Dd goodNormal = cosIn >= 0 ? normal : scale(-1.0, normal);
     const double cosTheta = dot(goodNormal, out);
     if ( cosTheta < 0 ) {
         return;
@@ -203,7 +203,7 @@ PhongLobe::reflectionDensity(
 
     double nonDiffuseDensity = 0.0;
     if ( averageNonDiffuse > 0 ) {
-        const Vector3Df idealDirection = ScatteringFrame::idealReflection(inReversed, goodNormal);
+        const Vector3Dd idealDirection = ScatteringFrame::idealReflection(inReversed, goodNormal);
         const double cosAlpha = dot(idealDirection, out);
         if ( cosAlpha > 0 ) {
             nonDiffuseDensity = (exponent + 1.0) * java::Math::pow(cosAlpha, static_cast<double>(exponent)) / (2.0 * M_PI);
@@ -217,14 +217,14 @@ PhongLobe::reflectionDensity(
 
 ColorRgb
 PhongLobe::transmissionEvaluate(
-    const float inIndex,
-    const float outIndex,
-    const Vector3Df &in,
-    const Vector3Df &out,
-    const Vector3Df &normal,
+    const double inIndex,
+    const double outIndex,
+    const Vector3Dd &in,
+    const Vector3Dd &out,
+    const Vector3Dd &normal,
     const int components) const
 {
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
     double r = 0.0;
     double g = 0.0;
     double b = 0.0;
@@ -242,12 +242,12 @@ PhongLobe::transmissionEvaluate(
     const int nonDiffuseComponent = isSpecular() ? ScatteringComponent::SPECULAR : ScatteringComponent::GLOSSY;
     if ( (components & nonDiffuseComponent) && (averageNonDiffuse > 0) ) {
         bool totalInternalReflection;
-        const Vector3Df idealRefracted = ScatteringFrame::idealRefraction(
+        const Vector3Dd idealRefracted = ScatteringFrame::idealRefraction(
             inReversed, normal, inIndex, outIndex, &totalInternalReflection);
-        const float cosAlpha = dot(idealRefracted, out);
+        const double cosAlpha = dot(idealRefracted, out);
         if ( cosAlpha > 0 ) {
-            float factor = java::Math::pow(cosAlpha, exponent); // cos(a)^Ns
-            factor *= (exponent + 2.0F) / (2.0F * static_cast<float>(M_PI)); // Ks -> ks
+            double factor = java::Math::pow(cosAlpha, exponent); // cos(a)^Ns
+            factor *= (exponent + 2.0) / (2.0 * static_cast<double>(M_PI)); // Ks -> ks
             r += factor * nonDiffuse.getR();
             g += factor * nonDiffuse.getG();
             b += factor * nonDiffuse.getB();
@@ -256,40 +256,40 @@ PhongLobe::transmissionEvaluate(
     return ColorRgb(r, g, b);
 }
 
-Vector3Df
+Vector3Dd
 PhongLobe::transmissionSample(
-    const float inIndex,
-    const float outIndex,
-    const Vector3Df &in,
-    const Vector3Df &normal,
+    const double inIndex,
+    const double outIndex,
+    const Vector3Dd &in,
+    const Vector3Dd &normal,
     const bool russianRoulette,
     const int components,
     double x1,
     const double x2,
     double *density) const
 {
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
     *density = 0;
 
     const double localDiffuse = sampledDiffuse(components);
     const double localNonDiffuse = sampledNonDiffuse(components);
     const double scatteredPower = localDiffuse + localNonDiffuse;
     if ( scatteredPower < NO_SCATTERING ) {
-        return Vector3Df(0.0F, 0.0F, 0.0F);
+        return Vector3Dd(0.0, 0.0, 0.0);
     }
 
     if ( russianRoulette ) {
         if ( x1 > scatteredPower ) {
             // Absorption
-            return Vector3Df(0.0F, 0.0F, 0.0F);
+            return Vector3Dd(0.0, 0.0, 0.0);
         }
         x1 /= scatteredPower;
     }
 
     bool totalInternalReflection;
-    const Vector3Df idealDirection = ScatteringFrame::idealRefraction(
+    const Vector3Dd idealDirection = ScatteringFrame::idealRefraction(
         inReversed, normal, inIndex, outIndex, &totalInternalReflection);
-    const Vector3Df inverseNormal = scale(-1.0F, normal);
+    const Vector3Dd inverseNormal = scale(-1.0, normal);
     // The first variate chooses the part, then is rescaled into [0, 1) within it
     const bool diffusePart = x1 < (localDiffuse / scatteredPower);
     const double xPart = diffusePart
@@ -299,12 +299,12 @@ PhongLobe::transmissionSample(
     double nonDiffuseDensity = 0.0;
     // Diffuse part cosine distributed in the transmitted hemisphere; glossy
     // or specular part cos^Ns distributed around the refracted direction
-    const Vector3Df newDirection = diffusePart
+    const Vector3Dd newDirection = diffusePart
         ? ScatteringFrame(inverseNormal).sampleCosine(xPart, x2, &diffuseDensity)
         : ScatteringFrame(idealDirection).samplePhong(exponent, xPart, x2, &nonDiffuseDensity);
 
     if ( diffusePart ) {
-        const float cosAlpha = dot(idealDirection, newDirection);
+        const double cosAlpha = dot(idealDirection, newDirection);
         if ( cosAlpha > 0 ) {
             nonDiffuseDensity = (exponent + 1.0) * java::Math::pow(cosAlpha, exponent) / (2.0 * M_PI);
         }
@@ -325,22 +325,22 @@ PhongLobe::transmissionSample(
 
 void
 PhongLobe::transmissionDensity(
-    const float inIndex,
-    const float outIndex,
-    const Vector3Df &in,
-    const Vector3Df &out,
-    const Vector3Df &normal,
+    const double inIndex,
+    const double outIndex,
+    const Vector3Dd &in,
+    const Vector3Dd &out,
+    const Vector3Dd &normal,
     const int components,
     double *density,
     double *survival) const
 {
-    const Vector3Df inReversed = scale(-1.0F, in);
+    const Vector3Dd inReversed = scale(-1.0, in);
     *density = 0;
     *survival = 0;
 
     // The normal on the side of 'in'
     const double cosIn = dot(in, normal);
-    const Vector3Df goodNormal = cosIn >= 0 ? normal : scale(-1.0F, normal);
+    const Vector3Dd goodNormal = cosIn >= 0 ? normal : scale(-1.0, normal);
     const double cosTheta = dot(goodNormal, out);
 
     // Diffuse transmission only for a direction that crossed the surface
@@ -362,7 +362,7 @@ PhongLobe::transmissionDensity(
     if ( localNonDiffuse > 0 ) {
         bool totalInternalReflection;
         // With the normal turned around, the two sides swap
-        const Vector3Df idealDirection = cosIn >= 0
+        const Vector3Dd idealDirection = cosIn >= 0
             ? ScatteringFrame::idealRefraction(inReversed, goodNormal, inIndex, outIndex, &totalInternalReflection)
             : ScatteringFrame::idealRefraction(inReversed, goodNormal, outIndex, inIndex, &totalInternalReflection);
         const double cosAlpha = dot(idealDirection, out);

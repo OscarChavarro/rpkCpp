@@ -1,7 +1,7 @@
 #ifndef __PHOTON_MAP__
 #define __PHOTON_MAP__
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
@@ -35,7 +35,7 @@ class PhotonMap {
 
     // A grid is permanently allocated for importance sampling
     SampleGrid2D *m_grid;
-    Vector3Df m_sampleLastPos;
+    Vector3Dd m_sampleLastPos;
 
     // Space to hold the photons and distances for queries
 
@@ -45,16 +45,16 @@ class PhotonMap {
 			the supplied reconstruction normal. */
 
     Photon **m_photons;
-    float *m_distances;
-    float *m_cosines; // photon dir * reconstruction normal
+    double *m_distances;
+    double *m_cosines; // photon dir * reconstruction normal
     bool m_cosinesOk; // indicates if cosines are computed
 
     // nearest photon queries must use these functions!
     int
     doQuery(
-        Vector3Df *position,
+        Vector3Dd *position,
         int numberOfPhotons,
-        float maximumRadius,
+        double maximumRadius,
         short excludeFlags = 0) {
         m_cosinesOk = false;
         return m_kdtree->query(
@@ -66,28 +66,28 @@ class PhotonMap {
             excludeFlags);
     }
 
-    int doQuery(Vector3Df *pos) {
+    int doQuery(Vector3Dd *pos) {
         m_cosinesOk = false;
         return m_kdtree->query(*pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
-                               m_photons, m_distances, static_cast<float>(GetMaxR2()));
+                               m_photons, m_distances, static_cast<double>(GetMaxR2()));
     }
 
     IrrPhoton *
-    DoIrradianceQuery(Vector3Df *position, const Vector3Df *normal, float maxR2 = java::Float::MAX_VALUE) {
-        return m_kdtree->normalPhotonQuery(position, normal, 0.8F, maxR2);
+    DoIrradianceQuery(Vector3Dd *position, const Vector3Dd *normal, double maxR2 = java::Double::MAX_VALUE) {
+        return m_kdtree->normalPhotonQuery(position, normal, 0.8, maxR2);
     }
 
     // Compute cosines of photons with a supplied normal
-    void computeCosines(Vector3Df normal);
+    void computeCosines(Vector3Dd normal);
 
     // Add a photon taking possible irrPhoton into account
-    void doAddPhoton(Photon &photon, Vector3Df normal, short flags);
+    void doAddPhoton(Photon &photon, Vector3Dd normal, short flags);
 
   private:
-    static float getFalseMonochrome(float val, const PhotonMapState &photonMapState);
+    static double getFalseMonochrome(double val, const PhotonMapState &photonMapState);
     static double computeAcceptProb(
-        float currentD,
-        float requiredD,
+        double currentD,
+        double requiredD,
         const PhotonMapState &photonMapState);
 
   public:
@@ -95,17 +95,17 @@ class PhotonMap {
     zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RpkRayHit *hit, char flags);
 
     // Convert a value val given a maximum into some nice color
-    static ColorRgb getFalseColor(float val, const PhotonMapState &photonMapState);
+    static ColorRgb getFalseColor(double val, const PhotonMapState &photonMapState);
 
     explicit PhotonMap(PhotonMapState &photonMapState, int *estimate_nrp, bool doPrecomputeIrradiance = false);
     virtual ~PhotonMap();
 
     void setTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }
 
-    virtual bool addPhoton(Photon &photon, Vector3Df normal, short flags);
+    virtual bool addPhoton(Photon &photon, Vector3Dd normal, short flags);
 
     bool DC_AddPhoton(Photon &photon, RpkRayHit &hit,
-                      float requiredD, short flags = 0);
+                      double requiredD, short flags = 0);
 
     void redistribute(const Photon &photon) const;
 
@@ -119,17 +119,17 @@ class PhotonMap {
     virtual void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon);
 
     // reconstruct
-    virtual ColorRgb reconstruct(RpkRayHit *hit, Vector3Df &outDir,
+    virtual ColorRgb reconstruct(RpkRayHit *hit, Vector3Dd &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool
     irradianceReconstruct(
         RpkRayHit *hit,
-        const Vector3Df &outDir,
+        const Vector3Dd &outDir,
         const ColorRgb &diffuseAlbedo,
         ColorRgb *result);
 
-    virtual float getCurrentDensity(RpkRayHit &hit, int nrPhotons);
+    virtual double getCurrentDensity(RpkRayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
     virtual ColorRgb getDensityColor(RpkRayHit &hit);
@@ -145,7 +145,7 @@ class PhotonMap {
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
     double
-    sample(Vector3Df position, double *r, double *s, const CoordinateSystem *coord, char flag, float n = 1);
+    sample(Vector3Dd position, double *r, double *s, const CoordinateSystem *coord, char flag, double n = 1);
 
     // Utility functions
 

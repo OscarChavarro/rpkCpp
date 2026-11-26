@@ -44,7 +44,7 @@
     #include "Raytrace.h"
 #endif
 
-RpkMaterial RpkApplication::defaultMaterial("(default)", nullptr, false, nullptr, nullptr, nullptr, 1.0F, 0.0F, false);
+RpkMaterial RpkApplication::defaultMaterial("(default)", nullptr, false, nullptr, nullptr, nullptr, 1.0, 0.0, false);
 
 #ifndef RAYTRACING_ENABLED
 bool

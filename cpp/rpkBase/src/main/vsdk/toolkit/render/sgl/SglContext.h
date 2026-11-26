@@ -1,7 +1,7 @@
 #ifndef __SGL_CONTEXT__
 #define __SGL_CONTEXT__
 
-#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"
+#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h"
 #include "vsdk/toolkit/render/sgl/SglConstants.h"
 #include "vsdk/toolkit/render/sgl/Window.h"
 
@@ -13,7 +13,7 @@ class SglContext {
     const int width;
     const int height;
     Window viewport;
-    Matrix4x4f transform;
+    Matrix4x4d transform;
     SglDepthValue *const depthBuffer;
 
   public:
@@ -30,8 +30,8 @@ class SglContext {
     SglDepthValue *getDepthBuffer() { return depthBuffer; }
 
     void setViewport(int x, int y, int viewportWidth, int viewportHeight);
-    void setTransform(const Matrix4x4f &matrix) { transform = matrix; }
-    bool projectPolygon(int numberOfVertices, const Vector3Df *vertices, ScreenPolygon &result) const;
+    void setTransform(const Matrix4x4d &matrix) { transform = matrix; }
+    bool projectPolygon(int numberOfVertices, const Vector3Dd *vertices, ScreenPolygon &result) const;
 };
 
 #endif

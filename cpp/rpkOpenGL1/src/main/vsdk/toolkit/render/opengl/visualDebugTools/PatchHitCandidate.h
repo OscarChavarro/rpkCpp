@@ -4,10 +4,10 @@
 class PatchHitCandidate final {
   public:
     PatchHitCandidate();
-    PatchHitCandidate(int patchIndex, float distance, bool frontFacing);
+    PatchHitCandidate(int patchIndex, double distance, bool frontFacing);
 
     int patchIndex;
-    float distance;
+    double distance;
     bool frontFacing;
 };
 

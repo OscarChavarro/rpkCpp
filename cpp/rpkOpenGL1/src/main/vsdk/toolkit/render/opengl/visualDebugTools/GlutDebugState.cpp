@@ -4,7 +4,7 @@ GlutDebugState::GlutDebugState():
         primarySelectedPatch(-1),
         selectedSelectedPatch(-1),
         showSelectedPathOnly(true),
-        angleAroundViewportU(0.0F),
-        angleAroundViewportV(0.0F)
+        angleAroundViewportU(0.0),
+        angleAroundViewportV(0.0)
 {
 }

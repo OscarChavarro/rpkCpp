@@ -45,14 +45,14 @@ Point IN Triangle: barycentric parametrisation
 */
 inline void
 Patch::pointInTriangle(
-    const Vector3Df &v0,
-    const Vector3Df &v1,
-    const Vector3Df &v2,
-    const float u,
-    const float v,
-    Vector3Df &p)
+    const Vector3Dd &v0,
+    const Vector3Dd &v1,
+    const Vector3Dd &v2,
+    const double u,
+    const double v,
+    Vector3Dd &p)
 {
-    p = Vector3Df(v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()), v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()), v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()));
+    p = Vector3Dd(v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()), v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()), v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()));
 }
 
 /**
@@ -60,41 +60,41 @@ Point IN Quadrilateral: bi-linear parametrisation
 */
 inline void
 Patch::pointInQuadrilateral(
-    const Vector3Df &v0,
-    const Vector3Df &v1,
-    const Vector3Df &v2,
-    const Vector3Df &v3,
-    const float u,
-    const float v,
-    Vector3Df &p)
+    const Vector3Dd &v0,
+    const Vector3Dd &v1,
+    const Vector3Dd &v2,
+    const Vector3Dd &v3,
+    const double u,
+    const double v,
+    Vector3Dd &p)
 {
-    float c = u * v;
-    float b = u - c;
-    float d = v - c;
-    p = Vector3Df(v0.x() + b * (v1.x() - v0.x()) + c * (v2.x() - v0.x()) + d * (v3.x() - v0.x()), v0.y() + b * (v1.y() - v0.y()) + c * (v2.y() - v0.y()) + d * (v3.y() - v0.y()), v0.z() + b * (v1.z() - v0.z()) + c * (v2.z() - v0.z()) + d * (v3.z() - v0.z()));
+    double c = u * v;
+    double b = u - c;
+    double d = v - c;
+    p = Vector3Dd(v0.x() + b * (v1.x() - v0.x()) + c * (v2.x() - v0.x()) + d * (v3.x() - v0.x()), v0.y() + b * (v1.y() - v0.y()) + c * (v2.y() - v0.y()) + d * (v3.y() - v0.y()), v0.z() + b * (v1.z() - v0.z()) + c * (v2.z() - v0.z()) + d * (v3.z() - v0.z()));
 }
 
-Vector3Df
+Vector3Dd
 Patch::getInterpolatedNormalAtUv(double u, double v) const {
-    Vector3Df localNormal;
-    const Vector3Df *v1 = vertex[0]->normal;
-    const Vector3Df *v2 = vertex[1]->normal;
-    const Vector3Df *v3 = vertex[2]->normal;
-    const Vector3Df *v4;
+    Vector3Dd localNormal;
+    const Vector3Dd *v1 = vertex[0]->normal;
+    const Vector3Dd *v2 = vertex[1]->normal;
+    const Vector3Dd *v3 = vertex[2]->normal;
+    const Vector3Dd *v4;
 
     switch ( numberOfVertices ) {
         case 3:
-            pointInTriangle(*v1, *v2, *v3, static_cast<float>(u), static_cast<float>(v), localNormal);
+            pointInTriangle(*v1, *v2, *v3, static_cast<double>(u), static_cast<double>(v), localNormal);
             break;
         case 4:
             v4 = vertex[3]->normal;
-            pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), localNormal);
+            pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<double>(u), static_cast<double>(v), localNormal);
             break;
         default:
             Logger::reportMessage("Patch", Logger::FATAL_ERROR, "PatchNormalAtUV", java::String::format("Invalid number of vertices %d", numberOfVertices));
     }
 
-    localNormal = localNormal.normalized(Numeric::Numeric::EPSILON_FLOAT);
+    localNormal = localNormal.normalized(Numeric::Numeric::EPSILON);
     return localNormal;
 }
 
@@ -160,11 +160,11 @@ Patch::Patch(
     material = nullptr;
 
     // Face geometry: normal, area and Jacobian, midpoint, plane, dominant axis
-    const Vector3Df positions[MAXIMUM_VERTICES_PER_PATCH] = {
+    const Vector3Dd positions[MAXIMUM_VERTICES_PER_PATCH] = {
         *v1->point,
         *v2->point,
         *v3->point,
-        inNumberOfVertices == 4 ? *v4->point : Vector3Df()
+        inNumberOfVertices == 4 ? *v4->point : Vector3Dd()
     };
     face = PlanarFace(inNumberOfVertices, positions);
     if ( !face.isValid() ) {
@@ -203,7 +203,7 @@ Patch::computeBounds(RpkAxisAlignedBoundingBox *bounds) const {
 Computes interpolated (= shading) normal at the point with given parameters
 on the patch
 */
-Vector3Df
+Vector3Dd
 Patch::interpolatedNormalAtUv(double u, double v) const {
     if ( !allVerticesHaveANormal() ) {
         return face.getNormal();
@@ -222,15 +222,15 @@ the dominant axis (patch->getDominantAxisIndex())
 */
 void
 Patch::interpolatedFrameAtUv(
-    double u, double v, Vector3Df *X, Vector3Df *Y, Vector3Df *Z) const {
+    double u, double v, Vector3Dd *X, Vector3Dd *Y, Vector3Dd *Z) const {
     *Z = interpolatedNormalAtUv(u, v);
 
     if ( X && Y ) {
         double zz = java::Math::sqrt(1 - Z->z() * Z->z());
         if ( zz < VSDK::EPSILON ) {
-            *X = Vector3Df(1.0, 0.0, 0.0);
+            *X = Vector3Dd(1.0, 0.0, 0.0);
         } else {
-            *X = Vector3Df(static_cast<float>(Z->y() / zz), static_cast<float>(-Z->x() / zz), 0.0F);
+            *X = Vector3Dd(static_cast<double>(Z->y() / zz), static_cast<double>(-Z->x() / zz), 0.0);
         }
 
         *Y = (*Z).crossProduct(*X); // *Y = (*Z) ^ (*X)
@@ -241,29 +241,29 @@ Patch::interpolatedFrameAtUv(
 Returns texture coordinates determined from vertex texture coordinates and
 given u and v bi-linear of barycentric coordinates on the patch
 */
-Vector3Df
+Vector3Dd
 Patch::textureCoordAtUv(const double u, const double v) const {
-    Vector3Df texCoord;
-    texCoord = Vector3Df(0.0, 0.0, 0.0);
+    Vector3Dd texCoord;
+    texCoord = Vector3Dd(0.0, 0.0, 0.0);
 
-    const Vector3Df *t0 = vertex[0]->textureCoordinates;
-    const Vector3Df *t1 = vertex[1]->textureCoordinates;
-    const Vector3Df *t2 = vertex[2]->textureCoordinates;
-    const Vector3Df *t3;
+    const Vector3Dd *t0 = vertex[0]->textureCoordinates;
+    const Vector3Dd *t1 = vertex[1]->textureCoordinates;
+    const Vector3Dd *t2 = vertex[2]->textureCoordinates;
+    const Vector3Dd *t3;
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
-                texCoord = Vector3Df(static_cast<float>(u), static_cast<float>(v), 0.0F);
+                texCoord = Vector3Dd(static_cast<double>(u), static_cast<double>(v), 0.0);
             } else {
-                pointInTriangle(*t0, *t1, *t2, static_cast<float>(u), static_cast<float>(v), texCoord);
+                pointInTriangle(*t0, *t1, *t2, static_cast<double>(u), static_cast<double>(v), texCoord);
             }
             break;
         case 4:
             t3 = vertex[3]->textureCoordinates;
             if ( !t0 || !t1 || !t2 || !t3 ) {
-                texCoord = Vector3Df(static_cast<float>(u), static_cast<float>(v), 0.0F);
+                texCoord = Vector3Dd(static_cast<double>(u), static_cast<double>(v), 0.0);
             } else {
-                pointInQuadrilateral(*t0, *t1, *t2, *t3, static_cast<float>(u), static_cast<float>(v), texCoord);
+                pointInQuadrilateral(*t0, *t1, *t2, *t3, static_cast<double>(u), static_cast<double>(v), texCoord);
             }
             break;
         default:
@@ -284,9 +284,9 @@ considered and are described in ray.h.
 */
 RpkRayHit *
 Patch::intersect(
-    const RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    const Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions) const
@@ -300,16 +300,16 @@ Patch::intersect(
     // Side, plane hit, hit point and (u, v) in one call into the face
     PlanarFace::RayHit faceHit;
     const bool inside = face.rayHit(
-        ray->position,
-        ray->direction,
+        ray->getOrigin(),
+        ray->getDirection(),
         (hitFlags & RayHitFlag::FRONT) != 0,
         (hitFlags & RayHitFlag::BACK) != 0,
         minimumDistance,
         *maximumDistance,
         &faceHit);
     if ( inside ) {
-        const float distance = faceHit.getDistance();
-        Vector3Df position(faceHit.getPointX(), faceHit.getPointY(), faceHit.getPointZ());
+        const double distance = faceHit.getDistance();
+        Vector3Dd position(faceHit.getPointX(), faceHit.getPointY(), faceHit.getPointZ());
         hit.setPoint(&position);
         hit.setUv(faceHit.getU(), faceHit.getV());
         hit.setFlags(hit.getFlags()
@@ -317,7 +317,7 @@ Patch::intersect(
             | RayHitFlag::UV);
         hit.setPatch(this);
         hit.setMaterial(material);
-        const Vector3Df geometricNormal = face.getNormal();
+        const Vector3Dd geometricNormal = face.getNormal();
         hit.setGeometricNormal(&geometricNormal);
         unsigned int newFlags = hit.getFlags()
             | RayHitFlag::PATCH
@@ -352,8 +352,8 @@ mapping for a triangle and bi-linear mapping for a quadrilateral.
 u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
 (1-u) and (1-v) are used instead
 */
-Vector3Df *
-Patch::pointBarycentricMapping(double u, double v, Vector3Df *point) const {
+Vector3Dd *
+Patch::pointBarycentricMapping(double u, double v, Vector3Dd *point) const {
     if ( hasZeroVertices() ) {
         return nullptr;
     }
@@ -369,8 +369,8 @@ regions of an irregular quadrilateral, irregular quadrilaterals are the
 only once for which this routine will yield other positions than the above
 routine)
 */
-Vector3Df *
-Patch::uniformPoint(double u, double v, Vector3Df *point) const {
+Vector3Dd *
+Patch::uniformPoint(double u, double v, Vector3Dd *point) const {
     if ( hasZeroVertices() ) {
         return nullptr;
     }
@@ -395,7 +395,7 @@ WARNING: The (u, v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
 bool
-Patch::uv(const Vector3Df *point, double *u, double *v) const {
+Patch::uv(const Vector3Dd *point, double *u, double *v) const {
     return face.parameters(*point, u, v);
 }
 
@@ -423,7 +423,7 @@ Patch::facing(const Patch *other) const {
 Like 'uv', but returns uniform coordinates (inverse of uniformPoint())
 */
 bool
-Patch::uniformUv(const Vector3Df *point, double *u, double *v) const {
+Patch::uniformUv(const Vector3Dd *point, double *u, double *v) const {
     return face.uniformParameters(*point, u, v);
 }
 

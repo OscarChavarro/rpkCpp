@@ -16,14 +16,14 @@ WardToneMap::~WardToneMap() {
 
 void
 WardToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
-    const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-    const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    lda = maximumDisplayLuminance / 2.0F;
+    const double realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    const double maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    lda = maximumDisplayLuminance / 2.0;
 
-    const float p1 = java::Math::pow(lda, 0.4F);
-    const float p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4F);
-    const float p3 = (1.219F + p1) / (1.219F + p2);
-    comp = java::Math::pow(p3, 2.5F);
+    const double p1 = java::Math::pow(lda, 0.4);
+    const double p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4);
+    const double p3 = (1.219 + p1) / (1.219 + p2);
+    comp = java::Math::pow(p3, 2.5);
     display = comp / maximumDisplayLuminance;
 }
 
@@ -34,7 +34,7 @@ WardToneMap::scaleForComputations(const ColorRgb &radiance) const {
 
 ColorRgb
 WardToneMap::scaleForDisplay(const ColorRgb &radiance) const {
-    const float eff = getColorSpace().getLuminousEfficacy();
+    const double eff = getColorSpace().getLuminousEfficacy();
 
     return radiance.multiply(eff * display);
 }

@@ -81,7 +81,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const {
+StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, const Patch *patch, double u, double v, Vector3Dd dir, const RendererConfiguration *renderOptions) const {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
     StochasticRadiosityBasisState::setActiveState(const_cast<StochasticRadiosityBasisState &>(stochasticRadiosityBasisState));
@@ -144,9 +144,9 @@ StochasticJacobiRadianceMethod::getStats() const {
 Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 */
 long
-StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRandomRound(float x) {
+StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRandomRound(double x) {
     long l = static_cast<long>(java::Math::floor(x));
-    if ( drand48() < (x - static_cast<float>(l)) ) {
+    if ( drand48() < (x - static_cast<double>(l)) ) {
         l++;
     }
     return l;
@@ -200,7 +200,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementRad
         }
         repeated = true;
     } else {
-        elem->quality = static_cast<float>(stochasticRelaxationRadiosityQualityFactor(elem, w));
+        elem->quality = static_cast<double>(stochasticRelaxationRadiosityQualityFactor(elem, w));
     }
 
     Coefficientsmcrad::stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
@@ -261,7 +261,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
             break;
         }
         numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                static_cast<float>(unShotFraction * static_cast<double>(StochasticRelaxation::activeState().initialNumberOfRays) *
+                static_cast<double>(unShotFraction * static_cast<double>(StochasticRelaxation::activeState().initialNumberOfRays) *
                                    StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().
                                        approximationOrderType].basis_size));
 
@@ -292,7 +292,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
     StochasticRelaxation::activeState().weightedSampling = weightedSampling;
 }
 
-float
+double
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUnShotImportance(const StochasticRadiosityElement *elem) {
     return elem->unShotImportance;
 }
@@ -339,7 +339,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
         // proportional to the number of basis functions in the rad. approx. */
         double unShotFraction = StochasticRelaxation::activeState().unShotYmp / StochasticRelaxation::activeState().sourceYmp;
         long numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                static_cast<float>(unShotFraction) * static_cast<float>(StochasticRelaxation::activeState().initialNumberOfRays));
+                static_cast<double>(unShotFraction) * static_cast<double>(StochasticRelaxation::activeState().initialNumberOfRays));
         if ( unShotFraction < 0.01 ) {
             break;
         }
@@ -393,15 +393,15 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateRadian
             // Quality of new solution is so high that it must take over
             k = 0.0;
         }
-        elem->quality += static_cast<float>(quality); // Add quality
+        elem->quality += static_cast<double>(quality); // Add quality
     }
 
     // Subtract source radiosity
     elem->radiance[0] = elem->radiance[0].subtract(elem->sourceRad);
 
     // Combine with previous results
-    Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), elem->radiance, elem->basis);
-    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0F - static_cast<float>(k)), elem->receivedRadiance, elem->basis);
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<double>(k), elem->radiance, elem->basis);
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0 - static_cast<double>(k)), elem->receivedRadiance, elem->basis);
     Coefficientsmcrad::stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
 
     // Re-add source radiosity
@@ -447,7 +447,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularRadianceIt
     stochasticRelaxationRadiosityPrintRegularStats();
 }
 
-float
+double
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem) {
     return elem->importance;
 }
@@ -456,7 +456,7 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double /*w*/) {
     double k = static_cast<double>(StochasticRelaxation::activeState().prevImportanceTracedRays) / static_cast<double>(StochasticRelaxation::activeState().importanceTracedRays);
 
-    elem->importance = static_cast<float>(k * (elem->importance - elem->sourceImportance) + (1.0 - k) * elem->receivedImportance + elem->
+    elem->importance = static_cast<double>(k * (elem->importance - elem->sourceImportance) + (1.0 - k) * elem->receivedImportance + elem->
                                           sourceImportance);
     elem->unShotImportance = elem->receivedImportance = 0.0;
 }

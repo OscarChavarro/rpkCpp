@@ -13,14 +13,14 @@ class PatchClusterOctreeNode {
     java::ArrayList<Patch *> *patches;
     PatchClusterOctreeNode *children[8]{}; // Clusters form an octree
     RpkAxisAlignedBoundingBox boundingBox{}; // Bounding box for the cluster
-    Vector3Df boundingBoxCentroid; // Mid-point of the bounding box
+    Vector3Dd boundingBoxCentroid; // Mid-point of the bounding box
     static java::ArrayList<RpkGeometry *> *clusterNodeGeometriesToDelete;
     static void addToDeletionCache(RpkGeometry *geometry);
 
     PatchClusterOctreeNode();
     bool movePatchToSubOctantCluster(int patchIndexOnParent) const;
     void clusterAddPatch(Patch *patch);
-    int octantIndex(const Vector3Df &p) const;
+    int octantIndex(const Vector3Dd &p) const;
 
   public:
     explicit PatchClusterOctreeNode(const java::ArrayList<Patch *> *inPatches);
@@ -33,8 +33,8 @@ class PatchClusterOctreeNode {
 };
 
 inline int
-PatchClusterOctreeNode::octantIndex(const Vector3Df &p) const {
-    Vector3Df c = boundingBox.center();
+PatchClusterOctreeNode::octantIndex(const Vector3Dd &p) const {
+    Vector3Dd c = boundingBox.center();
     int index = 0;
 
     if (p.x() > c.x()) {

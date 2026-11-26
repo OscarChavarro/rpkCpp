@@ -6,15 +6,15 @@ BinaryModelPatchRecordData::BinaryModelPatchRecordData():
     numberOfVertices(0),
     hasBoundingBox(false),
     normal(),
-    planeConstant(0.0F),
-    tolerance(0.0F),
-    area(0.0F),
+    planeConstant(0.0),
+    tolerance(0.0),
+    area(0.0),
     midPoint(),
     hasJacobian(false),
-    jacobianA(0.0F),
-    jacobianB(0.0F),
-    jacobianC(0.0F),
-    directPotential(0.0F),
+    jacobianA(0.0),
+    jacobianB(0.0),
+    jacobianC(0.0),
+    directPotential(0.0),
     dominantIndex(0),
     omit(false),
     flags(0),
@@ -26,6 +26,6 @@ BinaryModelPatchRecordData::BinaryModelPatchRecordData():
         vertexIndices[i] = -1;
     }
     for ( int i = 0; i < 6; i++ ) {
-        boundingBoxCoordinates[i] = 0.0F;
+        boundingBoxCoordinates[i] = 0.0;
     }
 }

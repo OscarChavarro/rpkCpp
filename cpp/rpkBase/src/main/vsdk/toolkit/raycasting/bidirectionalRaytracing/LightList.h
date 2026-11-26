@@ -14,8 +14,8 @@ this class can be used for sampling lights
 class LightList final : private CircularList<LightInfo> {
   private:
     // Total flux ( sum(L * A * PI))
-    float totalFlux;
-    float totalImp;
+    double totalFlux;
+    double totalImp;
     bool includeVirtual;
     int lightCount;
 
@@ -35,45 +35,45 @@ class LightList final : private CircularList<LightInfo> {
     Patch *sample(double *x1, double *pdf);
 
     // Normal PDF evaluation : uniform over emitted power
-    double evalPdf(const Patch *light, const Vector3Df *point) const;
+    double evalPdf(const Patch *light, const Vector3Dd *point) const;
 
     // Importance sampling routines
-    Patch *sampleImportant(const Vector3Df *point, const Vector3Df *normal, double *x1, double *pdf);
+    Patch *sampleImportant(const Vector3Dd *point, const Vector3Dd *normal, double *x1, double *pdf);
 
-    double evalPdfImportant(const Patch *light, const Vector3Df *, const Vector3Df *litPoint, const Vector3Df *normal);
+    double evalPdfImportant(const Patch *light, const Vector3Dd *, const Vector3Dd *litPoint, const Vector3Dd *normal);
 
   private:
-    Vector3Df lastPoint;
-    Vector3Df lastNormal;
+    Vector3Dd lastPoint;
+    Vector3Dd lastNormal;
 
-    void computeLightImportance(const Vector3Df *point, const Vector3Df *normal);
+    void computeLightImportance(const Vector3Dd *point, const Vector3Dd *normal);
 
     static double
     computeOneLightImportance(
         const Patch *light,
-        const Vector3Df *point,
-        const Vector3Df *normal,
-        float emittedFlux);
+        const Vector3Dd *point,
+        const Vector3Dd *normal,
+        double emittedFlux);
 
     // Specialisations by patch type (normal or virtual) of ComputeOneLightImportance
     static double
     computeOneLightImportanceVirtual(
         const Patch *light,
-        const Vector3Df *,
-        const Vector3Df *,
-        float);
+        const Vector3Dd *,
+        const Vector3Dd *,
+        double);
 
     static double
     computeOneLightImportanceReal(
         const Patch *light,
-        const Vector3Df *point,
-        const Vector3Df *normal,
-        float emittedFlux);
+        const Vector3Dd *point,
+        const Vector3Dd *normal,
+        double emittedFlux);
 
     // specialisations by patch type (normal or virtual) of EvalPDF
-    double evalPdfVirtual(const Patch *light, const Vector3Df *) const;
+    double evalPdfVirtual(const Patch *light, const Vector3Dd *) const;
 
-    double evalPdfReal(const Patch *light, const Vector3Df *) const;
+    double evalPdfReal(const Patch *light, const Vector3Dd *) const;
 };
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightListIterator.h"

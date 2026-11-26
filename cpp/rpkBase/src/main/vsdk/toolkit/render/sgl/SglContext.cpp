@@ -28,7 +28,7 @@ SglContext::setViewport(int x, int y, int viewportWidth, int viewportHeight) {
 }
 
 bool
-SglContext::projectPolygon(int numberOfVertices, const Vector3Df *vertices, ScreenPolygon &pol) const {
+SglContext::projectPolygon(int numberOfVertices, const Vector3Dd *vertices, ScreenPolygon &pol) const {
     const PolygonBox clipBox = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
 
     if ( numberOfVertices < 3 || numberOfVertices > PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - 6 ) {
@@ -39,8 +39,8 @@ SglContext::projectPolygon(int numberOfVertices, const Vector3Df *vertices, Scre
     // Transform the vertices and fill in a Poly
     for ( int i = 0; i < numberOfVertices; i++ ) {
         PolygonVertex &vertex = pol.vertices[i];
-        const Vector4Df v = transform.multiply(
-            Vector4Df(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0F));
+        const Vector4Dd v = transform.multiply(
+            Vector4Dd(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0));
         if ( v.w() > -VSDK::EPSILON && v.w() < VSDK::EPSILON ) {
             return false;
         }

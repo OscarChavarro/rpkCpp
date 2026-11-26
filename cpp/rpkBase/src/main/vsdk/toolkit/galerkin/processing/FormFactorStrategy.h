@@ -18,13 +18,13 @@ class FormFactorStrategy {
   private:
     static RpkRayHit *
     shadowTestDiscretization(
-        RpkRay *ray,
+        Ray *ray,
         const java::ArrayList<RpkGeometry *> *geometrySceneList,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
         ShadowCache *shadowCache,
-        float minimumDistance,
+        double minimumDistance,
         RpkRayHit *hitStore,
         bool isSceneGeometry,
         bool isClusteredGeometry,
@@ -36,7 +36,7 @@ class FormFactorStrategy {
         GalerkinRole role,
         const GalerkinState *galerkinState,
         CubatureRule **cr,
-        Vector3Df x[CubatureRule::MAXIMUM_NODES]);
+        Vector3Dd x[CubatureRule::MAXIMUM_NODES]);
 
     static double
     evaluatePointsPairKernel(
@@ -44,8 +44,8 @@ class FormFactorStrategy {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
-        const Vector3Df *x,
-        const Vector3Df *y,
+        const Vector3Dd *x,
+        const Vector3Dd *y,
         const GalerkinElement *receiverElement,
         const GalerkinElement *sourceElement,
         const java::ArrayList<RpkGeometry *> *shadowGeometryList,
@@ -71,6 +71,13 @@ class FormFactorStrategy {
         const ColorRgb *sourceRadiance,
         double deltaRadiance[][3],
         Interaction *link);
+
+    static void
+    boundPointToAreaFormFactors(
+        const CubatureRule *receiverCubatureRule,
+        const CubatureRule *sourceCubatureRule,
+        double sourceArea,
+        double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES]);
 
     static inline void
     computeInteractionFormFactor(

@@ -5,7 +5,7 @@
 
 class LightnessToneMap final : public ToneMap {
   private:
-    static float lightness(float luminance);
+    static double lightness(double luminance);
 
   protected:
     void initParameters(const ToneMappingContext &toneMapOptions) final;

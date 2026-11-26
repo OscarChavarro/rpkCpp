@@ -13,15 +13,15 @@ The real importance map storage
 
 class ImportanceMap: public PhotonMap {
   private:
-    float m_maxImp;
-    float m_avgImp;
-    float m_totalMaxDistance;
+    double m_maxImp;
+    double m_avgImp;
+    double m_totalMaxDistance;
     int m_preReconPhotons;
-    float *m_impScalePtr;
+    double *m_impScalePtr;
 
   public:
     // Constructor: always use irradiance per computation
-    ImportanceMap(PhotonMapState &photonMapState, int *estimate_nrp, float *impScalePtr) :
+    ImportanceMap(PhotonMapState &photonMapState, int *estimate_nrp, double *impScalePtr) :
         PhotonMap(photonMapState, estimate_nrp, true),
         m_maxImp(),
         m_avgImp(),
@@ -32,25 +32,25 @@ class ImportanceMap: public PhotonMap {
     }
 
     // Override some photon map functions
-    bool addPhoton(Photon &photon, Vector3Df normal, short flags) override;
+    bool addPhoton(Photon &photon, Vector3Dd normal, short flags) override;
 
     void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) override;
     void precomputeIrradiance() override;
 
     // New functions
-    float reconstructImportance(Vector3Df, const Vector3Df &normal) const;
-    float getImpReqDensity(const Camera *camera, const Vector3Df &pos, const Vector3Df &normal) const;
-    float getRequiredDensity(const Camera *camera, Vector3Df pos, Vector3Df normal);
+    double reconstructImportance(Vector3Dd, const Vector3Dd &normal) const;
+    double getImpReqDensity(const Camera *camera, const Vector3Dd &pos, const Vector3Dd &normal) const;
+    double getRequiredDensity(const Camera *camera, Vector3Dd pos, Vector3Dd normal);
 
 protected:
     void
     ComputeAllRequiredDensities(
         const Camera *camera,
-        Vector3Df &pos,
-        const Vector3Df &normal,
-        float *imp,
-        float *pot,
-        float *diff);
+        Vector3Dd &pos,
+        const Vector3Dd &normal,
+        double *imp,
+        double *pot,
+        double *diff);
 };
 
 #endif

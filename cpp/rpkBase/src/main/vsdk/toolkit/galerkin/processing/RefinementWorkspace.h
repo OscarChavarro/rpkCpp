@@ -337,7 +337,7 @@ class RefinementWorkspace {
     RefinementWorkspace(
         SceneQueryWorkspace *inSceneQueryWorkspace,
         FormFactorWorkspace *inFormFactorWorkspace,
-        MemoryPool<float> *inCoefficientsPool,
+        MemoryPool<double> *inCoefficientsPool,
         RefinementRecord *inRecord,
         java::ReentrantLock *inSubdivisionLock,
         RefinementScheduler *inScheduler):
@@ -350,7 +350,7 @@ class RefinementWorkspace {
 
     SceneQueryWorkspace *getSceneQueryWorkspace() const { return sceneQueryWorkspace; }
     FormFactorWorkspace *getFormFactorWorkspace() const { return formFactorWorkspace; }
-    MemoryPool<float> *getCoefficientsPool() const { return coefficientsPool; }
+    MemoryPool<double> *getCoefficientsPool() const { return coefficientsPool; }
 
     /** nullptr for the serial solver */
     RefinementRecord *getRecord() const { return record; }
@@ -364,7 +364,7 @@ class RefinementWorkspace {
   private:
     SceneQueryWorkspace *sceneQueryWorkspace;
     FormFactorWorkspace *formFactorWorkspace;
-    MemoryPool<float> *coefficientsPool;
+    MemoryPool<double> *coefficientsPool;
     RefinementRecord *record;
     java::ReentrantLock *subdivisionLock;
     RefinementScheduler *scheduler;

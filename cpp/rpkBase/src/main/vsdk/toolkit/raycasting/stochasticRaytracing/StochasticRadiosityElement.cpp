@@ -103,7 +103,7 @@ StochasticRadiosityElement::createElement() {
     elem->sourceImportance = 0.0;
     elem->importanceRayIndex = 0;
 
-    elem->midPoint = Vector3Df(0.0, 0.0, 0.0);
+    elem->midPoint = Vector3Dd(0.0, 0.0, 0.0);
     elem->vertices[0] = elem->vertices[1] = elem->vertices[2] = elem->vertices[3] = nullptr;
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
@@ -137,7 +137,7 @@ StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(Patch *pat
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
     elem->Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-    elem->Ed = elem->Ed.scaleInverse(static_cast<float>(M_PI));
+    elem->Ed = elem->Ed.scaleInverse(static_cast<double>(M_PI));
     elem->Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -378,29 +378,29 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
     return leaf;
 }
 
-Vector3Df *
-StochasticRadiosityElement::monteCarloRadiosityInstallCoordinate(const Vector3Df *coord) {
-    Vector3Df *v = new Vector3Df(*coord);
+Vector3Dd *
+StochasticRadiosityElement::monteCarloRadiosityInstallCoordinate(const Vector3Dd *coord) {
+    Vector3Dd *v = new Vector3Dd(*coord);
     ElementHierarchyState::activeState().coords->add(v);
     return v;
 }
 
-Vector3Df *
-StochasticRadiosityElement::monteCarloRadiosityInstallNormal(const Vector3Df *norm) {
-    Vector3Df *v = new Vector3Df(*norm);
+Vector3Dd *
+StochasticRadiosityElement::monteCarloRadiosityInstallNormal(const Vector3Dd *norm) {
+    Vector3Dd *v = new Vector3Dd(*norm);
     ElementHierarchyState::activeState().normals->add(v);
     return v;
 }
 
-Vector3Df *
-StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3Df *texCoord) {
-    Vector3Df *t = new Vector3Df(*texCoord);
+Vector3Dd *
+StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3Dd *texCoord) {
+    Vector3Dd *t = new Vector3Dd(*texCoord);
     ElementHierarchyState::activeState().texCoords->add(t);
     return t;
 }
 
 RpkVertex *
-StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3Df *coord, Vector3Df *norm, Vector3Df *texCoord) {
+StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3Dd *coord, Vector3Dd *norm, Vector3Dd *texCoord) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     RpkVertex *v = new RpkVertex(coord, norm, texCoord, newPatchList);
     ElementHierarchyState::activeState().vertices->add(v);
@@ -409,26 +409,26 @@ StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3Df *coord, V
 
 RpkVertex *
 StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, const RpkVertex *v1, const RpkVertex *v2) {
-    Vector3Df coord;
-    Vector3Df norm;
-    Vector3Df texCoord;
-    Vector3Df *p;
-    Vector3Df *n;
-    Vector3Df *t;
+    Vector3Dd coord;
+    Vector3Dd norm;
+    Vector3Dd texCoord;
+    Vector3Dd *p;
+    Vector3Dd *n;
+    Vector3Dd *t;
 
-    coord = (*(v1->point)).add(*(v2->point)).multiply(0.5F);
+    coord = (*(v1->point)).add(*(v2->point)).multiply(0.5);
     p = monteCarloRadiosityInstallCoordinate(&coord);
 
     if ( v1->normal && v2->normal ) {
-        norm = (*(v1->normal)).add(*(v2->normal)).multiply(0.5F);
+        norm = (*(v1->normal)).add(*(v2->normal)).multiply(0.5);
         n = monteCarloRadiosityInstallNormal(&norm);
     } else {
-        const Vector3Df patchNormal = elem->patch->getNormal();
+        const Vector3Dd patchNormal = elem->patch->getNormal();
         n = monteCarloRadiosityInstallNormal(&patchNormal);
     }
 
     if ( v1->textureCoordinates && v2->textureCoordinates ) {
-        texCoord = (*(v1->textureCoordinates)).add(*(v2->textureCoordinates)).multiply(0.5F);
+        texCoord = (*(v1->textureCoordinates)).add(*(v2->textureCoordinates)).multiply(0.5);
         t = monteCarloRadiosityInstallTexCoord(&texCoord);
     } else {
         t = nullptr;
@@ -557,13 +557,13 @@ StochasticRadiosityElement::monteCarloRadiosityNewEdgeMidpointVertex(StochasticR
     return v;
 }
 
-Vector3Df
+Vector3Dd
 StochasticRadiosityElement::galerkinElementMidpoint(StochasticRadiosityElement *elem) {
-    elem->midPoint = Vector3Df(0.0, 0.0, 0.0);
+    elem->midPoint = Vector3Dd(0.0, 0.0, 0.0);
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         elem->midPoint = elem->midPoint.add(*elem->vertices[i]->point);
     }
-    elem->midPoint = elem->midPoint.multiplyByInverse(static_cast<float>(elem->numberOfVertices), Numeric::EPSILON_FLOAT);
+    elem->midPoint = elem->midPoint.multiplyByInverse(static_cast<double>(elem->numberOfVertices), Numeric::EPSILON);
 
     return elem->midPoint;
 }
@@ -585,9 +585,9 @@ StochasticRadiosityElement::stochasticRadiosityElementIsTextured(const Stochasti
 /**
 Uses elem->Rd for surface elements
 */
-float
+double
 StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(const StochasticRadiosityElement *elem) {
-    float rd;
+    double rd;
 
     if ( elem->isCluster() ) {
         return 1.0;
@@ -596,7 +596,7 @@ StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(const St
     rd = elem->Rd.maximumComponent();
     if ( rd < VSDK::EPSILON ) {
         // Avoid divisions by zero
-        rd = Numeric::EPSILON_FLOAT;
+        rd = Numeric::EPSILON;
     }
     return rd;
 }
@@ -616,8 +616,8 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     ColorRgb albedo(0.0, 0.0, 0.0);
     ColorRgb emittance(0.0, 0.0, 0.0);
     RpkRayHit hit;
-    const Vector3Df patchMidPoint = patch->midPoint();
-    const Vector3Df patchNormal = patch->getNormal();
+    const Vector3Dd patchMidPoint = patch->midPoint();
+    const Vector3Dd patchNormal = patch->getNormal();
     hit.init(patch, &patchMidPoint, &patchNormal, patch->getMaterial());
 
     isTextured = StochasticRadiosityElement::stochasticRadiosityElementIsTextured(elem);
@@ -631,7 +631,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
         ColorRgb sample(0.0, 0.0, 0.0);
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(static_cast<double>(xi[0]) * Niederreiter::RECIP, static_cast<double>(xi[1]) * Niederreiter::RECIP);
-        Vector3Df position = hit.getPoint();
+        Vector3Dd position = hit.getPoint();
         patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
         hit.setPoint(&position);
         if ( patch->getMaterial()->getBsdf() ) {
@@ -656,8 +656,8 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
             emittance = emittance.add(sample);
         }
     }
-    elem->Rd = albedo.scaleInverse(static_cast<float>(numberOfSamples));
-    elem->Ed = emittance.scaleInverse(static_cast<float>(numberOfSamples));
+    elem->Rd = albedo.scaleInverse(static_cast<double>(numberOfSamples));
+    elem->Ed = emittance.scaleInverse(static_cast<double>(numberOfSamples));
 }
 
 /**
@@ -708,7 +708,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
         vertexAttachElement(elem->vertices[i], elem);
     }
 
-    elem->area = 0.25F * parent->area; // Regular elements, regular subdivision
+    elem->area = 0.25 * parent->area; // Regular elements, regular subdivision
     elem->midPoint = galerkinElementMidpoint(elem);
 
     elem->parent = parent;
@@ -896,7 +896,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(
 }
 
 void
-StochasticRadiosityElement::stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance) {
+StochasticRadiosityElement::stochasticRadiosityElementPushImportance(const double *parentImportance, double *childImportance) {
     *childImportance += *parentImportance;
 }
 
@@ -907,7 +907,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
     ColorRgb *parentRad,
     const ColorRgb *childRad)
 {
-    float areaFactor = child->area / parent->area;
+    double areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
         parentRad[0] = parentRad[0].addScaled(areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
@@ -919,7 +919,7 @@ StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
 }
 
 void
-StochasticRadiosityElement::stochasticRadiosityElementPullImportance(const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, float *parent_imp, const float *child_imp) {
+StochasticRadiosityElement::stochasticRadiosityElementPullImportance(const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, double *parent_imp, const double *child_imp) {
     *parent_imp += child->area / parent->area * (*child_imp);
 }
 

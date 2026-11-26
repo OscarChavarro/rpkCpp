@@ -25,8 +25,8 @@ Interaction::Interaction():
 Interaction::Interaction(
     GalerkinElement *inReceiverElement,
     GalerkinElement *inSourceElement,
-    const float *inK,
-    float inDeltaK,
+    const double *inK,
+    double inDeltaK,
     unsigned char inNumberOfBasisFunctionsOnReceiver,
     unsigned char inNumberOfBasisFunctionsOnSource,
     unsigned char inNumberOfReceiverCubaturePositions,
@@ -44,7 +44,7 @@ Interaction::Interaction(
         this->K = &this->k0;
         this->ownsK = false;
     } else {
-        this->K = new float[inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource];
+        this->K = new double[inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource];
         for ( int i = 0; i < inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource; i++ ) {
             K[i] = inK[i];
         }
@@ -99,7 +99,7 @@ Interaction::uncountedDuplicate(const Interaction *interaction) {
         newInteraction->ownsK = false;
     } else {
         const int size = interaction->numberOfBasisFunctionsOnReceiver * interaction->numberOfBasisFunctionsOnSource;
-        newInteraction->K = new float[size];
+        newInteraction->K = new double[size];
         for ( int i = 0; i < size; i++ ) {
             newInteraction->K[i] = interaction->K[i];
         }

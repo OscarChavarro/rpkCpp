@@ -33,7 +33,7 @@ LightDirSampler::sample(
     }
 
     // Sample a light direction
-    Vector3Df dir(0.0F, 0.0F, 0.0F);
+    Vector3Dd dir(0.0, 0.0, 0.0);
     if ( thisNode->m_hit.getMaterial()->getEdf() != nullptr ) {
         bool shctxOk = false;
         ShadingContext lightContext = thisNode->m_hit.shadingContext(&shctxOk);
@@ -87,7 +87,7 @@ LightDirSampler::evalPDF(
     double cosA;
     double dist;
     double dist2;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     if ( !thisNode->m_hit.getMaterial()->getEdf() ) {
         Logger::reportMessage("LightDirSampler", Logger::ERROR, "CLightDirSampler::evalPdf", "No EDF");
@@ -98,7 +98,7 @@ LightDirSampler::evalPDF(
     outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = java::Math::sqrt(dist2);
-    outDir = outDir.multiplyByInverse(static_cast<float>(dist), Numeric::EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(static_cast<double>(dist), Numeric::EPSILON);
 
     // EDF sampling
     if ( thisNode->m_hit.getMaterial()->getEdf() == nullptr ) {

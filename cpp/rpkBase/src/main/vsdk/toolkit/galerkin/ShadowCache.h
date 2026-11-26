@@ -12,7 +12,7 @@ class ShadowCache {
     ShadowCache();
     virtual ~ShadowCache();
 
-    RpkRayHit *cacheHit(const RpkRay *ray, float *distance, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
+    RpkRayHit *cacheHit(const Ray *ray, double *distance, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
     void addToShadowCache(const Patch *patch);
 };
 

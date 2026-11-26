@@ -49,7 +49,7 @@ SglVisibilityBuffer<Sample>::clear() {
 
 template<class Sample>
 void
-SglVisibilityBuffer<Sample>::drawPolygon(int numberOfVertices, const Vector3Df *vertices, Sample value) {
+SglVisibilityBuffer<Sample>::drawPolygon(int numberOfVertices, const Vector3Dd *vertices, Sample value) {
     ScreenPolygon polygon{};
     if ( !context.projectPolygon(numberOfVertices, vertices, polygon) ) {
         return;

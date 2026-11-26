@@ -1,14 +1,14 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 
 RpkAxisAlignedBoundingBox::RpkAxisAlignedBoundingBox(): coordinates() {
-    coordinates[MIN_X] = java::Float::MAX_VALUE;
-    coordinates[MIN_Y] = java::Float::MAX_VALUE;
-    coordinates[MIN_Z] = java::Float::MAX_VALUE;
-    coordinates[MAX_X] = -java::Float::MAX_VALUE;
-    coordinates[MAX_Y] = -java::Float::MAX_VALUE;
-    coordinates[MAX_Z] = -java::Float::MAX_VALUE;
+    coordinates[MIN_X] = java::Double::MAX_VALUE;
+    coordinates[MIN_Y] = java::Double::MAX_VALUE;
+    coordinates[MIN_Z] = java::Double::MAX_VALUE;
+    coordinates[MAX_X] = -java::Double::MAX_VALUE;
+    coordinates[MAX_Y] = -java::Double::MAX_VALUE;
+    coordinates[MAX_Z] = -java::Double::MAX_VALUE;
 }
 
 /**
@@ -25,7 +25,7 @@ RpkAxisAlignedBoundingBox::enlarge(const RpkAxisAlignedBoundingBox *other) {
 }
 
 void
-RpkAxisAlignedBoundingBox::enlargeToIncludePoint(const Vector3Df *point) {
+RpkAxisAlignedBoundingBox::enlargeToIncludePoint(const Vector3Dd *point) {
     setIfLess(coordinates[MIN_X], point->x());
     setIfLess(coordinates[MIN_Y], point->y());
     setIfLess(coordinates[MIN_Z], point->z());
@@ -49,22 +49,22 @@ Returns true if the bounding box is behind the plane defined by norm and d
 see F. Tampieri, "Fast Vertex Radiosity Update", Graphics Gems II, p 303
 */
 bool
-RpkAxisAlignedBoundingBox::behindPlane(const Vector3Df &normal, float distance) const {
-    Vector3Df P;
+RpkAxisAlignedBoundingBox::behindPlane(const Vector3Dd &normal, double distance) const {
+    Vector3Dd P;
 
-    if ( normal.x() > 0.0F ) {
+    if ( normal.x() > 0.0 ) {
         P = P.withX(coordinates[MAX_X]);
     } else {
         P = P.withX(coordinates[MIN_X]);
     }
 
-    if ( normal.y() > 0.0F ) {
+    if ( normal.y() > 0.0 ) {
         P = P.withY(coordinates[MAX_Y]);
     } else {
         P = P.withY(coordinates[MIN_Y]);
     }
 
-    if ( normal.z() > 0.0F ) {
+    if ( normal.z() > 0.0 ) {
         P = P.withZ(coordinates[MAX_Z]);
     } else {
         P = P.withZ(coordinates[MIN_Z]);
@@ -75,17 +75,17 @@ RpkAxisAlignedBoundingBox::behindPlane(const Vector3Df &normal, float distance) 
 
 void
 RpkAxisAlignedBoundingBox::enlargeTinyBit() {
-    float Dx = static_cast<float>((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
-    float Dy = static_cast<float>((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
-    float Dz = static_cast<float>((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
-    if ( Dx < Numeric::EPSILON_FLOAT ) {
-        Dx = Numeric::EPSILON_FLOAT;
+    double Dx = static_cast<double>((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
+    double Dy = static_cast<double>((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
+    double Dz = static_cast<double>((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
+    if ( Dx < Numeric::EPSILON ) {
+        Dx = Numeric::EPSILON;
     }
-    if ( Dy < Numeric::EPSILON_FLOAT ) {
-        Dy = Numeric::EPSILON_FLOAT;
+    if ( Dy < Numeric::EPSILON ) {
+        Dy = Numeric::EPSILON;
     }
-    if ( Dz < Numeric::EPSILON_FLOAT ) {
-        Dz = Numeric::EPSILON_FLOAT;
+    if ( Dz < Numeric::EPSILON ) {
+        Dz = Numeric::EPSILON;
     }
     coordinates[MIN_X] -= Dx;
     coordinates[MAX_X] += Dx;

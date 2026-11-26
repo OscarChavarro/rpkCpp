@@ -6,8 +6,8 @@ class GlutDebugState {
     int primarySelectedPatch;
     int selectedSelectedPatch;
     bool showSelectedPathOnly;
-    float angleAroundViewportU;
-    float angleAroundViewportV;
+    double angleAroundViewportU;
+    double angleAroundViewportV;
 
     GlutDebugState();
 };

@@ -2,7 +2,7 @@
 #define __RPK_GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Element.h"
@@ -41,9 +41,9 @@ class RpkGeometry {
 
     bool
     discretizationIntersectPreTest(
-        const RpkRay *ray,
-        float minimumDistance,
-        const float *maximumDistance,
+        const Ray *ray,
+        double minimumDistance,
+        const double *maximumDistance,
         const RayExclusionSet &exclusions
     ) const;
 
@@ -68,9 +68,9 @@ class RpkGeometry {
 
     virtual RpkRayHit *
     discretizationIntersect(
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions) const;
@@ -78,9 +78,9 @@ class RpkGeometry {
     static RpkRayHit *
     patchListIntersect(
         const java::ArrayList<Patch *> *patchList,
-        const RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        const Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions);
@@ -96,9 +96,9 @@ class RpkGeometry {
     static RpkRayHit *
     listDiscretizationIntersect(
         const java::ArrayList<RpkGeometry *> *geometryList,
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions);

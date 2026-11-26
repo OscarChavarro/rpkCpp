@@ -86,6 +86,67 @@ public:
     {
         return Vector3Dd(x_ - b.x_, y_ - b.y_, z_ - b.z_);
     }
+
+    /**
+    Square of the length (the dot product with itself)
+    */
+    inline double lengthSquared() const { return x_ * x_ + y_ * y_ + z_ * z_; }
+
+    /**
+    Sum of the absolute values of the components (the L1 norm)
+    */
+    inline double manhattanLength() const { return absolute(x_) + absolute(y_) + absolute(z_); }
+
+    /**
+    Distance to the given point: the length of (other - this)
+    */
+    inline double distance(const Vector3Dd& other) const { return other.subtract(*this).length(); }
+
+    /**
+    Square of the distance to the given point
+    */
+    inline double distanceSquared(const Vector3Dd& other) const { return other.subtract(*this).lengthSquared(); }
+
+    /**
+    Scales by 1 / s, or returns this vector unchanged when s is within
+    [-epsilon, epsilon]. The factor 1 / s is computed once and multiplies
+    each component
+    */
+    inline Vector3Dd multiplyByInverse(double s, double epsilon) const
+    {
+        const double factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+        return Vector3Dd(factor * x_, factor * y_, factor * z_);
+    }
+
+    /**
+    Scales by the inverse of the length, or returns this vector unchanged
+    when the length is within [-epsilon, epsilon]. Unlike normalized(), the
+    threshold applies to the length, and a unit vector is also rescaled
+    */
+    inline Vector3Dd normalized(double epsilon) const { return multiplyByInverse(length(), epsilon); }
+
+    /**
+    Index of the component of largest absolute value: 0 for x, 1 for y,
+    2 for z; ties go to x before y and y before z
+    */
+    inline int dominantAxis() const
+    {
+        const double ax = absolute(x_);
+        const double ay = absolute(y_);
+        const double az = absolute(z_);
+        double m = ay > az ? ay : az;
+        m = ax > m ? ax : m;
+        if ( m == ax ) {
+            return 0;
+        }
+        return m == ay ? 1 : 2;
+    }
+
+    /**
+    The component of the given axis: 0 for x, 1 for y, 2 for z
+    */
+    inline double component(int axis) const { return axis == 0 ? x_ : (axis == 1 ? y_ : z_); }
+
     float* exportToFloatArrayVector() const;
     double obtainSphericalThetaAngle() const;
     double obtainSphericalPhiAngle() const;
@@ -110,6 +171,9 @@ public:
         return (int)result;
     }
     java::String* toString() const;
+
+private:
+    static inline double absolute(double a) { return a < 0.0 ? -a : a; }
 };
 
 

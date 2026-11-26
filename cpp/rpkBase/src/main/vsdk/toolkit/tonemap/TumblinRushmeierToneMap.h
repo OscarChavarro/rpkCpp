@@ -5,11 +5,11 @@
 
 class TumblinRushmeierToneMap final : public ToneMap {
   private:
-    float invCMaximum;
-    float lrwmComp;
-    float lrwmDisplay;
-    float lrwExponent;
-    float lda;
+    double invCMaximum;
+    double lrwmComp;
+    double lrwmDisplay;
+    double lrwExponent;
+    double lda;
 
   protected:
     void initParameters(const ToneMappingContext &toneMapOptions) final;

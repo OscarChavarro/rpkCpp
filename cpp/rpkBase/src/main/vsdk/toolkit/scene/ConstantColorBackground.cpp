@@ -13,9 +13,9 @@ ConstantColorBackground::ConstantColorBackground(const ColorRgb &backgroundColor
 
 ColorRgb
 ConstantColorBackground::radiance(
-    Vector3Df * /*position*/,
-    Vector3Df * /*direction*/,
-    float *probabilityDensityFunction) const
+    Vector3Dd * /*position*/,
+    Vector3Dd * /*direction*/,
+    double *probabilityDensityFunction) const
 {
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
@@ -23,18 +23,18 @@ ConstantColorBackground::radiance(
     return color;
 }
 
-Vector3Df
+Vector3Dd
 ConstantColorBackground::sample(
-    Vector3Df * /*position*/,
-    float xi1,
-    float xi2,
+    Vector3Dd * /*position*/,
+    double xi1,
+    double xi2,
     ColorRgb *radianceValue,
-    float *probabilityDensityFunction) const
+    double *probabilityDensityFunction) const
 {
     const double phi = 2.0 * static_cast<double>(java::Math::PI) * static_cast<double>(xi1);
-    const float z = 1.0F - 2.0F * xi2;
-    const float radialSquared = java::Math::max(0.0F, 1.0F - z * z);
-    const float radius = java::Math::sqrt(radialSquared);
+    const double z = 1.0 - 2.0 * xi2;
+    const double radialSquared = java::Math::max(0.0, 1.0 - z * z);
+    const double radius = java::Math::sqrt(radialSquared);
 
     if ( radianceValue != nullptr ) {
         *radianceValue = color;
@@ -43,13 +43,13 @@ ConstantColorBackground::sample(
         *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
     }
 
-    Vector3Df direction;
-    direction = Vector3Df(radius * static_cast<float>(java::Math::cos(phi)), radius * static_cast<float>(java::Math::sin(phi)), z);
+    Vector3Dd direction;
+    direction = Vector3Dd(radius * static_cast<double>(java::Math::cos(phi)), radius * static_cast<double>(java::Math::sin(phi)), z);
     return direction;
 }
 
 ColorRgb
-ConstantColorBackground::power(Vector3Df * /*position*/) const {
+ConstantColorBackground::power(Vector3Dd * /*position*/) const {
     return ColorRgb(ConstantColorBackground::FOUR_PI * color.getR(),
                     ConstantColorBackground::FOUR_PI * color.getG(),
                     ConstantColorBackground::FOUR_PI * color.getB());

@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 /**
@@ -13,9 +13,6 @@ Generate and trace a local line
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Localline.h"
 
-#ifdef RPK_RAY_CAPTURE
-    #include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
-#endif
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 /**
@@ -23,11 +20,11 @@ Creates a coordinate system on the patch P with Z direction along the normal
 */
 void
 Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
-    Vector3Df z = patch->getNormal();
-    Vector3Df x;
+    Vector3Dd z = patch->getNormal();
+    Vector3Dd x;
     x = (*patch->getVertices()[1]->point).subtract(*patch->getVertices()[0]->point);
-    x = x.normalized(Numeric::EPSILON_FLOAT);
-    Vector3Df y;
+    x = x.normalized(Numeric::EPSILON);
+    Vector3Dd y;
     y = z.crossProduct(x);
 
     coord->setX(x);
@@ -40,11 +37,11 @@ Constructs a ray with uniformly chosen origin on patch and cosine distributed
 direction with respect to patch normal. Origin and direction are uniquely determined
 by the 4-dimensional sample vector xi
 */
-RpkRay
+Ray
 Localline::mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     const static Patch *previousPatch = nullptr;
     static CoordinateSystem coordSys;
-    RpkRay ray;
+    Ray ray;
     double pdf;
 
     if ( patch != previousPatch ) {
@@ -54,10 +51,12 @@ Localline::mcrGenerateLocalLine(const Patch *patch, const double *xi) {
         previousPatch = patch;
     }
 
-    patch->uniformPoint(xi[0], xi[1], &ray.position);
+    Vector3Dd origin;
+    patch->uniformPoint(xi[0], xi[1], &origin);
+    ray.setOrigin(origin);
     // Section [ARVO1995b].2: use two uniform samples from [0,1]^2 to
     // generate a local hemisphere direction in the patch frame.
-    ray.direction = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf);
+    ray.setDirection(coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf));
 
     return ray;
 }
@@ -76,28 +75,20 @@ Localline::someFeedback() {
 Determines nearest intersection point and patch
 */
 RpkRayHit *
-Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const Patch *P, RpkRay *ray, RpkRayHit *hitStore) {
-    float distance = java::Float::MAX_VALUE;
+Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const Patch *P, Ray *ray, RpkRayHit *hitStore) {
+    double distance = java::Double::MAX_VALUE;
     RpkRayHit *hit;
 
     // Reject self-intersections
     const RayExclusionSet exclusions(P, P->getTwin());
     hit = sceneQuery->intersect(
         ray,
-        Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
+        Numeric::EPSILON < P->getTolerance() ? Numeric::EPSILON : P->getTolerance(),
         &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore,
         exclusions,
         sceneWorldSceneQueryWorkspace);
-#ifdef RPK_RAY_CAPTURE
-    if ( sceneWorldSceneQueryWorkspace->getRecorder() != nullptr ) {
-        sceneWorldSceneQueryWorkspace->getRecorder()->recordQuery(
-            VisibilityQueryRecorder::STOCHASTIC_SHOOTING, ray,
-            Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
-            java::Float::MAX_VALUE, RayHitFlag::FRONT | RayHitFlag::POINT, exclusions, hit, distance);
-    }
-#endif
     someFeedback();
 
     return hit;

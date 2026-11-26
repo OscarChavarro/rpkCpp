@@ -11,9 +11,9 @@ sharing the vertex. Several vertices can share the same coordinates
 and inNormal vector. Several inPatches can share the same vertex
 */
 RpkVertex::RpkVertex(
-    Vector3Df *inPoint,
-    Vector3Df *inNormal,
-    Vector3Df *inTextureCoordinates,
+    Vector3Dd *inPoint,
+    Vector3Dd *inNormal,
+    Vector3Dd *inTextureCoordinates,
     java::ArrayList<Patch *> *inPatches):
     color(),
     tmp()

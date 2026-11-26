@@ -9,7 +9,7 @@ static void check(const ColorRgb &c, double r, double g, double b) {
     assert(c.getR() == r && c.getG() == g && c.getB() == b);
 }
 int main() {
-    Vector3Df p1(0,0,0), p2(1,0,0), p3(0,1,0);
+    Vector3Dd p1(0,0,0), p2(1,0,0), p3(0,1,0);
     RpkVertex v1(&p1, nullptr, nullptr, new java::ArrayList<Patch *>());
     RpkVertex v2(&p2, nullptr, nullptr, new java::ArrayList<Patch *>());
     RpkVertex v3(&p3, nullptr, nullptr, new java::ArrayList<Patch *>());
@@ -18,7 +18,7 @@ int main() {
     state.galerkinIterationMethod = GalerkinIterationMethod::JACOBI;
     GalerkinElement element(static_cast<RpkGeometry *>(nullptr), &state);
     element.patch = &patch;
-    element.area = 2.0f;
+    element.area = 2.0;
     element.radiance[0] = ColorRgb(2, -1, 4);
     check(GalerkinBasis::radianceAtPoint(&element, element.radiance, 0.25, 0.5), 2, -1, 4);
     check(GalerkinBasis::radianceAtPoint(&element, nullptr, 0.25, 0.5), 0, 0, 0);
@@ -34,7 +34,7 @@ int main() {
     check(maximum.getAccumulatedRadiance(), 2, 5, 4);
     check(power.getAccumulatedRadiance(), -5, 12, 5);
     GalerkinElement root(static_cast<RpkGeometry *>(nullptr), &state);
-    root.area = 2.0f;
+    root.area = 2.0;
     root.irregularSubElements = new java::ArrayList<Element *>();
     root.irregularSubElements->add(&element);
     element.flags &= static_cast<unsigned char>(~IS_CLUSTER_MASK);

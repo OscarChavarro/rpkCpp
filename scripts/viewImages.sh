@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Compares the .ppm images produced by each port's runAll.sh (cpp, java,
 # turboc, typescript) against the shared reference images in
-# doc/testBaseImages, side by side, with a per-port difference heat-map.
+# cpp/etc/goldenImagesForTests (the C++ references, which are the golden
+# images of every port), side by side, with a per-port difference heat-map.
 # Adapted from povray_1.0_1992/povCpp/scripts/viewImages.sh: same heat-map
 # and AE-metric approach, generalized to lay out N ports per scene instead
 # of a single output dir, and to tolerate ports that have not rendered a
@@ -12,7 +13,7 @@ set -euo pipefail
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ROOT_DIR="$(CDPATH= cd -- "${SCRIPT_DIR}/.." && pwd)"
 
-REFERENCE_DIR="${REFERENCE_DIR:-${ROOT_DIR}/doc/testBaseImages}"
+REFERENCE_DIR="${REFERENCE_DIR:-${ROOT_DIR}/cpp/etc/goldenImagesForTests}"
 TARGET_DIR="${TARGET_DIR:-/tmp/i}"
 PORTS="${PORTS:-cpp java turboc typescript}"
 
@@ -52,12 +53,11 @@ else
 fi
 
 # scene label : output file (relative to <port>/output) : reference file
-# (relative to REFERENCE_DIR). Mirrors the check_image table in each port's
-# scripts/testReviewResults.sh, since output filenames and reference
-# filenames are not identical (e.g. both cube variants share one reference).
+# (relative to REFERENCE_DIR). Mirrors the corpus table in each port's
+# scripts/corpus.sh; every output has a reference of the same name.
 SCENES=(
-  "01_cubeJacobi:01_cubeJacobi.ppm:01_cube.ppm"
-  "01_cubeGaussSiedel:01_cubeGaussSiedel.ppm:01_cube.ppm"
+  "01_cubeJacobi:01_cubeJacobi.ppm:01_cubeJacobi.ppm"
+  "01_cubeGaussSiedel:01_cubeGaussSiedel.ppm:01_cubeGaussSiedel.ppm"
   "01_cubeSouthwell:01_cubeSouthwell.ppm:01_cubeSouthwell.ppm"
   "02_corridor:02_corridor.ppm:02_corridor.ppm"
   "03_hospital:03_hospital.ppm:03_hospital.ppm"

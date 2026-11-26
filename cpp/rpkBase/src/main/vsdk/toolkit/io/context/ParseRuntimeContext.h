@@ -2,7 +2,7 @@
 #define __PARSE_RUNTIME_CONTEXT__
 
 #include "vsdk/toolkit/scene/RadianceMethod.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseContext.h"
@@ -59,8 +59,8 @@ class ParseRuntimeContext final : public ParseContext {
     char *&currentMaterialName;
     int &geometryStackHeadIndex;
     GeometryStackArray &geometryStack;
-    java::ArrayList<Vector3Df *> *&currentPointList;
-    java::ArrayList<Vector3Df *> *&currentNormalList;
+    java::ArrayList<Vector3Dd *> *&currentPointList;
+    java::ArrayList<Vector3Dd *> *&currentNormalList;
     java::ArrayList<RpkVertex *> *&currentVertexList;
     java::ArrayList<Patch *> *&currentFaceList;
     java::ArrayList<RpkGeometry *> *&currentGeometryList;

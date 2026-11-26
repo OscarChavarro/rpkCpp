@@ -2,7 +2,7 @@
 #define __GEOMETRY_ASSEMBLY_CONTEXT__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
@@ -16,8 +16,8 @@ class GeometryAssemblyContext {
     java::ArrayList<RpkGeometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     // Those lists are transferred to MeshSurface objects and should not be deleted on transfer.
-    java::ArrayList<Vector3Df *> *currentPointList;
-    java::ArrayList<Vector3Df *> *currentNormalList;
+    java::ArrayList<Vector3Dd *> *currentPointList;
+    java::ArrayList<Vector3Dd *> *currentNormalList;
     java::ArrayList<RpkVertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<RpkGeometry *> *currentGeometryList;

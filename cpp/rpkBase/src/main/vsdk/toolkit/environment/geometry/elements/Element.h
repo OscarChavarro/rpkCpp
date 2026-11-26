@@ -16,7 +16,7 @@ class Element {
     ColorRgb *radiance; // Total radiance on the element as computed so far
     ColorRgb *receivedRadiance; // Radiance received during iteration
     ColorRgb *unShotRadiance; // For progressive refinement radiosity
-    float area; // Area of all surfaces contained in the element
+    double area; // Area of all surfaces contained in the element
     ElementTypes className;
     unsigned char flags;
 

@@ -11,16 +11,15 @@ ToneMappingContext::ToneMappingContext():
     maximumDisplayContrast(),
     gamma(),
     gammaTab(),
-    // Monitor primaries and white point, given in single precision (the
-    // command line options are single precision too)
+    // Monitor primaries and white point
     colorSpace(
-        0.640F, 0.330F,
-        0.290F, 0.600F,
-        0.150F, 0.060F,
-        0.333333333333F, 0.333333333333F)
+        0.640, 0.330,
+        0.290, 0.600,
+        0.150, 0.060,
+        0.333333333333, 0.333333333333)
 {
     brightness_adjust = 0.0;
-    pow_bright_adjust = java::Math::pow(2.0F, brightness_adjust);
+    pow_bright_adjust = java::Math::pow(2.0, brightness_adjust);
 
     staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     realWorldAdaptionLuminance = DEFAULT_TM_LWA;

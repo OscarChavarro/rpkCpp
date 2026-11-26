@@ -15,7 +15,7 @@ three single byte mantissas and a common exponent.
 
 using BYTE = unsigned char; // 8-bit unsigned integer
 using BYTE_COLOR = BYTE[4]; // Red, green, blue (or X,Y,Z), exponent
-using DK_COLOR = float[3]; // Red, green, blue (or X,Y,Z)
+using DK_COLOR = double[3]; // Red, green, blue (or X,Y,Z)
 
 class DkColor {
   public:

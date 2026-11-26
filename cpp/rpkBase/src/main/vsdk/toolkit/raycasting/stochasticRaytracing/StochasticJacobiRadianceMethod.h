@@ -21,7 +21,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Df dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgb getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Dd dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -38,7 +38,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     StochasticRadiosityBasisState &stochasticRadiosityBasisState;
 
     static void appendStochasticStatsText(char *buffer, int *offset, const char *format, ...);
-    static long stochasticRelaxationRadiosityRandomRound(float x);
+    static long stochasticRelaxationRadiosityRandomRound(double x);
     static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
     static double stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *elem, double w);
     static ColorRgb *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
@@ -48,7 +48,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         Scene *scene,
         const RadianceMethod *radianceMethod,
         RendererConfiguration *renderOptions);
-    static float stochasticRelaxationRadiosityElementUnShotImportance(const StochasticRadiosityElement *elem);
+    static double stochasticRelaxationRadiosityElementUnShotImportance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintIncrementalImportanceStats();
     static void stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
@@ -64,7 +64,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
-    static float stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem);
+    static double stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityDoRegularImportanceIteration(
         const SceneQuery *sceneQuery,

@@ -1,7 +1,7 @@
 #ifndef __SCENE_FACE_RAY_TEST__
 #define __SCENE_FACE_RAY_TEST__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h"
@@ -11,12 +11,11 @@
 /**
 RenderPark's exact face test as the PrimitiveRayTest of a VITRAL
 SpatialIndex: primitive i is face i of the scene's face table, tested with
-Patch::intersect on the original single precision ray, flags and exclusions,
-so an index answer is decided by the same arithmetic as the voxel grid's,
-the exclusions included (a face below an excluded geometry is rejected by
-its face-index range, plan decision D5).
-The interval ends arrive as doubles that hold float values, and the accepted
-hit distance leaves as the float the face test produced.
+Patch::intersect on the original ray, flags and exclusions, so an index
+answer is decided by the same arithmetic as the voxel grid's, the exclusions
+included (a face below an excluded geometry is rejected by its face-index
+range, plan decision D5). The interval ends and the accepted hit distance are
+doubles, as the face test computes them.
 
 One object per query: it writes the accepted hit into the caller's hit
 record, so after a closest-hit query the record holds the closest face.
@@ -24,7 +23,7 @@ record, so after a closest-hit query the record holds the closest face.
 class SceneFaceRayTest final : public PrimitiveRayTest {
   private:
     const Scene &scene;
-    const RpkRay *ray;
+    const Ray *ray;
     int hitFlags;
     const RayExclusionSet &exclusions;
     RpkRayHit *hitStore;
@@ -32,7 +31,7 @@ class SceneFaceRayTest final : public PrimitiveRayTest {
   public:
     SceneFaceRayTest(
         const Scene &inScene,
-        const RpkRay *inRay,
+        const Ray *inRay,
         int inHitFlags,
         const RayExclusionSet &inExclusions,
         RpkRayHit *inHitStore);
@@ -45,9 +44,9 @@ class SceneFaceRayTest final : public PrimitiveRayTest {
 // queryWith) calls Patch::intersect directly
 inline bool
 SceneFaceRayTest::test(const int primitive, const double minimumT, const double maximumT, double *hitT) {
-    float distance = static_cast<float>(maximumT);
+    double distance = static_cast<double>(maximumT);
     const RpkRayHit *hit = scene.getFace(primitive)->intersect(
-        ray, static_cast<float>(minimumT), &distance, hitFlags, hitStore, exclusions);
+        ray, static_cast<double>(minimumT), &distance, hitFlags, hitStore, exclusions);
     if ( hit == nullptr ) {
         return false;
     }

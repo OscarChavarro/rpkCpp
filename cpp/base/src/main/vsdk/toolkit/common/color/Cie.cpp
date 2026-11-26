@@ -52,14 +52,14 @@ Cie::Cie(
     double xg, double yg,
     double xb, double yb,
     double xw, double yw):
-    xRed(xr),
-    yRed(yr),
-    xGreen(xg),
-    yGreen(yg),
-    xBlue(xb),
-    yBlue(yb),
-    xWhite(xw),
-    yWhite(yw),
+    redX(xr),
+    redY(yr),
+    greenX(xg),
+    greenY(yg),
+    blueX(xb),
+    blueY(yb),
+    whiteX(xw),
+    whiteY(yw),
     luminousEfficacy(WHITE_EFFICACY),
     redGrayFactor(),
     greenGrayFactor(),
@@ -76,9 +76,9 @@ columns are the chromaticities of the three primaries.
 */
 double
 Cie::cieD() const {
-    return xRed * (yGreen - yBlue) +
-           xGreen * (yBlue - yRed) +
-           xBlue * (yRed - yGreen);
+    return redX * (greenY - blueY) +
+           greenX * (blueY - redY) +
+           blueX * (redY - greenY);
 }
 
 /**
@@ -87,10 +87,10 @@ J_r of the white point system of [MART1991].
 */
 double
 Cie::cieCrD() const {
-    return (1.0 / yWhite) *
-           (xWhite * (yGreen - yBlue) -
-            yWhite * (xGreen - xBlue) +
-            xGreen * yBlue - xBlue * yGreen);
+    return (1.0 / whiteY) *
+           (whiteX * (greenY - blueY) -
+            whiteY * (greenX - blueX) +
+            greenX * blueY - blueX * greenY);
 }
 
 /**
@@ -98,10 +98,10 @@ Cie::cieCrD() const {
 */
 double
 Cie::cieCgD() const {
-    return (1.0 / yWhite) *
-           (xWhite * (yBlue - yRed) -
-            yWhite * (xBlue - xRed) -
-            xRed * yBlue + xBlue * yRed);
+    return (1.0 / whiteY) *
+           (whiteX * (blueY - redY) -
+            whiteY * (blueX - redX) -
+            redX * blueY + blueX * redY);
 }
 
 /**
@@ -109,10 +109,10 @@ Cie::cieCgD() const {
 */
 double
 Cie::cieCbD() const {
-    return (1.0 / yWhite) *
-           (xWhite * (yRed - yGreen) -
-            yWhite * (xRed - xGreen) +
-            xRed * yGreen - xGreen * yRed);
+    return (1.0 / whiteY) *
+           (whiteX * (redY - greenY) -
+            whiteY * (redX - greenX) +
+            redX * greenY - greenX * redY);
 }
 
 void
@@ -167,33 +167,33 @@ Cie::computeColorConversionTransforms() {
     const double cbD = cieCbD();
 
     // Second row of the RGB to XYZ matrix: the Y (gray) of each primary
-    redGrayFactor = yRed * crD / d;
-    greenGrayFactor = yGreen * cgD / d;
-    blueGrayFactor = yBlue * cbD / d;
+    redGrayFactor = redY * crD / d;
+    greenGrayFactor = greenY * cgD / d;
+    blueGrayFactor = blueY * cbD / d;
 
     setColorTransform(
         xyz2RgbMat, // XYZ to RGB
-        (yGreen - yBlue - xBlue * yGreen + yBlue * xGreen) / crD,
-        (xBlue - xGreen - xBlue * yGreen + xGreen * yBlue) / crD,
-        (xGreen * yBlue - xBlue * yGreen) / crD,
-        (yBlue - yRed - yBlue * xRed + yRed * xBlue) / cgD,
-        (xRed - xBlue - xRed * yBlue + xBlue * yRed) / cgD,
-        (xBlue * yRed - xRed * yBlue) / cgD,
-        (yRed - yGreen - yRed * xGreen + yGreen * xRed) / cbD,
-        (xGreen - xRed - xGreen * yRed + xRed * yGreen) / cbD,
-        (xRed * yGreen - xGreen * yRed) / cbD);
+        (greenY - blueY - blueX * greenY + blueY * greenX) / crD,
+        (blueX - greenX - blueX * greenY + greenX * blueY) / crD,
+        (greenX * blueY - blueX * greenY) / crD,
+        (blueY - redY - blueY * redX + redY * blueX) / cgD,
+        (redX - blueX - redX * blueY + blueX * redY) / cgD,
+        (blueX * redY - redX * blueY) / cgD,
+        (redY - greenY - redY * greenX + greenY * redX) / cbD,
+        (greenX - redX - greenX * redY + redX * greenY) / cbD,
+        (redX * greenY - greenX * redY) / cbD);
 
     setColorTransform(
         rgb2XyzMat, // RGB to XYZ
-        xRed * crD / d,
-        xGreen * cgD / d,
-        xBlue * cbD / d,
+        redX * crD / d,
+        greenX * cgD / d,
+        blueX * cbD / d,
         redGrayFactor,
         greenGrayFactor,
         blueGrayFactor,
-        (1.0 - xRed - yRed) * crD / d,
-        (1.0 - xGreen - yGreen) * cgD / d,
-        (1.0 - xBlue - yBlue) * cbD / d);
+        (1.0 - redX - redY) * crD / d,
+        (1.0 - greenX - greenY) * cgD / d,
+        (1.0 - blueX - blueY) * cbD / d);
 }
 
 /**

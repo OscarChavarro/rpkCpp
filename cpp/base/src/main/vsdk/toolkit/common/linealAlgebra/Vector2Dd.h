@@ -32,6 +32,12 @@ public:
     Vector2Dd multiply(double a) const { return Vector2Dd(a * x, a * y); }
     double length() const { return std::sqrt(x * x + y * y); }
     Vector2Dd add(const Vector2Dd& b) const { return Vector2Dd(x + b.x, y + b.y); }
+    Vector2Dd subtract(const Vector2Dd& b) const { return Vector2Dd(x - b.x, y - b.y); }
+
+    /**
+    Square of the length (the dot product with itself)
+    */
+    double lengthSquared() const { return x * x + y * y; }
 
     Vector2Dd withX(double nx) const { return Vector2Dd(nx, y); }
     Vector2Dd withY(double ny) const { return Vector2Dd(x, ny); }

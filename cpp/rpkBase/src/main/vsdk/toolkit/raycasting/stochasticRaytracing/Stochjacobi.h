@@ -35,7 +35,7 @@ propagation of importance and radiance does not work yet.
 class StochasticJacobi final {
   public:
     using GetRadianceCallback = ColorRgb *(*)(const StochasticRadiosityElement *);
-    using GetImportanceCallback = float (*)(const StochasticRadiosityElement *);
+    using GetImportanceCallback = double (*)(const StochasticRadiosityElement *);
     using UpdateCallback = void (*)(StochasticRadiosityElement *elem, double w);
 
     static void doStochasticJacobiIteration(
@@ -84,15 +84,15 @@ class StochasticJacobi final {
     static void stochasticJacobiPropagateRadianceClusterRecursive(
         StochasticRadiosityElement *currentElement,
         ColorRgb rayPower,
-        RpkRay *ray,
-        float dir,
+        Ray *ray,
+        double dir,
         double projectedArea,
         double fraction);
     static void stochasticJacobiPropagateRadianceToClusterOriented(
         StochasticRadiosityElement *cluster,
         ColorRgb rayPower,
-        RpkRay *ray,
-        float dir,
+        Ray *ray,
+        double dir,
         const StochasticRadiosityElement *src,
         double projectedArea,
         double fraction,
@@ -106,8 +106,8 @@ class StochasticJacobi final {
         double vr,
         double src_prob,
         double rcv_prob,
-        RpkRay *ray,
-        float dir);
+        Ray *ray,
+        double dir);
     static void stochasticJacobiPropagateImportance(
         const StochasticRadiosityElement *src,
         double us,
@@ -117,16 +117,16 @@ class StochasticJacobi final {
         double vr,
         double src_prob,
         double rcv_prob,
-        const RpkRay *ray,
-        float dir);
+        const Ray *ray,
+        double dir);
     static double stochasticJacobiReceiverProjectedArea(
         const StochasticRadiosityElement *cluster,
-        RpkRay *ray,
-        float dir);
+        Ray *ray,
+        double dir);
     static void stochasticJacobiReceiverProjectedAreaRecursive(
         const StochasticRadiosityElement *currentElement,
-        RpkRay *ray,
-        float dir,
+        Ray *ray,
+        double dir,
         double *area);
     static void stochasticJacobiRefineAndPropagateRadiance(
         const StochasticRadiosityElement *src,
@@ -140,8 +140,8 @@ class StochasticJacobi final {
         double vq,
         double src_prob,
         double rcv_prob,
-        RpkRay *ray,
-        float dir,
+        Ray *ray,
+        double dir,
         const RendererConfiguration *renderOptions);
     static void stochasticJacobiRefineAndPropagateImportance(
         const StochasticRadiosityElement *P,
@@ -152,8 +152,8 @@ class StochasticJacobi final {
         double vq,
         double src_prob,
         double rcv_prob,
-        const RpkRay *ray,
-        float dir);
+        const Ray *ray,
+        double dir);
     static void stochasticJacobiRefineAndPropagate(
         StochasticRadiosityElement *P,
         double up,
@@ -161,7 +161,7 @@ class StochasticJacobi final {
         StochasticRadiosityElement *Q,
         double uq,
         double vq,
-        RpkRay *ray,
+        Ray *ray,
         const RendererConfiguration *renderOptions);
     static double *stochasticJacobiNextSample(
         StochasticRadiosityElement *elem,

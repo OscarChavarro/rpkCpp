@@ -39,11 +39,11 @@ containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
 const RpkAxisAlignedBoundingBox *
-ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3Df eye, GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3Dd eye, GalerkinState *galerkinState) {
     RpkAxisAlignedBoundingBox &boundingBox = galerkinState->getScratchBounds();
 
     if ( cluster->id == galerkinState->lastClusterId &&
-         Numeric::vectorsEqual(eye, galerkinState->lastEye, Numeric::EPSILON_FLOAT) ) {
+         Numeric::vectorsEqual(eye, galerkinState->lastEye, Numeric::EPSILON) ) {
         return &boundingBox;
     }
 
@@ -52,22 +52,22 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     galerkinState->lastClusterId = cluster->id;
     galerkinState->lastEye = eye;
 
-    const Vector3Df center = cluster->midPoint();
-    Vector3Df up = {0.0, 0.0, 1.0};
-    Vector3Df viewDirection;
+    const Vector3Dd center = cluster->midPoint();
+    Vector3Dd up = {0.0, 0.0, 1.0};
+    Vector3Dd viewDirection;
 
     viewDirection = center.subtract(eye);
-    viewDirection = viewDirection.normalized(Numeric::EPSILON_FLOAT);
+    viewDirection = viewDirection.normalized(Numeric::EPSILON);
     if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - VSDK::EPSILON ) {
-        up = Vector3Df(0.0, 1.0, 0.0);
+        up = Vector3Dd(0.0, 1.0, 0.0);
     }
 
-    const Matrix4x4f lookAt = Camera::lookAtMatrix(eye, center, up);
+    const Matrix4x4d lookAt = Camera::lookAtMatrix(eye, center, up);
 
     Camera::transformBoundingBox(cluster->geometry->getBoundingBox(), lookAt, &boundingBox);
 
     GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
-    const Matrix4x4f projection = Camera::projectionMatrixFromBoundingBox(boundingBox);
+    const Matrix4x4d projection = Camera::projectionMatrixFromBoundingBox(boundingBox);
     scratch.setTransform(projection.multiply(lookAt));
 
     // Choose a viewport based on the smallest surface element in the cluster.
@@ -118,7 +118,7 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
         }
     }
     if ( nonBackground > 0 ) {
-        const double scale = 1.0F / static_cast<float>(scratch.getViewportWidth() * scratch.getViewportHeight());
+        const double scale = 1.0 / static_cast<double>(scratch.getViewportWidth() * scratch.getViewportHeight());
         rad[0] *= scale;
         rad[1] *= scale;
         rad[2] *= scale;

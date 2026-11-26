@@ -8,7 +8,7 @@ Galerkin radiosity, with the following variants:
 
 #include <cstring>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -107,7 +107,7 @@ GalerkinRadianceMethod::appendStatsText(char *buffer, int *offset, const char *f
 }
 
 void
-GalerkinRadianceMethod::writeVertexCoord(const Vector3Df *p) {
+GalerkinRadianceMethod::writeVertexCoord(const Vector3Dd *p) {
     if ( numberOfWrites > 0 ) {
         writeFormatted("%s", ", ");
     }
@@ -122,7 +122,7 @@ GalerkinRadianceMethod::writeVertexCoord(const Vector3Df *p) {
 void
 GalerkinRadianceMethod::writeVertexCoords(Element *element) {
     const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
-    Vector3Df v[8];
+    Vector3Dd v[8];
     int numberOfVertices = galerkinElement->vertices(v);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         writeVertexCoord(&v[i]);
@@ -259,7 +259,7 @@ For counting how much CPU time was used for the computations
 void
 GalerkinRadianceMethod::updateCpuSecs() {
     const long long t = java::System::nanoTime();
-    galerkinState.cpuSeconds += static_cast<float>(static_cast<double>(t - galerkinState.lastClock) / 1000000000.0);
+    galerkinState.cpuSeconds += static_cast<double>(static_cast<double>(t - galerkinState.lastClock) / 1000000000.0);
     galerkinState.lastClock = t;
 }
 
@@ -369,7 +369,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 
     // Global variables for scratch rendering
     galerkinState.lastClusterId = -1;
-    galerkinState.lastEye = Vector3Df(java::Float::MAX_VALUE, java::Float::MAX_VALUE, java::Float::MAX_VALUE);
+    galerkinState.lastEye = Vector3Dd(java::Double::MAX_VALUE, java::Double::MAX_VALUE, java::Double::MAX_VALUE);
 }
 
 bool
@@ -462,7 +462,7 @@ GalerkinRadianceMethod::getRadiance(
     const Patch *patch,
     double u,
     double v,
-    Vector3Df /*dir*/,
+    Vector3Dd /*dir*/,
     const RendererConfiguration * /*renderOptions*/) const
 {
     return computePatchRadiance(patch, u, v);

@@ -51,8 +51,8 @@ class BidirectionalPathRaytracer final : public RayTracer {
         const BiPath *path,
         int nx,
         int ny,
-        float pix_x,
-        float pix_y,
+        double pix_x,
+        double pix_y,
         ColorRgb f,
         bool radSample = false);
 
@@ -68,8 +68,8 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Camera *camera,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path,
-        float *pPdf = nullptr,
-        float *pWeight = nullptr,
+        double *pPdf = nullptr,
+        double *pWeight = nullptr,
         ColorRgb *fRad = nullptr);
 
     static void

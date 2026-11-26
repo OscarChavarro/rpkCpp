@@ -1,7 +1,7 @@
 #ifndef __PATCH__
 #define __PATCH__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/element/PlanarFace.h"
 #include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
@@ -21,22 +21,22 @@ class Patch {
 
     static void
     pointInTriangle(
-        const Vector3Df &v0,
-        const Vector3Df &v1,
-        const Vector3Df &v2,
-        float u,
-        float v,
-        Vector3Df &p);
+        const Vector3Dd &v0,
+        const Vector3Dd &v1,
+        const Vector3Dd &v2,
+        double u,
+        double v,
+        Vector3Dd &p);
 
     static void
     pointInQuadrilateral(
-        const Vector3Df &v0,
-        const Vector3Df &v1,
-        const Vector3Df &v2,
-        const Vector3Df &v3,
-        float u,
-        float v,
-        Vector3Df &p);
+        const Vector3Dd &v0,
+        const Vector3Dd &v1,
+        const Vector3Dd &v2,
+        const Vector3Dd &v3,
+        double u,
+        double v,
+        Vector3Dd &p);
 
     // Geometry of the face: positions, plane, area, parametrization; immutable
     PlanarFace face;
@@ -47,9 +47,9 @@ class Patch {
     const char numberOfVertices; // Number of vertices: 3 or 4
     RpkVertex *const vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
 
-    Vector3Df interpolatedNormalAtUv(double u, double v) const;
+    Vector3Dd interpolatedNormalAtUv(double u, double v) const;
     bool allVerticesHaveANormal() const;
-    Vector3Df getInterpolatedNormalAtUv(double u, double v) const;
+    Vector3Dd getInterpolatedNormalAtUv(double u, double v) const;
     void connectVertex(RpkVertex *paramVertex);
     void connectVertices();
 
@@ -64,37 +64,37 @@ class Patch {
     void computeBounds(RpkAxisAlignedBoundingBox *bounds) const;
     void computeVertexColors(const FaceColorTable *faceColors) const;
     bool facing(const Patch *other) const;
-    float getArea() const;
+    double getArea() const;
     const PlanarFace &getFace() const;
     char getDominantAxisIndex() const;
     unsigned getId() const;
     int getFaceIndex() const;
     const RpkMaterial *getMaterial() const;
-    Vector3Df getNormal() const;
+    Vector3Dd getNormal() const;
     char getNumberOfVertices() const;
-    float getPlaneConstant() const;
-    float getTolerance() const;
+    double getPlaneConstant() const;
+    double getTolerance() const;
     Patch *const &getTwin() const;
     RpkVertex *const (&getVertices() const)[MAXIMUM_VERTICES_PER_PATCH];
     bool hasZeroVertices() const;
-    void interpolatedFrameAtUv(double u, double v, Vector3Df *X, Vector3Df *Y, Vector3Df *Z) const;
-    RpkRayHit *intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
-    Vector3Df midPoint() const;
-    Vector3Df *pointBarycentricMapping(double u, double v, Vector3Df *point) const;
+    void interpolatedFrameAtUv(double u, double v, Vector3Dd *X, Vector3Dd *Y, Vector3Dd *Z) const;
+    RpkRayHit *intersect(const Ray *ray, double minimumDistance, double *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
+    Vector3Dd midPoint() const;
+    Vector3Dd *pointBarycentricMapping(double u, double v, Vector3Dd *point) const;
     void setId(unsigned newId);
     void setFaceIndex(int newFaceIndex);
     void setMaterial(RpkMaterial *newMaterial);
     void setTwin(Patch *newTwin);
-    Vector3Df textureCoordAtUv(double u, double v) const;
-    Vector3Df *uniformPoint(double u, double v, Vector3Df *point) const;
-    bool uv(const Vector3Df *point, double *u, double *v) const;
+    Vector3Dd textureCoordAtUv(double u, double v) const;
+    Vector3Dd *uniformPoint(double u, double v, Vector3Dd *point) const;
+    bool uv(const Vector3Dd *point, double *u, double *v) const;
 
 #ifdef RAYTRACING_ENABLED
-    bool uniformUv(const Vector3Df *point, double *u, double *v) const;
+    bool uniformUv(const Vector3Dd *point, double *u, double *v) const;
 #endif
 };
 
-inline float
+inline double
 Patch::getArea() const {
     return face.getArea();
 }
@@ -129,7 +129,7 @@ Patch::getMaterial() const {
     return material;
 }
 
-inline Vector3Df
+inline Vector3Dd
 Patch::getNormal() const {
     return face.getNormal();
 }
@@ -139,12 +139,12 @@ Patch::getNumberOfVertices() const {
     return numberOfVertices;
 }
 
-inline float
+inline double
 Patch::getPlaneConstant() const {
     return face.getPlaneConstant();
 }
 
-inline float
+inline double
 Patch::getTolerance() const {
     return face.getTolerance();
 }
@@ -159,7 +159,7 @@ Patch::getVertices() const)[MAXIMUM_VERTICES_PER_PATCH] {
     return vertex;
 }
 
-inline Vector3Df
+inline Vector3Dd
 Patch::midPoint() const {
     return face.getMidPoint();
 }

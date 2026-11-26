@@ -402,7 +402,7 @@ The regression gate is `scripts/testReviewResults.sh`, as defined by the
 verification tiers of [`vitralAlignmentPlan.md`](vitralAlignmentPlan.md), the
 authoritative source for gates: ImageMagick `compare -metric AE` must report
 zero differing pixels against the port's own references, and
-`compare -metric RMSE` against `doc/testBaseImages` must stay within the
+`compare -metric RMSE` against the golden images (`cpp/etc/goldenImagesForTests`) must stay within the
 recorded bound per image.
 Rendering all scenes takes ~1 hour on this machine, so it is a *phase* gate, not a
 *commit* gate.

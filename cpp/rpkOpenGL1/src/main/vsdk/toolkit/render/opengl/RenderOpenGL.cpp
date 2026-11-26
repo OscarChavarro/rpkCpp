@@ -16,8 +16,8 @@ RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<RpkGeometry
     RpkAxisAlignedBoundingBox bounds;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
-        camera->far = 10.0F;
-        camera->near = 0.1F;
+        camera->far = 10.0;
+        camera->near = 0.1;
         return;
     }
 
@@ -30,23 +30,23 @@ Renders a bounding box
 */
 void
 RenderOpenGL::renderBoundingBox(RpkAxisAlignedBoundingBox boundingBox) {
-    Vector3Df p[8];
+    Vector3Dd p[8];
 
-    const float minX = boundingBox.minX();
-    const float minY = boundingBox.minY();
-    const float minZ = boundingBox.minZ();
-    const float maxX = boundingBox.maxX();
-    const float maxY = boundingBox.maxY();
-    const float maxZ = boundingBox.maxZ();
+    const double minX = boundingBox.minX();
+    const double minY = boundingBox.minY();
+    const double minZ = boundingBox.minZ();
+    const double maxX = boundingBox.maxX();
+    const double maxY = boundingBox.maxY();
+    const double maxZ = boundingBox.maxZ();
 
-    p[0] = Vector3Df(minX, minY, minZ);
-    p[1] = Vector3Df(maxX, minY, minZ);
-    p[2] = Vector3Df(minX, maxY, minZ);
-    p[3] = Vector3Df(maxX, maxY, minZ);
-    p[4] = Vector3Df(minX, minY, maxZ);
-    p[5] = Vector3Df(maxX, minY, maxZ);
-    p[6] = Vector3Df(minX, maxY, maxZ);
-    p[7] = Vector3Df(maxX, maxY, maxZ);
+    p[0] = Vector3Dd(minX, minY, minZ);
+    p[1] = Vector3Dd(maxX, minY, minZ);
+    p[2] = Vector3Dd(minX, maxY, minZ);
+    p[3] = Vector3Dd(maxX, maxY, minZ);
+    p[4] = Vector3Dd(minX, minY, maxZ);
+    p[5] = Vector3Dd(maxX, minY, maxZ);
+    p[6] = Vector3Dd(minX, maxY, maxZ);
+    p[7] = Vector3Dd(maxX, maxY, maxZ);
 
     Opengl::openGlRenderLine(&p[0], &p[1]);
     Opengl::openGlRenderLine(&p[1], &p[3]);

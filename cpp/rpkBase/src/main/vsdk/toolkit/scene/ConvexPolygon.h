@@ -12,10 +12,10 @@ MAXIMUM_VERTICES_PER_PATCH or less (namely, triangles and quads only)
 */
 class ConvexPolygon {
   public:
-    Vector3Df normal;
-    float planeConstant;
+    Vector3Dd normal;
+    double planeConstant;
     RpkAxisAlignedBoundingBox bounds;
-    Vector3Df vertex[MAXIMUM_VERTICES_PER_PATCH];
+    Vector3Dd vertex[MAXIMUM_VERTICES_PER_PATCH];
     int numberOfVertices;
     char index;
 

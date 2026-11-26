@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/galerkin/ColorRgbMath.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -96,10 +96,10 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):Element()
     radiance = nullptr;
     receivedRadiance = nullptr;
     unShotRadiance = nullptr;
-    potential = 0.0F;
-    receivedPotential = 0.0F;
-    unShotPotential = 0.0F;
-    directPotential = 0.0F;
+    potential = 0.0;
+    receivedPotential = 0.0;
+    unShotPotential = 0.0;
+    directPotential = 0.0;
     patch = nullptr;
     geometry = nullptr;
     parent = nullptr;
@@ -111,7 +111,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):Element()
     basisSize = 0;
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    minimumArea = java::Float::MAX_VALUE;
+    minimumArea = java::Double::MAX_VALUE;
     scratchVisibilityUsageCounter = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
@@ -126,8 +126,8 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 {
     patch = parameterPatch;
     minimumArea = area = patch->getArea();
-    blockerSize = 2.0F * static_cast<float>(java::Math::sqrt(area / M_PI));
-    directPotential = 0.0F; // Every face starts without direct potential (DirectPotentialTable)
+    blockerSize = 2.0 * static_cast<double>(java::Math::sqrt(area / M_PI));
+    directPotential = 0.0; // Every face starts without direct potential (DirectPotentialTable)
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->getMaterial() != nullptr && patch->getMaterial()->getEdf() != nullptr ) {
@@ -339,8 +339,8 @@ GalerkinElement::regularSubDivide() {
             patch->getNumberOfVertices() == 3 ?
             &triangleToParentTransformMatrix[i] :
             &quadToParentTransformMatrix[i];
-        child->area = 0.25F * area;  // Uniform mapping is always used
-        child->blockerSize = 2.0F * static_cast<float>(java::Math::sqrt(child->area / M_PI));
+        child->area = 0.25 * area;  // Uniform mapping is always used
+        child->blockerSize = 2.0 * static_cast<double>(java::Math::sqrt(child->area / M_PI));
         child->childNumber = static_cast<GalerkinElementRenderMode>(i);
         child->reAllocCoefficients();
 
@@ -448,7 +448,7 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-GalerkinElement::vertices(Vector3Df *p) const {
+GalerkinElement::vertices(Vector3Dd *p) const {
     if ( isCluster() ) {
         RpkAxisAlignedBoundingBox boundingBox;
         bounds(&boundingBox);
@@ -458,43 +458,43 @@ GalerkinElement::vertices(Vector3Df *p) const {
         return 8;
     } else {
         Matrix2x2 topTrans{};
-        Vector2Df uv;
+        Vector2Dd uv;
 
         if ( transformToParent != nullptr ) {
             topTransform(&topTrans);
         }
 
-        uv = Vector2Df(0.0F, 0.0F);
+        uv = Vector2Dd(0.0, 0.0);
         if ( transformToParent != nullptr ) {
             uv = topTrans.transformPoint(uv);
         }
-        patch->uniformPoint(uv.x(), uv.y(), &p[0]);
+        patch->uniformPoint(uv.x, uv.y, &p[0]);
 
-        uv = Vector2Df(1.0F, 0.0F);
+        uv = Vector2Dd(1.0, 0.0);
         if ( transformToParent != nullptr ) {
             uv = topTrans.transformPoint(uv);
         }
-        patch->uniformPoint(uv.x(), uv.y(), &p[1]);
+        patch->uniformPoint(uv.x, uv.y, &p[1]);
 
         if ( patch->getNumberOfVertices() == 4 ) {
-            uv = Vector2Df(1.0F, 1.0F);
+            uv = Vector2Dd(1.0, 1.0);
             if ( transformToParent != nullptr ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[2]);
+            patch->uniformPoint(uv.x, uv.y, &p[2]);
 
-            uv = Vector2Df(0.0F, 1.0F);
+            uv = Vector2Dd(0.0, 1.0);
             if ( transformToParent != nullptr ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[3]);
+            patch->uniformPoint(uv.x, uv.y, &p[3]);
         } else {
-            uv = Vector2Df(0.0F, 1.0F);
+            uv = Vector2Dd(0.0, 1.0);
             if ( transformToParent != nullptr ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[2]);
-            p[3] = Vector3Df(0.0F, 0.0F, 0.0F);
+            patch->uniformPoint(uv.x, uv.y, &p[2]);
+            p[3] = Vector3Dd(0.0, 0.0, 0.0);
         }
 
         return patch->getNumberOfVertices();
@@ -504,21 +504,21 @@ GalerkinElement::vertices(Vector3Df *p) const {
 /**
 Computes the midpoint of the element
 */
-Vector3Df
+Vector3Dd
 GalerkinElement::midPoint() const {
     if ( isCluster() ) {
         return geometry->getBoundingBox().center();
     } else {
-        Vector3Df p[8];
+        Vector3Dd p[8];
         int numberOfVertices = vertices(p);
 
-        Vector3Df c(0.0F, 0.0F, 0.0F);
+        Vector3Dd c(0.0, 0.0, 0.0);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c = c.add(p[i]);
         }
 
-        c = c.multiply(1.0F / static_cast<float>(numberOfVertices));
+        c = c.multiply(1.0 / static_cast<double>(numberOfVertices));
         return c;
     }
 }
@@ -532,7 +532,7 @@ GalerkinElement::bounds(RpkAxisAlignedBoundingBox *boundingBox) const {
         RpkAxisAlignedBoundingBox copy = geometry->getBoundingBox();
         boundingBox->copyFrom(&copy);
     } else {
-        Vector3Df p[4];
+        Vector3Dd p[4];
 
         const int numberOfVertices = vertices(p);
 

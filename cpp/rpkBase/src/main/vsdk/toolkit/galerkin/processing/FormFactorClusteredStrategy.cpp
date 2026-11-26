@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -54,11 +54,11 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
         G = 1.0;
     }
 
-    link->K[0] = static_cast<float>(receiverElement->area * G);
+    link->K[0] = static_cast<double>(receiverElement->area * G);
 
-    link->deltaK = static_cast<float>(G - gMin);
+    link->deltaK = static_cast<double>(G - gMin);
     if ( gMax - G > link->deltaK ) {
-        link->deltaK = static_cast<float>(gMax - G);
+        link->deltaK = static_cast<double>(gMax - G);
     }
 
     link->numberOfReceiverCubaturePositions = 1;
@@ -84,10 +84,10 @@ double
 FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
     const java::ArrayList<RpkGeometry *> *geometryOccluderList,
     ShadowCache *shadowCache,
-    RpkRay *ray,
-    float rcvDist,
-    float srcSize,
-    float minimumFeatureSize,
+    Ray *ray,
+    double rcvDist,
+    double srcSize,
+    double minimumFeatureSize,
     const RayExclusionSet &exclusions)
 {
     double vis = 1.0;
@@ -109,10 +109,10 @@ double
 FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     ShadowCache *shadowCache,
     RpkGeometry *geometry,
-    RpkRay *ray,
-    float rcvDist,
-    float srcSize,
-    float minimumFeatureSize,
+    Ray *ray,
+    double rcvDist,
+    double srcSize,
+    double minimumFeatureSize,
     const RayExclusionSet &exclusions)
 {
     if ( exclusions.excludesGeometry(geometry) ) {
@@ -123,16 +123,16 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         Logger::reportMessage("FormFactorClusteredStrategy", Logger::FATAL_ERROR, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    float fSize = java::Float::MAX_VALUE;
-    float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
-    float tMaximum = rcvDist;
+    double fSize = java::Double::MAX_VALUE;
+    double tMinimum = rcvDist * Numeric::EPSILON;
+    double tMaximum = rcvDist;
     const RpkAxisAlignedBoundingBox *boundingBox = &geometry->boundingBox;
 
     // Check ray/bounding volume intersection and compute feature size of occluder
-    Vector3Df vectorTmp;
+    Vector3Dd vectorTmp;
     const GalerkinElement *cluster = static_cast<GalerkinElement *>(geometry->radianceData);
 
-    vectorTmp = ray->position.add(ray->direction.multiply(static_cast<float>(tMinimum)));
+    vectorTmp = ray->getOrigin().add(ray->getDirection().multiply(static_cast<double>(tMinimum)));
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
         if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
@@ -142,7 +142,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
         if ( cluster ) {
             // Compute feature size using equivalent blocker size of the occluder
-            float t = (tMinimum + tMaximum) / 2.0F; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
+            double t = (tMinimum + tMaximum) / 2.0; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
             fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
         }
     }
@@ -171,7 +171,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             const RpkRayHit *hit = RpkGeometry::patchListIntersect(
                     RpkGeometry::patchListReference(geometry),
                     ray,
-                    rcvDist * Numeric::EPSILON_FLOAT,
+                    rcvDist * Numeric::EPSILON,
                     &rcvDist,
                     RayHitFlag::FRONT | RayHitFlag::ANY,
                     &hitStore,

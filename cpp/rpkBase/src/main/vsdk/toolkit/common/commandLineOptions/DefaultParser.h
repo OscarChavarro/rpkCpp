@@ -49,13 +49,13 @@ struct DefaultParser<long> {
 };
 
 template<>
-struct DefaultParser<float> {
-    static bool parse(const char *input, float &out) {
+struct DefaultParser<double> {
+    static bool parse(const char *input, double &out) {
         if ( input == nullptr ) {
             return false;
         }
         char *endPointer = nullptr;
-        const float parsedValue = strtof(input, &endPointer);
+        const double parsedValue = strtod(input, &endPointer);
         if ( endPointer == input || *endPointer != '\0' ) {
             return false;
         }

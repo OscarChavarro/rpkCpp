@@ -17,7 +17,7 @@ Updates the potential of the element after a change of the camera, and as such
 a potential change in directly received potential
 */
 void
-GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, float potential_increment) {
+GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, double potential_increment) {
     if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
             GatheringClusteredStrategy::updateClusterDirectPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), potential_increment);
@@ -31,7 +31,7 @@ GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *elemen
 Recomputes the potential of the cluster and its sub-clusters based on the
 potential of the contained patches
 */
-float
+double
 GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & ElementFlags::IS_CLUSTER_MASK ) {
         cluster->potential = 0.0;
@@ -55,7 +55,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
             GalerkinElement *top = galerkinState->topLevelElement(patch);
-            float potentialIncrement = scene->getDirectPotentials()->get(patch->getFaceIndex()) - top->directPotential;
+            double potentialIncrement = scene->getDirectPotentials()->get(patch->getFaceIndex()) - top->directPotential;
             GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
         GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
@@ -80,7 +80,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     }
 
     // TODO: This makes galerkinState non const. Check if this can be changed
-    galerkinState->relLinkErrorThreshold = static_cast<float>(userErrorThreshold);
+    galerkinState->relLinkErrorThreshold = static_cast<double>(userErrorThreshold);
 
     // Push received radiance down the hierarchy to the leaf elements, where
     // it is multiplied with the reflectivity and the self-emitted radiance added,

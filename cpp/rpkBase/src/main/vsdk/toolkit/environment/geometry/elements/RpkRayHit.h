@@ -8,7 +8,7 @@ used as a parameter for BSDF/EDF queries
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/ShadingContext.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
@@ -22,10 +22,10 @@ routines
 */
 class RpkRayHit {
   private:
-    Vector3Df point; // Intersection point
+    Vector3Dd point; // Intersection point
     const Patch *patch; // Patch that was hit
-    Vector3Df texCoord; // Texture coordinate
-    Vector3Df geometricNormal;
+    Vector3Dd texCoord; // Texture coordinate
+    Vector3Dd geometricNormal;
     const RpkMaterial *material; // Material of hit surface
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
     Vector2Dd uv; // Bi-linear / barycentric parameters of hit
@@ -33,7 +33,7 @@ class RpkRayHit {
 
     bool computeUv(Vector2Dd *inUv);
     bool hitInitialised() const;
-    bool pointShadingFrame(Vector3Df *inX, Vector3Df *inY, Vector3Df *inZ);
+    bool pointShadingFrame(Vector3Dd *inX, Vector3Dd *inY, Vector3Dd *inZ);
 
 public:
     RpkRayHit();
@@ -41,32 +41,32 @@ public:
     bool
     init(
         const Patch *inPatch,
-        const Vector3Df *inPoint,
-        const Vector3Df *inGeometryNormal,
+        const Vector3Dd *inPoint,
+        const Vector3Dd *inGeometryNormal,
         const RpkMaterial *inMaterial);
 
-    bool getTexCoord(Vector3Df *outTexCoord);
-    bool shadingNormal(Vector3Df *inNormal);
+    bool getTexCoord(Vector3Dd *outTexCoord);
+    bool shadingNormal(Vector3Dd *inNormal);
     ShadingContext shadingContext(bool *ok) const;
 
     const Patch *getPatch() const;
     void setPatch(const Patch *inPatch);
-    Vector3Df getPoint() const;
-    void setPoint(const Vector3Df *position);
-    void setGeometricNormal(const Vector3Df *inNormal);
+    Vector3Dd getPoint() const;
+    void setPoint(const Vector3Dd *position);
+    void setGeometricNormal(const Vector3Dd *inNormal);
     void setMaterial(const RpkMaterial *inMaterial);
     Vector2Dd getUv() const;
     void setUv(const Vector2Dd *inUv);
     void setUv(const double inU, const double inV);
     unsigned int getFlags() const;
     void setFlags(unsigned int inFlags);
-    Vector3Df getGeometricNormal() const;
+    Vector3Dd getGeometricNormal() const;
     bool setShadingFrame(CoordinateSystem *frame);
-    Vector3Df getNormal() const;
-    void setNormal(const Vector3Df *n);
+    Vector3Dd getNormal() const;
+    void setNormal(const Vector3Dd *n);
     CoordinateSystem getShadingFrame() const;
     const RpkMaterial * getMaterial() const;
-    void setShadingFrame(const Vector3Df *inX, const Vector3Df *inY, const Vector3Df *inZ);
+    void setShadingFrame(const Vector3Dd *inX, const Vector3Dd *inY, const Vector3Dd *inZ);
 
 };
 
@@ -80,18 +80,18 @@ RpkRayHit::setPatch(const Patch *inPatch) {
     patch = inPatch;
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkRayHit::getPoint() const {
     return point;
 }
 
 inline void
-RpkRayHit::setPoint(const Vector3Df *position) {
+RpkRayHit::setPoint(const Vector3Dd *position) {
     point = *position;
 }
 
 inline void
-RpkRayHit::setGeometricNormal(const Vector3Df *inNormal) {
+RpkRayHit::setGeometricNormal(const Vector3Dd *inNormal) {
     geometricNormal = *inNormal;
 }
 
@@ -135,18 +135,18 @@ RpkRayHit::setFlags(unsigned int inFlags) {
     flags = inFlags;
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkRayHit::getGeometricNormal() const {
     return geometricNormal;
 }
 
-inline Vector3Df
+inline Vector3Dd
 RpkRayHit::getNormal() const {
     return shadingFrame.getZ();
 }
 
 inline void
-RpkRayHit::setNormal(const Vector3Df *n) {
+RpkRayHit::setNormal(const Vector3Dd *n) {
     shadingFrame.setZ(*n);
 }
 
@@ -161,7 +161,7 @@ RpkRayHit::getMaterial() const {
 }
 
 inline void
-RpkRayHit::setShadingFrame(const Vector3Df *inX, const Vector3Df *inY, const Vector3Df *inZ) {
+RpkRayHit::setShadingFrame(const Vector3Dd *inX, const Vector3Dd *inY, const Vector3Dd *inZ) {
     shadingFrame.setX(*inX);
     shadingFrame.setY(*inY);
     shadingFrame.setZ(*inZ);

@@ -7,7 +7,7 @@ and contain necessary information for raytracing-like algorithms
 #define __SIMPLE_RAYTRACING_PATH_NODE__
 
 #include "java/io/PrintStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/raycasting/common/BsdfComp.h"
@@ -31,9 +31,9 @@ class SimpleRaytracingPathNode {
     }
 
     RpkRayHit m_hit;
-    Vector3Df m_inDirT; // towards the patch
-    Vector3Df m_inDirF; // from the patch
-    Vector3Df m_normal;
+    Vector3Dd m_inDirT; // towards the patch
+    Vector3Dd m_inDirF; // from the patch
+    Vector3Dd m_normal;
 
     double m_G; // Geometric factor x(i-1) -> x(i)
     double m_pdfFromPrev;

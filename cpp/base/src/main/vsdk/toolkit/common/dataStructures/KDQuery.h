@@ -4,14 +4,14 @@
 template<typename T>
 class KDQuery {
   public:
-    const float *point;
+    const double *point;
     int wantedN;
     int foundN;
     bool notFilled;
     T **results;
-    float *distances;
-    float maximumDistance;
-    float sqrRadius;
+    double *distances;
+    double maximumDistance;
+    double sqrRadius;
     short excludeFlags;
 
     KDQuery(): point(nullptr), wantedN(0), foundN(0), notFilled(false), results(nullptr),

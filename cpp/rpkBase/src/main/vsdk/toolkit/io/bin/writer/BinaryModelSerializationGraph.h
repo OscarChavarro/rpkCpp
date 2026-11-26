@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "java/util/HashMap.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -16,8 +16,8 @@
 
 class BinaryModelSerializationGraph {
   public:
-    java::HashMap<const Vector3Df *, int> vectorIndices;
-    java::ArrayList<const Vector3Df *> vectors;
+    java::HashMap<const Vector3Dd *, int> vectorIndices;
+    java::ArrayList<const Vector3Dd *> vectors;
 
     java::HashMap<const RpkVertex *, int> vertexIndices;
     java::ArrayList<const RpkVertex *> vertices;
@@ -43,7 +43,7 @@ class BinaryModelSerializationGraph {
     java::HashMap<const TransformStackContext *, int> transformContextIndices;
     java::ArrayList<const TransformStackContext *> transformContexts;
 
-    bool ensureVector(const Vector3Df *value);
+    bool ensureVector(const Vector3Dd *value);
     bool ensureMaterial(const RpkMaterial *value);
     bool ensureVertex(const RpkVertex *value);
     bool ensurePatch(const Patch *value);
@@ -53,7 +53,7 @@ class BinaryModelSerializationGraph {
     bool ensureTransformArray(const TransformSequenceContext *value);
     bool ensureTransformContext(const TransformStackContext *value);
 
-    bool collectVectorList(const java::ArrayList<Vector3Df *> *list);
+    bool collectVectorList(const java::ArrayList<Vector3Dd *> *list);
     bool collectVertexList(const java::ArrayList<RpkVertex *> *list);
     bool collectPatchList(const java::ArrayList<Patch *> *list);
     bool collectMaterialList(const java::ArrayList<RpkMaterial *> *list);

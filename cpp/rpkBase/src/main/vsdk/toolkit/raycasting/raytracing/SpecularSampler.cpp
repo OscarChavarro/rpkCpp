@@ -23,7 +23,7 @@ SpecularSampler::sample(
     bool /*doRR*/,
     char flags)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
     double pdfDir = 1.0;
     bool reflect;
 
@@ -51,9 +51,9 @@ SpecularSampler::sample(
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 
-    float avgReflectance = static_cast<float>(reflectance.average());
-    float avgTransmittance = static_cast<float>(transmittance.average());
-    float avgScattering = avgReflectance + avgTransmittance;
+    double avgReflectance = static_cast<double>(reflectance.average());
+    double avgTransmittance = static_cast<double>(transmittance.average());
+    double avgScattering = avgReflectance + avgTransmittance;
 
     if ( avgScattering < VSDK::EPSILON ) {
         return false;

@@ -21,7 +21,7 @@ class Tracepath final {
 
     static void initPath(Path *path);
     static void clearPath(Path *path);
-    static void pathAddNode(Path *path, const Patch *patch, double probability, Vector3Df inPoint, Vector3Df outpoint);
+    static void pathAddNode(Path *path, const Patch *patch, double probability, Vector3Dd inPoint, Vector3Dd outpoint);
     static void freePathNodes(Path *path);
     static Path *tracePath(
         const SceneQuery *sceneQuery,

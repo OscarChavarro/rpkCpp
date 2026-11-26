@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
@@ -30,6 +30,16 @@ const ToneMappingContext *Opengl::activeToneMapOptions = nullptr;
 static bool openGlMissingToneMapWarningShown = false;
 
 #ifdef OPEN_GL_ENABLED
+/**
+Sends one vertex to OpenGL in double precision
+*/
+static inline void
+openGlVertex(const Vector3Dd &point) {
+    glVertex3d(point.x(), point.y(), point.z());
+}
+#endif
+
+#ifdef OPEN_GL_ENABLED
 void
 Opengl::openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.getR(), camera->background.getG(), camera->background.getB(), 0.0);
@@ -42,17 +52,17 @@ Opengl::openGlRenderClearWindow(const Camera *camera) {
 Renders a line from point p to point q, for example debugging
 */
 void
-Opengl::openGlRenderLine(Vector3Df *x, Vector3Df *y) {
+Opengl::openGlRenderLine(Vector3Dd *x, Vector3Dd *y) {
 #ifdef OPEN_GL_ENABLED
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     glBegin(GL_LINES);
-        glVertex3fv(reinterpret_cast<GLfloat *>(x));
-        glVertex3fv(reinterpret_cast<GLfloat *>(y));
+        openGlVertex(*x);
+        openGlVertex(*y);
     glEnd();
 
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0F, 1.0F);
+    glPolygonOffset(1.0, 1.0);
 #endif
 }
 
@@ -70,7 +80,7 @@ Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *r
         openGlMissingToneMapWarningShown = true;
     }
 #ifdef OPEN_GL_ENABLED
-    glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
+    glColor3d(correctedRgb.getR(), correctedRgb.getG(), correctedRgb.getB());
 #endif
 }
 
@@ -78,11 +88,11 @@ Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *r
 Renders a convex polygon flat shaded in the current color
 */
 void
-Opengl::openGlRenderPolygonFlat(int numberOfVertices, Vector3Df *vertices) {
+Opengl::openGlRenderPolygonFlat(int numberOfVertices, Vector3Dd *vertices) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        glVertex3fv(reinterpret_cast<GLfloat *>(&vertices[i]));
+        openGlVertex(vertices[i]);
     }
     glEnd();
 #endif
@@ -94,7 +104,7 @@ Renders a convex polygon with Gouraud shading
 void
 Opengl::openGlRenderPolygonGouraud(
     int numberOfVertices,
-    Vector3Df *vertices,
+    Vector3Dd *vertices,
     const ColorRgb *verticesColors,
     const RendererConfiguration *renderOptions)
 {
@@ -102,7 +112,7 @@ Opengl::openGlRenderPolygonGouraud(
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         Opengl::openGlRenderSetColor(&verticesColors[i], renderOptions);
-        glVertex3fv(reinterpret_cast<GLfloat *>(&vertices[i]));
+        openGlVertex(vertices[i]);
     }
     glEnd();
 #endif
@@ -110,10 +120,10 @@ Opengl::openGlRenderPolygonGouraud(
 
 #ifdef OPEN_GL_ENABLED
 
-Vector3Df
+Vector3Dd
 Opengl::sceneRotationPivot(const Scene *scene) {
     if ( scene == nullptr ) {
-        return Vector3Df(0.0F, 0.0F, 0.0F);
+        return Vector3Dd(0.0, 0.0, 0.0);
     }
 
     if ( scene->clusteredRootGeometry != nullptr && scene->clusteredRootGeometry->bounded ) {
@@ -126,17 +136,17 @@ Opengl::sceneRotationPivot(const Scene *scene) {
         return sceneBounds.center();
     }
 
-    return Vector3Df(0.0F, 0.0F, 0.0F);
+    return Vector3Dd(0.0, 0.0, 0.0);
 }
 
 void
-Opengl::viewportAxesInWorld(const Scene *scene, Vector3Df *axisU, Vector3Df *axisV) {
+Opengl::viewportAxesInWorld(const Scene *scene, Vector3Dd *axisU, Vector3Dd *axisV) {
     if ( axisU == nullptr || axisV == nullptr ) {
         return;
     }
 
-    *axisU = Vector3Df(1.0F, 0.0F, 0.0F);
-    *axisV = Vector3Df(0.0F, 1.0F, 0.0F);
+    *axisU = Vector3Dd(1.0, 0.0, 0.0);
+    *axisV = Vector3Dd(0.0, 1.0, 0.0);
 
     if ( scene == nullptr || scene->camera == nullptr ) {
         return;
@@ -144,45 +154,45 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3Df *axisU, Vector3Df *axi
 
     const Camera *camera = scene->camera;
 
-    Vector3Df cameraU;
+    Vector3Dd cameraU;
     cameraU = camera->X;
-    Vector3Df cameraV;
+    Vector3Dd cameraV;
     cameraV = camera->Y;
 
-    if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT || cameraV.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-        Vector3Df viewDirection;
+    if ( cameraU.lengthSquared() < Numeric::EPSILON || cameraV.lengthSquared() < Numeric::EPSILON ) {
+        Vector3Dd viewDirection;
         viewDirection = camera->lookPosition.subtract(camera->eyePosition);
-        if ( viewDirection.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+        if ( viewDirection.lengthSquared() < Numeric::EPSILON ) {
             return;
         }
-        viewDirection = viewDirection.normalized(Numeric::EPSILON_FLOAT);
+        viewDirection = viewDirection.normalized(Numeric::EPSILON);
 
-        Vector3Df upDirection;
+        Vector3Dd upDirection;
         upDirection = camera->upDirection;
-        if ( upDirection.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-            upDirection = Vector3Df(0.0F, 0.0F, 1.0F);
+        if ( upDirection.lengthSquared() < Numeric::EPSILON ) {
+            upDirection = Vector3Dd(0.0, 0.0, 1.0);
         } else {
-            upDirection = upDirection.normalized(Numeric::EPSILON_FLOAT);
+            upDirection = upDirection.normalized(Numeric::EPSILON);
         }
 
         cameraU = viewDirection.crossProduct(upDirection);
-        if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT ) {
-            upDirection = Vector3Df(0.0F, 1.0F, 0.0F);
+        if ( cameraU.lengthSquared() < Numeric::EPSILON ) {
+            upDirection = Vector3Dd(0.0, 1.0, 0.0);
             cameraU = viewDirection.crossProduct(upDirection);
         }
-        if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+        if ( cameraU.lengthSquared() < Numeric::EPSILON ) {
             return;
         }
-        cameraU = cameraU.normalized(Numeric::EPSILON_FLOAT);
+        cameraU = cameraU.normalized(Numeric::EPSILON);
         cameraV = viewDirection.crossProduct(cameraU);
     }
 
-    if ( cameraU.lengthSquared() < Numeric::EPSILON_FLOAT || cameraV.lengthSquared() < Numeric::EPSILON_FLOAT ) {
+    if ( cameraU.lengthSquared() < Numeric::EPSILON || cameraV.lengthSquared() < Numeric::EPSILON ) {
         return;
     }
 
-    cameraU = cameraU.normalized(Numeric::EPSILON_FLOAT);
-    cameraV = cameraV.normalized(Numeric::EPSILON_FLOAT);
+    cameraU = cameraU.normalized(Numeric::EPSILON);
+    cameraV = cameraV.normalized(Numeric::EPSILON);
 
     *axisU = cameraU;
     *axisV = cameraV;
@@ -194,23 +204,23 @@ Opengl::openGlRenderPatchFlat(const Patch *patch, const ColorRgb &color, const R
     switch ( patch->getNumberOfVertices() ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
+            openGlVertex(*patch->getVertices()[0]->point);
+            openGlVertex(*patch->getVertices()[1]->point);
+            openGlVertex(*patch->getVertices()[2]->point);
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[3]->point));
+            openGlVertex(*patch->getVertices()[0]->point);
+            openGlVertex(*patch->getVertices()[1]->point);
+            openGlVertex(*patch->getVertices()[2]->point);
+            openGlVertex(*patch->getVertices()[3]->point);
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
-                glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[i]->point));
+                openGlVertex(*patch->getVertices()[i]->point);
             }
             glEnd();
     }
@@ -222,30 +232,30 @@ Opengl::openGlRenderPatchSmooth(const Patch *patch, const RendererConfiguration 
         case 3:
             glBegin(GL_TRIANGLES);
             Opengl::openGlRenderSetColor(&patch->getVertices()[0]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            openGlVertex(*patch->getVertices()[0]->point);
             Opengl::openGlRenderSetColor(&patch->getVertices()[1]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            openGlVertex(*patch->getVertices()[1]->point);
             Opengl::openGlRenderSetColor(&patch->getVertices()[2]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
+            openGlVertex(*patch->getVertices()[2]->point);
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
             Opengl::openGlRenderSetColor(&patch->getVertices()[0]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            openGlVertex(*patch->getVertices()[0]->point);
             Opengl::openGlRenderSetColor(&patch->getVertices()[1]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            openGlVertex(*patch->getVertices()[1]->point);
             Opengl::openGlRenderSetColor(&patch->getVertices()[2]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
+            openGlVertex(*patch->getVertices()[2]->point);
             Opengl::openGlRenderSetColor(&patch->getVertices()[3]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[3]->point));
+            openGlVertex(*patch->getVertices()[3]->point);
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
                 Opengl::openGlRenderSetColor(&patch->getVertices()[i]->color, renderOptions);
-                glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[i]->point));
+                openGlVertex(*patch->getVertices()[i]->point);
             }
             glEnd();
     }
@@ -260,7 +270,7 @@ Opengl::openGlRenderPatchOutline(const Patch *patch) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_LINE_LOOP);
     for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
-        glVertex3fv(reinterpret_cast<GLfloat *>(&patch->getVertices()[i]->point));
+        openGlVertex(*patch->getVertices()[i]->point);
     }
     glEnd();
 #endif
@@ -317,10 +327,10 @@ Opengl::openGlViewCullBounds(const Camera *camera, const RpkAxisAlignedBoundingB
 /**
 Squared distance to midpoint (avoid taking square root)
 */
-float
-Opengl::openGlBoundsDistance2(Vector3Df p, const RpkAxisAlignedBoundingBox *boundingBox) {
-    Vector3Df mid = boundingBox->center();
-    Vector3Df d;
+double
+Opengl::openGlBoundsDistance2(Vector3Dd p, const RpkAxisAlignedBoundingBox *boundingBox) {
+    Vector3Dd mid = boundingBox->center();
+    Vector3Dd d;
     d = mid.subtract(p);
 
     return d.lengthSquared();
@@ -361,7 +371,7 @@ Opengl::openGlRenderOctreeNonLeaf(
     for ( i = 0; i < n; i++ ) {
         if ( Opengl::openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
             octree_children[i].geometry = nullptr; // culled
-            octree_children[i].distance = java::Float::MAX_VALUE;
+            octree_children[i].distance = java::Double::MAX_VALUE;
         } else {
             // Not culled, compute distance from eye to midpoint of child
             octree_children[i].distance = Opengl::openGlBoundsDistance2(
@@ -389,7 +399,7 @@ Opengl::openGlRenderOctreeNonLeaf(
 
         // remove it from the list
         octree_children[closest].geometry = nullptr;
-        octree_children[closest].distance = java::Float::MAX_VALUE;
+        octree_children[closest].distance = java::Double::MAX_VALUE;
         remaining--;
     }
     delete children;
@@ -452,8 +462,8 @@ Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, cons
 Sets line width for outlines, etc
 */
 void
-Opengl::openGlRenderSetLineWidth(float width) {
-    glLineWidth(width);
+Opengl::openGlRenderSetLineWidth(double width) {
+    glLineWidth(static_cast<GLfloat>(width)); // OpenGL has no double line width
 }
 
 void
@@ -469,7 +479,7 @@ Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<RpkGeometry 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(camera->verticalFov * 2.0,
-                   static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
+                   static_cast<double>(camera->xSize) / static_cast<double>(camera->ySize),
                    camera->near / 10,
                    camera->far * 10);
 
@@ -487,15 +497,15 @@ Opengl::openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *
     }
 
     const bool hasRotation =
-        debugState->angleAroundViewportU != 0.0F ||
-        debugState->angleAroundViewportV != 0.0F;
+        debugState->angleAroundViewportU != 0.0 ||
+        debugState->angleAroundViewportV != 0.0;
     if ( !hasRotation ) {
         return;
     }
 
-    const Vector3Df pivot = Opengl::sceneRotationPivot(scene);
-    Vector3Df axisU;
-    Vector3Df axisV;
+    const Vector3Dd pivot = Opengl::sceneRotationPivot(scene);
+    Vector3Dd axisU;
+    Vector3Dd axisV;
     Opengl::viewportAxesInWorld(scene, &axisU, &axisV);
 
     glTranslated(pivot.x(), pivot.y(), pivot.z());

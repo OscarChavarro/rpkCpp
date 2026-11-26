@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/scene/Scene.h"
@@ -28,7 +28,7 @@ class Nondiff final {
         const java::ArrayList<Patch *> *scenePatches,
         const java::ArrayList<Patch *> *lightPatches);
     static void nextLightSample(const Patch *patch, double *zeta);
-    static RpkRay sampleLightRay(
+    static Ray sampleLightRay(
         Patch *patch,
         ColorRgb *emittedRadiance,
         double *pointSelectionPdf,

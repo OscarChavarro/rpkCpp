@@ -49,7 +49,7 @@ class OptionsGroupCore final {
     static ColorRgb backgroundColor;
     static SceneAccelerationMethod sceneAccelerationMethod;
 
-    static bool commandLineParseFloat(const char *text, float *value);
+    static bool commandLineParseFloat(const char *text, double *value);
     static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
     static void commandLineParseBackgroundOption(int *argc, char **argv);
     static char toLowerAscii(char c);

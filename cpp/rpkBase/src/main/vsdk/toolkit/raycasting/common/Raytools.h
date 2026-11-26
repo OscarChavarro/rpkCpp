@@ -5,7 +5,7 @@ Some utility routines for ray intersections and for statistics
 #ifndef __RAYTOOLS__
 #define __RAYTOOLS__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/Camera.h"
@@ -18,7 +18,7 @@ class RayTools {
     findRayIntersection(
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-        RpkRay *ray,
+        Ray *ray,
         const Patch *patch,
         const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
         RpkRayHit *hitStore);
@@ -37,8 +37,8 @@ class RayTools {
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const SimpleRaytracingPathNode *eyeNode,
         const SimpleRaytracingPathNode *node,
-        float *pixX,
-        float *pixY);
+        double *pixX,
+        double *pixY);
 
   private:
     static int pathFrontHitFlags();
@@ -48,7 +48,7 @@ class RayTools {
     traceWorld(
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-        RpkRay *ray,
+        Ray *ray,
         const Patch *patch,
         unsigned int flags,
         const Patch *extraPatch,

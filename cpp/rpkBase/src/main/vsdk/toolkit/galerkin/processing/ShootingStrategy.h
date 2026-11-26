@@ -16,12 +16,12 @@ See [COHE1993].5.3.3. section
 */
 class ShootingStrategy {
   private:
-    static inline float
+    static inline double
     galerkinGetPotential(const GalerkinState *galerkinState, const Patch *patch) {
         return galerkinState->topLevelElement(patch)->potential;
     }
 
-    static inline float
+    static inline double
     galerkinGetUnShotPotential(const GalerkinState *galerkinState, const Patch *patch) {
         return galerkinState->topLevelElement(patch)->unShotPotential;
     }
@@ -38,8 +38,8 @@ class ShootingStrategy {
         const Patch *patch,
         GalerkinState *galerkinState);
 
-    static float
-    shootingPushPullPotential(GalerkinElement *element, float down);
+    static double
+    shootingPushPullPotential(GalerkinElement *element, double down);
 
     static void
     patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState);
@@ -59,7 +59,7 @@ class ShootingStrategy {
     static void propagatePotential(const Scene *scene, GalerkinState *galerkinState);
 
     static void
-    shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);
+    shootingUpdateDirectPotential(GalerkinElement *galerkinElement, double potentialIncrement);
 
   public:
     static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, const RendererConfiguration *renderOptions);

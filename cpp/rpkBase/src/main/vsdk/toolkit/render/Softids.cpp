@@ -21,7 +21,7 @@ SoftIds::drawPatch(
         return;
     }
 
-    Vector3Df vertices[4];
+    Vector3Dd vertices[4];
     const int count = patch.getNumberOfVertices();
     for ( int i = 0; i < count; i++ ) {
         vertices[i] = *patch.getVertices()[i]->point;
@@ -36,12 +36,12 @@ SoftIds::renderVisibleFaces(const Scene &scene, const RendererConfiguration *ren
     }
 
     const Camera &camera = *scene.camera;
-    const Matrix4x4f projection = Camera::perspectiveMatrix(
-        camera.fieldOfVision * 2.0F * static_cast<float>(M_PI) / 180.0F,
-        static_cast<float>(camera.xSize) / static_cast<float>(camera.ySize),
+    const Matrix4x4d projection = Camera::perspectiveMatrix(
+        camera.fieldOfVision * 2.0 * static_cast<double>(M_PI) / 180.0,
+        static_cast<double>(camera.xSize) / static_cast<double>(camera.ySize),
         camera.near,
         camera.far);
-    const Matrix4x4f view = Camera::lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
+    const Matrix4x4d view = Camera::lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
     target.setTransform(projection.multiply(view));
 
     for ( int i = 0; scene.patchList != nullptr && i < scene.patchList->size(); i++ ) {

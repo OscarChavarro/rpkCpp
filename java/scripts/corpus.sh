@@ -1,9 +1,9 @@
 #!/bin/sh
 # Test corpus table shared by runCorpus.sh and testReviewResults.sh.
 # One line per output image: image name | run script | log name | golden image
-# ("-" when the image has no golden in ../doc/testBaseImages).
+# ("-" when the image has no golden in ../cpp/etc/goldenImagesForTests).
 
-CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi|01_cube
+CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi|01_cubeJacobi
 01_cubeGaussSiedel|01_runCubeGaussSiedel|01_gaussSiedel|01_cubeGaussSiedel
 01_cubeSouthwell|01_runCubeSouthwell|01_southwell|01_cubeSouthwell
 02_corridor|02_runCorridor|02|02_corridor

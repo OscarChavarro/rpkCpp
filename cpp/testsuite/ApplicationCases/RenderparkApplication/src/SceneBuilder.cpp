@@ -1,7 +1,4 @@
 #include "vsdk/toolkit/skin/Compound.h"
-#ifdef RPK_RAY_CAPTURE
-    #include <cstdlib>
-#endif
 #include <cstring>
 
 #include "java/io/FileInputStream.h"
@@ -43,16 +40,16 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch, double *powerSum, d
     reflectivitySum[0] += area * R.getR();
     reflectivitySum[1] += area * R.getG();
     reflectivitySum[2] += area * R.getB();
-    Statistics::instance().radiance.maxSelfEmittedRadiance = E.multiply(1.0F / static_cast<float>(M_PI)).maximum(Statistics::instance().radiance.maxSelfEmittedRadiance);
+    Statistics::instance().radiance.maxSelfEmittedRadiance = E.multiply(1.0 / static_cast<double>(M_PI)).maximum(Statistics::instance().radiance.maxSelfEmittedRadiance);
     Statistics::instance().radiance.maxSelfEmittedPower = power.maximum(Statistics::instance().radiance.maxSelfEmittedPower);
 }
 
 void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
-    Vector3Df zero;
+    Vector3Dd zero;
     double powerSum[3] = {0.0, 0.0, 0.0};
     double reflectivitySum[3] = {0.0, 0.0, 0.0};
-    zero = Vector3Df(0, 0, 0);
+    zero = Vector3Dd(0, 0, 0);
 
     // Initialize
     Statistics::instance().radiance.totalEmittedPower = ColorRgb(0.0, 0.0, 0.0);
@@ -71,10 +68,10 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     Statistics::instance().radiance.averageReflectivity = ColorRgb(reflectivitySum[0], reflectivitySum[1], reflectivitySum[2]).scaleInverse(Statistics::instance().radiance.totalArea);
     const ColorRgb &reflectivity = Statistics::instance().radiance.averageReflectivity;
     const ColorRgb averageAbsorption(1.0 - reflectivity.getR(), 1.0 - reflectivity.getG(), 1.0 - reflectivity.getB());
-    Statistics::instance().radiance.estimatedAverageRadiance = Statistics::instance().radiance.totalEmittedPower.scaleInverse(static_cast<float>(M_PI) * Statistics::instance().radiance.totalArea);
+    Statistics::instance().radiance.estimatedAverageRadiance = Statistics::instance().radiance.totalEmittedPower.scaleInverse(static_cast<double>(M_PI) * Statistics::instance().radiance.totalArea);
 
     // Include background radiation
-    const ColorRgb BP = Background::backgroundPower(scene->background, &zero).multiply(1.0F / (4.0F * static_cast<float>(M_PI)));
+    const ColorRgb BP = Background::backgroundPower(scene->background, &zero).multiply(1.0 / (4.0 * static_cast<double>(M_PI)));
     Statistics::instance().radiance.totalEmittedPower = Statistics::instance().radiance.totalEmittedPower.add(BP);
     Statistics::instance().radiance.estimatedAverageRadiance = Statistics::instance().radiance.estimatedAverageRadiance.add(BP).divide(averageAbsorption);
 
@@ -523,7 +520,7 @@ SceneBuilder::sceneBuilderReadFile(
     long long t = java::System::nanoTime();
     java::System::err.printf(
         "Reading took %g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     delete[] currentDirectory;
@@ -546,7 +543,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build the list of patches on light sources from the patch list
@@ -558,7 +555,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build a cluster hierarchy for the new scene
@@ -585,21 +582,17 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Create the scene query, over the index the -scene-acceleration option chose
-#ifdef RPK_RAY_CAPTURE
-    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
-    scene->visibilityQueryRecorder = new VisibilityQueryRecorder(getenv("RPK_RAY_CAPTURE_FILE"));
-#endif
     scene->buildSceneQuery();
 
     t = java::System::nanoTime();
     java::System::err.printf(
         "Scene index (%s) creation took %g secs.\n",
         SceneQuery::methodName(scene->getAccelerationMethod()),
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -615,7 +608,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Initialize tone mapping
@@ -627,7 +620,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Print statistics report
@@ -656,7 +649,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = java::System::nanoTime();
     java::System::err.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
+        static_cast<double>(static_cast<double>(t - last) / 1000000000.0));
 
     // Remove possible render hooks
     RenderHookList::removeAllRenderHooks();

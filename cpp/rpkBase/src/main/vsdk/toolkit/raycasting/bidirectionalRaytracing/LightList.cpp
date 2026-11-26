@@ -113,7 +113,7 @@ LightList::sample(double *x1, double *pdf) {
             currentSum += info->emittedFlux;
         } else {
             info = lastInfo;
-            rnd = currentSum - 1.0; // :-(  Damn float inaccuracies
+            rnd = currentSum - 1.0; // :-(  Damn double inaccuracies
         }
     }
 
@@ -128,7 +128,7 @@ LightList::sample(double *x1, double *pdf) {
 }
 
 double
-LightList::evalPdfVirtual(const Patch *light, const Vector3Df */*point*/) const {
+LightList::evalPdfVirtual(const Patch *light, const Vector3Dd */*point*/) const {
     // EvalPDF for virtual patches (see EvalPDF)
     double probabilityDensityFunction;
 
@@ -147,7 +147,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3Df */*point*/) const 
 }
 
 double
-LightList::evalPdfReal(const Patch *light, const Vector3Df */*point*/) const {
+LightList::evalPdfReal(const Patch *light, const Vector3Dd */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
     ColorRgb color(0.0, 0.0, 0.0);
     double pdf;
@@ -161,7 +161,7 @@ LightList::evalPdfReal(const Patch *light, const Vector3Df */*point*/) const {
 }
 
 double
-LightList::evalPdf(const Patch *light, const Vector3Df *point) const {
+LightList::evalPdf(const Patch *light, const Vector3Dd *point) const {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -180,9 +180,9 @@ LightList::evalPdf(const Patch *light, const Vector3Df *point) const {
 double
 LightList::computeOneLightImportanceVirtual(
     const Patch *light,
-    const Vector3Df *,
-    const Vector3Df *,
-    float) {
+    const Vector3Dd *,
+    const Vector3Dd *,
+    double) {
     // ComputeOneLightImportance for virtual patches
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
@@ -199,17 +199,17 @@ LightList::computeOneLightImportanceVirtual(
 double
 LightList::computeOneLightImportanceReal(
     const Patch *light,
-    const Vector3Df *point,
-    const Vector3Df *normal,
-    float emittedFlux)
+    const Vector3Dd *point,
+    const Vector3Dd *normal,
+    double emittedFlux)
 {
     // ComputeOneLightImportance for real patches
     int tried = 0;  // No positions on the patch are tried yet
     int done = false;
     double contribution = 0.0;
-    Vector3Df lightPoint;
-    Vector3Df lightNormal;
-    Vector3Df dir;
+    Vector3Dd lightPoint;
+    Vector3Dd lightNormal;
+    Vector3Dd dir;
     double cosRayPatch;
     double cosRayLight;
     double dist2;
@@ -232,7 +232,7 @@ LightList::computeOneLightImportanceReal(
         // Estimate the contribution
 
         // Ray direction (but no ray is shot of course)
-        Vector3Df copy(point->x(), point->y(), point->z());
+        Vector3Dd copy(point->x(), point->y(), point->z());
 
         dir = lightPoint.subtract(copy);
         dist2 = dir.lengthSquared();
@@ -259,9 +259,9 @@ LightList::computeOneLightImportanceReal(
 double
 LightList::computeOneLightImportance(
     const Patch *light,
-    const Vector3Df *point,
-    const Vector3Df *normal,
-    float emittedFlux)
+    const Vector3Dd *point,
+    const Vector3Dd *normal,
+    double emittedFlux)
 {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
@@ -274,9 +274,9 @@ LightList::computeOneLightImportance(
 }
 
 void
-LightList::computeLightImportance(const Vector3Df *point, const Vector3Df *normal) {
-    if ((Numeric::vectorsEqual(*point, lastPoint, Numeric::EPSILON_FLOAT)) &&
-        (Numeric::vectorsEqual(*normal, lastNormal, Numeric::EPSILON_FLOAT)) ) {
+LightList::computeLightImportance(const Vector3Dd *point, const Vector3Dd *normal) {
+    if ((Numeric::vectorsEqual(*point, lastPoint, Numeric::EPSILON)) &&
+        (Numeric::vectorsEqual(*normal, lastNormal, Numeric::EPSILON)) ) {
         return; // Still ok !!
     }
 
@@ -296,8 +296,8 @@ LightList::computeLightImportance(const Vector3Df *point, const Vector3Df *norma
     while ( info ) {
         imp = computeOneLightImportance(info->light, point, normal,
                                         info->emittedFlux);
-        totalImp += static_cast<float>(imp);
-        info->importance = static_cast<float>(imp);
+        totalImp += static_cast<double>(imp);
+        info->importance = static_cast<double>(imp);
 
         // next
         info = iterator.nextOnSequence();
@@ -308,7 +308,7 @@ LightList::computeLightImportance(const Vector3Df *point, const Vector3Df *norma
 }
 
 Patch *
-LightList::sampleImportant(const Vector3Df *point, const Vector3Df *normal, double *x1, double *pdf) {
+LightList::sampleImportant(const Vector3Dd *point, const Vector3Dd *normal, double *x1, double *pdf) {
     const LightInfo *info;
     const LightInfo *lastInfo;
     CircularListIterator<LightInfo> iterator(*this);
@@ -350,7 +350,7 @@ LightList::sampleImportant(const Vector3Df *point, const Vector3Df *normal, doub
             currentSum += info->importance;
         } else {
             info = lastInfo;
-            rnd = currentSum - 1.0; // :-(  Damn float inaccuracies
+            rnd = currentSum - 1.0; // :-(  Damn double inaccuracies
         }
     }
 
@@ -367,9 +367,9 @@ LightList::sampleImportant(const Vector3Df *point, const Vector3Df *normal, doub
 double
 LightList::evalPdfImportant(
     const Patch *light,
-    const Vector3Df */*lightPoint*/,
-    const Vector3Df *litPoint,
-    const Vector3Df *normal)
+    const Vector3Dd */*lightPoint*/,
+    const Vector3Dd *litPoint,
+    const Vector3Dd *normal)
 {
     double pdf;
     const LightInfo *info;

@@ -5,12 +5,12 @@
 // IrrPhoton: photon with extra irradiance info
 class IrrPhoton : public Photon {
   public:
-    Vector3Df m_normal;
+    Vector3Dd m_normal;
     ColorRgb m_irradiance;
 
-    inline Vector3Df Normal() const { return m_normal; }
+    inline Vector3Dd Normal() const { return m_normal; }
 
-    inline void setNormal(const Vector3Df &normal) { m_normal = normal; }
+    inline void setNormal(const Vector3Dd &normal) { m_normal = normal; }
 
     inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
 

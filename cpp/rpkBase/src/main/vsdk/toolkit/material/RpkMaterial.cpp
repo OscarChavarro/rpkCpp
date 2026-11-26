@@ -10,8 +10,8 @@ RpkMaterial::RpkMaterial(
     const PhongLobe *reflection,
     const PhongLobe *transmission,
     Texture *inTexture,
-    const float refractionIndexReal,
-    const float refractionIndexImaginary,
+    const double refractionIndexReal,
+    const double refractionIndexImaginary,
     const bool inSided):
     name(nullptr),
     sided(inSided),

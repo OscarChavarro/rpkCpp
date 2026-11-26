@@ -135,7 +135,7 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
     // Main loop for ray matter
     for ( int y = 0; y < camera->ySize; y++ ) {
         for ( int x = 0; x < camera->xSize; x++ ) {
-            float hits = 0;
+            double hits = 0;
 
             for ( int i = 0; i < rayMatterState.samplesPerPixel; i++ ) {
                 // Uniform random var
@@ -148,10 +148,10 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
                 }
 
                 // Generate ray
-                RpkRay ray;
-                ray.position = camera->eyePosition;
-                ray.direction = screenBuffer->getPixelVector(x, y, static_cast<float>(dx), static_cast<float>(dy));
-                ray.direction = ray.direction.normalized(Numeric::EPSILON_FLOAT);
+                Ray ray;
+                ray.setOrigin(camera->eyePosition);
+                ray.setDirection(screenBuffer->getPixelVector(x, y, static_cast<double>(dx), static_cast<double>(dy)));
+                ray.setDirection(ray.getDirection().normalized(Numeric::EPSILON));
 
                 // Check if hit
                 if ( RayTools::findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, &ray, nullptr, nullptr, nullptr) != nullptr ) {
@@ -160,7 +160,7 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
             }
 
             // Add matte value to screen buffer
-            float value = (hits / static_cast<float>(rayMatterState.samplesPerPixel));
+            double value = (hits / static_cast<double>(rayMatterState.samplesPerPixel));
             if ( value > 1.0 ) {
                 value = 1.0;
             }

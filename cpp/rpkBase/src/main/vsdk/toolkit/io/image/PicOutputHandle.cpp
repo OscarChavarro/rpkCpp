@@ -85,11 +85,11 @@ PicOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != nullptr ) {
-        java::ArrayList<float> scanline(width * 3 > 0 ? width * 3 : 1);
+        java::ArrayList<double> scanline(width * 3 > 0 ? width * 3 : 1);
         for ( int i = 0; i < width; i++ ) {
-            scanline.add(static_cast<float>(rgbRadiance[i].getR()));
-            scanline.add(static_cast<float>(rgbRadiance[i].getG()));
-            scanline.add(static_cast<float>(rgbRadiance[i].getB()));
+            scanline.add(static_cast<double>(rgbRadiance[i].getR()));
+            scanline.add(static_cast<double>(rgbRadiance[i].getG()));
+            scanline.add(static_cast<double>(rgbRadiance[i].getB()));
         }
         result = DkColor::writeScan(reinterpret_cast<DK_COLOR *>(scanline.data()), width, outputStream);
     }

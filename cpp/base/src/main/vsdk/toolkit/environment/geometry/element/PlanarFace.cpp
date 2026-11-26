@@ -4,45 +4,44 @@
 #include "vsdk/toolkit/environment/geometry/element/PlanarFace.h"
 
 const double PlanarFace::EPSILON = 1e-6;
-const float PlanarFace::EPSILON_FLOAT = 1e-6F;
 
 namespace {
 
-// Single precision helpers, written out so that the operation order is the
-// one documented by PlanarFace and does not depend on Vector3Df's methods
+// Double precision helpers, written out so that the operation order is the
+// one documented by PlanarFace and does not depend on Vector3Dd's methods
 
-inline Vector3Df
-difference(const Vector3Df &a, const Vector3Df &b) {
-    return Vector3Df(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
+inline Vector3Dd
+difference(const Vector3Dd &a, const Vector3Dd &b) {
+    return Vector3Dd(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
 }
 
-inline Vector3Df
-cross(const Vector3Df &a, const Vector3Df &b) {
-    return Vector3Df(
+inline Vector3Dd
+cross(const Vector3Dd &a, const Vector3Dd &b) {
+    return Vector3Dd(
         a.y() * b.z() - a.z() * b.y(),
         a.z() * b.x() - a.x() * b.z(),
         a.x() * b.y() - a.y() * b.x());
 }
 
-inline float
-dot(const Vector3Df &a, const Vector3Df &b) {
+inline double
+dot(const Vector3Dd &a, const Vector3Dd &b) {
     return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
 }
 
-inline float
-norm(const Vector3Df &a) {
+inline double
+norm(const Vector3Dd &a) {
     return java::Math::sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
 }
 
 // (1 / s) v, or v when s is within epsilon of zero
-inline Vector3Df
-inverseScaled(const float s, const Vector3Df &v, const float epsilon) {
-    const float factor = s < -epsilon || s > epsilon ? 1.0F / s : 1.0F;
-    return Vector3Df(factor * v.x(), factor * v.y(), factor * v.z());
+inline Vector3Dd
+inverseScaled(const double s, const Vector3Dd &v, const double epsilon) {
+    const double factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+    return Vector3Dd(factor * v.x(), factor * v.y(), factor * v.z());
 }
 
-inline float
-positionTolerance(const Vector3Df &p, const float epsilon) {
+inline double
+positionTolerance(const Vector3Dd &p, const double epsilon) {
     return epsilon * (java::Math::abs(p.x()) + java::Math::abs(p.y()) + java::Math::abs(p.z()));
 }
 
@@ -51,27 +50,27 @@ determinant(const Vector2Dd &a, const Vector2Dd &b) {
     return a.x * b.y - a.y * b.x;
 }
 
-inline Vector3Df
-pointInTriangle(const Vector3Df &v0, const Vector3Df &v1, const Vector3Df &v2, const float u, const float v) {
-    return Vector3Df(
+inline Vector3Dd
+pointInTriangle(const Vector3Dd &v0, const Vector3Dd &v1, const Vector3Dd &v2, const double u, const double v) {
+    return Vector3Dd(
         v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()),
         v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()),
         v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()));
 }
 
-inline Vector3Df
+inline Vector3Dd
 pointInQuadrilateral(
-    const Vector3Df &v0,
-    const Vector3Df &v1,
-    const Vector3Df &v2,
-    const Vector3Df &v3,
-    const float u,
-    const float v)
+    const Vector3Dd &v0,
+    const Vector3Dd &v1,
+    const Vector3Dd &v2,
+    const Vector3Dd &v3,
+    const double u,
+    const double v)
 {
-    const float c = u * v;
-    const float b = u - c;
-    const float d = v - c;
-    return Vector3Df(
+    const double c = u * v;
+    const double b = u - c;
+    const double d = v - c;
+    return Vector3Dd(
         v0.x() + b * (v1.x() - v0.x()) + c * (v2.x() - v0.x()) + d * (v3.x() - v0.x()),
         v0.y() + b * (v1.y() - v0.y()) + c * (v2.y() - v0.y()) + d * (v3.y() - v0.y()),
         v0.z() + b * (v1.z() - v0.z()) + c * (v2.z() - v0.z()) + d * (v3.z() - v0.z()));
@@ -107,7 +106,7 @@ Builds the face of the given three or four positions, in order. The face is
 invalid (see getStatus) for any other vertex count or when the polygon is
 degenerate (its normal cannot be computed)
 */
-PlanarFace::PlanarFace(const int inNumberOfVertices, const Vector3Df *inPositions):
+PlanarFace::PlanarFace(const int inNumberOfVertices, const Vector3Dd *inPositions):
     PlanarFace()
 {
     if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
@@ -138,17 +137,17 @@ Newell's method; false for a degenerate polygon
 */
 bool
 PlanarFace::computeNormal() {
-    float nx = 0.0F;
-    float ny = 0.0F;
-    float nz = 0.0F;
+    double nx = 0.0;
+    double ny = 0.0;
+    double nz = 0.0;
     const int last = numberOfVertices - 1;
-    float currentX = positionX[last] - positionX[0];
-    float currentY = positionY[last] - positionY[0];
-    float currentZ = positionZ[last] - positionZ[0];
+    double currentX = positionX[last] - positionX[0];
+    double currentY = positionY[last] - positionY[0];
+    double currentZ = positionZ[last] - positionZ[0];
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        const float previousX = currentX;
-        const float previousY = currentY;
-        const float previousZ = currentZ;
+        const double previousX = currentX;
+        const double previousY = currentY;
+        const double previousZ = currentZ;
         currentX = positionX[i] - positionX[0];
         currentY = positionY[i] - positionY[0];
         currentZ = positionZ[i] - positionZ[0];
@@ -157,12 +156,12 @@ PlanarFace::computeNormal() {
         nz += (previousX - currentX) * (previousY + currentY);
     }
 
-    const Vector3Df sum(nx, ny, nz);
-    const float localNorm = norm(sum);
+    const Vector3Dd sum(nx, ny, nz);
+    const double localNorm = norm(sum);
     if ( localNorm < EPSILON ) {
         return false;
     }
-    const Vector3Df unit = inverseScaled(localNorm, sum, EPSILON_FLOAT);
+    const Vector3Dd unit = inverseScaled(localNorm, sum, EPSILON);
     normalX = unit.x();
     normalY = unit.y();
     normalZ = unit.z();
@@ -179,22 +178,22 @@ void
 PlanarFace::computeAreaAndJacobian() {
     jacobianPresent = false;
     if ( numberOfVertices == 3 ) {
-        const Vector3Df d1 = difference(getPosition(1), getPosition(0));
-        const Vector3Df d2 = difference(getPosition(2), getPosition(1));
-        area = 0.5F * norm(cross(d1, d2));
+        const Vector3Dd d1 = difference(getPosition(1), getPosition(0));
+        const Vector3Dd d2 = difference(getPosition(2), getPosition(1));
+        area = 0.5 * norm(cross(d1, d2));
         return;
     }
 
-    const Vector3Df normal = getNormal();
-    const Vector3Df d1 = difference(getPosition(1), getPosition(0));
-    const Vector3Df d2 = difference(getPosition(2), getPosition(1));
-    const Vector3Df d3 = difference(getPosition(2), getPosition(3));
-    const Vector3Df d4 = difference(getPosition(3), getPosition(0));
-    const float a = dot(cross(d1, d4), normal);
-    float b = dot(cross(d1, d3), normal);
-    float c = dot(cross(d2, d4), normal);
+    const Vector3Dd normal = getNormal();
+    const Vector3Dd d1 = difference(getPosition(1), getPosition(0));
+    const Vector3Dd d2 = difference(getPosition(2), getPosition(1));
+    const Vector3Dd d3 = difference(getPosition(2), getPosition(3));
+    const Vector3Dd d4 = difference(getPosition(3), getPosition(0));
+    const double a = dot(cross(d1, d4), normal);
+    double b = dot(cross(d1, d3), normal);
+    double c = dot(cross(d2, d4), normal);
 
-    area = a + 0.5F * (b + c);
+    area = a + 0.5 * (b + c);
     if ( area < 0.0 ) {
         // Normal direction and vertex order are not consistent
         b = -b;
@@ -212,15 +211,15 @@ PlanarFace::computeAreaAndJacobian() {
 
 void
 PlanarFace::computeMidPoint() {
-    float x = 0.0F;
-    float y = 0.0F;
-    float z = 0.0F;
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         x = x + positionX[i];
         y = y + positionY[i];
         z = z + positionZ[i];
     }
-    const Vector3Df mid = inverseScaled(static_cast<float>(numberOfVertices), Vector3Df(x, y, z), EPSILON_FLOAT);
+    const Vector3Dd mid = inverseScaled(static_cast<double>(numberOfVertices), Vector3Dd(x, y, z), EPSILON);
     midPointX = mid.x();
     midPointY = mid.y();
     midPointZ = mid.z();
@@ -230,13 +229,13 @@ PlanarFace::computeMidPoint() {
 A "width" of the plane, for coplanarity tests: the largest distance of a
 vertex to the plane plus the vertex's position tolerance
 */
-float
+double
 PlanarFace::computeTolerance() const {
-    const Vector3Df normal = getNormal();
-    float localTolerance = 0.0F;
+    const Vector3Dd normal = getNormal();
+    double localTolerance = 0.0;
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        const Vector3Df p = getPosition(i);
-        const float e = java::Math::abs(dot(normal, p) + planeConstant) + positionTolerance(p, EPSILON_FLOAT);
+        const Vector3Dd p = getPosition(i);
+        const double e = java::Math::abs(dot(normal, p) + planeConstant) + positionTolerance(p, EPSILON);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -249,12 +248,12 @@ Index of the largest absolute component; ties go to x, then y. Used to turn
 point in polygon tests into 2D problems
 */
 int
-PlanarFace::dominantCoordinate(const Vector3Df &vector) {
-    const float ax = java::Math::abs(vector.x());
-    const float ay = java::Math::abs(vector.y());
-    const float az = java::Math::abs(vector.z());
+PlanarFace::dominantCoordinate(const Vector3Dd &vector) {
+    const double ax = java::Math::abs(vector.x());
+    const double ay = java::Math::abs(vector.y());
+    const double az = java::Math::abs(vector.z());
     double indexValue = java::Math::max(ay, az);
-    indexValue = java::Math::max(ax, static_cast<float>(indexValue));
+    indexValue = java::Math::max(ax, static_cast<double>(indexValue));
 
     if ( indexValue == ax ) {
         return 0;
@@ -362,7 +361,7 @@ Barycentric (u, v) of a point in the triangle. Didier Badouel, Graphics
 Gems I, p390
 */
 bool
-PlanarFace::triangleParameters(const Vector3Df &point, Vector2Dd *uv) const {
+PlanarFace::triangleParameters(const Vector3Dd &point, Vector2Dd *uv) const {
     double u0;
     double v0;
     double pointA;
@@ -420,7 +419,7 @@ Gilles Subrenat, "Ray Intersection of Tessellated Surfaces: Quadrangles versus
 Triangles", Graphics Gems V, pages 232-241
 */
 bool
-PlanarFace::quadrilateralParameters(const Vector3Df &point, Vector2Dd *uv) const {
+PlanarFace::quadrilateralParameters(const Vector3Dd &point, Vector2Dd *uv) const {
     double ax;
     double ay;
     double bx;
@@ -526,7 +525,7 @@ PlanarFace::quadrilateralParameters(const Vector3Df &point, Vector2Dd *uv) const
 }
 
 bool
-PlanarFace::parameters(const Vector3Df &point, double *u, double *v) const {
+PlanarFace::parameters(const Vector3Dd &point, double *u, double *v) const {
     Vector2Dd uv;
     const bool inside = numberOfVertices == 3 ? triangleParameters(point, &uv) : quadrilateralParameters(point, &uv);
     *u = uv.x;
@@ -534,16 +533,16 @@ PlanarFace::parameters(const Vector3Df &point, double *u, double *v) const {
     return inside;
 }
 
-Vector3Df
+Vector3Dd
 PlanarFace::pointAt(double u, double v) const {
     if ( numberOfVertices == 3 ) {
         if ( u + v > 1.0 ) {
             u = 1.0 - u;
             v = 1.0 - v;
         }
-        return pointInTriangle(getPosition(0), getPosition(1), getPosition(2), static_cast<float>(u), static_cast<float>(v));
+        return pointInTriangle(getPosition(0), getPosition(1), getPosition(2), static_cast<double>(u), static_cast<double>(v));
     }
-    return pointInQuadrilateral(getPosition(0), getPosition(1), getPosition(2), getPosition(3), static_cast<float>(u), static_cast<float>(v));
+    return pointInQuadrilateral(getPosition(0), getPosition(1), getPosition(2), getPosition(3), static_cast<double>(u), static_cast<double>(v));
 }
 
 /**
@@ -575,7 +574,7 @@ PlanarFace::uniformToBiLinear(double *u, double *v) const {
     solveQuadraticUnitInterval(A, B, C, v);
 }
 
-Vector3Df
+Vector3Dd
 PlanarFace::uniformPointAt(double u, double v) const {
     if ( jacobianPresent ) {
         uniformToBiLinear(&u, &v);
@@ -584,7 +583,7 @@ PlanarFace::uniformPointAt(double u, double v) const {
 }
 
 bool
-PlanarFace::uniformParameters(const Vector3Df &point, double *u, double *v) const {
+PlanarFace::uniformParameters(const Vector3Dd &point, double *u, double *v) const {
     const bool inside = parameters(point, u, v);
     if ( jacobianPresent ) {
         biLinearToUniform(u, v);
@@ -594,11 +593,11 @@ PlanarFace::uniformParameters(const Vector3Df &point, double *u, double *v) cons
 
 bool
 PlanarFace::isAtLeastPartlyInFront(const PlanarFace &other) const {
-    const Vector3Df otherNormal = other.getNormal();
+    const Vector3Dd otherNormal = other.getNormal();
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        const Vector3Df p = getPosition(i);
+        const Vector3Dd p = getPosition(i);
         const double ep = dot(otherNormal, p) + other.planeConstant;
-        const double localTolerance = other.tolerance + positionTolerance(p, EPSILON_FLOAT);
+        const double localTolerance = other.tolerance + positionTolerance(p, EPSILON);
         if ( ep > localTolerance ) {
             return true;
         }
@@ -611,14 +610,14 @@ PlanarFace::facing(const PlanarFace &other) const {
     return isAtLeastPartlyInFront(other) && other.isAtLeastPartlyInFront(*this);
 }
 
-float
-PlanarFace::planeDistance(const Vector3Df &point) const {
+double
+PlanarFace::planeDistance(const Vector3Dd &point) const {
     return normalX * point.x() + normalY * point.y() + normalZ * point.z() + planeConstant;
 }
 
 PlanarFace::Side
-PlanarFace::sideFacing(const Vector3Df &direction, float *normalDotDirection) const {
-    const float d = normalX * direction.x() + normalY * direction.y() + normalZ * direction.z();
+PlanarFace::sideFacing(const Vector3Dd &direction, double *normalDotDirection) const {
+    const double d = normalX * direction.x() + normalY * direction.y() + normalZ * direction.z();
     *normalDotDirection = d;
     if ( d > EPSILON ) {
         return Side::BACK;
@@ -629,41 +628,41 @@ PlanarFace::sideFacing(const Vector3Df &direction, float *normalDotDirection) co
     return Side::PARALLEL;
 }
 
-float
-PlanarFace::planeHitParameter(const Vector3Df &origin, const float normalDotDirection) const {
+double
+PlanarFace::planeHitParameter(const Vector3Dd &origin, const double normalDotDirection) const {
     return -(normalX * origin.x() + normalY * origin.y() + normalZ * origin.z() + planeConstant) / normalDotDirection;
 }
 
 bool
 PlanarFace::rayHit(
-    const Vector3Df &origin,
-    const Vector3Df &direction,
+    const Vector3Dd &origin,
+    const Vector3Dd &direction,
     const bool acceptFront,
     const bool acceptBack,
-    const float minimumDistance,
-    const float maximumDistance,
+    const double minimumDistance,
+    const double maximumDistance,
     RayHit *hit) const
 {
-    float normalDotDirection;
+    double normalDotDirection;
     const Side side = sideFacing(direction, &normalDotDirection);
     if ( side == Side::PARALLEL
          || (side == Side::FRONT && !acceptFront)
          || (side == Side::BACK && !acceptBack) ) {
         return false;
     }
-    const float distance = planeHitParameter(origin, normalDotDirection);
+    const double distance = planeHitParameter(origin, normalDotDirection);
     if ( distance > maximumDistance || distance < minimumDistance ) {
         return false;
     }
-    const float pointX = origin.x() + distance * direction.x();
-    const float pointY = origin.y() + distance * direction.y();
-    const float pointZ = origin.z() + distance * direction.z();
+    const double pointX = origin.x() + distance * direction.x();
+    const double pointY = origin.y() + distance * direction.y();
+    const double pointZ = origin.z() + distance * direction.z();
     hit->setSide(side);
     hit->setDistance(distance);
     hit->setPoint(pointX, pointY, pointZ);
     double u;
     double v;
-    const bool inside = parameters(Vector3Df(pointX, pointY, pointZ), &u, &v);
+    const bool inside = parameters(Vector3Dd(pointX, pointY, pointZ), &u, &v);
     hit->setParameters(u, v);
     return inside;
 }

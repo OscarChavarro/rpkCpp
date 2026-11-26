@@ -1,7 +1,7 @@
 #ifndef __SCENE_QUERY__
 #define __SCENE_QUERY__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
@@ -10,7 +10,6 @@
 
 class Scene;
 class SceneQueryWorkspace;
-class VisibilityQueryRecorder;
 
 /**
 The scene's visibility query: the nearest (or, with RayHitFlag::ANY, some)
@@ -63,9 +62,9 @@ class SceneQuery final {
     [minimumDistance, *maximumDistance]
     */
     RpkRayHit *intersect(
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
         RpkRayHit *hitStore,
         const RayExclusionSet &exclusions,
@@ -73,8 +72,8 @@ class SceneQuery final {
 };
 
 /**
-Per-query scratch of a SceneQuery: the workspace of its index and, in builds configured WITH_RAY_CAPTURE, the recorder the
-callers report each query to (null otherwise).
+Per-query scratch of a SceneQuery: the workspace of its index and an optional
+ray counter.
 
 Workspace: mutable, owned by one caller and passed explicitly on every
 SceneQuery::intersect call.
@@ -82,17 +81,15 @@ SceneQuery::intersect call.
 class SceneQueryWorkspace final {
   private:
     SpatialIndexWorkspace *indexWorkspace; // Owned
-    VisibilityQueryRecorder *recorder; // Not owned
     long *rayCount = nullptr; // Optional counter owned by the caller
 
   public:
-    explicit SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder = nullptr);
+    explicit SceneQueryWorkspace(const SceneQuery &query);
     ~SceneQueryWorkspace();
     SceneQueryWorkspace(const SceneQueryWorkspace &) = delete;
     SceneQueryWorkspace &operator=(const SceneQueryWorkspace &) = delete;
 
     inline SpatialIndexWorkspace *getIndexWorkspace() const;
-    inline VisibilityQueryRecorder *getRecorder() const;
     void setRayCount(long *counter) { rayCount = counter; }
     long *getRayCount() const { return rayCount; }
 };
@@ -110,11 +107,6 @@ SceneQuery::getIndex() const {
 inline SpatialIndexWorkspace *
 SceneQueryWorkspace::getIndexWorkspace() const {
     return indexWorkspace;
-}
-
-inline VisibilityQueryRecorder *
-SceneQueryWorkspace::getRecorder() const {
-    return recorder;
 }
 
 #endif

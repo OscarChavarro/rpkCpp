@@ -25,9 +25,9 @@ class SglVisibilityBuffer {
     Sample getSample(int x, int y) const { return samples[y * getWidth() + x]; }
 
     void setViewport(int x, int y, int width, int height) { context.setViewport(x, y, width, height); }
-    void setTransform(const Matrix4x4f &matrix) { context.setTransform(matrix); }
+    void setTransform(const Matrix4x4d &matrix) { context.setTransform(matrix); }
     void clear();
-    void drawPolygon(int numberOfVertices, const Vector3Df *vertices, Sample value);
+    void drawPolygon(int numberOfVertices, const Vector3Dd *vertices, Sample value);
 };
 
 #endif

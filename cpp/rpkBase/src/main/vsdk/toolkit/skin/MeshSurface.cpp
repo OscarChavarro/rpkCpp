@@ -16,9 +16,9 @@ This routine creates a MeshSurface with given inMaterial, positions
 MeshSurface::MeshSurface(
     char *inObjectName,
     RpkMaterial *inMaterial,
-    java::ArrayList<Vector3Df *> *inPoints,
-    java::ArrayList<Vector3Df *> *inNormals,
-    const java::ArrayList<Vector3Df *> * /*texCoords*/,
+    java::ArrayList<Vector3Dd *> *inPoints,
+    java::ArrayList<Vector3Dd *> *inNormals,
+    const java::ArrayList<Vector3Dd *> * /*texCoords*/,
     java::ArrayList<RpkVertex *> *inVertices,
     java::ArrayList<Patch *> *inFaces,
     MaterialColorFlags inFlags)
@@ -125,9 +125,9 @@ information about the intersection point. See geometry.h for more explanation
 */
 RpkRayHit *
 MeshSurface::discretizationIntersect(
-    RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
     const RayExclusionSet &exclusions) const

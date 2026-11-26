@@ -25,9 +25,9 @@ class PhongEmittanceDistributionFunction {
     static bool
     edfShadingFrame(
         const ShadingContext &context,
-        const Vector3Df *X,
-        const Vector3Df *Y,
-        const Vector3Df *Z);
+        const Vector3Dd *X,
+        const Vector3Dd *Y,
+        const Vector3Dd *Z);
 
     /** Emittance (self-emitted radiant exitance) [W / m^2] of the components in flags */
     ColorRgb phongEmittance(const ShadingContext *context, char flags) const;
@@ -40,7 +40,7 @@ class PhongEmittanceDistributionFunction {
     ColorRgb
     phongEdfEval(
         const ShadingContext *context,
-        const Vector3Df *out,
+        const Vector3Dd *out,
         char flags,
         double *probabilityDensityFunction) const;
 
@@ -48,7 +48,7 @@ class PhongEmittanceDistributionFunction {
     Samples an emitted direction; the radiance along it and its density go to
     the non-null pointers
     */
-    Vector3Df
+    Vector3Dd
     phongEdfSample(
         const ShadingContext *context,
         char flags,

@@ -132,13 +132,13 @@ Shaft::constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAx
                 continue;
             }
 
-            float u1 = referenceItem1->valueAt(i);
-            float v1 = referenceItem1->valueAt(j);
-            float u2 = referenceItem2->valueAt(i);
-            float v2 = referenceItem2->valueAt(j);
+            double u1 = referenceItem1->valueAt(i);
+            double v1 = referenceItem1->valueAt(j);
+            double u2 = referenceItem2->valueAt(i);
+            double v2 = referenceItem2->valueAt(j);
 
-            float du = 0.0;
-            float dv = 0.0;
+            double du = 0.0;
+            double dv = 0.0;
 
             if ( (i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X) ) {
                 du = v2 - v1;
@@ -156,9 +156,9 @@ Shaft::constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAx
             localPlane.n[3 - a - b] = 0.0;
             localPlane.d = -(du * u1 + dv * v1);
 
-            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0F ? MIN_X : MAX_X;
-            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0F ? MIN_Y : MAX_Y;
-            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0F ? MIN_Z : MAX_Z;
+            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0 ? MIN_X : MAX_X;
+            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0 ? MIN_Y : MAX_Y;
+            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0 ? MIN_Z : MAX_Z;
 
             localPlaneIndex++;
         }
@@ -174,13 +174,13 @@ if the polygon is cut by the plane and COPLANAR if the polygon lay on the
 plane within tolerance distance d*VSDK::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Df *normal, const double d) {
+Shaft::testPolygonWithRespectToPlane(const ConvexPolygon *polygon, const Vector3Dd *normal, const double d) {
     bool out = false; // out = there are positions on the positive side of the plane
     bool in = false; // in  = there are positions on the negative side of the plane
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = java::Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON_FLOAT) * polygon->vertex[i].manhattanLength();
+        double tolerance = java::Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON) * polygon->vertex[i].manhattanLength();
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -202,7 +202,7 @@ so, and false if not
 bool
 Shaft::verifyPolygonWithRespectToPlane(
     const ConvexPolygon *polygon,
-    const Vector3Df *normal,
+    const Vector3Dd *normal,
     const double d,
     const ShaftPlanePosition side)
 {
@@ -211,7 +211,7 @@ Shaft::verifyPolygonWithRespectToPlane(
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = java::Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON_FLOAT) * polygon->vertex[i].manhattanLength();
+        double tolerance = java::Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON) * polygon->vertex[i].manhattanLength();
         out |= e > tolerance;
         if ( out && (side == ShaftPlanePosition::INSIDE) ) {
             return false;
@@ -242,8 +242,8 @@ on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
 if the point is on the plane within tolerance distance d*VSDK::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPointWithRespectToPlane(const Vector3Df *p, const Vector3Df *normal, double d) {
-    double tolerance = java::Math::abs(d * VSDK::EPSILON) + (Numeric::EPSILON_FLOAT) * p->manhattanLength();
+Shaft::testPointWithRespectToPlane(const Vector3Dd *p, const Vector3Dd *normal, double d) {
+    double tolerance = java::Math::abs(d * VSDK::EPSILON) + (Numeric::EPSILON) * p->manhattanLength();
     double e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
@@ -309,7 +309,7 @@ Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
 Fills in normal and plane constant, as well as the coord_offset parameters
 */
 void
-Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
+Shaft::fillInPlane(ShaftPlane *plane, double nx, double ny, double nz, double d) {
     plane->n[0] = nx;
     plane->n[1] = ny;
     plane->n[2] = nz;
@@ -325,7 +325,7 @@ Construct the planes determining the shaft that use edges of p1 and vertices of 
 */
 void
 Shaft::constructPolygonToPolygonPlanes(const ConvexPolygon *polygon1, const ConvexPolygon *polygon2) {
-    Vector3Df normal;
+    Vector3Dd normal;
     int localPlaneIndex = numberOfPlanesInSet;
     int maxPlanesPerEdge;
 
@@ -367,23 +367,23 @@ Shaft::constructPolygonToPolygonPlanes(const ConvexPolygon *polygon1, const Conv
 
     for ( int i = 0; i < polygon1->numberOfVertices; i++ ) {
         // For each edge of p1
-        const Vector3Df *current = &polygon1->vertex[i];
-        const Vector3Df *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        const Vector3Dd *current = &polygon1->vertex[i];
+        const Vector3Dd *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
         int planesFoundForEdge = 0;
 
         for ( int j = 0; j < polygon2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
             // For each vertex of p2
-            const Vector3Df *other = &polygon2->vertex[j];
+            const Vector3Dd *other = &polygon2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
             normal = (*other).subtract(*next).crossProduct((*current).subtract(*next));
-            float localNorm = normal.length();
+            double localNorm = normal.length();
             if ( localNorm < VSDK::EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            normal = normal.multiplyByInverse(localNorm, Numeric::EPSILON_FLOAT);
-            float d = -normal.dotProduct(*current);
+            normal = normal.multiplyByInverse(localNorm, Numeric::EPSILON);
+            double d = -normal.dotProduct(*current);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
@@ -450,13 +450,13 @@ Shaft::constructFromPolygonToPolygon(const ConvexPolygon *polygon1, const Convex
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
         center1 = center1.add(polygon1->vertex[i]);
     }
-    center1 = center1.multiplyByInverse(static_cast<float>(polygon1->numberOfVertices), Numeric::EPSILON_FLOAT);
+    center1 = center1.multiplyByInverse(static_cast<double>(polygon1->numberOfVertices), Numeric::EPSILON);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
         center2 = center2.add(polygon2->vertex[i]);
     }
-    center2 = center2.multiplyByInverse(static_cast<float>(polygon2->numberOfVertices), Numeric::EPSILON_FLOAT);
+    center2 = center2.multiplyByInverse(static_cast<double>(polygon2->numberOfVertices), Numeric::EPSILON);
 
     // Determine the shaft planes
     numberOfPlanesInSet = 0;
@@ -523,8 +523,8 @@ Shaft::shaftPatchTest(Patch *patch) {
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
-    RpkRay ray;
-    float dist;
+    Ray ray;
+    double dist;
     RpkRayHit hitStore;
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
@@ -533,19 +533,19 @@ Shaft::shaftPatchTest(Patch *patch) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = (Numeric::EPSILON_FLOAT) * patch->getVertices()[j]->point->manhattanLength(); // Vertex tolerance
+        pTol[j] = (Numeric::EPSILON) * patch->getVertices()[j]->point->manhattanLength(); // Vertex tolerance
     }
 
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         // Test patch against i-th plane of the shaft
         const ShaftPlane &localPlane = planeSet[i];
-        Vector3Df planeNormal;
+        Vector3Dd planeNormal;
         double e[MAXIMUM_VERTICES_PER_PATCH];
         int side[MAXIMUM_VERTICES_PER_PATCH];
         int in = false;
         int out = false;
 
-        planeNormal = Vector3Df(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
+        planeNormal = Vector3Dd(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
 
         for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
             e[j] = planeNormal.dotProduct(*patch->getVertices()[j]->point) + localPlane.d;
@@ -646,11 +646,11 @@ Shaft::shaftPatchTest(Patch *patch) {
     // If the line segment connecting the midpoints of the polygons defining
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
-    ray.position = center1;
-    ray.direction = center2.subtract(center1);
-    dist = 1.0F - Numeric::EPSILON_FLOAT;
+    ray.setOrigin(center1);
+    ray.setDirection(center2.subtract(center1));
+    dist = 1.0 - Numeric::EPSILON;
     const RayExclusionSet noExclusions;
-    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore, noExclusions) ) {
+    if ( patch->intersect(&ray, Numeric::EPSILON, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore, noExclusions) ) {
         cut = true;
         return ShaftPlanePosition::OVERLAP;
     }
