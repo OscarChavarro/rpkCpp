@@ -8,19 +8,14 @@
 #include "java/util/StringTokenizer.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
-#include "vsdk/toolkit/io/mgf/MgfConeEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfCylinderEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfFaceWithHolesEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfColorEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfVertexFaceEntitySupport.h"
+#include "vsdk/toolkit/io/mgf/MgfVitralPrimitiveTessellator.h"
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfObjectNameSupport.h"
-#include "vsdk/toolkit/io/mgf/MgfPrismEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfRingEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfSphereEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfTransformationSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityHandlerAdapter.h"
-#include "vsdk/toolkit/io/mgf/MgfTorusEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfParserLoader.h"
 
 /**
@@ -399,12 +394,12 @@ MgfParserLoader::ensureSessionHandlerRegistry(ParseRuntimeContext *context) {
 
     handlers[static_cast<int>(HandlerRoleContext::DISCARD_UNNEEDED)] = new MgfEntityHandlerAdapter(HandlerRoleContext::DISCARD_UNNEEDED, MgfParserLoader::mgfDiscardUnNeededEntity);
     handlers[static_cast<int>(HandlerRoleContext::INCLUDE_FILE)] = new MgfEntityHandlerAdapter(HandlerRoleContext::INCLUDE_FILE, MgfParserLoader::handleIncludedFile);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_SPHERE)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_SPHERE, MgfSphereEntityExpander::handleEntity);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_TORUS)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_TORUS, MgfTorusEntityExpander::handleEntity);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CYLINDER)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_CYLINDER, MgfCylinderEntityExpander::handleEntity);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_RING)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_RING, MgfRingEntityTessellator::handleEntity);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CONE)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_CONE, MgfConeEntityTessellator::handleEntity);
-    handlers[static_cast<int>(HandlerRoleContext::ENTITY_PRISM)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_PRISM, MgfPrismEntityTessellator::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_SPHERE)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_SPHERE, MgfVitralPrimitiveTessellator::handleSphere);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_TORUS)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_TORUS, MgfVitralPrimitiveTessellator::handleTorus);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CYLINDER)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_CYLINDER, MgfVitralPrimitiveTessellator::handleCylinder);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_RING)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_RING, MgfVitralPrimitiveTessellator::handleRing);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CONE)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_CONE, MgfVitralPrimitiveTessellator::handleCone);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_PRISM)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_PRISM, MgfVitralPrimitiveTessellator::handlePrism);
     handlers[static_cast<int>(HandlerRoleContext::ENTITY_FACE_WITH_HOLES)] = new MgfEntityHandlerAdapter(HandlerRoleContext::ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesEntityExpander::handleEntity);
     handlers[static_cast<int>(HandlerRoleContext::COLOR_SPEC_HELPER)] = new MgfEntityHandlerAdapter(HandlerRoleContext::COLOR_SPEC_HELPER, MgfParserLoader::mgfECSpec);
     handlers[static_cast<int>(HandlerRoleContext::COLOR_MIX_HELPER)] = new MgfEntityHandlerAdapter(HandlerRoleContext::COLOR_MIX_HELPER, MgfParserLoader::mgfECMix);

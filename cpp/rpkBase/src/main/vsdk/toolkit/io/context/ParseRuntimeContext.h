@@ -70,7 +70,6 @@ class ParseRuntimeContext final : public ParseContext {
     ColorContext *&currentColor;
     bool &inSurface;
     bool &inComplex;
-    bool &warpConeEnds;
     LookUpTable<char *> *&vertexLookUpTable;
     java::ArrayList<RpkGeometry *> *&allGeometries;
     java::ArrayList<RpkGeometry *> *&geometries;

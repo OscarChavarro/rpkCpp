@@ -24,7 +24,6 @@ class GeometryAssemblyContext {
     char *currentObjectName;
     bool inSurface;
     bool inComplex;
-    bool warpConeEnds;
     java::ArrayList<RpkGeometry *> *allGeometries;
 
     // Return model geometry output

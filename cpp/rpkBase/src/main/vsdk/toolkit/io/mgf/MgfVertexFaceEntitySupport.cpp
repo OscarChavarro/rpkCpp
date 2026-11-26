@@ -9,18 +9,13 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpEntity.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"
-#include "vsdk/toolkit/io/mgf/MgfConeEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfCylinderEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
-#include "vsdk/toolkit/io/mgf/MgfPrismEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfRingEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfSphereEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfVertexFaceEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfObjectNameSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfTransformationSupport.h"
-#include "vsdk/toolkit/io/mgf/MgfTorusEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfTessellationMath.h"
+#include "vsdk/toolkit/io/mgf/MgfVitralPrimitiveTessellator.h"
 
 long
 MgfVertexFaceEntitySupport::transformXid(const TransformStackContext *xf) {
@@ -28,11 +23,8 @@ MgfVertexFaceEntitySupport::transformXid(const TransformStackContext *xf) {
 }
 
 /**
-The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
-into polygons. In the official release of the parser library, these routines
-are internal (declared static in parse.c and no reference to them in parser.h).
-The parser was changed so we can call them in order not to have to duplicate
-the code
+Turns a surface primitive (sphere, torus, cylinder, ring, cone or prism)
+into faces, through the VITRAL geometry of MgfVitralPrimitiveTessellator
 */
 int
 MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context) {
@@ -40,17 +32,17 @@ MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRu
 
     switch ( en ) {
         case EntityTypeContext::SPHERE:
-            return MgfSphereEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleSphere(argc, argv, context);
         case EntityTypeContext::TORUS:
-            return MgfTorusEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleTorus(argc, argv, context);
         case EntityTypeContext::CYLINDER:
-            return MgfCylinderEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleCylinder(argc, argv, context);
         case EntityTypeContext::RING:
-            return MgfRingEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleRing(argc, argv, context);
         case EntityTypeContext::CONE:
-            return MgfConeEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleCone(argc, argv, context);
         case EntityTypeContext::PRISM:
-            return MgfPrismEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handlePrism(argc, argv, context);
         default:
             Logger::reportMessage("MgfVertexFaceEntitySupport", Logger::FATAL_ERROR, "mgf.c: doDiscreteConic", java::String::format("Unsupported geometry entity number %d", en));
     }
