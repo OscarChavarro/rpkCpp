@@ -1,13 +1,9 @@
 #include <cstring>
 
-#include "vsdk/toolkit/common/memoryManagement/CppReAlloc.h"
+#include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/io/context/ObjectScopeContext.h"
 
-ObjectScopeContext::ObjectScopeContext():
-    objectNamesList(nullptr),
-    objectMaxName(0),
-    objectNames(0)
-{
+ObjectScopeContext::ObjectScopeContext(): objectNamesList() {
 }
 
 ObjectScopeContext::~ObjectScopeContext() {
@@ -19,51 +15,31 @@ ObjectScopeContext::pushName(const char *name) {
     if ( name == nullptr ) {
         return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( objectNames >= objectMaxName - 1 ) {
-        if ( objectMaxName == 0 ) {
-            objectMaxName = OBJECT_NAMES_ALLOC_INCREMENT;
-            objectNamesList = new char *[objectMaxName];
-        } else {
-            const int previousMaxName = objectMaxName;
-            objectMaxName += OBJECT_NAMES_ALLOC_INCREMENT;
-            objectNamesList = CppReAlloc::reAlloc(
-                objectNamesList,
-                previousMaxName,
-                objectMaxName);
-        }
-        if ( objectNamesList == nullptr ) {
-            objectMaxName = 0;
-            objectNames = 0;
-            return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
-        }
-    }
 
-    objectNamesList[objectNames] = new char[std::strlen(name) + 1];
-    if ( objectNamesList[objectNames] == nullptr ) {
+    char *nameCopy = new char[std::strlen(name) + 1];
+    std::strcpy(nameCopy, name);
+    if ( !objectNamesList.add(nameCopy) ) {
+        delete[] nameCopy;
         return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
     }
-    std::strcpy(objectNamesList[objectNames++], name);
-    objectNamesList[objectNames] = nullptr;
     return ParseErrorContext::MGF_OK;
 }
 
 int
 ObjectScopeContext::popName() {
-    if ( objectNames < 1 ) {
+    const long int count = objectNamesList.size();
+    if ( count < 1 ) {
         return ParseErrorContext::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
     }
-    delete[] objectNamesList[--objectNames];
-    objectNamesList[objectNames] = nullptr;
+    delete[] objectNamesList.get(count - 1);
+    objectNamesList.remove(count - 1);
     return ParseErrorContext::MGF_OK;
 }
 
 void
 ObjectScopeContext::clear() {
-    for ( int i = 0; i < objectNames; i++ ) {
-        delete[] objectNamesList[i];
+    for ( long int i = 0; i < objectNamesList.size(); i++ ) {
+        delete[] objectNamesList.get(i);
     }
-    delete[] objectNamesList;
-    objectNamesList = nullptr;
-    objectMaxName = 0;
-    objectNames = 0;
+    objectNamesList.clear();
 }

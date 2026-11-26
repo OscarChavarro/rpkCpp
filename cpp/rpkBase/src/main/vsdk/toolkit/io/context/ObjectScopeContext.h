@@ -1,14 +1,14 @@
 #ifndef __OBJECT_SCOPE_CONTEXT__
 #define __OBJECT_SCOPE_CONTEXT__
 
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/io/context/ParseErrorContext.h"
 
 class ObjectScopeContext {
-  public:
-    char **objectNamesList;
-    int objectMaxName;
-    int objectNames;
+  private:
+    java::ArrayList<char *> objectNamesList;
 
+  public:
     ObjectScopeContext();
     ~ObjectScopeContext();
 
@@ -18,9 +18,6 @@ class ObjectScopeContext {
 
     ObjectScopeContext(const ObjectScopeContext &) = delete;
     ObjectScopeContext &operator=(const ObjectScopeContext &) = delete;
-
-  private:
-    static constexpr int OBJECT_NAMES_ALLOC_INCREMENT = 16;
 };
 
 #endif
