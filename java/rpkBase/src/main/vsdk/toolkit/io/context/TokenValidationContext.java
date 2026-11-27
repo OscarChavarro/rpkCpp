@@ -87,7 +87,7 @@ public class TokenValidationContext {
     }
 
     /**
-    Skip float in string
+    Skip double in string
     */
     private static int skipFloat(String text) {
         int startIndex = 0;

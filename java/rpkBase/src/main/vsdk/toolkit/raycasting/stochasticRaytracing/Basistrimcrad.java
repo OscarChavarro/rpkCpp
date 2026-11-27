@@ -57,7 +57,7 @@ public final class Basistrimcrad {
                63.498031465601095 * u * u * v + 158.745078663922413 * u * v * v + 105.830052442603559 * v * v * v;
     }
 
-    private static final GalerkinBasis.BasisFunction[] f = new GalerkinBasis.BasisFunction[] {
+    private static final StochasticRadiosityBasis.BasisFunction[] f = new StochasticRadiosityBasis.BasisFunction[] {
         Basistrimcrad::tm0,
         Basistrimcrad::tm1,
         Basistrimcrad::tm2,
@@ -70,16 +70,16 @@ public final class Basistrimcrad {
         Basistrimcrad::tm9
     }; // Functions
 
-    private static final double[][][] h = new double[4][GalerkinBasis.MAX_BASIS_SIZE][GalerkinBasis.MAX_BASIS_SIZE]; // push-pull filter: computed in basis.c
+    private static final double[][][] h = new double[4][StochasticRadiosityBasis.MAX_BASIS_SIZE][StochasticRadiosityBasis.MAX_BASIS_SIZE]; // push-pull filter: computed in basis.c
 
-    public static GalerkinBasis createBasis() {
+    public static StochasticRadiosityBasis createBasis() {
         return stochasticRadiosityCreateTriBasis();
     }
 
-    private static GalerkinBasis stochasticRadiosityCreateTriBasis() {
-        GalerkinBasis b = new GalerkinBasis();
+    private static StochasticRadiosityBasis stochasticRadiosityCreateTriBasis() {
+        StochasticRadiosityBasis b = new StochasticRadiosityBasis();
         b.description = "orthonormal basis on the standard triangle"; // description
-        b.size = GalerkinBasis.MAX_BASIS_SIZE; // size
+        b.size = StochasticRadiosityBasis.MAX_BASIS_SIZE; // size
         b.function = f;
         b.dualFunction = f;
         b.regularFilter = h;

@@ -12,7 +12,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public class EyeSampler extends Sampler {
     // Sample : newNode gets filled, others may change
@@ -44,7 +44,7 @@ public class EyeSampler extends Sampler {
         // Choose point on eye : N/A
 
         // Fake a hit record
-        RayHit hit = newNode.m_hit;
+        RpkRayHit hit = newNode.m_hit;
 
         hit.init(null, camera.eyePosition, camera.Z, null);
         hit.setNormal(camera.Z);

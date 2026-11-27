@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.app.options.OptionsGroupRaytracing;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathRaytracer;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathTracingState;
@@ -155,7 +155,7 @@ This routine sets the current raytracing method to be used
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         renderOptions.renderRayTracedImage = true;
         scene.camera.changed = 0;

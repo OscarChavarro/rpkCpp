@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
@@ -12,7 +12,7 @@ import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public class ImportantLightSampler extends NextEventSampler {
     private LightList lightList;
@@ -38,7 +38,7 @@ public class ImportantLightSampler extends NextEventSampler {
         double pdfLight;
         double pdfPoint;
         Patch light;
-        Vector3Df point = new Vector3Df();
+        Vector3Dd point = new Vector3Dd();
 
         // thisNode is NOT used or altered. If you want the nodes connected,
         // use the Connect method of a surface sampler and a light direction
@@ -60,11 +60,11 @@ public class ImportantLightSampler extends NextEventSampler {
         double[] outPdfLight = new double[] {0.0};
         if ( (thisNode.m_hit.getFlags() & RayHitFlag.BACK) != 0 ) {
             if ( thisNode.m_outBsdf == null ) {
-                Vector3Df invNormal = new Vector3Df();
+                Vector3Dd invNormal = new Vector3Dd();
 
-                invNormal = thisNode.m_normal.multiply(-1.0f);
+                invNormal = thisNode.m_normal.multiply(-1.0);
 
-                Vector3Df position = thisNode.m_hit.getPoint();
+                Vector3Dd position = thisNode.m_hit.getPoint();
                 light = lightList.sampleImportant(position, invNormal, localX1, outPdfLight);
             } else {
                 // No (important) light sampling inside a material
@@ -72,7 +72,7 @@ public class ImportantLightSampler extends NextEventSampler {
             }
         } else {
             if ( thisNode.m_inBsdf == null ) {
-                Vector3Df position = thisNode.m_hit.getPoint();
+                Vector3Dd position = thisNode.m_hit.getPoint();
                 light = lightList.sampleImportant(position, thisNode.m_normal, localX1, outPdfLight);
             } else {
                 light = null;
@@ -90,18 +90,18 @@ public class ImportantLightSampler extends NextEventSampler {
         // Choose point (uniform for real, sampled for background)
         if ( light.hasZeroVertices() ) {
             double[] pdf = new double[] {0.0};
-            Vector3Df dir = new Vector3Df(0.0f, 0.0f, 0.0f);
+            Vector3Dd dir = new Vector3Dd(0.0, 0.0, 0.0);
 
-            if ( light.material.getEdf() != null ) {
-                dir = light.material.getEdf().phongEdfSample(null, flags & 0xFF, x1, x2, null, pdf);
+            if ( light.getMaterial().getEdf() != null ) {
+                dir = light.getMaterial().getEdf().phongEdfSample(null, flags & 0xFF, x1, x2, null, pdf);
             }
 
             point = thisNode.m_hit.getPoint().add(dir);   // fake hit at distance 1!
 
-            newNode.m_hit.init(light, point, null, light.material);
+            newNode.m_hit.init(light, point, null, light.getMaterial());
 
             // fill in directions
-            newNode.m_inDirT = dir.multiply(-1.0f);
+            newNode.m_inDirT = dir.multiply(-1.0);
             newNode.m_inDirF = dir;
             newNode.m_normal = dir;
 
@@ -109,13 +109,13 @@ public class ImportantLightSampler extends NextEventSampler {
         } else {
             point = light.uniformPoint(x1, x2);
 
-            pdfPoint = 1.0 / light.area;
+            pdfPoint = 1.0 / light.getArea();
 
             // Light position and value are known now
 
             // Fake a hit record
-            newNode.m_hit.init(light, point, light.getNormal(), light.material);
-            Vector3Df[] normal = {new Vector3Df()};
+            newNode.m_hit.init(light, point, light.getNormal(), light.getMaterial());
+            Vector3Dd[] normal = {new Vector3Dd()};
             newNode.m_hit.shadingNormal(normal);
             newNode.m_hit.setNormal(normal[0]);
             newNode.m_normal = newNode.m_hit.getNormal();
@@ -144,8 +144,8 @@ public class ImportantLightSampler extends NextEventSampler {
         if ( lightList == null ) {
             return 0.0;
         }
-        Vector3Df newPosition = newNode.m_hit.getPoint();
-        Vector3Df thisPosition = thisNode.m_hit.getPoint();
+        Vector3Dd newPosition = newNode.m_hit.getPoint();
+        Vector3Dd thisPosition = thisNode.m_hit.getPoint();
         localPdf = lightList.evalPdfImportant(
             newNode.m_hit.getPatch(),
             newPosition,
@@ -156,11 +156,11 @@ public class ImportantLightSampler extends NextEventSampler {
         if ( newNode.m_hit.getPatch().hasZeroVertices() ) {
             // virtual patch has no area!
             // choosing newPosition point == choosing newPosition dir --> use pdf from evalEdf
-            if ( newNode.m_hit.getPatch().material.getEdf() == null ) {
+            if ( newNode.m_hit.getPatch().getMaterial().getEdf() == null ) {
                 pdfDir = 0.0;
             } else {
                 double[] outPdfDir = new double[] {0.0};
-                newNode.m_hit.getPatch().material.getEdf().phongEdfEval(
+                newNode.m_hit.getPatch().getMaterial().getEdf().phongEdfEval(
                     null,
                     newNode.m_inDirF,
                     XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
@@ -171,8 +171,8 @@ public class ImportantLightSampler extends NextEventSampler {
             localPdf *= pdfDir;
         } else {
             // Normal patch, choosing point uniformly
-            if ( localPdf >= VSDK.EPSILON && newNode.m_hit.getPatch().area > VSDK.EPSILON ) {
-                localPdf = localPdf / newNode.m_hit.getPatch().area;
+            if ( localPdf >= VSDK.EPSILON && newNode.m_hit.getPatch().getArea() > VSDK.EPSILON ) {
+                localPdf = localPdf / newNode.m_hit.getPatch().getArea();
             } else {
                 localPdf = 0.0;
             }

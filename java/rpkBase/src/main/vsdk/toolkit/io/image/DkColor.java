@@ -12,8 +12,6 @@ three single byte mantissas and a common exponent.
 
 import java.io.OutputStream;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.memoryManagement.CppReAlloc;
 import vsdk.toolkit.io.wrapper.PersistenceElement;
 
 public class DkColor {
@@ -45,16 +43,9 @@ Get a temporary buffer
 */
     private static byte[] tempBuffer(int length) {
         if (length > temporaryBufferLength) {
-            if (temporaryBufferLength > 0) {
-                temporaryBuffer = CppReAlloc.reAlloc(
-                    temporaryBuffer,
-                    temporaryBufferLength,
-                    length);
-            }
-            else {
-                temporaryBuffer = new byte[length];
-            }
-            temporaryBufferLength = temporaryBuffer == null ? 0 : length;
+            // Contents are scratch data, so the old buffer need not be preserved
+            temporaryBuffer = new byte[length];
+            temporaryBufferLength = length;
         }
         return temporaryBuffer;
     }
@@ -169,7 +160,7 @@ Assign a short color value
     /**
 Write out a scanline
 */
-    public static int writeScan(float[][] scanline, int len, OutputStream outputStream)
+    public static int writeScan(double[][] scanline, int len, OutputStream outputStream)
     {
         // Get scanline buffer
         byte[] colorScan = tempBuffer(len * 4);

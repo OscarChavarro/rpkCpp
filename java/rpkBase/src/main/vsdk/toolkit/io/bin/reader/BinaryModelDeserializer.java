@@ -7,10 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.element.PlanarFace;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
@@ -20,15 +19,15 @@ import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.material.PhongLobe;
 import vsdk.toolkit.environment.material.Texture;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class BinaryModelDeserializer {
     private static final class ReadFailureException extends RuntimeException {
@@ -71,11 +70,11 @@ public class BinaryModelDeserializer {
             return null;
         }
 
-        ArrayList<Vector3Df> vectors = new ArrayList<>();
-        ArrayList<Vertex> vertices = new ArrayList<>();
+        ArrayList<Vector3Dd> vectors = new ArrayList<>();
+        ArrayList<RpkVertex> vertices = new ArrayList<>();
         ArrayList<Patch> patches = new ArrayList<>();
         ArrayList<RpkMaterial> materials = new ArrayList<>();
-        ArrayList<Geometry> geometries = new ArrayList<>();
+        ArrayList<RpkGeometry> geometries = new ArrayList<>();
         ArrayList<ColorContext> colorContexts = new ArrayList<>();
         ArrayList<ReaderContext> readerContexts = new ArrayList<>();
         ArrayList<TransformSequenceContext> transformArrays = new ArrayList<>();
@@ -122,11 +121,11 @@ public class BinaryModelDeserializer {
             require(BinaryModelReadPrimitives.readNonNegativeCount(input, "transform contexts", countOut));
             transformContextCount = countOut[0];
 
-            require(BinaryModelReadPrimitives.initializeArrayList(vectors, vectorCount, (Vector3Df)null, "vectors"));
-            require(BinaryModelReadPrimitives.initializeArrayList(vertices, vertexCount, (Vertex)null, "vertices"));
+            require(BinaryModelReadPrimitives.initializeArrayList(vectors, vectorCount, (Vector3Dd)null, "vectors"));
+            require(BinaryModelReadPrimitives.initializeArrayList(vertices, vertexCount, (RpkVertex)null, "vertices"));
             require(BinaryModelReadPrimitives.initializeArrayList(patches, patchCount, (Patch)null, "patches"));
             require(BinaryModelReadPrimitives.initializeArrayList(materials, materialCount, (RpkMaterial)null, "materials"));
-            require(BinaryModelReadPrimitives.initializeArrayList(geometries, geometryCount, (Geometry)null, "geometries"));
+            require(BinaryModelReadPrimitives.initializeArrayList(geometries, geometryCount, (RpkGeometry)null, "geometries"));
             require(BinaryModelReadPrimitives.initializeArrayList(colorContexts, colorContextCount, (ColorContext)null, "color contexts"));
             require(BinaryModelReadPrimitives.initializeArrayList(readerContexts, readerContextCount, (ReaderContext)null, "reader contexts"));
             require(BinaryModelReadPrimitives.initializeArrayList(transformArrays, transformArrayCount, (TransformSequenceContext)null, "transform arrays"));
@@ -137,7 +136,7 @@ public class BinaryModelDeserializer {
 
             require(BinaryModelReadPrimitives.expectTag(input, "VEC3"));
             for (int i = 0; i < vectorCount; i++) {
-                Vector3Df[] vector = new Vector3Df[1];
+                Vector3Dd[] vector = new Vector3Dd[1];
                 require(BinaryModelReadPrimitives.readVector(input, vector));
                 vectors.set(i, vector[0]);
             }
@@ -152,41 +151,47 @@ public class BinaryModelDeserializer {
                 PhongLobe emission = null;
                 PhongLobe reflection = null;
                 PhongLobe transmission = null;
-                float refractionIndexReal = 1.0F;
-                float refractionIndexImaginary = 0.0F;
+                double refractionIndexReal = 1.0;
+                double refractionIndexImaginary = 0.0;
                 Texture texture = null;
                 boolean hasEdf = BinaryModelReadPrimitives.readBool(input);
                 if (hasEdf) {
-                    ColorRgbMutable kd = new ColorRgbMutable();
-                    ColorRgbMutable ks = new ColorRgbMutable();
-                    require(BinaryModelReadPrimitives.readColor(input, kd));
-                    require(BinaryModelReadPrimitives.readColor(input, ks));
-                    float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                    emission = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
+                    final ColorRgb[] kdHolder = new ColorRgb[1];
+                    final ColorRgb[] ksHolder = new ColorRgb[1];
+                    require(BinaryModelReadPrimitives.readColor(input, kdHolder));
+                    require(BinaryModelReadPrimitives.readColor(input, ksHolder));
+                    ColorRgb kd = kdHolder[0];
+                    ColorRgb ks = ksHolder[0];
+                    double ns = BinaryModelReadPrimitives.readFloatLE(input);
+                    emission = new PhongLobe(kd, ks, ns);
                 }
 
                 boolean hasBsdf = BinaryModelReadPrimitives.readBool(input);
                 if (hasBsdf) {
                     boolean hasBrdf = BinaryModelReadPrimitives.readBool(input);
                     if (hasBrdf) {
-                        ColorRgbMutable kd = new ColorRgbMutable();
-                        ColorRgbMutable ks = new ColorRgbMutable();
-                        require(BinaryModelReadPrimitives.readColor(input, kd));
-                        require(BinaryModelReadPrimitives.readColor(input, ks));
-                        float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                        reflection = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
+                        final ColorRgb[] kdHolder = new ColorRgb[1];
+                        final ColorRgb[] ksHolder = new ColorRgb[1];
+                        require(BinaryModelReadPrimitives.readColor(input, kdHolder));
+                        require(BinaryModelReadPrimitives.readColor(input, ksHolder));
+                        ColorRgb kd = kdHolder[0];
+                        ColorRgb ks = ksHolder[0];
+                        double ns = BinaryModelReadPrimitives.readFloatLE(input);
+                        reflection = new PhongLobe(kd, ks, ns);
                     }
 
                     boolean hasBtdf = BinaryModelReadPrimitives.readBool(input);
                     if (hasBtdf) {
-                        ColorRgbMutable kd = new ColorRgbMutable();
-                        ColorRgbMutable ks = new ColorRgbMutable();
-                        require(BinaryModelReadPrimitives.readColor(input, kd));
-                        require(BinaryModelReadPrimitives.readColor(input, ks));
-                        float ns = BinaryModelReadPrimitives.readFloatLE(input);
-                        float nr = BinaryModelReadPrimitives.readFloatLE(input);
-                        float ni = BinaryModelReadPrimitives.readFloatLE(input);
-                        transmission = new PhongLobe(kd.toImmutable(), ks.toImmutable(), ns);
+                        final ColorRgb[] kdHolder = new ColorRgb[1];
+                        final ColorRgb[] ksHolder = new ColorRgb[1];
+                        require(BinaryModelReadPrimitives.readColor(input, kdHolder));
+                        require(BinaryModelReadPrimitives.readColor(input, ksHolder));
+                        ColorRgb kd = kdHolder[0];
+                        ColorRgb ks = ksHolder[0];
+                        double ns = BinaryModelReadPrimitives.readFloatLE(input);
+                        double nr = BinaryModelReadPrimitives.readFloatLE(input);
+                        double ni = BinaryModelReadPrimitives.readFloatLE(input);
+                        transmission = new PhongLobe(kd, ks, ns);
                         refractionIndexReal = nr;
                         refractionIndexImaginary = ni;
                     }
@@ -342,7 +347,9 @@ public class BinaryModelDeserializer {
                 record.pointIndex = BinaryModelReadPrimitives.readInt32LE(input);
                 record.normalIndex = BinaryModelReadPrimitives.readInt32LE(input);
                 record.textureCoordinateIndex = BinaryModelReadPrimitives.readInt32LE(input);
-                require(BinaryModelReadPrimitives.readColor(input, record.color));
+                final ColorRgb[] colorHolder = new ColorRgb[1];
+                require(BinaryModelReadPrimitives.readColor(input, colorHolder));
+                record.color = colorHolder[0];
                 record.backIndex = BinaryModelReadPrimitives.readInt32LE(input);
                 record.tmp = BinaryModelReadPrimitives.readInt32LE(input);
                 record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
@@ -352,25 +359,25 @@ public class BinaryModelDeserializer {
                 }
                 require(BinaryModelReadPrimitives.readIndexList(input, "vertex.patches", record.patchIndices));
 
-                BinaryModelReadPrimitives.Out<Vector3Df> pointOut = new BinaryModelReadPrimitives.Out<>();
-                BinaryModelReadPrimitives.Out<Vector3Df> normalOut = new BinaryModelReadPrimitives.Out<>();
-                BinaryModelReadPrimitives.Out<Vector3Df> texCoordsOut = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<Vector3Dd> pointOut = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<Vector3Dd> normalOut = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<Vector3Dd> texCoordsOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.pointIndex, "vertex.point", pointOut));
                 require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.normalIndex, "vertex.normal", normalOut));
                 require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.textureCoordinateIndex, "vertex.textureCoordinates", texCoordsOut));
 
-                Vertex vertex = new Vertex(pointOut.value, normalOut.value, texCoordsOut.value, new ArrayList<Patch>());
+                RpkVertex vertex = new RpkVertex(pointOut.value, normalOut.value, texCoordsOut.value, new ArrayList<Patch>());
                 vertex.id = record.id;
-                vertex.color = new ColorRgbMutable(record.color.r, record.color.g, record.color.b);
+                vertex.color = record.color;
                 vertex.tmp = record.tmp;
                 vertex.radianceData = null;
                 vertices.set(i, vertex);
             }
 
             for (int i = 0; i < vertexCount; i++) {
-                Vertex vertex = vertices.get(i);
+                RpkVertex vertex = vertices.get(i);
                 BinaryModelVertexRecordData record = vertexRecords.get(i);
-                BinaryModelReadPrimitives.Out<Vertex> backOut = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkVertex> backOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.backIndex, "vertex.back", backOut));
                 vertex.back = backOut.value;
             }
@@ -395,7 +402,7 @@ public class BinaryModelDeserializer {
                     require(BinaryModelReadPrimitives.readBoundingBoxCoordinates(input, record.boundingBoxCoordinates));
                 }
 
-                final Vector3Df[] vectorHolder = new Vector3Df[1];
+                final Vector3Dd[] vectorHolder = new Vector3Dd[1];
                 require(BinaryModelReadPrimitives.readVector(input, vectorHolder));
                 record.normal = vectorHolder[0];
                 record.planeConstant = BinaryModelReadPrimitives.readFloatLE(input);
@@ -405,9 +412,9 @@ public class BinaryModelDeserializer {
                 record.midPoint = vectorHolder[0];
 
                 record.hasJacobian = BinaryModelReadPrimitives.readBool(input);
-                record.jacobianA = 0.0f;
-                record.jacobianB = 0.0f;
-                record.jacobianC = 0.0f;
+                record.jacobianA = 0.0;
+                record.jacobianB = 0.0;
+                record.jacobianC = 0.0;
                 if (record.hasJacobian) {
                     record.jacobianA = BinaryModelReadPrimitives.readFloatLE(input);
                     record.jacobianB = BinaryModelReadPrimitives.readFloatLE(input);
@@ -417,8 +424,14 @@ public class BinaryModelDeserializer {
                 record.directPotential = BinaryModelReadPrimitives.readFloatLE(input);
                 record.dominantIndex = BinaryModelReadPrimitives.readInt32LE(input);
                 record.omit = BinaryModelReadPrimitives.readBool(input);
+                if (record.omit) {
+                    Logger.reportMessage(null, Logger.ERROR, "BinaryModelDeserializer::read", String.format("%s", "Patch omit flag is not supported in binary reader"));
+                    throw new ReadFailureException();
+                }
                 record.flags = BinaryModelReadPrimitives.readByte(input);
-                require(BinaryModelReadPrimitives.readColor(input, record.color));
+                final ColorRgb[] colorHolder = new ColorRgb[1];
+                require(BinaryModelReadPrimitives.readColor(input, colorHolder));
+                record.color = colorHolder[0];
                 record.materialIndex = BinaryModelReadPrimitives.readInt32LE(input);
                 record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
                 if (record.hasRadianceData) {
@@ -426,10 +439,10 @@ public class BinaryModelDeserializer {
                     throw new ReadFailureException();
                 }
 
-                BinaryModelReadPrimitives.Out<Vertex> v1Out = new BinaryModelReadPrimitives.Out<>();
-                BinaryModelReadPrimitives.Out<Vertex> v2Out = new BinaryModelReadPrimitives.Out<>();
-                BinaryModelReadPrimitives.Out<Vertex> v3Out = new BinaryModelReadPrimitives.Out<>();
-                BinaryModelReadPrimitives.Out<Vertex> v4Out = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkVertex> v1Out = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkVertex> v2Out = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkVertex> v3Out = new BinaryModelReadPrimitives.Out<>();
+                BinaryModelReadPrimitives.Out<RpkVertex> v4Out = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[0], "patch.vertex[0]", v1Out));
                 require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[1], "patch.vertex[1]", v2Out));
                 require(BinaryModelReadPrimitives.pointerFromIndex(vertices, record.vertexIndices[2], "patch.vertex[2]", v3Out));
@@ -438,28 +451,26 @@ public class BinaryModelDeserializer {
                 }
 
                 Patch patch = new Patch(record.numberOfVertices, v1Out.value, v2Out.value, v3Out.value, v4Out.value);
-                patch.id = record.id;
+                patch.setId(record.id);
                 // Plane constant is immutable after construction and recomputed from geometry.
                 // Plane tolerance is immutable after construction and recomputed from geometry.
                 // Area is immutable after construction and recomputed from geometry.
-                // The direct potential is read and discarded: it is per-face solver data
-                // and starts at zero
+                // The direct potential is read and discarded: it is per-face solver data,
+                // held by the scene's DirectPotentialTable, and starts at zero
                 // The dominant axis and the Jacobian are derived from the vertices by the
                 // patch's face; the file's values must agree with them bit for bit
-                if ( record.dominantIndex != patch.index.ordinal() ) {
+                if ( record.dominantIndex != patch.getDominantAxisIndex() ) {
                     Logger.reportMessage(null, Logger.ERROR, "BinaryModelDeserializer::read", String.format("%s", "Patch dominant axis disagrees with its vertices"));
                     throw new ReadFailureException();
                 }
-                patch.omit = (byte)(record.omit ? 1 : 0);
                 // The flags byte (direct visibility) is read and discarded: it is per-face
-                // solver data and starts cleared
-                // The display color is read and discarded: it is per-face display data
-                // and starts black
+                // solver data, held by the scene's FaceVisibilityTable, and starts cleared
+                // The display color is read and discarded: it is per-face display data,
+                // held by the scene's FaceColorTable, and starts black
 
                 BinaryModelReadPrimitives.Out<RpkMaterial> materialOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(materials, record.materialIndex, "patch.material", materialOut));
-                patch.material = materialOut.value;
-                patch.radianceData = null;
+                patch.setMaterial(materialOut.value);
 
                 {
                     final PlanarFace face = patch.getFace();
@@ -472,11 +483,9 @@ public class BinaryModelDeserializer {
                     }
                 }
 
-                patch.boundingBox = null;
-                if (record.hasBoundingBox) {
-                    patch.boundingBox = new BoundingBox();
-                    require(BinaryModelReadPrimitives.setBoundingBoxFromCoordinates(patch.boundingBox, record.boundingBoxCoordinates));
-                }
+                // Patch bounding box is immutable after construction.
+                // The constructor computes it from vertices.
+                // We keep reading serialized bounding-box payload for format compatibility.
 
                 patches.set(i, patch);
             }
@@ -486,11 +495,11 @@ public class BinaryModelDeserializer {
                 BinaryModelPatchRecordData record = patchRecords.get(i);
                 BinaryModelReadPrimitives.Out<Patch> twinOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.pointerFromIndex(patches, record.twinIndex, "patch.twin", twinOut));
-                patch.twin = twinOut.value;
+                patch.setTwin(twinOut.value);
             }
 
             for (int i = 0; i < vertexCount; i++) {
-                Vertex vertex = vertices.get(i);
+                RpkVertex vertex = vertices.get(i);
                 BinaryModelReadPrimitives.Out<ArrayList<Patch>> patchListOut = new BinaryModelReadPrimitives.Out<>();
                 require(BinaryModelReadPrimitives.arrayListFromIndices(
                     vertexRecords.get(i).patchIndices,
@@ -554,12 +563,12 @@ public class BinaryModelDeserializer {
 
             for (int i = 0; i < geometryCount; i++) {
                 BinaryModelGeometryRecordData record = geometryRecords.get(i);
-                Geometry geometry = null;
+                RpkGeometry geometry = null;
 
                 if (record.classId == GeometryClassId.SURFACE_MESH) {
-                    BinaryModelReadPrimitives.Out<ArrayList<Vector3Df>> positionsOut = new BinaryModelReadPrimitives.Out<>();
-                    BinaryModelReadPrimitives.Out<ArrayList<Vector3Df>> normalsOut = new BinaryModelReadPrimitives.Out<>();
-                    BinaryModelReadPrimitives.Out<ArrayList<Vertex>> verticesOut = new BinaryModelReadPrimitives.Out<>();
+                    BinaryModelReadPrimitives.Out<ArrayList<Vector3Dd>> positionsOut = new BinaryModelReadPrimitives.Out<>();
+                    BinaryModelReadPrimitives.Out<ArrayList<Vector3Dd>> normalsOut = new BinaryModelReadPrimitives.Out<>();
+                    BinaryModelReadPrimitives.Out<ArrayList<RpkVertex>> verticesOut = new BinaryModelReadPrimitives.Out<>();
                     BinaryModelReadPrimitives.Out<ArrayList<Patch>> facesOut = new BinaryModelReadPrimitives.Out<>();
                     BinaryModelReadPrimitives.Out<RpkMaterial> materialOut = new BinaryModelReadPrimitives.Out<>();
 
@@ -583,7 +592,7 @@ public class BinaryModelDeserializer {
                     geometry = surface;
                 }
                 else if (record.classId == GeometryClassId.COMPOUND) {
-                    geometry = new Compound(new ArrayList<Geometry>());
+                    geometry = new Compound(new ArrayList<RpkGeometry>());
                 }
                 else if (record.classId == GeometryClassId.PATCH_SET) {
                     BinaryModelReadPrimitives.Out<ArrayList<Patch>> patchListOut = new BinaryModelReadPrimitives.Out<>();
@@ -612,7 +621,7 @@ public class BinaryModelDeserializer {
                 BinaryModelGeometryRecordData record = geometryRecords.get(i);
                 if (record.classId == GeometryClassId.COMPOUND) {
                     Compound compound = (Compound)geometries.get(i);
-                    BinaryModelReadPrimitives.Out<ArrayList<Geometry>> childrenOut = new BinaryModelReadPrimitives.Out<>();
+                    BinaryModelReadPrimitives.Out<ArrayList<RpkGeometry>> childrenOut = new BinaryModelReadPrimitives.Out<>();
                     require(BinaryModelReadPrimitives.arrayListFromIndices(record.children, geometries, "compound.children", childrenOut));
                     compound.children = childrenOut.value;
                 }
@@ -636,7 +645,6 @@ public class BinaryModelDeserializer {
             modelRecord.inSurface = BinaryModelReadPrimitives.readBool(input);
             modelRecord.monochrome = BinaryModelReadPrimitives.readBool(input);
             modelRecord.singleSided = BinaryModelReadPrimitives.readBool(input);
-            modelRecord.warpConeEnds = BinaryModelReadPrimitives.readBool(input);
             modelRecord.numberOfQuarterCircleDivisions = BinaryModelReadPrimitives.readInt32LE(input);
             modelRecord.readerContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
             modelRecord.transformContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
@@ -663,7 +671,6 @@ public class BinaryModelDeserializer {
             model.inSurface = modelRecord.inSurface;
             model.monochrome = modelRecord.monochrome;
             model.singleSided = modelRecord.singleSided;
-            model.warpConeEnds = modelRecord.warpConeEnds;
             model.numberOfQuarterCircleDivisions = modelRecord.numberOfQuarterCircleDivisions;
             model.readerContext = readerContextOut.value;
             model.transformContext = transformContextOut.value;
@@ -671,11 +678,11 @@ public class BinaryModelDeserializer {
             require(BinaryModelReadPrimitives.populateModelStrings(model, modelRecord));
 
             BinaryModelReadPrimitives.Out<ArrayList<Patch>> modelFaceListOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Geometry>> modelGeometryListOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Vector3Df>> modelNormalListOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Vector3Df>> modelPointListOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Vertex>> modelVertexListOut = new BinaryModelReadPrimitives.Out<>();
-            BinaryModelReadPrimitives.Out<ArrayList<Geometry>> modelGeometriesOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<RpkGeometry>> modelGeometryListOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<Vector3Dd>> modelNormalListOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<Vector3Dd>> modelPointListOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<RpkVertex>> modelVertexListOut = new BinaryModelReadPrimitives.Out<>();
+            BinaryModelReadPrimitives.Out<ArrayList<RpkGeometry>> modelGeometriesOut = new BinaryModelReadPrimitives.Out<>();
             BinaryModelReadPrimitives.Out<ArrayList<RpkMaterial>> modelMaterialsOut = new BinaryModelReadPrimitives.Out<>();
 
             require(BinaryModelReadPrimitives.arrayListFromIndices(modelRecord.currentFaceList, patches, "model.currentFaceList", modelFaceListOut));
@@ -697,20 +704,20 @@ public class BinaryModelDeserializer {
             int maxPatchId = 0;
             for (int i = 0; i < patches.size(); i++) {
                 Patch patch = patches.get(i);
-                if (patch != null && patch.id > maxPatchId) {
-                    maxPatchId = patch.id;
+                if (patch != null && patch.getId() > maxPatchId) {
+                    maxPatchId = patch.getId();
                 }
             }
             Patch.setNextId(maxPatchId + 1);
 
             int maxGeometryId = -1;
             for (int i = 0; i < geometries.size(); i++) {
-                Geometry geometry = geometries.get(i);
+                RpkGeometry geometry = geometries.get(i);
                 if (geometry != null && geometry.id > maxGeometryId) {
                     maxGeometryId = geometry.id;
                 }
             }
-            Geometry.nextGeometryId = maxGeometryId + 1;
+            RpkGeometry.nextGeometryId = maxGeometryId + 1;
 
             ok = true;
         }

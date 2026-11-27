@@ -1,6 +1,6 @@
 package vsdk.toolkit.material;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.material.ScatteringFrame;
 
 /**
@@ -12,9 +12,9 @@ public class Xxdf {
 
     /**
     Ideal reflection and refraction directions, answered by VITRAL's
-    ScatteringFrame (plan step 2b) on the same single precision values
+    ScatteringFrame (plan step 2b) on the same double precision values
     */
-    public static Vector3Df idealReflectedDirection(Vector3Df in, Vector3Df normal) {
+    public static Vector3Dd idealReflectedDirection(Vector3Dd in, Vector3Dd normal) {
         return ScatteringFrame.idealReflection(
             in, normal);
     }
@@ -23,9 +23,9 @@ public class Xxdf {
     Sets totalInternalReflection[0] to true or false accordingly; real part of the
     indices only
     */
-    public static Vector3Df idealRefractedDirection(
-        Vector3Df in,
-        Vector3Df normal,
+    public static Vector3Dd idealRefractedDirection(
+        Vector3Dd in,
+        Vector3Dd normal,
         RefractionIndex inIndex,
         RefractionIndex outIndex,
         boolean[] totalInternalReflection)

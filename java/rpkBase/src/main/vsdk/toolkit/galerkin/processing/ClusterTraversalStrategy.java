@@ -10,9 +10,9 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 package vsdk.toolkit.galerkin.processing;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
@@ -24,7 +24,7 @@ import vsdk.toolkit.galerkin.processing.visitors.MaximumRadianceVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.OrientedGathererVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.PowerAccumulatorVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.ProjectedAreaAccumulatorVisitor;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 
 public class ClusterTraversalStrategy {
     /**
@@ -58,24 +58,24 @@ Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
 towards the samplePoint point
 */
-    public static ColorRgbMutable clusterRadianceToSamplePoint(
+    public static ColorRgb clusterRadianceToSamplePoint(
         GalerkinElement sourceElement,
-        Vector3Df samplePoint,
+        Vector3Dd samplePoint,
         GalerkinState galerkinState)
     {
         if ( sourceElement == null || galerkinState == null ) {
-            return new ColorRgbMutable();
+            return new ColorRgb();
         }
         switch ( galerkinState.clusteringStrategy ) {
             case ISOTROPIC:
                 return sourceElement.radiance[0];
             case ORIENTED: {
-                ColorRgbMutable sourceRadiance = new ColorRgbMutable();
-                sourceRadiance.clear();
+                ColorRgb sourceRadiance = new ColorRgb();
+                sourceRadiance = new ColorRgb(0.0, 0.0, 0.0);
                 PowerAccumulatorVisitor leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
                 traverseAllLeafElements(leafVisitor, sourceElement, galerkinState);
                 sourceRadiance = leafVisitor.getAccumulatedRadiance();
-                sourceRadiance.scale(sourceElement.area > 0.0f ? (4.0f / sourceElement.area) : 0.0f);
+                sourceRadiance = sourceRadiance.multiply(sourceElement.area > 0.0 ? (4.0 / sourceElement.area) : 0.0);
                 return sourceRadiance;
             }
             case Z_VISIBILITY:
@@ -86,21 +86,21 @@ towards the samplePoint point
 
                     // Render pointers to the elements in the source cluster into the scratch frame
                     // buffer, seen from the samplePoint point
-                    final BoundingBox boundingBox =
+                    final RpkAxisAlignedBoundingBox boundingBox =
                         ScratchVisibilityStrategy.scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                     // Compute average radiance on the virtual screen
-                    ColorRgbMutable sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(galerkinState);
+                    ColorRgb sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(galerkinState);
 
                     // Area factor = area of virtual screen / source cluster area used for
                     // form factor computation
                     areaFactor = (boundingBox.dx() * boundingBox.dy()) / (0.25 * sourceElement.area);
-                    sourceRadiance.scale((float) areaFactor);
+                    sourceRadiance = sourceRadiance.multiply((double)areaFactor);
                     return sourceRadiance;
                 }
             default:
                 Logger.reportMessage(null, Logger.FATAL_ERROR, "clusterRadianceToSamplePoint", String.format("Invalid clustering strategy %s\n", galerkinState.clusteringStrategy));
-                return new ColorRgbMutable();
+                return new ColorRgb();
         }
     }
 
@@ -109,7 +109,7 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-    public static ColorRgbMutable sourceClusterRadiance(Interaction link, GalerkinState galerkinState) {
+    public static ColorRgb sourceClusterRadiance(Interaction link, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( sourceElement == null || receiverElement == null || !sourceElement.isCluster() || sourceElement == receiverElement ) {
@@ -127,8 +127,8 @@ Ignores intra cluster visibility
             return 0.0;
         }
         double rcvCos;
-        Vector3Df dir = new Vector3Df();
-        Vector3Df samplePoint = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
+        Vector3Dd samplePoint = new Vector3Dd();
 
         dir = samplePoint.subtract(receiverElement.patch.midPoint());
         double distance = dir.length();
@@ -185,22 +185,19 @@ radiance is explicit given
         GalerkinElement rcv,
         double areaFactor,
         Interaction link,
-        ColorRgbMutable[] sourceRadiance)
+        ColorRgb[] sourceRadiance)
     {
-        ColorRgbMutable[] rcvRad = rcv.receivedRadiance;
+        ColorRgb[] rcvRad = rcv.receivedRadiance;
 
         if ( link.numberOfBasisFunctionsOnReceiver == 1 && link.numberOfBasisFunctionsOnSource == 1 ) {
-            rcvRad[0].addScaled(rcvRad[0], (float)(areaFactor * link.K[0]), sourceRadiance[0]);
+            rcvRad[0] = rcvRad[0].addScaled((double)(areaFactor * link.K[0]), sourceRadiance[0]);
         }
         else {
             int a = Math.min(link.numberOfBasisFunctionsOnReceiver, rcv.basisSize);
             int b = Math.min(link.numberOfBasisFunctionsOnSource, link.sourceElement.basisSize);
             for ( int alpha = 0; alpha < a; alpha++ ) {
                 for ( int beta = 0; beta < b; beta++ ) {
-                    rcvRad[alpha].addScaled(
-                        rcvRad[alpha],
-                        (float)(areaFactor * link.K[alpha * link.numberOfBasisFunctionsOnSource + beta]),
-                        sourceRadiance[beta]);
+                    rcvRad[alpha] = rcvRad[alpha].addScaled((double)(areaFactor * link.K[alpha * link.numberOfBasisFunctionsOnSource + beta]), sourceRadiance[beta]);
                 }
             }
         }
@@ -210,7 +207,7 @@ radiance is explicit given
 Distributes the source radiance to the surface elements in the
 receiver cluster
 */
-    public static void gatherRadiance(Interaction link, ColorRgbMutable[] srcRad, GalerkinState galerkinState) {
+    public static void gatherRadiance(Interaction link, ColorRgb[] srcRad, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( !receiverElement.isCluster() || sourceElement == receiverElement ) {
@@ -227,10 +224,10 @@ receiver cluster
                 break;
             }
             case Z_VISIBILITY:
-                Vector3Df samplePoint = sourceElement.midPoint();
-                BoundingBox bb = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
+                Vector3Dd samplePoint = sourceElement.midPoint();
+                RpkAxisAlignedBoundingBox bb = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
                 ScratchVisibilityStrategy.scratchPixelsPerElement(galerkinState);
-                double pixelArea = (bb.dx() * bb.dy()) / (double)(galerkinState.scratch.vp_width * galerkinState.scratch.vp_height);
+                double pixelArea = (bb.dx() * bb.dy()) / (double)(galerkinState.scratch.getViewportWidth() * galerkinState.scratch.getViewportHeight());
                 DepthVisibilityGathererVisitor dvgv = new DepthVisibilityGathererVisitor(link, srcRad, pixelArea);
                 traverseAllLeafElements(dvgv, receiverElement, galerkinState);
                 break;
@@ -239,7 +236,7 @@ receiver cluster
         }
     }
 
-    public static ColorRgbMutable maxRadiance(GalerkinElement cluster, GalerkinState galerkinState) {
+    public static ColorRgb maxRadiance(GalerkinElement cluster, GalerkinState galerkinState) {
         MaximumRadianceVisitor leafVisitor = new MaximumRadianceVisitor();
         traverseAllLeafElements(leafVisitor, cluster, galerkinState);
         return leafVisitor.getAccumulatedRadiance();

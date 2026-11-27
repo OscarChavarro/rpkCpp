@@ -47,53 +47,53 @@ Samples the hemisphere according to a cos_theta ^ n distribution
 // Section [ARVO1995b].2: same square-to-sphere mapping pattern with a different radial CDF.
 
 public class CoordinateSystem {
-    private Vector3Df X = new Vector3Df();
-    private Vector3Df Y = new Vector3Df();
-    private Vector3Df Z = new Vector3Df();
+    private Vector3Dd X = new Vector3Dd();
+    private Vector3Dd Y = new Vector3Dd();
+    private Vector3Dd Z = new Vector3Dd();
 
-    public Vector3Df getX() {
+    public Vector3Dd getX() {
         return X;
     }
 
-    public Vector3Df getY() {
+    public Vector3Dd getY() {
         return Y;
     }
 
-    public Vector3Df getZ() {
+    public Vector3Dd getZ() {
         return Z;
     }
 
-    public void setX(Vector3Df inX) {
+    public void setX(Vector3Dd inX) {
         X = inX;
     }
 
-    public void setY(Vector3Df inY) {
+    public void setY(Vector3Dd inY) {
         Y = inY;
     }
 
-    public void setZ(Vector3Df inZ) {
+    public void setZ(Vector3Dd inZ) {
         Z = inZ;
     }
 
-    public void setFromZAxis(Vector3Df inZ) {
+    public void setFromZAxis(Vector3Dd inZ) {
         Z = inZ;
 
-        float zz = (float)Math.sqrt(1.0f - inZ.z() * inZ.z());
+        double zz = (double)Math.sqrt(1.0 - inZ.z() * inZ.z());
         if (zz < VSDK.EPSILON) {
-            X = X.withX(1.0f);
-            X = X.withY(0.0f);
-            X = X.withZ(0.0f);
+            X = X.withX(1.0);
+            X = X.withY(0.0);
+            X = X.withZ(0.0);
         }
         else {
             X = X.withX(inZ.y() / zz);
             X = X.withY(-inZ.x() / zz);
-            X = X.withZ(0.0f);
+            X = X.withZ(0.0);
         }
 
         Y = Z.crossProduct(X);
     }
 
-    public void rectangularToSphericalCoord(Vector3Df cIn, double[] phi, double[] theta) {
+    public void rectangularToSphericalCoord(Vector3Dd cIn, double[] phi, double[] theta) {
         if (phi == null || phi.length == 0 || theta == null || theta.length == 0) {
             throw new IllegalArgumentException("phi/theta output arrays must have length >= 1");
         }
@@ -108,9 +108,9 @@ public class CoordinateSystem {
 
         theta[0] = Math.acos(z);
 
-        Vector3Df c = new Vector3Df();
-        c = cIn.add(Z.multiply((float)(-z)));
-        c = c.normalized(Numeric.EPSILON_FLOAT);
+        Vector3Dd c = new Vector3Dd();
+        c = cIn.add(Z.multiply((double)(-z)));
+        c = c.normalized(Numeric.EPSILON);
 
         double x = c.dotProduct(X);
         double y = c.dotProduct(Y);
@@ -128,14 +128,14 @@ public class CoordinateSystem {
         }
     }
 
-    public Vector3Df sampleHemisphereCosTheta(double xi1, double xi2, double[] probabilityDensityFunction) {
-        float phi = 2.0f * (float)Math.PI * (float)xi1;
-        float cosPhi = (float)Math.cos(phi);
-        float sinPhi = (float)Math.sin(phi);
-        float cosTheta = (float)Math.sqrt(1.0 - xi2);
-        float sinTheta = (float)Math.sqrt(xi2);
+    public Vector3Dd sampleHemisphereCosTheta(double xi1, double xi2, double[] probabilityDensityFunction) {
+        double phi = 2.0 * (double)Math.PI * (double)xi1;
+        double cosPhi = (double)Math.cos(phi);
+        double sinPhi = (double)Math.sin(phi);
+        double cosTheta = (double)Math.sqrt(1.0 - xi2);
+        double sinTheta = (double)Math.sqrt(xi2);
 
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
         dir = X.multiply(cosPhi).add(Y.multiply(sinPhi));
         dir = dir.multiply(sinTheta).add(Z.multiply(cosTheta));
 
@@ -146,14 +146,14 @@ public class CoordinateSystem {
         return dir;
     }
 
-    public Vector3Df sampleHemisphereCosNTheta(double n, double xi1, double xi2, double[] probabilityDensityFunction) {
-        float phi = 2.0f * (float)Math.PI * (float)xi1;
-        float cosPhi = (float)Math.cos(phi);
-        float sinPhi = (float)Math.sin(phi);
-        float cosTheta = (float)Math.pow(xi2, 1.0 / (n + 1.0));
-        float sinTheta = (float)Math.sqrt(1.0 - cosTheta * cosTheta);
+    public Vector3Dd sampleHemisphereCosNTheta(double n, double xi1, double xi2, double[] probabilityDensityFunction) {
+        double phi = 2.0 * (double)Math.PI * (double)xi1;
+        double cosPhi = (double)Math.cos(phi);
+        double sinPhi = (double)Math.sin(phi);
+        double cosTheta = (double)Math.pow(xi2, 1.0 / (n + 1.0));
+        double sinTheta = (double)Math.sqrt(1.0 - cosTheta * cosTheta);
 
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
         dir = X.multiply(cosPhi).add(Y.multiply(sinPhi));
         dir = dir.multiply(sinTheta).add(Z.multiply(cosTheta));
 

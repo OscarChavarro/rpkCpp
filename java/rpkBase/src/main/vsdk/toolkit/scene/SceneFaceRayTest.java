@@ -1,20 +1,19 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.environment.geometry.elements.PatchIntersectionWorkspace;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 import vsdk.toolkit.environment.geometry.spatialIndex.PrimitiveRayTest;
 
 /**
 RenderPark's exact face test as the PrimitiveRayTest of a VITRAL
 SpatialIndex: primitive i is face i of the scene's face table, tested with
-Patch.intersect on the original single precision ray, flags and exclusions,
-so an index answer is decided by the same arithmetic as the voxel grid's,
-the exclusions included (a face below an excluded geometry is rejected by
-its face-index range, plan decision D5).
-The interval ends arrive as doubles that hold float values, and the accepted
-hit distance leaves as the float the face test produced.
+Patch.intersect on the original ray, flags and exclusions, so an index
+answer is decided by the same arithmetic as the voxel grid's, the exclusions
+included (a face below an excluded geometry is rejected by its face-index
+range, plan decision D5). The interval ends and the accepted hit distance are
+doubles, as the face test computes them.
 
 One object per query: it writes the accepted hit into the caller's hit
 record, so after a closest-hit query the record holds the closest face.
@@ -28,8 +27,8 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
     private Ray ray;
     private int hitFlags;
     private RayExclusionSet exclusions;
-    private RayHit hitStore;
-    private final float[] distance;
+    private RpkRayHit hitStore;
+    private final double[] distance;
     private final PatchIntersectionWorkspace patchWorkspace;
 
     public SceneFaceRayTest(
@@ -37,14 +36,14 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
         Ray inRay,
         int inHitFlags,
         RayExclusionSet inExclusions,
-        RayHit inHitStore) {
+        RpkRayHit inHitStore) {
         scene = inScene;
-        distance = new float[1];
+        distance = new double[1];
         patchWorkspace = new PatchIntersectionWorkspace();
         set(inRay, inHitFlags, inExclusions, inHitStore);
     }
 
-    public void set(Ray inRay, int inHitFlags, RayExclusionSet inExclusions, RayHit inHitStore) {
+    public void set(Ray inRay, int inHitFlags, RayExclusionSet inExclusions, RpkRayHit inHitStore) {
         ray = inRay;
         hitFlags = inHitFlags;
         exclusions = inExclusions;
@@ -53,9 +52,9 @@ public final class SceneFaceRayTest implements PrimitiveRayTest {
 
     @Override
     public boolean test(int primitive, double minimumT, double maximumT, double[] hitT) {
-        distance[0] = (float)maximumT;
-        RayHit hit = scene.getFace(primitive).intersect(
-            ray, (float)minimumT, distance, hitFlags, hitStore, exclusions, patchWorkspace);
+        distance[0] = (double)maximumT;
+        RpkRayHit hit = scene.getFace(primitive).intersect(
+            ray, (double)minimumT, distance, hitFlags, hitStore, exclusions, patchWorkspace);
         if (hit == null) {
             return false;
         }

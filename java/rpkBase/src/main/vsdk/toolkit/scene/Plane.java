@@ -1,13 +1,13 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 public class Plane {
-    public Vector3Df normal;
-    public float d;
+    public Vector3Dd normal;
+    public double d;
 
     public Plane() {
-        normal = new Vector3Df();
-        d = 0.0f;
+        normal = new Vector3Dd();
+        d = 0.0;
     }
 }

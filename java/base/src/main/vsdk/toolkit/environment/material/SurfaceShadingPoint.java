@@ -1,6 +1,6 @@
 package vsdk.toolkit.environment.material;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 /**
 What the directional functions of PhongMaterial read about the surface point
@@ -11,28 +11,28 @@ its normal and its texture coordinate; the material only reads them.
 Immutable value.
 */
 public final class SurfaceShadingPoint {
-    private final Vector3Df shadingNormal;
-    private final Vector3Df textureCoordinate;
+    private final Vector3Dd shadingNormal;
+    private final Vector3Dd textureCoordinate;
     private final boolean shadingNormalKnown;
     private final boolean textureCoordinateKnown;
 
     public SurfaceShadingPoint(
-        Vector3Df inShadingNormal,
+        Vector3Dd inShadingNormal,
         boolean inShadingNormalKnown,
-        Vector3Df inTextureCoordinate,
+        Vector3Dd inTextureCoordinate,
         boolean inTextureCoordinateKnown)
     {
-        shadingNormal = new Vector3Df(inShadingNormal);
-        textureCoordinate = new Vector3Df(inTextureCoordinate);
+        shadingNormal = new Vector3Dd(inShadingNormal);
+        textureCoordinate = new Vector3Dd(inTextureCoordinate);
         shadingNormalKnown = inShadingNormalKnown;
         textureCoordinateKnown = inTextureCoordinateKnown;
     }
 
     /** Unit normal leaving the surface on the side the scattering is evaluated from */
-    public Vector3Df getShadingNormal() { return shadingNormal; }
+    public Vector3Dd getShadingNormal() { return shadingNormal; }
     public boolean hasShadingNormal() { return shadingNormalKnown; }
 
     /** Texture coordinate (x and y used) */
-    public Vector3Df getTextureCoordinate() { return textureCoordinate; }
+    public Vector3Dd getTextureCoordinate() { return textureCoordinate; }
     public boolean hasTextureCoordinate() { return textureCoordinateKnown; }
 }

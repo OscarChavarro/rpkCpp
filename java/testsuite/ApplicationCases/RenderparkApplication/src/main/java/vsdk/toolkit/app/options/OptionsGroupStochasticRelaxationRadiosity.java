@@ -171,13 +171,13 @@ public final class OptionsGroupStochasticRelaxationRadiosity {
             1,
             null,
             OptionsGroupStochasticRelaxationRadiosity::parseEnumBinding);
-        TypedOption<Float> srrEpsilonOpt = new TypedOption<>(
+        TypedOption<Double> srrEpsilonOpt = new TypedOption<>(
             "-srr-epsilon",
             TypedOption.reference(() -> elementHierarchyState.epsilon, v -> elementHierarchyState.epsilon = v),
             1,
             null,
             null);
-        TypedOption<Float> srrMinAreaOpt = new TypedOption<>(
+        TypedOption<Double> srrMinAreaOpt = new TypedOption<>(
             "-srr-minarea",
             TypedOption.reference(() -> elementHierarchyState.minimumArea, v -> elementHierarchyState.minimumArea = v),
             1,

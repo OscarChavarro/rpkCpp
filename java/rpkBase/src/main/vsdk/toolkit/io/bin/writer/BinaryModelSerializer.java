@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.element.PlanarFace;
 import vsdk.toolkit.io.wrapper.PersistenceElement;
 import vsdk.toolkit.io.context.ColorContext;
@@ -20,14 +20,14 @@ import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.material.PhongLobe;
 import vsdk.toolkit.environment.material.PhongMaterial;
 import vsdk.toolkit.environment.material.Texture;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class BinaryModelSerializer {
     private static final byte[] BINARY_MODEL_MAGIC = new byte[] {
@@ -102,8 +102,9 @@ public class BinaryModelSerializer {
         PersistenceElement.writeBytes(output, data, 8);
     }
 
-    private static void writeFloatLE(OutputStream output, float value) {
-        writeInt32LE(output, Float.floatToIntBits(value));
+    // The binary model format stores 4-byte floats: the value is rounded to float
+    private static void writeFloatLE(OutputStream output, double value) {
+        writeInt32LE(output, Float.floatToIntBits((float)value));
     }
 
     private static void writeDoubleLE(OutputStream output, double value) {
@@ -178,18 +179,18 @@ public class BinaryModelSerializer {
     }
 
     private static void writeColor(OutputStream output, ColorRgb color) {
-        writeFloatLE(output, (float)color.getR());
-        writeFloatLE(output, (float)color.getG());
-        writeFloatLE(output, (float)color.getB());
+        writeFloatLE(output, (double)color.getR());
+        writeFloatLE(output, (double)color.getG());
+        writeFloatLE(output, (double)color.getB());
     }
 
-    private static void writeVector(OutputStream output, Vector3Df vector) {
+    private static void writeVector(OutputStream output, Vector3Dd vector) {
         writeFloatLE(output, vector.x());
         writeFloatLE(output, vector.y());
         writeFloatLE(output, vector.z());
     }
 
-    private static void writeBoundingBox(OutputStream output, BoundingBox boundingBox) {
+    private static void writeBoundingBox(OutputStream output, RpkAxisAlignedBoundingBox boundingBox) {
         for (int i = 0; i < 6; i++) {
             writeFloatLE(output, boundingBox.valueAt(i));
         }
@@ -398,7 +399,7 @@ public class BinaryModelSerializer {
         return true;
     }
 
-    private static boolean writeVertexRecord(OutputStream output, Vertex vertex, BinaryModelSerializationGraph context) {
+    private static boolean writeVertexRecord(OutputStream output, RpkVertex vertex, BinaryModelSerializationGraph context) {
         writeInt32LE(output, vertex.id);
 
         int[] pointIndex = new int[1];
@@ -419,7 +420,7 @@ public class BinaryModelSerializer {
         }
         writeInt32LE(output, textureIndex[0]);
 
-        writeColor(output, vertex.color.toImmutable());
+        writeColor(output, vertex.color);
 
         int[] backIndex = new int[1];
         if (!indexOfPointer(vertex.back, context.vertexIndices, "vertex.back", backIndex)) {
@@ -433,32 +434,33 @@ public class BinaryModelSerializer {
     }
 
     private static boolean writePatchRecord(OutputStream output, Patch patch, BinaryModelSerializationGraph context) {
-        writeInt32LE(output, patch.id);
+        writeInt32LE(output, patch.getId());
 
         int[] twinIndex = new int[1];
-        if (!indexOfPointer(patch.twin, context.patchIndices, "patch.twin", twinIndex)) {
+        if (!indexOfPointer(patch.getTwin(), context.patchIndices, "patch.twin", twinIndex)) {
             return false;
         }
         writeInt32LE(output, twinIndex[0]);
 
-        writeInt32LE(output, patch.numberOfVertices);
+        writeInt32LE(output, patch.getNumberOfVertices());
         for (int i = 0; i < Patch.MAXIMUM_VERTICES_PER_PATCH; i++) {
             int[] vertexIndex = new int[1];
-            if (!indexOfPointer(patch.vertex[i], context.vertexIndices, "patch.vertex", vertexIndex)) {
+            if (!indexOfPointer(patch.getVertices()[i], context.vertexIndices, "patch.vertex", vertexIndex)) {
                 return false;
             }
             writeInt32LE(output, vertexIndex[0]);
         }
 
-        writeBool(output, patch.boundingBox != null);
-        if (patch.boundingBox != null) {
-            writeBoundingBox(output, patch.boundingBox);
-        }
+        // The format keeps the patch's box; it is derived from the vertices
+        RpkAxisAlignedBoundingBox patchBounds = new RpkAxisAlignedBoundingBox();
+        patch.computeBounds(patchBounds);
+        writeBool(output, true);
+        writeBoundingBox(output, patchBounds);
 
         writeVector(output, patch.getNormal());
-        writeFloatLE(output, patch.planeConstant);
-        writeFloatLE(output, patch.tolerance);
-        writeFloatLE(output, patch.area);
+        writeFloatLE(output, patch.getPlaneConstant());
+        writeFloatLE(output, patch.getTolerance());
+        writeFloatLE(output, patch.getArea());
         writeVector(output, patch.midPoint());
 
         final PlanarFace face = patch.getFace();
@@ -469,24 +471,33 @@ public class BinaryModelSerializer {
             writeFloatLE(output, face.getJacobianC());
         }
 
-        writeFloatLE(output, patch.directPotential);
-        int dominantIndex = patch.index == null ? 0 : patch.index.ordinal();
-        writeInt32LE(output, dominantIndex);
-        writeBool(output, patch.omit != 0);
-        writeByte(output, patch.getFlags());
-        writeColor(output, patch.color.toImmutable());
+        // Direct potential: per-face solver data, not part of the model; written as
+        // zero, the value every face starts with, so the file format is unchanged
+        writeFloatLE(output, 0.0);
+        writeInt32LE(output, patch.getDominantAxisIndex());
+        // Omit flag: faces are excluded per query by the shaft's omit set, never
+        // by a per-face flag; written false, as it always was
+        writeBool(output, false);
+        // Flags byte (direct visibility): per-face solver data, written cleared, the
+        // value every face starts with, so the file format is unchanged
+        writeByte(output, 0);
+        // Display color: per-face display data, written black, the color every face
+        // starts with, so the file format is unchanged
+        writeColor(output, new ColorRgb(0.0, 0.0, 0.0));
 
         int[] materialIndex = new int[1];
-        if (!indexOfPointer(patch.material, context.materialIndices, "patch.material", materialIndex)) {
+        if (!indexOfPointer(patch.getMaterial(), context.materialIndices, "patch.material", materialIndex)) {
             return false;
         }
         writeInt32LE(output, materialIndex[0]);
 
-        writeBool(output, patch.radianceData != null);
+        // Radiance elements are per-face solver state held by the scene's
+        // RadianceElementTable, never serialized
+        writeBool(output, false);
         return true;
     }
 
-    private static boolean writeGeometryRecord(OutputStream output, Geometry geometry, BinaryModelSerializationGraph context) {
+    private static boolean writeGeometryRecord(OutputStream output, RpkGeometry geometry, BinaryModelSerializationGraph context) {
         writeInt32LE(output, geometry.className);
         writeInt32LE(output, geometry.id);
         writeInt32LE(output, geometry.itemCount);
@@ -568,7 +579,6 @@ public class BinaryModelSerializer {
         writeBool(output, model.inSurface);
         writeBool(output, model.monochrome);
         writeBool(output, model.singleSided);
-        writeBool(output, model.warpConeEnds);
         writeInt32LE(output, model.numberOfQuarterCircleDivisions);
 
         int[] readerContextIndex = new int[1];

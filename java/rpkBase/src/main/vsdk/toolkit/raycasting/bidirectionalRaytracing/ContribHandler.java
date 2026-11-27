@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.BsdfComponent;
 
@@ -34,14 +34,14 @@ public class ContribHandler {
         }
     }
 
-    public ColorRgbMutable compute(BiPath path) {
+    public ColorRgb compute(BiPath path) {
         int length;
 
         length = path.m_eyeSize + path.m_lightSize;
 
         if ( length > maxLength ) {
             Logger.reportMessage(this, Logger.ERROR, "CContribHandler::Compute", "Path too long !!");
-            return new ColorRgbMutable();
+            return new ColorRgb();
         }
 
         return array[length].compute(path);

@@ -1,14 +1,17 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.scene.RadianceElementTable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.processing.FormFactorWorkspace;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.numericalAnalysis.QuadCubatureRule;
 import vsdk.toolkit.numericalAnalysis.TriangleCubatureRule;
-import vsdk.toolkit.render.sgl.SglContext;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public class GalerkinState {
@@ -23,8 +26,8 @@ public class GalerkinState {
     public int multiResolutionVisibility; // For multi-resolution visibility determination
     public int useConstantRadiance; // Set true for constant radiance initialization
     public int useAmbientRadiance; // Ambient radiance (for visualisation only)
-    public ColorRgbMutable constantRadiance;
-    public ColorRgbMutable ambientRadiance;
+    public ColorRgb constantRadiance;
+    public ColorRgb ambientRadiance;
     public GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors
@@ -41,9 +44,9 @@ public class GalerkinState {
 
     // Parameters that control accuracy
     public GalerkinErrorNorm errorNorm; // Control radiance or power error?
-    public float relMinElemArea; // Subdivision of elements that are smaller than the total
+    public double relMinElemArea; // Subdivision of elements that are smaller than the total
                                  // surface area of the scene times this number, will not be allowed
-    public float relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
+    public double relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
                                          // when controlling the radiance error and to the maximum
                                          // self-emitted power when controlling the power error
 
@@ -60,13 +63,13 @@ public class GalerkinState {
     public GalerkinClusteringStrategy clusteringStrategy;
 
     // Scratch offscreen renderer for various clustering operations
-    public SglContext scratch;
+    public GalerkinElementVisibilityBuffer scratch;
     public int scratchFrameBufferSize;
     public int lastClusterId; // Used for caching cluster and eye point
-    public Vector3Df lastEye; // Rendered into the scratch frame buffer
+    public Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     public long lastClock; // For CPU timing (nanoseconds)
-    public float cpuSeconds;
+    public double cpuSeconds;
 
     public ShaftCullStrategy shaftCullStrategy;
     public ToneMappingContext toneMapOptions;
@@ -76,8 +79,8 @@ public class GalerkinState {
 
     private static final boolean DEFAULT_GAL_HIERARCHICAL = true;
     private static final GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod.JACOBI;
-    private static final float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6f;
-    private static final float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5f;
+    private static final double DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6;
+    private static final double DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5;
     private static final boolean DEFAULT_GAL_IMPORTANCE_DRIVEN = false;
     private static final boolean DEFAULT_GAL_CLUSTERED = true;
     private static final boolean DEFAULT_GAL_LAZY_LINKING = true;
@@ -96,17 +99,17 @@ public class GalerkinState {
     private static final int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 
     public GalerkinState() {
-        constantRadiance = new ColorRgbMutable();
-        ambientRadiance = new ColorRgbMutable();
+        constantRadiance = new ColorRgb();
+        ambientRadiance = new ColorRgb();
         receiverTriangleCubatureRule = null;
         receiverQuadCubatureRule = null;
         sourceTriangleCubatureRule = null;
         sourceQuadCubatureRule = null;
         topCluster = null;
         lastClusterId = 0;
-        lastEye = new Vector3Df();
+        lastEye = new Vector3Dd();
         lastClock = 0;
-        cpuSeconds = 0.0f;
+        cpuSeconds = 0.0;
         toneMapOptions = null;
 
         hierarchical = DEFAULT_GAL_HIERARCHICAL;
@@ -157,4 +160,39 @@ public class GalerkinState {
         return galerkinIterationMethod == GalerkinIterationMethod.JACOBI
             || galerkinIterationMethod == GalerkinIterationMethod.PARALLEL_JACOBI;
     }
+
+    public RpkAxisAlignedBoundingBox getScratchBounds() {
+        return scratchBounds;
+    }
+
+    public RadianceElementTable getRadianceElements() {
+        return radianceElements;
+    }
+
+    public void setRadianceElements(RadianceElementTable inRadianceElements) {
+        radianceElements = inRadianceElements;
+    }
+
+    /**
+    Top-level element of a face, without checks (hot path); see
+    GalerkinElement.fromPatch for the checked lookup
+    */
+    public GalerkinElement topLevelElement(Patch patch) {
+        return (GalerkinElement)radianceElements.get(patch.getFaceIndex());
+    }
+
+    /**
+    Element bound to a face, of any radiance method, or null when no method is
+    bound or the face has no element (checked lookup for tools)
+    */
+    public Element boundElement(Patch patch) {
+        if ( radianceElements == null || patch == null ) {
+            return null;
+        }
+        return radianceElements.get(patch.getFaceIndex());
+    }
+
+    // The scene's table of top-level elements, bound when the method is initialized
+    private RadianceElementTable radianceElements = null;
+    private final RpkAxisAlignedBoundingBox scratchBounds = new RpkAxisAlignedBoundingBox();
 }

@@ -1,13 +1,13 @@
 package vsdk.toolkit.app.options;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
 import vsdk.toolkit.common.commandLineOptions.TypedOption;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMapAdaptationMethod;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -42,63 +42,59 @@ public final class OptionsGroupToneMapping {
         }
     }
 
-    private static void brightnessAdjustOption(TypedOption.MutableValue<Float> value) {
+    private static void brightnessAdjustOption(TypedOption.MutableValue<Double> value) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
         }
-        toneMapOptions.pow_bright_adjust = (float) Math.pow(2.0, (double) toneMapOptions.brightness_adjust);
+        toneMapOptions.pow_bright_adjust = (double)Math.pow(2.0, (double) toneMapOptions.brightness_adjust);
     }
 
-    private static void redChromaOption(TypedOption.MutableValue<Vector3Df> value) {
+    private static void redChromaOption(TypedOption.MutableValue<Vector3Dd> value) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
         }
-        toneMapOptions.xr = (float)value.value.x();
-        toneMapOptions.yr = (float)value.value.y();
-        Cie.computeColorConversionTransforms(
-            toneMapOptions.xr, toneMapOptions.yr,
-            toneMapOptions.xg, toneMapOptions.yg,
-            toneMapOptions.xb, toneMapOptions.yb,
-            toneMapOptions.xw, toneMapOptions.yw);
+        final Cie c = toneMapOptions.getColorSpace();
+        toneMapOptions.setColorSpace(new Cie(
+            value.value.x(), value.value.y(),
+            c.getGreenX(), c.getGreenY(),
+            c.getBlueX(), c.getBlueY(),
+            c.getWhiteX(), c.getWhiteY()));
     }
 
-    private static void greenChromaOption(TypedOption.MutableValue<Vector3Df> value) {
+    private static void greenChromaOption(TypedOption.MutableValue<Vector3Dd> value) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
         }
-        toneMapOptions.xg = (float)value.value.x();
-        toneMapOptions.yg = (float)value.value.y();
-        Cie.computeColorConversionTransforms(
-            toneMapOptions.xr, toneMapOptions.yr,
-            toneMapOptions.xg, toneMapOptions.yg,
-            toneMapOptions.xb, toneMapOptions.yb,
-            toneMapOptions.xw, toneMapOptions.yw);
+        final Cie c = toneMapOptions.getColorSpace();
+        toneMapOptions.setColorSpace(new Cie(
+            c.getRedX(), c.getRedY(),
+            value.value.x(), value.value.y(),
+            c.getBlueX(), c.getBlueY(),
+            c.getWhiteX(), c.getWhiteY()));
     }
 
-    private static void blueChromaOption(TypedOption.MutableValue<Vector3Df> value) {
+    private static void blueChromaOption(TypedOption.MutableValue<Vector3Dd> value) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
         }
-        toneMapOptions.xb = (float)value.value.x();
-        toneMapOptions.yb = (float)value.value.y();
-        Cie.computeColorConversionTransforms(
-            toneMapOptions.xr, toneMapOptions.yr,
-            toneMapOptions.xg, toneMapOptions.yg,
-            toneMapOptions.xb, toneMapOptions.yb,
-            toneMapOptions.xw, toneMapOptions.yw);
+        final Cie c = toneMapOptions.getColorSpace();
+        toneMapOptions.setColorSpace(new Cie(
+            c.getRedX(), c.getRedY(),
+            c.getGreenX(), c.getGreenY(),
+            value.value.x(), value.value.y(),
+            c.getWhiteX(), c.getWhiteY()));
     }
 
-    private static void whiteChromaOption(TypedOption.MutableValue<Vector3Df> value) {
+    private static void whiteChromaOption(TypedOption.MutableValue<Vector3Dd> value) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
         }
-        toneMapOptions.xw = (float)value.value.x();
-        toneMapOptions.yw = (float)value.value.y();
-        Cie.computeColorConversionTransforms(
-            toneMapOptions.xr, toneMapOptions.yr,
-            toneMapOptions.xg, toneMapOptions.yg,
-            toneMapOptions.xb, toneMapOptions.yb,
-            toneMapOptions.xw, toneMapOptions.yw);
+        final Cie c = toneMapOptions.getColorSpace();
+        toneMapOptions.setColorSpace(new Cie(
+            c.getRedX(), c.getRedY(),
+            c.getGreenX(), c.getGreenY(),
+            c.getBlueX(), c.getBlueY(),
+            value.value.x(), value.value.y()));
     }
 
     private static void toneMappingCommandLineOptionDescAdaptMethodOption(TypedOption.MutableValue<String> name) {
@@ -116,11 +112,11 @@ public final class OptionsGroupToneMapping {
         }
     }
 
-    private static void gammaOption(TypedOption.MutableValue<Float> gam) {
+    private static void gammaOption(TypedOption.MutableValue<Double> gam) {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
         }
-        toneMapOptions.gamma.set(gam.value, gam.value, gam.value);
+        toneMapOptions.gamma = new ColorRgb(gam.value, gam.value, gam.value);
     }
 
     public static void toneMapParseOptions(
@@ -131,10 +127,10 @@ public final class OptionsGroupToneMapping {
     {
         TypedOption.ValueRef<String> toneMapMethodName = TypedOption.valueRef((String)null);
         TypedOption.ValueRef<String> adaptMethodName = TypedOption.valueRef((String)null);
-        Vector3Df redChromaticityValue = new Vector3Df(0.0f, 0.0f, 0.0f);
-        Vector3Df greenChromaticityValue = new Vector3Df(0.0f, 0.0f, 0.0f);
-        Vector3Df blueChromaticityValue = new Vector3Df(0.0f, 0.0f, 0.0f);
-        Vector3Df whiteChromaticityValue = new Vector3Df(0.0f, 0.0f, 0.0f);
+        Vector3Dd redChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+        Vector3Dd greenChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+        Vector3Dd blueChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+        Vector3Dd whiteChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
 
         TypedOption<String> toneMappingOpt = new TypedOption<>(
             "-tonemapping",
@@ -142,7 +138,7 @@ public final class OptionsGroupToneMapping {
             1,
             OptionsGroupToneMapping::toneMappingMethodOption,
             null);
-        TypedOption<Float> brightnessAdjustOpt = new TypedOption<>(
+        TypedOption<Double> brightnessAdjustOpt = new TypedOption<>(
             "-brightness-adjust",
             TypedOption.reference(() -> toneMapOptionsContext.brightness_adjust, v -> toneMapOptionsContext.brightness_adjust = v),
             1,
@@ -154,55 +150,55 @@ public final class OptionsGroupToneMapping {
             1,
             OptionsGroupToneMapping::toneMappingCommandLineOptionDescAdaptMethodOption,
             null);
-        TypedOption<Float> lwaOpt = new TypedOption<>(
+        TypedOption<Double> lwaOpt = new TypedOption<>(
             "-lwa",
             TypedOption.reference(() -> toneMapOptionsContext.realWorldAdaptionLuminance, v -> toneMapOptionsContext.realWorldAdaptionLuminance = v),
             1,
             null,
             null);
-        TypedOption<Float> ldmaxOpt = new TypedOption<>(
+        TypedOption<Double> ldmaxOpt = new TypedOption<>(
             "-ldmax",
             TypedOption.reference(() -> toneMapOptionsContext.maximumDisplayLuminance, v -> toneMapOptionsContext.maximumDisplayLuminance = v),
             1,
             null,
             null);
-        TypedOption<Float> cmaxOpt = new TypedOption<>(
+        TypedOption<Double> cmaxOpt = new TypedOption<>(
             "-cmax",
             TypedOption.reference(() -> toneMapOptionsContext.maximumDisplayContrast, v -> toneMapOptionsContext.maximumDisplayContrast = v),
             1,
             null,
             null);
-        TypedOption<Float> gammaOpt = new TypedOption<>(
+        TypedOption<Double> gammaOpt = new TypedOption<>(
             "-gamma",
-            TypedOption.reference(() -> (float)toneMapOptionsContext.gamma.getR(), v -> toneMapOptionsContext.gamma.r = v),
+            TypedOption.reference(() -> (double)toneMapOptionsContext.gamma.getR(), v -> toneMapOptionsContext.gamma = new ColorRgb(v, toneMapOptionsContext.gamma.getG(), toneMapOptionsContext.gamma.getB())),
             1,
             OptionsGroupToneMapping::gammaOption,
             null);
-        TypedOption<ColorRgbMutable> rgbGammaOpt = new TypedOption<>(
+        TypedOption<ColorRgb> rgbGammaOpt = new TypedOption<>(
             "-rgbgamma",
             TypedOption.reference(() -> toneMapOptionsContext.gamma, v -> toneMapOptionsContext.gamma = v),
             3,
             null,
             OptionsGroupToneMapping::parseColor3);
-        TypedOption<Vector3Df> redOpt = new TypedOption<>(
+        TypedOption<Vector3Dd> redOpt = new TypedOption<>(
             "-red",
             TypedOption.valueRef(redChromaticityValue),
             2,
             OptionsGroupToneMapping::redChromaOption,
             OptionsGroupToneMapping::parseCieXy);
-        TypedOption<Vector3Df> greenOpt = new TypedOption<>(
+        TypedOption<Vector3Dd> greenOpt = new TypedOption<>(
             "-green",
             TypedOption.valueRef(greenChromaticityValue),
             2,
             OptionsGroupToneMapping::greenChromaOption,
             OptionsGroupToneMapping::parseCieXy);
-        TypedOption<Vector3Df> blueOpt = new TypedOption<>(
+        TypedOption<Vector3Dd> blueOpt = new TypedOption<>(
             "-blue",
             TypedOption.valueRef(blueChromaticityValue),
             2,
             OptionsGroupToneMapping::blueChromaOption,
             OptionsGroupToneMapping::parseCieXy);
-        TypedOption<Vector3Df> whiteOpt = new TypedOption<>(
+        TypedOption<Vector3Dd> whiteOpt = new TypedOption<>(
             "-white",
             TypedOption.valueRef(whiteChromaticityValue),
             2,
@@ -238,15 +234,16 @@ public final class OptionsGroupToneMapping {
     private static boolean parseColor3(
         int argc,
         String[] argv,
-        TypedOption.MutableValue<ColorRgbMutable> value)
+        TypedOption.MutableValue<ColorRgb> value)
     {
         if ( argc < 3 || argv == null || argv[0] == null || argv[1] == null || argv[2] == null ) {
             return false;
         }
         try {
-            value.value.r = Float.parseFloat(argv[0]);
-            value.value.g = Float.parseFloat(argv[1]);
-            value.value.b = Float.parseFloat(argv[2]);
+            final double r = Double.parseDouble(argv[0]);
+            final double g = Double.parseDouble(argv[1]);
+            final double b = Double.parseDouble(argv[2]);
+            value.value = new ColorRgb(r, g, b);
             return true;
         }
         catch ( NumberFormatException e ) {
@@ -257,15 +254,15 @@ public final class OptionsGroupToneMapping {
     private static boolean parseCieXy(
         int argc,
         String[] argv,
-        TypedOption.MutableValue<Vector3Df> value)
+        TypedOption.MutableValue<Vector3Dd> value)
     {
         if ( argc < 2 || argv == null || argv[0] == null || argv[1] == null ) {
             return false;
         }
         try {
-            value.value = value.value.withX(Float.parseFloat(argv[0]));
-            value.value = value.value.withY(Float.parseFloat(argv[1]));
-            value.value = value.value.withZ(0.0f);
+            value.value = value.value.withX(Double.parseDouble(argv[0]));
+            value.value = value.value.withY(Double.parseDouble(argv[1]));
+            value.value = value.value.withZ(0.0);
             return true;
         }
         catch ( NumberFormatException e ) {

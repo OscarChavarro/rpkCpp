@@ -1,31 +1,30 @@
 package vsdk.toolkit.io.context;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.RpkMaterial;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class ParseSnapshotContext {
     // Snapshot of MGF parsing state and outputs (non-owning references).
     public ColorContext currentColor;
     public ArrayList<Patch> currentFaceList;
-    public ArrayList<Geometry> currentGeometryList;
+    public ArrayList<RpkGeometry> currentGeometryList;
     public String currentMaterialName;
-    public ArrayList<Vector3Df> currentNormalList;
+    public ArrayList<Vector3Dd> currentNormalList;
     public String currentObjectName;
-    public ArrayList<Vector3Df> currentPointList;
-    public ArrayList<Vertex> currentVertexList;
+    public ArrayList<Vector3Dd> currentPointList;
+    public ArrayList<RpkVertex> currentVertexList;
     public String currentVertexName;
-    public ArrayList<Geometry> geometries;
+    public ArrayList<RpkGeometry> geometries;
     public int geometryStackHeadIndex;
     public boolean inComplex;
     public boolean inSurface;
     public ArrayList<RpkMaterial> materials;
     public boolean monochrome;
     public boolean singleSided;
-    public boolean warpConeEnds;
     public int numberOfQuarterCircleDivisions;
     public ReaderContext readerContext;
     public TransformStackContext transformContext;
@@ -47,7 +46,6 @@ public class ParseSnapshotContext {
         materials = null;
         monochrome = false;
         singleSided = false;
-        warpConeEnds = false;
         numberOfQuarterCircleDivisions = 0;
         readerContext = null;
         transformContext = null;

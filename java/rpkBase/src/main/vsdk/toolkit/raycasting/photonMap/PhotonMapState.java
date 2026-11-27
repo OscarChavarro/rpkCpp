@@ -18,14 +18,14 @@ public class PhotonMapState {
     public PhotonMapDensityControlOption densityControl;
     public int importanceOption;
     public PhotonMapDCAcceptPDFType acceptPdfType;
-    public float constantRD;
-    public float minimumImpRD;
+    public double constantRD;
+    public double minimumImpRD;
     public int doImportanceMap;
     public long iPathsPerIteration;
-    public float cImpScale;
-    public float gImpScale;
-    public float gThreshold;
-    public float falseColMax;
+    public double cImpScale;
+    public double gImpScale;
+    public double gThreshold;
+    public double falseColMax;
     public int falseColLog;
     public int falseColMono;
     public RadiosityReturnOption radianceReturn;
@@ -41,7 +41,7 @@ public class PhotonMapState {
     public int runStopNumber; // Number of 'external iterations'. This is
                              // different from currentIteration only when
                              // statistics are gathered
-    public float cpuSecs; // For counting computing times
+    public double cpuSecs; // For counting computing times
     public long lastClock;
 
     public PhotonMapState() {
@@ -79,8 +79,8 @@ public class PhotonMapState {
 
         importanceOption = PhotonMapImportanceOptions.USE_IMPORTANCE;
 
-        cImpScale = 25.0f;
-        gImpScale = 1.0f;
+        cImpScale = 25.0;
+        gImpScale = 1.0;
 
         gThreshold = 1000;
 

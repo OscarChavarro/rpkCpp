@@ -7,12 +7,12 @@ package vsdk.toolkit.raycasting.simple;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.raycasting.common.RayTracer;
@@ -62,7 +62,7 @@ public final class RayCaster extends RayTracer {
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if (rayCaster != null) {
             rayCaster = null;
@@ -116,30 +116,30 @@ public final class RayCaster extends RayTracer {
 Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
-    private ColorRgbMutable
+    private ColorRgb
     getRadianceAtPixel(
         Camera camera,
         int x,
         int y,
         Patch patch,
         RadianceMethod radianceMethod,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
-        ColorRgbMutable radiance = new ColorRgbMutable();
-        radiance.clear();
+        ColorRgb radiance = new ColorRgb();
+        radiance = new ColorRgb(0.0, 0.0, 0.0);
 
         if (radianceMethod != null) {
             // Ray pointing from the eye through the center of the pixel.
             Ray ray = new Ray();
-            ray.position = camera.eyePosition;
-            ray.direction = screenBuffer.getPixelVector(x, y);
-            ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+            ray = ray.withOrigin(camera.eyePosition);
+            ray = ray.withDirection(screenBuffer.getPixelVector(x, y));
+            ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
             // Find intersection point of ray with patch
-            Vector3Df point = new Vector3Df();
-            float dist = patch.getNormal().dotProduct(ray.direction);
-            dist = -(patch.getNormal().dotProduct(ray.position) + patch.planeConstant) / dist;
-            point = ray.position.add(ray.direction.multiply(dist));
+            Vector3Dd point = new Vector3Dd();
+            double dist = patch.getNormal().dotProduct(ray.getDirection());
+            dist = -(patch.getNormal().dotProduct(ray.getOrigin()) + patch.getPlaneConstant()) / dist;
+            point = ray.getOrigin().add(ray.getDirection().multiply(dist));
 
             // Find surface coordinates of hit point on patch
             double[] u = new double[1];
@@ -149,10 +149,10 @@ Determines the radiance of the nearest patch visible through the pixel
             // Boundary check is necessary because Z-buffer algorithm does
             // not yield exactly the same result as ray tracing at patch
             // boundaries.
-            clipUv(patch.numberOfVertices, u, v);
+            clipUv(patch.getNumberOfVertices(), u, v);
 
             // Reverse ray direction and get radiance emitted at hit point towards the eye
-            Vector3Df dir = new Vector3Df(-ray.direction.x(), -ray.direction.y(), -ray.direction.z());
+            Vector3Dd dir = new Vector3Dd(-ray.getDirection().x(), -ray.getDirection().y(), -ray.getDirection().z());
             radiance = radianceMethod.getRadiance(camera, patch, u[0], v[0], dir, renderOptions);
         }
         return radiance;
@@ -163,7 +163,7 @@ Determines the radiance of the nearest patch visible through the pixel
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         screenBuffer.setToneMappingContext(toneMapOptions);
         long t = System.nanoTime();
@@ -182,7 +182,7 @@ Determines the radiance of the nearest patch visible through the pixel
             for (int x = 0; x < width[0]; x++) {
                 Patch patch = idRenderer.getPatchAtPixel(x, y);
                 if (patch != null) {
-                    ColorRgbMutable rad = getRadianceAtPixel(scene.camera, x, y, patch, radianceMethod, renderOptions);
+                    ColorRgb rad = getRadianceAtPixel(scene.camera, x, y, patch, radianceMethod, renderOptions);
                     screenBuffer.add(x, y, rad);
                 }
             }

@@ -8,13 +8,13 @@ package vsdk.toolkit.raycasting.common;
 import java.io.PrintStream;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.io.wrapper.Vector3DPrinter;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 // Type definitions used in CPathNode
 
@@ -30,10 +30,10 @@ public class SimpleRaytracingPathNode {
         return a * a;
     }
 
-    public RayHit m_hit;
-    public Vector3Df m_inDirT; // towards the patch
-    public Vector3Df m_inDirF; // from the patch
-    public Vector3Df m_normal;
+    public RpkRayHit m_hit;
+    public Vector3Dd m_inDirT; // towards the patch
+    public Vector3Dd m_inDirF; // from the patch
+    public Vector3Dd m_normal;
 
     public double m_G; // Geometric factor x(i-1) -> x(i)
     public double m_pdfFromPrev;
@@ -42,7 +42,7 @@ public class SimpleRaytracingPathNode {
     //  known beforehand => separate components needed.
     public double accumulatedRussianRouletteFactors;
 
-    public ColorRgbMutable m_bsdfEval;
+    public ColorRgb m_bsdfEval;
     public BsdfComp m_bsdfComp;
 
     public byte m_usedComponents; // Components used for scattering in this
@@ -63,10 +63,10 @@ public class SimpleRaytracingPathNode {
     private SimpleRaytracingPathNode m_previous;
 
     public SimpleRaytracingPathNode() {
-        m_hit = new RayHit();
-        m_inDirT = new Vector3Df();
-        m_inDirF = new Vector3Df();
-        m_normal = new Vector3Df();
+        m_hit = new RpkRayHit();
+        m_inDirT = new Vector3Dd();
+        m_inDirF = new Vector3Dd();
+        m_normal = new Vector3Dd();
 
         m_G = 0.0;
         m_pdfFromPrev = 0.0;
@@ -74,7 +74,7 @@ public class SimpleRaytracingPathNode {
         m_rrPdfFromNext = 0.0;
         accumulatedRussianRouletteFactors = 0.0;
 
-        m_bsdfEval = new ColorRgbMutable();
+        m_bsdfEval = new ColorRgb();
         m_bsdfComp = new BsdfComp();
 
         m_usedComponents = 0;
@@ -166,7 +166,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
         while (tmpNode != null && backHits > 0) {
             switch (tmpNode.m_rayType) {
                 case ENTERS:
-                    if (tmpNode.m_hit.getPatch().material.getBsdf() == thisBsdf) {
+                    if (tmpNode.m_hit.getPatch().getMaterial().getBsdf() == thisBsdf) {
                         backHits--; // Entering point in this material
                     }
                     break;
@@ -199,7 +199,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
             return m_inBsdf;  // Should not happen
         }
 
-        if (m_hit.getPatch().material.getBsdf() != m_inBsdf) {
+        if (m_hit.getPatch().getMaterial().getBsdf() != m_inBsdf) {
             Logger.reportMessage(this, Logger.WARNING, "CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
         }
 
@@ -222,7 +222,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
             return;
         }
 
-        thisMaterial = m_hit.getPatch().material;
+        thisMaterial = m_hit.getPatch().getMaterial();
 
         m_normal = m_hit.getNormal(); // Possible double format
 

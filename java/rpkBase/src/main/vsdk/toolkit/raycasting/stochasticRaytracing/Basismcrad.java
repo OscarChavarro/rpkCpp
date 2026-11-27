@@ -4,10 +4,10 @@ Higher order approximations for Galerkin radiosity
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.numericalAnalysis.QuadCubatureRule;
 import vsdk.toolkit.numericalAnalysis.TriangleCubatureRule;
@@ -20,9 +20,9 @@ public final class Basismcrad {
         return 1;
     }
 
-    static GalerkinBasis makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
+    static StochasticRadiosityBasis makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
         StochasticRadiosityBasisState basisState = StochasticRadiosityBasisState.activeState();
-        GalerkinBasis basis = basisState.quadBasis;
+        StochasticRadiosityBasis basis = basisState.quadBasis;
         String elem;
 
         switch ( et ) {
@@ -39,7 +39,7 @@ public final class Basismcrad {
                 return basis;
         }
 
-        GalerkinBasis out = cloneBasis(basis);
+        StochasticRadiosityBasis out = cloneBasis(basis);
         out.size = basisState.approxDesc[at.ordinal()].basis_size;
         out.description = String.format("%s orthonormal basis for %s", basisState.approxDesc[at.ordinal()].name, elem);
 
@@ -61,9 +61,9 @@ with S the domain on which the basis functions are defined (unit square or
 standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
     static void computeFilterCoefficients(
-        GalerkinBasis parentBasis,
+        StochasticRadiosityBasis parentBasis,
         int parentSize,
-        GalerkinBasis childBasis,
+        StochasticRadiosityBasis childBasis,
         int childSize,
         Matrix2x2 upxfm,
         CubatureRule cr,
@@ -73,7 +73,7 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
             for ( int b = 0; b < childSize; b++ ) {
                 double x = 0.0;
                 for ( int k = 0; k < cr.numberOfNodes; k++ ) {
-                    Vector2Df up = new Vector2Df((float)cr.u[k], (float)cr.v[k]);
+                    Vector2Dd up = new Vector2Dd((double)cr.u[k], (double)cr.v[k]);
                     up = upxfm.transformPoint(up);
                     x += cr.w[k] * parentBasis.function[a].eval(up.x(), up.y()) *
                          childBasis.function[b].eval(cr.u[k], cr.v[k]);
@@ -90,7 +90,7 @@ to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */
     static void basisGalerkinComputeRegularFilterCoefficients(
-        GalerkinBasis basis,
+        StochasticRadiosityBasis basis,
         Matrix2x2[] upxfm,
         CubatureRule cr)
     {
@@ -135,12 +135,12 @@ Initialises table of bases
     /**
 Returns color at a given point, with parameters (u,v)
 */
-    public static ColorRgbMutable colorAtUv(GalerkinBasis basis, ColorRgbMutable[] rad, double u, double v) {
-        ColorRgbMutable res = new ColorRgbMutable();
-        res.clear();
+    public static ColorRgb colorAtUv(StochasticRadiosityBasis basis, ColorRgb[] rad, double u, double v) {
+        ColorRgb res = new ColorRgb();
+        res = new ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; i < basis.size; i++ ) {
             double s = basis.function[i].eval(u, v);
-            res.addScaled(res, (float)s, rad[i]);
+            res = res.addScaled((double)s, rad[i]);
         }
         return res;
     }
@@ -149,29 +149,29 @@ Returns color at a given point, with parameters (u,v)
 These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
-    public static void filterColorDown(ColorRgbMutable[] parent, double[][] h, ColorRgbMutable[] child, int n) {
+    public static void filterColorDown(ColorRgb[] parent, double[][] h, ColorRgb[] child, int n) {
         for ( int i = 0; i < n; i++ ) {
             for ( int j = 0; j < n; j++ ) {
-                child[i].addScaled(child[i], (float)h[j][i], parent[j]);
+                child[i] = child[i].addScaled((double)h[j][i], parent[j]);
             }
         }
     }
 
-    public static void filterColorUp(ColorRgbMutable[] child, double[][] h, ColorRgbMutable[] parent, int n, double areaFactor) {
+    public static void filterColorUp(ColorRgb[] child, double[][] h, ColorRgb[] parent, int n, double areaFactor) {
         for ( int i = 0; i < n; i++ ) {
             for ( int j = 0; j < n; j++ ) {
                 double H = h[i][j] * areaFactor;
-                parent[i].addScaled(parent[i], (float)H, child[j]);
+                parent[i] = parent[i].addScaled((double)H, child[j]);
             }
         }
     }
 
-    static GalerkinBasis stochasticRadiosityCreateQuadBasis() {
+    static StochasticRadiosityBasis stochasticRadiosityCreateQuadBasis() {
         return Basisquadmcrad.stochasticRadiosityCreateQuadBasis();
     }
 
-    private static GalerkinBasis cloneBasis(GalerkinBasis in) {
-        GalerkinBasis out = new GalerkinBasis();
+    private static StochasticRadiosityBasis cloneBasis(StochasticRadiosityBasis in) {
+        StochasticRadiosityBasis out = new StochasticRadiosityBasis();
         out.description = in.description;
         out.size = in.size;
         out.function = in.function;
@@ -229,7 +229,7 @@ Cubic orthonormal basis for the unit square [0, 1] ^ 2
             return -2.645751311064409 + 31.749015732781054 * v + -79.372539331951486 * v * v + 52.915026221299712 * v * v * v;
         }
 
-        private static final GalerkinBasis.BasisFunction[] f = new GalerkinBasis.BasisFunction[] {
+        private static final StochasticRadiosityBasis.BasisFunction[] f = new StochasticRadiosityBasis.BasisFunction[] {
             Basisquadmcrad::qm0,
             Basisquadmcrad::qm1,
             Basisquadmcrad::qm2,
@@ -242,12 +242,12 @@ Cubic orthonormal basis for the unit square [0, 1] ^ 2
             Basisquadmcrad::qm9
         }; // Functions
 
-        private static final double[][][] h = new double[4][GalerkinBasis.MAX_BASIS_SIZE][GalerkinBasis.MAX_BASIS_SIZE];  /* push-pull filter: computed in basis.c */
+        private static final double[][][] h = new double[4][StochasticRadiosityBasis.MAX_BASIS_SIZE][StochasticRadiosityBasis.MAX_BASIS_SIZE];  /* push-pull filter: computed in basis.c */
 
-        private static GalerkinBasis stochasticRadiosityCreateQuadBasis() {
-            GalerkinBasis b = new GalerkinBasis();
+        private static StochasticRadiosityBasis stochasticRadiosityCreateQuadBasis() {
+            StochasticRadiosityBasis b = new StochasticRadiosityBasis();
             b.description = "orthonormal basis on the unit square"; // Description
-            b.size = GalerkinBasis.MAX_BASIS_SIZE; // Size
+            b.size = StochasticRadiosityBasis.MAX_BASIS_SIZE; // Size
             b.function = f;
             b.dualFunction = f; // Primary and dual canonical basis functions are equal
             b.regularFilter = h; // Push-pull filter coefficients

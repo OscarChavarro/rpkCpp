@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.photonMap;
 
 import vsdk.toolkit.common.Random;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -21,8 +21,8 @@ public class PhotonMapImportance {
 Store a importon/poton. Some acceptance tests are performed first
 **/
     private static boolean hasDiffuseOrGlossy(SimpleRaytracingPathNode node) {
-        if ( node.m_hit.getPatch() != null && node.m_hit.getPatch().material != null ) {
-            PhongBidirectionalScatteringDistributionFunction bsdf = node.m_hit.getPatch().material.getBsdf();
+        if ( node.m_hit.getPatch() != null && node.m_hit.getPatch().getMaterial() != null ) {
+            PhongBidirectionalScatteringDistributionFunction bsdf = node.m_hit.getPatch().getMaterial().getBsdf();
             return !PhotonMap.zeroAlbedo(bsdf, node.m_hit,
                 (byte)(BsdfComponent.BRDF_DIFFUSE_COMPONENT |
                     BsdfComponent.BTDF_DIFFUSE_COMPONENT |
@@ -41,13 +41,13 @@ Store a importon/poton. Some acceptance tests are performed first
         return (node.m_usedComponents & mask) != 0;
     }
 
-    private static boolean doImportanceStore(ImportanceMap map, SimpleRaytracingPathNode node, ColorRgbMutable importance) {
+    private static boolean doImportanceStore(ImportanceMap map, SimpleRaytracingPathNode node, ColorRgb importance) {
         if ( PhotonMapImportance.hasDiffuseOrGlossy(node) ) {
-            float importanceF = (float) importance.average();
-            float potentialF = 1.0f;
+            double importanceF = (double)importance.average();
+            double potentialF = 1.0;
 
             // Compute footprint
-            float footprintF = 1.0f;
+            double footprintF = 1.0;
 
             Importon importon = new Importon(node.m_hit.getPoint(), importanceF, potentialF, footprintF, node.m_inDirF);
 
@@ -81,12 +81,12 @@ Store a importon/poton. Some acceptance tests are performed first
         }
         photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-        ColorRgbMutable accImportance = new ColorRgbMutable();  // Track importance along the ray
-        accImportance.setMonochrome(1.0f);
+        ColorRgb accImportance = new ColorRgb();  // Track importance along the ray
+        accImportance = new ColorRgb(1.0, 1.0, 1.0);
 
         // Adjust importance for eye ray
-        float factor = (float)(path.m_G / path.m_pdfFromPrev);
-        accImportance.scale(factor);
+        double factor = (double)(path.m_G / path.m_pdfFromPrev);
+        accImportance = accImportance.multiply(factor);
 
         boolean indirectImportance = false; // Can we store in the indirect importance map
 
@@ -126,9 +126,9 @@ Store a importon/poton. Some acceptance tests are performed first
             }
 
             // Adjust importance
-            accImportance.selfScalarProduct(prev.m_bsdfEval);
-            factor = (float)(node.m_G / node.m_pdfFromPrev);
-            accImportance.scale(factor);
+            accImportance = accImportance.multiply(prev.m_bsdfEval);
+            factor = (double)(node.m_G / node.m_pdfFromPrev);
+            accImportance = accImportance.multiply(factor);
 
             // Store in map
             ImportanceMap imap = indirectImportance ? photonMapConfig.importanceMap :

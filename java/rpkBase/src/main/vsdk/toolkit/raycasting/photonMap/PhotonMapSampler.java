@@ -8,10 +8,10 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 package vsdk.toolkit.raycasting.photonMap;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.RefractionIndex;
@@ -23,7 +23,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
@@ -43,30 +43,30 @@ Returns true a component was chosen, false if absorbed
         byte flags1,
         byte flags2,
         PhongBidirectionalScatteringDistributionFunction bsdf,
-        RayHit hit,
+        RpkRayHit hit,
         boolean doRR,
         double[] x,
-        float[] probabilityDensityFunction,
+        double[] probabilityDensityFunction,
         boolean[] chose1)
     {
-        ColorRgbMutable color = new ColorRgbMutable();
-        float power1;
-        float power2;
-        float totalPower;
+        ColorRgb color = new ColorRgb();
+        double power1;
+        double power2;
+        double totalPower;
 
         // Choose between flags1 or flags2 scattering
-        color.clear();
+        color = new ColorRgb(0.0, 0.0, 0.0);
 
         if ( bsdf != null ) {
-            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF));
+            color = new ColorRgb(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags1 & 0xFF));
         }
-        power1 = (float) color.average();
+        power1 = (double)color.average();
 
-        color.clear();
+        color = new ColorRgb(0.0, 0.0, 0.0);
         if ( bsdf != null ) {
-            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF));
+            color = new ColorRgb(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags2 & 0xFF));
         }
-        power2 = (float) color.average();
+        power2 = (double)color.average();
 
         totalPower = power1 + power2;
 
@@ -79,7 +79,7 @@ Returns true a component was chosen, false if absorbed
         if ( !doRR ) {
             power1 /= totalPower;
             power2 /= totalPower;
-            totalPower = 1.0f;
+            totalPower = 1.0;
         }
 
         // Use x for scattering choice
@@ -119,7 +119,7 @@ Returns true a component was chosen, false if absorbed
     {
         PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
         boolean[] sChosen = new boolean[1];
-        float[] pdfChoice = new float[1];
+        double[] pdfChoice = new double[1];
         byte sFlagMask;
 
         final byte sFLAGS = (byte)(BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT);
@@ -184,14 +184,14 @@ Returns true a component was chosen, false if absorbed
         RefractionIndex nc = new RefractionIndex();
 
         if ( bsdf == null ) {
-            nc.set(1.0f, 0.0f); // Vacuum
+            nc.set(1.0, 0.0); // Vacuum
         } else {
             bsdf.indexOfRefraction(nc);
         }
 
         // Convert to geometric IOR if necessary
         if ( nc.getNi() > VSDK.EPSILON ) {
-            nc.set(nc.complexToGeometricRefractionIndex(), 0.0f);
+            nc.set(nc.complexToGeometricRefractionIndex(), 0.0);
         }
 
         return nc;
@@ -202,9 +202,9 @@ Returns true a component was chosen, false if absorbed
         SimpleRaytracingPathNode thisNode,
         byte flags,
         double x2,
-        Vector3Df[] dir,
+        Vector3Dd[] dir,
         double[] pdfDir,
-        ColorRgbMutable scatteringColor,
+        ColorRgb[] scatteringColor,
         boolean[] doCosInverse)
     {
         // Index of refractions are taken
@@ -214,17 +214,17 @@ Returns true a component was chosen, false if absorbed
         // Reflectance and Transmittance values are taken. Normally one of the two
         // would be zero
         PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
-        ColorRgbMutable reflectance = new ColorRgbMutable();
-        reflectance.clear();
+        ColorRgb reflectance = new ColorRgb();
+        reflectance = new ColorRgb(0.0, 0.0, 0.0);
         if ( bsdf != null ) {
-            reflectance = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
+            reflectance = new ColorRgb(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
                 BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT));
         }
 
-        ColorRgbMutable transmittance = new ColorRgbMutable();
-        transmittance.clear();
+        ColorRgb transmittance = new ColorRgb();
+        transmittance = new ColorRgb(0.0, 0.0, 0.0);
         if ( bsdf != null ) {
-            transmittance = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
+            transmittance = new ColorRgb(bsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(),
                 BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT));
         }
 
@@ -237,17 +237,17 @@ Returns true a component was chosen, false if absorbed
         }
 
         // Fresnel reflection factor is computed.
-        float cosI;
-        float cost;
-        float F;  // Fresnel reflection. (Refraction = 1 - T)
+        double cosI;
+        double cost;
+        double F;  // Fresnel reflection. (Refraction = 1 - T)
         boolean[] tir = new boolean[1]; // total internal reflection
-        Vector3Df reflectedDir = new Vector3Df();
-        Vector3Df refractedDir = new Vector3Df();
+        Vector3Dd reflectedDir = new Vector3Dd();
+        Vector3Dd refractedDir = new Vector3Dd();
 
         if ( reflective ) {
             if ( (flags & BsdfComponent.BRDF_SPECULAR_COMPONENT) != 0 ) {
                 // Hack !?
-                F = 1.0f;
+                F = 1.0;
                 reflectedDir = Xxdf.idealReflectedDirection(thisNode.m_inDirT, thisNode.m_normal);
                 cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
                 if ( cosI < 0 ) {
@@ -282,25 +282,25 @@ Returns true a component was chosen, false if absorbed
                     Logger.reportMessage(null, Logger.ERROR, "fresnelSample", "cost < 0");
                 }
 
-                float rParallel;
-                float rPerpendicular;
-                float nt = nc_out.getNr();
-                float ni = nc_in.getNr();
+                double rParallel;
+                double rPerpendicular;
+                double nt = nc_out.getNr();
+                double ni = nc_in.getNr();
 
                 rParallel = (nt * cosI - ni * cost) / (nt * cosI + ni * cost);
                 rPerpendicular = (ni * cosI - nt * cost) / (ni * cosI + nt * cost);
 
-                F = 0.5f * (rParallel * rParallel + rPerpendicular * rPerpendicular);
+                F = 0.5 * (rParallel * rParallel + rPerpendicular * rPerpendicular);
             } else {
                 F = 0; // All in refracted dir, which == reflected dir
             }
         }
 
-        float T = 1.0f - F;
+        double T = 1.0 - F;
         boolean reflected;
 
         // Choose reflection or refraction
-        float sum = 0.0f;
+        double sum = 0.0;
 
         if ( (flags & BsdfComponent.BTDF_SPECULAR_COMPONENT) != 0 ) {
             sum += T;
@@ -333,14 +333,14 @@ Returns true a component was chosen, false if absorbed
         // specular transmission
         if ( reflected ) {
             if ( reflective ) {
-                scatteringColor.scaledCopy(F, reflectance);
+                scatteringColor[0] = reflectance.multiply(F);
                 doCosInverse[0] = false;
             } else {
-                scatteringColor.scaledCopy(F, transmittance);
+                scatteringColor[0] = transmittance.multiply(F);
                 doCosInverse[0] = true;
             }
         } else {
-            scatteringColor.scaledCopy(T, transmittance);
+            scatteringColor[0] = transmittance.multiply(T);
             doCosInverse[0] = true;
         }
 
@@ -358,16 +358,17 @@ Returns true a component was chosen, false if absorbed
         double x2,
         byte flags)
     {
-        Vector3Df[] dirHolder = {new Vector3Df()};
+        Vector3Dd[] dirHolder = {new Vector3Dd()};
         double[] pdfDir = new double[1];
         boolean[] doCosInverse = new boolean[1];
-        ColorRgbMutable scatteringColor = new ColorRgbMutable();
+        final ColorRgb[] scatteringColorHolder = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
 
         if ( !chooseFresnelDirection(thisNode, flags, x2, dirHolder, pdfDir,
-                                 scatteringColor, doCosInverse) ) {
+                                 scatteringColorHolder, doCosInverse) ) {
             return false;
         }
-        final Vector3Df dir = dirHolder[0];
+        final ColorRgb scatteringColor = scatteringColorHolder[0];
+        final Vector3Dd dir = dirHolder[0];
 
         // Reflection Type, changes thisNode->m_rayType and newNode->m_inBsdf
         DetermineRayType(thisNode, newNode, dir);
@@ -382,8 +383,8 @@ Returns true a component was chosen, false if absorbed
         // given by ChooseFresnelDirection, but may be divided by a cosine
         // -- No bsdf components yet here !!
         if ( doCosInverse[0] ) {
-            float cosB = Math.abs(newNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
-            thisNode.m_bsdfEval.scaleInverse(cosB, scatteringColor);
+            double cosB = Math.abs(newNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
+            thisNode.m_bsdfEval = scatteringColor.scaleInverse(cosB);
         } else {
             thisNode.m_bsdfEval = scatteringColor;
         }
@@ -434,7 +435,7 @@ Returns true a component was chosen, false if absorbed
         // Choose G or D
         final PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
         boolean[] dChosen = new boolean[1];
-        float[] pdfChoice = new float[1];
+        double[] pdfChoice = new double[1];
 
         // Choose between D or G scattering
         if ( !chooseComponent((byte)(BsdfComponent.BRDF_DIFFUSE_COMPONENT & flags),
@@ -451,7 +452,7 @@ Returns true a component was chosen, false if absorbed
         // Importance sampling using photon map x_1 & x_2 get transformed
 
         CoordinateSystem coord = new CoordinateSystem();
-        float glossy_exponent;
+        double glossy_exponent;
 
         if ( dChosen[0] ) {
             // Equation [ARVO1995b](6) in CoordinateSystem::setFromZAxis builds the

@@ -8,21 +8,21 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public class LightList extends CircularList<LightInfo> {
     // Total flux ( sum(L * A * PI))
-    private float totalFlux;
-    private float totalImp;
+    private double totalFlux;
+    private double totalImp;
     private boolean includeVirtual;
     private int lightCount;
 
@@ -34,32 +34,32 @@ public class LightList extends CircularList<LightInfo> {
     // Non emitting patches (edf == nullptr) are NOT put in the list.
     public LightList(ArrayList<Patch> list, boolean includeVirtualPatches) {
         LightInfo info = new LightInfo();
-        ColorRgbMutable lightColor;
+        ColorRgb lightColor;
 
-        totalFlux = 0.0f;
+        totalFlux = 0.0;
         lightCount = 0;
         includeVirtual = includeVirtualPatches;
-        totalImp = 0.0f;
+        totalImp = 0.0;
 
         for ( int i = 0; list != null && i < list.size(); i++ ) {
             Patch light = list.get(i);
             if ( (!light.hasZeroVertices() || includeVirtual)
-                && ( light.material.getEdf() != null ) ) {
+                && ( light.getMaterial().getEdf() != null ) ) {
                 info = new LightInfo();
                 info.light = light;
 
                 // calc emittedFlux
                 if ( light.hasZeroVertices() ) {
-                    ColorRgbMutable e;
-                    if ( light.material.getEdf() == null ) {
-                        e = new ColorRgbMutable();
+                    ColorRgb e;
+                    if ( light.getMaterial().getEdf() == null ) {
+                        e = new ColorRgb();
                     } else {
-                        e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT));
+                        e = new ColorRgb(light.getMaterial().getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT));
                     }
-                    info.emittedFlux = (float) e.average();
+                    info.emittedFlux = (double)e.average();
                 } else {
                     lightColor = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
-                    info.emittedFlux = (float) (lightColor.average() * light.area);
+                    info.emittedFlux = (double)(lightColor.average() * light.getArea());
                 }
 
                 totalFlux += info.emittedFlux;
@@ -111,7 +111,7 @@ public class LightList extends CircularList<LightInfo> {
                 currentSum += info.emittedFlux;
             } else {
                 info = lastInfo;
-                rnd = currentSum - 1.0; // :-(  Damn float inaccuracies
+                rnd = currentSum - 1.0; // :-(  Damn double inaccuracies
             }
         }
 
@@ -127,38 +127,38 @@ public class LightList extends CircularList<LightInfo> {
         return null;
     }
 
-    private double evalPdfVirtual(Patch light, Vector3Df point) {
+    private double evalPdfVirtual(Patch light, Vector3Dd point) {
         // EvalPDF for virtual patches (see EvalPDF)
         double probabilityDensityFunction;
 
         // Prob for choosing this light
         int all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-        ColorRgbMutable e;
-        if ( light.material.getEdf() == null ) {
-            e = new ColorRgbMutable();
+        ColorRgb e;
+        if ( light.getMaterial().getEdf() == null ) {
+            e = new ColorRgb();
         } else {
-            e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, all));
+            e = new ColorRgb(light.getMaterial().getEdf().phongEmittance(null, all));
         }
         probabilityDensityFunction = e.average() / totalFlux;
 
         return probabilityDensityFunction;
     }
 
-    private double evalPdfReal(Patch light, Vector3Df point) {
+    private double evalPdfReal(Patch light, Vector3Dd point) {
         // Eval PDF for normal patches (see EvalPDF)
-        ColorRgbMutable color;
+        ColorRgb color;
         double pdf;
 
         color = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
 
         // Prob for choosing this light
-        pdf = color.average() * light.area / totalFlux;
+        pdf = color.average() * light.getArea() / totalFlux;
 
         return pdf;
     }
 
-    public double evalPdf(Patch light, Vector3Df point) {
+    public double evalPdf(Patch light, Vector3Dd point) {
         // TODO!!!  1) patch should become class
         //          2) virtual patch should become child-class
         //          3) this method should be handled by specialisation
@@ -177,19 +177,19 @@ public class LightList extends CircularList<LightInfo> {
     public static double
     computeOneLightImportanceVirtual(
         Patch light,
-        Vector3Df point,
-        Vector3Df normal,
-        float emittedFlux)
+        Vector3Dd point,
+        Vector3Dd normal,
+        double emittedFlux)
     {
         // ComputeOneLightImportance for virtual patches
         int all = XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT;
 
-        ColorRgbMutable e;
+        ColorRgb e;
 
-        if ( light.material.getEdf() == null ) {
-            e = new ColorRgbMutable();
+        if ( light.getMaterial().getEdf() == null ) {
+            e = new ColorRgb();
         } else {
-            e = new ColorRgbMutable(light.material.getEdf().phongEmittance(null, all));
+            e = new ColorRgb(light.getMaterial().getEdf().phongEmittance(null, all));
         }
         return e.average();
     }
@@ -197,31 +197,31 @@ public class LightList extends CircularList<LightInfo> {
     public static double
     computeOneLightImportanceReal(
         Patch light,
-        Vector3Df point,
-        Vector3Df normal,
-        float emittedFlux)
+        Vector3Dd point,
+        Vector3Dd normal,
+        double emittedFlux)
     {
         // ComputeOneLightImportance for real patches
         int tried = 0;  // No positions on the patch are tried yet
         boolean done = false;
         double contribution = 0.0;
-        Vector3Df lightPoint = new Vector3Df();
-        Vector3Df lightNormal = new Vector3Df();
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd lightPoint = new Vector3Dd();
+        Vector3Dd lightNormal = new Vector3Dd();
+        Vector3Dd dir = new Vector3Dd();
         double cosRayPatch;
         double cosRayLight;
         double dist2;
 
-        while ( !done && tried <= light.numberOfVertices ) {
+        while ( !done && tried <= light.getNumberOfVertices() ) {
             // Choose a point on the patch according to 'tried'
 
             if ( tried == 0 ) {
                 lightPoint = light.midPoint();
                 lightNormal = light.getNormal();
             } else {
-                lightPoint = light.vertex[tried - 1].point;
-                if ( light.vertex[tried - 1].normal != null ) {
-                    lightNormal = light.vertex[tried - 1].normal;
+                lightPoint = light.getVertices()[tried - 1].point;
+                if ( light.getVertices()[tried - 1].normal != null ) {
+                    lightNormal = light.getVertices()[tried - 1].normal;
                 } else {
                     lightNormal = light.getNormal();
                 }
@@ -230,7 +230,7 @@ public class LightList extends CircularList<LightInfo> {
             // Estimate the contribution
 
             // Ray direction (but no ray is shot of course)
-            Vector3Df copy = new Vector3Df(point.x(), point.y(), point.z());
+            Vector3Dd copy = new Vector3Dd(point.x(), point.y(), point.z());
 
             dir = lightPoint.subtract(copy);
             dist2 = dir.lengthSquared();
@@ -257,9 +257,9 @@ public class LightList extends CircularList<LightInfo> {
     public static double
     computeOneLightImportance(
         Patch light,
-        Vector3Df point,
-        Vector3Df normal,
-        float emittedFlux)
+        Vector3Dd point,
+        Vector3Dd normal,
+        double emittedFlux)
     {
         // TODO!!!  1) patch should become class
         //          2) virtual patch should become child-class
@@ -271,12 +271,12 @@ public class LightList extends CircularList<LightInfo> {
         }
     }
 
-    private Vector3Df lastPoint = new Vector3Df();
-    private Vector3Df lastNormal = new Vector3Df();
+    private Vector3Dd lastPoint = new Vector3Dd();
+    private Vector3Dd lastNormal = new Vector3Dd();
 
-    public void computeLightImportance(Vector3Df point, Vector3Df normal) {
-        if ( (Numeric.vectorsEqual(point, lastPoint, Numeric.EPSILON_FLOAT)) &&
-            (Numeric.vectorsEqual(normal, lastNormal, Numeric.EPSILON_FLOAT)) ) {
+    public void computeLightImportance(Vector3Dd point, Vector3Dd normal) {
+        if ( (Numeric.vectorsEqual(point, lastPoint, Numeric.EPSILON)) &&
+            (Numeric.vectorsEqual(normal, lastNormal, Numeric.EPSILON)) ) {
             return; // Still ok !!
         }
 
@@ -285,7 +285,7 @@ public class LightList extends CircularList<LightInfo> {
         CircularListIterator<LightInfo> iterator = new CircularListIterator<>(this);
         double imp;
 
-        totalImp = 0.0f;
+        totalImp = 0.0;
 
         // next
         info = iterator.nextOnSequence();
@@ -295,8 +295,8 @@ public class LightList extends CircularList<LightInfo> {
 
         while ( info != null ) {
             imp = computeOneLightImportance(info.light, point, normal, info.emittedFlux);
-            totalImp += (float)imp;
-            info.importance = (float)imp;
+            totalImp += (double)imp;
+            info.importance = (double)imp;
 
             // next
             info = iterator.nextOnSequence();
@@ -306,7 +306,7 @@ public class LightList extends CircularList<LightInfo> {
         }
     }
 
-    public Patch sampleImportant(Vector3Df point, Vector3Df normal, double[] x1, double[] pdf) {
+    public Patch sampleImportant(Vector3Dd point, Vector3Dd normal, double[] x1, double[] pdf) {
         LightInfo info;
         LightInfo lastInfo = null;
         CircularListIterator<LightInfo> iterator = new CircularListIterator<>(this);
@@ -348,7 +348,7 @@ public class LightList extends CircularList<LightInfo> {
                 currentSum += info.importance;
             } else {
                 info = lastInfo;
-                rnd = currentSum - 1.0; // :-(  Damn float inaccuracies
+                rnd = currentSum - 1.0; // :-(  Damn double inaccuracies
             }
         }
 
@@ -367,9 +367,9 @@ public class LightList extends CircularList<LightInfo> {
     public double
     evalPdfImportant(
         Patch light,
-        Vector3Df lightPoint,
-        Vector3Df litPoint,
-        Vector3Df normal)
+        Vector3Dd lightPoint,
+        Vector3Dd litPoint,
+        Vector3Dd normal)
     {
         double pdf;
         LightInfo info;

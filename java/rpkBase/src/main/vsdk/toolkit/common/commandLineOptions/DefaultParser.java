@@ -25,9 +25,9 @@ public class DefaultParser<T> {
             out.value = (T)converted.value;
             return true;
         }
-        if (currentValue instanceof Float) {
-            TypedOption.MutableValue<Float> converted = new TypedOption.MutableValue<>((Float)currentValue);
-            if (!parseFloat(input, converted)) {
+        if (currentValue instanceof Double) {
+            TypedOption.MutableValue<Double> converted = new TypedOption.MutableValue<>((Double)currentValue);
+            if (!parseDouble(input, converted)) {
                 return false;
             }
             out.value = (T)converted.value;
@@ -78,13 +78,13 @@ public class DefaultParser<T> {
         }
     }
 
-    private static boolean parseFloat(String input, TypedOption.MutableValue<Float> out) {
+    private static boolean parseDouble(String input, TypedOption.MutableValue<Double> out) {
         if (input == null || out == null) {
             return false;
         }
 
         try {
-            out.value = Float.parseFloat(input);
+            out.value = Double.parseDouble(input);
             return true;
         }
         catch (NumberFormatException e) {

@@ -1,8 +1,7 @@
 package vsdk.toolkit.app.options;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
@@ -10,8 +9,8 @@ import vsdk.toolkit.common.commandLineOptions.TypedOption;
 
 public final class OptionsGroupRender {
     private static int trueValue = 1;
-    private static RenderOptions renderOptionsState = new RenderOptions();
-    private static ColorRgbMutable outlineColor = new ColorRgbMutable();
+    private static RendererConfiguration renderOptionsState = new RendererConfiguration();
+    private static ColorRgb outlineColor = new ColorRgb();
 
     private static void flatOption(TypedOption.MutableValue<Integer> value) {
         renderOptionsState.smoothShading = false;
@@ -32,15 +31,16 @@ public final class OptionsGroupRender {
     private static boolean parseColor3(
         int argc,
         String[] argv,
-        TypedOption.MutableValue<ColorRgbMutable> value)
+        TypedOption.MutableValue<ColorRgb> value)
     {
         if (argc < 3 || argv == null || argv[0] == null || argv[1] == null || argv[2] == null) {
             return false;
         }
         try {
-            value.value.r = Float.parseFloat(argv[0]);
-            value.value.g = Float.parseFloat(argv[1]);
-            value.value.b = Float.parseFloat(argv[2]);
+            final double r = Double.parseDouble(argv[0]);
+            final double g = Double.parseDouble(argv[1]);
+            final double b = Double.parseDouble(argv[2]);
+            value.value = new ColorRgb(r, g, b);
             return true;
         }
         catch (NumberFormatException e) {
@@ -48,7 +48,7 @@ public final class OptionsGroupRender {
         }
     }
 
-    private static void copyFrom(RenderOptions source, RenderOptions target) {
+    private static void copyFrom(RendererConfiguration source, RendererConfiguration target) {
         if (source == null || target == null) {
             return;
         }
@@ -72,7 +72,7 @@ public final class OptionsGroupRender {
     public static void renderParseOptions(
         int[] argc,
         String[] argv,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         TypedOption<Integer> flatOpt = new TypedOption<>(
             "-flat-shading",
@@ -98,7 +98,7 @@ public final class OptionsGroupRender {
             0,
             OptionsGroupRender::outlinesOption,
             null);
-        TypedOption<ColorRgbMutable> outlineColorOpt = new TypedOption<>(
+        TypedOption<ColorRgb> outlineColorOpt = new TypedOption<>(
             "-outline-color",
             TypedOption.valueRef(outlineColor),
             3,
@@ -119,6 +119,6 @@ public final class OptionsGroupRender {
         OptionParser.parse(argc, argv, renderGroups, 1);
 
         copyFrom(renderOptionsState, renderOptions);
-        renderOptions.outlineColor = outlineColor.toImmutable();
+        renderOptions.outlineColor = outlineColor;
     }
 }

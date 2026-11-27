@@ -1,25 +1,25 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 
 public final class PowerAccumulatorVisitor implements ClusterLeafVisitor {
-    private ColorRgbMutable sourceRadiance;
-    private Vector3Df samplePoint;
-    private ColorRgbMutable accumulatedRadiance;
+    private ColorRgb sourceRadiance;
+    private Vector3Dd samplePoint;
+    private ColorRgb accumulatedRadiance;
 
-    public PowerAccumulatorVisitor(ColorRgbMutable inSourceRadiance, Vector3Df inSamplePoint) {
+    public PowerAccumulatorVisitor(ColorRgb inSourceRadiance, Vector3Dd inSamplePoint) {
         sourceRadiance = inSourceRadiance;
         samplePoint = inSamplePoint;
-        accumulatedRadiance = new ColorRgbMutable();
-        accumulatedRadiance.clear();
+        accumulatedRadiance = new ColorRgb();
+        accumulatedRadiance = new ColorRgb(0.0, 0.0, 0.0);
     }
 
-    public ColorRgbMutable getAccumulatedRadiance() {
+    public ColorRgb getAccumulatedRadiance() {
         return accumulatedRadiance;
     }
 
@@ -34,21 +34,21 @@ and ignores intra-cluster visibility.
         GalerkinElement galerkinElement,
         GalerkinState galerkinState)
     {
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
         dir = samplePoint.subtract(galerkinElement.patch.midPoint());
-        float dist = dir.length();
-        float srcOs;
+        double dist = dir.length();
+        double srcOs;
         if ( dist < VSDK.EPSILON ) {
-            srcOs = 1.0f;
+            srcOs = 1.0;
         }
         else {
             srcOs = dir.dotProduct(galerkinElement.patch.getNormal()) / dist;
         }
-        if ( srcOs <= 0.0f ) {
+        if ( srcOs <= 0.0 ) {
             return;
         }
 
-        ColorRgbMutable rad;
+        ColorRgb rad;
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ||
              galerkinState.isJacobi() ) {
             rad = galerkinElement.radiance[0];
@@ -57,6 +57,6 @@ and ignores intra-cluster visibility.
             rad = galerkinElement.unShotRadiance[0];
         }
 
-        accumulatedRadiance.addScaled(sourceRadiance, srcOs * galerkinElement.area, rad);
+        accumulatedRadiance = sourceRadiance.addScaled(srcOs * galerkinElement.area, rad);
     }
 }

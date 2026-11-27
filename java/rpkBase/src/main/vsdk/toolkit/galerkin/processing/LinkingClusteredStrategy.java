@@ -14,8 +14,8 @@ Creates an initial link between the given element and the top cluster
 */
 public class LinkingClusteredStrategy {
     private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
-    private static final MemoryPool<float[]> scalarPool = new MemoryPool<>(() -> new float[1]);
-    private static final MemoryPool<float[]> matrixPool = new MemoryPool<>(() -> new float[K_SIZE]);
+    private static final MemoryPool<double[]> scalarPool = new MemoryPool<>(() -> new double[1]);
+    private static final MemoryPool<double[]> matrixPool = new MemoryPool<>(() -> new double[K_SIZE]);
     private static boolean poolsInitialized = false;
 
     private static void ensurePoolsInitialized() {
@@ -54,7 +54,7 @@ public class LinkingClusteredStrategy {
         ensurePoolsInitialized();
         // Assume no light transport (overlapping receiver and source)
         int n = receiverElement.basisSize * sourceElement.basisSize;
-        float[] K;
+        double[] K;
         boolean kFromPool = false;
         if ( n == 1 ) {
             K = scalarPool.allocate(1);
@@ -67,9 +67,9 @@ public class LinkingClusteredStrategy {
                 kFromPool = true;
             }
             else {
-                K = new float[1];
+                K = new double[1];
             }
-            K[0] = 0.0f;
+            K[0] = 0.0;
         } else {
             K = matrixPool.allocate(K_SIZE);
             if (K == null) {
@@ -81,20 +81,20 @@ public class LinkingClusteredStrategy {
                 kFromPool = true;
             }
             else {
-                K = new float[K_SIZE];
+                K = new double[K_SIZE];
             }
             if ( n <= 0 ) {
                 n = 1;
             }
             for ( int i = 0; i < n; i++ ) {
-                K[i] = 0.0f;
+                K[i] = 0.0;
             }
         }
         Interaction newLink = new Interaction(
             receiverElement,
             sourceElement,
             K,
-            Float.MAX_VALUE, // Huge value error on the form factor
+            Double.MAX_VALUE, // Huge value error on the form factor
             (byte)receiverElement.basisSize,
             (byte)sourceElement.basisSize,
             (byte)1,

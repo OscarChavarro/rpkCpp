@@ -1,19 +1,19 @@
 package vsdk.toolkit.skin;
 
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 
 public class MinMaxBox {
-    private final BoundingBox boundingBox;
+    private final RpkAxisAlignedBoundingBox boundingBox;
 
-    public MinMaxBox(BoundingBox sourceBoundingBox) {
-        boundingBox = new BoundingBox();
+    public MinMaxBox(RpkAxisAlignedBoundingBox sourceBoundingBox) {
+        boundingBox = new RpkAxisAlignedBoundingBox();
         if (sourceBoundingBox != null) {
             boundingBox.copyFrom(sourceBoundingBox);
         }
     }
 
-    public void updateFromBoundingBox(BoundingBox sourceBoundingBox) {
+    public void updateFromBoundingBox(RpkAxisAlignedBoundingBox sourceBoundingBox) {
         if (sourceBoundingBox == null) {
             return;
         }
@@ -21,22 +21,22 @@ public class MinMaxBox {
     }
 
     private static boolean clipAxisSlab(
-        float minimumBound,
-        float maximumBound,
-        float origin,
-        float direction,
-        float toleranceScale,
-        float[] nearDistance,
-        float[] farDistance) {
-        if (direction == 0.0f) {
+        double minimumBound,
+        double maximumBound,
+        double origin,
+        double direction,
+        double toleranceScale,
+        double[] nearDistance,
+        double[] farDistance) {
+        if (direction == 0.0) {
             return !(origin < minimumBound || origin > maximumBound);
         }
 
-        float invDirection = 1.0f / direction;
-        float entryDistance = (minimumBound - origin) * invDirection;
-        float exitDistance = (maximumBound - origin) * invDirection;
+        double invDirection = 1.0 / direction;
+        double entryDistance = (minimumBound - origin) * invDirection;
+        double exitDistance = (maximumBound - origin) * invDirection;
         if (entryDistance > exitDistance) {
-            float swapValue = entryDistance;
+            double swapValue = entryDistance;
             entryDistance = exitDistance;
             exitDistance = swapValue;
         }
@@ -55,42 +55,42 @@ public class MinMaxBox {
 
     // Scratch storage reused across bounding box tests (single threaded
     // rendering core; the C++ port keeps the equivalents on the stack)
-    private static final float[] intersectingSegmentScratchNear = new float[1];
-    private static final float[] intersectingSegmentScratchFar = new float[1];
-    private static final float[] intersectScratchTMin = new float[1];
-    private static final float[] intersectScratchTMax = new float[1];
+    private static final double[] intersectingSegmentScratchNear = new double[1];
+    private static final double[] intersectingSegmentScratchFar = new double[1];
+    private static final double[] intersectScratchTMin = new double[1];
+    private static final double[] intersectScratchTMax = new double[1];
 
-    public boolean intersectingSegment(Ray ray, float[] tMin, float[] tMax) {
+    public boolean intersectingSegment(Ray ray, double[] tMin, double[] tMax) {
         if (ray == null || tMin == null || tMin.length == 0 || tMax == null || tMax.length == 0) {
             return false;
         }
 
-        float minimumDistance = tMin[0];
-        float maximumDistance = tMax[0];
-        float[] box = boundingBox.rawCoordinates();
-        float[] nearDistance = intersectingSegmentScratchNear;
-        float[] farDistance = intersectingSegmentScratchFar;
+        double minimumDistance = tMin[0];
+        double maximumDistance = tMax[0];
+        double[] box = boundingBox.rawCoordinates();
+        double[] nearDistance = intersectingSegmentScratchNear;
+        double[] farDistance = intersectingSegmentScratchFar;
         nearDistance[0] = minimumDistance;
         farDistance[0] = maximumDistance;
-        float toleranceScale = 1.0f + Numeric.EPSILON_FLOAT;
+        double toleranceScale = 1.0 + Numeric.EPSILON;
 
         if (!clipAxisSlab(
             box[BoundingBoxCoordinateIndex.MIN_X], box[BoundingBoxCoordinateIndex.MAX_X],
-            ray.position.x(), ray.direction.x(),
+            ray.getOrigin().x(), ray.getDirection().x(),
             toleranceScale,
             nearDistance, farDistance)) {
             return false;
         }
         if (!clipAxisSlab(
             box[BoundingBoxCoordinateIndex.MIN_Y], box[BoundingBoxCoordinateIndex.MAX_Y],
-            ray.position.y(), ray.direction.y(),
+            ray.getOrigin().y(), ray.getDirection().y(),
             toleranceScale,
             nearDistance, farDistance)) {
             return false;
         }
         if (!clipAxisSlab(
             box[BoundingBoxCoordinateIndex.MIN_Z], box[BoundingBoxCoordinateIndex.MAX_Z],
-            ray.position.z(), ray.direction.z(),
+            ray.getOrigin().z(), ray.getDirection().z(),
             toleranceScale,
             nearDistance, farDistance)) {
             return false;
@@ -105,13 +105,13 @@ public class MinMaxBox {
         return nearDistance[0] < maximumDistance;
     }
 
-    public boolean intersect(Ray ray, float minimumDistance, float[] maximumDistance) {
+    public boolean intersect(Ray ray, double minimumDistance, double[] maximumDistance) {
         if (maximumDistance == null || maximumDistance.length == 0) {
             return false;
         }
 
-        float[] tMin = intersectScratchTMin;
-        float[] tMax = intersectScratchTMax;
+        double[] tMin = intersectScratchTMin;
+        double[] tMax = intersectScratchTMax;
         tMin[0] = minimumDistance;
         tMax[0] = maximumDistance[0];
         boolean hit = intersectingSegment(ray, tMin, tMax);

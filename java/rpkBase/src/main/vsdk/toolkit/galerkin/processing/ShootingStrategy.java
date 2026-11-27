@@ -1,8 +1,10 @@
 package vsdk.toolkit.galerkin.processing;
 
+import vsdk.toolkit.scene.DirectPotentialTable;
+import vsdk.toolkit.galerkin.ColorRgbMath;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
@@ -25,30 +27,23 @@ Reference:
 See [COHE1993].5.3.3. section
 */
 public class ShootingStrategy {
-    private static float galerkinGetPotential(Patch patch) {
-        return (patch != null && patch.radianceData instanceof GalerkinElement)
-            ? ((GalerkinElement)patch.radianceData).potential : 0.0f;
+    private static double galerkinGetPotential(GalerkinState galerkinState, Patch patch) {
+        return galerkinState.topLevelElement(patch).potential;
     }
 
-    private static float galerkinGetUnShotPotential(Patch patch) {
-        return (patch != null && patch.radianceData instanceof GalerkinElement)
-            ? ((GalerkinElement)patch.radianceData).unShotPotential : 0.0f;
+    private static double galerkinGetUnShotPotential(GalerkinState galerkinState, Patch patch) {
+        return galerkinState.topLevelElement(patch).unShotPotential;
     }
 
-    private static Patch chooseRadianceShootingPatch(ArrayList<Patch> scenePatches, GalerkinState galerkinState) {
+    private static Patch chooseRadianceShootingPatch(ArrayList<Patch> scenePatches, DirectPotentialTable directPotentials, GalerkinState galerkinState) {
         Patch shootingPatch = null;
         Patch potentialShootingPatch = null;
-        float maximumPower = 0.0f;
-        float maximumPowerImportance = 0.0f;
+        double maximumPower = 0.0;
+        double maximumPowerImportance = 0.0;
 
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
             Patch patch = scenePatches.get(i);
-            if ( patch == null || patch.radianceData == null || patch.radianceData.unShotRadiance == null
-                 || patch.radianceData.unShotRadiance.length == 0 || patch.radianceData.unShotRadiance[0] == null ) {
-                continue;
-            }
-
-            float power = (float)(Math.PI * patch.area * patch.radianceData.unShotRadiance[0].sumAbsComponents());
+            double power = (double)(Math.PI * patch.getArea() * galerkinState.topLevelElement(patch).unShotRadiance[0].sumAbsComponents());
             if ( power > maximumPower ) {
                 shootingPatch = patch;
                 maximumPower = power;
@@ -57,7 +52,7 @@ public class ShootingStrategy {
             if ( galerkinState.importanceDriven != 0 ) {
                 // For importance-driven progressive refinement radiosity, choose the patch
                 // with highest indirectly received potential times power.
-                float powerImportance = (galerkinGetPotential(patch) - patch.directPotential) * power;
+                double powerImportance = (galerkinGetPotential(galerkinState, patch) - directPotentials.get(patch.getFaceIndex())) * power;
                 if ( powerImportance > maximumPowerImportance ) {
                     potentialShootingPatch = patch;
                     maximumPowerImportance = powerImportance;
@@ -93,9 +88,9 @@ public class ShootingStrategy {
         }
 
         if ( elem.unShotRadiance != null ) {
-            ColorRgbMutable.arrayClear(elem.unShotRadiance, elem.basisSize);
+            ColorRgbMath.arrayClear(elem.unShotRadiance, elem.basisSize);
         }
-        elem.unShotPotential = 0.0f;
+        elem.unShotPotential = 0.0;
     }
 
     private static void patchPropagateUnShotRadianceAndPotential(
@@ -107,7 +102,7 @@ public class ShootingStrategy {
             return;
         }
 
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
         if ( topLevelElement == null ) {
             return;
         }
@@ -117,11 +112,7 @@ public class ShootingStrategy {
                 LinkingClusteredStrategy.createInitialLinks(topLevelElement, GalerkinRole.SOURCE, galerkinState);
             }
             else {
-                LinkingSimpleStrategy.createInitialLinks(
-                    scene,
-                    galerkinState,
-                    GalerkinRole.SOURCE,
-                    topLevelElement);
+                LinkingSimpleStrategy.createInitialLinks( scene, galerkinState, GalerkinRole.SOURCE, topLevelElement);
             }
             topLevelElement.flags |= ElementFlags.INTERACTIONS_CREATED_MASK;
         }
@@ -134,17 +125,17 @@ public class ShootingStrategy {
         clearUnShotRadianceAndPotential(topLevelElement);
     }
 
-    private static float shootingPushPullPotential(GalerkinElement element, float down) {
+    private static double shootingPushPullPotential(GalerkinElement element, double down) {
         if ( element == null ) {
-            return 0.0f;
+            return 0.0;
         }
 
-        if ( element.area != 0.0f ) {
+        if ( element.area != 0.0 ) {
             down += element.receivedPotential / element.area;
         }
-        element.receivedPotential = 0.0f;
+        element.receivedPotential = 0.0;
 
-        float up = 0.0f;
+        double up = 0.0;
 
         if ( element.regularSubElements == null
              && (element.irregularSubElements == null || element.irregularSubElements.isEmpty()) ) {
@@ -155,7 +146,7 @@ public class ShootingStrategy {
             for ( int i = 0; i < 4; i++ ) {
                 Element child = element.regularSubElements[i];
                 if ( child instanceof GalerkinElement ) {
-                    up += 0.25f * shootingPushPullPotential((GalerkinElement)child, down);
+                    up += 0.25 * shootingPushPullPotential((GalerkinElement)child, down);
                 }
             }
         }
@@ -168,10 +159,10 @@ public class ShootingStrategy {
                 }
                 GalerkinElement subElement = (GalerkinElement)child;
                 if ( !element.isCluster() ) {
-                    down = 0.0f;
+                    down = 0.0;
                 }
                 // Don't push to irregular surface sub-elements.
-                if ( element.area != 0.0f ) {
+                if ( element.area != 0.0 ) {
                     up += subElement.area / element.area * shootingPushPullPotential(subElement, down);
                 }
             }
@@ -187,23 +178,17 @@ public class ShootingStrategy {
             return;
         }
 
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
         if ( topLevelElement == null ) {
             return;
         }
 
         if ( galerkinState.importanceDriven != 0 ) {
-            shootingPushPullPotential(topLevelElement, 0.0f);
+            shootingPushPullPotential(topLevelElement, 0.0);
         }
         GalerkinBasis.pushPullRadiance(topLevelElement, galerkinState);
 
-        if ( patch.radianceData != null && patch.radianceData.unShotRadiance != null
-             && patch.radianceData.unShotRadiance.length > 0 && patch.radianceData.unShotRadiance[0] != null ) {
-            galerkinState.ambientRadiance.addScaled(
-                galerkinState.ambientRadiance,
-                patch.area,
-                patch.radianceData.unShotRadiance[0]);
-        }
+        galerkinState.ambientRadiance = galerkinState.ambientRadiance.addScaled(patch.getArea(), topLevelElement.unShotRadiance[0]);
     }
 
     private static void doPropagate(Scene scene, Patch shootingPatch, GalerkinState galerkinState) {
@@ -218,32 +203,32 @@ public class ShootingStrategy {
         // radiance from the shooting patch, since the ambient term has also changed.
         if ( galerkinState.clustered != 0 ) {
             if ( galerkinState.importanceDriven != 0 ) {
-                shootingPushPullPotential(galerkinState.topCluster, 0.0f);
+                shootingPushPullPotential(galerkinState.topCluster, 0.0);
             }
             GalerkinBasis.pushPullRadiance(galerkinState.topCluster, galerkinState);
             if ( galerkinState.topCluster != null
                  && galerkinState.topCluster.unShotRadiance != null
                  && galerkinState.topCluster.unShotRadiance.length > 0
                  && galerkinState.topCluster.unShotRadiance[0] != null ) {
-                ColorRgbMutable ambient = galerkinState.topCluster.unShotRadiance[0];
-                galerkinState.ambientRadiance.set(ambient.getR(), ambient.getG(), ambient.getB());
+                ColorRgb ambient = galerkinState.topCluster.unShotRadiance[0];
+                galerkinState.ambientRadiance = new ColorRgb(ambient.getR(), ambient.getG(), ambient.getB());
             }
         }
         else {
-            galerkinState.ambientRadiance.clear();
+            galerkinState.ambientRadiance = new ColorRgb(0.0, 0.0, 0.0);
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
                 patchUpdateRadianceAndPotential(scene.patchList.get(i), galerkinState);
             }
-            galerkinState.ambientRadiance.scale(1.0f / Statistics.instance().radiance.totalArea);
+            galerkinState.ambientRadiance = galerkinState.ambientRadiance.multiply(1.0 / Statistics.instance().radiance.totalArea);
         }
 
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-            GalerkinRadianceMethod.recomputePatchColor(scene.patchList.get(i));
+            GalerkinRadianceMethod.recomputePatchColor(scene.patchList.get(i), scene.getFaceColors());
         }
     }
 
     private static boolean propagateRadiance(Scene scene, GalerkinState galerkinState) {
-        Patch shootingPatch = chooseRadianceShootingPatch(scene.patchList, galerkinState);
+        Patch shootingPatch = chooseRadianceShootingPatch(scene.patchList, scene.getDirectPotentials(), galerkinState);
         if ( shootingPatch == null ) {
             return true;
         }
@@ -257,8 +242,8 @@ public class ShootingStrategy {
             return;
         }
 
-        clusterElement.potential = 0.0f;
-        clusterElement.unShotPotential = 0.0f;
+        clusterElement.potential = 0.0;
+        clusterElement.unShotPotential = 0.0;
         for ( int i = 0; clusterElement.irregularSubElements != null
                        && i < clusterElement.irregularSubElements.size(); i++ ) {
             Element child = clusterElement.irregularSubElements.get(i);
@@ -270,14 +255,14 @@ public class ShootingStrategy {
             clusterElement.potential += subCluster.area * subCluster.potential;
             clusterElement.unShotPotential += subCluster.area * subCluster.unShotPotential;
         }
-        if ( clusterElement.area != 0.0f ) {
+        if ( clusterElement.area != 0.0 ) {
             clusterElement.potential /= clusterElement.area;
             clusterElement.unShotPotential /= clusterElement.area;
         }
     }
 
-    private static Patch choosePotentialShootingPatch(ArrayList<Patch> scenePatches) {
-        float maximumImportance = 0.0f;
+    private static Patch choosePotentialShootingPatch(ArrayList<Patch> scenePatches, GalerkinState galerkinState) {
+        double maximumImportance = 0.0;
         Patch shootingPatch = null;
 
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
@@ -285,7 +270,7 @@ public class ShootingStrategy {
             if ( patch == null ) {
                 continue;
             }
-            float importance = (float)(patch.area * Math.abs(galerkinGetUnShotPotential(patch)));
+            double importance = (double)(patch.getArea() * Math.abs(galerkinGetUnShotPotential(galerkinState, patch)));
             if ( importance > maximumImportance ) {
                 shootingPatch = patch;
                 maximumImportance = importance;
@@ -296,7 +281,7 @@ public class ShootingStrategy {
     }
 
     private static void propagatePotential(Scene scene, GalerkinState galerkinState) {
-        Patch shootingPatch = choosePotentialShootingPatch(scene.patchList);
+        Patch shootingPatch = choosePotentialShootingPatch(scene.patchList, galerkinState);
         if ( shootingPatch != null ) {
             doPropagate(scene, shootingPatch, galerkinState);
         }
@@ -305,7 +290,7 @@ public class ShootingStrategy {
         }
     }
 
-    private static void shootingUpdateDirectPotential(GalerkinElement galerkinElement, float potentialIncrement) {
+    private static void shootingUpdateDirectPotential(GalerkinElement galerkinElement, double potentialIncrement) {
         if ( galerkinElement == null ) {
             return;
         }
@@ -323,17 +308,17 @@ public class ShootingStrategy {
         galerkinElement.unShotPotential += potentialIncrement;
     }
 
-    public static boolean doShootingStep(Scene scene, GalerkinState galerkinState, RenderOptions renderOptions) {
+    public static boolean doShootingStep(Scene scene, GalerkinState galerkinState, RendererConfiguration renderOptions) {
         if ( galerkinState.importanceDriven != 0 ) {
             if ( galerkinState.iterationNumber <= 1 || scene.camera.changed != 0 ) {
                 Potential.updateDirectPotential(scene, renderOptions);
                 for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
                     Patch patch = scene.patchList.get(i);
-                    GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+                    GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
                     if ( topLevelElement == null ) {
                         continue;
                     }
-                    float potentialIncrement = patch.directPotential - topLevelElement.directPotential;
+                    double potentialIncrement = scene.getDirectPotentials().get(patch.getFaceIndex()) - topLevelElement.directPotential;
                     shootingUpdateDirectPotential(topLevelElement, potentialIncrement);
                 }
                 scene.camera.changed = 0;

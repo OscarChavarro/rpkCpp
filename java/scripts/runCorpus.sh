@@ -4,7 +4,7 @@
 # output/<log>.log (stdout) and output/<log>.err (stderr) used by
 # testReviewResults.sh, output/<log>.time (CPU time, wall clock and peak RSS,
 # read by timeReport.sh) and at its end output/<log>.status (exit status).
-# Run from cpp/ as working directory.
+# Run from java/ as working directory.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"

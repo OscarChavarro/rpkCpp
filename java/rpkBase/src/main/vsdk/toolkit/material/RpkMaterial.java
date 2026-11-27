@@ -43,8 +43,8 @@ public class RpkMaterial {
         PhongLobe reflection,
         PhongLobe transmission,
         Texture inTexture,
-        float refractionIndexReal,
-        float refractionIndexImaginary,
+        double refractionIndexReal,
+        double refractionIndexImaginary,
         boolean inSided)
     {
         name = inName;

@@ -6,11 +6,11 @@ import java.util.Locale;
 
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
@@ -26,11 +26,11 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
     private final StochasticRelaxation stochasticRelaxationState;
     private final ElementHierarchyState elementHierarchyState;
     private final StochasticRadiosityBasisState stochasticRadiosityBasisState;
-    private static final ColorRgbMutable[] selfEmittedRadiance = new ColorRgbMutable[GalerkinBasis.MAX_BASIS_SIZE];
+    private static final ColorRgb[] selfEmittedRadiance = new ColorRgb[StochasticRadiosityBasis.MAX_BASIS_SIZE];
 
     static {
         for ( int i = 0; i < selfEmittedRadiance.length; i++ ) {
-            selfEmittedRadiance[i] = new ColorRgbMutable();
+            selfEmittedRadiance[i] = new ColorRgb();
         }
     }
 
@@ -86,13 +86,13 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
     }
 
     @Override
-    public ColorRgbMutable getRadiance(
+    public ColorRgb getRadiance(
         Camera camera,
         Patch patch,
         double u,
         double v,
-        Vector3Df dir,
-        RenderOptions renderOptions)
+        Vector3Dd dir,
+        RendererConfiguration renderOptions)
     {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
@@ -117,7 +117,7 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
     public void writeVRML(
         Camera camera,
         OutputStream outputStream,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( camera == null || outputStream == null || renderOptions == null ) {
             // Not implemented in C++ version either.
@@ -129,9 +129,7 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
         StochasticRadiosityBasisState.setActiveState(stochasticRadiosityBasisState);
-        if ( scene == null ) {
-            // scene is intentionally unused in C++ implementation.
-        }
+        ElementHierarchyState.activeState().setRadianceElements(scene.getRadianceElements());
         StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
         if ( StochasticRelaxation.activeState().toneMapOptions == null ) {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
@@ -141,15 +139,11 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
     }
 
     private static void randomWalkRadiosityPrintStats() {
-        System.err.printf("%g secs., total radiance rays = %d",
-            StochasticRelaxation.activeState().cpuSeconds, StochasticRelaxation.activeState().tracedRays);
+        System.err.printf("%g secs., total radiance rays = %d", StochasticRelaxation.activeState().cpuSeconds, StochasticRelaxation.activeState().tracedRays);
         System.err.printf(", total flux = ");
-        StochasticRelaxation.activeState().totalFlux.print(System.err);
+        System.err.printf("%g %g %g", StochasticRelaxation.activeState().totalFlux.getR(), StochasticRelaxation.activeState().totalFlux.getG(), StochasticRelaxation.activeState().totalFlux.getB());
         if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
-            System.err.printf("\ntotal importance rays = %d, total importance = %g, total area = %g",
-                StochasticRelaxation.activeState().importanceTracedRays,
-                StochasticRelaxation.activeState().totalYmp,
-                Statistics.instance().radiance.totalArea);
+            System.err.printf("\ntotal importance rays = %d, total importance = %g, total area = %g", StochasticRelaxation.activeState().importanceTracedRays, StochasticRelaxation.activeState().totalYmp, Statistics.instance().radiance.totalArea);
         }
         System.err.printf("\n");
     }
@@ -158,29 +152,29 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
 Used as un-normalised stochasticJacobiProbability for mimicking global lines
 */
     private static double randomWalkRadiosityPatchArea(Patch patch) {
-        return patch.area;
+        return patch.getArea();
     }
 
     /**
 stochasticJacobiProbability proportional to power to be propagated
 */
     private static double randomWalkRadiosityScalarSourcePower(Patch patch) {
-        ColorRgbMutable radiance = McradP.topLevelStochasticRadiosityElement(patch).sourceRad;
-        return patch.area * radiance.sumAbsComponents();
+        ColorRgb radiance = McradP.topLevelStochasticRadiosityElement(patch).sourceRad;
+        return patch.getArea() * radiance.sumAbsComponents();
     }
 
     /**
-Returns a double instead of a float in order to make it useful as
+Returns a double instead of a double in order to make it useful as
 a survival stochasticJacobiProbability function
 */
     private static double randomWalkRadiosityScalarReflectance(Patch patch) {
         return Mcrad.monteCarloRadiosityScalarReflectance(patch);
     }
 
-    private static ColorRgbMutable[] randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement elem) {
+    private static ColorRgb[] randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement elem) {
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(selfEmittedRadiance, elem.basis);
-        ColorRgbMutable ed = McradP.topLevelStochasticRadiosityElement(elem.patch).Ed; // Emittance
-        selfEmittedRadiance[0].set(ed.getR(), ed.getG(), ed.getB());
+        ColorRgb ed = McradP.topLevelStochasticRadiosityElement(elem.patch).Ed; // Emittance
+        selfEmittedRadiance[0] = new ColorRgb(ed.getR(), ed.getG(), ed.getB());
         return selfEmittedRadiance;
     }
 
@@ -190,15 +184,14 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
     private static void randomWalkRadiosityReduceSource(ArrayList<Patch> scenePatches) {
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
             Patch patch = scenePatches.get(i);
-            ColorRgbMutable newSourceRadiance = new ColorRgbMutable();
-            ColorRgbMutable rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
+            ColorRgb newSourceRadiance = new ColorRgb();
+            ColorRgb rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
 
-            newSourceRadiance.setMonochrome(1.0f);
-            newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
-            newSourceRadiance.selfScalarProduct(StochasticRelaxation.activeState().controlRadiance); // (1-rho) * beta
-            newSourceRadiance.subtract(McradP.topLevelStochasticRadiosityElement(patch).sourceRad, newSourceRadiance); // E - (1-rho) * beta
-            McradP.topLevelStochasticRadiosityElement(patch).sourceRad.set(
-                newSourceRadiance.getR(), newSourceRadiance.getG(), newSourceRadiance.getB());
+            newSourceRadiance = new ColorRgb(1.0, 1.0, 1.0);
+            newSourceRadiance = newSourceRadiance.subtract(rho); // 1 - rho
+            newSourceRadiance = newSourceRadiance.multiply(StochasticRelaxation.activeState().controlRadiance); // (1-rho) * beta
+            newSourceRadiance = (McradP.topLevelStochasticRadiosityElement(patch).sourceRad).subtract(newSourceRadiance); // E - (1-rho) * beta
+            McradP.topLevelStochasticRadiosityElement(patch).sourceRad = new ColorRgb(newSourceRadiance.getR(), newSourceRadiance.getG(), newSourceRadiance.getB());
         }
     }
 
@@ -257,13 +250,11 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
         if ( birthProbability == null ) {
             // Keep C++ signature.
         }
-        ColorRgbMutable accumPow = new ColorRgbMutable();
+        ColorRgb accumPow = new ColorRgb();
         StochasticRaytracingPathNode firstNode = path.nodes[0];
 
         // path->nodes[0].probability is birth probability of the path
-        accumPow.scaledCopy(
-            (float)(firstNode.patch.area / firstNode.probability),
-            McradP.topLevelStochasticRadiosityElement(firstNode.patch).sourceRad);
+        accumPow = (McradP.topLevelStochasticRadiosityElement(firstNode.patch).sourceRad).multiply((double)(firstNode.patch.getArea() / firstNode.probability));
         for ( int n = 1; n < path.numberOfNodes; n++ ) {
             StochasticRaytracingPathNode node = path.nodes[n];
             double[] uin = new double[] {0.0};
@@ -272,8 +263,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
             double[] vOut = new double[] {0.0};
             double r = 1.0;
             Patch patch = node.patch;
-            ColorRgbMutable Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
-            accumPow.scalarProduct(accumPow, Rd);
+            ColorRgb Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
+            accumPow = accumPow.multiply(Rd);
 
             patch.uniformUv(node.inPoint, uin, vin);
             if ( StochasticRelaxation.activeState().continuousRandomWalk == 0 ) {
@@ -285,46 +276,39 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
             }
 
             double w = randomWalkRadiosityScoreWeight(path, n);
-            GalerkinBasis basis = McradP.getTopLevelPatchBasis(patch);
+            StochasticRadiosityBasis basis = McradP.getTopLevelPatchBasis(patch);
             for ( int i = 0; i < basis.size; i++ ) {
-                double dual = basis.dualFunction[i].eval(uin[0], vin[0]) / patch.area;
-                McradP.getTopLevelPatchReceivedRad(patch)[i].addScaled(
-                    McradP.getTopLevelPatchReceivedRad(patch)[i],
-                    (float)(w * dual / (double)numberOfPaths),
-                    accumPow);
+                double dual = basis.dualFunction[i].eval(uin[0], vin[0]) / patch.getArea();
+                McradP.getTopLevelPatchReceivedRad(patch)[i] = (McradP.getTopLevelPatchReceivedRad(patch)[i]).addScaled((double)(w * dual / (double)numberOfPaths), accumPow);
 
                 if ( StochasticRelaxation.activeState().continuousRandomWalk == 0 ) {
                     double basf = basis.function[i].eval(uOut[0], vOut[0]);
-                    r += dual * patch.area * basf;
+                    r += dual * patch.getArea() * basf;
                 }
             }
 
-            accumPow.scale((float)(r / node.probability));
+            accumPow = accumPow.multiply((double)(r / node.probability));
         }
     }
 
     private static void randomWalkRadiosityShootingUpdate(Patch patch, double w) {
         double oldQuality = McradP.topLevelStochasticRadiosityElement(patch).quality;
-        McradP.topLevelStochasticRadiosityElement(patch).quality += (float)w;
+        McradP.topLevelStochasticRadiosityElement(patch).quality += (double)w;
         if ( McradP.topLevelStochasticRadiosityElement(patch).quality < VSDK.EPSILON ) {
             return;
         }
         double k = oldQuality / McradP.topLevelStochasticRadiosityElement(patch).quality;
 
         // Subtract self-emitted rad
-        McradP.getTopLevelPatchRad(patch)[0].subtract(
-            McradP.getTopLevelPatchRad(patch)[0], McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
+        McradP.getTopLevelPatchRad(patch)[0] = (McradP.getTopLevelPatchRad(patch)[0]).subtract(McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
 
         // Weight with previous results
-        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((float)k, McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchBasis(patch));
-        Coefficientsmcrad.stochasticRadiosityScaleCoefficients(
-            (1.0f - (float)k), McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
-        Coefficientsmcrad.stochasticRadiosityAddCoefficients(
-            McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((double)k, McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityScaleCoefficients( (1.0 - (double)k), McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityAddCoefficients( McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
 
         // Re-add self-emitted rad
-        McradP.getTopLevelPatchRad(patch)[0].add(
-            McradP.getTopLevelPatchRad(patch)[0], McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
+        McradP.getTopLevelPatchRad(patch)[0] = (McradP.getTopLevelPatchRad(patch)[0]).add(McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
 
         // Clear un-shot and received radiance
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchBasis(patch));
@@ -347,56 +331,44 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
                 1.0 / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent()));
         }
 
-        System.err.printf(
-            "Shooting iteration %d (%d paths, approximately %d rays)\n",
-            StochasticRelaxation.activeState().currentIteration,
-            numberOfWalks,
-            (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
+        System.err.printf( "Shooting iteration %d (%d paths, approximately %d rays)\n", StochasticRelaxation.activeState().currentIteration, numberOfWalks, (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
 
-        Tracepath.tracePaths(
-            sceneQuery,
-            sceneWorldSceneQueryWorkspace,
-            numberOfWalks,
-            RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower,
-            RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance,
-            RandomWalkRadianceMethod::randomWalkRadiosityShootingScore,
-            RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate,
-            scenePatches);
+        Tracepath.tracePaths( sceneQuery, sceneWorldSceneQueryWorkspace, numberOfWalks, RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower, RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance, RandomWalkRadianceMethod::randomWalkRadiosityShootingScore, RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate, scenePatches);
     }
 
     /**
 Determines control radiosity value for collision gathering estimator
 */
-    private static ColorRgbMutable randomWalkRadiosityDetermineGatheringControlRadiosity(ArrayList<Patch> scenePatches) {
-        ColorRgbMutable c1 = new ColorRgbMutable();
-        ColorRgbMutable c2 = new ColorRgbMutable();
-        ColorRgbMutable cr = new ColorRgbMutable();
+    private static ColorRgb randomWalkRadiosityDetermineGatheringControlRadiosity(ArrayList<Patch> scenePatches) {
+        ColorRgb c1 = new ColorRgb();
+        ColorRgb c2 = new ColorRgb();
+        ColorRgb cr = new ColorRgb();
 
-        c1.clear();
-        c2.clear();
+        c1 = new ColorRgb(0.0, 0.0, 0.0);
+        c2 = new ColorRgb(0.0, 0.0, 0.0);
 
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
             Patch patch = scenePatches.get(i);
-            ColorRgbMutable absorb = new ColorRgbMutable();
-            ColorRgbMutable rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
-            ColorRgbMutable Ed = McradP.topLevelStochasticRadiosityElement(patch).sourceRad;
-            ColorRgbMutable num = new ColorRgbMutable();
-            ColorRgbMutable denominator = new ColorRgbMutable();
+            ColorRgb absorb = new ColorRgb();
+            ColorRgb rho = McradP.topLevelStochasticRadiosityElement(patch).Rd;
+            ColorRgb Ed = McradP.topLevelStochasticRadiosityElement(patch).sourceRad;
+            ColorRgb num = new ColorRgb();
+            ColorRgb denominator = new ColorRgb();
 
-            absorb.setMonochrome(1.0f);
-            absorb.subtract(absorb, rho); // 1-rho
+            absorb = new ColorRgb(1.0, 1.0, 1.0);
+            absorb = absorb.subtract(rho); // 1-rho
 
-            num.scalarProduct(absorb, Ed);
-            c1.addScaled(c1, patch.area, num); // A_P (1-rho_P) E_P
+            num = absorb.multiply(Ed);
+            c1 = c1.addScaled(patch.getArea(), num); // A_P (1-rho_P) E_P
 
-            denominator.scalarProduct(absorb, absorb);
-            c2.addScaled(c2, patch.area, denominator); // A_P (1-rho_P)^2
+            denominator = absorb.multiply(absorb);
+            c2 = c2.addScaled(patch.getArea(), denominator); // A_P (1-rho_P)^2
         }
 
-        cr.divide(c1, c2);
+        cr = c1.divide(c2);
         System.err.printf("Control radiosity value = ");
-        cr.print(System.err);
-        System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
+        System.err.printf("%g %g %g", cr.getR(), cr.getG(), cr.getB());
+        System.err.printf(", luminosity = %g\n", StochasticRelaxation.activeState().toneMapOptions.getColorSpace().spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
 
         return cr;
     }
@@ -409,9 +381,9 @@ Determines control radiosity value for collision gathering estimator
         if ( numberOfPaths < 0 || birthProbability == null ) {
             // Keep C++ signature.
         }
-        ColorRgbMutable accumRad;
+        ColorRgb accumRad;
         int lastNodeIndex = path.numberOfNodes - 1;
-        accumRad = new ColorRgbMutable(
+        accumRad = new ColorRgb(
             McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getR(),
             McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getG(),
             McradP.topLevelStochasticRadiosityElement(path.nodes[lastNodeIndex].patch).sourceRad.getB());
@@ -423,8 +395,8 @@ Determines control radiosity value for collision gathering estimator
             double[] vOut = new double[] {0.0};
             double r = 1.0;
             Patch patch = node.patch;
-            ColorRgbMutable Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
-            accumRad.selfScalarProduct(Rd);
+            ColorRgb Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
+            accumRad = accumRad.multiply(Rd);
 
             patch.uniformUv(node.outpoint, uOut, vOut);
             if ( StochasticRelaxation.activeState().continuousRandomWalk == 0 ) {
@@ -435,11 +407,10 @@ Determines control radiosity value for collision gathering estimator
                 }
             }
 
-            GalerkinBasis basis = McradP.getTopLevelPatchBasis(patch);
+            StochasticRadiosityBasis basis = McradP.getTopLevelPatchBasis(patch);
             for ( int i = 0; i < basis.size; i++ ) {
                 double dual = basis.dualFunction[i].eval(uOut[0], vOut[0]); // = dual basis f * area
-                McradP.getTopLevelPatchReceivedRad(patch)[i].addScaled(
-                    McradP.getTopLevelPatchReceivedRad(patch)[i], (float)dual, accumRad);
+                McradP.getTopLevelPatchReceivedRad(patch)[i] = (McradP.getTopLevelPatchReceivedRad(patch)[i]).addScaled((double)dual, accumRad);
 
                 if ( StochasticRelaxation.activeState().continuousRandomWalk == 0 ) {
                     double basf = basis.function[i].eval(uin[0], vin[0]);
@@ -448,8 +419,8 @@ Determines control radiosity value for collision gathering estimator
             }
             McradP.topLevelStochasticRadiosityElement(patch).ng++;
 
-            accumRad.scale((float)(r / node.probability));
-            accumRad.add(accumRad, McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
+            accumRad = accumRad.multiply((double)(r / node.probability));
+            accumRad = accumRad.add(McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
         }
     }
 
@@ -458,42 +429,31 @@ Determines control radiosity value for collision gathering estimator
             // Keep C++ signature.
         }
         // Use un-shot rad for accumulating sum of contributions
-        Coefficientsmcrad.stochasticRadiosityAddCoefficients(
-            McradP.getTopLevelPatchUnShotRad(patch),
-            McradP.getTopLevelPatchReceivedRad(patch),
-            McradP.getTopLevelPatchBasis(patch));
-        Coefficientsmcrad.stochasticRadiosityCopyCoefficients(
-            McradP.getTopLevelPatchRad(patch),
-            McradP.getTopLevelPatchUnShotRad(patch),
-            McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityAddCoefficients( McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityCopyCoefficients( McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchUnShotRad(patch), McradP.getTopLevelPatchBasis(patch));
 
         // Divide by nr of samples
         if ( McradP.topLevelStochasticRadiosityElement(patch).ng > 0 ) {
-            Coefficientsmcrad.stochasticRadiosityScaleCoefficients(
-                (1.0f / McradP.topLevelStochasticRadiosityElement(patch).ng),
-                McradP.getTopLevelPatchRad(patch),
-                McradP.getTopLevelPatchBasis(patch));
+            Coefficientsmcrad.stochasticRadiosityScaleCoefficients( (1.0 / McradP.topLevelStochasticRadiosityElement(patch).ng), McradP.getTopLevelPatchRad(patch), McradP.getTopLevelPatchBasis(patch));
         }
 
         // Add source radiance (source term estimation suppression!)
-        McradP.getTopLevelPatchRad(patch)[0].add(
-            McradP.getTopLevelPatchRad(patch)[0], McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
+        McradP.getTopLevelPatchRad(patch)[0] = (McradP.getTopLevelPatchRad(patch)[0]).add(McradP.topLevelStochasticRadiosityElement(patch).sourceRad);
 
         if ( StochasticRelaxation.activeState().constantControlVariate != 0 ) {
             // Add constant control radiosity value
-            ColorRgbMutable cr = new ColorRgbMutable(
+            ColorRgb cr = new ColorRgb(
                 StochasticRelaxation.activeState().controlRadiance.getR(),
                 StochasticRelaxation.activeState().controlRadiance.getG(),
                 StochasticRelaxation.activeState().controlRadiance.getB());
             if ( StochasticRelaxation.activeState().indirectOnly != 0 ) {
-                ColorRgbMutable Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
-                cr.scalarProduct(Rd, StochasticRelaxation.activeState().controlRadiance);
+                ColorRgb Rd = McradP.topLevelStochasticRadiosityElement(patch).Rd;
+                cr = Rd.multiply(StochasticRelaxation.activeState().controlRadiance);
             }
-            McradP.getTopLevelPatchRad(patch)[0].add(McradP.getTopLevelPatchRad(patch)[0], cr);
+            McradP.getTopLevelPatchRad(patch)[0] = (McradP.getTopLevelPatchRad(patch)[0]).add(cr);
         }
 
-        Coefficientsmcrad.stochasticRadiosityClearCoefficients(
-            McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
+        Coefficientsmcrad.stochasticRadiosityClearCoefficients( McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
     }
 
     private static void randomWalkRadiosityDoGatheringIteration(
@@ -515,26 +475,13 @@ Determines control radiosity value for collision gathering estimator
         if ( StochasticRelaxation.activeState().constantControlVariate != 0
             && StochasticRelaxation.activeState().currentIteration == 1 ) {
             // Constant control variate for gathering random walk radiosity
-            StochasticRelaxation.activeState().controlRadiance =
-                randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches);
+            StochasticRelaxation.activeState().controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches);
             randomWalkRadiosityReduceSource(scenePatches); // Do this only once!
         }
 
-        System.err.printf(
-            "Collision gathering iteration %d (%d paths, approximately %d rays)\n",
-            StochasticRelaxation.activeState().currentIteration,
-            numberOfWalks,
-            (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
+        System.err.printf( "Collision gathering iteration %d (%d paths, approximately %d rays)\n", StochasticRelaxation.activeState().currentIteration, numberOfWalks, (long)Math.floor((double)numberOfWalks / (1.0 - Statistics.instance().radiance.averageReflectivity.maximumComponent())));
 
-        Tracepath.tracePaths(
-            sceneQuery,
-            sceneWorldSceneQueryWorkspace,
-            numberOfWalks,
-            RandomWalkRadianceMethod::randomWalkRadiosityPatchArea,
-            RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance,
-            RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore,
-            RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate,
-            scenePatches);
+        Tracepath.tracePaths( sceneQuery, sceneWorldSceneQueryWorkspace, numberOfWalks, RandomWalkRadianceMethod::randomWalkRadiosityPatchArea, RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance, RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore, RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate, scenePatches);
     }
 
     private static void randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement elem, double w) {
@@ -542,7 +489,7 @@ Determines control radiosity value for collision gathering estimator
             // Keep C++ signature.
         }
         Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
-        elem.sourceRad.set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
+        elem.sourceRad = new ColorRgb(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
     }
@@ -551,21 +498,12 @@ Determines control radiosity value for collision gathering estimator
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         long numberOfRays = StochasticRelaxation.activeState().initialNumberOfRays *
-            StochasticRadiosityBasisState.activeState()
-                .approxDesc[StochasticRelaxation.activeState().approximationOrderType.ordinal()].basis_size;
+            StochasticRadiosityBasisState.activeState() .approxDesc[StochasticRelaxation.activeState().approximationOrderType.ordinal()].basis_size;
         System.err.printf("First shot (%d rays):\n", numberOfRays);
-        StochasticJacobi.doStochasticJacobiIteration(
-            sceneQuery,
-            sceneWorldSceneQueryWorkspace,
-            numberOfRays,
-            RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance,
-            null,
-            RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination,
-            scenePatches,
-            renderOptions);
+        StochasticJacobi.doStochasticJacobiIteration( sceneQuery, sceneWorldSceneQueryWorkspace, numberOfRays, RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance, null, RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
         randomWalkRadiosityPrintStats();
     }
 
@@ -578,7 +516,7 @@ Determines control radiosity value for collision gathering estimator
     }
 
     @Override
-    public boolean doStep(Scene scene, RenderOptions renderOptions) {
+    public boolean doStep(Scene scene, RendererConfiguration renderOptions) {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
         StochasticRadiosityBasisState.setActiveState(stochasticRadiosityBasisState);
@@ -601,7 +539,7 @@ Determines control radiosity value for collision gathering estimator
         }
 
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-            Mcrad.monteCarloRadiosityPatchComputeNewColor(scene.patchList.get(i));
+            Mcrad.monteCarloRadiosityPatchComputeNewColor(scene.patchList.get(i), scene.getFaceColors());
         }
 
         return false; // Never converged

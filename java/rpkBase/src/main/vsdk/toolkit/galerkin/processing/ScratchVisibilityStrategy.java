@@ -6,27 +6,26 @@ with a Z-buffer visibility algorithm in software
 package vsdk.toolkit.galerkin.processing;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Matrix4x4f;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.processing.visitors.ScratchRendererVisitor;
-import vsdk.toolkit.render.sgl.SglConstants;
-import vsdk.toolkit.render.sgl.SglContext;
+import vsdk.toolkit.galerkin.GalerkinElementVisibilityBuffer;
+import vsdk.toolkit.render.sgl.Window;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 
 public class ScratchVisibilityStrategy {
     /**
 Create a scratch software renderer for various operations on clusters
 */
     public static void scratchInit(GalerkinState galerkinState) {
-        galerkinState.scratch = new SglContext(galerkinState.scratchFrameBufferSize, galerkinState.scratchFrameBufferSize);
-        galerkinState.scratch.sglDepthTesting(true);
+        galerkinState.scratch = new GalerkinElementVisibilityBuffer(
+            galerkinState.scratchFrameBufferSize, galerkinState.scratchFrameBufferSize, null);
     }
 
     /**
@@ -45,11 +44,11 @@ in cluster in the scratch frame buffer and returns pointer to a bounding box
 containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
-    public static BoundingBox scratchRenderElements(GalerkinElement cluster, Vector3Df eye, GalerkinState galerkinState) {
-        BoundingBox boundingBox = new BoundingBox();
+    public static RpkAxisAlignedBoundingBox scratchRenderElements(GalerkinElement cluster, Vector3Dd eye, GalerkinState galerkinState) {
+        RpkAxisAlignedBoundingBox boundingBox = galerkinState.getScratchBounds();
 
         if ( cluster.id == galerkinState.lastClusterId &&
-             Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON_FLOAT) ) {
+             Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON) ) {
             return boundingBox;
         }
 
@@ -58,36 +57,34 @@ into the virtual screen
         galerkinState.lastClusterId = cluster.id;
         galerkinState.lastEye = eye;
 
-        Vector3Df center = cluster.midPoint();
-        Vector3Df up = new Vector3Df(0.0f, 0.0f, 1.0f);
-        Vector3Df viewDirection = center.subtract(eye);
-        viewDirection = viewDirection.normalized(Numeric.EPSILON_FLOAT);
+        final Vector3Dd center = cluster.midPoint();
+        Vector3Dd up = new Vector3Dd(0.0, 0.0, 1.0);
+        Vector3Dd viewDirection;
+
+        viewDirection = center.subtract(eye);
+        viewDirection = viewDirection.normalized(Numeric.EPSILON);
         if ( Math.abs(up.dotProduct(viewDirection)) > 1.0 - VSDK.EPSILON ) {
-            up = new Vector3Df(0.0f, 1.0f, 0.0f);
+            up = new Vector3Dd(0.0, 1.0, 0.0);
         }
 
-        Matrix4x4f lookAt = Camera.lookAtMatrix(eye, center, up);
+        final Matrix4x4d lookAt = Camera.lookAtMatrix(eye, center, up);
 
         Camera.transformBoundingBox(cluster.geometry.getBoundingBox(), lookAt, boundingBox);
 
-        SglContext scratch = galerkinState.scratch;
-        Matrix4x4f o = Camera.projectionMatrixFromBoundingBox(boundingBox);
-        scratch.sglLoadMatrix(o);
-        scratch.sglMultiplyMatrix(lookAt);
+        GalerkinElementVisibilityBuffer scratch = galerkinState.scratch;
+        final Matrix4x4d projection = Camera.projectionMatrixFromBoundingBox(boundingBox);
+        scratch.setTransform(projection.multiply(lookAt));
 
-        // Choose a viewport depending on the relative size of the smallest
-        // surface element in the cluster to be rendered
-        int vpSize = (int)((boundingBox.dx() * boundingBox.dy()) / cluster.minimumArea);
-        if ( vpSize > galerkinState.scratch.width ) {
-            vpSize = galerkinState.scratch.width;
+        // Choose a viewport based on the smallest surface element in the cluster.
+        int viewportSize = (int)((boundingBox.dx() * boundingBox.dy()) / cluster.minimumArea);
+        if ( viewportSize < 32 ) {
+            viewportSize = 32;
         }
-        if ( vpSize < 32 ) {
-            vpSize = 32;
+        if ( viewportSize > scratch.getWidth() ) {
+            viewportSize = scratch.getWidth();
         }
-        scratch.sglViewport(0, 0, vpSize, vpSize);
-
-        // Render element pointers in the scratch frame buffer
-        scratch.sglClear(0x00, SglConstants.SGL_MAXIMUM_Z);
+        scratch.setViewport(0, 0, viewportSize, viewportSize);
+        scratch.clear();
 
         ScratchRendererVisitor leafVisitor = new ScratchRendererVisitor(eye, scratch);
         ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, cluster, galerkinState);
@@ -99,65 +96,67 @@ into the virtual screen
 After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
-    public static ColorRgbMutable scratchRadiance(GalerkinState galerkinState) {
-        ColorRgbMutable rad = new ColorRgbMutable();
-        rad.clear();
-        int nonBackGround = 0;
+    public static ColorRgb scratchRadiance(GalerkinState galerkinState) {
+        double[] rad = {0.0, 0.0, 0.0};
 
-        for ( int j = 0; j < galerkinState.scratch.vp_height; j++ ) {
-            int rowStart = j * galerkinState.scratch.width;
-            for ( int i = 0; i < galerkinState.scratch.vp_width; i++ ) {
-                Element elementBase = galerkinState.scratch.galerkinElementBuffer[rowStart + i];
-                if ( elementBase instanceof GalerkinElement ) {
-                    GalerkinElement element = (GalerkinElement)elementBase;
+        final GalerkinElementVisibilityBuffer scratch = galerkinState.scratch;
+        final Window viewport = scratch.getViewport();
+
+        int nonBackground = 0;
+        for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
+            for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+                final GalerkinElement element = scratch.getSample(x, y);
+                if ( element != null ) {
                     if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ||
                          galerkinState.isJacobi() ) {
-                        rad.add(rad, element.radiance[0]);
+                        rad[0] += element.radiance[0].getR();
+                        rad[1] += element.radiance[0].getG();
+                        rad[2] += element.radiance[0].getB();
+                    } else {
+                        rad[0] += element.unShotRadiance[0].getR();
+                        rad[1] += element.unShotRadiance[0].getG();
+                        rad[2] += element.unShotRadiance[0].getB();
                     }
-                    else {
-                        rad.add(rad, element.unShotRadiance[0]);
-                    }
-                    nonBackGround++;
+                    nonBackground++;
                 }
             }
         }
-        if ( nonBackGround > 0 ) {
-            rad.scale(1.0f / (float)(galerkinState.scratch.vp_width * galerkinState.scratch.vp_height));
+        if ( nonBackground > 0 ) {
+            final double scale = 1.0 / (double)(scratch.getViewportWidth() * scratch.getViewportHeight());
+            rad[0] *= scale;
+            rad[1] *= scale;
+            rad[2] *= scale;
         }
-        return rad;
+        return new ColorRgb(rad[0], rad[1], rad[2]);
     }
 
-    /**
-Computes the number of non background pixels
-*/
+    /** Computes the number of covered samples in the scratch viewport. */
     public static int scratchNonBackgroundPixels(GalerkinState galerkinState) {
-        int nonBackGround = 0;
+        final GalerkinElementVisibilityBuffer scratch = galerkinState.scratch;
+        final Window viewport = scratch.getViewport();
+        int nonBackground = 0;
 
-        for ( int j = 0; j < galerkinState.scratch.vp_height; j++ ) {
-            int rowStart = j * galerkinState.scratch.width;
-            for ( int i = 0; i < galerkinState.scratch.vp_width; i++ ) {
-                Element elementBase = galerkinState.scratch.galerkinElementBuffer[rowStart + i];
-                if ( elementBase != null ) {
-                    nonBackGround++;
+        for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
+            for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+                if ( scratch.getSample(x, y) != null ) {
+                    nonBackground++;
                 }
             }
         }
-        return nonBackGround;
+        return nonBackground;
     }
 
-    /**
-Counts the number of pixels occupied by each element. The result is
-accumulated in the tmp field of the elements. This field should be
-initialized to zero before
-*/
+    /** Accumulates coverage on the solver's top-level surface elements. */
     public static void scratchPixelsPerElement(GalerkinState galerkinState) {
-        for ( int i = 0; i < galerkinState.scratch.vp_height; i++ ) {
-            int rowStart = i * galerkinState.scratch.width;
-            for ( int j = 0; j < galerkinState.scratch.vp_width; j++ ) {
-                Element elementBase = galerkinState.scratch.galerkinElementBuffer[rowStart + j];
-                if ( elementBase instanceof GalerkinElement ) {
-                    GalerkinElement elem = (GalerkinElement)elementBase;
-                    elem.scratchVisibilityUsageCounter++;
+        final GalerkinElementVisibilityBuffer scratch = galerkinState.scratch;
+        final Window viewport = scratch.getViewport();
+
+        for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
+            for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+                final GalerkinElement element = scratch.getSample(x, y);
+                if ( element != null ) {
+                    // Cluster leaves are the same top-level elements bound to the scene faces.
+                    galerkinState.topLevelElement(element.patch).scratchVisibilityUsageCounter++;
                 }
             }
         }

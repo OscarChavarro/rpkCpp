@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.common;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -32,7 +32,7 @@ public abstract class RayTracer {
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions);
+        RendererConfiguration renderOptions);
 
     // Saves last ray-traced image in the file describe dby the image output handle
     public abstract boolean saveImage(ImageOutputHandle imageOutputHandle);
@@ -53,7 +53,7 @@ and performs raytracing
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         ImageOutputHandle img = null;
 

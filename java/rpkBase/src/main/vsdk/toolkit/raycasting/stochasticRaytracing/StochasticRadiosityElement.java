@@ -7,11 +7,11 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
@@ -22,32 +22,32 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.environment.geometry.elements.ElementTypes;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 import vsdk.toolkit.tonemap.ToneMap;
 
 public final class StochasticRadiosityElement extends Element {
     public Patch patch;
-    public Geometry geometry;
+    public RpkGeometry geometry;
     public long rayIndex; // Incremented each time a ray is shot from the element
-    public float quality; // For merging the result of multiple iterations
-    public float samplingProbability;
-    public float ng; // Number of samples gathered on the patch
+    public double quality; // For merging the result of multiple iterations
+    public double samplingProbability;
+    public double ng; // Number of samples gathered on the patch
 
-    public GalerkinBasis basis; // Radiosity approximation data
+    public StochasticRadiosityBasis basis; // Radiosity approximation data
     // Higher order approximations need an array of color values for representing radiance
-    public ColorRgbMutable sourceRad; // Always constant source radiosity
+    public ColorRgb sourceRad; // Always constant source radiosity
 
-    public float importance; // For view-importance driven sampling
-    public float unShotImportance;
-    public float receivedImportance;
-    public float sourceImportance;
+    public double importance; // For view-importance driven sampling
+    public double unShotImportance;
+    public double receivedImportance;
+    public double sourceImportance;
     public long importanceRayIndex; // Ray index for importance propagation
 
-    public Vector3Df midPoint;
-    public Vertex[] vertices; // Up to 4 vertex pointers for surface elements
+    public Vector3Dd midPoint;
+    public RpkVertex[] vertices; // Up to 4 vertex pointers for surface elements
     public byte childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     public byte numberOfVertices; // Number of surface element vertices
 
@@ -59,18 +59,18 @@ public final class StochasticRadiosityElement extends Element {
         patch = null;
         geometry = null;
         rayIndex = 0L;
-        quality = 0.0f;
-        samplingProbability = 0.0f;
-        ng = 0.0f;
+        quality = 0.0;
+        samplingProbability = 0.0;
+        ng = 0.0;
         basis = null;
-        sourceRad = new ColorRgbMutable();
-        importance = 0.0f;
-        unShotImportance = 0.0f;
-        receivedImportance = 0.0f;
-        sourceImportance = 0.0f;
+        sourceRad = new ColorRgb();
+        importance = 0.0;
+        unShotImportance = 0.0;
+        receivedImportance = 0.0;
+        sourceImportance = 0.0;
         importanceRayIndex = 0L;
-        midPoint = new Vector3Df();
-        vertices = new Vertex[4];
+        midPoint = new Vector3Dd();
+        vertices = new RpkVertex[4];
         childNumber = -1;
         numberOfVertices = 0;
         className = ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY;
@@ -87,7 +87,7 @@ public final class StochasticRadiosityElement extends Element {
         coefficientPoolsInitialized = 1;
     }
 
-    private static void vertexAttachElement(Vertex v, StochasticRadiosityElement elem) {
+    private static void vertexAttachElement(RpkVertex v, StochasticRadiosityElement elem) {
         elem.className = ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY;
         if ( v.radianceData == null ) {
             v.radianceData = new ArrayList<>();
@@ -102,23 +102,23 @@ public final class StochasticRadiosityElement extends Element {
         elem.geometry = null;
         elem.id = (int)nextId;
         nextId++;
-        elem.area = 0.0f;
+        elem.area = 0.0;
         Coefficientsmcrad.initCoefficients(elem); // Allocation of the coefficients is left until just before the first iteration
         // in Mcrad::monteCarloRadiosityReInit()
 
-        elem.Ed.clear();
-        elem.Rd.clear();
+        elem.Ed = new ColorRgb(0.0, 0.0, 0.0);
+        elem.Rd = new ColorRgb(0.0, 0.0, 0.0);
 
         elem.rayIndex = 0L;
         elem.quality = 0;
-        elem.ng = 0.0f;
+        elem.ng = 0.0;
 
-        elem.importance = 0.0f;
-        elem.unShotImportance = 0.0f;
-        elem.sourceImportance = 0.0f;
+        elem.importance = 0.0;
+        elem.unShotImportance = 0.0;
+        elem.sourceImportance = 0.0;
         elem.importanceRayIndex = 0L;
 
-        elem.midPoint = new Vector3Df(0.0f, 0.0f, 0.0f);
+        elem.midPoint = new Vector3Dd(0.0, 0.0, 0.0);
         elem.vertices[0] = elem.vertices[1] = elem.vertices[2] = elem.vertices[3] = null;
         elem.parent = null;
         elem.regularSubElements = null;
@@ -137,11 +137,11 @@ public final class StochasticRadiosityElement extends Element {
         StochasticRadiosityElement elem = createElement();
         elem.patch = patch;
         elem.flags = 0x00;
-        elem.area = patch.area;
+        elem.area = patch.getArea();
         elem.midPoint = patch.midPoint();
-        elem.numberOfVertices = patch.numberOfVertices;
+        elem.numberOfVertices = (byte)patch.getNumberOfVertices();
         for ( int i = 0; i < elem.numberOfVertices; i++ ) {
-            elem.vertices[i] = patch.vertex[i];
+            elem.vertices[i] = patch.getVertices()[i];
             vertexAttachElement(elem.vertices[i], elem);
         }
 
@@ -151,20 +151,20 @@ public final class StochasticRadiosityElement extends Element {
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
 
         elem.Ed = PatchVisitor.averageEmittance(patch, XxdfComponentFlag.DIFFUSE_COMPONENT);
-        elem.Ed.scaleInverse((float)Math.PI, elem.Ed);
+        elem.Ed = elem.Ed.scaleInverse((double)Math.PI);
         elem.Rd = PatchVisitor.averageNormalAlbedo(patch, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
 
         return elem;
     }
 
-    private static StochasticRadiosityElement monteCarloRadiosityCreateCluster(Geometry geometry) {
+    private static StochasticRadiosityElement monteCarloRadiosityCreateCluster(RpkGeometry geometry) {
         StochasticRadiosityElement elem = createElement();
 
         elem.geometry = geometry;
         elem.flags = ElementFlags.IS_CLUSTER_MASK;
 
-        elem.Rd.setMonochrome(1.0f);
-        elem.Ed.clear();
+        elem.Rd = new ColorRgb(1.0, 1.0, 1.0);
+        elem.Ed = new ColorRgb(0.0, 0.0, 0.0);
 
         // elem->area will be computed from the sub-elements in the cluster later
         elem.midPoint = geometry.boundingBox.center();
@@ -173,9 +173,9 @@ public final class StochasticRadiosityElement extends Element {
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.radiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
-        elem.importance = 0.0f;
-        elem.unShotImportance = 0.0f;
-        elem.receivedImportance = 0.0f;
+        elem.importance = 0.0;
+        elem.unShotImportance = 0.0;
+        elem.receivedImportance = 0.0;
 
         ElementHierarchyState.activeState().nr_clusters++;
 
@@ -183,7 +183,7 @@ public final class StochasticRadiosityElement extends Element {
     }
 
     private static void monteCarloRadiosityCreateSurfaceElementChild(Patch patch, StochasticRadiosityElement parent) {
-        StochasticRadiosityElement elem = (StochasticRadiosityElement)patch.radianceData; // Created before
+        StochasticRadiosityElement elem = McradP.topLevelStochasticRadiosityElement(patch); // Created before
         elem.parent = parent;
 
         elem.className = ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY;
@@ -193,7 +193,7 @@ public final class StochasticRadiosityElement extends Element {
         parent.irregularSubElements.add(elem);
     }
 
-    private static void monteCarloRadiosityCreateClusterChild(Geometry geometry, StochasticRadiosityElement parent) {
+    private static void monteCarloRadiosityCreateClusterChild(RpkGeometry geometry, StochasticRadiosityElement parent) {
         StochasticRadiosityElement subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geometry);
         subCluster.parent = parent;
         subCluster.className = ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY;
@@ -217,19 +217,19 @@ Initialises parent cluster radiance/importance/area for child voxelData
 
         // Needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
         // all children elements
-        parent.Ed.addScaled(parent.Ed, child.area, child.Ed);
+        parent.Ed = parent.Ed.addScaled(child.area, child.Ed);
     }
 
     private static void monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement parent) {
-        Geometry geometry = parent.geometry;
+        RpkGeometry geometry = parent.geometry;
 
         if ( geometry.isCompound() ) {
-            ArrayList<Geometry> geometryList = Geometry.primitiveListCopy(geometry);
+            ArrayList<RpkGeometry> geometryList = RpkGeometry.primitiveListCopy(geometry);
             for ( int i = 0; geometryList != null && i < geometryList.size(); i++ ) {
                 monteCarloRadiosityCreateClusterChild(geometryList.get(i), parent);
             }
         } else {
-            ArrayList<Patch> patchList = Geometry.patchListReference(geometry);
+            ArrayList<Patch> patchList = RpkGeometry.patchListReference(geometry);
             for ( int i = 0; patchList != null && i < patchList.size(); i++ ) {
                 monteCarloRadiosityCreateSurfaceElementChild(patchList.get(i), parent);
             }
@@ -238,17 +238,17 @@ Initialises parent cluster radiance/importance/area for child voxelData
         for ( int i = 0; parent.irregularSubElements != null && i < parent.irregularSubElements.size(); i++ ) {
             monteCarloRadiosityInitClusterPull(parent, (StochasticRadiosityElement)parent.irregularSubElements.get(i));
         }
-        parent.Ed.scaleInverse(parent.area, parent.Ed);
+        parent.Ed = parent.Ed.scaleInverse(parent.area);
     }
 
-    private static StochasticRadiosityElement monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry world) {
+    private static StochasticRadiosityElement monteCarloRadiosityCreateClusterHierarchyRecursive(RpkGeometry world) {
         StochasticRadiosityElement topCluster = monteCarloRadiosityCreateCluster(world);
         world.radianceData = topCluster;
         monteCarloRadiosityCreateClusterChildren(topCluster);
         return topCluster;
     }
 
-    public static StochasticRadiosityElement stochasticRadiosityElementCreateFromGeometry(Geometry world) {
+    public static StochasticRadiosityElement stochasticRadiosityElementCreateFromGeometry(RpkGeometry world) {
         if ( world == null ) {
             return null;
         } else {
@@ -374,51 +374,51 @@ point on the leaf element. 'top' is a surface element, not a cluster
         return leaf;
     }
 
-    private static Vector3Df monteCarloRadiosityInstallCoordinate(Vector3Df coord) {
-        Vector3Df v = new Vector3Df(coord.x(), coord.y(), coord.z());
+    private static Vector3Dd monteCarloRadiosityInstallCoordinate(Vector3Dd coord) {
+        Vector3Dd v = new Vector3Dd(coord.x(), coord.y(), coord.z());
         ElementHierarchyState.activeState().coords.add(v);
         return v;
     }
 
-    private static Vector3Df monteCarloRadiosityInstallNormal(Vector3Df normal) {
-        Vector3Df v = new Vector3Df(normal.x(), normal.y(), normal.z());
+    private static Vector3Dd monteCarloRadiosityInstallNormal(Vector3Dd normal) {
+        Vector3Dd v = new Vector3Dd(normal.x(), normal.y(), normal.z());
         ElementHierarchyState.activeState().normals.add(v);
         return v;
     }
 
-    private static Vector3Df monteCarloRadiosityInstallTexCoord(Vector3Df texCoord) {
-        Vector3Df t = new Vector3Df(texCoord.x(), texCoord.y(), texCoord.z());
+    private static Vector3Dd monteCarloRadiosityInstallTexCoord(Vector3Dd texCoord) {
+        Vector3Dd t = new Vector3Dd(texCoord.x(), texCoord.y(), texCoord.z());
         ElementHierarchyState.activeState().texCoords.add(t);
         return t;
     }
 
-    private static Vertex monteCarloRadiosityInstallVertex(Vector3Df coord, Vector3Df normal, Vector3Df texCoord) {
+    private static RpkVertex monteCarloRadiosityInstallVertex(Vector3Dd coord, Vector3Dd normal, Vector3Dd texCoord) {
         ArrayList<Patch> newPatchList = new ArrayList<>();
-        Vertex v = new Vertex(coord, normal, texCoord, newPatchList);
+        RpkVertex v = new RpkVertex(coord, normal, texCoord, newPatchList);
         ElementHierarchyState.activeState().vertices.add(v);
         return v;
     }
 
-    private static Vertex monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement elem, Vertex v1, Vertex v2) {
-        Vector3Df coord = new Vector3Df();
-        Vector3Df norm = new Vector3Df();
-        Vector3Df texCoord = new Vector3Df();
-        Vector3Df p;
-        Vector3Df n;
-        Vector3Df t;
+    private static RpkVertex monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement elem, RpkVertex v1, RpkVertex v2) {
+        Vector3Dd coord = new Vector3Dd();
+        Vector3Dd norm = new Vector3Dd();
+        Vector3Dd texCoord = new Vector3Dd();
+        Vector3Dd p;
+        Vector3Dd n;
+        Vector3Dd t;
 
-        coord = v1.point.add(v2.point).multiply(0.5f);
+        coord = v1.point.add(v2.point).multiply(0.5);
         p = monteCarloRadiosityInstallCoordinate(coord);
 
         if ( v1.normal != null && v2.normal != null ) {
-            norm = v1.normal.add(v2.normal).multiply(0.5f);
+            norm = v1.normal.add(v2.normal).multiply(0.5);
             n = monteCarloRadiosityInstallNormal(norm);
         } else {
             n = elem.patch.getNormal();
         }
 
         if ( v1.textureCoordinates != null && v2.textureCoordinates != null ) {
-            texCoord = v1.textureCoordinates.add(v2.textureCoordinates).multiply(0.5f);
+            texCoord = v1.textureCoordinates.add(v2.textureCoordinates).multiply(0.5);
             t = monteCarloRadiosityInstallTexCoord(texCoord);
         } else {
             t = null;
@@ -438,8 +438,8 @@ same edge with opposite orientation. Returns nullptr when no neighbour is
 found.
 */
     private static StochasticRadiosityElement monteCarloRadiosityElementNeighbour(StochasticRadiosityElement elem, int edgeNumber) {
-        Vertex from = elem.vertices[edgeNumber];
-        Vertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
+        RpkVertex from = elem.vertices[edgeNumber];
+        RpkVertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
 
         for ( int i = 0; to.radianceData != null && i < to.radianceData.size(); i++ ) {
             Element element = to.radianceData.get(i);
@@ -464,9 +464,9 @@ found.
         return null;
     }
 
-    public static Vertex stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement elem, int edgeNumber) {
-        Vertex v = null;
-        Vertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
+    public static RpkVertex stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement elem, int edgeNumber) {
+        RpkVertex v = null;
+        RpkVertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
         StochasticRadiosityElement neighbour = monteCarloRadiosityElementNeighbour(elem, edgeNumber);
 
         if ( neighbour != null && neighbour.regularSubElements != null ) {
@@ -527,23 +527,23 @@ found.
         return v;
     }
 
-    private static Vertex monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement elem, int edgeNumber) {
-        Vertex v = StochasticRadiosityElement.stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
+    private static RpkVertex monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement elem, int edgeNumber) {
+        RpkVertex v = StochasticRadiosityElement.stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
         if ( v == null ) {
             // First time we split the edge, create the midpoint vertex
-            Vertex from = elem.vertices[edgeNumber];
-            Vertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
+            RpkVertex from = elem.vertices[edgeNumber];
+            RpkVertex to = elem.vertices[(edgeNumber + 1) % elem.numberOfVertices];
             v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
         }
         return v;
     }
 
-    private static Vector3Df galerkinElementMidpoint(StochasticRadiosityElement elem) {
-        elem.midPoint = new Vector3Df(0.0f, 0.0f, 0.0f);
+    private static Vector3Dd galerkinElementMidpoint(StochasticRadiosityElement elem) {
+        elem.midPoint = new Vector3Dd(0.0, 0.0, 0.0);
         for ( int i = 0; i < elem.numberOfVertices; i++ ) {
             elem.midPoint = elem.midPoint.add(elem.vertices[i].point);
         }
-        elem.midPoint = elem.midPoint.multiplyByInverse(elem.numberOfVertices, Numeric.EPSILON_FLOAT);
+        elem.midPoint = elem.midPoint.multiplyByInverse(elem.numberOfVertices, Numeric.EPSILON);
 
         return elem.midPoint;
     }
@@ -556,7 +556,7 @@ Only for surface elements
             Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
             return false;
         }
-        RpkMaterial mat = elem.patch.material;
+        RpkMaterial mat = elem.patch.getMaterial();
         return mat.getBsdf() != null
             && (mat.getBsdf().splitBsdfIsTextured() || PhongEmittanceDistributionFunction.edfIsTextured());
     }
@@ -564,17 +564,17 @@ Only for surface elements
     /**
 Uses elem->Rd for surface elements
 */
-    public static float stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement elem) {
-        float rd;
+    public static double stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement elem) {
+        double rd;
 
         if ( elem.isCluster() ) {
-            return 1.0f;
+            return 1.0;
         }
 
-        rd = (float) elem.Rd.maximumComponent();
+        rd = (double)elem.Rd.maximumComponent();
         if ( rd < VSDK.EPSILON ) {
             // Avoid divisions by zero
-            rd = Numeric.EPSILON_FLOAT;
+            rd = Numeric.EPSILON;
         }
         return rd;
     }
@@ -590,55 +590,55 @@ Computes average reflectance and emittance of a surface sub-element
         long[] msb1 = new long[1];
         long[] rMostSignificantBit2 = new long[1];
         long[] n = new long[] {1};
-        ColorRgbMutable albedo = new ColorRgbMutable();
-        ColorRgbMutable emittance = new ColorRgbMutable();
-        RayHit hit = new RayHit();
-        hit.init(patch, patch.midPoint(), patch.getNormal(), patch.material);
+        ColorRgb albedo = new ColorRgb();
+        ColorRgb emittance = new ColorRgb();
+        RpkRayHit hit = new RpkRayHit();
+        hit.init(patch, patch.midPoint(), patch.getNormal(), patch.getMaterial());
 
         isTextured = StochasticRadiosityElement.stochasticRadiosityElementIsTextured(elem);
         numberOfSamples = isTextured ? 100 : 1;
-        albedo.clear();
-        emittance.clear();
+        albedo = new ColorRgb(0.0, 0.0, 0.0);
+        emittance = new ColorRgb(0.0, 0.0, 0.0);
         StochasticRadiosityElement.stochasticRadiosityElementRange(elem, nbits, msb1, rMostSignificantBit2);
 
         for ( int i = 0; i < numberOfSamples; i++, n[0]++ ) {
-            ColorRgbMutable sample;
+            ColorRgb sample;
             long[] xi = Niederreiter.NextNiedInRange(n, +1, nbits[0], msb1[0], rMostSignificantBit2[0]);
             hit.setUv((double)xi[0] * Niederreiter.RECIP, (double)xi[1] * Niederreiter.RECIP);
             hit.setPoint(patch.uniformPoint(hit.getUv().x, hit.getUv().y));
-            if ( patch.material.getBsdf() != null ) {
-                sample = new ColorRgbMutable(patch.material.getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
-                albedo.add(albedo, sample);
+            if ( patch.getMaterial().getBsdf() != null ) {
+                sample = new ColorRgb(patch.getMaterial().getBsdf().splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
+                albedo = albedo.add(sample);
             }
-            if ( patch.material.getEdf() != null ) {
-                sample = new ColorRgbMutable(patch.material.getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT));
-                emittance.add(emittance, sample);
+            if ( patch.getMaterial().getEdf() != null ) {
+                sample = new ColorRgb(patch.getMaterial().getEdf().phongEmittance(hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT));
+                emittance = emittance.add(sample);
             }
         }
-        elem.Rd.scaleInverse(numberOfSamples, albedo);
-        elem.Ed.scaleInverse(numberOfSamples, emittance);
+        elem.Rd = albedo.scaleInverse(numberOfSamples);
+        elem.Ed = emittance.scaleInverse(numberOfSamples);
     }
 
     /**
 Initial push operation for surface sub-elements
 */
     private static void monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement parent, StochasticRadiosityElement child) {
-        child.sourceRad = new ColorRgbMutable(parent.sourceRad.getR(), parent.sourceRad.getG(), parent.sourceRad.getB());
+        child.sourceRad = new ColorRgb(parent.sourceRad.getR(), parent.sourceRad.getG(), parent.sourceRad.getB());
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.radiance, child.radiance);
         StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(parent, child, parent.unShotRadiance, child.unShotRadiance);
 
-        float[] parentImportance = new float[] {parent.importance};
-        float[] childImportance = new float[] {child.importance};
+        double[] parentImportance = new double[] {parent.importance};
+        double[] childImportance = new double[] {child.importance};
         StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentImportance, childImportance);
         child.importance = childImportance[0];
 
-        float[] parentSourceImportance = new float[] {parent.sourceImportance};
-        float[] childSourceImportance = new float[] {child.sourceImportance};
+        double[] parentSourceImportance = new double[] {parent.sourceImportance};
+        double[] childSourceImportance = new double[] {child.sourceImportance};
         StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentSourceImportance, childSourceImportance);
         child.sourceImportance = childSourceImportance[0];
 
-        float[] parentUnShotImportance = new float[] {parent.unShotImportance};
-        float[] childUnShotImportance = new float[] {child.unShotImportance};
+        double[] parentUnShotImportance = new double[] {parent.unShotImportance};
+        double[] childUnShotImportance = new double[] {child.unShotImportance};
         StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentUnShotImportance, childUnShotImportance);
         child.unShotImportance = childUnShotImportance[0];
 
@@ -646,8 +646,8 @@ Initial push operation for surface sub-elements
         child.quality = parent.quality;
         child.samplingProbability = parent.samplingProbability * child.area / parent.area;
 
-        child.Rd = new ColorRgbMutable(parent.Rd.getR(), parent.Rd.getG(), parent.Rd.getB());
-        child.Ed = new ColorRgbMutable(parent.Ed.getR(), parent.Ed.getG(), parent.Ed.getB());
+        child.Rd = new ColorRgb(parent.Rd.getR(), parent.Rd.getG(), parent.Rd.getB());
+        child.Ed = new ColorRgb(parent.Ed.getR(), parent.Ed.getG(), parent.Ed.getB());
         monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(child);
     }
 
@@ -659,10 +659,10 @@ process of triangle subdivision.
     private static StochasticRadiosityElement monteCarloRadiosityCreateSurfaceSubElement(
         StochasticRadiosityElement parent,
         int childNumber,
-        Vertex v0,
-        Vertex v1,
-        Vertex v2,
-        Vertex v3)
+        RpkVertex v0,
+        RpkVertex v1,
+        RpkVertex v2,
+        RpkVertex v3)
     {
         StochasticRadiosityBasisState basisState = StochasticRadiosityBasisState.activeState();
         StochasticRadiosityElement elem = createElement();
@@ -678,7 +678,7 @@ process of triangle subdivision.
             vertexAttachElement(elem.vertices[i], elem);
         }
 
-        elem.area = 0.25f * parent.area; // Regular elements, regular subdivision
+        elem.area = 0.25 * parent.area; // Regular elements, regular subdivision
         elem.midPoint = galerkinElementMidpoint(elem);
 
         elem.parent = parent;
@@ -691,7 +691,7 @@ process of triangle subdivision.
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.radiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
-        elem.importance = elem.unShotImportance = elem.receivedImportance = 0.0f;
+        elem.importance = elem.unShotImportance = elem.receivedImportance = 0.0;
         monteCarloRadiosityInitSurfacePush(parent, elem);
 
         return elem;
@@ -700,13 +700,13 @@ process of triangle subdivision.
     /**
 Create sub-elements: regular subdivision, see drawings above
 */
-    private static StochasticRadiosityElement[] monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement element, RenderOptions renderOptions) {
-        Vertex v0 = element.vertices[0];
-        Vertex v1 = element.vertices[1];
-        Vertex v2 = element.vertices[2];
-        Vertex m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-        Vertex m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-        Vertex m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    private static StochasticRadiosityElement[] monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement element, RendererConfiguration renderOptions) {
+        RpkVertex v0 = element.vertices[0];
+        RpkVertex v1 = element.vertices[1];
+        RpkVertex v2 = element.vertices[2];
+        RpkVertex m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+        RpkVertex m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+        RpkVertex m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
 
         monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, m2, null);
         monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, null);
@@ -716,16 +716,16 @@ Create sub-elements: regular subdivision, see drawings above
         return castElementArray(element.regularSubElements);
     }
 
-    private static StochasticRadiosityElement[] monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement element, RenderOptions renderOptions) {
-        Vertex v0 = element.vertices[0];
-        Vertex v1 = element.vertices[1];
-        Vertex v2 = element.vertices[2];
-        Vertex v3 = element.vertices[3];
-        Vertex m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-        Vertex m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-        Vertex m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
-        Vertex m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
-        Vertex mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
+    private static StochasticRadiosityElement[] monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement element, RendererConfiguration renderOptions) {
+        RpkVertex v0 = element.vertices[0];
+        RpkVertex v1 = element.vertices[1];
+        RpkVertex v2 = element.vertices[2];
+        RpkVertex v3 = element.vertices[3];
+        RpkVertex m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+        RpkVertex m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+        RpkVertex m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+        RpkVertex m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
+        RpkVertex mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
 
         monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, mm, m3);
         monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, mm);
@@ -741,7 +741,7 @@ done so before. Returns the list of created sub-elements
 */
     public static StochasticRadiosityElement[] stochasticRadiosityElementRegularSubdivideElement(
         StochasticRadiosityElement element,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( element.regularSubElements != null ) {
             return castElementArray(element.regularSubElements);
@@ -828,11 +828,11 @@ done so before. Returns the list of created sub-elements
     public static void stochasticRadiosityElementPushRadiance(
         StochasticRadiosityElement parent,
         StochasticRadiosityElement child,
-        ColorRgbMutable[] parentRadiance,
-        ColorRgbMutable[] childRadiance)
+        ColorRgb[] parentRadiance,
+        ColorRgb[] childRadiance)
     {
         if ( parent.isCluster() || child.basis.size == 1 ) {
-            childRadiance[0].add(childRadiance[0], parentRadiance[0]);
+            childRadiance[0] = childRadiance[0].add(parentRadiance[0]);
         } else if ( regularChild(child) && child.basis == parent.basis ) {
             Basismcrad.filterColorDown(parentRadiance, child.basis.regularFilter[child.childNumber], childRadiance,
                 child.basis.size);
@@ -841,19 +841,19 @@ done so before. Returns the list of created sub-elements
         }
     }
 
-    public static void stochasticRadiosityElementPushImportance(float[] parentImportance, float[] childImportance) {
+    public static void stochasticRadiosityElementPushImportance(double[] parentImportance, double[] childImportance) {
         childImportance[0] += parentImportance[0];
     }
 
     public static void stochasticRadiosityElementPullRadiance(
         StochasticRadiosityElement parent,
         StochasticRadiosityElement child,
-        ColorRgbMutable[] parentRad,
-        ColorRgbMutable[] childRad)
+        ColorRgb[] parentRad,
+        ColorRgb[] childRad)
     {
-        float areaFactor = child.area / parent.area;
+        double areaFactor = child.area / parent.area;
         if ( parent.isCluster() || child.basis.size == 1 ) {
-            parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
+            parentRad[0] = parentRad[0].addScaled(areaFactor, childRad[0]);
         } else if ( regularChild(child) && child.basis == parent.basis ) {
             Basismcrad.filterColorUp(childRad, child.basis.regularFilter[child.childNumber],
                 parentRad, child.basis.size, areaFactor);
@@ -862,31 +862,30 @@ done so before. Returns the list of created sub-elements
         }
     }
 
-    public static void stochasticRadiosityElementPullImportance(StochasticRadiosityElement parent, StochasticRadiosityElement child, float[] parentImportance, float[] childImportance) {
+    public static void stochasticRadiosityElementPullImportance(StochasticRadiosityElement parent, StochasticRadiosityElement child, double[] parentImportance, double[] childImportance) {
         parentImportance[0] += child.area / parent.area * childImportance[0];
     }
 
-    public static ColorRgbMutable stochasticRadiosityElementColor(StochasticRadiosityElement element) {
-        ColorRgbMutable color = new ColorRgbMutable();
+    public static ColorRgb stochasticRadiosityElementColor(StochasticRadiosityElement element) {
+        ColorRgb color = new ColorRgb();
 
         switch ( StochasticRelaxation.activeState().show ) {
             case SHOW_TOTAL_RADIANCE:
             case SHOW_INDIRECT_RADIANCE:
-                ToneMap.radianceToRgb(
+                color = ToneMap.radianceToRgb(
                     StochasticRadiosityElement.stochasticRadiosityElementDisplayRadiance(element),
-                    color,
                     StochasticRelaxation.activeState().toneMapOptions);
                 break;
             case SHOW_IMPORTANCE: {
-                float gray;
+                double gray;
 
                 if ( element.importance > 1.0 ) {
-                    gray = 1.0f;
+                    gray = 1.0;
                 } else {
-                    gray = element.importance < 0.0 ? 0.0f : element.importance;
+                    gray = element.importance < 0.0 ? 0.0 : element.importance;
                 }
 
-                color.set(gray, gray, gray);
+                color = new ColorRgb(gray, gray, gray);
                 break;
             }
             default:
@@ -896,11 +895,11 @@ done so before. Returns the list of created sub-elements
         return color;
     }
 
-    private static ColorRgbMutable vertexRadiance(Vertex v) {
+    private static ColorRgb vertexRadiance(RpkVertex v) {
         int count = 0;
-        ColorRgbMutable radiance = new ColorRgbMutable();
+        ColorRgb radiance = new ColorRgb();
 
-        radiance.clear();
+        radiance = new ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; v.radianceData != null && i < v.radianceData.size(); i++ ) {
             Element element = v.radianceData.get(i);
             if ( element.className != ElementTypes.ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -908,14 +907,14 @@ done so before. Returns the list of created sub-elements
             }
             StochasticRadiosityElement elem = (StochasticRadiosityElement)element;
             if ( elem.regularSubElements == null ) {
-                ColorRgbMutable elementRadiosity = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadiance(elem);
-                radiance.add(radiance, elementRadiosity);
+                ColorRgb elementRadiosity = StochasticRadiosityElement.stochasticRadiosityElementDisplayRadiance(elem);
+                radiance = radiance.add(elementRadiosity);
                 count++;
             }
         }
 
         if ( count > 0 ) {
-            radiance.scaleInverse(count, radiance);
+            radiance = radiance.scaleInverse(count);
         }
 
         return radiance;
@@ -924,9 +923,9 @@ done so before. Returns the list of created sub-elements
     /**
 Same as above but for importance
 */
-    private static float vertexImportance(Vertex v) {
+    private static double vertexImportance(RpkVertex v) {
         int count = 0;
-        float imp = 0.0f;
+        double imp = 0.0;
 
         for ( int i = 0; v.radianceData != null && i < v.radianceData.size(); i++ ) {
             Element genericElement = v.radianceData.get(i);
@@ -941,30 +940,29 @@ Same as above but for importance
         }
 
         if ( count > 0 ) {
-            imp /= (float)count;
+            imp /= (double)count;
         }
 
         return imp;
     }
 
-    private static ColorRgbMutable vertexColor(Vertex v) {
+    private static ColorRgb vertexColor(RpkVertex v) {
         switch ( StochasticRelaxation.activeState().show ) {
             case SHOW_TOTAL_RADIANCE:
             case SHOW_INDIRECT_RADIANCE:
-                ToneMap.radianceToRgb(
+                v.color = ToneMap.radianceToRgb(
                     vertexRadiance(v),
-                    v.color,
                     StochasticRelaxation.activeState().toneMapOptions);
                 break;
             case SHOW_IMPORTANCE: {
-                float gray = vertexImportance(v);
+                double gray = vertexImportance(v);
                 if ( gray > 1.0 ) {
-                    gray = 1.0f;
+                    gray = 1.0;
                 }
                 if ( gray < 0.0 ) {
-                    gray = 0.0f;
+                    gray = 0.0;
                 }
-                v.color.set(gray, gray, gray);
+                v.color = new ColorRgb(gray, gray, gray);
                 break;
             }
             default:
@@ -989,7 +987,7 @@ Compute new vertex colors
 
     public static void stochasticRadiosityElementAdjustTVertexColors(Element element) {
         StochasticRadiosityElement stochasticRadiosityElement = (StochasticRadiosityElement)element;
-        Vertex[] m = new Vertex[4];
+        RpkVertex[] m = new RpkVertex[4];
         int n = 0;
         for ( int i = 0; i < stochasticRadiosityElement.numberOfVertices; i++ ) {
             m[i] = StochasticRadiosityElement.stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
@@ -999,53 +997,65 @@ Compute new vertex colors
         }
 
         if ( n > 0 ) {
-            ColorRgbMutable color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
+            ColorRgb color = StochasticRadiosityElement.stochasticRadiosityElementColor(stochasticRadiosityElement);
             for ( int i = 0; i < stochasticRadiosityElement.numberOfVertices; i++ ) {
                 if ( m[i] != null ) {
-                    m[i].color.r = (m[i].color.r + color.getR()) * 0.5f;
-                    m[i].color.g = (m[i].color.g + color.getG()) * 0.5f;
-                    m[i].color.b = (m[i].color.b + color.getB()) * 0.5f;
+                    m[i].color = new ColorRgb(
+                        (m[i].color.getR() + color.getR()) * 0.5,
+                        (m[i].color.getG() + color.getG()) * 0.5,
+                        (m[i].color.getB() + color.getB()) * 0.5);
                 }
             }
         }
     }
 
-    public static ColorRgbMutable stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement elem) {
-        ColorRgbMutable radiance = new ColorRgbMutable();
-        radiance.subtract(elem.radiance[0], elem.sourceRad);
+    public static ColorRgb stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement elem) {
+        ColorRgb radiance = new ColorRgb();
+        radiance = elem.radiance[0].subtract(elem.sourceRad);
 
         if ( StochasticRelaxation.activeState().show != WhatToShow.SHOW_INDIRECT_RADIANCE ) {
             // sourceRad is self-emitted radiance when indirect-only is disabled.
             // Otherwise it represents direct illumination.
-            radiance.add(radiance, elem.sourceRad);
+            radiance = radiance.add(elem.sourceRad);
             if ( StochasticRelaxation.activeState().indirectOnly != 0 || StochasticRelaxation.activeState().doNonDiffuseFirstShot != 0 ) {
                 // Add self-emitted radiance
-                radiance.add(radiance, elem.Ed);
+                radiance = radiance.add(elem.Ed);
             }
         }
         return radiance;
     }
 
-    public static ColorRgbMutable stochasticRadiosityElementDisplayRadianceAtPoint(
+    public static ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(
         StochasticRadiosityElement elem,
         double u,
         double v,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
-        ColorRgbMutable radiance = new ColorRgbMutable();
+        ColorRgb radiance = new ColorRgb();
         if ( elem.basis.size == 1 ) {
             if ( renderOptions.smoothShading ) {
                 // Do Gouraud interpolation if required
-                ColorRgbMutable[] rad = new ColorRgbMutable[4];
+                ColorRgb[] rad = new ColorRgb[4];
                 for ( int i = 0; i < elem.numberOfVertices; i++ ) {
                     rad[i] = vertexRadiance(elem.vertices[i]);
                 }
                 switch ( elem.numberOfVertices ) {
                     case 3:
-                        radiance.interpolateBarycentric(rad[0], rad[1], rad[2], (float)u, (float)v);
+                        radiance = new ColorRgb(
+                            rad[0].getR() + (double)u * (rad[1].getR() - rad[0].getR()) + (double)v * (rad[2].getR() - rad[0].getR()),
+                            rad[0].getG() + (double)u * (rad[1].getG() - rad[0].getG()) + (double)v * (rad[2].getG() - rad[0].getG()),
+                            rad[0].getB() + (double)u * (rad[1].getB() - rad[0].getB()) + (double)v * (rad[2].getB() - rad[0].getB()));
                         break;
                     case 4:
-                        radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float)u, (float)v);
+                        {
+                            final double cc = (double)u * (double)v;
+                            final double bb = (double)u - cc;
+                            final double dd = (double)v - cc;
+                            radiance = new ColorRgb(
+                                rad[0].getR() + bb * (rad[1].getR() - rad[0].getR()) + cc * (rad[2].getR() - rad[0].getR()) + dd * (rad[3].getR() - rad[0].getR()),
+                                rad[0].getG() + bb * (rad[1].getG() - rad[0].getG()) + cc * (rad[2].getG() - rad[0].getG()) + dd * (rad[3].getG() - rad[0].getG()),
+                                rad[0].getB() + bb * (rad[1].getB() - rad[0].getB()) + cc * (rad[2].getB() - rad[0].getB()) + dd * (rad[3].getB() - rad[0].getB()));
+                        }
                         break;
                     default:
                         Logger.reportMessage(null, Logger.FATAL_ERROR, "stochasticRadiosityElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
@@ -1058,7 +1068,7 @@ Compute new vertex colors
             // Higher order approximations
             radiance = Basismcrad.colorAtUv(elem.basis, elem.radiance, u, v);
             if ( StochasticRelaxation.activeState().show == WhatToShow.SHOW_INDIRECT_RADIANCE ) {
-                radiance.subtract(radiance, elem.sourceRad);
+                radiance = radiance.subtract(elem.sourceRad);
             }
         }
         return radiance;
@@ -1072,11 +1082,11 @@ Compute new vertex colors
         patch = inPatch;
     }
 
-    public Geometry getGeometry() {
+    public RpkGeometry getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(Geometry inGeometry) {
+    public void setGeometry(RpkGeometry inGeometry) {
         geometry = inGeometry;
     }
 

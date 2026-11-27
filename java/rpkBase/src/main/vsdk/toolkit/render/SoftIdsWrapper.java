@@ -1,35 +1,26 @@
 package vsdk.toolkit.render;
 
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.render.sgl.SglContext;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class SoftIdsWrapper {
-    private SglContext sgl; // Software rendering context, includes frame buffer
+    private final Scene scene;
+    private final FaceVisibilityBuffer target;
 
-    // Also performs the actual ID rendering
-    private void init(Scene scene, RenderOptions renderOptions) {
-        sgl = SoftIds.setupSoftFrameBuffer(scene.camera);
-        SoftIds.softRenderPatches(scene, renderOptions, sgl);
-    }
-
-    public SoftIdsWrapper(Scene scene, RenderOptions renderOptions) {
-        sgl = null;
-        init(scene, renderOptions);
+    public SoftIdsWrapper(Scene inScene, RendererConfiguration renderOptions) {
+        scene = inScene;
+        target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        SoftIds.renderVisibleFaces(scene, renderOptions, target);
     }
 
     public void getSize(long[] width, long[] height) {
-        if (width != null && width.length > 0) {
-            width[0] = sgl.width;
-        }
-        if (height != null && height.length > 0) {
-            height[0] = sgl.height;
-        }
+        width[0] = target.getWidth();
+        height[0] = target.getHeight();
     }
 
     public Patch getPatchAtPixel(int x, int y) {
-        int index = (sgl.height - 1 - y) * sgl.width + x;
-        return sgl.patchBuffer[index];
+        final SglFaceIndex face = target.getSample(x, target.getHeight() - 1 - y);
+        return face.isBackground() ? null : scene.getFace(face.getIndex());
     }
 }

@@ -1,25 +1,25 @@
 package vsdk.toolkit.io.bin.reader;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.material.RpkMaterial;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class BinaryModelReadCleanup {
     public static void cleanupPartialModel(
-        ArrayList<Vector3Df> vectors,
-        ArrayList<Vertex> vertices,
+        ArrayList<Vector3Dd> vectors,
+        ArrayList<RpkVertex> vertices,
         ArrayList<Patch> patches,
         ArrayList<RpkMaterial> materials,
-        ArrayList<Geometry> geometries,
+        ArrayList<RpkGeometry> geometries,
         ArrayList<ColorContext> colorContexts,
         ArrayList<ReaderContext> readerContexts,
         ArrayList<TransformSequenceContext> transformArrays,
@@ -28,7 +28,7 @@ public class BinaryModelReadCleanup {
         boolean hasGeometry = geometries != null && !geometries.isEmpty();
         boolean hasSurfaceGeometry = false;
         for (int i = 0; geometries != null && i < geometries.size(); i++) {
-            Geometry geometry = geometries.get(i);
+            RpkGeometry geometry = geometries.get(i);
             if (geometry != null && geometry.className == GeometryClassId.SURFACE_MESH) {
                 hasSurfaceGeometry = true;
                 break;
@@ -36,21 +36,15 @@ public class BinaryModelReadCleanup {
         }
 
         for (int i = 0; geometries != null && i < geometries.size(); i++) {
-            Geometry geometry = geometries.get(i);
+            RpkGeometry geometry = geometries.get(i);
             if (geometry != null) {
                 geometry.destroy();
             }
         }
 
         if (!hasGeometry || !hasSurfaceGeometry) {
-            for (int i = 0; patches != null && i < patches.size(); i++) {
-                Patch patch = patches.get(i);
-                if (patch != null) {
-                    patch.destroy();
-                }
-            }
             for (int i = 0; vertices != null && i < vertices.size(); i++) {
-                Vertex vertex = vertices.get(i);
+                RpkVertex vertex = vertices.get(i);
                 if (vertex != null) {
                     vertex.destroy();
                 }

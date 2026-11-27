@@ -4,8 +4,10 @@ Samples a random point on the view screen and traces the viewing ray.
 
 package vsdk.toolkit.raycasting.photonMap;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -34,7 +36,7 @@ newNode gets filled, others may change
         boolean doRR,
         byte flags)
     {
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
 
         // Pre-condition2: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
@@ -42,15 +44,15 @@ newNode gets filled, others may change
         double xSample = camera.pixelWidth * (double)camera.xSize * (-0.5 + x1);
         double ySample = camera.pixelHeight * (double)camera.ySize * (-0.5 + x2);
 
-        dir = camera.Z.add(camera.X.multiply((float)xSample)).add(camera.Y.multiply((float)ySample));
+        dir = camera.Z.add(camera.X.multiply((double)xSample)).add(camera.Y.multiply((double)ySample));
         double distScreen2 = dir.lengthSquared();
         double distScreen = Math.sqrt(distScreen2);
-        dir = dir.multiplyByInverse((float)distScreen, Numeric.EPSILON_FLOAT);
+        dir = dir.multiplyByInverse((double)distScreen, Numeric.EPSILON);
 
         double cosScreen = Math.abs(camera.Z.dotProduct(dir));
 
-        double pdfDir = ((1.0 / (camera.pixelWidth * (float)camera.xSize *
-                                camera.pixelHeight * (float)camera.ySize)) * // 1 / Area pixel
+        double pdfDir = ((1.0 / (camera.pixelWidth * (double)camera.xSize *
+                                camera.pixelHeight * (double)camera.ySize)) * // 1 / Area pixel
                          (distScreen2 / cosScreen));  // Spherical angle measure
 
         // Determine ray type
@@ -66,7 +68,7 @@ newNode gets filled, others may change
         // "Bsdf" in thisNode
 
         // Potential is one for all directions through a pixel
-        thisNode.m_bsdfEval.setMonochrome(1.0f);
+        thisNode.m_bsdfEval = new ColorRgb(1.0, 1.0, 1.0);
 
         // Make sure evaluation of eye components always includes the diff ref.
         thisNode.m_bsdfComp.Clear();
@@ -93,13 +95,13 @@ newNode gets filled, others may change
         double cosA;
         double cosB;
         double pdf;
-        Vector3Df outDir = new Vector3Df();
+        Vector3Dd outDir = new Vector3Dd();
 
         // More efficient with extra params?
         outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
         dist2 = outDir.lengthSquared();
         dist = Math.sqrt(dist2);
-        outDir = outDir.multiplyByInverse((float)dist, Numeric.EPSILON_FLOAT);
+        outDir = outDir.multiplyByInverse((double)dist, Numeric.EPSILON);
 
         // probabilityDensityFunction = 1 / A_screen transformed to area measure
         cosA = thisNode.m_normal.dotProduct(outDir);
@@ -110,7 +112,7 @@ newNode gets filled, others may change
         // Three cosines : r^2 / cos = 1 / cos^3 since r is length
         // of viewing ray to the screen.
         pdf = 1.0 /
-            (camera.pixelHeight * (float)camera.ySize * camera.pixelWidth * (float)camera.xSize * cosA * cosA * cosA);
+            (camera.pixelHeight * (double)camera.ySize * camera.pixelWidth * (double)camera.xSize * cosA * cosA * cosA);
 
         cosB = -newNode.m_normal.dotProduct(outDir);
         pdf = pdf * cosB / dist2;

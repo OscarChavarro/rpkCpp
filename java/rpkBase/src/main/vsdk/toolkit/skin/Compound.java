@@ -1,14 +1,14 @@
 package vsdk.toolkit.skin;
 
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.statistics.Statistics;
 
-public class Compound extends Geometry {
-    public ArrayList<Geometry> children;
+public class Compound extends RpkGeometry {
+    public ArrayList<RpkGeometry> children;
 
     /**
     Creates a Compound from a list of geometries.
@@ -16,11 +16,11 @@ public class Compound extends Geometry {
     Actually, it just counts the number of compounds in the scene and
     returns the geometry list.
     */
-    public Compound(ArrayList<Geometry> geometryList) {
+    public Compound(ArrayList<RpkGeometry> geometryList) {
         super(GeometryClassId.COMPOUND);
         Statistics.instance().reader.numberOfCompounds++;
         children = geometryList;
-        Geometry.listBounds(children, boundingBox);
+        RpkGeometry.listBounds(children, boundingBox);
         boundingBox.enlargeTinyBit();
         bounded = true;
     }
@@ -40,17 +40,17 @@ public class Compound extends Geometry {
     information about the intersection point. See geometry.h for more explanation.
     */
     @Override
-    public RayHit discretizationIntersect(
+    public RpkRayHit discretizationIntersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions) {
         if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
             return null;
         }
 
-        return Geometry.listDiscretizationIntersect(children, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
+        return RpkGeometry.listDiscretizationIntersect(children, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
 }

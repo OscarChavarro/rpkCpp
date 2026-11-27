@@ -1,75 +1,75 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public final class Coefficientsmcrad {
     private Coefficientsmcrad() {
     }
 
-    public static void stochasticRadiosityClearCoefficients(ColorRgbMutable[] c, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityClearCoefficients(ColorRgb[] c, StochasticRadiosityBasis galerkinBasis) {
         if ( c == null || galerkinBasis == null ) {
             return;
         }
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( c[i] == null ) {
-                c[i] = new ColorRgbMutable();
+                c[i] = new ColorRgb();
             }
-            c[i].clear();
+            c[i] = new ColorRgb(0.0, 0.0, 0.0);
         }
     }
 
-    public static void stochasticRadiosityCopyCoefficients(ColorRgbMutable[] dst, ColorRgbMutable[] src, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityCopyCoefficients(ColorRgb[] dst, ColorRgb[] src, StochasticRadiosityBasis galerkinBasis) {
         if ( dst == null || src == null || galerkinBasis == null ) {
             return;
         }
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( dst[i] == null ) {
-                dst[i] = new ColorRgbMutable();
+                dst[i] = new ColorRgb();
             }
             if ( src[i] == null ) {
-                src[i] = new ColorRgbMutable();
+                src[i] = new ColorRgb();
             }
-            dst[i].set(src[i].r, src[i].g, src[i].b);
+            dst[i] = src[i];
         }
     }
 
-    public static void stochasticRadiosityAddCoefficients(ColorRgbMutable[] dst, ColorRgbMutable[] extra, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityAddCoefficients(ColorRgb[] dst, ColorRgb[] extra, StochasticRadiosityBasis galerkinBasis) {
         if ( dst == null || extra == null || galerkinBasis == null ) {
             return;
         }
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( dst[i] == null ) {
-                dst[i] = new ColorRgbMutable();
+                dst[i] = new ColorRgb();
             }
             if ( extra[i] == null ) {
-                extra[i] = new ColorRgbMutable();
+                extra[i] = new ColorRgb();
             }
-            dst[i].add(dst[i], extra[i]);
+            dst[i] = dst[i].add(extra[i]);
         }
     }
 
-    public static void stochasticRadiosityScaleCoefficients(float scale, ColorRgbMutable[] color, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityScaleCoefficients(double scale, ColorRgb[] color, StochasticRadiosityBasis galerkinBasis) {
         if ( color == null || galerkinBasis == null ) {
             return;
         }
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( color[i] == null ) {
-                color[i] = new ColorRgbMutable();
+                color[i] = new ColorRgb();
             }
-            color[i].scale(scale);
+            color[i] = color[i].multiply(scale);
         }
     }
 
-    public static void stochasticRadiosityMultiplyCoefficients(ColorRgbMutable color, ColorRgbMutable[] coefficients, GalerkinBasis galerkinBasis) {
+    public static void stochasticRadiosityMultiplyCoefficients(ColorRgb color, ColorRgb[] coefficients, StochasticRadiosityBasis galerkinBasis) {
         if ( coefficients == null || galerkinBasis == null || color == null ) {
             return;
         }
-        ColorRgbMutable c = new ColorRgbMutable(color);
+        ColorRgb c = new ColorRgb(color);
         for ( int i = 0; i < galerkinBasis.size; i++ ) {
             if ( coefficients[i] == null ) {
-                coefficients[i] = new ColorRgbMutable();
+                coefficients[i] = new ColorRgb();
             }
-            coefficients[i].selfScalarProduct(c);
+            coefficients[i] = coefficients[i].multiply(c);
         }
     }
 
@@ -88,7 +88,7 @@ Disposes previously allocated coefficients
     /**
 Determines basis based on element type and currently desired approximation
 */
-    private static GalerkinBasis actualBasis(StochasticRadiosityElement elem) {
+    private static StochasticRadiosityBasis actualBasis(StochasticRadiosityElement elem) {
         if ( elem.isCluster() ) {
             return StochasticRadiosityBasisState.activeState().clusterBasis;
         }
@@ -137,10 +137,10 @@ Basically sets rad to nullptr
         elem.basis = StochasticRadiosityBasisState.activeState().dummyBasis;
     }
 
-    private static ColorRgbMutable[] createColors(int n) {
-        ColorRgbMutable[] data = new ColorRgbMutable[n];
+    private static ColorRgb[] createColors(int n) {
+        ColorRgb[] data = new ColorRgb[n];
         for ( int i = 0; i < n; i++ ) {
-            data[i] = new ColorRgbMutable();
+            data[i] = new ColorRgb();
         }
         return data;
     }

@@ -5,10 +5,12 @@ It's kind of a dual of a pixel sampler.
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
@@ -45,9 +47,11 @@ public class LightDirSampler extends Sampler {
         }
 
         // Sample a light direction
-        Vector3Df dir = new Vector3Df(0.0f, 0.0f, 0.0f);
+        Vector3Dd dir = new Vector3Dd(0.0, 0.0, 0.0);
         if ( thisNode.m_hit.getMaterial().getEdf() != null ) {
-            dir = thisNode.m_hit.getMaterial().getEdf().phongEdfSample(thisNode.m_hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT, x1, x2, thisNode.m_bsdfEval, pdfDir);
+            final ColorRgb[] emittedRadiance = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
+            dir = thisNode.m_hit.getMaterial().getEdf().phongEdfSample(thisNode.m_hit.shadingContext(), XxdfComponentFlag.DIFFUSE_COMPONENT, x1, x2, emittedRadiance, pdfDir);
+            thisNode.m_bsdfEval = emittedRadiance[0];
         }
 
         if ( pdfDir[0] < VSDK.EPSILON ) {
@@ -90,7 +94,7 @@ public class LightDirSampler extends Sampler {
         double cosA;
         double dist;
         double dist2;
-        Vector3Df outDir = new Vector3Df();
+        Vector3Dd outDir = new Vector3Dd();
 
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {
             Logger.reportMessage(this, Logger.ERROR, "CLightDirSampler::evalPdf", "No EDF");
@@ -101,7 +105,7 @@ public class LightDirSampler extends Sampler {
         outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
         dist2 = outDir.lengthSquared();
         dist = Math.sqrt(dist2);
-        outDir = outDir.multiplyByInverse((float)dist, Numeric.EPSILON_FLOAT);
+        outDir = outDir.multiplyByInverse((double)dist, Numeric.EPSILON);
 
         // EDF sampling
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {

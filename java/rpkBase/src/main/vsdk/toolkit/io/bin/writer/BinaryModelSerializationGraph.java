@@ -3,7 +3,7 @@ package vsdk.toolkit.io.bin.writer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;
@@ -11,19 +11,19 @@ import vsdk.toolkit.io.context.TransformSequenceContext;
 import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class BinaryModelSerializationGraph {
-    public IdentityHashMap<Vector3Df, Integer> vectorIndices = new IdentityHashMap<>();
-    public ArrayList<Vector3Df> vectors = new ArrayList<>();
+    public IdentityHashMap<Vector3Dd, Integer> vectorIndices = new IdentityHashMap<>();
+    public ArrayList<Vector3Dd> vectors = new ArrayList<>();
 
-    public IdentityHashMap<Vertex, Integer> vertexIndices = new IdentityHashMap<>();
-    public ArrayList<Vertex> vertices = new ArrayList<>();
+    public IdentityHashMap<RpkVertex, Integer> vertexIndices = new IdentityHashMap<>();
+    public ArrayList<RpkVertex> vertices = new ArrayList<>();
 
     public IdentityHashMap<Patch, Integer> patchIndices = new IdentityHashMap<>();
     public ArrayList<Patch> patches = new ArrayList<>();
@@ -31,8 +31,8 @@ public class BinaryModelSerializationGraph {
     public IdentityHashMap<RpkMaterial, Integer> materialIndices = new IdentityHashMap<>();
     public ArrayList<RpkMaterial> materials = new ArrayList<>();
 
-    public IdentityHashMap<Geometry, Integer> geometryIndices = new IdentityHashMap<>();
-    public ArrayList<Geometry> geometries = new ArrayList<>();
+    public IdentityHashMap<RpkGeometry, Integer> geometryIndices = new IdentityHashMap<>();
+    public ArrayList<RpkGeometry> geometries = new ArrayList<>();
 
     public IdentityHashMap<ColorContext, Integer> colorContextIndices = new IdentityHashMap<>();
     public ArrayList<ColorContext> colorContexts = new ArrayList<>();
@@ -46,7 +46,7 @@ public class BinaryModelSerializationGraph {
     public IdentityHashMap<TransformStackContext, Integer> transformContextIndices = new IdentityHashMap<>();
     public ArrayList<TransformStackContext> transformContexts = new ArrayList<>();
 
-    public boolean ensureVector(Vector3Df value) {
+    public boolean ensureVector(Vector3Dd value) {
         if (value == null) {
             return true;
         }
@@ -72,7 +72,7 @@ public class BinaryModelSerializationGraph {
         return true;
     }
 
-    public boolean ensureVertex(Vertex value) {
+    public boolean ensureVertex(RpkVertex value) {
         if (value == null) {
             return true;
         }
@@ -121,31 +121,26 @@ public class BinaryModelSerializationGraph {
             return true;
         }
 
-        if (value.radianceData != null) {
-            Logger.reportMessage(this, Logger.ERROR, "BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
-            return false;
-        }
-
         int index = patches.size();
         patches.add(value);
         patchIndices.put(value, index);
 
         for (int i = 0; i < Patch.MAXIMUM_VERTICES_PER_PATCH; i++) {
-            if (!ensureVertex(value.vertex[i])) {
+            if (!ensureVertex(value.getVertices()[i])) {
                 return false;
             }
         }
-        if (!ensurePatch(value.twin)) {
+        if (!ensurePatch(value.getTwin())) {
             return false;
         }
-        if (!ensureMaterial(value.material)) {
+        if (!ensureMaterial(value.getMaterial())) {
             return false;
         }
 
         return true;
     }
 
-    public boolean ensureGeometry(Geometry value) {
+    public boolean ensureGeometry(RpkGeometry value) {
         if (value == null) {
             return true;
         }
@@ -256,7 +251,7 @@ public class BinaryModelSerializationGraph {
         return ensureTransformContext(value.prev);
     }
 
-    public boolean collectVectorList(ArrayList<Vector3Df> list) {
+    public boolean collectVectorList(ArrayList<Vector3Dd> list) {
         if (list == null) {
             return true;
         }
@@ -268,7 +263,7 @@ public class BinaryModelSerializationGraph {
         return true;
     }
 
-    public boolean collectVertexList(ArrayList<Vertex> list) {
+    public boolean collectVertexList(ArrayList<RpkVertex> list) {
         if (list == null) {
             return true;
         }
@@ -304,7 +299,7 @@ public class BinaryModelSerializationGraph {
         return true;
     }
 
-    public boolean collectGeometryList(ArrayList<Geometry> list) {
+    public boolean collectGeometryList(ArrayList<RpkGeometry> list) {
         if (list == null) {
             return true;
         }

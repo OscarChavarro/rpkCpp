@@ -2,9 +2,9 @@ package vsdk.toolkit.scene;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -27,20 +27,20 @@ public abstract class RadianceMethod {
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
-    public abstract boolean doStep(Scene scene, RenderOptions renderOptions);
+    public abstract boolean doStep(Scene scene, RendererConfiguration renderOptions);
 
     // Terminates radiance computations on the current scene
     public abstract void terminate(ArrayList<Patch> scenePatches);
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    public abstract ColorRgbMutable getRadiance(
+    public abstract ColorRgb getRadiance(
         Camera camera,
         Patch patch,
         double u,
         double v,
-        Vector3Df dir,
-        RenderOptions renderOptions);
+        Vector3Dd dir,
+        RendererConfiguration renderOptions);
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     public abstract Element createPatchData(Patch patch);
@@ -57,5 +57,5 @@ public abstract class RadianceMethod {
     public abstract void writeVRML(
         Camera camera,
         OutputStream outputStream,
-        RenderOptions renderOptions);
+        RendererConfiguration renderOptions);
 }

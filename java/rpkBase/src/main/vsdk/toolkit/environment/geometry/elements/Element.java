@@ -1,9 +1,9 @@
 package vsdk.toolkit.environment.geometry.elements;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 
 public class Element {
@@ -12,16 +12,16 @@ public class Element {
     }
 
     public interface ElementRenderTraversalCallback {
-        void apply(Element element, RenderOptions renderOptions);
+        void apply(Element element, RendererConfiguration renderOptions);
     }
 
     public int id; // Unique ID number for the element
-    public ColorRgbMutable Ed; // Diffuse emittance radiance
-    public ColorRgbMutable Rd; // Reflectance
-    public ColorRgbMutable[] radiance; // Total radiance on the element as computed so far
-    public ColorRgbMutable[] receivedRadiance; // Radiance received during iteration
-    public ColorRgbMutable[] unShotRadiance; // For progressive refinement radiosity
-    public float area; // Area of all surfaces contained in the element
+    public ColorRgb Ed; // Diffuse emittance radiance
+    public ColorRgb Rd; // Reflectance
+    public ColorRgb[] radiance; // Total radiance on the element as computed so far
+    public ColorRgb[] receivedRadiance; // Radiance received during iteration
+    public ColorRgb[] unShotRadiance; // For progressive refinement radiosity
+    public double area; // Area of all surfaces contained in the element
     public int className;
     public int flags;
 
@@ -38,12 +38,12 @@ public class Element {
 
     public Element() {
         id = 0;
-        Ed = new ColorRgbMutable();
-        Rd = new ColorRgbMutable();
+        Ed = new ColorRgb();
+        Rd = new ColorRgb();
         radiance = null;
         receivedRadiance = null;
         unShotRadiance = null;
-        area = 0.0f;
+        area = 0.0;
         className = 0;
         flags = 0x00;
 
@@ -52,8 +52,8 @@ public class Element {
         irregularSubElements = null;
         transformToParent = null;
 
-        Ed.clear();
-        Rd.clear();
+        Ed = new ColorRgb(0.0, 0.0, 0.0);
+        Rd = new ColorRgb(0.0, 0.0, 0.0);
     }
 
     public boolean isCluster() {
@@ -126,7 +126,7 @@ public class Element {
         }
     }
 
-    public void traverseQuadTreeLeafs(ElementRenderTraversalCallback traversalCallbackFunction, RenderOptions renderOptions) {
+    public void traverseQuadTreeLeafs(ElementRenderTraversalCallback traversalCallbackFunction, RendererConfiguration renderOptions) {
         if (regularSubElements == null) {
             // Trivial case
             traversalCallbackFunction.apply(this, renderOptions);

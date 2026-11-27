@@ -4,14 +4,14 @@ import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupBatch;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.Canvas;
 import vsdk.toolkit.render.RadianceImageExporter;
-import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkGeometry;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -28,7 +28,7 @@ public final class Batch {
             RadianceMethod radianceMethod,
             RayTracer rayTracer,
             ToneMappingContext toneMapOptions,
-            RenderOptions renderOptions);
+            RendererConfiguration renderOptions);
     }
 
     private static final BatchOptions batchOptions = new BatchOptions();
@@ -53,7 +53,7 @@ public final class Batch {
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( radianceMethod != null || toneMapOptions != null || renderOptions != null ) {
             // Parameters intentionally unused in C++ implementation.
@@ -71,7 +71,7 @@ This routine was copied from uit.c, leaving out all interface related things
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         int[] isPipe = new int[] {0};
         OutputStream outputStream = FileUncompressWrapper.openOutputStreamCompressWrapper(fileName, isPipe);
@@ -98,7 +98,7 @@ This routine was copied from uit.c, leaving out all interface related things
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( rayTracer != null ) {
             // Parameter intentionally unused in C++ implementation.
@@ -142,7 +142,7 @@ This routine was copied from uit.c, leaving out all interface related things
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( isPipe != 0 || rayTracer != null || toneMapOptions != null ) {
             // Parameters intentionally unused in C++ implementation.
@@ -183,12 +183,12 @@ This routine was copied from uit.c, leaving out all interface related things
     */
     private static void fitCameraClippingPlanes(Scene scene) {
         if ( scene.geometryList == null || scene.geometryList.size() == 0 ) {
-            scene.camera.far = 10.0F;
-            scene.camera.near = 0.1F;
+            scene.camera.far = 10.0;
+            scene.camera.near = 0.1;
             return;
         }
-        BoundingBox bounds = new BoundingBox();
-        Geometry.listBounds(scene.geometryList, bounds);
+        RpkAxisAlignedBoundingBox bounds = new RpkAxisAlignedBoundingBox();
+        RpkGeometry.listBounds(scene.geometryList, bounds);
         scene.camera.fitClippingPlanes(bounds);
     }
 
@@ -197,7 +197,7 @@ This routine was copied from uit.c, leaving out all interface related things
         RadianceMethod radianceMethod,
         RayTracer rayTracer,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( scene == null || scene.geometryList == null || scene.geometryList.size() == 0 ) {
             System.out.printf("Empty world? Missing argument to some command line parameter option?\n");
@@ -207,7 +207,7 @@ This routine was copied from uit.c, leaving out all interface related things
         Batch.currentRayTracer = rayTracer;
 
         long startTime = System.nanoTime();
-        float wastedSecs = 0.0f;
+        double wastedSecs = 0.0;
 
         if ( radianceMethod != null ) {
             System.out.printf("Doing %s ...\n", radianceMethod.getRadianceMethodName());
@@ -281,7 +281,7 @@ This routine was copied from uit.c, leaving out all interface related things
                         renderOptions);
                 }
 
-                wastedSecs += (float)((double)(wastedStart - System.nanoTime()) / 1000000000.0);
+                wastedSecs += (double)((double)(wastedStart - System.nanoTime()) / 1000000000.0);
 
                 System.out.flush();
                 System.err.flush();

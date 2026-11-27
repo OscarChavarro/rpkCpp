@@ -1,19 +1,19 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
-import vsdk.toolkit.render.sgl.SglContext;
+import vsdk.toolkit.galerkin.GalerkinElementVisibilityBuffer;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class ScratchRendererVisitor implements ClusterLeafVisitor {
-    private Vector3Df eyePoint;
-    private SglContext sglContext;
+    private final Vector3Dd eyePoint;
+    private final GalerkinElementVisibilityBuffer target;
 
-    public ScratchRendererVisitor(Vector3Df inEyePoint, SglContext inSglContext) {
+    public ScratchRendererVisitor(Vector3Dd inEyePoint, GalerkinElementVisibilityBuffer inTarget) {
         eyePoint = inEyePoint;
-        sglContext = inSglContext;
+        target = inTarget;
     }
 
     @Override
@@ -25,28 +25,23 @@ public final class ScratchRendererVisitor implements ClusterLeafVisitor {
         if ( patch == null ) {
             return;
         }
-        Vector3Df[] v = new Vector3Df[4];
+        Vector3Dd[] v = new Vector3Dd[4];
 
         // Backface culling test: only render the element if it is turned towards
         // the current eye point
-        if ( patch.getNormal().dotProduct(eyePoint) + patch.planeConstant < VSDK.EPSILON ) {
+        if ( patch.getNormal().dotProduct(eyePoint) + patch.getPlaneConstant() < VSDK.EPSILON ) {
             return;
         }
 
-        for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            if ( patch.vertex[i] != null && patch.vertex[i].point != null ) {
-                v[i] = new Vector3Df(patch.vertex[i].point.x(), patch.vertex[i].point.y(), patch.vertex[i].point.z());
+        for ( int i = 0; i < patch.getNumberOfVertices(); i++ ) {
+            if ( patch.getVertices()[i] != null && patch.getVertices()[i].point != null ) {
+                v[i] = new Vector3Dd(patch.getVertices()[i].point.x(), patch.getVertices()[i].point.y(), patch.getVertices()[i].point.z());
             }
             else {
-                v[i] = new Vector3Df();
+                v[i] = new Vector3Dd();
             }
         }
 
-        if ( sglContext == null ) {
-            return;
-        }
-
-        sglContext.sglSetGalerkinElement(galerkinElement);
-        sglContext.sglPolygon(patch.numberOfVertices, v);
+        target.drawPolygon(patch.getNumberOfVertices(), v, galerkinElement);
     }
 }

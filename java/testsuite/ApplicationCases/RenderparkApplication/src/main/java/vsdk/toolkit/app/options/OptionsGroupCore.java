@@ -1,8 +1,8 @@
 package vsdk.toolkit.app.options;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
@@ -19,7 +19,7 @@ public final class OptionsGroupCore {
     private static final int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
     private static final boolean DEFAULT_FORCE_ONE_SIDED = true;
     private static final boolean DEFAULT_NATIVE_RNG_ENABLED = true;
-    private static final ColorRgbMutable DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
+    private static final ColorRgb DEFAULT_BACKGROUND_COLOR = new ColorRgb(0.0, 0.0, 0.0);
 
     private static int numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     private static int fileOptionsForceOneSidedSurfaces = 0;
@@ -28,7 +28,7 @@ public final class OptionsGroupCore {
     private static int glutDebugEnabled = 0;
     private static boolean nativeRandomNumberGeneratorEnabled = DEFAULT_NATIVE_RNG_ENABLED;
     private static EnumBackgroundMode backgroundMode = EnumBackgroundMode.NONE;
-    private static ColorRgbMutable backgroundColor = new ColorRgbMutable(
+    private static ColorRgb backgroundColor = new ColorRgb(
         DEFAULT_BACKGROUND_COLOR.getR(),
         DEFAULT_BACKGROUND_COLOR.getG(),
         DEFAULT_BACKGROUND_COLOR.getB());
@@ -38,14 +38,14 @@ public final class OptionsGroupCore {
     }
 
     /**
-    -scene-acceleration legacy|voxel|wald2007|bruteforce: the spatial index of
+    -scene-acceleration voxel|wald2007|bruteforce: the spatial index of
     the scene query (SceneAccelerationMethod); wald2007 by default
     */
     private static void sceneAccelerationOption(TypedOption.MutableValue<String> value) {
         SceneAccelerationMethod method = SceneQuery.methodFromName(value.value);
         if ( method == null ) {
             Logger.reportMessage(null, Logger.ERROR, "", String.format(
-                "Invalid scene acceleration '%s' (legacy, voxel, wald2007 or bruteforce)", value.value));
+                "Invalid scene acceleration '%s' (voxel, wald2007 or bruteforce)", value.value));
         }
         else {
             sceneAccelerationMethod = method;
@@ -57,7 +57,7 @@ public final class OptionsGroupCore {
         String[] argv,
         ParseRuntimeContext parseSession,
         Scene scene,
-        RenderOptions renderOptions,
+        RendererConfiguration renderOptions,
         ToneMappingContext toneMapOptions,
         int[] imageOutputWidth,
         int[] imageOutputHeight,
@@ -107,13 +107,13 @@ public final class OptionsGroupCore {
         return null;
     }
 
-    private static boolean commandLineParseFloat(String text, float[] value) {
+    private static boolean commandLineParseFloat(String text, double[] value) {
         if ( text == null || value == null || value.length == 0 ) {
             return false;
         }
 
         try {
-            value[0] = Float.parseFloat(text);
+            value[0] = Double.parseDouble(text);
             return true;
         }
         catch ( NumberFormatException e ) {
@@ -121,10 +121,10 @@ public final class OptionsGroupCore {
         }
     }
 
-    private static boolean commandLineParseBackgroundColor(String rArg, String gArg, String bArg, ColorRgbMutable color) {
-        float[] red = new float[1];
-        float[] green = new float[1];
-        float[] blue = new float[1];
+    private static boolean commandLineParseBackgroundColor(String rArg, String gArg, String bArg, ColorRgb[] color) {
+        double[] red = new double[1];
+        double[] green = new double[1];
+        double[] blue = new double[1];
 
         if ( !OptionsGroupCore.commandLineParseFloat(rArg, red)
              || !OptionsGroupCore.commandLineParseFloat(gArg, green)
@@ -132,13 +132,13 @@ public final class OptionsGroupCore {
             return false;
         }
 
-        if ( red[0] < 0.0f || red[0] > 1.0f
-             || green[0] < 0.0f || green[0] > 1.0f
-             || blue[0] < 0.0f || blue[0] > 1.0f ) {
+        if ( red[0] < 0.0 || red[0] > 1.0
+             || green[0] < 0.0 || green[0] > 1.0
+             || blue[0] < 0.0 || blue[0] > 1.0 ) {
             return false;
         }
 
-        color.set(red[0], green[0], blue[0]);
+        color[0] = new ColorRgb(red[0], green[0], blue[0]);
         return true;
     }
 
@@ -178,7 +178,7 @@ public final class OptionsGroupCore {
                 continue;
             }
 
-            ColorRgbMutable parsedColor = new ColorRgbMutable();
+            final ColorRgb[] parsedColor = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
             if ( !OptionsGroupCore.commandLineParseBackgroundColor(
                      argv[readIndex + 2],
                      argv[readIndex + 3],
@@ -189,7 +189,7 @@ public final class OptionsGroupCore {
             }
             else {
                 backgroundMode = EnumBackgroundMode.SOLID;
-                backgroundColor = parsedColor;
+                backgroundColor = parsedColor[0];
             }
             readIndex += 5;
         }
@@ -299,7 +299,7 @@ public final class OptionsGroupCore {
         fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED ? 1 : 0;
         numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
         backgroundMode = EnumBackgroundMode.NONE;
-        backgroundColor = new ColorRgbMutable(
+        backgroundColor = new ColorRgb(
             DEFAULT_BACKGROUND_COLOR.getR(),
             DEFAULT_BACKGROUND_COLOR.getG(),
             DEFAULT_BACKGROUND_COLOR.getB());

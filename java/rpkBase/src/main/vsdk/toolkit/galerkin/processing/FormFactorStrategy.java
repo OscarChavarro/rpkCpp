@@ -6,12 +6,12 @@ package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.ShadowStatistics;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -26,33 +26,32 @@ import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.scene.VisibilityQueryRecorder;
-import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public class FormFactorStrategy {
     private static boolean cachedShadowTest(
         ShadowCache shadowCache,
         Ray ray,
-        float shortenedDistance,
+        double shortenedDistance,
         RayExclusionSet exclusions,
         FormFactorWorkspace workspace) {
-        float[] distance = workspace.getKernelDistance();
+        double[] distance = workspace.getKernelDistance();
         distance[0] = shortenedDistance;
         return shadowCache.cacheHit(ray, distance, workspace.getKernelHitStore(), exclusions, workspace.getPatchWorkspace()) != null;
     }
 
-    private static RayHit shadowTestDiscretization(
+    private static RpkRayHit shadowTestDiscretization(
         Ray ray,
-        ArrayList<Geometry> geometrySceneList,
+        ArrayList<RpkGeometry> geometrySceneList,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneQueryWorkspace,
         ShadowCache shadowCache,
-        float minimumDistance,
-        RayHit hitStore,
+        double minimumDistance,
+        RpkRayHit hitStore,
         boolean isSceneGeometry,
         boolean isClusteredGeometry,
         RayExclusionSet exclusions,
@@ -60,23 +59,19 @@ public class FormFactorStrategy {
     {
         ShadowStatistics shadowStatistics = workspace.getShadowStatistics();
         shadowStatistics.numberOfShadowRays++;
-        float[] dist = workspace.getShadowTestDistance();
+        double[] dist = workspace.getShadowTestDistance();
         dist[0] = minimumDistance;
-        RayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions, workspace.getPatchWorkspace());
+        RpkRayHit hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions, workspace.getPatchWorkspace());
         if ( hit != null ) {
             shadowStatistics.numberOfShadowCacheHits++;
-            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
-                sceneQueryWorkspace.getRecorder().countCacheResolved();
-            }
             return hit;
         }
 
-        final float queryMaximumDistance = dist[0];
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = Geometry.listDiscretizationIntersect(
+            hit = RpkGeometry.listDiscretizationIntersect(
                 geometrySceneList,
                 ray,
-                Numeric.EPSILON_FLOAT * dist[0],
+                Numeric.EPSILON * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
                 hitStore,
@@ -85,24 +80,12 @@ public class FormFactorStrategy {
         else if ( sceneQuery != null ) {
             hit = sceneQuery.intersect(
                 ray,
-                Numeric.EPSILON_FLOAT * dist[0],
+                Numeric.EPSILON * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
                 hitStore,
                 exclusions,
                 sceneQueryWorkspace);
-        }
-        if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
-            sceneQueryWorkspace.getRecorder().recordQuery(
-                (!isClusteredGeometry && !isSceneGeometry) ?
-                    VisibilityQueryRecorder.GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder.GALERKIN_FULL_SCENE,
-                ray,
-                Numeric.EPSILON_FLOAT * queryMaximumDistance,
-                queryMaximumDistance,
-                RayHitFlag.FRONT | RayHitFlag.ANY,
-                exclusions,
-                hit,
-                dist[0]);
         }
 
         if ( hit != null && hit.getPatch() != null ) {
@@ -130,7 +113,7 @@ relevant for surface elements
         GalerkinRole role,
         GalerkinState galerkinState,
         CubatureRule[] cr,
-        Vector3Df[] x)
+        Vector3Dd[] x)
     {
         if ( element == null || cr == null || cr.length == 0 || x == null ) {
             return;
@@ -138,24 +121,24 @@ relevant for surface elements
 
         if ( element.isCluster() ) {
             cr[0] = galerkinState.clusterRule;
-            BoundingBox bb = new BoundingBox();
+            RpkAxisAlignedBoundingBox bb = new RpkAxisAlignedBoundingBox();
             element.bounds(bb);
             double dx = bb.dx();
             double dy = bb.dy();
             double dz = bb.dz();
-            float minX = bb.minX();
-            float minY = bb.minY();
-            float minZ = bb.minZ();
+            double minX = bb.minX();
+            double minY = bb.minY();
+            double minZ = bb.minZ();
             for ( int k = 0; cr[0] != null && k < cr[0].numberOfNodes && k < x.length; k++ ) {
                 if ( x[k] == null ) {
-                    x[k] = new Vector3Df();
+                    x[k] = new Vector3Dd();
                 }
-                x[k] = new Vector3Df(minX + (float)(cr[0].u[k] * dx), minY + (float)(cr[0].v[k] * dy), minZ + (float)(cr[0].t[k] * dz));
+                x[k] = new Vector3Dd(minX + (double)(cr[0].u[k] * dx), minY + (double)(cr[0].v[k] * dy), minZ + (double)(cr[0].t[k] * dz));
             }
             return;
         }
 
-        switch ( element.patch.numberOfVertices ) {
+        switch ( element.patch.getNumberOfVertices() ) {
             case 3:
                 cr[0] = (role == GalerkinRole.RECEIVER)
                     ? galerkinState.receiverTriangleCubatureRule
@@ -175,7 +158,7 @@ relevant for surface elements
         boolean hasTopTransform = topTransform != null;
 
         for ( int k = 0; cr[0] != null && k < cr[0].numberOfNodes && k < x.length; k++ ) {
-            Vector2Df node = new Vector2Df((float)cr[0].u[k], (float)cr[0].v[k]);
+            Vector2Dd node = new Vector2Dd((double)cr[0].u[k], (double)cr[0].v[k]);
             if ( hasTopTransform ) {
                 node = topTransform.transformPoint(node);
             }
@@ -187,21 +170,20 @@ relevant for surface elements
         ShadowCache shadowCache,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneQueryWorkspace,
-        Vector3Df x,
-        Vector3Df y,
+        Vector3Dd x,
+        Vector3Dd y,
         GalerkinElement receiverElement,
         GalerkinElement sourceElement,
-        ArrayList<Geometry> shadowGeometryList,
+        ArrayList<RpkGeometry> shadowGeometryList,
         boolean isSceneGeometry,
         boolean isClusteredGeometry,
         GalerkinState galerkinState,
         RayExclusionSet exclusions,
         FormFactorWorkspace workspace)
     {
-        Ray ray = workspace.getKernelRay();
-        ray.position = y;
-        ray.direction = x.subtract(y);
-        double distance = ray.direction.length();
+        // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
+        Ray ray = Ray.fromAffine(y, x.subtract(y));
+        double distance = ray.getDirection().length();
 
         // Don't allow too nearby nodes to interact
         if ( distance < VSDK.EPSILON ) {
@@ -210,14 +192,14 @@ relevant for surface elements
             }
             return 0.0;
         }
-        ray.direction = ray.direction.multiplyByInverse((float)distance, Numeric.EPSILON_FLOAT);
+        ray = ray.withDirection(ray.getDirection().multiplyByInverse((double)distance, Numeric.EPSILON));
 
         double cosThetaY;
         if ( sourceElement.isCluster() ) {
             cosThetaY = 0.25;
         }
         else {
-            cosThetaY = ray.direction.dotProduct(sourceElement.patch.getNormal());
+            cosThetaY = ray.getDirection().dotProduct(sourceElement.patch.getNormal());
             if ( cosThetaY <= 0.0 ) {
                 return 0.0;
             }
@@ -228,22 +210,22 @@ relevant for surface elements
             cosThetaX = 0.25;
         }
         else {
-            cosThetaX = -ray.direction.dotProduct(receiverElement.patch.getNormal());
+            cosThetaX = -ray.getDirection().dotProduct(receiverElement.patch.getNormal());
             if ( cosThetaX <= 0.0 ) {
                 return 0.0;
             }
         }
 
         double formFactorKernelTerm = cosThetaX * cosThetaY / (Math.PI * distance * distance);
-        float shortenedDistance = (float)(distance * (1.0 - VSDK.EPSILON));
+        double shortenedDistance = (double)(distance * (1.0 - VSDK.EPSILON));
 
         double visibilityFactor;
         if ( shadowGeometryList == null || shadowGeometryList.isEmpty() ) {
             visibilityFactor = 1.0;
         }
         else if ( galerkinState.multiResolutionVisibility == 0 ) {
-            RayHit hitStore = workspace.getKernelHitStore();
-            RayHit h = shadowTestDiscretization(
+            RpkRayHit hitStore = workspace.getKernelHitStore();
+            RpkRayHit h = shadowTestDiscretization(
                 ray,
                 shadowGeometryList,
                 sceneQuery,
@@ -258,14 +240,11 @@ relevant for surface elements
             visibilityFactor = (h == null) ? 1.0 : 0.0;
         }
         else if ( cachedShadowTest(shadowCache, ray, shortenedDistance, exclusions, workspace) ) {
-            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null ) {
-                sceneQueryWorkspace.getRecorder().countCacheResolved();
-            }
             visibilityFactor = 0.0;
         }
         else {
-            float minimumFeatureSize = 2.0f
-                * (float)Math.sqrt(Statistics.instance().radiance.totalArea * galerkinState.relMinElemArea / Math.PI);
+            double minimumFeatureSize = 2.0
+                * (double)Math.sqrt(Statistics.instance().radiance.totalArea * galerkinState.relMinElemArea / Math.PI);
             visibilityFactor = FormFactorClusteredStrategy.geomListMultiResolutionVisibility(
                 shadowGeometryList,
                 shadowCache,
@@ -283,7 +262,7 @@ relevant for surface elements
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneQueryWorkspace,
         FormFactorWorkspace formFactorWorkspace,
-        ArrayList<Geometry> geometryShadowList,
+        ArrayList<RpkGeometry> geometryShadowList,
         boolean isSceneGeometry,
         boolean isClusteredGeometry,
         Interaction link,
@@ -301,26 +280,26 @@ relevant for surface elements
             m = 1;
         }
         if ( link.K == null || link.K.length < m ) {
-            link.K = new float[m];
+            link.K = new double[m];
         }
         for ( int i = 0; i < m; i++ ) {
-            link.K[i] = 0.0f;
+            link.K[i] = 0.0;
         }
 
         if ( receiverElement.isCluster() || sourceElement.isCluster() ) {
-            BoundingBox sourceBoundingBox = new BoundingBox();
-            BoundingBox receiverBoundingBox = new BoundingBox();
+            RpkAxisAlignedBoundingBox sourceBoundingBox = new RpkAxisAlignedBoundingBox();
+            RpkAxisAlignedBoundingBox receiverBoundingBox = new RpkAxisAlignedBoundingBox();
             receiverElement.bounds(receiverBoundingBox);
             sourceElement.bounds(sourceBoundingBox);
             if ( !receiverBoundingBox.disjointToOtherBoundingBox(sourceBoundingBox) ) {
-                link.deltaK = 1.0f;
+                link.deltaK = 1.0;
                 link.numberOfReceiverCubaturePositions = 1;
                 link.visibility = (byte)128;
                 return;
             }
         }
         else if ( receiverElement == sourceElement ) {
-            link.deltaK = 0.0f;
+            link.deltaK = 0.0;
             link.numberOfReceiverCubaturePositions = 1;
             link.visibility = 0;
             return;
@@ -330,8 +309,8 @@ relevant for surface elements
         // used on it and the nodes (positions on the patch); same for the source element
         // The cubature rules, nodes and kernel values of the last pair are kept
         // in the form factor workspace
-        Vector3Df[] cachedX = formFactorWorkspace.getReceiverNodes();
-        Vector3Df[] cachedY = formFactorWorkspace.getSourceNodes();
+        Vector3Dd[] cachedX = formFactorWorkspace.getReceiverNodes();
+        Vector3Dd[] cachedY = formFactorWorkspace.getSourceNodes();
         double[][] cachedGxy = formFactorWorkspace.getKernel();
         final boolean sameReceiver = receiverElement == formFactorWorkspace.getLastReceiver();
         final boolean sameSource = sourceElement == formFactorWorkspace.getLastSource();
@@ -349,7 +328,7 @@ relevant for surface elements
         CubatureRule receiverCubatureRule = formFactorWorkspace.getReceiverCubatureRule();
         CubatureRule sourceCubatureRule = formFactorWorkspace.getSourceCubatureRule();
         if ( receiverCubatureRule == null || sourceCubatureRule == null ) {
-            link.deltaK = 0.0f;
+            link.deltaK = 0.0;
             link.numberOfReceiverCubaturePositions = 1;
             link.visibility = 0;
             return;
@@ -362,17 +341,12 @@ relevant for surface elements
             // Exclude the patches in order to avoid immediate self-intersections
             RayExclusionSet exclusions = new RayExclusionSet(
                 receiverElement.isCluster() ? null : receiverElement.patch,
-                (receiverElement.isCluster() || receiverElement.patch == null) ? null : receiverElement.patch.twin,
+                (receiverElement.isCluster() || receiverElement.patch == null) ? null : receiverElement.patch.getTwin(),
                 sourceElement.isCluster() ? null : sourceElement.patch,
-                (sourceElement.isCluster() || sourceElement.patch == null) ? null : sourceElement.patch.twin,
+                (sourceElement.isCluster() || sourceElement.patch == null) ? null : sourceElement.patch.getTwin(),
                 receiverElement.isCluster() ? receiverElement.geometry : null,
                 sourceElement.isCluster() ? sourceElement.geometry : null);
 
-            if ( sceneQueryWorkspace != null && sceneQueryWorkspace.getRecorder() != null
-              && geometryShadowList != null && !geometryShadowList.isEmpty()
-              && !isClusteredGeometry && !isSceneGeometry ) {
-                sceneQueryWorkspace.getRecorder().recordGeometryList(geometryShadowList);
-            }
 
             double cachedMaximumKernelValue = 0.0;
             int cachedVisibilityCount = 0;
@@ -403,6 +377,7 @@ relevant for surface elements
 
             formFactorWorkspace.setMaximumKernelValue(cachedMaximumKernelValue);
             formFactorWorkspace.setVisibilityCount(cachedVisibilityCount);
+            boundPointToAreaFormFactors(receiverCubatureRule, sourceCubatureRule, sourceElement.area, cachedGxy);
         }
 
         double maximumKernelValue = formFactorWorkspace.getMaximumKernelValue();
@@ -420,8 +395,8 @@ relevant for surface elements
             }
         }
         else {
-            link.K[0] = 0.0f;
-            link.deltaK = 0.0f;
+            link.K[0] = 0.0;
+            link.deltaK = 0.0;
             link.numberOfReceiverCubaturePositions = 1;
         }
 
@@ -433,10 +408,49 @@ relevant for surface elements
 
         if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy.ISOTROPIC
             && (receiverElement.isCluster() || sourceElement.isCluster()) ) {
-            link.deltaK = (float)(maximumKernelValue * sourceElement.area);
+            link.deltaK = (double)(maximumKernelValue * sourceElement.area);
             link.numberOfReceiverCubaturePositions = 1;
         }
         formFactorWorkspace.setLastPair(receiverElement, sourceElement);
+    }
+
+    /**
+    Bounds the point-to-area form factor at every receiver node by 1. The form
+    factor from a point x_k to the source, G(x_k) = A_s sum_l w_l G(x_k, y_l), is
+    the fraction of the hemisphere over x_k that the source covers, so it never
+    exceeds 1: summed over all sources it is at most 1, the bound [BEKA1996]
+    section 4.1 states after its equation (11). The cubature estimate is the
+    imprecise numerical integration of [BEKA1996] section 7, and it exceeds it when
+    nodes of two elements nearly touch (elements meeting at an edge or a corner),
+    where 1 / (pi r^2) explodes. With elements already at the minimum area the
+    refinement cannot remove such a link, and a link with G > 1 and its reciprocal
+    form a feedback loop of gain above 1 that makes the solution diverge (a tiny
+    element turns into a bright emitter). The kernel values of a receiver node
+    whose estimate exceeds 1 are scaled by the same factor, so that the node's
+    estimate is 1 and its shape over the source (the higher order coefficients
+    and the error estimate) is kept. Legitimate estimates are below 1 and stay
+    untouched. With nodes on cluster bounding boxes (0.25 cosine terms) the same
+    bound holds
+    */
+    static void boundPointToAreaFormFactors(
+        CubatureRule receiverCubatureRule,
+        CubatureRule sourceCubatureRule,
+        double sourceArea,
+        double[][] Gxy)
+    {
+        for ( int k = 0; receiverCubatureRule != null && sourceCubatureRule != null && k < receiverCubatureRule.numberOfNodes; k++ ) {
+            double g = 0.0;
+            for ( int l = 0; l < sourceCubatureRule.numberOfNodes; l++ ) {
+                g += sourceCubatureRule.w[l] * Gxy[k][l];
+            }
+            g *= sourceArea;
+            if ( g > 1.0 ) {
+                final double scale = 1.0 / g;
+                for ( int l = 0; l < sourceCubatureRule.numberOfNodes; l++ ) {
+                    Gxy[k][l] *= scale;
+                }
+            }
+        }
     }
 
     @SuppressWarnings("unused")
@@ -452,18 +466,18 @@ relevant for surface elements
 
         GalerkinBasis receiverBasis = receiverElement.isCluster()
             ? null
-            : GalerkinBasis.basisForVertexCount(receiverElement.patch.numberOfVertices);
+            : GalerkinBasis.basisForVertexCount(receiverElement.patch.getNumberOfVertices());
         GalerkinBasis sourceBasis = sourceElement.isCluster()
             ? null
-            : GalerkinBasis.basisForVertexCount(sourceElement.patch.numberOfVertices);
+            : GalerkinBasis.basisForVertexCount(sourceElement.patch.getNumberOfVertices());
 
-        ColorRgbMutable[] sourceRadiance = (galerkinState.galerkinIterationMethod == vsdk.toolkit.galerkin.GalerkinIterationMethod.SOUTH_WELL)
+        ColorRgb[] sourceRadiance = (galerkinState.galerkinIterationMethod == vsdk.toolkit.galerkin.GalerkinIterationMethod.SOUTH_WELL)
             ? sourceElement.unShotRadiance
             : sourceElement.radiance;
 
-        ColorRgbMutable[] deltaRadiance = new ColorRgbMutable[CubatureRule.MAXIMUM_NODES];
+        ColorRgb[] deltaRadiance = new ColorRgb[CubatureRule.MAXIMUM_NODES];
         for ( int i = 0; i < deltaRadiance.length; i++ ) {
-            deltaRadiance[i] = new ColorRgbMutable();
+            deltaRadiance[i] = new ColorRgb();
         }
         double[] gMin = new double[] {Numeric.HUGE_DOUBLE_VALUE};
         double[] gMax = new double[] {-Numeric.HUGE_DOUBLE_VALUE};
@@ -498,24 +512,24 @@ relevant for surface elements
         GalerkinElement receiverElement,
         double gMin,
         double gMax,
-        ColorRgbMutable[] sourceRadiance,
-        ColorRgbMutable[] deltaRadiance,
+        ColorRgb[] sourceRadiance,
+        ColorRgb[] deltaRadiance,
         Interaction link)
     {
         if ( sourceRadiance[0].isBlack() ) {
             double gAverage = link.K[0] / receiverElement.area;
-            link.deltaK = (float)(gMax - gAverage);
+            link.deltaK = (double)(gMax - gAverage);
             if ( gAverage - gMin > link.deltaK ) {
-                link.deltaK = (float)(gAverage - gMin);
+                link.deltaK = (double)(gAverage - gMin);
             }
         }
         else {
-            link.deltaK = 0.0f;
+            link.deltaK = 0.0;
             for ( int k = 0; k < receiverCubatureRule.numberOfNodes; k++ ) {
-                deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
+                deltaRadiance[k] = deltaRadiance[k].divide(sourceRadiance[0]);
                 double delta = Math.abs(deltaRadiance[k].maximumComponent());
                 if ( delta > link.deltaK ) {
-                    link.deltaK = (float)delta;
+                    link.deltaK = (double)delta;
                 }
             }
         }
@@ -531,10 +545,10 @@ relevant for surface elements
         GalerkinElement receiverElement,
         vsdk.toolkit.galerkin.GalerkinBasis sourceBasis,
         vsdk.toolkit.galerkin.GalerkinBasis receiverBasis,
-        ColorRgbMutable[] sourceRadiance,
+        ColorRgb[] sourceRadiance,
         double[] gMin,
         double[] gMax,
-        ColorRgbMutable[] deltaRadiance,
+        ColorRgb[] deltaRadiance,
         Interaction twoPatchesInteraction)
     {
         double[][] receiverPhi = new double[GalerkinBasis.MAX_BASIS_SIZE][CubatureRule.MAXIMUM_NODES];
@@ -551,7 +565,7 @@ relevant for surface elements
 
         double[] sourcePhi = new double[CubatureRule.MAXIMUM_NODES];
         for ( int k = 0; k < receiverCubatureRule.numberOfNodes; k++ ) {
-            deltaRadiance[k].clear();
+            deltaRadiance[k] = new ColorRgb(0.0, 0.0, 0.0);
         }
 
         for ( int beta = 0; beta < twoPatchesInteraction.numberOfBasisFunctionsOnSource; beta++ ) {
@@ -583,14 +597,14 @@ relevant for surface elements
                     gAlphaBeta += receiverCubatureRule.w[k] * receiverPhi[alpha][k] * gBeta[k];
                 }
                 twoPatchesInteraction.K[alpha * twoPatchesInteraction.numberOfBasisFunctionsOnSource + beta] =
-                    (float)(receiverElement.area * gAlphaBeta);
+                    (double)(receiverElement.area * gAlphaBeta);
                 for ( int k = 0; k < receiverCubatureRule.numberOfNodes; k++ ) {
                     deltaBeta[k] += gAlphaBeta * receiverPhi[alpha][k];
                 }
             }
 
             for ( int k = 0; k < receiverCubatureRule.numberOfNodes; k++ ) {
-                deltaRadiance[k].addScaled(deltaRadiance[k], (float)deltaBeta[k], sourceRadiance[beta]);
+                deltaRadiance[k] = deltaRadiance[k].addScaled((double)deltaBeta[k], sourceRadiance[beta]);
             }
 
             if ( beta == 0 ) {

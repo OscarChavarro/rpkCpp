@@ -9,16 +9,16 @@ import java.util.concurrent.Future;
 
 import vsdk.toolkit.common.Random;
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.RayTracerStatistics;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.RayTools;
@@ -42,8 +42,8 @@ import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public final class StochasticRaytracer extends RayTracer {
-    private static final float PHOTON_MAP_MIN_DIST = 0.02f;
-    private static final float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST;
+    private static final double PHOTON_MAP_MIN_DIST = 0.02;
+    private static final double PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST;
     private static String name = "Stochastic Raytracing & Final Gathers";
     private LightList lightList;
     private StochasticRayTracingState rayTracingState;
@@ -73,14 +73,14 @@ public final class StochasticRaytracer extends RayTracer {
     // Workers own their samplers, lights and traversal scratch and write disjoint rows.
     private static final class FinalTraceWorker implements Callable<Long> {
         private final Scene scene;
-        private final ColorRgbMutable[] pixels;
+        private final ColorRgb[] pixels;
         private final int firstRow;
         private final int rowStride;
         private final StochasticRaytracerCallbackData callback;
 
         FinalTraceWorker(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions,
-                         RenderOptions renderOptions, StochasticRayTracingState state,
-                         ColorRgbMutable[] pixels, int firstRow, int rowStride) {
+                         RendererConfiguration renderOptions, StochasticRayTracingState state,
+                         ColorRgb[] pixels, int firstRow, int rowStride) {
             this.scene = scene;
             this.pixels = pixels;
             this.firstRow = firstRow;
@@ -115,7 +115,7 @@ public final class StochasticRaytracer extends RayTracer {
     }
 
     private void traceRandomWalkInParallel(Scene scene, RadianceMethod radianceMethod,
-                                           RenderOptions renderOptions, StochasticRaytracingConfiguration config) {
+                                           RendererConfiguration renderOptions, StochasticRaytracingConfiguration config) {
         int width = scene.camera.xSize;
         int height = scene.camera.ySize;
         int workers = Math.min(rayTracingState.getRandomWalkFinalThreads(), height);
@@ -124,7 +124,7 @@ public final class StochasticRaytracer extends RayTracer {
         stats.resetCounters();
         System.err.printf("Tracing Random Walk final image with %d workers%n", workers);
 
-        ColorRgbMutable[] pixels = new ColorRgbMutable[Math.multiplyExact(width, height)];
+        ColorRgb[] pixels = new ColorRgb[Math.multiplyExact(width, height)];
         ArrayList<FinalTraceWorker> tasks = new ArrayList<>(workers);
         for ( int i = 0; i < workers; i++ ) {
             tasks.add(new FinalTraceWorker(scene, radianceMethod, config.toneMapOptions,
@@ -166,7 +166,7 @@ pointed to by 'fp'
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( toneMapOptions == null ) {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticRaytracer::execute", "Tone mapping context not provided");
@@ -189,18 +189,16 @@ pointed to by 'fp'
 
         boolean parallelRequested = radianceMethod != null && radianceMethod.className == RadianceMethodAlgorithm.RANDOM_WALK
             && rayTracingState.getRandomWalkFinalThreads() > 1;
-        boolean traceInParallel = parallelRequested && rayTracingState.radMode == RayTracingRadMode.STORED_NONE
+        boolean parallelSupported = rayTracingState.radMode == RayTracingRadMode.STORED_NONE
             && rayTracingState.reflectionSampling == RayTracingSamplingMode.BRDF_SAMPLING
-            && rayTracingState.doFrameCoherent == 0 && rayTracingState.doCorrelatedSampling == 0
-            && scene.getSceneQueryWorkspace().getRecorder() == null
-            && scene.getSceneQuery().getLegacyGrid() == null;
-        if ( parallelRequested && !traceInParallel ) {
+            && rayTracingState.doFrameCoherent == 0 && rayTracingState.doCorrelatedSampling == 0;
+        if ( parallelRequested && !parallelSupported ) {
             Logger.reportMessage(this, Logger.WARNING, "execute",
                 "Random Walk parallel final tracing requires BRDF sampling without stored radiance, "
-                + "coherent or correlated sampling, ray capture, or the legacy voxel grid; tracing serially");
+                + "or coherent or correlated sampling; tracing serially");
         }
 
-        if ( traceInParallel ) {
+        if ( parallelRequested && parallelSupported ) {
             traceRandomWalkInParallel(scene, radianceMethod, renderOptions, config);
         } else if ( rayTracingState.progressiveTracing == 0 ) {
             ScreenIterate.sequential(
@@ -251,7 +249,7 @@ pointed to by 'fp'
         lightList = null;
     }
 
-    private static ColorRgbMutable stochasticRaytracerGetScatteredRadiance(
+    private static ColorRgb stochasticRaytracerGetScatteredRadiance(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
@@ -260,7 +258,7 @@ pointed to by 'fp'
         StochasticRaytracingConfiguration config,
         StorageReadout readout,
         RadianceMethod radianceMethod,
-        vsdk.toolkit.material.RenderOptions renderOptions)
+        vsdk.toolkit.material.RendererConfiguration renderOptions)
     {
         int siCurrent; // What scatter block are we handling
         ScatterInfo si;
@@ -268,8 +266,8 @@ pointed to by 'fp'
         SimpleRaytracingPathNode newNode = new SimpleRaytracingPathNode();
         thisNode.attach(newNode);
 
-        ColorRgbMutable result = new ColorRgbMutable();
-        result.clear();
+        ColorRgb result = new ColorRgb();
+        result = new ColorRgb(0.0, 0.0, 0.0);
 
         if ( (config.samplerConfig.surfaceSampler == null) ||
             (thisNode.m_depth >= config.samplerConfig.maxDepth) ) {
@@ -302,10 +300,10 @@ pointed to by 'fp'
 
             if ( numberOfSamples > 2 ) {
                 // Some bigger value may be more efficient
-                ColorRgbMutable albedo = new ColorRgbMutable();
-                albedo.clear();
+                ColorRgb albedo = new ColorRgb();
+                albedo = new ColorRgb(0.0, 0.0, 0.0);
                 if ( thisNode.m_useBsdf != null ) {
-                    albedo = new ColorRgbMutable(thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags));
+                    albedo = new ColorRgb(thisNode.m_useBsdf.splitBsdfScatteredPower(thisNode.m_hit.shadingContext(), si.flags));
                 }
                 if ( albedo.average() < VSDK.EPSILON ) {
                     // Skip, no contribution anyway
@@ -319,7 +317,7 @@ pointed to by 'fp'
                 double[] x2 = new double[1];
                 double factor;
                 StratifiedSampling2D stratified = new StratifiedSampling2D(numberOfSamples);
-                ColorRgbMutable radiance;
+                ColorRgb radiance;
                 boolean doRR = thisNode.m_depth >= config.samplerConfig.minDepth;
 
                 for ( int i = 0; i < numberOfSamples; i++ ) {
@@ -382,8 +380,8 @@ pointed to by 'fp'
                         // Collect outgoing radiance
                         factor = newNode.m_G / (newNode.m_pdfFromPrev * numberOfSamples);
 
-                        radiance.scalarProductScaled(radiance, (float)factor, thisNode.m_bsdfEval);
-                        result.add(radiance, result);
+                        radiance = radiance.multiply((double)factor).multiply(thisNode.m_bsdfEval);
+                        result = radiance.add(result);
                     }
                 }
             }
@@ -399,7 +397,7 @@ pointed to by 'fp'
         return result;
     }
 
-    private static ColorRgbMutable srGetDirectRadiance(
+    private static ColorRgb srGetDirectRadiance(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
@@ -408,10 +406,10 @@ pointed to by 'fp'
         StochasticRaytracingConfiguration config,
         StorageReadout readout)
     {
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgbMutable radiance = new ColorRgbMutable();
-        result.clear();
-        Vector3Df[] dirEL = {new Vector3Df()};
+        ColorRgb result = new ColorRgb();
+        ColorRgb radiance = new ColorRgb();
+        result = new ColorRgb(0.0, 0.0, 0.0);
+        Vector3Dd[] dirEL = {new Vector3Dd()};
 
         if ( readout == StorageReadout.READ_NOW && config.radMode == RayTracingRadMode.STORED_PHOTON_MAP ) {
             // We're reading out D|G, specular not with direct light
@@ -531,10 +529,10 @@ pointed to by 'fp'
 
                                 factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                           config.nextEventSamples);
-                                radiance.scalarProductScaled(prevNode.m_bsdfEval, (float)factor, lightNode.m_bsdfEval);
+                                radiance = prevNode.m_bsdfEval.multiply((double)factor).multiply(lightNode.m_bsdfEval);
 
                                 // Collect outgoing radiance
-                                result.add(result, radiance);
+                                result = result.add(radiance);
                             } // if not photon map or no caustic path
 
                             // Next scatter info block
@@ -556,7 +554,7 @@ pointed to by 'fp'
         return result;
     }
 
-    private static ColorRgbMutable stochasticRaytracerGetRadiance(
+    private static ColorRgb stochasticRaytracerGetRadiance(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
@@ -566,10 +564,10 @@ pointed to by 'fp'
         StorageReadout readout,
         int usedScatterSamples,
         RadianceMethod radianceMethod,
-        vsdk.toolkit.material.RenderOptions renderOptions)
+        vsdk.toolkit.material.RendererConfiguration renderOptions)
     {
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgbMutable radiance = new ColorRgbMutable();
+        ColorRgb result = new ColorRgb();
+        ColorRgb radiance = new ColorRgb();
         int edfFlags = 0x01 | 0x02 | 0x04;
         int bsdfSpec = BsdfComponent.BRDF_SPECULAR_COMPONENT | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
@@ -602,15 +600,15 @@ pointed to by 'fp'
                 weight = cr / (cr + cl);
             }
 
-            Vector3Df position = thisNode.previous().m_hit.getPoint();
+            Vector3Dd position = thisNode.previous().m_hit.getPoint();
             result = Background.backgroundRadiance(sceneBackground, position, thisNode.m_inDirF, null);
 
-            result.scale((float)weight);
+            result = result.multiply((double)weight);
         } else {
             // Handle non-background
             PhongEmittanceDistributionFunction thisEdf = thisNode.m_hit.getMaterial().getEdf();
 
-            result.clear();
+            result = new ColorRgb(0.0, 0.0, 0.0);
 
             // Stored radiance
             if ( (readout == StorageReadout.READ_NOW) && (config.siStorage.flags != 0) ) {
@@ -620,13 +618,13 @@ pointed to by 'fp'
                     if ( config.radMode == RayTracingRadMode.STORED_PHOTON_MAP ) {
                         // Check if the distance to the previous point is big enough
                         // otherwise we need more scattering...
-                        float dist2 = thisNode.m_hit.getPoint().distanceSquared(thisNode.previous().m_hit.getPoint());
+                        double dist2 = thisNode.m_hit.getPoint().distanceSquared(thisNode.previous().m_hit.getPoint());
 
                         if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                             radiance = photonMapMethod.getNodeGRadiance(thisNode);
                             // This does not include Le (self emitted light)
                         } else {
-                            radiance.clear();
+                            radiance = new ColorRgb(0.0, 0.0, 0.0);
                             readout = StorageReadout.SCATTER; // This ensures extra scattering, direct light and c-map
                         }
                     } else {
@@ -639,27 +637,27 @@ pointed to by 'fp'
                     double[] v = new double[1];
 
                     // (u, v) coordinates of intersection point
-                    Vector3Df position = thisNode.m_hit.getPoint();
+                    Vector3Dd position = thisNode.m_hit.getPoint();
                     thisNode.m_hit.getPatch().uv(position, u, v);
 
                     radiance = radianceMethod.getRadiance(
                         camera, thisNode.m_hit.getPatch(), u[0], v[0], thisNode.m_inDirF, renderOptions);
 
                     // This includes Le diffuse, subtraction first and handle total emitted later (possibly weighted)
-                    ColorRgbMutable diffEmit;
+                    ColorRgb diffEmit;
 
                     if ( thisEdf == null ) {
-                        diffEmit = new ColorRgbMutable();
-                        diffEmit.clear();
+                        diffEmit = new ColorRgb();
+                        diffEmit = new ColorRgb(0.0, 0.0, 0.0);
                     } else {
-                        diffEmit = new ColorRgbMutable(thisEdf.phongEdfEval(
+                        diffEmit = new ColorRgb(thisEdf.phongEdfEval(
                             thisNode.m_hit.shadingContext(), thisNode.m_inDirF, BsdfComponent.BRDF_DIFFUSE_COMPONENT, null));
                     }
 
-                    radiance.subtract(radiance, diffEmit);
+                    radiance = radiance.subtract(diffEmit);
                 }
 
-                result.add(result, radiance);
+                result = result.add(radiance);
 
             } // Done: Stored radiance, no self emitted light included!
 
@@ -667,11 +665,11 @@ pointed to by 'fp'
             if ( (config.radMode == RayTracingRadMode.STORED_PHOTON_MAP) && readout == StorageReadout.SCATTER ) {
                 PhotonMapRadianceMethod photonMapMethod = (PhotonMapRadianceMethod)radianceMethod;
                 radiance = photonMapMethod.getNodeCRadiance(thisNode);
-                result.add(result, radiance);
+                result = result.add(radiance);
             }
 
             radiance = srGetDirectRadiance(camera, sceneQuery, sceneSceneQueryWorkspace, sceneBackground, thisNode, config, readout);
-            result.add(result, radiance);
+            result = result.add(radiance);
 
             // Scattered light
             radiance = stochasticRaytracerGetScatteredRadiance(
@@ -684,7 +682,7 @@ pointed to by 'fp'
                 readout,
                 radianceMethod,
                 renderOptions);
-            result.add(result, radiance);
+            result = result.add(radiance);
 
             // Emitted Light
             if ( config.radMode == RayTracingRadMode.STORED_PHOTON_MAP
@@ -700,7 +698,7 @@ pointed to by 'fp'
                 double weight;
                 double cr;
                 double cl;
-                ColorRgbMutable col;
+                ColorRgb col;
                 boolean doWeight = true;
 
                 if ( thisNode.m_depth <= 1 ) {
@@ -732,20 +730,20 @@ pointed to by 'fp'
                 }
 
                 if ( thisEdf == null ) {
-                    col = new ColorRgbMutable();
-                    col.clear();
+                    col = new ColorRgb();
+                    col = new ColorRgb(0.0, 0.0, 0.0);
                 } else {
-                    col = new ColorRgbMutable(thisEdf.phongEdfEval(thisNode.m_hit.shadingContext(), thisNode.m_inDirF, edfFlags, null));
+                    col = new ColorRgb(thisEdf.phongEdfEval(thisNode.m_hit.shadingContext(), thisNode.m_inDirF, edfFlags, null));
                 }
 
-                result.addScaled(result, (float)weight, col);
+                result = result.addScaled((double)weight, col);
             }
         }
 
         return result;
     }
 
-    private static ColorRgbMutable calcPixel(
+    private static ColorRgb calcPixel(
         Camera camera,
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneSceneQueryWorkspace,
@@ -756,16 +754,16 @@ pointed to by 'fp'
     {
         StochasticRaytracingConfiguration config = callbackData.config;
         RadianceMethod radianceMethod = callbackData.radianceMethod;
-        vsdk.toolkit.material.RenderOptions renderOptions = callbackData.renderOptions;
+        vsdk.toolkit.material.RendererConfiguration renderOptions = callbackData.renderOptions;
         SimpleRaytracingPathNode eyeNode = new SimpleRaytracingPathNode();
         SimpleRaytracingPathNode pixelNode = new SimpleRaytracingPathNode();
         double[] x1 = new double[1];
         double[] x2 = new double[1];
-        ColorRgbMutable col;
-        ColorRgbMutable result = new ColorRgbMutable();
+        ColorRgb col;
+        ColorRgb result = new ColorRgb();
         StratifiedSampling2D stratified = new StratifiedSampling2D(config.samplesPerPixel);
 
-        result.clear();
+        result = new ColorRgb(0.0, 0.0, 0.0);
 
         // Frame coherent & correlated sampling
         if ( config.doFrameCoherent != 0 || config.doCorrelatedSampling != 0 ) {
@@ -819,15 +817,15 @@ pointed to by 'fp'
                 // in the pixel sampled point.
 
                 // Account for pixel sampling
-                col.scale((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev));
-                result.add(result, col);
+                col = col.multiply((double)(pixelNode.m_G / pixelNode.m_pdfFromPrev));
+                result = result.add(col);
             }
         }
 
         // We have now the FLUX for the pixel (x N), convert it to radiance
-        double factor = (ScreenBuffer.computeFluxToRadFactor(camera, nx, ny) / (float)config.samplesPerPixel);
+        double factor = (ScreenBuffer.computeFluxToRadFactor(camera, nx, ny) / (double)config.samplesPerPixel);
 
-        result.scale((float)factor);
+        result = result.multiply((double)factor);
         if ( config.screen != null ) {
             config.screen.add(nx, ny, result);
         }

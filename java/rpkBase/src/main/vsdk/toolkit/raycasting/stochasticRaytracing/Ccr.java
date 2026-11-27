@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
@@ -17,12 +17,12 @@ public final class Ccr {
 
     @FunctionalInterface
     public interface GetRadianceCallback {
-        ColorRgbMutable[] apply(StochasticRadiosityElement element);
+        ColorRgb[] apply(StochasticRadiosityElement element);
     }
 
     @FunctionalInterface
     public interface GetScalingCallback {
-        ColorRgbMutable apply(StochasticRadiosityElement element);
+        ColorRgb apply(StochasticRadiosityElement element);
     }
 
     private static final int NUMBER_OF_INTERVALS = 10;
@@ -31,26 +31,26 @@ public final class Ccr {
 
     static void initialControlRadiosityRecursive(
         StochasticRadiosityElement element,
-        ColorRgbMutable minRad,
-        ColorRgbMutable maxRad,
-        ColorRgbMutable fMin,
-        ColorRgbMutable fMax,
-        ColorRgbMutable totalFluxColor,
-        ColorRgbMutable maxRadColor,
+        ColorRgb[] minRad,
+        ColorRgb[] maxRad,
+        ColorRgb[] fMin,
+        ColorRgb[] fMax,
+        ColorRgb[] totalFluxColor,
+        ColorRgb[] maxRadColor,
         double[] area)
     {
         if ( element.regularSubElements == null ) {
             // Trivial case
-            ColorRgbMutable rad = getRadianceCallback.apply(element)[0];
-            float weightedArea = element.area;
+            ColorRgb rad = getRadianceCallback.apply(element)[0];
+            double weightedArea = element.area;
             if ( StochasticRelaxation.activeState().importanceDriven != 0 &&
                  StochasticRelaxation.activeState().method != StochasticRaytracingMethod.RANDOM_WALK_RADIOSITY_METHOD ) {
                 weightedArea *= (element.importance - element.sourceImportance); // Multiply with received importance
             }
             // factor M_PI is omitted everywhere
-            totalFluxColor.addScaled(totalFluxColor, weightedArea, rad);
+            totalFluxColor[0] = totalFluxColor[0].addScaled(weightedArea, rad);
             area[0] += weightedArea;
-            maxRadColor.maximum(maxRadColor, rad);
+            maxRadColor[0] = maxRadColor[0].maximum(rad);
         } else {
             // Recursive case
             for ( int i = 0; i < 4; i++ ) {
@@ -71,17 +71,15 @@ public final class Ccr {
 Initial guess for constant control radiance value
 */
     static void initialControlRadiosity(
-        ColorRgbMutable minRad,
-        ColorRgbMutable maxRad,
-        ColorRgbMutable fMin,
-        ColorRgbMutable fMax,
+        ColorRgb[] minRad,
+        ColorRgb[] maxRad,
+        ColorRgb[] fMin,
+        ColorRgb[] fMax,
         ArrayList<Patch> scenePatches)
     {
-        ColorRgbMutable totalFluxColor = new ColorRgbMutable();
-        ColorRgbMutable maxRadColor = new ColorRgbMutable();
+        final ColorRgb[] totalFluxColor = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
+        final ColorRgb[] maxRadColor = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
         double[] area = new double[] {0.0};
-        totalFluxColor.clear();
-        maxRadColor.clear();
 
         // Initial interval: 0 ... maxRadColor
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
@@ -96,21 +94,21 @@ Initial guess for constant control radiance value
                 area);
         }
 
-        minRad.clear();
-        fMin.set(totalFluxColor.getR(), totalFluxColor.getG(), totalFluxColor.getB());
+        minRad[0] = new ColorRgb(0.0, 0.0, 0.0);
+        fMin[0] = totalFluxColor[0];
 
-        maxRad.set(maxRadColor.getR(), maxRadColor.getG(), maxRadColor.getB());
-        fMax.scaledCopy((float)area[0], maxRadColor);
-        fMax.subtract(fMax, totalFluxColor);
+        maxRad[0] = maxRadColor[0];
+        fMax[0] = maxRadColor[0].multiply(area[0]);
+        fMax[0] = fMax[0].subtract(totalFluxColor[0]);
     }
 
     static void refineComponent(
-        float[] minRad,
-        float[] maxRad,
-        float[] fMin,
-        float[] fMax,
-        float[] f,
-        float[] rad)
+        double[] minRad,
+        double[] maxRad,
+        double[] fMin,
+        double[] fMax,
+        double[] f,
+        double[] rad)
     {
         int iMin;
 
@@ -151,26 +149,26 @@ Initial guess for constant control radiance value
 
     static void refineControlRadiosityRecursive(
         StochasticRadiosityElement element,
-        ColorRgbMutable colorOne,
-        ColorRgbMutable[] rad,
-        ColorRgbMutable[] f)
+        ColorRgb colorOne,
+        ColorRgb[] rad,
+        ColorRgb[] f)
     {
         if ( element.regularSubElements == null ) {
             // Trivial case
-            ColorRgbMutable B = getRadianceCallback.apply(element)[0];
-            ColorRgbMutable s = getScalingCallback != null ? getScalingCallback.apply(element) : colorOne;
-            float weightedArea = element.area;
+            ColorRgb B = getRadianceCallback.apply(element)[0];
+            ColorRgb s = getScalingCallback != null ? getScalingCallback.apply(element) : colorOne;
+            double weightedArea = element.area;
             if ( StochasticRelaxation.activeState().importanceDriven != 0 &&
                  StochasticRelaxation.activeState().method !=
                  StochasticRaytracingMethod.RANDOM_WALK_RADIOSITY_METHOD ) {
                 weightedArea *= (element.importance - element.sourceImportance); /* multiply with received importance */
             }
             for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-                ColorRgbMutable t = new ColorRgbMutable();
-                t.scalarProduct(s, rad[i]);
-                t.subtract(B, t);
-                t.abs();
-                f[i].addScaled(f[i], weightedArea, t);
+                ColorRgb t = new ColorRgb();
+                t = s.multiply(rad[i]);
+                t = B.subtract(t);
+                t = t.absolute();
+                f[i] = f[i].addScaled(weightedArea, t);
             }
         } else {
             // Recursive case
@@ -186,26 +184,26 @@ Uses regular interval subdivision (generalisation of the bisection
 method). Does so component wise
 */
     static void refineControlRadiosity(
-        ColorRgbMutable minRad,
-        ColorRgbMutable maxRad,
-        ColorRgbMutable fMin,
-        ColorRgbMutable fMax,
+        ColorRgb[] minRad,
+        ColorRgb[] maxRad,
+        ColorRgb[] fMin,
+        ColorRgb[] fMax,
         ArrayList<Patch> scenePatches)
     {
-        ColorRgbMutable colorOne = new ColorRgbMutable();
-        ColorRgbMutable[] f = new ColorRgbMutable[NUMBER_OF_INTERVALS + 1];
-        ColorRgbMutable[] rad = new ColorRgbMutable[NUMBER_OF_INTERVALS + 1];
-        ColorRgbMutable d = new ColorRgbMutable();
+        ColorRgb colorOne = new ColorRgb();
+        ColorRgb[] f = new ColorRgb[NUMBER_OF_INTERVALS + 1];
+        ColorRgb[] rad = new ColorRgb[NUMBER_OF_INTERVALS + 1];
+        ColorRgb d = new ColorRgb();
 
-        colorOne.setMonochrome(1.0f);
+        colorOne = new ColorRgb(1.0, 1.0, 1.0);
 
         // Initialisations. rad[i] = radiosity at boundary i
-        d.subtract(maxRad, minRad);
+        d = maxRad[0].subtract(minRad[0]);
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-            f[i] = new ColorRgbMutable();
-            f[i].clear();
-            rad[i] = new ColorRgbMutable();
-            rad[i].addScaled(minRad, (float)i / (float)NUMBER_OF_INTERVALS, d);
+            f[i] = new ColorRgb();
+            f[i] = new ColorRgb(0.0, 0.0, 0.0);
+            rad[i] = new ColorRgb();
+            rad[i] = minRad[0].addScaled((double)i / (double)NUMBER_OF_INTERVALS, d);
         }
 
         // Determine value of F(beta) = sum_i (area_i * java::Math::abs(B_i - beta)) on
@@ -219,69 +217,48 @@ method). Does so component wise
         }
 
         // Find sub-interval containing optimal control radiosity (component-wise)
+        final double[] minValues = new double[] {minRad[0].getR(), minRad[0].getG(), minRad[0].getB()};
+        final double[] maxValues = new double[] {maxRad[0].getR(), maxRad[0].getG(), maxRad[0].getB()};
+        final double[] fMinValues = new double[] {fMin[0].getR(), fMin[0].getG(), fMin[0].getB()};
+        final double[] fMaxValues = new double[] {fMax[0].getR(), fMax[0].getG(), fMax[0].getB()};
+
         for ( int s = 0; s < 3; s++ ) {
-            float[] fc = new float[NUMBER_OF_INTERVALS + 1];
-            float[] radC = new float[NUMBER_OF_INTERVALS + 1];
+            double[] fc = new double[NUMBER_OF_INTERVALS + 1];
+            double[] radC = new double[NUMBER_OF_INTERVALS + 1];
             for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
                 // Copy components
                 switch ( s ) {
                     case 0:
-                        fc[i] = (float)f[i].getR();
-                        radC[i] = (float)rad[i].getR();
+                        fc[i] = f[i].getR();
+                        radC[i] = rad[i].getR();
                         break;
                     case 1:
-                        fc[i] = (float)f[i].getG();
-                        radC[i] = (float)rad[i].getG();
+                        fc[i] = f[i].getG();
+                        radC[i] = rad[i].getG();
                         break;
                     case 2:
-                        fc[i] = (float)f[i].getB();
-                        radC[i] = (float)rad[i].getB();
+                        fc[i] = f[i].getB();
+                        radC[i] = rad[i].getB();
                         break;
                     default:
                         break;
                 }
             }
-            switch ( s ) {
-                case 0: {
-                    float[] min = new float[] {(float)minRad.getR()};
-                    float[] max = new float[] {(float)maxRad.getR()};
-                    float[] fMinC = new float[] {(float)fMin.getR()};
-                    float[] fMaxC = new float[] {(float)fMax.getR()};
-                    refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.r = min[0];
-                    maxRad.r = max[0];
-                    fMin.r = fMinC[0];
-                    fMax.r = fMaxC[0];
-                    break;
-                }
-                case 1: {
-                    float[] min = new float[] {(float)minRad.getG()};
-                    float[] max = new float[] {(float)maxRad.getG()};
-                    float[] fMinC = new float[] {(float)fMin.getG()};
-                    float[] fMaxC = new float[] {(float)fMax.getG()};
-                    refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.g = min[0];
-                    maxRad.g = max[0];
-                    fMin.g = fMinC[0];
-                    fMax.g = fMaxC[0];
-                    break;
-                }
-                case 2: {
-                    float[] min = new float[] {(float)minRad.getB()};
-                    float[] max = new float[] {(float)maxRad.getB()};
-                    float[] fMinC = new float[] {(float)fMin.getB()};
-                    float[] fMaxC = new float[] {(float)fMax.getB()};
-                    refineComponent(min, max, fMinC, fMaxC, fc, radC);
-                    minRad.b = min[0];
-                    maxRad.b = max[0];
-                    fMin.b = fMinC[0];
-                    fMax.b = fMaxC[0];
-                    break;
-                }
-                default:
-                    break;
-            }
+            final double[] min = new double[] {minValues[s]};
+            final double[] max = new double[] {maxValues[s]};
+            final double[] fMinC = new double[] {fMinValues[s]};
+            final double[] fMaxC = new double[] {fMaxValues[s]};
+            refineComponent(min, max, fMinC, fMaxC, fc, radC);
+            minValues[s] = min[0];
+            maxValues[s] = max[0];
+            fMinValues[s] = fMinC[0];
+            fMaxValues[s] = fMaxC[0];
         }
+
+        minRad[0] = new ColorRgb(minValues[0], minValues[1], minValues[2]);
+        maxRad[0] = new ColorRgb(maxValues[0], maxValues[1], maxValues[2]);
+        fMin[0] = new ColorRgb(fMinValues[0], fMinValues[1], fMinValues[2]);
+        fMax[0] = new ColorRgb(fMaxValues[0], fMaxValues[1], fMaxValues[2]);
     }
 
     /**
@@ -297,23 +274,24 @@ multiplied with the radiance of the element. If getScaling is a nullptr
 pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
-    public static ColorRgbMutable determineControlRadiosity(
+    public static ColorRgb determineControlRadiosity(
         GetRadianceCallback getRadiance,
         GetScalingCallback getScaling,
-        ArrayList<Patch> scenePatches)
+        ArrayList<Patch> scenePatches,
+        Cie colorSpace)
     {
-        ColorRgbMutable minRad = new ColorRgbMutable();
-        ColorRgbMutable maxRad = new ColorRgbMutable();
-        ColorRgbMutable fMin = new ColorRgbMutable();
-        ColorRgbMutable fMax = new ColorRgbMutable();
-        ColorRgbMutable beta = new ColorRgbMutable();
-        ColorRgbMutable delta = new ColorRgbMutable();
-        float eps = 0.001f;
+        final ColorRgb[] minRad = new ColorRgb[] {new ColorRgb()};
+        final ColorRgb[] maxRad = new ColorRgb[] {new ColorRgb()};
+        final ColorRgb[] fMin = new ColorRgb[] {new ColorRgb()};
+        final ColorRgb[] fMax = new ColorRgb[] {new ColorRgb()};
+        ColorRgb beta = new ColorRgb();
+        ColorRgb delta = new ColorRgb();
+        double eps = 0.001;
         int sweep = 0;
 
         getRadianceCallback = getRadiance;
         getScalingCallback = getScaling;
-        beta.clear();
+        beta = new ColorRgb(0.0, 0.0, 0.0);
         if ( getRadianceCallback == null ) {
             return beta;
         }
@@ -321,19 +299,19 @@ random walk radiosity
         System.err.print("Determining optimal control radiosity value ... ");
         initialControlRadiosity(minRad, maxRad, fMin, fMax, scenePatches);
 
-        delta.subtract(fMax, fMin);
-        delta.addScaled(delta, (-eps), fMin);
-        while ( (delta.maximumComponent() > 0.0f) || sweep < 4 ) {
+        delta = fMax[0].subtract(fMin[0]);
+        delta = delta.addScaled((-eps), fMin[0]);
+        while ( (delta.maximumComponent() > 0.0) || sweep < 4 ) {
             sweep++;
             refineControlRadiosity(minRad, maxRad, fMin, fMax, scenePatches);
-            delta.subtract(fMax, fMin);
-            delta.addScaled(delta, (-eps), fMin);
+            delta = fMax[0].subtract(fMin[0]);
+            delta = delta.addScaled((-eps), fMin[0]);
         }
 
-        beta.add(minRad, maxRad);
-        beta.scale(0.5f);
-        beta.print(System.err);
-        System.err.printf(" (%g lux)", Math.PI * Cie.spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
+        beta = minRad[0].add(maxRad[0]);
+        beta = beta.multiply(0.5);
+        System.err.printf("%g %g %g", beta.getR(), beta.getG(), beta.getB());
+        System.err.printf(" (%g lux)", Math.PI * colorSpace.spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
         System.err.printf("\n");
         return beta;
     }

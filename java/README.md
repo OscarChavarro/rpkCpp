@@ -32,7 +32,7 @@ returns the vector or takes a one-element array as output holder.
 
 The radiosity iterations run serially. The final trace requires BRDF sampling
 and falls back to serial tracing with stored radiance, coherent or correlated
-sampling, ray capture, or the legacy voxel grid. Each pixel has its own sample
+sampling, or the legacy voxel grid. Each pixel has its own sample
 sequence, so parallel results are reproducible across worker counts. The
 historical serial render uses a different sequence.
 

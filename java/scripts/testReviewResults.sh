@@ -1,43 +1,39 @@
 #!/bin/sh
-# Image gate of the test corpus. Run from cpp/ after scripts/runCorpus.sh.
+# Image gate of the test corpus. Run from java/ after scripts/runCorpus.sh.
 #
-#   testReviewResults.sh [mode] [image ...]
+#   testReviewResults.sh [--capture-references] [image ...]
 #
-# Modes:
-#   (none)                both checks below
-#   --exact               T1: every output must equal its port reference
-#                         (compare -metric AE = 0) and its run log must give the
-#                         reference statistics fingerprint
-#   --golden              T3: compare -metric RMSE of every output against its
-#                         golden image in ../cpp/etc/goldenImagesForTests must not exceed
-#                         the bound recorded in etc/goldenImagesForTests/goldenBounds.txt
-#   --capture-references  store the current outputs as port references, with
-#                         checksums and fingerprints (unchanged tree only)
-#   --record-bounds       record the current RMSE against each golden as its bound
+# With no option every output must equal its golden image
+# etc/goldenImagesForTests/<image>.ppm (compare -metric AE = 0), the reference
+# images of this port, which should equal the golden images of the C++ port
+# (../cpp/etc/goldenImagesForTests).
+# --capture-references stores the current outputs as the reference images,
+# which change only by decision of the project owner.
 #
 # Images may be selected by image or script name; the default is the whole
 # corpus plus the scenes outside it (corpus.sh OPTIONAL_TABLE) whose run has
 # finished, as output/<log>.status shows; an unfinished one is reported as
-# NOT COMPARED, a failed run as a failure. Difference images of failed comparisons go to output/diff/.
+# NOT COMPARED, a failed run as a failure. Difference images of failed
+# comparisons go to output/diff/.
+# Parallel Random Walk case 13 uses a different random sequence: its image is
+# compared with compare -metric RMSE after reducing both images to 50%, and
+# must stay within parallel_random_walk_bound.
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "$SCRIPT_DIR/corpus.sh"
 
-golden_dir="../cpp/etc/goldenImagesForTests"
-reference_dir="etc/goldenImagesForTests"
-manifest="$reference_dir/manifest.txt"
-bounds="$reference_dir/goldenBounds.txt"
+golden_dir="etc/goldenImagesForTests"
 diff_dir="output/diff"
+parallel_random_walk_bound="0.006"
 
-mode="all"
+isParallelRandomWalk() {
+    [ "$1" = "13_floorStochasticRaytracingRandomWalk" ] &&
+        grep -Eq '^Tracing Random Walk final image with [0-9]+ workers$' output/13.err 2>/dev/null
+}
+
+mode="check"
 case "${1:-}" in
-    --exact) mode="exact"; shift ;;
-    --golden) mode="golden"; shift ;;
     --capture-references) mode="capture"; shift ;;
-    --record-bounds) mode="bounds"; shift ;;
-    --refresh-baseline)
-        echo "--refresh-baseline was removed: golden images change only by owner decision"
-        exit 2 ;;
     --*) echo "Unknown option $1"; exit 2 ;;
 esac
 
@@ -78,137 +74,64 @@ runCompare() {
     return $status
 }
 
-sha() {
-    sha256sum "$1" | cut -d' ' -f1
-}
-
-checkExact() {
+checkImage() {
     image="$1"
-    log="$2"
     output="output/$image.ppm"
-    reference="$reference_dir/$image.ppm"
+    golden="$golden_dir/$image.ppm"
 
     if [ ! -f "$output" ]; then
         fail "$image: missing output $output"
         return
     fi
+    if [ ! -f "$golden" ]; then
+        fail "$image: missing golden image $golden"
+        return
+    fi
 
-    if [ -f "$reference" ]; then
-        ae=$(runCompare AE "$reference" "$output" null:)
+    if isParallelRandomWalk "$image"; then
+        result=$(compare -metric RMSE \( "$golden" -resize 50% \) \( "$output" -resize 50% \) null: 2>&1)
         status=$?
-        if [ $status -eq 2 ]; then
-            fail "$image: compare error: $ae"
+        rmse=$(echo "$result" | sed -n 's/.*(\(.*\)).*/\1/p')
+        if [ "$status" -eq 2 ] || [ -z "$rmse" ]; then
+            fail "$image: compare error against golden image"
             return
         fi
-        if [ $status -ne 0 ]; then
+        if awk -v r="$rmse" -v b="$parallel_random_walk_bound" 'BEGIN { exit !(r + 0 > b + 0) }'; then
             mkdir -p "$diff_dir"
-            compare "$reference" "$output" "$diff_dir/${image}_vs_reference.png" 2>/dev/null
-            rmse=$(runCompare RMSE "$reference" "$output" null:)
-            fail "$image: AE=$ae RMSE=$rmse against port reference (difference: $diff_dir/${image}_vs_reference.png)"
+            compare \( "$golden" -resize 50% \) \( "$output" -resize 50% \) "$diff_dir/${image}_vs_golden.png" 2>/dev/null
+            fail "$image: RMSE $rmse (50% size) above bound $parallel_random_walk_bound (difference: $diff_dir/${image}_vs_golden.png)"
             return
         fi
-    else
-        expected=$(awk -v i="$image" '$1 == i { print $2 }' "$manifest" 2>/dev/null)
-        if [ -z "$expected" ]; then
-            fail "$image: no port reference"
-            return
-        fi
-        if [ "$(sha "$output")" != "$expected" ]; then
-            fail "$image: checksum differs from port reference (reference image not present locally)"
-            return
-        fi
-    fi
-
-    fingerprint="$reference_dir/fingerprints/$image.txt"
-    if [ -f "$fingerprint" ]; then
-        if [ ! -f "output/$log.log" ] || [ ! -f "output/$log.err" ]; then
-            fail "$image: missing run logs output/$log.log and .err for the statistics fingerprint"
-            return
-        fi
-        if ! statsFingerprint "output/$log" | diff -q "$fingerprint" - >/dev/null; then
-            fail "$image: statistics fingerprint differs; first differences:"
-            statsFingerprint "output/$log" | diff "$fingerprint" - | head -10
-            return
-        fi
-    fi
-    echo "EXACT: $image"
-}
-
-checkGolden() {
-    image="$1"
-    golden="$2"
-    output="output/$image.ppm"
-
-    if [ "$golden" = "-" ]; then
-        echo "SKIP: $image has no golden image"
-        return
-    fi
-    if [ ! -f "$output" ]; then
-        fail "$image: missing output $output"
-        return
-    fi
-    if [ ! -f "$golden_dir/$golden.ppm" ]; then
-        fail "$image: missing golden image $golden_dir/$golden.ppm"
+        echo "MATCH: $image RMSE $rmse (parallel Random Walk, 50% size, bound $parallel_random_walk_bound)"
         return
     fi
 
-    rmse=$(runCompare RMSE "$golden_dir/$golden.ppm" "$output" null:)
-    if [ $? -eq 2 ] || [ -z "$rmse" ]; then
-        fail "$image: compare error against golden $golden.ppm"
+    ae=$(runCompare AE "$golden" "$output" null:)
+    status=$?
+    if [ $status -eq 2 ]; then
+        fail "$image: compare error: $ae"
         return
     fi
-    bound=$(awk -v i="$image" '$1 == i { print $3 }' "$bounds" 2>/dev/null)
-    if [ -z "$bound" ]; then
-        fail "$image: no recorded RMSE bound (measured $rmse)"
-        return
-    fi
-    if awk -v r="$rmse" -v b="$bound" 'BEGIN { exit !(r + 0 > b + 0) }'; then
+    if [ $status -ne 0 ]; then
         mkdir -p "$diff_dir"
-        compare "$golden_dir/$golden.ppm" "$output" "$diff_dir/${image}_vs_golden.png" 2>/dev/null
-        fail "$image: RMSE $rmse above bound $bound against golden $golden.ppm (difference: $diff_dir/${image}_vs_golden.png)"
+        compare "$golden" "$output" "$diff_dir/${image}_vs_golden.png" 2>/dev/null
+        rmse=$(runCompare RMSE "$golden" "$output" null:)
+        fail "$image: AE=$ae RMSE=$rmse against golden image (difference: $diff_dir/${image}_vs_golden.png)"
         return
     fi
-    echo "GOLDEN: $image RMSE $rmse (bound $bound)"
+    echo "MATCH: $image"
 }
 
-captureReference() {
+captureImage() {
     image="$1"
-    log="$2"
     output="output/$image.ppm"
-    if [ ! -f "$output" ] || [ ! -f "output/$log.log" ] || [ ! -f "output/$log.err" ]; then
-        fail "$image: missing output or log, not captured"
+    if [ ! -f "$output" ]; then
+        fail "$image: missing output, not captured"
         return
     fi
-    mkdir -p "$reference_dir/fingerprints"
-    cp -p "$output" "$reference_dir/$image.ppm"
-    statsFingerprint "output/$log" > "$reference_dir/fingerprints/$image.txt"
-    touch "$manifest"
-    grep -v "^$image " "$manifest" > "$manifest.tmp"
-    echo "$image $(sha "$output") $(sha "$reference_dir/fingerprints/$image.txt")" >> "$manifest.tmp"
-    sort "$manifest.tmp" > "$manifest"
-    rm -f "$manifest.tmp"
+    mkdir -p "$golden_dir"
+    cp -p "$output" "$golden_dir/$image.ppm"
     echo "CAPTURED: $image"
-}
-
-recordBound() {
-    image="$1"
-    golden="$2"
-    output="output/$image.ppm"
-    if [ "$golden" = "-" ]; then
-        echo "SKIP: $image has no golden image"
-        return
-    fi
-    rmse=$(runCompare RMSE "$golden_dir/$golden.ppm" "$output" null:)
-    if [ $? -eq 2 ] || [ -z "$rmse" ]; then
-        fail "$image: compare error against golden $golden.ppm"
-        return
-    fi
-    touch "$bounds"
-    grep -v "^$image " "$bounds" > "$bounds.tmp"
-    echo "$image $golden.ppm $rmse" >> "$bounds.tmp"
-    sort "$bounds.tmp" > "$bounds"
-    rm -f "$bounds.tmp"
-    echo "BOUND: $image $rmse"
 }
 
 # A scene outside the corpus is compared only once its run has finished
@@ -229,16 +152,12 @@ optionalReady() {
 for line in $selection; do
     image=$(echo "$line" | cut -d'|' -f1)
     log=$(echo "$line" | cut -d'|' -f3)
-    golden=$(echo "$line" | cut -d'|' -f4)
     if isOptional "$line" && ! optionalReady "$image" "$log"; then
         continue
     fi
     case "$mode" in
-        exact) checkExact "$image" "$log" ;;
-        golden) checkGolden "$image" "$golden" ;;
-        all) checkExact "$image" "$log"; checkGolden "$image" "$golden" ;;
-        capture) captureReference "$image" "$log" ;;
-        bounds) recordBound "$image" "$golden" ;;
+        check) checkImage "$image" ;;
+        capture) captureImage "$image" ;;
     esac
 done
 

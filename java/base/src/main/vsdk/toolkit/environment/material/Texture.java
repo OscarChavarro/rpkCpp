@@ -56,16 +56,16 @@ public final class Texture {
         return data;
     }
 
-    private float channelValue(int pixelIndex, int channel)
+    private double channelValue(int pixelIndex, int channel)
     {
-        return (float)(data[pixelIndex + channel] & 0xFF) / 255.0F;
+        return (double)(data[pixelIndex + channel] & 0xFF) / 255.0;
     }
 
-    public ColorRgb evaluateColor(float u, float v)
+    public ColorRgb evaluateColor(double u, double v)
     {
-        double u1 = u - (float)Math.floor(u);
+        double u1 = u - Math.floor(u);
         double u0 = 1.0 - u1;
-        double v1 = v - (float)Math.floor(v);
+        double v1 = v - Math.floor(v);
         double v0 = 1.0 - v1;
         int i = (int)(u1 * width);
         int i1 = i + 1;

@@ -1,8 +1,7 @@
 package vsdk.toolkit.material;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.material.PhongMaterial;
 import vsdk.toolkit.environment.material.SurfaceShadingPoint;
 
@@ -28,7 +27,7 @@ public class PhongEmittanceDistributionFunction {
     /**
     No emitter defines its own shading frame: callers build a default one
     */
-    public static boolean edfShadingFrame(ShadingContext context, Vector3Df X, Vector3Df Y, Vector3Df Z) {
+    public static boolean edfShadingFrame(ShadingContext context, Vector3Dd X, Vector3Dd Y, Vector3Dd Z) {
         return false;
     }
 
@@ -42,7 +41,7 @@ public class PhongEmittanceDistributionFunction {
     probabilityDensityFunction is not null, the density of out under
     phongEdfSample goes there
     */
-    public ColorRgb phongEdfEval(ShadingContext context, Vector3Df out, int flags, double[] probabilityDensityFunction) {
+    public ColorRgb phongEdfEval(ShadingContext context, Vector3Dd out, int flags, double[] probabilityDensityFunction) {
         if ( context == null ) {
             return material.emissionEvaluate(null, out, flags, probabilityDensityFunction);
         }
@@ -52,19 +51,19 @@ public class PhongEmittanceDistributionFunction {
 
     /**
     Samples an emitted direction; the radiance along it (into
-    selfEmittedRadiance, an out-parameter that is mutated) and its density
-    go to the non-null arguments
+    selfEmittedRadiance, a one-element output holder) and its density go to
+    the non-null arguments
     */
-    public Vector3Df phongEdfSample(
+    public Vector3Dd phongEdfSample(
         ShadingContext context,
         int flags,
         double xi1,
         double xi2,
-        ColorRgbMutable selfEmittedRadiance,
+        ColorRgb[] selfEmittedRadiance,
         double[] probabilityDensityFunction)
     {
         final ColorRgb[] radiance = selfEmittedRadiance != null ? new ColorRgb[1] : null;
-        final Vector3Df direction;
+        final Vector3Dd direction;
         if ( context == null ) {
             direction = material.emissionSample(
                 null, flags, xi1, xi2, radiance, probabilityDensityFunction);
@@ -74,7 +73,7 @@ public class PhongEmittanceDistributionFunction {
                 point, flags, xi1, xi2, radiance, probabilityDensityFunction);
         }
         if ( selfEmittedRadiance != null ) {
-            selfEmittedRadiance.set(radiance[0].getR(), radiance[0].getG(), radiance[0].getB());
+            selfEmittedRadiance[0] = radiance[0];
         }
         return direction;
     }

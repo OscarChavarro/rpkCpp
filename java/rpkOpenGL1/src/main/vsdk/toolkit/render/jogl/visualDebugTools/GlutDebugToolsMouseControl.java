@@ -1,26 +1,27 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
+import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Matrix4x4f;
+import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.render.jogl.RenderOpenGL;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.environment.geometry.elements.ElementTypes;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public final class GlutDebugToolsMouseControl {
     private static final int DRAG_START_THRESHOLD_PIXELS = 3;
-    private static final float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25f;
-    private static final float DEGREES_TO_RADIANS = (float)Math.PI / 180.0f;
+    private static final double DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25;
+    private static final double DEGREES_TO_RADIANS = (double)Math.PI / 180.0;
 
     private static boolean leftButtonDown = false;
     private static boolean dragging = false;
@@ -66,8 +67,8 @@ public final class GlutDebugToolsMouseControl {
         Camera camera = model.scene.camera;
         if ( camera.xSize == model.width
              && camera.ySize == model.height
-             && camera.pixelWidth > Numeric.EPSILON_FLOAT
-             && camera.pixelHeight > Numeric.EPSILON_FLOAT ) {
+             && camera.pixelWidth > Numeric.EPSILON
+             && camera.pixelHeight > Numeric.EPSILON ) {
             return;
         }
 
@@ -111,9 +112,9 @@ public final class GlutDebugToolsMouseControl {
         }
     }
 
-    private static Vector3Df sceneRotationPivot(Scene scene) {
+    private static Vector3Dd sceneRotationPivot(Scene scene) {
         if ( scene == null ) {
-            return new Vector3Df(0.0f, 0.0f, 0.0f);
+            return new Vector3Dd(0.0, 0.0, 0.0);
         }
 
         if ( scene.clusteredRootGeometry != null && scene.clusteredRootGeometry.bounded ) {
@@ -121,21 +122,21 @@ public final class GlutDebugToolsMouseControl {
         }
 
         if ( scene.geometryList != null && !scene.geometryList.isEmpty() ) {
-            BoundingBox sceneBounds = new BoundingBox();
-            Geometry.listBounds(scene.geometryList, sceneBounds);
+            RpkAxisAlignedBoundingBox sceneBounds = new RpkAxisAlignedBoundingBox();
+            RpkGeometry.listBounds(scene.geometryList, sceneBounds);
             return sceneBounds.center();
         }
 
-        return new Vector3Df(0.0f, 0.0f, 0.0f);
+        return new Vector3Dd(0.0, 0.0, 0.0);
     }
 
-    private static void viewportAxesInWorld(Scene scene, Vector3Df[] axisU, Vector3Df[] axisV) {
+    private static void viewportAxesInWorld(Scene scene, Vector3Dd[] axisU, Vector3Dd[] axisV) {
         if ( axisU == null || axisV == null ) {
             return;
         }
 
-        axisU[0] = new Vector3Df(1.0f, 0.0f, 0.0f);
-        axisV[0] = new Vector3Df(0.0f, 1.0f, 0.0f);
+        axisU[0] = new Vector3Dd(1.0, 0.0, 0.0);
+        axisV[0] = new Vector3Dd(0.0, 1.0, 0.0);
 
         if ( scene == null || scene.camera == null ) {
             return;
@@ -143,97 +144,98 @@ public final class GlutDebugToolsMouseControl {
 
         Camera camera = scene.camera;
 
-        Vector3Df cameraU = new Vector3Df();
+        Vector3Dd cameraU = new Vector3Dd();
         cameraU = camera.X;
-        Vector3Df cameraV = new Vector3Df();
+        Vector3Dd cameraV = new Vector3Dd();
         cameraV = camera.Y;
 
-        if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT || cameraV.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-            Vector3Df viewDirection = new Vector3Df();
+        if ( cameraU.lengthSquared() < Numeric.EPSILON || cameraV.lengthSquared() < Numeric.EPSILON ) {
+            Vector3Dd viewDirection = new Vector3Dd();
             viewDirection = camera.lookPosition.subtract(camera.eyePosition);
-            if ( viewDirection.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+            if ( viewDirection.lengthSquared() < Numeric.EPSILON ) {
                 return;
             }
-            viewDirection = viewDirection.normalized(Numeric.EPSILON_FLOAT);
+            viewDirection = viewDirection.normalized(Numeric.EPSILON);
 
-            Vector3Df upDirection = new Vector3Df();
+            Vector3Dd upDirection = new Vector3Dd();
             upDirection = camera.upDirection;
-            if ( upDirection.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-                upDirection = new Vector3Df(0.0f, 0.0f, 1.0f);
+            if ( upDirection.lengthSquared() < Numeric.EPSILON ) {
+                upDirection = new Vector3Dd(0.0, 0.0, 1.0);
             }
             else {
-                upDirection = upDirection.normalized(Numeric.EPSILON_FLOAT);
+                upDirection = upDirection.normalized(Numeric.EPSILON);
             }
 
             cameraU = viewDirection.crossProduct(upDirection);
-            if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-                upDirection = new Vector3Df(0.0f, 1.0f, 0.0f);
+            if ( cameraU.lengthSquared() < Numeric.EPSILON ) {
+                upDirection = new Vector3Dd(0.0, 1.0, 0.0);
                 cameraU = viewDirection.crossProduct(upDirection);
             }
-            if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+            if ( cameraU.lengthSquared() < Numeric.EPSILON ) {
                 return;
             }
 
-            cameraU = cameraU.normalized(Numeric.EPSILON_FLOAT);
+            cameraU = cameraU.normalized(Numeric.EPSILON);
             cameraV = viewDirection.crossProduct(cameraU);
         }
 
-        if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT || cameraV.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+        if ( cameraU.lengthSquared() < Numeric.EPSILON || cameraV.lengthSquared() < Numeric.EPSILON ) {
             return;
         }
 
-        cameraU = cameraU.normalized(Numeric.EPSILON_FLOAT);
-        cameraV = cameraV.normalized(Numeric.EPSILON_FLOAT);
+        cameraU = cameraU.normalized(Numeric.EPSILON);
+        cameraV = cameraV.normalized(Numeric.EPSILON);
         axisU[0] = cameraU;
         axisV[0] = cameraV;
     }
 
     /** Returns the rotated vector (the vector itself when nothing is to be done) */
-    private static Vector3Df rotateVectorAroundAxis(Vector3Df vector, Vector3Df axis, float angleDegrees) {
-        if ( vector == null || axis == null || axis.lengthSquared() < Numeric.EPSILON_FLOAT || angleDegrees == 0.0f ) {
+    private static Vector3Dd rotateVectorAroundAxis(Vector3Dd vector, Vector3Dd axis, double angleDegrees) {
+        if ( vector == null || axis == null || axis.lengthSquared() < Numeric.EPSILON || angleDegrees == 0.0 ) {
             return vector;
         }
 
-        final Matrix4x4f rotation = new Matrix4x4f().axisRotation(angleDegrees * DEGREES_TO_RADIANS, axis);
+        final Matrix4x4d rotation = new Matrix4x4d().axisRotation(angleDegrees * DEGREES_TO_RADIANS, axis);
         return rotation.withoutTranslation().multiply(vector);
     }
 
-    private static void applyInverseDebugRotationToRay(GlutDebugToolsModel model, Ray ray) {
+    // Java adaptation: the C++ port changes the ray through a pointer; Java rays
+    // are immutable, so the changed ray is returned
+    private static Ray applyInverseDebugRotationToRay(GlutDebugToolsModel model, Ray ray) {
         if ( ray == null || model.debugState == null ) {
-            return;
+            return ray;
         }
 
-        float angleAroundU = model.debugState.angleAroundViewportU;
-        float angleAroundV = model.debugState.angleAroundViewportV;
-        if ( angleAroundU == 0.0f && angleAroundV == 0.0f ) {
-            return;
+        double angleAroundU = model.debugState.angleAroundViewportU;
+        double angleAroundV = model.debugState.angleAroundViewportV;
+        if ( angleAroundU == 0.0 && angleAroundV == 0.0 ) {
+            return ray;
         }
 
-        Vector3Df pivot = sceneRotationPivot(model.scene);
-        Vector3Df[] axisU = {new Vector3Df()};
-        Vector3Df[] axisV = {new Vector3Df()};
+        Vector3Dd pivot = sceneRotationPivot(model.scene);
+        Vector3Dd[] axisU = {new Vector3Dd()};
+        Vector3Dd[] axisV = {new Vector3Dd()};
         viewportAxesInWorld(model.scene, axisU, axisV);
 
-        Vector3Df translatedOrigin = ray.position.subtract(pivot);
+        Vector3Dd translatedOrigin = ray.getOrigin().subtract(pivot);
         translatedOrigin = rotateVectorAroundAxis(translatedOrigin, axisU[0], -angleAroundU);
         translatedOrigin = rotateVectorAroundAxis(translatedOrigin, axisV[0], -angleAroundV);
-        ray.position = pivot.add(translatedOrigin);
+        ray = ray.withOrigin(pivot.add(translatedOrigin));
 
-        ray.direction = rotateVectorAroundAxis(ray.direction, axisU[0], -angleAroundU);
-        ray.direction = rotateVectorAroundAxis(ray.direction, axisV[0], -angleAroundV);
-        ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+        ray = ray.withDirection(rotateVectorAroundAxis(ray.getDirection(), axisU[0], -angleAroundU));
+        ray = ray.withDirection(rotateVectorAroundAxis(ray.getDirection(), axisV[0], -angleAroundV));
+        ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
+        return ray;
     }
 
-    private static void buildPickRay(GlutDebugToolsModel model, int x, int y, Ray ray) {
-        if ( ray == null ) {
-            return;
-        }
-
-        ray.position = new Vector3Df(0.0f, 0.0f, 0.0f);
-        ray.direction = new Vector3Df(0.0f, 0.0f, 1.0f);
+    // Java adaptation: returns the ray the C++ port writes through its pointer
+    private static Ray buildPickRay(GlutDebugToolsModel model, int x, int y) {
+        Ray ray = new Ray();
+        ray = ray.withOrigin(new Vector3Dd(0.0, 0.0, 0.0));
+        ray = ray.withDirection(new Vector3Dd(0.0, 0.0, 1.0));
 
         if ( model.scene == null || model.scene.camera == null || model.width <= 0 || model.height <= 0 ) {
-            return;
+            return ray;
         }
 
         syncCameraToViewport(model);
@@ -241,35 +243,35 @@ public final class GlutDebugToolsMouseControl {
         Camera camera = model.scene.camera;
         RenderOpenGL.renderGetNearFar(camera, model.scene.geometryList);
 
-        float nearDistance = camera.near;
-        if ( nearDistance < Numeric.EPSILON_FLOAT ) {
-            if ( camera.viewDistance > Numeric.EPSILON_FLOAT ) {
-                nearDistance = camera.viewDistance / 100.0f;
+        double nearDistance = camera.near;
+        if ( nearDistance < Numeric.EPSILON ) {
+            if ( camera.viewDistance > Numeric.EPSILON ) {
+                nearDistance = camera.viewDistance / 100.0;
             }
             else {
-                nearDistance = 0.1f;
+                nearDistance = 0.1;
             }
         }
 
         int pixelX = clampCoord(x, model.width);
         int pixelY = clampCoord(y, model.height);
 
-        float normalizedU =
-            (2.0f * (((float)pixelX + 0.5f) / (float)model.width)) - 1.0f;
-        float normalizedV =
-            (2.0f * (((float)pixelY + 0.5f) / (float)model.height)) - 1.0f;
+        double normalizedU =
+            (2.0 * (((double)pixelX + 0.5) / (double)model.width)) - 1.0;
+        double normalizedV =
+            (2.0 * (((double)pixelY + 0.5) / (double)model.height)) - 1.0;
 
-        float nearPlaneU = normalizedU * camera.pixelWidthTangent * nearDistance;
-        float nearPlaneV = normalizedV * camera.pixelHeightTangent * nearDistance;
+        double nearPlaneU = normalizedU * camera.pixelWidthTangent * nearDistance;
+        double nearPlaneV = normalizedV * camera.pixelHeightTangent * nearDistance;
 
-        float uAtUnitDepth = nearPlaneU / nearDistance;
-        float vAtUnitDepth = nearPlaneV / nearDistance;
+        double uAtUnitDepth = nearPlaneU / nearDistance;
+        double vAtUnitDepth = nearPlaneV / nearDistance;
 
-        ray.position = new Vector3Df(camera.eyePosition.x(), camera.eyePosition.y(), camera.eyePosition.z());
-        ray.direction = camera.Z.add(camera.X.multiply(uAtUnitDepth)).add(camera.Y.multiply(vAtUnitDepth));
-        ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+        ray = ray.withOrigin(new Vector3Dd(camera.eyePosition.x(), camera.eyePosition.y(), camera.eyePosition.z()));
+        ray = ray.withDirection(camera.Z.add(camera.X.multiply(uAtUnitDepth)).add(camera.Y.multiply(vAtUnitDepth)));
+        ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
-        applyInverseDebugRotationToRay(model, ray);
+        return applyInverseDebugRotationToRay(model, ray);
     }
 
     private static boolean pickPatchAtMousePosition(GlutDebugToolsModel model, int x, int y, int[] patchIndex) {
@@ -282,26 +284,25 @@ public final class GlutDebugToolsMouseControl {
             return false;
         }
 
-        Ray ray = new Ray();
-        buildPickRay(model, x, y, ray);
+        Ray ray = buildPickRay(model, x, y);
 
         ArrayList<PatchHitCandidate> hitCandidates = new ArrayList<>();
 
         for ( int i = 0; i < model.scene.patchList.size(); i++ ) {
             Patch patch = model.scene.patchList.get(i);
-            if ( patch == null || patch.radianceData == null ) {
+            if ( patch == null || GalerkinRadianceMethod.galerkinState.boundElement(patch) == null ) {
                 continue;
             }
-            if ( patch.radianceData.className != ElementTypes.ELEMENT_GALERKIN ) {
+            if ( GalerkinRadianceMethod.galerkinState.boundElement(patch).className != ElementTypes.ELEMENT_GALERKIN ) {
                 continue;
             }
 
-            float[] maxDistance = new float[] {Float.MAX_VALUE};
-            RayHit hit = new RayHit();
+            double[] maxDistance = new double[] {Double.MAX_VALUE};
+            RpkRayHit hit = new RpkRayHit();
             final RayExclusionSet noExclusions = new RayExclusionSet();
-            RayHit intersection = patch.intersect(
+            RpkRayHit intersection = patch.intersect(
                 ray,
-                Numeric.EPSILON_FLOAT,
+                Numeric.EPSILON,
                 maxDistance,
                 RayHitFlag.FRONT | RayHitFlag.BACK,
                 hit,
@@ -316,9 +317,9 @@ public final class GlutDebugToolsMouseControl {
             return false;
         }
 
-        float nearestFrontDistance = Float.MAX_VALUE;
+        double nearestFrontDistance = Double.MAX_VALUE;
         int nearestFrontPatchIndex = -1;
-        float nearestBackDistance = Float.MAX_VALUE;
+        double nearestBackDistance = Double.MAX_VALUE;
         int nearestBackPatchIndex = -1;
 
         for ( int i = 0; i < hitCandidates.size(); i++ ) {
@@ -437,8 +438,8 @@ public final class GlutDebugToolsMouseControl {
             return false;
         }
 
-        model.debugState.angleAroundViewportV -= (float)deltaX * DRAG_ROTATION_DEGREES_PER_PIXEL;
-        model.debugState.angleAroundViewportU += (float)deltaY * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        model.debugState.angleAroundViewportV -= (double)deltaX * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        model.debugState.angleAroundViewportU += (double)deltaY * DRAG_ROTATION_DEGREES_PER_PIXEL;
         return true;
     }
 }

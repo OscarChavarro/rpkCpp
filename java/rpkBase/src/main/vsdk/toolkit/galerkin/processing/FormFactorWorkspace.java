@@ -1,11 +1,10 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.ShadowStatistics;
 import vsdk.toolkit.environment.geometry.elements.PatchIntersectionWorkspace;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 
@@ -31,26 +30,25 @@ public class FormFactorWorkspace {
     private GalerkinElement lastSource;
     private CubatureRule receiverCubatureRule;
     private CubatureRule sourceCubatureRule;
-    private final Vector3Df[] receiverNodes = new Vector3Df[CubatureRule.MAXIMUM_NODES];
-    private final Vector3Df[] sourceNodes = new Vector3Df[CubatureRule.MAXIMUM_NODES];
+    private final Vector3Dd[] receiverNodes = new Vector3Dd[CubatureRule.MAXIMUM_NODES];
+    private final Vector3Dd[] sourceNodes = new Vector3Dd[CubatureRule.MAXIMUM_NODES];
     private final double[][] kernel = new double[CubatureRule.MAXIMUM_NODES][CubatureRule.MAXIMUM_NODES];
     private double maximumKernelValue;
     private int visibilityCount; // Number of rays that "pass" occluders
     private final ShadowStatistics shadowStatistics; // Not owned
     private ArrayList<GalerkinElement> deferredNodesTooClose; // Not owned; null to report at once
 
-    private final Ray kernelRay = new Ray();
-    private final RayHit kernelHitStore = new RayHit();
-    private final float[] kernelDistance = new float[1];
-    private final float[] shadowTestDistance = new float[1];
+    private final RpkRayHit kernelHitStore = new RpkRayHit();
+    private final double[] kernelDistance = new double[1];
+    private final double[] shadowTestDistance = new double[1];
     private final PatchIntersectionWorkspace patchWorkspace = new PatchIntersectionWorkspace();
 
     public FormFactorWorkspace(ShadowStatistics inShadowStatistics) {
         shadowStatistics = inShadowStatistics;
         deferredNodesTooClose = null;
         for ( int i = 0; i < CubatureRule.MAXIMUM_NODES; i++ ) {
-            receiverNodes[i] = new Vector3Df();
-            sourceNodes[i] = new Vector3Df();
+            receiverNodes[i] = new Vector3Dd();
+            sourceNodes[i] = new Vector3Dd();
         }
     }
 
@@ -83,11 +81,11 @@ public class FormFactorWorkspace {
         sourceCubatureRule = rule;
     }
 
-    Vector3Df[] getReceiverNodes() {
+    Vector3Dd[] getReceiverNodes() {
         return receiverNodes;
     }
 
-    Vector3Df[] getSourceNodes() {
+    Vector3Dd[] getSourceNodes() {
         return sourceNodes;
     }
 
@@ -111,19 +109,15 @@ public class FormFactorWorkspace {
         visibilityCount = value;
     }
 
-    Ray getKernelRay() {
-        return kernelRay;
-    }
-
-    RayHit getKernelHitStore() {
+    RpkRayHit getKernelHitStore() {
         return kernelHitStore;
     }
 
-    float[] getKernelDistance() {
+    double[] getKernelDistance() {
         return kernelDistance;
     }
 
-    float[] getShadowTestDistance() {
+    double[] getShadowTestDistance() {
         return shadowTestDistance;
     }
 

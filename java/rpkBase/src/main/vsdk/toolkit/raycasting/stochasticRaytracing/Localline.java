@@ -7,13 +7,12 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.scene.VisibilityQueryRecorder;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public final class Localline {
     private Localline() {
@@ -23,11 +22,11 @@ public final class Localline {
 Creates a coordinate system on the patch P with Z direction along the normal
 */
     private static void patchCoordSys(Patch patch, CoordinateSystem coord) {
-        Vector3Df z = patch.getNormal();
-        Vector3Df x = new Vector3Df();
-        x = patch.vertex[1].point.subtract(patch.vertex[0].point);
-        x = x.normalized(Numeric.EPSILON_FLOAT);
-        Vector3Df y = new Vector3Df();
+        Vector3Dd z = patch.getNormal();
+        Vector3Dd x = new Vector3Dd();
+        x = patch.getVertices()[1].point.subtract(patch.getVertices()[0].point);
+        x = x.normalized(Numeric.EPSILON);
+        Vector3Dd y = new Vector3Dd();
         y = z.crossProduct(x);
 
         coord.setX(x);
@@ -51,10 +50,10 @@ by the 4-dimensional sample vector xi
             previousPatch = patch;
         }
 
-        ray.position = patch.uniformPoint(xi[0], xi[1]);
+        ray = ray.withOrigin(patch.uniformPoint(xi[0], xi[1]));
         // Section [ARVO1995b].2: use two uniform samples from [0,1]^2 to
         // generate a local hemisphere direction in the patch frame.
-        ray.direction = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], pdf);
+        ray = ray.withDirection(coordSys.sampleHemisphereCosTheta(xi[2], xi[3], pdf));
 
         return ray;
     }
@@ -71,27 +70,19 @@ In order to let the user have the impression that the computations are proceedin
     /**
 Determines nearest intersection point and patch
 */
-    public static RayHit mcrShootRay(SceneQuery sceneQuery, SceneQueryWorkspace sceneWorldSceneQueryWorkspace, Patch P, Ray ray, RayHit hitStore) {
-        float[] distance = new float[] {Float.MAX_VALUE};
+    public static RpkRayHit mcrShootRay(SceneQuery sceneQuery, SceneQueryWorkspace sceneWorldSceneQueryWorkspace, Patch P, Ray ray, RpkRayHit hitStore) {
+        double[] distance = new double[] {Double.MAX_VALUE};
 
         // Reject self-intersections
-        RayExclusionSet exclusions = new RayExclusionSet(P, P.twin);
-        RayHit hit = sceneQuery.intersect(
+        RayExclusionSet exclusions = new RayExclusionSet(P, P.getTwin());
+        RpkRayHit hit = sceneQuery.intersect(
             ray,
-            Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
+            Numeric.EPSILON < P.getTolerance() ? Numeric.EPSILON : P.getTolerance(),
             distance,
             vsdk.toolkit.environment.geometry.elements.RayHitFlag.FRONT | vsdk.toolkit.environment.geometry.elements.RayHitFlag.POINT,
             hitStore,
             exclusions,
             sceneWorldSceneQueryWorkspace);
-        if ( sceneWorldSceneQueryWorkspace.getRecorder() != null ) {
-            sceneWorldSceneQueryWorkspace.getRecorder().recordQuery(
-                VisibilityQueryRecorder.STOCHASTIC_SHOOTING, ray,
-                Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
-                Float.MAX_VALUE,
-                vsdk.toolkit.environment.geometry.elements.RayHitFlag.FRONT | vsdk.toolkit.environment.geometry.elements.RayHitFlag.POINT,
-                exclusions, hit, distance[0]);
-        }
         someFeedback();
 
         return hit;

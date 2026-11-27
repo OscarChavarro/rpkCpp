@@ -8,9 +8,9 @@ import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Matrix4x4f;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.wrapper.PersistenceElement;
 import vsdk.toolkit.scene.Camera;
 
@@ -76,19 +76,19 @@ have been iterated over, nullptr is returned
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
 */
-    private static Matrix4x4f transformModel(Camera camera, Vector3Df[] modelRotationAxis, float[] modelRotationAngle) {
-        Vector3Df upAxis = new Vector3Df(0.0f, 1.0f, 0.0f);
+    private static Matrix4x4d transformModel(Camera camera, Vector3Dd[] modelRotationAxis, double[] modelRotationAngle) {
+        Vector3Dd upAxis = new Vector3Dd(0.0, 1.0, 0.0);
         double cosA = camera.upDirection.dotProduct(upAxis);
         if (cosA < 1.0 - VSDK.EPSILON) {
-            modelRotationAngle[0] = (float)Math.acos(cosA);
+            modelRotationAngle[0] = (double)Math.acos(cosA);
             modelRotationAxis[0] = camera.upDirection.crossProduct(upAxis);
-            modelRotationAxis[0] = modelRotationAxis[0].normalized(Numeric.EPSILON_FLOAT);
-            return new Matrix4x4f().axisRotation(modelRotationAngle[0], modelRotationAxis[0]);
+            modelRotationAxis[0] = modelRotationAxis[0].normalized(Numeric.EPSILON);
+            return new Matrix4x4d().axisRotation(modelRotationAngle[0], modelRotationAxis[0]);
         }
 
-        modelRotationAxis[0] = new Vector3Df(0.0f, 1.0f, 0.0f);
-        modelRotationAngle[0] = 0.0f;
-        Matrix4x4f identity = new Matrix4x4f();
+        modelRotationAxis[0] = new Vector3Dd(0.0, 1.0, 0.0);
+        modelRotationAngle[0] = 0.0;
+        Matrix4x4d identity = new Matrix4x4d();
         return identity;
     }
 
@@ -97,32 +97,32 @@ Y-axis positions up in VRML2.0
     There is no check whether the transform really is a rotation.
     angle and axis are one-element output holders.
     */
-    private static void recoverRotationParameters(Matrix4x4f rotation, float[] angle, Vector3Df[] axis) {
-        final float c = (rotation.get(0, 0) + rotation.get(1, 1) + rotation.get(2, 2) - 1.0f) * 0.5f;
-        if ( c > 1.0f - VSDK.EPSILON ) {
-            angle[0] = 0.0f;
-            axis[0] = new Vector3Df(0.0f, 0.0f, 1.0f);
+    private static void recoverRotationParameters(Matrix4x4d rotation, double[] angle, Vector3Dd[] axis) {
+        final double c = (rotation.get(0, 0) + rotation.get(1, 1) + rotation.get(2, 2) - 1.0) * 0.5;
+        if ( c > 1.0 - VSDK.EPSILON ) {
+            angle[0] = 0.0;
+            axis[0] = new Vector3Dd(0.0, 0.0, 1.0);
         }
-        else if ( c < -1.0f + VSDK.EPSILON ) {
-            angle[0] = (float)Math.PI;
-            float x = (float)Math.sqrt((rotation.get(0, 0) + 1.0f) * 0.5f);
-            float y = (float)Math.sqrt((rotation.get(1, 1) + 1.0f) * 0.5f);
-            float z = (float)Math.sqrt((rotation.get(2, 2) + 1.0f) * 0.5f);
+        else if ( c < -1.0 + VSDK.EPSILON ) {
+            angle[0] = (double)Math.PI;
+            double x = (double)Math.sqrt((rotation.get(0, 0) + 1.0) * 0.5);
+            double y = (double)Math.sqrt((rotation.get(1, 1) + 1.0) * 0.5);
+            double z = (double)Math.sqrt((rotation.get(2, 2) + 1.0) * 0.5);
 
             // Assume x positive, determine sign of y and z
-            if ( rotation.get(1, 0) < 0.0f ) {
+            if ( rotation.get(1, 0) < 0.0 ) {
                 y = -y;
             }
-            if ( rotation.get(2, 0) < 0.0f ) {
+            if ( rotation.get(2, 0) < 0.0 ) {
                 z = -z;
             }
-            axis[0] = new Vector3Df(x, y, z);
+            axis[0] = new Vector3Dd(x, y, z);
         }
         else {
-            angle[0] = (float)Math.acos(c);
-            final float s = (float)Math.sqrt(1.0f - c * c);
-            final float r = 1.0f / (2.0f * s);
-            axis[0] = new Vector3Df(
+            angle[0] = (double)Math.acos(c);
+            final double s = (double)Math.sqrt(1.0 - c * c);
+            final double r = 1.0 / (2.0 * s);
+            axis[0] = new Vector3Dd(
                 (rotation.get(2, 1) - rotation.get(1, 2)) * r,
                 (rotation.get(0, 2) - rotation.get(2, 0)) * r,
                 (rotation.get(1, 0) - rotation.get(0, 1)) * r);
@@ -134,34 +134,34 @@ Write VRML ViewPoint node for the given camera position
 */
     private static void writeViewPoint(
         OutputStream outputStream,
-        Matrix4x4f modelTransform,
+        Matrix4x4d modelTransform,
         Camera camera,
         String viewPointName) {
-        Vector3Df X;
-        Vector3Df Y;
-        Vector3Df Z;
-        Vector3Df[] viewRotationAxis = {new Vector3Df()};
-        Vector3Df eyePosition;
-        float[] viewRotationAngle = new float[] {0.0f};
+        Vector3Dd X;
+        Vector3Dd Y;
+        Vector3Dd Z;
+        Vector3Dd[] viewRotationAxis = {new Vector3Dd()};
+        Vector3Dd eyePosition;
+        double[] viewRotationAngle = new double[] {0.0};
 
-        X = camera.X.multiply(1.0f); // camera->X positions right in window
-        Y = camera.Y.multiply(-1.0f); // camera->Y positions down in window, VRML wants y up
-        Z = camera.Z.multiply(-1.0f); // camera->Z positions away, VRML wants Z to point towards viewer
+        X = camera.X.multiply(1.0); // camera->X positions right in window
+        Y = camera.Y.multiply(-1.0); // camera->Y positions down in window, VRML wants y up
+        Z = camera.Z.multiply(-1.0); // camera->Z positions away, VRML wants Z to point towards viewer
 
         // Apply model transform (its rotation part)
-        final Matrix4x4f modelRotation = modelTransform.withoutTranslation();
+        final Matrix4x4d modelRotation = modelTransform.withoutTranslation();
         X = modelRotation.multiply(X);
         Y = modelRotation.multiply(Y);
         Z = modelRotation.multiply(Z);
 
         // Construct view orientation transform and recover axis and angle
-        final float[][] orientation = {
-            {X.x(), Y.x(), Z.x(), 0.0f},
-            {X.y(), Y.y(), Z.y(), 0.0f},
-            {X.z(), Y.z(), Z.z(), 0.0f},
-            {0.0f, 0.0f, 0.0f, 1.0f}
+        final double[][] orientation = {
+            {X.x(), Y.x(), Z.x(), 0.0},
+            {X.y(), Y.y(), Z.y(), 0.0},
+            {X.z(), Y.z(), Z.z(), 0.0},
+            {0.0, 0.0, 0.0, 1.0}
         };
-        recoverRotationParameters(new Matrix4x4f(orientation), viewRotationAngle, viewRotationAxis);
+        recoverRotationParameters(new Matrix4x4d(orientation), viewRotationAngle, viewRotationAxis);
 
         // Apply model transform to eye point
         eyePosition = modelRotation.multiply(camera.eyePosition);
@@ -183,7 +183,7 @@ Write VRML ViewPoint node for the given camera position
     private static void writeViewPoints(
         Camera camera,
         OutputStream outputStream,
-        Matrix4x4f modelTransform) {
+        Matrix4x4d modelTransform) {
         Camera localCamera = null;
         int count = 1;
         writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
@@ -201,9 +201,9 @@ Can also be used by radiance-method specific VRML savers.
     public static void writeHeader(
         Camera camera,
         OutputStream outputStream,
-        RenderOptions renderOptions) {
-        Vector3Df[] modelRotationAxis = {new Vector3Df()};
-        float[] modelRotationAngle = new float[] {0.0f};
+        RendererConfiguration renderOptions) {
+        Vector3Dd[] modelRotationAxis = {new Vector3Dd()};
+        double[] modelRotationAngle = new double[] {0.0};
 
         writeFormatted(outputStream, "#VRML V2.0 utf8\n\n");
 
@@ -215,7 +215,7 @@ Can also be used by radiance-method specific VRML savers.
 
         writeFormatted(outputStream, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
-        Matrix4x4f modelTransform = transformModel(camera, modelRotationAxis, modelRotationAngle);
+        Matrix4x4d modelTransform = transformModel(camera, modelRotationAxis, modelRotationAngle);
         writeViewPoints(camera, outputStream, modelTransform);
 
         writeFormatted(

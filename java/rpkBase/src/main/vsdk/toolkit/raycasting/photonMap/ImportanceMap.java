@@ -4,39 +4,41 @@ The real importance map storage
 
 package vsdk.toolkit.raycasting.photonMap;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.Camera;
 
 public class ImportanceMap extends PhotonMap {
-    private float m_maxImp;
-    private float m_avgImp;
-    private float m_totalMaxDistance;
+    private double m_maxImp;
+    private double m_avgImp;
+    private double m_totalMaxDistance;
     private int m_preReconPhotons;
-    private float[] m_impScalePtr;
+    private double[] m_impScalePtr;
 
     // Constructor: always use irradiance per computation
-    public ImportanceMap(PhotonMapState photonMapState, int[] estimate_nrp, float[] impScalePtr) {
+    public ImportanceMap(PhotonMapState photonMapState, int[] estimate_nrp, double[] impScalePtr) {
         super(photonMapState, estimate_nrp, true);
-        m_maxImp = 0.0f;
-        m_avgImp = 0.0f;
-        m_totalMaxDistance = 0.0f;
+        m_maxImp = 0.0;
+        m_avgImp = 0.0;
+        m_totalMaxDistance = 0.0;
         m_preReconPhotons = 0;
         m_impScalePtr = impScalePtr;
     }
 
     // Override some photon map functions
     @Override
-    public boolean addPhoton(Photon photon, Vector3Df normal, short flags) {
+    public boolean addPhoton(Photon photon, Vector3Dd normal, short flags) {
         return super.addPhoton(photon, normal, flags);
     }
 
     // reconstruct
-    public float reconstructImportance(Vector3Df pos, Vector3Df normal) {
-        float maxDistance;
-        float result = 0.0f;
-        float importance;
-        float factor;
+    public double reconstructImportance(Vector3Dd pos, Vector3Dd normal) {
+        double maxDistance;
+        double result = 0.0;
+        double importance;
+        double factor;
 
         // Nearest photons must be found beforehand!
 
@@ -46,12 +48,12 @@ public class ImportanceMap extends PhotonMap {
         for ( int i = 0; i < m_nrpFound; i++ ) {
             Photon importon = m_photons[i];
 
-            Vector3Df dir = importon.dir();
+            Vector3Dd dir = importon.dir();
 
             // No bsdf eval : incoming importance !!!!!!
-            importance = (float)importon.power().getR();
+            importance = (double)importon.power().getR();
 
-            float cos_theta = dir.dotProduct(normal);
+            double cos_theta = dir.dotProduct(normal);
             if ( cos_theta > 0.0 ) {
                 result += importance;
             }
@@ -64,15 +66,15 @@ public class ImportanceMap extends PhotonMap {
             return 0;
         }
 
-        factor = 1.0f / ((float)Math.PI * maxDistance * (float)m_totalPaths);
+        factor = 1.0 / ((double)Math.PI * maxDistance * (double)m_totalPaths);
         result *= factor;
 
         return result;
     }
 
-    public float getImpReqDensity(Camera camera, Vector3Df pos, Vector3Df normal) {
+    public double getImpReqDensity(Camera camera, Vector3Dd pos, Vector3Dd normal) {
         // reconstruct importance
-        float density = reconstructImportance(pos, normal);
+        double density = reconstructImportance(pos, normal);
 
         // We want impScale photons per pixel density, account for
         // the pixel area here
@@ -82,12 +84,12 @@ public class ImportanceMap extends PhotonMap {
         return density;
     }
 
-    public float getRequiredDensity(Camera camera, Vector3Df pos, Vector3Df normal) {
+    public double getRequiredDensity(Camera camera, Vector3Dd pos, Vector3Dd normal) {
         if ( m_nrPhotons == 0 ) {
             return photonMapState.constantRD;
         }  // Safety, if no importance map was constructed
 
-        float density;
+        double density;
 
         checkNBalance();
 
@@ -101,7 +103,7 @@ public class ImportanceMap extends PhotonMap {
             if ( photon != null ) {
                 switch ( photonMapState.importanceOption ) {
                     case PhotonMapImportanceOptions.USE_IMPORTANCE:
-                        density = (float)photon.m_irradiance.getR();
+                        density = (double)photon.m_irradiance.getR();
                         density *= m_impScalePtr[0];
                         break;
                     default:
@@ -142,19 +144,19 @@ public class ImportanceMap extends PhotonMap {
     protected void
     ComputeAllRequiredDensities(
         Camera camera,
-        Vector3Df pos,
-        Vector3Df normal,
-        float[] imp,
-        float[] pot,
-        float[] diff)
+        Vector3Dd pos,
+        Vector3Dd normal,
+        double[] imp,
+        double[] pot,
+        double[] diff)
     {
         // Query photons, to be used by the appropriate req dest method
         m_nrpFound = doQuery(pos);
         if ( m_nrpFound < 5 ) {
             // not enough photons
-            imp[0] = 0.0f;
-            pot[0] = 0.0f;
-            diff[0] = 0.0f;
+            imp[0] = 0.0;
+            pot[0] = 0.0;
+            diff[0] = 0.0;
             return;
         }
 
@@ -163,11 +165,11 @@ public class ImportanceMap extends PhotonMap {
 
     @Override
     public void photonPrecomputeIrradiance(Camera camera, IrrPhoton photon) {
-        float[] imp = new float[1];
-        float[] pot = new float[1];
-        float[] diff = new float[1];
-        Vector3Df pos = photon.pos();
-        Vector3Df normal = photon.Normal();
+        double[] imp = new double[1];
+        double[] pot = new double[1];
+        double[] diff = new double[1];
+        Vector3Dd pos = photon.pos();
+        Vector3Dd normal = photon.Normal();
 
         ComputeAllRequiredDensities(camera, pos, normal, imp, pot, diff);
 
@@ -175,7 +177,7 @@ public class ImportanceMap extends PhotonMap {
         pot[0] = m_distances[0]; // Only valid since max heap is used in kd-tree
         m_totalMaxDistance = Math.max(pot[0], m_totalMaxDistance);
 
-        photon.SetIrradiance(new vsdk.toolkit.common.color.ColorRgbMutable(imp[0], imp[0], imp[0]));
+        photon.SetIrradiance(new vsdk.toolkit.common.color.ColorRgb(imp[0], imp[0], imp[0]));
         if ( imp[0] > m_maxImp ) {
             m_maxImp = imp[0];
         }
@@ -189,16 +191,16 @@ public class ImportanceMap extends PhotonMap {
         m_maxImp = 0;
         m_avgImp = 0;
         m_preReconPhotons = m_estimate_nrp[0];
-        m_totalMaxDistance = 0.0f;
+        m_totalMaxDistance = 0.0;
         m_irradianceComputed = false;
 
         super.precomputeIrradiance();
 
         if ( m_nrPhotons > 0 ) {
-            m_avgImp /= (float)m_nrPhotons;
+            m_avgImp /= (double)m_nrPhotons;
         }
         if ( m_estimate_nrp[0] > 0 ) {
-            m_totalMaxDistance *= 20.0f / (float)m_estimate_nrp[0];
+            m_totalMaxDistance *= 20.0 / (double)m_estimate_nrp[0];
         }
     }
 }

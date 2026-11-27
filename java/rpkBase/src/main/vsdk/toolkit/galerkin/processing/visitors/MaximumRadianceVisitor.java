@@ -1,19 +1,19 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 
 public final class MaximumRadianceVisitor implements ClusterLeafVisitor {
-    private ColorRgbMutable accumulatedRadiance;
+    private ColorRgb accumulatedRadiance;
 
     public MaximumRadianceVisitor() {
-        accumulatedRadiance = new ColorRgbMutable();
-        accumulatedRadiance.clear();
+        accumulatedRadiance = new ColorRgb();
+        accumulatedRadiance = new ColorRgb(0.0, 0.0, 0.0);
     }
 
-    public ColorRgbMutable getAccumulatedRadiance() {
+    public ColorRgb getAccumulatedRadiance() {
         return accumulatedRadiance;
     }
 
@@ -22,7 +22,7 @@ public final class MaximumRadianceVisitor implements ClusterLeafVisitor {
         GalerkinElement galerkinElement,
         GalerkinState galerkinState)
     {
-        ColorRgbMutable rad;
+        ColorRgb rad;
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ||
              galerkinState.isJacobi() ) {
             rad = galerkinElement.radiance[0];
@@ -30,6 +30,6 @@ public final class MaximumRadianceVisitor implements ClusterLeafVisitor {
         else {
             rad = galerkinElement.unShotRadiance[0];
         }
-        accumulatedRadiance.maximum(accumulatedRadiance, rad);
+        accumulatedRadiance = accumulatedRadiance.maximum(rad);
     }
 }

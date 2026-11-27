@@ -10,8 +10,8 @@ path nodes and have to possible actions :
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
@@ -21,7 +21,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public abstract class Sampler {
     public static final byte BSDF_ALL_COMPONENTS =
@@ -48,17 +48,17 @@ public abstract class Sampler {
         Background sceneBackground,
         SimpleRaytracingPathNode thisNode,
         SimpleRaytracingPathNode newNode,
-        Vector3Df dir,
+        Vector3Dd dir,
         double pdfDir)
     {
         Ray ray = new Ray();
-        ray.position = thisNode.m_hit.getPoint();
-        ray.direction = dir;
+        ray = ray.withOrigin(thisNode.m_hit.getPoint());
+        ray = ray.withDirection(dir);
 
         // Fill in depth
         newNode.m_depth = thisNode.m_depth + 1;
         newNode.m_rayType = PathRayType.STOPS;
-        RayHit hit = RayTools.findRayIntersection(
+        RpkRayHit hit = RayTools.findRayIntersection(
             sceneQuery,
             sceneSceneQueryWorkspace,
             ray,
@@ -71,7 +71,7 @@ public abstract class Sampler {
                 // Fill in path node for background
                 newNode.m_hit.init(sceneBackground.bkgPatch, null, dir, null);
                 newNode.m_inDirT = dir;
-                newNode.m_inDirF = new Vector3Df(dir.x(), dir.y(), dir.z());
+                newNode.m_inDirF = new Vector3Dd(dir.x(), dir.y(), dir.z());
                 newNode.m_pdfFromPrev = pdfDir;
                 newNode.m_G = Math.abs(thisNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
                 newNode.m_inBsdf = thisNode.m_outBsdf;
@@ -90,13 +90,13 @@ public abstract class Sampler {
 
         if ( (hit.getFlags() & RayHitFlag.BACK) != 0 ) {
             // Back hit, invert normal (only happens when newNode->m_inBsdf != nullptr
-            Vector3Df normal = new Vector3Df();
-            normal = newNode.m_hit.getNormal().multiply(-1.0f);
+            Vector3Dd normal = new Vector3Dd();
+            normal = newNode.m_hit.getNormal().multiply(-1.0);
             newNode.m_hit.setNormal(normal);
         }
 
-        newNode.m_inDirT = ray.direction;
-        newNode.m_inDirF = newNode.m_inDirT.multiply(-1.0f);
+        newNode.m_inDirT = ray.getDirection();
+        newNode.m_inDirF = newNode.m_inDirT.multiply(-1.0);
 
         // Check for shading normal vs. geometric normal errors
         if ( newNode.m_hit.getNormal().dotProduct(newNode.m_inDirF) < 0 ) {
@@ -105,7 +105,7 @@ public abstract class Sampler {
         }
 
         // Compute geometry factor cos(a)*cos(b)/r^2
-        Vector3Df tmpVec = new Vector3Df();
+        Vector3Dd tmpVec = new Vector3Dd();
 
         double cosA = Math.abs(thisNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));
         double cosB = Math.abs(newNode.m_hit.getNormal().dotProduct(newNode.m_inDirT));

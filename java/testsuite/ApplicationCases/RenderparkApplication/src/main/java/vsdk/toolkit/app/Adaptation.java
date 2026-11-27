@@ -3,7 +3,7 @@ package vsdk.toolkit.app;
 import java.util.ArrayList;
 import java.util.Arrays;
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -19,15 +19,15 @@ Estimate static adaptation luminance in the current scene
 */
 public final class Adaptation {
     private interface PatchRadianceEstimateFn {
-        ColorRgbMutable apply(Patch patch);
+        ColorRgb apply(Patch patch);
     }
 
     private static int numEntries = 0;
     private static double logAreaLum = 0.0;
     private static LuminanceArea[] lumArea = null;
     private static int lumAreaIndex = 0;
-    private static float lumMin = Float.MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
-    private static float lumMax = 0.0f;
+    private static double lumMin = Double.MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+    private static double lumMax = 0.0;
     private static PatchRadianceEstimateFn patchRadianceEstimate = null;
 
     private Adaptation() {
@@ -36,7 +36,7 @@ public final class Adaptation {
     /**
 A-priori estimate of a patch's radiance
 */
-    private static ColorRgbMutable initRadianceEstimate(Patch patch) {
+    private static ColorRgb initRadianceEstimate(Patch patch) {
         int allXxdfComponents = XxdfComponentFlag.DIFFUSE_COMPONENT
             | XxdfComponentFlag.GLOSSY_COMPONENT
             | XxdfComponentFlag.SPECULAR_COMPONENT;
@@ -47,36 +47,36 @@ A-priori estimate of a patch's radiance
             | BsdfComponent.BTDF_GLOSSY_COMPONENT
             | BsdfComponent.BTDF_SPECULAR_COMPONENT;
 
-        ColorRgbMutable E = PatchVisitor.averageEmittance(patch, allXxdfComponents);
-        ColorRgbMutable R = PatchVisitor.averageNormalAlbedo(patch, allBsdfComponents);
-        ColorRgbMutable radiance = new ColorRgbMutable();
+        ColorRgb E = PatchVisitor.averageEmittance(patch, allXxdfComponents);
+        ColorRgb R = PatchVisitor.averageNormalAlbedo(patch, allBsdfComponents);
+        ColorRgb radiance = new ColorRgb();
 
-        radiance.scalarProduct(R, Statistics.instance().radiance.estimatedAverageRadiance);
-        radiance.addScaled(radiance, (1.0f / (float)Math.PI), E);
+        radiance = R.multiply(Statistics.instance().radiance.estimatedAverageRadiance);
+        radiance = radiance.addScaled((1.0 / (double)Math.PI), E);
         return radiance;
     }
 
-    private static float patchBrightnessEstimate(Patch patch) {
-        ColorRgbMutable radiance = patchRadianceEstimate.apply(patch);
-        float brightness = (float) Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-        if ( brightness < Numeric.EPSILON_FLOAT ) {
-            brightness = Numeric.EPSILON_FLOAT;
+    private static double patchBrightnessEstimate(Patch patch, Cie colorSpace) {
+        ColorRgb radiance = patchRadianceEstimate.apply(patch);
+        double brightness = colorSpace.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+        if ( brightness < Numeric.EPSILON ) {
+            brightness = Numeric.EPSILON;
         }
         return brightness;
     }
 
-    private static void patchComputeLogAreaLum(Patch patch) {
-        float brightness = Adaptation.patchBrightnessEstimate(patch);
+    private static void patchComputeLogAreaLum(Patch patch, Cie colorSpace) {
+        double brightness = Adaptation.patchBrightnessEstimate(patch, colorSpace);
         // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
-        logAreaLum += patch.area * (float) Math.log(brightness);
+        logAreaLum += patch.getArea() * (double)Math.log(brightness);
     }
 
-    private static void patchFillLumArea(Patch patch) {
-        float brightness = Adaptation.patchBrightnessEstimate(patch);
+    private static void patchFillLumArea(Patch patch, Cie colorSpace) {
+        double brightness = Adaptation.patchBrightnessEstimate(patch, colorSpace);
 
         LuminanceArea entry = lumArea[lumAreaIndex];
         entry.luminance = brightness;
-        entry.area = patch.area;
+        entry.area = patch.getArea();
 
         lumMin = Math.min(lumMin, entry.luminance);
         lumMax = Math.max(lumMax, entry.luminance);
@@ -90,16 +90,16 @@ Computes the static adaptation luminance value choosing the median value
 of area-weighted luminance values. Needs a correct
 Statistics::instance().radiance.totalArea.
 */
-    private static float meanAreaWeightedLuminance(LuminanceArea[] pairs, int numPairs) {
+    private static double meanAreaWeightedLuminance(LuminanceArea[] pairs, int numPairs) {
         if ( numPairs <= 0 ) {
-            return 0.0f;
+            return 0.0;
         }
 
-        float areaMax = Statistics.instance().radiance.totalArea / 2.0f;
-        float areaCnt = 0.0f;
+        double areaMax = Statistics.instance().radiance.totalArea / 2.0;
+        double areaCnt = 0.0;
         int pairIndex = 0;
 
-        Arrays.sort(pairs, 0, numPairs, (la1, la2) -> Float.compare(la1.luminance, la2.luminance));
+        Arrays.sort(pairs, 0, numPairs, (la1, la2) -> Double.compare(la1.luminance, la2.luminance));
 
         while ( pairIndex < numPairs && areaCnt < areaMax ) {
             areaCnt += pairs[pairIndex].area;
@@ -132,11 +132,11 @@ emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLumi
                 // Gibson's static adaptation after [TUMB1999b]
                 logAreaLum = 0.0;
                 for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
-                    Adaptation.patchComputeLogAreaLum(scenePatches.get(i));
+                    Adaptation.patchComputeLogAreaLum(scenePatches.get(i), toneMapOptions.getColorSpace());
                 }
                 // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
                 toneMapOptions.realWorldAdaptionLuminance =
-                    (float)Math.exp((float)logAreaLum / Statistics.instance().radiance.totalArea + 0.84f);
+                    (double)Math.exp((double)logAreaLum / Statistics.instance().radiance.totalArea + 0.84);
                 break;
             }
             case TMA_MEDIAN: {
@@ -154,7 +154,7 @@ emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLumi
                 lumAreaIndex = 0;
                 numEntries = 0;
                 for ( int i = 0; scenePatches != null && i < scenePatches.size() && lumAreaIndex < pairCount; i++ ) {
-                    Adaptation.patchFillLumArea(scenePatches.get(i));
+                    Adaptation.patchFillLumArea(scenePatches.get(i), toneMapOptions.getColorSpace());
                 }
                 toneMapOptions.realWorldAdaptionLuminance = Adaptation.meanAreaWeightedLuminance(la, numEntries);
                 break;

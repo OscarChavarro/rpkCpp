@@ -1,7 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 
@@ -10,43 +9,43 @@ public final class LightnessToneMap extends ToneMap {
     }
 
     @Override
-    public void init(ToneMappingContext toneMapOptions) {
+    protected void initParameters(ToneMappingContext toneMapOptions) {
     }
 
     @Override
-    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
+    public ColorRgb scaleForComputations(ColorRgb radiance) {
         Logger.reportMessage("LightnessToneMap", Logger.WARNING, "ScaleForComputations", String.format("%s %d not yet implemented", "LightnessToneMap.cpp", 0));
         return radiance;
     }
 
     @Override
-    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
-        final float max = (float) radiance.maximumComponent();
+    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+        final double max = (double)radiance.maximumComponent();
         if ( max < 1e-32 ) {
             return radiance;
         }
 
         // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
         // (reference luminance is also in nits)
-        final float scaleFactor = lightness((float) (Cie.WHITE_EFFICACY * max));
+        final double scaleFactor = lightness((double)(getColorSpace().getLuminousEfficacy() * max));
         if ( scaleFactor == 0.0 ) {
             return radiance;
         }
 
-        radiance.scale(scaleFactor / max);
+        radiance = radiance.multiply(scaleFactor / max);
         return radiance;
     }
 
-    private static float lightness(float luminance) {
+    private static double lightness(double luminance) {
         if ( Statistics.instance().radiance.referenceLuminance == 0.0 ) {
-            return 0.0F;
+            return 0.0;
         }
 
-        final float relativeLuminance = luminance / (float) Statistics.instance().radiance.referenceLuminance;
+        final double relativeLuminance = luminance / (double)Statistics.instance().radiance.referenceLuminance;
         if ( relativeLuminance > 0.008856 ) {
-            return 1.16F * (float) Math.pow(relativeLuminance, 0.33F) - 0.16F;
+            return 1.16 * (double)Math.pow(relativeLuminance, 0.33) - 0.16;
         } else {
-            return 9.033F * relativeLuminance;
+            return 9.033 * relativeLuminance;
         }
     }
 }

@@ -1,6 +1,6 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 
 /**
 Patches and geometries that a visibility query must ignore, typically the
@@ -24,8 +24,8 @@ public final class RayExclusionSet {
     private final Patch excludedPatch1;
     private final Patch excludedPatch2;
     private final Patch excludedPatch3;
-    private final Geometry excludedGeometry1;
-    private final Geometry excludedGeometry2;
+    private final RpkGeometry excludedGeometry1;
+    private final RpkGeometry excludedGeometry2;
     // Face index intervals of the excluded geometries, empty when first > last
     private final int excludedFirstFace1;
     private final int excludedLastFace1;
@@ -54,8 +54,8 @@ public final class RayExclusionSet {
         Patch p1,
         Patch p2,
         Patch p3,
-        Geometry geometry1,
-        Geometry geometry2) {
+        RpkGeometry geometry1,
+        RpkGeometry geometry2) {
         excludedPatch0 = p0;
         excludedPatch1 = p1;
         excludedPatch2 = p2;
@@ -72,7 +72,7 @@ public final class RayExclusionSet {
         return excludedPatch0 == patch || excludedPatch1 == patch || excludedPatch2 == patch || excludedPatch3 == patch;
     }
 
-    public boolean excludesGeometry(Geometry geometry) {
+    public boolean excludesGeometry(RpkGeometry geometry) {
         return geometry == excludedGeometry1 || geometry == excludedGeometry2;
     }
 
@@ -99,11 +99,11 @@ public final class RayExclusionSet {
         }
     }
 
-    public Geometry getExcludedGeometry1() {
+    public RpkGeometry getExcludedGeometry1() {
         return excludedGeometry1;
     }
 
-    public Geometry getExcludedGeometry2() {
+    public RpkGeometry getExcludedGeometry2() {
         return excludedGeometry2;
     }
 }

@@ -3,12 +3,12 @@ package vsdk.toolkit.io.bin.reader;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.wrapper.PersistenceElement;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.BoundingBoxCoordinateIndex;
 
 public class BinaryModelReadPrimitives {
@@ -119,7 +119,7 @@ public class BinaryModelReadPrimitives {
         return value;
     }
 
-    public static float readFloatLE(InputStream input) {
+    public static double readFloatLE(InputStream input) {
         byte[] value = new byte[4];
         readBytes(input, value, 4);
         return PersistenceElement.byteArray2floatLE(value, 0);
@@ -195,29 +195,31 @@ public class BinaryModelReadPrimitives {
         return true;
     }
 
-    public static boolean readColor(InputStream input, ColorRgbMutable color) {
+    /** color is a one-element output holder */
+    public static boolean readColor(InputStream input, ColorRgb[] color) {
         if (color == null) {
             return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
         }
-        color.r = readFloatLE(input);
-        color.g = readFloatLE(input);
-        color.b = readFloatLE(input);
+        final double r = readFloatLE(input);
+        final double g = readFloatLE(input);
+        final double b = readFloatLE(input);
+        color[0] = new ColorRgb(r, g, b);
         return true;
     }
 
     /** vector is a one-element output holder */
-    public static boolean readVector(InputStream input, Vector3Df[] vector) {
+    public static boolean readVector(InputStream input, Vector3Dd[] vector) {
         if (vector == null) {
             return reportReadError("BinaryModelReadPrimitives::readVector", "Null vector output pointer");
         }
-        final float x = readFloatLE(input);
-        final float y = readFloatLE(input);
-        final float z = readFloatLE(input);
-        vector[0] = new Vector3Df(x, y, z);
+        final double x = readFloatLE(input);
+        final double y = readFloatLE(input);
+        final double z = readFloatLE(input);
+        vector[0] = new Vector3Dd(x, y, z);
         return true;
     }
 
-    public static boolean readBoundingBoxCoordinates(InputStream input, float[] coordinates) {
+    public static boolean readBoundingBoxCoordinates(InputStream input, double[] coordinates) {
         if (coordinates == null || coordinates.length < 6) {
             return reportReadError("BinaryModelReadPrimitives::readBoundingBoxCoordinates", "Null bounding box coordinate buffer");
         }
@@ -227,16 +229,16 @@ public class BinaryModelReadPrimitives {
         return true;
     }
 
-    public static boolean setBoundingBoxFromCoordinates(BoundingBox boundingBox, float[] coordinates) {
+    public static boolean setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox boundingBox, double[] coordinates) {
         if (boundingBox == null || coordinates == null || coordinates.length < 6) {
             return reportReadError("BinaryModelReadPrimitives::setBoundingBoxFromCoordinates", "Invalid bounding box assignment");
         }
 
-        BoundingBox parsed = new BoundingBox();
-        Vector3Df minPoint = new Vector3Df();
-        Vector3Df maxPoint = new Vector3Df();
-        minPoint = new Vector3Df(coordinates[BoundingBoxCoordinateIndex.MIN_X], coordinates[BoundingBoxCoordinateIndex.MIN_Y], coordinates[BoundingBoxCoordinateIndex.MIN_Z]);
-        maxPoint = new Vector3Df(coordinates[BoundingBoxCoordinateIndex.MAX_X], coordinates[BoundingBoxCoordinateIndex.MAX_Y], coordinates[BoundingBoxCoordinateIndex.MAX_Z]);
+        RpkAxisAlignedBoundingBox parsed = new RpkAxisAlignedBoundingBox();
+        Vector3Dd minPoint = new Vector3Dd();
+        Vector3Dd maxPoint = new Vector3Dd();
+        minPoint = new Vector3Dd(coordinates[BoundingBoxCoordinateIndex.MIN_X], coordinates[BoundingBoxCoordinateIndex.MIN_Y], coordinates[BoundingBoxCoordinateIndex.MIN_Z]);
+        maxPoint = new Vector3Dd(coordinates[BoundingBoxCoordinateIndex.MAX_X], coordinates[BoundingBoxCoordinateIndex.MAX_Y], coordinates[BoundingBoxCoordinateIndex.MAX_Z]);
         parsed.enlargeToIncludePoint(minPoint);
         parsed.enlargeToIncludePoint(maxPoint);
         boundingBox.copyFrom(parsed);

@@ -74,6 +74,18 @@ public final class Vector2Dd extends FundamentalEntity {
         return new Vector2Dd(x + b.x, y + b.y);
     }
 
+    public final Vector2Dd subtract(Vector2Dd b)
+    {
+        return new Vector2Dd(x - b.x, y - b.y);
+    }
+
+    /**
+    Square of the length (the dot product with itself)
+    */
+    public final double lengthSquared() {
+        return x * x + y * y;
+    }
+
     public void set(Vector2Dd other)
     {
         Objects.requireNonNull(other, "Vector2Dd to copy cannot be null");

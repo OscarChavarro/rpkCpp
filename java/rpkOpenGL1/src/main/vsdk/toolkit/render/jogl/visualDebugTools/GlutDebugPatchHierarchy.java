@@ -1,11 +1,10 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
-import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.GalerkinOpenGLRenderer;
 import vsdk.toolkit.render.jogl.Opengl;
@@ -16,27 +15,27 @@ import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public final class GlutDebugPatchHierarchy {
-    private static final float GRAY_DARKEN_FACTOR = 0.42f;
-    private static final float GRAY_CONTRAST_GAMMA = 1.20f;
-    private static final float OUTLINE_MIN_GRAY = 0.05f;
-    private static final float OUTLINE_FROM_SURFACE_FACTOR = 0.65f;
+    private static final double GRAY_DARKEN_FACTOR = 0.42;
+    private static final double GRAY_CONTRAST_GAMMA = 1.20;
+    private static final double OUTLINE_MIN_GRAY = 0.05;
+    private static final double OUTLINE_FROM_SURFACE_FACTOR = 0.65;
 
     private GlutDebugPatchHierarchy() {
     }
 
-    private static float clamp01(float value) {
-        if ( value < 0.0f ) {
-            return 0.0f;
+    private static double clamp01(double value) {
+        if ( value < 0.0 ) {
+            return 0.0;
         }
-        if ( value > 1.0f ) {
-            return 1.0f;
+        if ( value > 1.0 ) {
+            return 1.0;
         }
         return value;
     }
 
-    private static float toneMappedGrayAndDarkened(float value01) {
-        float adjusted = clamp01(value01);
-        adjusted = (float)Math.pow(adjusted, GRAY_CONTRAST_GAMMA);
+    private static double toneMappedGrayAndDarkened(double value01) {
+        double adjusted = clamp01(value01);
+        adjusted = (double)Math.pow(adjusted, GRAY_CONTRAST_GAMMA);
         adjusted *= GRAY_DARKEN_FACTOR;
         return clamp01(adjusted);
     }
@@ -57,14 +56,14 @@ public final class GlutDebugPatchHierarchy {
         }
 
         Patch patch = scene.patchList.get(patchIndex);
-        if ( patch == null || patch.radianceData == null ) {
+        if ( patch == null || GalerkinRadianceMethod.galerkinState.boundElement(patch) == null ) {
             return null;
         }
-        if ( patch.radianceData.className != ElementTypes.ELEMENT_GALERKIN ) {
+        if ( GalerkinRadianceMethod.galerkinState.boundElement(patch).className != ElementTypes.ELEMENT_GALERKIN ) {
             return null;
         }
 
-        return (GalerkinElement)patch.radianceData;
+        return (GalerkinElement)GalerkinRadianceMethod.galerkinState.boundElement(patch);
     }
 
     private static int maxLevelFromElement(GalerkinElement element) {
@@ -85,7 +84,7 @@ public final class GlutDebugPatchHierarchy {
         return maxDepth;
     }
 
-    private static void renderElementGray(GalerkinElement element, RenderOptions renderOptions) {
+    private static void renderElementGray(GalerkinElement element, RendererConfiguration renderOptions) {
         if ( element == null || renderOptions == null ) {
             return;
         }
@@ -95,45 +94,45 @@ public final class GlutDebugPatchHierarchy {
             return;
         }
 
-        Vector3Df[] vertices = new Vector3Df[] {
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()
+        Vector3Dd[] vertices = new Vector3Dd[] {
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()
         };
         int numberOfVertices = element.vertices(vertices);
         if ( numberOfVertices < 3 ) {
             return;
         }
 
-        float grayValue = OUTLINE_MIN_GRAY;
+        double grayValue = OUTLINE_MIN_GRAY;
 
         if ( renderOptions.drawSurfaces ) {
-            ColorRgbMutable radianceSample = new ColorRgbMutable();
+            ColorRgb radianceSample = new ColorRgb();
             if ( element.radiance != null && element.radiance.length > 0 ) {
-                radianceSample = new ColorRgbMutable(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
+                radianceSample = new ColorRgb(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
             }
 
             if ( element.galerkinState != null
                  && element.galerkinState.useAmbientRadiance != 0
                  && element.patch != null
-                 && element.patch.radianceData != null ) {
-                ColorRgbMutable ambient = new ColorRgbMutable();
-                ambient.scalarProduct(element.patch.radianceData.Rd, element.galerkinState.ambientRadiance);
-                radianceSample.add(radianceSample, ambient);
+                 && element.galerkinState.boundElement(element.patch) != null ) {
+                ColorRgb ambient = new ColorRgb();
+                ambient = element.galerkinState.topLevelElement(element.patch).Rd.multiply(element.galerkinState.ambientRadiance);
+                radianceSample = radianceSample.add(ambient);
             }
 
-            ColorRgbMutable rgbColor = new ColorRgbMutable();
-            ToneMap.radianceToRgb(radianceSample, rgbColor, toneMapOptions);
-            grayValue = toneMappedGrayAndDarkened((float) Cie.spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
+            ColorRgb rgbColor = new ColorRgb();
+            rgbColor = ToneMap.radianceToRgb(radianceSample, toneMapOptions);
+            grayValue = toneMappedGrayAndDarkened((double)toneMapOptions.getColorSpace().spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
             Opengl.openGlRenderSetColor(new ColorRgb(grayValue, grayValue, grayValue), renderOptions);
             Opengl.openGlRenderPolygonFlat(numberOfVertices, vertices);
         }
 
-        float outlineGray = grayValue;
+        double outlineGray = grayValue;
         if ( renderOptions.drawSurfaces ) {
             outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
         }
         else {
-            outlineGray = toneMappedGrayAndDarkened((float) Cie.spectrumLuminance(
+            outlineGray = toneMappedGrayAndDarkened((double)toneMapOptions.getColorSpace().spectrumLuminance(
                 renderOptions.outlineColor.getR(),
                 renderOptions.outlineColor.getG(),
                 renderOptions.outlineColor.getB()));
@@ -150,7 +149,7 @@ public final class GlutDebugPatchHierarchy {
         }
     }
 
-    private static void renderNonSelectedPatchesGray(Scene scene, RenderOptions renderOptions, int primaryPatchIndex, int secondaryPatchIndex) {
+    private static void renderNonSelectedPatchesGray(Scene scene, RendererConfiguration renderOptions, int primaryPatchIndex, int secondaryPatchIndex) {
         if ( scene == null || renderOptions == null || scene.patchList == null ) {
             return;
         }
@@ -161,18 +160,18 @@ public final class GlutDebugPatchHierarchy {
             }
 
             Patch patch = scene.patchList.get(patchIndex);
-            if ( patch == null || patch.radianceData == null ) {
+            if ( patch == null || GalerkinRadianceMethod.galerkinState.boundElement(patch) == null ) {
                 continue;
             }
-            if ( patch.radianceData.className != ElementTypes.ELEMENT_GALERKIN ) {
+            if ( GalerkinRadianceMethod.galerkinState.boundElement(patch).className != ElementTypes.ELEMENT_GALERKIN ) {
                 continue;
             }
 
-            renderElementGray((GalerkinElement)patch.radianceData, renderOptions);
+            renderElementGray((GalerkinElement)GalerkinRadianceMethod.galerkinState.boundElement(patch), renderOptions);
         }
     }
 
-    private static void renderElementAtLevel(GalerkinElement element, int hierarchyLevel, RenderOptions renderOptions) {
+    private static void renderElementAtLevel(GalerkinElement element, int hierarchyLevel, RendererConfiguration renderOptions) {
         if ( element == null || renderOptions == null ) {
             return;
         }
@@ -189,76 +188,76 @@ public final class GlutDebugPatchHierarchy {
         }
     }
 
-    private static void drawSelectedPatchCenterMarker(GalerkinElement topLevelElement, RenderOptions renderOptions) {
+    private static void drawSelectedPatchCenterMarker(GalerkinElement topLevelElement, RendererConfiguration renderOptions) {
         if ( topLevelElement == null || renderOptions == null ) {
             return;
         }
 
-        Vector3Df[] vertices = new Vector3Df[] {
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()
+        Vector3Dd[] vertices = new Vector3Dd[] {
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()
         };
         int numberOfVertices = topLevelElement.vertices(vertices);
         if ( numberOfVertices < 3 ) {
             return;
         }
 
-        Vector3Df axisU = new Vector3Df();
+        Vector3Dd axisU = new Vector3Dd();
         axisU = vertices[1].subtract(vertices[0]);
-        if ( axisU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+        if ( axisU.lengthSquared() < Numeric.EPSILON ) {
             axisU = vertices[2].subtract(vertices[0]);
         }
-        if ( axisU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-            axisU = new Vector3Df(1.0f, 0.0f, 0.0f);
+        if ( axisU.lengthSquared() < Numeric.EPSILON ) {
+            axisU = new Vector3Dd(1.0, 0.0, 0.0);
         }
         else {
-            axisU = axisU.normalized(Numeric.EPSILON_FLOAT);
+            axisU = axisU.normalized(Numeric.EPSILON);
         }
 
-        Vector3Df normal = new Vector3Df();
+        Vector3Dd normal = new Vector3Dd();
         if ( topLevelElement.patch != null ) {
             normal = topLevelElement.patch.getNormal();
         }
         else {
-            Vector3Df edgeA = new Vector3Df();
-            Vector3Df edgeB = new Vector3Df();
+            Vector3Dd edgeA = new Vector3Dd();
+            Vector3Dd edgeB = new Vector3Dd();
             edgeA = vertices[1].subtract(vertices[0]);
             edgeB = vertices[2].subtract(vertices[0]);
             normal = edgeA.crossProduct(edgeB);
         }
 
-        if ( normal.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-            normal = new Vector3Df(0.0f, 0.0f, 1.0f);
+        if ( normal.lengthSquared() < Numeric.EPSILON ) {
+            normal = new Vector3Dd(0.0, 0.0, 1.0);
         }
         else {
-            normal = normal.normalized(Numeric.EPSILON_FLOAT);
+            normal = normal.normalized(Numeric.EPSILON);
         }
 
-        Vector3Df axisV = new Vector3Df();
+        Vector3Dd axisV = new Vector3Dd();
         axisV = normal.crossProduct(axisU);
-        if ( axisV.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-            axisV = new Vector3Df(0.0f, 1.0f, 0.0f);
+        if ( axisV.lengthSquared() < Numeric.EPSILON ) {
+            axisV = new Vector3Dd(0.0, 1.0, 0.0);
         }
         else {
-            axisV = axisV.normalized(Numeric.EPSILON_FLOAT);
+            axisV = axisV.normalized(Numeric.EPSILON);
         }
 
-        float averageEdgeSize = 0.0f;
+        double averageEdgeSize = 0.0;
         for ( int i = 0; i < numberOfVertices; i++ ) {
             int nextIndex = (i + 1) % numberOfVertices;
             averageEdgeSize += vertices[i].distance(vertices[nextIndex]);
         }
         averageEdgeSize /= numberOfVertices;
-        if ( averageEdgeSize < Numeric.EPSILON_FLOAT ) {
-            averageEdgeSize = 0.1f;
+        if ( averageEdgeSize < Numeric.EPSILON ) {
+            averageEdgeSize = 0.1;
         }
 
-        float halfSize = 0.08f * averageEdgeSize;
-        Vector3Df center = topLevelElement.midPoint();
-        Vector3Df normalOffset = new Vector3Df();
-        normalOffset = normal.multiply(0.002f * averageEdgeSize);
+        double halfSize = 0.08 * averageEdgeSize;
+        Vector3Dd center = topLevelElement.midPoint();
+        Vector3Dd normalOffset = new Vector3Dd();
+        normalOffset = normal.multiply(0.002 * averageEdgeSize);
 
-        Vector3Df[] marker = new Vector3Df[] {new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()};
+        Vector3Dd[] marker = new Vector3Dd[] {new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()};
         marker[0] = center.add(axisU.multiply(-halfSize)).add(axisV.multiply(-halfSize));
         marker[1] = center.add(axisU.multiply(halfSize)).add(axisV.multiply(-halfSize));
         marker[2] = center.add(axisU.multiply(halfSize)).add(axisV.multiply(halfSize));
@@ -267,20 +266,20 @@ public final class GlutDebugPatchHierarchy {
             marker[i] = marker[i].add(normalOffset);
         }
 
-        Opengl.openGlRenderSetColor(new ColorRgb(1.0f, 1.0f, 0.0f), renderOptions);
+        Opengl.openGlRenderSetColor(new ColorRgb(1.0, 1.0, 0.0), renderOptions);
         Opengl.openGlRenderLine(marker[0], marker[1]);
         Opengl.openGlRenderLine(marker[1], marker[2]);
         Opengl.openGlRenderLine(marker[2], marker[3]);
         Opengl.openGlRenderLine(marker[3], marker[0]);
     }
 
-    private static void drawSecondarySelectedPatchMarker(GalerkinElement topLevelElement, RenderOptions renderOptions) {
+    private static void drawSecondarySelectedPatchMarker(GalerkinElement topLevelElement, RendererConfiguration renderOptions) {
         if ( topLevelElement == null || renderOptions == null || topLevelElement.isCluster() ) {
             return;
         }
 
-        RenderOptions secondary = new RenderOptions();
-        secondary.outlineColor = new ColorRgb(1.0f, 1.0f, 0.0f);
+        RendererConfiguration secondary = new RendererConfiguration();
+        secondary.outlineColor = new ColorRgb(1.0, 1.0, 0.0);
         secondary.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.getR(), renderOptions.boundingBoxColor.getG(), renderOptions.boundingBoxColor.getB());
         secondary.clusterColor = new ColorRgb(renderOptions.clusterColor.getR(), renderOptions.clusterColor.getG(), renderOptions.clusterColor.getB());
         secondary.lineWidth = renderOptions.lineWidth;
@@ -304,7 +303,7 @@ public final class GlutDebugPatchHierarchy {
 
     public static void renderSelectedPatchAtLevel(
         Scene scene,
-        RenderOptions renderOptions,
+        RendererConfiguration renderOptions,
         int primaryPatchIndex,
         int secondaryPatchIndex,
         int hierarchyLevel)
@@ -320,7 +319,7 @@ public final class GlutDebugPatchHierarchy {
             int maxLevel = maxLevelFromElement(primaryTopLevelElement);
             int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
 
-            RenderOptions selected = new RenderOptions();
+            RendererConfiguration selected = new RendererConfiguration();
             selected.outlineColor = new ColorRgb(renderOptions.outlineColor.getR(), renderOptions.outlineColor.getG(), renderOptions.outlineColor.getB());
             selected.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.getR(), renderOptions.boundingBoxColor.getG(), renderOptions.boundingBoxColor.getB());
             selected.clusterColor = new ColorRgb(renderOptions.clusterColor.getR(), renderOptions.clusterColor.getG(), renderOptions.clusterColor.getB());
@@ -341,7 +340,7 @@ public final class GlutDebugPatchHierarchy {
         }
     }
 
-    public static void renderSecondarySelectedPatchMarker(Scene scene, RenderOptions renderOptions, int secondaryPatchIndex) {
+    public static void renderSecondarySelectedPatchMarker(Scene scene, RendererConfiguration renderOptions, int secondaryPatchIndex) {
         if ( scene == null || renderOptions == null ) {
             return;
         }

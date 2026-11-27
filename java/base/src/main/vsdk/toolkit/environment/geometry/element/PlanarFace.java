@@ -4,11 +4,11 @@ import java.io.Serial;
 
 import vsdk.toolkit.common.FundamentalEntity;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.logging.Logger;
 
 /**
-A planar triangle or quadrilateral in single precision, as used by the
+A planar triangle or quadrilateral in double precision, as used by the
 radiosity solvers: the face of a polygonal mesh with its plane, area,
 parametrization and uniform (area preserving) sampling.
 
@@ -16,10 +16,10 @@ The face copies its three or four vertex positions when it is built and
 never changes afterwards, so every operation is read only and a face can be
 shared by concurrent readers.
 
-Every quantity is computed in single precision, in source operation order and
+Every quantity is computed in double precision, in source operation order and
 with IEEE semantics, so results are reproducible bit for bit across ports (the
 C++ PlanarFace.cpp is compiled without fast-math and without floating point
-contraction). Do not rewrite it with vector helpers or in double precision.
+contraction). Do not rewrite it with vector helpers.
 
 Parametrizations:
 - triangle: barycentric, point = p0 + u (p1 - p0) + v (p2 - p0)
@@ -35,7 +35,6 @@ public class PlanarFace extends FundamentalEntity {
 
     public static final int MAXIMUM_VERTICES = 4;
     public static final double EPSILON = 1e-6;
-    public static final float EPSILON_FLOAT = 1e-6F;
 
     public enum BuildStatus {
         VALID,
@@ -55,10 +54,10 @@ public class PlanarFace extends FundamentalEntity {
     */
     public static final class RayHit {
         public Side side;
-        public float distance;
-        public float pointX;
-        public float pointY;
-        public float pointZ;
+        public double distance;
+        public double pointX;
+        public double pointY;
+        public double pointZ;
         public double u;
         public double v;
 
@@ -68,59 +67,57 @@ public class PlanarFace extends FundamentalEntity {
 
     private static final double TOLERANCE = 1e-5;
 
-    private final float[] positionX;
-    private final float[] positionY;
-    private final float[] positionZ;
-    private float normalX;
-    private float normalY;
-    private float normalZ;
-    private float midPointX;
-    private float midPointY;
-    private float midPointZ;
-    private float planeConstant;
-    private float tolerance;
-    private float area;
-    private float jacobianA;
-    private float jacobianB;
-    private float jacobianC;
+    private final double[] positionX;
+    private final double[] positionY;
+    private final double[] positionZ;
+    private double normalX;
+    private double normalY;
+    private double normalZ;
+    private double midPointX;
+    private double midPointY;
+    private double midPointZ;
+    private double planeConstant;
+    private double tolerance;
+    private double area;
+    private double jacobianA;
+    private double jacobianB;
+    private double jacobianC;
     private int numberOfVertices;
     private int dominantAxis; // 0: x, 1: y, 2: z
     private boolean jacobianPresent;
     private BuildStatus status;
 
-    // Single precision helpers, written out so that the operation order is the
-    // one documented by PlanarFace and does not depend on Vector3Df's methods
+    // Double precision helpers, written out so that the operation order is the
+    // one documented by PlanarFace and does not depend on Vector3Dd's methods
 
-    private static Vector3Df difference(Vector3Df a, Vector3Df b) {
-        return new Vector3Df(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
+    private static Vector3Dd difference(Vector3Dd a, Vector3Dd b) {
+        return new Vector3Dd(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
     }
 
-    private static Vector3Df cross(Vector3Df a, Vector3Df b) {
-        return new Vector3Df(
+    private static Vector3Dd cross(Vector3Dd a, Vector3Dd b) {
+        return new Vector3Dd(
             a.y() * b.z() - a.z() * b.y(),
             a.z() * b.x() - a.x() * b.z(),
             a.x() * b.y() - a.y() * b.x());
     }
 
-    private static float dot(Vector3Df a, Vector3Df b) {
+    private static double dot(Vector3Dd a, Vector3Dd b) {
         return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
     }
 
-    private static float norm(Vector3Df a) {
-        // Correctly rounded double square root rounded to float is the
-        // correctly rounded float square root (C++ java::Math::sqrt(float))
-        return (float) Math.sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
+    private static double norm(Vector3Dd a) {
+        return Math.sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     }
 
     /**
     (1 / s) v, or v when s is within epsilon of zero
     */
-    private static Vector3Df inverseScaled(float s, Vector3Df v, float epsilon) {
-        final float factor = s < -epsilon || s > epsilon ? 1.0F / s : 1.0F;
-        return new Vector3Df(factor * v.x(), factor * v.y(), factor * v.z());
+    private static Vector3Dd inverseScaled(double s, Vector3Dd v, double epsilon) {
+        final double factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+        return new Vector3Dd(factor * v.x(), factor * v.y(), factor * v.z());
     }
 
-    private static float positionTolerance(Vector3Df p, float epsilon) {
+    private static double positionTolerance(Vector3Dd p, double epsilon) {
         return epsilon * (Math.abs(p.x()) + Math.abs(p.y()) + Math.abs(p.z()));
     }
 
@@ -128,46 +125,46 @@ public class PlanarFace extends FundamentalEntity {
         return a.x * b.y - a.y * b.x;
     }
 
-    private static Vector3Df pointInTriangle(Vector3Df v0, Vector3Df v1, Vector3Df v2, float u, float v) {
-        return new Vector3Df(
+    private static Vector3Dd pointInTriangle(Vector3Dd v0, Vector3Dd v1, Vector3Dd v2, double u, double v) {
+        return new Vector3Dd(
             v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()),
             v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()),
             v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()));
     }
 
-    private static Vector3Df pointInQuadrilateral(
-        Vector3Df v0,
-        Vector3Df v1,
-        Vector3Df v2,
-        Vector3Df v3,
-        float u,
-        float v)
+    private static Vector3Dd pointInQuadrilateral(
+        Vector3Dd v0,
+        Vector3Dd v1,
+        Vector3Dd v2,
+        Vector3Dd v3,
+        double u,
+        double v)
     {
-        final float c = u * v;
-        final float b = u - c;
-        final float d = v - c;
-        return new Vector3Df(
+        final double c = u * v;
+        final double b = u - c;
+        final double d = v - c;
+        return new Vector3Dd(
             v0.x() + b * (v1.x() - v0.x()) + c * (v2.x() - v0.x()) + d * (v3.x() - v0.x()),
             v0.y() + b * (v1.y() - v0.y()) + c * (v2.y() - v0.y()) + d * (v3.y() - v0.y()),
             v0.z() + b * (v1.z() - v0.z()) + c * (v2.z() - v0.z()) + d * (v3.z() - v0.z()));
     }
 
     public PlanarFace() {
-        positionX = new float[MAXIMUM_VERTICES];
-        positionY = new float[MAXIMUM_VERTICES];
-        positionZ = new float[MAXIMUM_VERTICES];
-        normalX = 0.0F;
-        normalY = 0.0F;
-        normalZ = 0.0F;
-        midPointX = 0.0F;
-        midPointY = 0.0F;
-        midPointZ = 0.0F;
-        planeConstant = 0.0F;
-        tolerance = 0.0F;
-        area = 0.0F;
-        jacobianA = 0.0F;
-        jacobianB = 0.0F;
-        jacobianC = 0.0F;
+        positionX = new double[MAXIMUM_VERTICES];
+        positionY = new double[MAXIMUM_VERTICES];
+        positionZ = new double[MAXIMUM_VERTICES];
+        normalX = 0.0;
+        normalY = 0.0;
+        normalZ = 0.0;
+        midPointX = 0.0;
+        midPointY = 0.0;
+        midPointZ = 0.0;
+        planeConstant = 0.0;
+        tolerance = 0.0;
+        area = 0.0;
+        jacobianA = 0.0;
+        jacobianB = 0.0;
+        jacobianC = 0.0;
         numberOfVertices = 0;
         dominantAxis = 0;
         jacobianPresent = false;
@@ -181,7 +178,7 @@ public class PlanarFace extends FundamentalEntity {
     @param inNumberOfVertices number of vertices (3 or 4)
     @param inPositions vertex positions, copied
     */
-    public PlanarFace(int inNumberOfVertices, Vector3Df[] inPositions) {
+    public PlanarFace(int inNumberOfVertices, Vector3Dd[] inPositions) {
         this();
         if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
             status = BuildStatus.UNSUPPORTED_VERTEX_COUNT;
@@ -218,27 +215,27 @@ public class PlanarFace extends FundamentalEntity {
         return numberOfVertices;
     }
 
-    public Vector3Df getPosition(int i) {
-        return new Vector3Df(positionX[i], positionY[i], positionZ[i]);
+    public Vector3Dd getPosition(int i) {
+        return new Vector3Dd(positionX[i], positionY[i], positionZ[i]);
     }
 
-    public Vector3Df getNormal() {
-        return new Vector3Df(normalX, normalY, normalZ);
+    public Vector3Dd getNormal() {
+        return new Vector3Dd(normalX, normalY, normalZ);
     }
 
-    public Vector3Df getMidPoint() {
-        return new Vector3Df(midPointX, midPointY, midPointZ);
+    public Vector3Dd getMidPoint() {
+        return new Vector3Dd(midPointX, midPointY, midPointZ);
     }
 
-    public float getPlaneConstant() {
+    public double getPlaneConstant() {
         return planeConstant;
     }
 
-    public float getTolerance() {
+    public double getTolerance() {
         return tolerance;
     }
 
-    public float getArea() {
+    public double getArea() {
         return area;
     }
 
@@ -250,15 +247,15 @@ public class PlanarFace extends FundamentalEntity {
         return jacobianPresent;
     }
 
-    public float getJacobianA() {
+    public double getJacobianA() {
         return jacobianA;
     }
 
-    public float getJacobianB() {
+    public double getJacobianB() {
         return jacobianB;
     }
 
-    public float getJacobianC() {
+    public double getJacobianC() {
         return jacobianC;
     }
 
@@ -266,17 +263,17 @@ public class PlanarFace extends FundamentalEntity {
     Newell's method; false for a degenerate polygon
     */
     private boolean computeNormal() {
-        float nx = 0.0F;
-        float ny = 0.0F;
-        float nz = 0.0F;
+        double nx = 0.0;
+        double ny = 0.0;
+        double nz = 0.0;
         final int last = numberOfVertices - 1;
-        float currentX = positionX[last] - positionX[0];
-        float currentY = positionY[last] - positionY[0];
-        float currentZ = positionZ[last] - positionZ[0];
+        double currentX = positionX[last] - positionX[0];
+        double currentY = positionY[last] - positionY[0];
+        double currentZ = positionZ[last] - positionZ[0];
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            final float previousX = currentX;
-            final float previousY = currentY;
-            final float previousZ = currentZ;
+            final double previousX = currentX;
+            final double previousY = currentY;
+            final double previousZ = currentZ;
             currentX = positionX[i] - positionX[0];
             currentY = positionY[i] - positionY[0];
             currentZ = positionZ[i] - positionZ[0];
@@ -285,12 +282,12 @@ public class PlanarFace extends FundamentalEntity {
             nz += (previousX - currentX) * (previousY + currentY);
         }
 
-        final Vector3Df sum = new Vector3Df(nx, ny, nz);
-        final float localNorm = norm(sum);
+        final Vector3Dd sum = new Vector3Dd(nx, ny, nz);
+        final double localNorm = norm(sum);
         if ( localNorm < EPSILON ) {
             return false;
         }
-        final Vector3Df unit = inverseScaled(localNorm, sum, EPSILON_FLOAT);
+        final Vector3Dd unit = inverseScaled(localNorm, sum, EPSILON);
         normalX = unit.x();
         normalY = unit.y();
         normalZ = unit.z();
@@ -307,22 +304,22 @@ public class PlanarFace extends FundamentalEntity {
     private void computeAreaAndJacobian() {
         jacobianPresent = false;
         if ( numberOfVertices == 3 ) {
-            final Vector3Df d1 = difference(getPosition(1), getPosition(0));
-            final Vector3Df d2 = difference(getPosition(2), getPosition(1));
-            area = 0.5F * norm(cross(d1, d2));
+            final Vector3Dd d1 = difference(getPosition(1), getPosition(0));
+            final Vector3Dd d2 = difference(getPosition(2), getPosition(1));
+            area = 0.5 * norm(cross(d1, d2));
             return;
         }
 
-        final Vector3Df normal = getNormal();
-        final Vector3Df d1 = difference(getPosition(1), getPosition(0));
-        final Vector3Df d2 = difference(getPosition(2), getPosition(1));
-        final Vector3Df d3 = difference(getPosition(2), getPosition(3));
-        final Vector3Df d4 = difference(getPosition(3), getPosition(0));
-        final float a = dot(cross(d1, d4), normal);
-        float b = dot(cross(d1, d3), normal);
-        float c = dot(cross(d2, d4), normal);
+        final Vector3Dd normal = getNormal();
+        final Vector3Dd d1 = difference(getPosition(1), getPosition(0));
+        final Vector3Dd d2 = difference(getPosition(2), getPosition(1));
+        final Vector3Dd d3 = difference(getPosition(2), getPosition(3));
+        final Vector3Dd d4 = difference(getPosition(3), getPosition(0));
+        final double a = dot(cross(d1, d4), normal);
+        double b = dot(cross(d1, d3), normal);
+        double c = dot(cross(d2, d4), normal);
 
-        area = a + 0.5F * (b + c);
+        area = a + 0.5 * (b + c);
         if ( area < 0.0 ) {
             // Normal direction and vertex order are not consistent
             b = -b;
@@ -339,15 +336,15 @@ public class PlanarFace extends FundamentalEntity {
     }
 
     private void computeMidPoint() {
-        float x = 0.0F;
-        float y = 0.0F;
-        float z = 0.0F;
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
         for ( int i = 0; i < numberOfVertices; i++ ) {
             x = x + positionX[i];
             y = y + positionY[i];
             z = z + positionZ[i];
         }
-        final Vector3Df mid = inverseScaled((float) numberOfVertices, new Vector3Df(x, y, z), EPSILON_FLOAT);
+        final Vector3Dd mid = inverseScaled((double)numberOfVertices, new Vector3Dd(x, y, z), EPSILON);
         midPointX = mid.x();
         midPointY = mid.y();
         midPointZ = mid.z();
@@ -357,12 +354,12 @@ public class PlanarFace extends FundamentalEntity {
     A "width" of the plane, for coplanarity tests: the largest distance of a
     vertex to the plane plus the vertex's position tolerance
     */
-    private float computeTolerance() {
-        final Vector3Df normal = getNormal();
-        float localTolerance = 0.0F;
+    private double computeTolerance() {
+        final Vector3Dd normal = getNormal();
+        double localTolerance = 0.0;
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            final Vector3Df p = getPosition(i);
-            final float e = Math.abs(dot(normal, p) + planeConstant) + positionTolerance(p, EPSILON_FLOAT);
+            final Vector3Dd p = getPosition(i);
+            final double e = Math.abs(dot(normal, p) + planeConstant) + positionTolerance(p, EPSILON);
             if ( e > localTolerance ) {
                 localTolerance = e;
             }
@@ -374,12 +371,12 @@ public class PlanarFace extends FundamentalEntity {
     Index of the largest absolute component; ties go to x, then y. Used to
     turn point in polygon tests into 2D problems
     */
-    private static int dominantCoordinate(Vector3Df vector) {
-        final float ax = Math.abs(vector.x());
-        final float ay = Math.abs(vector.y());
-        final float az = Math.abs(vector.z());
+    private static int dominantCoordinate(Vector3Dd vector) {
+        final double ax = Math.abs(vector.x());
+        final double ay = Math.abs(vector.y());
+        final double az = Math.abs(vector.z());
         double indexValue = Math.max(ay, az);
-        indexValue = Math.max(ax, (float) indexValue);
+        indexValue = Math.max(ax, (double)indexValue);
 
         if ( indexValue == ax ) {
             return 0;
@@ -485,7 +482,7 @@ public class PlanarFace extends FundamentalEntity {
     Barycentric (u, v) of a point in the triangle. Didier Badouel, Graphics
     Gems I, p390
     */
-    private boolean triangleParameters(Vector3Df point, Vector2Dd uv) {
+    private boolean triangleParameters(Vector3Dd point, Vector2Dd uv) {
         double u0;
         double v0;
         double pointA;
@@ -549,7 +546,7 @@ public class PlanarFace extends FundamentalEntity {
     Gilles Subrenat, "Ray Intersection of Tessellated Surfaces: Quadrangles
     versus Triangles", Graphics Gems V, pages 232-241
     */
-    private boolean quadrilateralParameters(Vector3Df point, Vector2Dd uv) {
+    private boolean quadrilateralParameters(Vector3Dd point, Vector2Dd uv) {
         double ax;
         double ay;
         double bx;
@@ -670,7 +667,7 @@ public class PlanarFace extends FundamentalEntity {
     @param uv receives u in uv.x and v in uv.y
     @return true when the point is inside the face
     */
-    public boolean parameters(Vector3Df point, Vector2Dd uv) {
+    public boolean parameters(Vector3Dd point, Vector2Dd uv) {
         final Vector2Dd localUv = new Vector2Dd();
         final boolean inside = numberOfVertices == 3 ? triangleParameters(point, localUv) : quadrilateralParameters(point, localUv);
         uv.x = localUv.x;
@@ -682,15 +679,15 @@ public class PlanarFace extends FundamentalEntity {
     Point at the given barycentric (triangle) or bi-linear (quadrilateral)
     parameters; for a triangle with u + v &gt; 1, (1 - u, 1 - v) is used
     */
-    public Vector3Df pointAt(double u, double v) {
+    public Vector3Dd pointAt(double u, double v) {
         if ( numberOfVertices == 3 ) {
             if ( u + v > 1.0 ) {
                 u = 1.0 - u;
                 v = 1.0 - v;
             }
-            return pointInTriangle(getPosition(0), getPosition(1), getPosition(2), (float) u, (float) v);
+            return pointInTriangle(getPosition(0), getPosition(1), getPosition(2), (double)u, (double)v);
         }
-        return pointInQuadrilateral(getPosition(0), getPosition(1), getPosition(2), getPosition(3), (float) u, (float) v);
+        return pointInQuadrilateral(getPosition(0), getPosition(1), getPosition(2), getPosition(3), (double)u, (double)v);
     }
 
     /**
@@ -733,7 +730,7 @@ public class PlanarFace extends FundamentalEntity {
     /**
     Area preserving mapping: point at the given uniform parameters
     */
-    public Vector3Df uniformPointAt(double u, double v) {
+    public Vector3Dd uniformPointAt(double u, double v) {
         final Vector2Dd uv = new Vector2Dd(u, v);
         if ( jacobianPresent ) {
             uniformToBiLinear(uv);
@@ -747,7 +744,7 @@ public class PlanarFace extends FundamentalEntity {
     @param uv receives uniform u in uv.x and v in uv.y
     @return true when the point is inside the face
     */
-    public boolean uniformParameters(Vector3Df point, Vector2Dd uv) {
+    public boolean uniformParameters(Vector3Dd point, Vector2Dd uv) {
         final boolean inside = parameters(point, uv);
         if ( jacobianPresent ) {
             biLinearToUniform(uv);
@@ -760,11 +757,11 @@ public class PlanarFace extends FundamentalEntity {
     beyond the other face's tolerance
     */
     public boolean isAtLeastPartlyInFront(PlanarFace other) {
-        final Vector3Df otherNormal = other.getNormal();
+        final Vector3Dd otherNormal = other.getNormal();
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            final Vector3Df p = getPosition(i);
+            final Vector3Dd p = getPosition(i);
             final double ep = dot(otherNormal, p) + other.planeConstant;
-            final double localTolerance = other.tolerance + positionTolerance(p, EPSILON_FLOAT);
+            final double localTolerance = other.tolerance + positionTolerance(p, EPSILON);
             if ( ep > localTolerance ) {
                 return true;
             }
@@ -782,7 +779,7 @@ public class PlanarFace extends FundamentalEntity {
     /**
     Signed distance of a point to the plane, in units of the normal
     */
-    public float planeDistance(Vector3Df point) {
+    public double planeDistance(Vector3Dd point) {
         return normalX * point.x() + normalY * point.y() + normalZ * point.z() + planeConstant;
     }
 
@@ -793,8 +790,8 @@ public class PlanarFace extends FundamentalEntity {
     @param normalDotDirection normalDotDirection[0] receives the dot product
     of the normal with the direction
     */
-    public Side sideFacing(Vector3Df direction, float[] normalDotDirection) {
-        final float d = normalX * direction.x() + normalY * direction.y() + normalZ * direction.z();
+    public Side sideFacing(Vector3Dd direction, double[] normalDotDirection) {
+        final double d = normalX * direction.x() + normalY * direction.y() + normalZ * direction.z();
         normalDotDirection[0] = d;
         if ( d > EPSILON ) {
             return Side.BACK;
@@ -809,7 +806,7 @@ public class PlanarFace extends FundamentalEntity {
     Ray parameter of the hit with the plane, given the dot product of the
     normal with the ray direction (from sideFacing)
     */
-    public float planeHitParameter(Vector3Df origin, float normalDotDirection) {
+    public double planeHitParameter(Vector3Dd origin, double normalDotDirection) {
         return -(normalX * origin.x() + normalY * origin.y() + normalZ * origin.z() + planeConstant) / normalDotDirection;
     }
 
@@ -821,22 +818,22 @@ public class PlanarFace extends FundamentalEntity {
     face; returns false otherwise (the hit is then unspecified)
     */
     public boolean rayHit(
-        Vector3Df origin,
-        Vector3Df direction,
+        Vector3Dd origin,
+        Vector3Dd direction,
         boolean acceptFront,
         boolean acceptBack,
-        float minimumDistance,
-        float maximumDistance,
+        double minimumDistance,
+        double maximumDistance,
         RayHit hit)
     {
-        final float[] normalDotDirection = new float[1];
+        final double[] normalDotDirection = new double[1];
         final Side side = sideFacing(direction, normalDotDirection);
         if ( side == Side.PARALLEL
              || (side == Side.FRONT && !acceptFront)
              || (side == Side.BACK && !acceptBack) ) {
             return false;
         }
-        final float distance = planeHitParameter(origin, normalDotDirection[0]);
+        final double distance = planeHitParameter(origin, normalDotDirection[0]);
         if ( distance > maximumDistance || distance < minimumDistance ) {
             return false;
         }
@@ -846,7 +843,7 @@ public class PlanarFace extends FundamentalEntity {
         hit.pointY = origin.y() + distance * direction.y();
         hit.pointZ = origin.z() + distance * direction.z();
         final Vector2Dd uv = new Vector2Dd();
-        final boolean inside = parameters(new Vector3Df(hit.pointX, hit.pointY, hit.pointZ), uv);
+        final boolean inside = parameters(new Vector3Dd(hit.pointX, hit.pointY, hit.pointZ), uv);
         hit.u = uv.x;
         hit.v = uv.y;
         return inside;

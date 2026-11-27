@@ -12,7 +12,7 @@ workspace, or Patch's own one for the single threaded callers) and passed
 explicitly to Patch.intersect. Nothing it holds escapes a call.
 */
 public final class PatchIntersectionWorkspace {
-    final RayHit hit = new RayHit();
+    final RpkRayHit hit = new RpkRayHit();
     final vsdk.toolkit.environment.geometry.element.PlanarFace.RayHit faceHit = new vsdk.toolkit.environment.geometry.element.PlanarFace.RayHit();
     final double[] u = new double[1];
     final double[] v = new double[1];

@@ -15,7 +15,7 @@ import vsdk.toolkit.io.context.ReaderContext;
 import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 
 public class MgfParserLoader {
@@ -313,12 +313,12 @@ Contorted logic works as follows:
 
         handlers[HandlerRoleContext.DISCARD_UNNEEDED.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.DISCARD_UNNEEDED, MgfParserLoader::mgfDiscardUnNeededEntity);
         handlers[HandlerRoleContext.INCLUDE_FILE.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.INCLUDE_FILE, MgfParserLoader::handleIncludedFile);
-        handlers[HandlerRoleContext.ENTITY_SPHERE.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_SPHERE, MgfSphereEntityExpander::handleEntity);
-        handlers[HandlerRoleContext.ENTITY_TORUS.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_TORUS, MgfTorusEntityExpander::handleEntity);
-        handlers[HandlerRoleContext.ENTITY_CYLINDER.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CYLINDER, MgfCylinderEntityExpander::handleEntity);
-        handlers[HandlerRoleContext.ENTITY_RING.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_RING, MgfRingEntityTessellator::handleEntity);
-        handlers[HandlerRoleContext.ENTITY_CONE.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CONE, MgfConeEntityTessellator::handleEntity);
-        handlers[HandlerRoleContext.ENTITY_PRISM.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_PRISM, MgfPrismEntityTessellator::handleEntity);
+        handlers[HandlerRoleContext.ENTITY_SPHERE.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_SPHERE, MgfVitralPrimitiveTessellator::handleSphere);
+        handlers[HandlerRoleContext.ENTITY_TORUS.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_TORUS, MgfVitralPrimitiveTessellator::handleTorus);
+        handlers[HandlerRoleContext.ENTITY_CYLINDER.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CYLINDER, MgfVitralPrimitiveTessellator::handleCylinder);
+        handlers[HandlerRoleContext.ENTITY_RING.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_RING, MgfVitralPrimitiveTessellator::handleRing);
+        handlers[HandlerRoleContext.ENTITY_CONE.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CONE, MgfVitralPrimitiveTessellator::handleCone);
+        handlers[HandlerRoleContext.ENTITY_PRISM.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_PRISM, MgfVitralPrimitiveTessellator::handlePrism);
         handlers[HandlerRoleContext.ENTITY_FACE_WITH_HOLES.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesEntityExpander::handleEntity);
         handlers[HandlerRoleContext.COLOR_SPEC_HELPER.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.COLOR_SPEC_HELPER, MgfParserLoader::mgfECSpec);
         handlers[HandlerRoleContext.COLOR_MIX_HELPER.ordinal()] = new MgfEntityHandlerAdapter(HandlerRoleContext.COLOR_MIX_HELPER, MgfParserLoader::mgfECMix);
@@ -516,7 +516,6 @@ Contorted logic works as follows:
         model.materials = context.materials;
         model.monochrome = context.monochrome;
         model.singleSided = context.singleSided;
-        model.warpConeEnds = context.warpConeEnds;
         model.numberOfQuarterCircleDivisions = context.numberOfQuarterCircleDivisions;
         model.readerContext = context.readerContext;
         model.transformContext = context.transformContext;
@@ -537,7 +536,7 @@ Note: this is an implementation of MGF file format with major version number 2.
 
         initMgf(context);
 
-        context.currentGeometryList = new ArrayList<Geometry>();
+        context.currentGeometryList = new ArrayList<RpkGeometry>();
         context.geometryBuildState.currentGeometryList = context.currentGeometryList;
 
         if (context.materials == null) {
@@ -593,7 +592,7 @@ Note: this is an implementation of MGF file format with major version number 2.
             long innerCompoundChildren = 0;
             long unknowns = 0;
             for (int i = 0; i < context.currentGeometryList.size(); i++) {
-                Geometry geometry = context.currentGeometryList.get(i);
+                RpkGeometry geometry = context.currentGeometryList.get(i);
                 if (geometry.className == GeometryClassId.SURFACE_MESH) {
                     surfaces++;
                 } else if (geometry.className == GeometryClassId.PATCH_SET) {

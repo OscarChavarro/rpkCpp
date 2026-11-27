@@ -1,7 +1,7 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
 import java.util.function.Consumer;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -18,7 +18,7 @@ public class GlutDebugToolsModel {
     public int windowedHeight;
     public Scene scene;
     public RadianceMethod radianceMethod;
-    public RenderOptions renderOptions;
+    public RendererConfiguration renderOptions;
     public ToneMappingContext toneMapOptions;
     public GlutDebugState debugState;
     public Consumer<ParseRuntimeContext> memoryFreeCallBack;

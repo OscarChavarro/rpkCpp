@@ -1,5 +1,6 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
+import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -27,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.Opengl;
@@ -137,8 +138,8 @@ public class GlutDebugTools implements GLEventListener {
         Camera camera = model.scene.camera;
         if ( camera.xSize == model.width
              && camera.ySize == model.height
-             && camera.pixelWidth > Numeric.EPSILON_FLOAT
-             && camera.pixelHeight > Numeric.EPSILON_FLOAT ) {
+             && camera.pixelWidth > Numeric.EPSILON
+             && camera.pixelHeight > Numeric.EPSILON ) {
             return;
         }
 
@@ -175,7 +176,7 @@ public class GlutDebugTools implements GLEventListener {
                 break;
         }
 
-        ColorRgbMutable c = element.radiance == null || element.radiance.length == 0 ? null : element.radiance[0];
+        ColorRgb c = element.radiance == null || element.radiance.length == 0 ? null : element.radiance[0];
         long numberOfInteractions = element.interactions == null ? 0 : element.interactions.size();
 
         if ( element.regularSubElements == null ) {
@@ -212,12 +213,12 @@ public class GlutDebugTools implements GLEventListener {
         }
 
         Patch patch = scene.patchList.get(patchIndex);
-        if ( patch == null || patch.radianceData == null ) {
+        if ( patch == null || GalerkinRadianceMethod.galerkinState.boundElement(patch) == null ) {
             return;
         }
 
-        GalerkinElement element = GalerkinElement.fromPatch(patch);
-        System.out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch.id);
+        GalerkinElement element = GalerkinElement.fromPatch(GalerkinRadianceMethod.galerkinState, patch);
+        System.out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch.getId());
         printElementHierarchy(element, 0);
     }
 
@@ -333,8 +334,8 @@ public class GlutDebugTools implements GLEventListener {
             return value;
         }
 
-        float scaled = ((float)value + 0.5f) * ((float)surfaceSize / (float)componentSize) - 0.5f;
-        return Math.round(scaled);
+        double scaled = ((double)value + 0.5) * ((double)surfaceSize / (double)componentSize) - 0.5;
+        return (int)Math.round(scaled);
     }
 
     private int[] mousePointInDrawablePixels(int awtX, int awtY) {

@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
@@ -8,9 +8,9 @@ import vsdk.toolkit.galerkin.processing.ClusterTraversalStrategy;
 
 public final class OrientedGathererVisitor implements ClusterLeafVisitor {
     private Interaction link;
-    private ColorRgbMutable[] sourceRadiance;
+    private ColorRgb[] sourceRadiance;
 
-    public OrientedGathererVisitor(Interaction inLink, ColorRgbMutable[] inSourceRadiance) {
+    public OrientedGathererVisitor(Interaction inLink, ColorRgb[] inSourceRadiance) {
         link = inLink;
         sourceRadiance = inSourceRadiance;
     }

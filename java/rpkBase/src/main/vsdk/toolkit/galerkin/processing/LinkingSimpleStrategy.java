@@ -11,17 +11,17 @@ import vsdk.toolkit.galerkin.GalerkinShaftCullMode;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.Shaft;
-import vsdk.toolkit.scene.Polygon;
+import vsdk.toolkit.scene.ConvexPolygon;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.environment.geometry.elements.ElementFlags;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class LinkingSimpleStrategy {
     private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
-    private static final MemoryPool<float[]> interactionCoefficientsPool =
-        new MemoryPool<>(() -> new float[K_SIZE]);
+    private static final MemoryPool<double[]> interactionCoefficientsPool =
+        new MemoryPool<>(() -> new double[K_SIZE]);
     private static boolean interactionCoefficientsPoolInitialized = false;
 
     private static void ensureInteractionCoefficientsPool() {
@@ -35,9 +35,9 @@ public class LinkingSimpleStrategy {
         Scene scene,
         GalerkinState galerkinState,
         GalerkinRole role,
-        ArrayList<Geometry>[] candidateList,
+        ArrayList<RpkGeometry>[] candidateList,
         GalerkinElement topElement,
-        BoundingBox topLevelBoundingBox,
+        RpkAxisAlignedBoundingBox topLevelBoundingBox,
         Patch patch)
     {
         if ( scene == null || galerkinState == null || candidateList == null || candidateList.length == 0
@@ -51,7 +51,7 @@ public class LinkingSimpleStrategy {
 
         GalerkinElement receiverElement;
         GalerkinElement sourceElement;
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
 
         switch ( role ) {
             case SOURCE:
@@ -67,30 +67,30 @@ public class LinkingSimpleStrategy {
                 return;
         }
 
-        ArrayList<Geometry> oldCandidateList = candidateList[0];
+        ArrayList<RpkGeometry> oldCandidateList = candidateList[0];
         if ( (galerkinState.exactVisibility != 0
               || galerkinState.shaftCullMode == GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING)
              && oldCandidateList != null ) {
-            Shaft shaft = new Shaft();
+            Shaft shaft = new Shaft(scene.getFaceBounds());
 
             if ( galerkinState.exactVisibility != 0 ) {
                 if ( receiverElement != null && sourceElement != null ) {
-                    Polygon receiverPolygon = new Polygon();
-                    Polygon sourcePolygon = new Polygon();
+                    ConvexPolygon receiverPolygon = new ConvexPolygon();
+                    ConvexPolygon sourcePolygon = new ConvexPolygon();
                     receiverElement.initPolygon(receiverPolygon);
                     sourceElement.initPolygon(sourcePolygon);
                     shaft.constructFromPolygonToPolygon(receiverPolygon, sourcePolygon);
                 }
             }
             else {
-                BoundingBox boundingBox = new BoundingBox();
-                patch.computeAndGetBoundingBox(boundingBox);
+                RpkAxisAlignedBoundingBox boundingBox = new RpkAxisAlignedBoundingBox();
+                boundingBox.copyFrom(scene.getFaceBounds().get(patch.getFaceIndex()));
                 shaft.constructFromBoundingBoxes(topLevelBoundingBox, boundingBox);
             }
 
             shaft.setShaftOmit(topElement.patch);
             shaft.setShaftOmit(patch);
-            ArrayList<Geometry> arr = new ArrayList<>();
+            ArrayList<RpkGeometry> arr = new ArrayList<>();
             shaft.doCulling(oldCandidateList, arr, galerkinState.shaftCullStrategy);
             candidateList[0] = arr;
 
@@ -111,7 +111,7 @@ public class LinkingSimpleStrategy {
             }
             if (link.K == null) {
                 usingPool = false;
-                link.K = new float[K_SIZE];
+                link.K = new double[K_SIZE];
             }
         }
         link.ownsK = !usingPool;
@@ -128,7 +128,7 @@ public class LinkingSimpleStrategy {
 
         boolean isSceneGeometry = candidateList[0] == scene.geometryList;
         boolean isClusteredGeometry = candidateList[0] == scene.clusteredGeometryList;
-        ArrayList<Geometry> geometryListReferences = candidateList[0];
+        ArrayList<RpkGeometry> geometryListReferences = candidateList[0];
         FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
             scene.getSceneQuery(),
             scene.getSceneQueryWorkspace(),
@@ -181,10 +181,10 @@ public class LinkingSimpleStrategy {
         Scene scene,
         GalerkinState galerkinState,
         GalerkinRole role,
-        ArrayList<Geometry>[] candidateList,
+        ArrayList<RpkGeometry>[] candidateList,
         GalerkinElement topElement,
-        BoundingBox topLevelBoundingBox,
-        Geometry geometry)
+        RpkAxisAlignedBoundingBox topLevelBoundingBox,
+        RpkGeometry geometry)
     {
         if ( scene == null || galerkinState == null || candidateList == null || candidateList.length == 0
              || topElement == null || topElement.patch == null || geometry == null ) {
@@ -194,19 +194,19 @@ public class LinkingSimpleStrategy {
         // Immediately return if the geometry is bounded and behind the plane
         // of the patch for which interactions are created.
         if ( geometry.bounded
-             && geometry.getBoundingBox().behindPlane(topElement.patch.getNormal(), topElement.patch.planeConstant) ) {
+             && geometry.getBoundingBox().behindPlane(topElement.patch.getNormal(), topElement.patch.getPlaneConstant()) ) {
             return;
         }
 
         // If the geometry is bounded, do shaft culling, reducing the candidate
         // list which contains possible occluders between patch pairs.
-        ArrayList<Geometry> oldCandidateList = candidateList[0];
+        ArrayList<RpkGeometry> oldCandidateList = candidateList[0];
         if ( geometry.bounded && oldCandidateList != null ) {
-            Shaft shaft = new Shaft();
-            BoundingBox boundingBox = geometry.getBoundingBox();
+            Shaft shaft = new Shaft(scene.getFaceBounds());
+            RpkAxisAlignedBoundingBox boundingBox = geometry.getBoundingBox();
             shaft.constructFromBoundingBoxes(topLevelBoundingBox, boundingBox);
             shaft.setShaftOmit(topElement.patch);
-            ArrayList<Geometry> arr = new ArrayList<>();
+            ArrayList<RpkGeometry> arr = new ArrayList<>();
             shaft.doCulling(oldCandidateList, arr, galerkinState.shaftCullStrategy);
             candidateList[0] = arr;
         }
@@ -214,7 +214,7 @@ public class LinkingSimpleStrategy {
         // If the geometry is an aggregate, test each child. If it is primitive,
         // create an initial link with each patch it consists of.
         if ( geometry.isCompound() ) {
-            ArrayList<Geometry> geometryList = Geometry.primitiveListCopy(geometry);
+            ArrayList<RpkGeometry> geometryList = RpkGeometry.primitiveListCopy(geometry);
             for ( int i = 0; geometryList != null && i < geometryList.size(); i++ ) {
                 geometryLink(
                     scene,
@@ -227,7 +227,7 @@ public class LinkingSimpleStrategy {
             }
         }
         else {
-            ArrayList<Patch> patchList = Geometry.patchListReference(geometry);
+            ArrayList<Patch> patchList = RpkGeometry.patchListReference(geometry);
             for ( int i = 0; patchList != null && i < patchList.size(); i++ ) {
                 createInitialLink(
                     scene,
@@ -264,11 +264,11 @@ public class LinkingSimpleStrategy {
             return;
         }
 
-        BoundingBox topLevelBoundingBox = new BoundingBox();
-        topElement.patch.computeAndGetBoundingBox(topLevelBoundingBox);
+        RpkAxisAlignedBoundingBox topLevelBoundingBox = new RpkAxisAlignedBoundingBox();
+        topLevelBoundingBox.copyFrom(scene.getFaceBounds().get(topElement.patch.getFaceIndex()));
 
         @SuppressWarnings("unchecked")
-        ArrayList<Geometry>[] candidateList = (ArrayList<Geometry>[])new ArrayList<?>[1];
+        ArrayList<RpkGeometry>[] candidateList = (ArrayList<RpkGeometry>[])new ArrayList<?>[1];
         candidateList[0] = scene.clusteredGeometryList;
 
         for ( int i = 0; scene.geometryList != null && i < scene.geometryList.size(); i++ ) {

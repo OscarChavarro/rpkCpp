@@ -141,14 +141,149 @@ public final class ColorRgb extends FundamentalEntity
                          (a.b - b.b)*(a.b - b.b));
     }
 
+    /**
+    Component-wise this + other. As every arithmetic operation of this
+    immutable class, it returns a new color and leaves this one untouched;
+    component expressions are evaluated in a fixed left-to-right order so
+    results are bit-identical across ports.
+    @param other color to add
+    @return this + other
+    */
     public ColorRgb add(ColorRgb other)
     {
         return new ColorRgb(this.r + other.r, this.g + other.g, this.b + other.b);
     }
 
+    /**
+    Component-wise this + scalar * other.
+    @param scalar factor applied to `other`
+    @param other color to scale and add
+    @return this + scalar * other
+    */
+    public ColorRgb addScaled(double scalar, ColorRgb other)
+    {
+        return new ColorRgb(this.r + scalar * other.r,
+                            this.g + scalar * other.g,
+                            this.b + scalar * other.b);
+    }
+
+    /**
+    Component-wise this - other.
+    @param other color to subtract
+    @return this - other
+    */
+    public ColorRgb subtract(ColorRgb other)
+    {
+        return new ColorRgb(this.r - other.r, this.g - other.g, this.b - other.b);
+    }
+
+    /**
+    @param scalar factor
+    @return this * scalar
+    */
     public ColorRgb multiply(double scalar)
     {
         return new ColorRgb(this.r * scalar, this.g * scalar, this.b * scalar);
+    }
+
+    /**
+    Component-wise (Hadamard) product this * other.
+    @param other color to multiply by
+    @return this * other, component by component
+    */
+    public ColorRgb multiply(ColorRgb other)
+    {
+        return new ColorRgb(this.r * other.r, this.g * other.g, this.b * other.b);
+    }
+
+    /**
+    Multiplies by the reciprocal of scalar (not a true division: the
+    reciprocal is computed once). A zero scalar returns this color unchanged.
+    @param scalar divisor
+    @return (1 / scalar) * this, or this color when scalar is zero
+    */
+    public ColorRgb scaleInverse(double scalar)
+    {
+        final double a = scalar != 0.0 ? 1.0 / scalar : 1.0;
+        return new ColorRgb(a * this.r, a * this.g, a * this.b);
+    }
+
+    /**
+    Component-wise this / other. A component whose divisor is zero is
+    returned unchanged.
+    @param other divisor color
+    @return this / other, component by component
+    */
+    public ColorRgb divide(ColorRgb other)
+    {
+        return new ColorRgb(other.r != 0.0 ? this.r / other.r : this.r,
+                            other.g != 0.0 ? this.g / other.g : this.g,
+                            other.b != 0.0 ? this.b / other.b : this.b);
+    }
+
+    /**
+    @return component-wise absolute value
+    */
+    public ColorRgb absolute()
+    {
+        return new ColorRgb(Math.abs(this.r), Math.abs(this.g), Math.abs(this.b));
+    }
+
+    /**
+    @param other color to compare against
+    @return component-wise minimum
+    */
+    public ColorRgb minimum(ColorRgb other)
+    {
+        return new ColorRgb(this.r < other.r ? this.r : other.r,
+                            this.g < other.g ? this.g : other.g,
+                            this.b < other.b ? this.b : other.b);
+    }
+
+    /**
+    @param other color to compare against
+    @return component-wise maximum
+    */
+    public ColorRgb maximum(ColorRgb other)
+    {
+        return new ColorRgb(this.r > other.r ? this.r : other.r,
+                            this.g > other.g ? this.g : other.g,
+                            this.b > other.b ? this.b : other.b);
+    }
+
+    /**
+    @return |r| + |g| + |b|
+    */
+    public double sumAbsComponents()
+    {
+        return Math.abs(this.r) + Math.abs(this.g) + Math.abs(this.b);
+    }
+
+    /**
+    @return largest of the three components
+    */
+    public double maximumComponent()
+    {
+        return r > g ? (r > b ? r : b) : (g > b ? g : b);
+    }
+
+    /**
+    @return (r + g + b) / 3
+    */
+    public double average()
+    {
+        return (r + g + b) / 3.0;
+    }
+
+    /**
+    @return true when every component lies strictly inside
+    (-VSDK.EPSILON, VSDK.EPSILON)
+    */
+    public boolean isBlack()
+    {
+        return r > -VSDK.EPSILON && r < VSDK.EPSILON &&
+               g > -VSDK.EPSILON && g < VSDK.EPSILON &&
+               b > -VSDK.EPSILON && b < VSDK.EPSILON;
     }
 
     public double r()

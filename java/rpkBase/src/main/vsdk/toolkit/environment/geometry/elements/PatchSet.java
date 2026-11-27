@@ -1,12 +1,13 @@
 package vsdk.toolkit.environment.geometry.elements;
 
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 
-public final class PatchSet extends Geometry {
+public final class PatchSet extends RpkGeometry {
     private ArrayList<Patch> patchList;
     private boolean memoryPoolManaged;
 
@@ -15,6 +16,18 @@ public final class PatchSet extends Geometry {
         memoryPoolManaged = false;
         patchList = new ArrayList<>();
         resetFrom(input);
+    }
+
+    /**
+    patchBounds: the union of the patches' bounds, which the caller already
+    has (for instance from the scene's FaceBoundsTable); the set is then
+    bounded exactly as by the first constructor, without visiting vertices
+    */
+    public PatchSet(ArrayList<Patch> input, RpkAxisAlignedBoundingBox patchBounds) {
+        super(GeometryClassId.PATCH_SET);
+        memoryPoolManaged = false;
+        patchList = new ArrayList<>();
+        resetFrom(input, patchBounds);
     }
 
     @Override
@@ -34,18 +47,18 @@ public final class PatchSet extends Geometry {
     (GeomDiscretizationIntersect()) for more explanation.
     */
     @Override
-    public RayHit discretizationIntersect(
+    public RpkRayHit discretizationIntersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions) {
         if (!discretizationIntersectPreTest(ray, minimumDistance, maximumDistance, exclusions)) {
             return null;
         }
 
-        return Geometry.patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
+        return RpkGeometry.patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }
 
     public ArrayList<Patch> getPatchList() {
@@ -63,7 +76,29 @@ public final class PatchSet extends Geometry {
             patchList.add(input.get(i));
         }
 
-        Geometry.patchListBounds(getPatchList(), boundingBox);
+        RpkGeometry.patchListBounds(getPatchList(), boundingBox);
+        boundingBox.enlargeTinyBit();
+        bounded = true;
+    }
+
+    /**
+    Pooled counterpart of the bounded constructor: reuses this set for a new
+    patch list whose bounds the caller already has
+    */
+    public void resetFrom(ArrayList<Patch> input, RpkAxisAlignedBoundingBox patchBounds) {
+        if (patchList == null) {
+            patchList = new ArrayList<>();
+        }
+        else {
+            patchList.clear();
+        }
+        for (int i = 0; input != null && i < input.size(); i++) {
+            patchList.add(input.get(i));
+        }
+
+        // A pooled set gets a fresh box, as a newly constructed one has
+        boundingBox = new RpkAxisAlignedBoundingBox();
+        boundingBox.enlarge(patchBounds);
         boundingBox.enlargeTinyBit();
         bounded = true;
     }

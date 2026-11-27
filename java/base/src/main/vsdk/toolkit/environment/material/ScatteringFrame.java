@@ -6,7 +6,7 @@
 
 package vsdk.toolkit.environment.material;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 import static vsdk.toolkit.environment.material.ScatteringArithmetic.combine;
 import static vsdk.toolkit.environment.material.ScatteringArithmetic.dot;
@@ -25,10 +25,7 @@ which leaves it), `normal` leaves the surface on the side the ray comes
 from, a returned direction leaves the surface. Densities are per
 unit solid angle. Variates are supplied by the caller, who draws them.
 
-Immutable value; all arithmetic in single precision except where noted, as
-RenderPark computes it. The single precision sine, cosine and square root
-of cpp (`sinf`, `cosf`, `sqrtf`) are the double precision ones rounded to
-float.
+Immutable value; all arithmetic in double precision.
 
 Output parameters (`density`, `totalInternalReflection`) are one-element
 holders.
@@ -38,54 +35,54 @@ public final class ScatteringFrame {
     public static final double DEGENERATE_AXIS = 1e-6;
 
     /** Tolerance of the normalizations */
-    public static final float NORMALIZATION_EPSILON = 1e-6F;
+    public static final double NORMALIZATION_EPSILON = 1e-6;
 
-    private final Vector3Df x;
-    private final Vector3Df y;
-    private final Vector3Df z;
+    private final Vector3Dd x;
+    private final Vector3Dd y;
+    private final Vector3Dd z;
 
     /**
     Frame whose Z axis is the given unit vector; X is horizontal
     (z = 0) when Z is not vertical, (1, 0, 0) when it is, and Y = Z x X.
     [ARVO1995b] equation 6 gives X up to its sign.
     */
-    public ScatteringFrame(Vector3Df unitZ)
+    public ScatteringFrame(Vector3Dd unitZ)
     {
         x = horizontalAxis(unitZ);
         y = completingAxis(unitZ, x);
-        z = new Vector3Df(unitZ);
+        z = new Vector3Dd(unitZ);
     }
 
     /** [ARVO1995b] equation 6: [x|z] = Normalize(x - (x.z) z), in closed form */
-    private static Vector3Df horizontalAxis(Vector3Df unitZ)
+    private static Vector3Dd horizontalAxis(Vector3Dd unitZ)
     {
-        final float zz = (float)Math.sqrt(1.0F - unitZ.z() * unitZ.z());
+        final double zz = Math.sqrt(1.0 - unitZ.z() * unitZ.z());
         if ( zz < DEGENERATE_AXIS ) {
-            return new Vector3Df(1.0F, 0.0F, 0.0F);
+            return new Vector3Dd(1.0, 0.0, 0.0);
         }
-        return new Vector3Df(unitZ.y() / zz, -unitZ.x() / zz, 0.0F);
+        return new Vector3Dd(unitZ.y() / zz, -unitZ.x() / zz, 0.0);
     }
 
     /** Y = Z x X completes the frame */
-    private static Vector3Df completingAxis(Vector3Df unitZ, Vector3Df unitX)
+    private static Vector3Dd completingAxis(Vector3Dd unitZ, Vector3Dd unitX)
     {
-        return new Vector3Df(
+        return new Vector3Dd(
             unitZ.y() * unitX.z() - unitZ.z() * unitX.y(),
             unitZ.z() * unitX.x() - unitZ.x() * unitX.z(),
             unitZ.x() * unitX.y() - unitZ.y() * unitX.x());
     }
 
-    public Vector3Df getX()
+    public Vector3Dd getX()
     {
         return x;
     }
 
-    public Vector3Df getY()
+    public Vector3Dd getY()
     {
         return y;
     }
 
-    public Vector3Df getZ()
+    public Vector3Dd getZ()
     {
         return z;
     }
@@ -94,16 +91,16 @@ public final class ScatteringFrame {
     Direction distributed as cos(theta) around Z, from variates xi1 (azimuth)
     and xi2 (polar); its density cos(theta) / pi goes to density[0]
     */
-    public Vector3Df sampleCosine(double xi1, double xi2, double[] density)
+    public Vector3Dd sampleCosine(double xi1, double xi2, double[] density)
     {
         // [ARVO1995b] section 2: (xi1, xi2) in [0,1]^2 mapped to azimuth and polar angle
-        final float phi = 2.0F * (float)Math.PI * (float)xi1;
-        final float cosPhi = (float)Math.cos(phi);
-        final float sinPhi = (float)Math.sin(phi);
-        final float cosTheta = (float)Math.sqrt(1.0 - xi2);
-        final float sinTheta = (float)Math.sqrt(xi2);
+        final double phi = 2.0 * Math.PI * (double)xi1;
+        final double cosPhi = Math.cos(phi);
+        final double sinPhi = Math.sin(phi);
+        final double cosTheta = Math.sqrt(1.0 - xi2);
+        final double sinTheta = Math.sqrt(xi2);
 
-        final Vector3Df planar = combine(cosPhi, x, sinPhi, y);
+        final Vector3Dd planar = combine(cosPhi, x, sinPhi, y);
         density[0] = cosTheta / Math.PI;
         return combine(sinTheta, planar, cosTheta, z);
     }
@@ -113,27 +110,27 @@ public final class ScatteringFrame {
     (n + 1) cos(theta)^n / (2 pi), computed in double precision, goes to
     density[0]
     */
-    public Vector3Df samplePhong(double n, double xi1, double xi2, double[] density)
+    public Vector3Dd samplePhong(double n, double xi1, double xi2, double[] density)
     {
         // [ARVO1995b] section 2: the same mapping with the radial distribution of cos^n
-        final float phi = 2.0F * (float)Math.PI * (float)xi1;
-        final float cosPhi = (float)Math.cos(phi);
-        final float sinPhi = (float)Math.sin(phi);
-        final float cosTheta = (float)Math.pow(xi2, 1.0 / (n + 1));
-        final float sinTheta = (float)Math.sqrt(1.0 - cosTheta * cosTheta);
+        final double phi = 2.0 * Math.PI * (double)xi1;
+        final double cosPhi = Math.cos(phi);
+        final double sinPhi = Math.sin(phi);
+        final double cosTheta = Math.pow(xi2, 1.0 / (n + 1));
+        final double sinTheta = Math.sqrt(1.0 - cosTheta * cosTheta);
 
-        final Vector3Df planar = combine(cosPhi, x, sinPhi, y);
+        final Vector3Dd planar = combine(cosPhi, x, sinPhi, y);
         density[0] = (n + 1.0) * Math.pow((double)cosTheta, n) / (2.0 * Math.PI);
         return combine(sinTheta, planar, cosTheta, z);
     }
 
     /** Mirror direction of `in` about `normal`, normalized */
-    public static Vector3Df idealReflection(Vector3Df in, Vector3Df normal)
+    public static Vector3Dd idealReflection(Vector3Dd in, Vector3Dd normal)
     {
         // The product is evaluated in single precision, then widened
         final double twice = 2 * dot(normal, in);
-        final Vector3Df along = scale((float)twice, normal);
-        final Vector3Df reflected = new Vector3Df(in.x() - along.x(), in.y() - along.y(), in.z() - along.z());
+        final Vector3Dd along = scale((double)twice, normal);
+        final Vector3Dd reflected = new Vector3Dd(in.x() - along.x(), in.y() - along.y(), in.z() - along.z());
         return normalize(reflected, NORMALIZATION_EPSILON);
     }
 
@@ -143,26 +140,26 @@ public final class ScatteringFrame {
     the side of `in` and beyond; on total internal reflection
     totalInternalReflection[0] is set and the mirror direction is returned
     */
-    public static Vector3Df idealRefraction(
-        Vector3Df in,
-        Vector3Df normal,
-        float inIndex,
-        float outIndex,
+    public static Vector3Dd idealRefraction(
+        Vector3Dd in,
+        Vector3Dd normal,
+        double inIndex,
+        double outIndex,
         boolean[] totalInternalReflection)
     {
         // [GLAS1989]: real part of the indices only
-        final float ratio = inIndex / outIndex;
-        final float cosIncident = -dot(in, normal);
-        final float cosTransmitted2 = 1 + ratio * ratio * (cosIncident * cosIncident - 1);
+        final double ratio = inIndex / outIndex;
+        final double cosIncident = -dot(in, normal);
+        final double cosTransmitted2 = 1 + ratio * ratio * (cosIncident * cosIncident - 1);
         if ( cosTransmitted2 < 0 ) {
             totalInternalReflection[0] = true;
             return idealReflection(in, normal);
         }
         totalInternalReflection[0] = false;
-        final float cosTransmitted = (float)Math.sqrt(cosTransmitted2);
-        final float normalScale = ratio * cosIncident - cosTransmitted;
-        final Vector3Df scaled = scale(ratio, in);
-        final Vector3Df refracted = new Vector3Df(
+        final double cosTransmitted = Math.sqrt(cosTransmitted2);
+        final double normalScale = ratio * cosIncident - cosTransmitted;
+        final Vector3Dd scaled = scale(ratio, in);
+        final Vector3Dd refracted = new Vector3Dd(
             scaled.x() + normalScale * normal.x(),
             scaled.y() + normalScale * normal.y(),
             scaled.z() + normalScale * normal.z());

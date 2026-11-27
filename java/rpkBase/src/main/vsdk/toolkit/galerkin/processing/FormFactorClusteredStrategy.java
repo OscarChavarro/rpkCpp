@@ -3,12 +3,12 @@ package vsdk.toolkit.galerkin.processing;
 import java.util.ArrayList;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.ShadowCache;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 
 public class FormFactorClusteredStrategy {
     public static void doConstantAreaToAreaFormFactor(
@@ -51,22 +51,22 @@ public class FormFactorClusteredStrategy {
             G = 1.0;
         }
 
-        link.K[0] = (float)(receiverElement.area * G);
+        link.K[0] = (double)(receiverElement.area * G);
 
-        link.deltaK = (float)(G - gMin);
+        link.deltaK = (double)(G - gMin);
         if ( gMax - G > link.deltaK ) {
-            link.deltaK = (float)(gMax - G);
+            link.deltaK = (double)(gMax - G);
         }
         link.numberOfReceiverCubaturePositions = 1;
     }
 
     public static double geomListMultiResolutionVisibility(
-        ArrayList<Geometry> geometryOccluderList,
+        ArrayList<RpkGeometry> geometryOccluderList,
         ShadowCache shadowCache,
         Ray ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize,
+        double rcvDist,
+        double srcSize,
+        double minimumFeatureSize,
         RayExclusionSet exclusions)
     {
         return 1.0;
@@ -74,11 +74,11 @@ public class FormFactorClusteredStrategy {
 
     public static double geometryMultiResolutionVisibility(
         ShadowCache shadowCache,
-        Geometry geometry,
+        RpkGeometry geometry,
         Ray ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize,
+        double rcvDist,
+        double srcSize,
+        double minimumFeatureSize,
         RayExclusionSet exclusions)
     {
         return 1.0;

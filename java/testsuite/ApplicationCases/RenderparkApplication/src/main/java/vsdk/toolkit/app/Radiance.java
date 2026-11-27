@@ -1,5 +1,6 @@
 package vsdk.toolkit.app;
 
+import vsdk.toolkit.scene.RadianceElementTable;
 import vsdk.toolkit.app.options.OptionsGroupRadiance;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathTracingState;
@@ -35,17 +36,14 @@ This routine sets the current radiance method to be used + initializes
             radianceMethod.terminate(scene.patchList);
             // Until we have radiance data convertors, we dispose of the old data and
             // allocate new data for the new method
+            RadianceElementTable radianceElements = scene.getRadianceElements();
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-                Patch patch = scene.patchList.get(i);
-                if ( patch != null ) {
-                    radianceMethod.destroyPatchData(patch);
-                }
+                radianceMethod.destroyPatchData(scene.patchList.get(i));
+                radianceElements.set(scene.patchList.get(i).getFaceIndex(), null);
             }
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
                 Patch patch = scene.patchList.get(i);
-                if ( patch != null ) {
-                    patch.radianceData = radianceMethod.createPatchData(patch);
-                }
+                radianceElements.set(patch.getFaceIndex(), radianceMethod.createPatchData(patch));
             }
             radianceMethod.initialize(scene, toneMapOptions);
         }

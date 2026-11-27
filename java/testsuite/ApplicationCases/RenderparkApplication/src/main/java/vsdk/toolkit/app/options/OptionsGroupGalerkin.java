@@ -147,7 +147,7 @@ public final class OptionsGroupGalerkin {
             0,
             OptionsGroupGalerkin::ambientOption,
             null);
-        TypedOption<Float> grLinkErrorOpt = new TypedOption<>(
+        TypedOption<Double> grLinkErrorOpt = new TypedOption<>(
             "-gr-link-error-threshold",
             TypedOption.reference(
                 () -> GalerkinRadianceMethod.galerkinState.relLinkErrorThreshold,
@@ -155,7 +155,7 @@ public final class OptionsGroupGalerkin {
             1,
             null,
             null);
-        TypedOption<Float> grMinElemAreaOpt = new TypedOption<>(
+        TypedOption<Double> grMinElemAreaOpt = new TypedOption<>(
             "-gr-min-elem-area",
             TypedOption.reference(
                 () -> GalerkinRadianceMethod.galerkinState.relMinElemArea,

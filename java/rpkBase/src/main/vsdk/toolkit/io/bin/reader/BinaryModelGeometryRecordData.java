@@ -8,7 +8,7 @@ public class BinaryModelGeometryRecordData {
     public boolean shaftCullGeometry;
     public boolean omit;
     public boolean isDuplicate;
-    public float[] boundingBoxCoordinates;
+    public double[] boundingBoxCoordinates;
     public boolean hasRayIntersectionBox;
     public boolean hasRadianceData;
 
@@ -32,9 +32,9 @@ public class BinaryModelGeometryRecordData {
         shaftCullGeometry = false;
         omit = false;
         isDuplicate = false;
-        boundingBoxCoordinates = new float[6];
+        boundingBoxCoordinates = new double[6];
         for (int i = 0; i < 6; i++) {
-            boundingBoxCoordinates[i] = 0.0f;
+            boundingBoxCoordinates[i] = 0.0;
         }
         hasRayIntersectionBox = false;
         hasRadianceData = false;

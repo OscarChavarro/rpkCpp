@@ -8,7 +8,7 @@ A chain list is a set of scattering modes
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
@@ -132,10 +132,10 @@ public class FlagChain {
     Compute : calculate the product of bsdf components defined
     by the chain. Eye and light node ARE INCLUDED
     */
-    public ColorRgbMutable compute(BiPath path) {
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgbMutable tmpCol;
-        result.setMonochrome(1.0f);
+    public ColorRgb compute(BiPath path) {
+        ColorRgb result = new ColorRgb();
+        ColorRgb tmpCol;
+        result = new ColorRgb(1.0, 1.0, 1.0);
         int eyeSize = path.m_eyeSize;
         int lightSize = path.m_lightSize;
 
@@ -143,7 +143,7 @@ public class FlagChain {
 
         if ( lightSize + eyeSize != length ) {
             Logger.reportMessage(this, Logger.ERROR, "FlagChain::Compute", "Wrong path length");
-            return new ColorRgbMutable(result);
+            return new ColorRgb(result);
         }
 
         // Flag chain start at the light node and end at the eye node
@@ -151,7 +151,7 @@ public class FlagChain {
 
         for ( int i = 0; i < lightSize; i++ ) {
             tmpCol = node.m_bsdfComp.Sum(chain[i]);
-            result.selfScalarProduct(new ColorRgbMutable(tmpCol));
+            result = result.multiply(new ColorRgb(tmpCol));
             node = node.next();
         }
 
@@ -159,14 +159,14 @@ public class FlagChain {
 
         for ( int i = 0; i < eyeSize; i++ ) {
             tmpCol = node.m_bsdfComp.Sum(chain[length - 1 - i]);
-            result.selfScalarProduct(new ColorRgbMutable(tmpCol));
+            result = result.multiply(new ColorRgb(tmpCol));
             node = node.next();
         }
 
         if ( subtract ) {
-            result.scale(-1.0f);
+            result = result.multiply(-1.0);
         }
 
-        return new ColorRgbMutable(result);
+        return new ColorRgb(result);
     }
 }

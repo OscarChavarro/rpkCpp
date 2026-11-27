@@ -1,53 +1,34 @@
 package vsdk.toolkit.environment.geometry.elements;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.element.PlanarFace;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.scene.FaceColorTable;
 
 public class Patch {
 
     public static final int MAXIMUM_VERTICES_PER_PATCH = 4;
-    public static final int PATCH_VISIBILITY = 0x01;
-    public static final int MAX_EXCLUDED_PATCHES = 4;
 
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     private static int patchId = 1;
 
-    private int flags; // Other flags
-
-    public int id; // Identification number for debugging, ID rendering
-    private int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
-    public Patch twin; // Twin face (for double-sided surfaces)
-    public Vertex[] vertex; // Pointers to the vertices
-    public byte numberOfVertices; // Number of vertices: 3 or 4
-    public BoundingBox boundingBox;
     // Geometry of the face: positions, plane, area, parametrization; immutable
     private PlanarFace face;
-    public float planeConstant;
-    public float tolerance; // Plane tolerance
-    public float area; // Patch area
-    public float directPotential; // Directly received hemispherical potential
-    public CoordinateAxis index; // Indicates dominant part of patch normal
-    public byte omit; // Indicates that the patch should not be considered
-    // for a couple of things, such as intersection
-    // testing, shaft culling, ... set to FALSE by
-    // default. Do not forget to set to FALSE again
-    // after you changed it.
-    public ColorRgbMutable color; // Color used to flat render the patch
-    // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
-    public Element radianceData;
-    public RpkMaterial material;
+    private RpkMaterial material;
+    private int id; // Identification number for debugging, ID rendering
+    private int faceIndex; // Dense zero-based index in the scene's face table, -1 until the scene assigns it
+    private Patch twin; // Twin face (for double-sided surfaces)
+    private final byte numberOfVertices; // Number of vertices: 3 or 4
+    private final RpkVertex[] vertex; // Pointers to the vertices
 
     /**
     This routine returns the ID number the next patch would get.
@@ -77,13 +58,13 @@ public class Patch {
     /**
     Point IN Triangle: barycentric parametrisation.
     */
-    private static Vector3Df pointInTriangle(
-        Vector3Df v0,
-        Vector3Df v1,
-        Vector3Df v2,
-        float u,
-        float v) {
-        return new Vector3Df(
+    private static Vector3Dd pointInTriangle(
+        Vector3Dd v0,
+        Vector3Dd v1,
+        Vector3Dd v2,
+        double u,
+        double v) {
+        return new Vector3Dd(
             v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()),
             v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()),
             v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()));
@@ -92,57 +73,57 @@ public class Patch {
     /**
     Point IN Quadrilateral: bi-linear parametrisation.
     */
-    private static Vector3Df pointInQuadrilateral(
-        Vector3Df v0,
-        Vector3Df v1,
-        Vector3Df v2,
-        Vector3Df v3,
-        float u,
-        float v) {
-        float c = u * v;
-        float b = u - c;
-        float d = v - c;
-        float px = v0.x() + b * (v1.x() - v0.x());
+    private static Vector3Dd pointInQuadrilateral(
+        Vector3Dd v0,
+        Vector3Dd v1,
+        Vector3Dd v2,
+        Vector3Dd v3,
+        double u,
+        double v) {
+        double c = u * v;
+        double b = u - c;
+        double d = v - c;
+        double px = v0.x() + b * (v1.x() - v0.x());
         px = px + c * (v2.x() - v0.x());
         px = px + d * (v3.x() - v0.x());
 
-        float py = v0.y() + b * (v1.y() - v0.y());
+        double py = v0.y() + b * (v1.y() - v0.y());
         py = py + c * (v2.y() - v0.y());
         py = py + d * (v3.y() - v0.y());
 
-        float pz = v0.z() + b * (v1.z() - v0.z());
+        double pz = v0.z() + b * (v1.z() - v0.z());
         pz = pz + c * (v2.z() - v0.z());
         pz = pz + d * (v3.z() - v0.z());
-        return new Vector3Df(px, py, pz);
+        return new Vector3Dd(px, py, pz);
     }
 
-    private Vector3Df getInterpolatedNormalAtUv(double u, double v) {
-        Vector3Df localNormal = new Vector3Df();
-        Vector3Df v1 = vertex[0].normal;
-        Vector3Df v2 = vertex[1].normal;
-        Vector3Df v3 = vertex[2].normal;
+    private Vector3Dd getInterpolatedNormalAtUv(double u, double v) {
+        Vector3Dd localNormal = new Vector3Dd();
+        Vector3Dd v1 = vertex[0].normal;
+        Vector3Dd v2 = vertex[1].normal;
+        Vector3Dd v3 = vertex[2].normal;
 
         switch (numberOfVertices) {
             case 3:
-                localNormal = pointInTriangle(v1, v2, v3, (float)u, (float)v);
+                localNormal = pointInTriangle(v1, v2, v3, (double)u, (double)v);
                 break;
             case 4:
-                Vector3Df v4 = vertex[3].normal;
-                localNormal = pointInQuadrilateral(v1, v2, v3, v4, (float)u, (float)v);
+                Vector3Dd v4 = vertex[3].normal;
+                localNormal = pointInQuadrilateral(v1, v2, v3, v4, (double)u, (double)v);
                 break;
             default:
                 Logger.reportMessage(this, Logger.FATAL_ERROR, "PatchNormalAtUV", String.format("Invalid number of vertices %d", numberOfVertices));
                 break;
         }
 
-        localNormal = localNormal.normalized(Numeric.EPSILON_FLOAT);
+        localNormal = localNormal.normalized(Numeric.EPSILON);
         return localNormal;
     }
 
     /**
     Adds the patch to the list of patches that share the vertex.
     */
-    private void connectVertex(Vertex paramVertex) {
+    private void connectVertex(RpkVertex paramVertex) {
         if (paramVertex.patches == null) {
             return;
         }
@@ -178,7 +159,9 @@ public class Patch {
     /**
     Creates a patch structure for a patch with given vertices.
     */
-    public Patch(int inNumberOfVertices, Vertex v1, Vertex v2, Vertex v3, Vertex v4) {
+    public Patch(int inNumberOfVertices, RpkVertex v1, RpkVertex v2, RpkVertex v3, RpkVertex v4) {
+        numberOfVertices = (byte)inNumberOfVertices;
+        vertex = new RpkVertex[] {v1, v2, v3, v4};
         if (v1 == null || v2 == null || v3 == null || (inNumberOfVertices == 4 && v4 == null)) {
             Logger.reportMessage(this, Logger.ERROR, "Patch::Patch", "Null vertex");
             System.exit(1);
@@ -198,26 +181,13 @@ public class Patch {
 
         material = null;
 
-        vertex = new Vertex[MAXIMUM_VERTICES_PER_PATCH];
-        for (int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++) {
-            vertex[i] = null;
-        }
-
-        numberOfVertices = (byte)inNumberOfVertices;
-        vertex[0] = v1;
-        vertex[1] = v2;
-        vertex[2] = v3;
-        vertex[3] = v4;
-
-        // A bounding box will be computed the first time it is needed
-        boundingBox = null;
 
         // Face geometry: normal, area and Jacobian, midpoint, plane, dominant axis
-        final Vector3Df[] positions = new Vector3Df[] {
+        final Vector3Dd[] positions = new Vector3Dd[] {
             v1.point,
             v2.point,
             v3.point,
-            inNumberOfVertices == 4 ? v4.point : new Vector3Df()
+            inNumberOfVertices == 4 ? v4.point : new Vector3Dd()
         };
         face = new PlanarFace(inNumberOfVertices, positions);
         if ( !face.isValid() ) {
@@ -226,37 +196,24 @@ public class Patch {
             Logger.reportMessage("Patch", Logger.ERROR, "Patch::Patch", "Error computing patch normal");
             System.exit(3);
         }
-        area = face.getArea();
-        planeConstant = face.getPlaneConstant();
-        tolerance = face.getTolerance();
-        index = CoordinateAxis.values()[face.getDominantAxis()];
         if ( face.getArea() < VSDK.EPSILON * VSDK.EPSILON ) {
             System.err.printf("Warning: very small patch id %d area = %g\n", id, face.getArea());
         }
 
         // Tell the vertices that there is a new Patch using them
         connectVertices();
+    }
 
-        directPotential = 0.0f;
-        color = new ColorRgbMutable();
-        color.clear();
-
-        omit = 0;
-        flags = 0; // Other flags
-
-        radianceData = null;
+    public double getArea() {
+        return face.getArea();
     }
 
     public PlanarFace getFace() {
         return face;
     }
 
-    public Vector3Df getNormal() {
-        return face.getNormal();
-    }
-
-    public Vector3Df midPoint() {
-        return face.getMidPoint();
+    public int getDominantAxisIndex() {
+        return face.getDominantAxis();
     }
 
     public int getFaceIndex() {
@@ -267,26 +224,63 @@ public class Patch {
         faceIndex = newFaceIndex;
     }
 
-    public void destroy() {
-        boundingBox = null;
-        radianceData = null;
+    public int getId() {
+        return id;
+    }
+
+    public RpkMaterial getMaterial() {
+        return material;
+    }
+
+    public Vector3Dd getNormal() {
+        return face.getNormal();
+    }
+
+    public int getNumberOfVertices() {
+        return numberOfVertices;
+    }
+
+    public double getPlaneConstant() {
+        return face.getPlaneConstant();
+    }
+
+    public double getTolerance() {
+        return face.getTolerance();
+    }
+
+    public Patch getTwin() {
+        return twin;
+    }
+
+    public RpkVertex[] getVertices() {
+        return vertex;
+    }
+
+    public Vector3Dd midPoint() {
+        return face.getMidPoint();
+    }
+
+    public void setId(int newId) {
+        id = newId;
+    }
+
+    public void setMaterial(RpkMaterial newMaterial) {
+        material = newMaterial;
+    }
+
+    public void setTwin(Patch newTwin) {
+        twin = newTwin;
     }
 
     /**
-    Computes a bounding box for the patch. fills it in getBoundingBox and returns
-    a pointer to getBoundingBox.
+    Computes the patch's bounding box from its vertices, in vertex order. The
+    vertices do not move after construction, so every call gives the same box;
+    runtime queries read the scene's FaceBoundsTable, built once from this
     */
-    public void computeAndGetBoundingBox(BoundingBox bounds) {
-        computeBoundingBox();
-        bounds.copyFrom(boundingBox);
-    }
-
-    public void computeBoundingBox() {
-        if (boundingBox == null) {
-            boundingBox = new BoundingBox();
-            for (int i = 0; i < numberOfVertices; i++) {
-                boundingBox.enlargeToIncludePoint(vertex[i].point);
-            }
+    public void computeBounds(RpkAxisAlignedBoundingBox bounds) {
+        bounds.copyFrom(new RpkAxisAlignedBoundingBox());
+        for ( int i = 0; i < numberOfVertices; i++ ) {
+            bounds.enlargeToIncludePoint(vertex[i].point);
         }
     }
 
@@ -294,7 +288,7 @@ public class Patch {
     Computes interpolated (= shading) normal at the point with given parameters
     on the patch.
     */
-    private Vector3Df interpolatedNormalAtUv(double u, double v) {
+    private Vector3Dd interpolatedNormalAtUv(double u, double v) {
         if (!allVerticesHaveANormal()) {
             return face.getNormal();
         }
@@ -311,16 +305,16 @@ public class Patch {
     the dominant axis (patch->index).
     X, Y and Z are one-element output holders; X and Y may be null.
     */
-    public void interpolatedFrameAtUv(double u, double v, Vector3Df[] X, Vector3Df[] Y, Vector3Df[] Z) {
+    public void interpolatedFrameAtUv(double u, double v, Vector3Dd[] X, Vector3Dd[] Y, Vector3Dd[] Z) {
         Z[0] = interpolatedNormalAtUv(u, v);
 
         if (X != null && Y != null) {
             double zz = Math.sqrt(1.0 - Z[0].z() * Z[0].z());
             if (zz < VSDK.EPSILON) {
-                X[0] = new Vector3Df(1.0f, 0.0f, 0.0f);
+                X[0] = new Vector3Dd(1.0, 0.0, 0.0);
             }
             else {
-                X[0] = new Vector3Df((float)(Z[0].y() / zz), (float)(-Z[0].x() / zz), 0.0f);
+                X[0] = new Vector3Dd((double)(Z[0].y() / zz), (double)(-Z[0].x() / zz), 0.0);
             }
             Y[0] = Z[0].crossProduct(X[0]); // Y = Z ^ X
         }
@@ -330,29 +324,29 @@ public class Patch {
     Returns texture coordinates determined from vertex texture coordinates and
     given u and v bi-linear of barycentric coordinates on the patch.
     */
-    public Vector3Df textureCoordAtUv(double u, double v) {
-        Vector3Df texCoord = new Vector3Df(0.0f, 0.0f, 0.0f);
+    public Vector3Dd textureCoordAtUv(double u, double v) {
+        Vector3Dd texCoord = new Vector3Dd(0.0, 0.0, 0.0);
 
-        Vector3Df t0 = vertex[0].textureCoordinates;
-        Vector3Df t1 = vertex[1].textureCoordinates;
-        Vector3Df t2 = vertex[2].textureCoordinates;
+        Vector3Dd t0 = vertex[0].textureCoordinates;
+        Vector3Dd t1 = vertex[1].textureCoordinates;
+        Vector3Dd t2 = vertex[2].textureCoordinates;
 
         switch (numberOfVertices) {
             case 3:
                 if (t0 == null || t1 == null || t2 == null) {
-                    texCoord = new Vector3Df((float)u, (float)v, 0.0f);
+                    texCoord = new Vector3Dd((double)u, (double)v, 0.0);
                 }
                 else {
-                    texCoord = pointInTriangle(t0, t1, t2, (float)u, (float)v);
+                    texCoord = pointInTriangle(t0, t1, t2, (double)u, (double)v);
                 }
                 break;
             case 4:
-                Vector3Df t3 = vertex[3].textureCoordinates;
+                Vector3Dd t3 = vertex[3].textureCoordinates;
                 if (t0 == null || t1 == null || t2 == null || t3 == null) {
-                    texCoord = new Vector3Df((float)u, (float)v, 0.0f);
+                    texCoord = new Vector3Dd((double)u, (double)v, 0.0);
                 }
                 else {
-                    texCoord = pointInQuadrilateral(t0, t1, t2, t3, (float)u, (float)v);
+                    texCoord = pointInQuadrilateral(t0, t1, t2, t3, (double)u, (double)v);
                 }
                 break;
             default:
@@ -372,12 +366,12 @@ public class Patch {
     intersection and whether front/back facing patches are to be
     considered and are described in ray.h.
     */
-    public RayHit intersect(
+    public RpkRayHit intersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions) {
         return intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, sharedWorkspace);
     }
@@ -388,15 +382,15 @@ public class Patch {
     results are copied into the caller's hitStore before returning, so it never
     escapes this method (without hitStore the workspace's record is returned).
     */
-    public RayHit intersect(
+    public RpkRayHit intersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions,
         PatchIntersectionWorkspace workspace) {
-        RayHit hit = workspace.hit;
+        RpkRayHit hit = workspace.hit;
         hit.setFlags(0);
         hit.setPatch(null);
         hit.setMaterial(null);
@@ -408,16 +402,16 @@ public class Patch {
         // Side, plane hit, hit point and (u, v) in one call into the face
         final PlanarFace.RayHit faceHit = workspace.faceHit;
         final boolean inside = face.rayHit(
-            ray.position,
-            ray.direction,
+            ray.getOrigin(),
+            ray.getDirection(),
             (hitFlags & RayHitFlag.FRONT) != 0,
             (hitFlags & RayHitFlag.BACK) != 0,
             minimumDistance,
             maximumDistance[0],
             faceHit);
         if ( inside ) {
-            final float distance = faceHit.distance;
-            Vector3Df position = new Vector3Df(faceHit.pointX, faceHit.pointY, faceHit.pointZ);
+            final double distance = faceHit.distance;
+            Vector3Dd position = new Vector3Dd(faceHit.pointX, faceHit.pointY, faceHit.pointZ);
             hit.setPoint(position);
             hit.setUv(faceHit.u, faceHit.v);
             hit.setFlags(hit.getFlags()
@@ -482,7 +476,7 @@ public class Patch {
     u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
     (1-u) and (1-v) are used instead.
     */
-    public Vector3Df pointBarycentricMapping(double u, double v) {
+    public Vector3Dd pointBarycentricMapping(double u, double v) {
         if ( hasZeroVertices() ) {
             return null;
         }
@@ -497,7 +491,7 @@ public class Patch {
     only ones for which this routine will yield other positions than the above
     routine).
     */
-    public Vector3Df uniformPoint(double u, double v) {
+    public Vector3Dd uniformPoint(double u, double v) {
         if ( hasZeroVertices() ) {
             return null;
         }
@@ -511,7 +505,7 @@ public class Patch {
     WARNING: The (u, v) coordinates are correctly computed only for positions inside
     the patch. For positions outside, they can be garbage.
     */
-    public boolean uv(Vector3Df point, double[] u, double[] v) {
+    public boolean uv(Vector3Dd point, double[] u, double[] v) {
         final Vector2Dd uv = new Vector2Dd();
         final boolean inside = face.parameters(point, uv);
         u[0] = uv.x;
@@ -522,9 +516,9 @@ public class Patch {
     /**
     Computes a vertex color for the vertices of the patch.
     */
-    public void computeVertexColors() {
+    public void computeVertexColors(FaceColorTable faceColors) {
         for (int i = 0; i < numberOfVertices; i++) {
-            vertex[i].computeColor();
+            vertex[i].computeColor(faceColors);
         }
     }
 
@@ -536,58 +530,14 @@ public class Patch {
         return face.facing(other.face);
     }
 
-    public static double clipToUnitInterval(double x) {
-        if (x < VSDK.EPSILON) {
-            return VSDK.EPSILON;
-        }
-        return x > (1.0 - VSDK.EPSILON) ? 1.0 - VSDK.EPSILON : x;
-    }
-
-    public void setVisible() {
-        flags |= PATCH_VISIBILITY;
-    }
-
-    public void setInvisible() {
-        flags &= ~PATCH_VISIBILITY;
-    }
-
-    public void setFlags(int newFlags) {
-        flags = newFlags;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
-    /**
-    Return true if patch is visible.
-    */
-    public boolean isVisible() {
-        return (flags & PATCH_VISIBILITY) != 0;
-    }
-
     /**
     Like uv, but returns uniform coordinates (inverse of uniformPoint()).
     */
-    public boolean uniformUv(Vector3Df point, double[] u, double[] v) {
+    public boolean uniformUv(Vector3Dd point, double[] u, double[] v) {
         final Vector2Dd uv = new Vector2Dd();
         final boolean inside = face.uniformParameters(point, uv);
         u[0] = uv.x;
         v[0] = uv.y;
         return inside;
-    }
-
-    private int getNumberOfSamples() {
-        int numberOfSamples = 1;
-        if (material != null && material.getBsdf() != null && material.getBsdf().splitBsdfIsTextured()) {
-            Vector3Df t0 = vertex[0].textureCoordinates;
-            Vector3Df t1 = vertex[1].textureCoordinates;
-            Vector3Df t2 = vertex[2].textureCoordinates;
-            Vector3Df t3 = numberOfVertices == 3 ? t0 : vertex[3].textureCoordinates;
-
-            boolean sameTex = t0 == t1 && t0 == t2 && t0 == t3 && t0 != null;
-            numberOfSamples = sameTex ? 1 : 100;
-        }
-        return numberOfSamples;
     }
 }

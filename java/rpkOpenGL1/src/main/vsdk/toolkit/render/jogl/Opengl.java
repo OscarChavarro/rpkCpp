@@ -1,15 +1,15 @@
 package vsdk.toolkit.render.jogl;
 
+import vsdk.toolkit.scene.FaceColorTable;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.render.Canvas;
 import vsdk.toolkit.render.OctreeChild;
 import vsdk.toolkit.render.RenderHookList;
@@ -18,8 +18,8 @@ import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -47,12 +47,12 @@ public final class Opengl {
         if ( gl == null || camera == null ) {
             return;
         }
-        gl.glClearColor((float)camera.background.getR(), (float)camera.background.getG(), (float)camera.background.getB(), 0.0f);
+        gl.glClearColor((float)camera.background.getR(), (float)camera.background.getG(), (float)camera.background.getB(), 0.0f); // OpenGL clears with float colors
         gl.glClearDepth(1.0);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
     }
 
-    public static void openGlRenderLine(Vector3Df x, Vector3Df y) {
+    public static void openGlRenderLine(Vector3Dd x, Vector3Dd y) {
         GL2 gl = gl();
         if ( gl == null || x == null || y == null ) {
             return;
@@ -60,20 +60,20 @@ public final class Opengl {
 
         gl.glDisable(GL2.GL_POLYGON_OFFSET_FILL);
         gl.glBegin(GL2.GL_LINES);
-        gl.glVertex3f(x.x(), x.y(), x.z());
-        gl.glVertex3f(y.x(), y.y(), y.z());
+        gl.glVertex3d(x.x(), x.y(), x.z());
+        gl.glVertex3d(y.x(), y.y(), y.z());
         gl.glEnd();
         gl.glEnable(GL2.GL_POLYGON_OFFSET_FILL);
         gl.glPolygonOffset(1.0f, 1.0f);
     }
 
-    public static void openGlRenderSetColor(ColorRgb rgb, RenderOptions renderOptions) {
+    public static void openGlRenderSetColor(ColorRgb rgb, RendererConfiguration renderOptions) {
         GL2 gl = gl();
         if ( gl == null || rgb == null ) {
             return;
         }
 
-        ColorRgbMutable corrected = new ColorRgbMutable(rgb.getR(), rgb.getG(), rgb.getB());
+        ColorRgb corrected = new ColorRgb(rgb.getR(), rgb.getG(), rgb.getB());
         if ( activeToneMapOptions != null ) {
             ToneMap.toneMappingGammaCorrection(corrected, activeToneMapOptions);
         }
@@ -81,22 +81,22 @@ public final class Opengl {
             Logger.reportMessage(null, Logger.WARNING, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
-        gl.glColor3f((float)corrected.getR(), (float)corrected.getG(), (float)corrected.getB());
+        gl.glColor3d((double)corrected.getR(), (double)corrected.getG(), (double)corrected.getB());
     }
 
-    public static void openGlRenderPolygonFlat(int numberOfVertices, Vector3Df[] vertices) {
+    public static void openGlRenderPolygonFlat(int numberOfVertices, Vector3Dd[] vertices) {
         GL2 gl = gl();
         if ( gl == null || vertices == null || numberOfVertices <= 0 ) {
             return;
         }
         gl.glBegin(GL2.GL_POLYGON);
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            gl.glVertex3f(vertices[i].x(), vertices[i].y(), vertices[i].z());
+            gl.glVertex3d(vertices[i].x(), vertices[i].y(), vertices[i].z());
         }
         gl.glEnd();
     }
 
-    public static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3Df[] vertices, ColorRgbMutable[] verticesColors, RenderOptions renderOptions) {
+    public static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3Dd[] vertices, ColorRgb[] verticesColors, RendererConfiguration renderOptions) {
         GL2 gl = gl();
         if ( gl == null || vertices == null || verticesColors == null || numberOfVertices <= 0 ) {
             return;
@@ -104,33 +104,33 @@ public final class Opengl {
 
         gl.glBegin(GL2.GL_POLYGON);
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            openGlRenderSetColor(verticesColors[i].toImmutable(), renderOptions);
-            gl.glVertex3f(vertices[i].x(), vertices[i].y(), vertices[i].z());
+            openGlRenderSetColor(verticesColors[i], renderOptions);
+            gl.glVertex3d(vertices[i].x(), vertices[i].y(), vertices[i].z());
         }
         gl.glEnd();
     }
 
-    private static void openGlRenderPatchFlat(Patch patch, RenderOptions renderOptions) {
+    private static void openGlRenderPatchFlat(Patch patch, ColorRgb color, RendererConfiguration renderOptions) {
         if ( patch == null ) {
             return;
         }
-        openGlRenderSetColor(patch.color.toImmutable(), renderOptions);
+        openGlRenderSetColor(color, renderOptions);
         GL2 gl = gl();
         if ( gl == null ) {
             return;
         }
 
-        int primitive = patch.numberOfVertices == 3
+        int primitive = patch.getNumberOfVertices() == 3
             ? GL2.GL_TRIANGLES
-            : (patch.numberOfVertices == 4 ? GL2.GL_QUADS : GL2.GL_POLYGON);
+            : (patch.getNumberOfVertices() == 4 ? GL2.GL_QUADS : GL2.GL_POLYGON);
         gl.glBegin(primitive);
-        for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            gl.glVertex3f(patch.vertex[i].point.x(), patch.vertex[i].point.y(), patch.vertex[i].point.z());
+        for ( int i = 0; i < patch.getNumberOfVertices(); i++ ) {
+            gl.glVertex3d(patch.getVertices()[i].point.x(), patch.getVertices()[i].point.y(), patch.getVertices()[i].point.z());
         }
         gl.glEnd();
     }
 
-    private static void openGlRenderPatchSmooth(Patch patch, RenderOptions renderOptions) {
+    private static void openGlRenderPatchSmooth(Patch patch, RendererConfiguration renderOptions) {
         if ( patch == null ) {
             return;
         }
@@ -139,13 +139,13 @@ public final class Opengl {
             return;
         }
 
-        int primitive = patch.numberOfVertices == 3
+        int primitive = patch.getNumberOfVertices() == 3
             ? GL2.GL_TRIANGLES
-            : (patch.numberOfVertices == 4 ? GL2.GL_QUADS : GL2.GL_POLYGON);
+            : (patch.getNumberOfVertices() == 4 ? GL2.GL_QUADS : GL2.GL_POLYGON);
         gl.glBegin(primitive);
-        for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            openGlRenderSetColor(patch.vertex[i].color.toImmutable(), renderOptions);
-            gl.glVertex3f(patch.vertex[i].point.x(), patch.vertex[i].point.y(), patch.vertex[i].point.z());
+        for ( int i = 0; i < patch.getNumberOfVertices(); i++ ) {
+            openGlRenderSetColor(patch.getVertices()[i].color, renderOptions);
+            gl.glVertex3d(patch.getVertices()[i].point.x(), patch.getVertices()[i].point.y(), patch.getVertices()[i].point.z());
         }
         gl.glEnd();
     }
@@ -156,31 +156,31 @@ public final class Opengl {
             return;
         }
         gl.glBegin(GL2.GL_LINE_LOOP);
-        for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            gl.glVertex3f(patch.vertex[i].point.x(), patch.vertex[i].point.y(), patch.vertex[i].point.z());
+        for ( int i = 0; i < patch.getNumberOfVertices(); i++ ) {
+            gl.glVertex3d(patch.getVertices()[i].point.x(), patch.getVertices()[i].point.y(), patch.getVertices()[i].point.z());
         }
         gl.glEnd();
     }
 
-    private static void openGlInvokeRenderPatch(OpenGlRenderTraversalCallback<?> renderPatch, Patch patch, Camera camera, RenderOptions renderOptions) {
+    private static void openGlInvokeRenderPatch(OpenGlRenderTraversalCallback<?> renderPatch, Patch patch, Camera camera, RendererConfiguration renderOptions) {
         if ( renderPatch == null ) {
             return;
         }
         renderPatch.apply(patch, camera, renderOptions);
     }
 
-    private static void openGlReallyRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RenderOptions renderOptions) {
-        ArrayList<Patch> patchList = Geometry.patchListReference(geometry);
+    private static void openGlReallyRenderOctreeLeaf(Camera camera, RpkGeometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RendererConfiguration renderOptions) {
+        ArrayList<Patch> patchList = RpkGeometry.patchListReference(geometry);
         for ( int i = 0; patchList != null && i < patchList.size(); i++ ) {
             openGlInvokeRenderPatch(renderPatch, patchList.get(i), camera, renderOptions);
         }
     }
 
-    private static void openGlRenderOctreeLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RenderOptions renderOptions) {
+    private static void openGlRenderOctreeLeaf(Camera camera, RpkGeometry geometry, OpenGlRenderTraversalCallback<?> renderPatch, RendererConfiguration renderOptions) {
         openGlReallyRenderOctreeLeaf(camera, geometry, renderPatch, renderOptions);
     }
 
-    private static boolean openGlViewCullBounds(Camera camera, BoundingBox bounds) {
+    private static boolean openGlViewCullBounds(Camera camera, RpkAxisAlignedBoundingBox bounds) {
         if ( camera == null || bounds == null ) {
             return false;
         }
@@ -192,24 +192,24 @@ public final class Opengl {
         return false;
     }
 
-    private static float openGlBoundsDistance2(Vector3Df p, BoundingBox boundingBox) {
-        Vector3Df mid = boundingBox.center();
-        Vector3Df d = new Vector3Df();
+    private static double openGlBoundsDistance2(Vector3Dd p, RpkAxisAlignedBoundingBox boundingBox) {
+        Vector3Dd mid = boundingBox.center();
+        Vector3Dd d = new Vector3Dd();
         d = mid.subtract(p);
         return d.lengthSquared();
     }
 
-    private static void openGlRenderOctreeNonLeaf(Camera camera, Geometry geometry, OpenGlRenderTraversalCallback<?> renderPatchCallback, RenderOptions renderOptions) {
+    private static void openGlRenderOctreeNonLeaf(Camera camera, RpkGeometry geometry, OpenGlRenderTraversalCallback<?> renderPatchCallback, RendererConfiguration renderOptions) {
         OctreeChild[] octreeChildren = new OctreeChild[8];
         for ( int i = 0; i < octreeChildren.length; i++ ) {
             octreeChildren[i] = new OctreeChild();
         }
 
-        ArrayList<Geometry> children = Geometry.primitiveListCopy(geometry);
+        ArrayList<RpkGeometry> children = RpkGeometry.primitiveListCopy(geometry);
 
         int i = 0;
         for ( int j = 0; children != null && j < children.size(); j++ ) {
-            Geometry child = children.get(j);
+            RpkGeometry child = children.get(j);
             if ( child.isCompound() ) {
                 if ( i >= 8 ) {
                     Logger.reportMessage(null, Logger.ERROR, "openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
@@ -226,7 +226,7 @@ public final class Opengl {
         for ( i = 0; i < n; i++ ) {
             if ( openGlViewCullBounds(camera, octreeChildren[i].geometry.boundingBox) ) {
                 octreeChildren[i].geometry = null;
-                octreeChildren[i].distance = Float.MAX_VALUE;
+                octreeChildren[i].distance = Double.MAX_VALUE;
             }
             else {
                 octreeChildren[i].distance = openGlBoundsDistance2(camera.eyePosition, octreeChildren[i].geometry.boundingBox);
@@ -248,21 +248,21 @@ public final class Opengl {
 
             openGlRenderOctreeNonLeaf(camera, octreeChildren[closest].geometry, renderPatchCallback, renderOptions);
             octreeChildren[closest].geometry = null;
-            octreeChildren[closest].distance = Float.MAX_VALUE;
+            octreeChildren[closest].distance = Double.MAX_VALUE;
             remaining--;
         }
     }
 
-    public static void openGlRenderWorldOctree(Scene scene, OpenGlRenderPatchCallback renderPatchCallback, RenderOptions renderOptions) {
+    public static void openGlRenderWorldOctree(Scene scene, OpenGlRenderPatchCallback renderPatchCallback, RendererConfiguration renderOptions) {
         if ( scene == null || scene.clusteredRootGeometry == null ) {
             return;
         }
 
-        if ( renderPatchCallback == null ) {
-            renderPatchCallback = Opengl::openGlRenderPatchCallBack;
-        }
-        OpenGlRenderTraversalCallback<Void> callbackContext =
-            new OpenGlRenderTraversalCallback<>(renderPatchCallback, null, null);
+        OpenGlRenderTraversalCallback<FaceColorTable> callbackContext =
+            new OpenGlRenderTraversalCallback<>(
+                renderPatchCallback,
+                renderPatchCallback == null ? Opengl::openGlRenderPatchCallBack : null,
+                renderPatchCallback == null ? scene.getFaceColors() : null);
 
         if ( scene.clusteredRootGeometry.isCompound() ) {
             openGlRenderOctreeNonLeaf(scene.camera, scene.clusteredRootGeometry, callbackContext, renderOptions);
@@ -272,7 +272,10 @@ public final class Opengl {
         }
     }
 
-    public static void openGlRenderPatchCallBack(Patch patch, Camera camera, RenderOptions renderOptions) {
+    /**
+    Renders the all the patches using default colors
+    */
+    public static void openGlRenderPatchCallBack(Patch patch, Camera camera, RendererConfiguration renderOptions, FaceColorTable faceColors) {
         if ( patch == null || camera == null || renderOptions == null ) {
             return;
         }
@@ -282,26 +285,26 @@ public final class Opengl {
                 openGlRenderPatchSmooth(patch, renderOptions);
             }
             else {
-                openGlRenderPatchFlat(patch, renderOptions);
+                openGlRenderPatchFlat(patch, faceColors.get(patch.getFaceIndex()), renderOptions);
             }
         }
 
         if ( renderOptions.drawOutlines
-             && (patch.getNormal().dotProduct(camera.eyePosition) + patch.planeConstant > Numeric.EPSILON_FLOAT) ) {
+             && (patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() > Numeric.EPSILON) ) {
             openGlRenderSetColor(renderOptions.outlineColor, renderOptions);
             openGlRenderPatchOutline(patch);
         }
     }
 
-    public static void openGlRenderSetLineWidth(float width) {
+    public static void openGlRenderSetLineWidth(double width) {
         GL2 gl = gl();
         if ( gl == null ) {
             return;
         }
-        gl.glLineWidth(width);
+        gl.glLineWidth((float)width); // OpenGL has no double line width
     }
 
-    public static void openGlRenderSetCamera(Camera camera, ArrayList<Geometry> sceneGeometries) {
+    public static void openGlRenderSetCamera(Camera camera, ArrayList<RpkGeometry> sceneGeometries) {
         GL2 gl = gl();
         if ( gl == null || camera == null ) {
             return;
@@ -328,9 +331,9 @@ public final class Opengl {
             camera.upDirection.x(), camera.upDirection.y(), camera.upDirection.z());
     }
 
-    private static Vector3Df sceneRotationPivot(Scene scene) {
+    private static Vector3Dd sceneRotationPivot(Scene scene) {
         if ( scene == null ) {
-            return new Vector3Df(0.0f, 0.0f, 0.0f);
+            return new Vector3Dd(0.0, 0.0, 0.0);
         }
 
         if ( scene.clusteredRootGeometry != null && scene.clusteredRootGeometry.bounded ) {
@@ -338,67 +341,67 @@ public final class Opengl {
         }
 
         if ( scene.geometryList != null && !scene.geometryList.isEmpty() ) {
-            BoundingBox sceneBounds = new BoundingBox();
-            Geometry.listBounds(scene.geometryList, sceneBounds);
+            RpkAxisAlignedBoundingBox sceneBounds = new RpkAxisAlignedBoundingBox();
+            RpkGeometry.listBounds(scene.geometryList, sceneBounds);
             return sceneBounds.center();
         }
 
-        return new Vector3Df(0.0f, 0.0f, 0.0f);
+        return new Vector3Dd(0.0, 0.0, 0.0);
     }
 
-    private static void viewportAxesInWorld(Scene scene, Vector3Df[] axisU, Vector3Df[] axisV) {
+    private static void viewportAxesInWorld(Scene scene, Vector3Dd[] axisU, Vector3Dd[] axisV) {
         if ( axisU == null || axisV == null ) {
             return;
         }
 
-        axisU[0] = new Vector3Df(1.0f, 0.0f, 0.0f);
-        axisV[0] = new Vector3Df(0.0f, 1.0f, 0.0f);
+        axisU[0] = new Vector3Dd(1.0, 0.0, 0.0);
+        axisV[0] = new Vector3Dd(0.0, 1.0, 0.0);
 
         if ( scene == null || scene.camera == null ) {
             return;
         }
 
         Camera camera = scene.camera;
-        Vector3Df cameraU = new Vector3Df();
+        Vector3Dd cameraU = new Vector3Dd();
         cameraU = camera.X;
-        Vector3Df cameraV = new Vector3Df();
+        Vector3Dd cameraV = new Vector3Dd();
         cameraV = camera.Y;
 
-        if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT || cameraV.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-            Vector3Df viewDirection = new Vector3Df();
+        if ( cameraU.lengthSquared() < Numeric.EPSILON || cameraV.lengthSquared() < Numeric.EPSILON ) {
+            Vector3Dd viewDirection = new Vector3Dd();
             viewDirection = camera.lookPosition.subtract(camera.eyePosition);
-            if ( viewDirection.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+            if ( viewDirection.lengthSquared() < Numeric.EPSILON ) {
                 return;
             }
-            viewDirection = viewDirection.normalized(Numeric.EPSILON_FLOAT);
+            viewDirection = viewDirection.normalized(Numeric.EPSILON);
 
-            Vector3Df upDirection = new Vector3Df();
+            Vector3Dd upDirection = new Vector3Dd();
             upDirection = camera.upDirection;
-            if ( upDirection.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-                upDirection = new Vector3Df(0.0f, 0.0f, 1.0f);
+            if ( upDirection.lengthSquared() < Numeric.EPSILON ) {
+                upDirection = new Vector3Dd(0.0, 0.0, 1.0);
             }
             else {
-                upDirection = upDirection.normalized(Numeric.EPSILON_FLOAT);
+                upDirection = upDirection.normalized(Numeric.EPSILON);
             }
 
             cameraU = viewDirection.crossProduct(upDirection);
-            if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
-                upDirection = new Vector3Df(0.0f, 1.0f, 0.0f);
+            if ( cameraU.lengthSquared() < Numeric.EPSILON ) {
+                upDirection = new Vector3Dd(0.0, 1.0, 0.0);
                 cameraU = viewDirection.crossProduct(upDirection);
             }
-            if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+            if ( cameraU.lengthSquared() < Numeric.EPSILON ) {
                 return;
             }
-            cameraU = cameraU.normalized(Numeric.EPSILON_FLOAT);
+            cameraU = cameraU.normalized(Numeric.EPSILON);
             cameraV = viewDirection.crossProduct(cameraU);
         }
 
-        if ( cameraU.lengthSquared() < Numeric.EPSILON_FLOAT || cameraV.lengthSquared() < Numeric.EPSILON_FLOAT ) {
+        if ( cameraU.lengthSquared() < Numeric.EPSILON || cameraV.lengthSquared() < Numeric.EPSILON ) {
             return;
         }
 
-        cameraU = cameraU.normalized(Numeric.EPSILON_FLOAT);
-        cameraV = cameraV.normalized(Numeric.EPSILON_FLOAT);
+        cameraU = cameraU.normalized(Numeric.EPSILON);
+        cameraV = cameraV.normalized(Numeric.EPSILON);
         axisU[0] = cameraU;
         axisV[0] = cameraV;
     }
@@ -409,23 +412,23 @@ public final class Opengl {
             return;
         }
 
-        boolean hasRotation = debugState.angleAroundViewportU != 0.0f || debugState.angleAroundViewportV != 0.0f;
+        boolean hasRotation = debugState.angleAroundViewportU != 0.0 || debugState.angleAroundViewportV != 0.0;
         if ( !hasRotation ) {
             return;
         }
 
-        Vector3Df pivot = sceneRotationPivot(scene);
-        Vector3Df[] axisU = {new Vector3Df()};
-        Vector3Df[] axisV = {new Vector3Df()};
+        Vector3Dd pivot = sceneRotationPivot(scene);
+        Vector3Dd[] axisU = {new Vector3Dd()};
+        Vector3Dd[] axisV = {new Vector3Dd()};
         viewportAxesInWorld(scene, axisU, axisV);
 
-        gl.glTranslatef(pivot.x(), pivot.y(), pivot.z());
-        gl.glRotatef(debugState.angleAroundViewportU, axisU[0].x(), axisU[0].y(), axisU[0].z());
-        gl.glRotatef(debugState.angleAroundViewportV, axisV[0].x(), axisV[0].y(), axisV[0].z());
-        gl.glTranslatef(-pivot.x(), -pivot.y(), -pivot.z());
+        gl.glTranslated(pivot.x(), pivot.y(), pivot.z());
+        gl.glRotated(debugState.angleAroundViewportU, axisU[0].x(), axisU[0].y(), axisU[0].z());
+        gl.glRotated(debugState.angleAroundViewportV, axisV[0].x(), axisV[0].y(), axisV[0].z());
+        gl.glTranslated(-pivot.x(), -pivot.y(), -pivot.z());
     }
 
-    private static void openGlReallyRender(Scene scene, RadianceMethod radianceMethod, RenderOptions renderOptions, GlutDebugState debugState) {
+    private static void openGlReallyRender(Scene scene, RadianceMethod radianceMethod, RendererConfiguration renderOptions, GlutDebugState debugState) {
         GL2 gl = gl();
         if ( gl == null ) {
             return;
@@ -444,18 +447,18 @@ public final class Opengl {
             }
         }
         else if ( renderOptions.frustumCulling ) {
-            openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);
+            openGlRenderWorldOctree(scene, null, renderOptions);
         }
         else {
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-                openGlRenderPatchCallBack(scene.patchList.get(i), scene.camera, renderOptions);
+                openGlRenderPatchCallBack(scene.patchList.get(i), scene.camera, renderOptions, scene.getFaceColors());
             }
         }
 
         gl.glPopMatrix();
     }
 
-    private static void openGlRenderRadiance(Scene scene, RadianceMethod radianceMethod, RenderOptions renderOptions, GlutDebugState debugState) {
+    private static void openGlRenderRadiance(Scene scene, RadianceMethod radianceMethod, RendererConfiguration renderOptions, GlutDebugState debugState) {
         GL2 gl = gl();
         if ( gl == null ) {
             return;
@@ -482,7 +485,7 @@ public final class Opengl {
         }
     }
 
-    public static void openGlRenderScene(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions, RenderOptions renderOptions, GlutDebugState debugState) {
+    public static void openGlRenderScene(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions, RendererConfiguration renderOptions, GlutDebugState debugState) {
         if ( scene == null ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "Opengl::openGlRenderScene", "Scene not provided");
         }

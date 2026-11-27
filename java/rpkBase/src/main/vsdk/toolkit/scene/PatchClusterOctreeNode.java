@@ -2,10 +2,10 @@ package vsdk.toolkit.scene;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
 
@@ -29,17 +29,17 @@ public class PatchClusterOctreeNode {
 
     private ArrayList<Patch> patches;
     private PatchClusterOctreeNode[] children; // Clusters form an octree
-    private BoundingBox boundingBox; // Bounding box for the cluster
-    private Vector3Df boundingBoxCentroid; // Mid-point of the bounding box
-    private static ArrayList<Geometry> clusterNodeGeometriesToDelete;
+    private RpkAxisAlignedBoundingBox boundingBox; // Bounding box for the cluster
+    private Vector3Dd boundingBoxCentroid; // Mid-point of the bounding box
+    private static ArrayList<RpkGeometry> clusterNodeGeometriesToDelete;
 
     /**
     Creates an empty cluster with initialized bounding box
     */
     private PatchClusterOctreeNode() {
-        boundingBox = new BoundingBox();
-        boundingBoxCentroid = new Vector3Df();
-        boundingBoxCentroid = new Vector3Df(0.0f, 0.0f, 0.0f);
+        boundingBox = new RpkAxisAlignedBoundingBox();
+        boundingBoxCentroid = new Vector3Dd();
+        boundingBoxCentroid = new Vector3Dd(0.0, 0.0, 0.0);
         patches = new ArrayList<>();
 
         children = new PatchClusterOctreeNode[8];
@@ -52,9 +52,9 @@ public class PatchClusterOctreeNode {
     Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
     */
     public PatchClusterOctreeNode(ArrayList<Patch> inPatches) {
-        boundingBox = new BoundingBox();
-        boundingBoxCentroid = new Vector3Df();
-        boundingBoxCentroid = new Vector3Df(0.0f, 0.0f, 0.0f);
+        boundingBox = new RpkAxisAlignedBoundingBox();
+        boundingBoxCentroid = new Vector3Dd();
+        boundingBoxCentroid = new Vector3Dd(0.0, 0.0, 0.0);
 
         children = new PatchClusterOctreeNode[8];
         for (int i = 0; i < 8; i++) {
@@ -82,7 +82,7 @@ public class PatchClusterOctreeNode {
         patches = null;
     }
 
-    private static void addToDeletionCache(Geometry geometry) {
+    private static void addToDeletionCache(RpkGeometry geometry) {
         if (clusterNodeGeometriesToDelete == null) {
             clusterNodeGeometriesToDelete = new ArrayList<>();
         }
@@ -94,11 +94,11 @@ public class PatchClusterOctreeNode {
             return;
         }
         for (int i = 0; i < clusterNodeGeometriesToDelete.size(); i++) {
-            Geometry geometry = clusterNodeGeometriesToDelete.get(i);
+            RpkGeometry geometry = clusterNodeGeometriesToDelete.get(i);
             if (geometry != null) {
                 geometry.isDuplicate = false;
                 geometry.radianceData = null; // This was duplicated
-                Geometry.destroy(geometry);
+                RpkGeometry.destroy(geometry);
             }
         }
         clusterNodeGeometriesToDelete.clear();
@@ -115,20 +115,14 @@ public class PatchClusterOctreeNode {
         if (patch != null) {
             patches.add(patch);
 
-            BoundingBox patchBoundingBox = new BoundingBox();
-
-            if (patch.boundingBox != null) {
-                patchBoundingBox.copyFrom(patch.boundingBox);
-            }
-            else {
-                patch.computeAndGetBoundingBox(patchBoundingBox);
-            }
+            RpkAxisAlignedBoundingBox patchBoundingBox = new RpkAxisAlignedBoundingBox();
+            patch.computeBounds(patchBoundingBox);
             boundingBox.enlarge(patchBoundingBox);
         }
     }
 
-    private int octantIndex(Vector3Df p) {
-        Vector3Df c = boundingBox.center();
+    private int octantIndex(Vector3Dd p) {
+        Vector3Dd c = boundingBox.center();
         int index = 0;
 
         if (p.x() > c.x()) {
@@ -163,20 +157,21 @@ public class PatchClusterOctreeNode {
         // All patches that were added to the top cluster, which is being split now,
         // have a bounding box computed for them
         Patch patch = patches.get(patchIndexOnParent);
-        BoundingBox patchBoundingBox = patch.boundingBox;
+        final RpkAxisAlignedBoundingBox patchBoundingBox = new RpkAxisAlignedBoundingBox();
+        patch.computeBounds(patchBoundingBox);
 
         // If the patch is larger than an octant, don't move current patch from parent to sub-cluster
-        float smallestBoxDimension = 10.0f * Numeric.EPSILON_FLOAT;
+        double smallestBoxDimension = 10.0 * Numeric.EPSILON;
 
-        if ((patchBoundingBox.dx() > smallestBoxDimension && patchBoundingBox.dx() > boundingBox.dx() * 0.5f) ||
-            (patchBoundingBox.dy() > smallestBoxDimension && patchBoundingBox.dy() > boundingBox.dy() * 0.5f) ||
-            (patchBoundingBox.dz() > smallestBoxDimension && patchBoundingBox.dz() > boundingBox.dz() * 0.5f)) {
+        if ((patchBoundingBox.dx() > smallestBoxDimension && patchBoundingBox.dx() > boundingBox.dx() * 0.5) ||
+            (patchBoundingBox.dy() > smallestBoxDimension && patchBoundingBox.dy() > boundingBox.dy() * 0.5) ||
+            (patchBoundingBox.dz() > smallestBoxDimension && patchBoundingBox.dz() > boundingBox.dz() * 0.5)) {
             return false;
         }
 
         // Check the position of the centroid of the bounding box of the patch with reference to the
         // centroid of the cluster
-        Vector3Df midPatch = patchBoundingBox.center();
+        Vector3Dd midPatch = patchBoundingBox.center();
 
         int selectedChildOctantIndex = octantIndex(midPatch);
 
@@ -243,14 +238,14 @@ public class PatchClusterOctreeNode {
     This lets the standard ray traversal code operate on clusters, including
     operations such as shaft culling, without specialized traversal code.
     */
-    public Geometry convertClusterToGeometry() {
-        Geometry parentPatchesGeometry = null;
+    public RpkGeometry convertClusterToGeometry() {
+        RpkGeometry parentPatchesGeometry = null;
         if (patches != null && patches.size() > 0) {
             parentPatchesGeometry = new PatchSet(patches);
             addToDeletionCache(parentPatchesGeometry);
         }
 
-        ArrayList<Geometry> patchesGeometryList = new ArrayList<>();
+        ArrayList<RpkGeometry> patchesGeometryList = new ArrayList<>();
 
         // The patches in the cluster are the first to be tested for intersection with
         if (parentPatchesGeometry != null) {
@@ -258,7 +253,7 @@ public class PatchClusterOctreeNode {
         }
 
         for (int i = 0; i < 8; i++) {
-            Geometry child = null;
+            RpkGeometry child = null;
             if (children[i] != null) {
                 child = children[i].convertClusterToGeometry();
             }
@@ -268,7 +263,7 @@ public class PatchClusterOctreeNode {
             }
         }
 
-        Geometry newGeometry = new Compound(patchesGeometryList);
+        RpkGeometry newGeometry = new Compound(patchesGeometryList);
         addToDeletionCache(newGeometry);
         return newGeometry;
     }
@@ -294,7 +289,7 @@ public class PatchClusterOctreeNode {
         }
         System.out.printf("%d patches: ", patches.size());
         for (int i = 0; i < patches.size(); i++) {
-            System.out.printf("[%d]", patches.get(i).id);
+            System.out.printf("[%d]", patches.get(i).getId());
         }
         System.out.printf("\n");
         for (int i = 0; i < 8; i++) {

@@ -1,46 +1,46 @@
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 
 // Non-compact photon representation
 public class Photon {
-    protected Vector3Df m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
-    protected ColorRgbMutable m_power;  // power represented by this photon
-    //  float m_dcWeight; // Weight for density control
-    protected Vector3Df m_dir;  // Direction
+    protected Vector3Dd m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
+    protected ColorRgb m_power;  // power represented by this photon
+    //  double m_dcWeight; // Weight for density control
+    protected Vector3Dd m_dir;  // Direction
 
     public Photon() {
-        m_pos = new Vector3Df();
-        m_power = new ColorRgbMutable();
-        m_dir = new Vector3Df();
+        m_pos = new Vector3Dd();
+        m_power = new ColorRgb();
+        m_dir = new Vector3Dd();
     }
 
-    public Photon(Vector3Df pos, ColorRgbMutable power, Vector3Df dir) {
-        m_pos = new Vector3Df(pos.x(), pos.y(), pos.z());
-        m_power = new ColorRgbMutable(power.getR(), power.getG(), power.getB());
-        m_dir = new Vector3Df(dir.x(), dir.y(), dir.z());
+    public Photon(Vector3Dd pos, ColorRgb power, Vector3Dd dir) {
+        m_pos = new Vector3Dd(pos.x(), pos.y(), pos.z());
+        m_power = new ColorRgb(power.getR(), power.getG(), power.getB());
+        m_dir = new Vector3Dd(dir.x(), dir.y(), dir.z());
     }
 
-    public Vector3Df
+    public Vector3Dd
     pos() {
         return m_pos;
     }
 
-    public ColorRgbMutable
+    public ColorRgb
     power() {
         return m_power;
     }
 
     public void
-    addPower(ColorRgbMutable col) {
-        m_power.add(m_power, col);
+    addPower(ColorRgb col) {
+        m_power = m_power.add(col);
     }
 
-    public Vector3Df
+    public Vector3Dd
     dir() {
         return m_dir;
     }
@@ -48,7 +48,7 @@ public class Photon {
     // Importance sampling utility functions
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
-    public void findRS(double[] r, double[] s, CoordinateSystem coord, byte flag, float n) {
+    public void findRS(double[] r, double[] s, CoordinateSystem coord, byte flag, double n) {
         // Determine angles
         double[] phi = new double[1];
         double[] theta = new double[1];

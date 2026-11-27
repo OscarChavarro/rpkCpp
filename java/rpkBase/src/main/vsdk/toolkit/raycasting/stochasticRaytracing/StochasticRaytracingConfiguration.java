@@ -191,7 +191,7 @@ public class StochasticRaytracingConfiguration {
 
         if ( sampleIndex == null ) {
             screen = new ScreenBuffer(null, defaultCamera, toneMapOptions);
-            screen.setFactor(1.0f); // We're storing plain radiance
+            screen.setFactor(1.0); // We're storing plain radiance
         }
 
         initDependentVars(lightList, radianceMethod, inRayTracingLightList);

@@ -5,9 +5,9 @@ Path node sampler using bsdf sampling
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.ShadingContext;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -38,7 +38,7 @@ public class BsdfSampler extends SurfaceSampler {
         double[] pdfDir = new double[] {0.0};
 
         // Sample direction
-        Vector3Df dir = new Vector3Df(0.0f, 0.0f, 0.0f);
+        Vector3Dd dir = new Vector3Dd(0.0, 0.0, 0.0);
 
         ShadingContext thisContext = thisNode.m_hit.shadingContext();
         if ( thisNode.m_useBsdf != null && thisContext != null ) {
@@ -61,10 +61,10 @@ public class BsdfSampler extends SurfaceSampler {
 
         newNode.accumulatedRussianRouletteFactors = thisNode.accumulatedRussianRouletteFactors;
         if ( doRR ) {
-            ColorRgbMutable albedo = new ColorRgbMutable();
-            albedo.clear();
+            ColorRgb albedo = new ColorRgb();
+            albedo = new ColorRgb(0.0, 0.0, 0.0);
             if ( thisNode.m_useBsdf != null && thisContext != null ) {
-                albedo = new ColorRgbMutable(thisNode.m_useBsdf.splitBsdfScatteredPower(thisContext, flags & 0xFF));
+                albedo = new ColorRgb(thisNode.m_useBsdf.splitBsdfScatteredPower(thisContext, flags & 0xFF));
             }
             newNode.accumulatedRussianRouletteFactors *= albedo.average();
         }
@@ -145,12 +145,12 @@ public class BsdfSampler extends SurfaceSampler {
         // More efficient with extra params?
         double dist2;
         double dist;
-        Vector3Df outDir = new Vector3Df();
+        Vector3Dd outDir = new Vector3Dd();
 
         outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
         dist2 = outDir.lengthSquared();
         dist = Math.sqrt(dist2);
-        outDir = outDir.multiplyByInverse((float)dist, Numeric.EPSILON_FLOAT);
+        outDir = outDir.multiplyByInverse((double)dist, Numeric.EPSILON);
 
         // Beware : NOT RECIPROKE!
         double[] pdfDir = new double[] {0.0};
@@ -194,7 +194,7 @@ public class BsdfSampler extends SurfaceSampler {
     {
         double[] pdfH = new double[1];
         double[] pdfRRH = new double[1];
-        Vector3Df outDir = new Vector3Df();
+        Vector3Dd outDir = new Vector3Dd();
 
         if ( pdf == null ) {
             pdf = pdfH;
@@ -205,7 +205,7 @@ public class BsdfSampler extends SurfaceSampler {
 
         // More efficient with extra params?
         outDir = prevNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
-        outDir = outDir.normalized(Numeric.EPSILON_FLOAT);
+        outDir = outDir.normalized(Numeric.EPSILON);
 
         // Beware : NOT RECIPROCAL!
         double[] pdfDir = new double[] {0.0};

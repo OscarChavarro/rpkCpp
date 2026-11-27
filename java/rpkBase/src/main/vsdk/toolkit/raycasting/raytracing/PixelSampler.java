@@ -1,7 +1,9 @@
 package vsdk.toolkit.raycasting.raytracing;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -30,7 +32,7 @@ public class PixelSampler extends Sampler {
         boolean doRR,
         byte flags)
     {
-        Vector3Df dir = new Vector3Df();
+        Vector3Dd dir = new Vector3Dd();
 
         // Pre-conditions: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
@@ -38,10 +40,10 @@ public class PixelSampler extends Sampler {
         double xSample = (m_px + camera.pixelWidth * x1);
         double ySample = (m_py + camera.pixelHeight * x2);
 
-        dir = camera.Z.add(camera.X.multiply((float)xSample)).add(camera.Y.multiply((float)ySample));
+        dir = camera.Z.add(camera.X.multiply((double)xSample)).add(camera.Y.multiply((double)ySample));
         double distPixel2 = dir.lengthSquared();
         double distPixel = Math.sqrt(distPixel2);
-        dir = dir.multiplyByInverse((float)distPixel, Numeric.EPSILON_FLOAT);
+        dir = dir.multiplyByInverse((double)distPixel, Numeric.EPSILON);
 
         double cosPixel = Math.abs(camera.Z.dotProduct(dir));
 
@@ -61,7 +63,7 @@ public class PixelSampler extends Sampler {
         // "Bsdf" in thisNode
 
         // Potential is one for all directions through a pixel
-        thisNode.m_bsdfEval.setMonochrome(1.0f);
+        thisNode.m_bsdfEval = new ColorRgb(1.0, 1.0, 1.0);
 
         // Make sure evaluation of eye components always includes the diff ref.
         thisNode.m_bsdfComp.Clear();
@@ -102,13 +104,13 @@ public class PixelSampler extends Sampler {
         double cosA;
         double cosB;
         double localPdf;
-        Vector3Df outDir = new Vector3Df();
+        Vector3Dd outDir = new Vector3Dd();
 
         // More efficient with extra params?
         outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
         dist2 = outDir.lengthSquared();
         dist = Math.sqrt(dist2);
-        outDir = outDir.multiplyByInverse((float)dist, Numeric.EPSILON_FLOAT);
+        outDir = outDir.multiplyByInverse((double)dist, Numeric.EPSILON);
 
         // pdf = 1 / A_pixel transformed to area measure
 

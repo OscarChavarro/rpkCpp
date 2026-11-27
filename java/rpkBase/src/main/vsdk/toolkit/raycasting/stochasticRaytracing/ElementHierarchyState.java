@@ -1,11 +1,12 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.scene.RadianceElementTable;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 @FunctionalInterface
 interface REFINE_ACTION {
@@ -17,7 +18,7 @@ interface REFINE_ACTION {
         StochasticRadiosityElement srctop,
         double[] us,
         double[] vs,
-        RenderOptions renderOptions);
+        RendererConfiguration renderOptions);
 }
 
 @FunctionalInterface
@@ -29,24 +30,24 @@ interface ORACLE {
 Global parameters controlling hierarchical refinement
 */
 public class ElementHierarchyState {
-    public float epsilon; // Determines meshing accuracy
+    public double epsilon; // Determines meshing accuracy
     public int do_h_meshing; // If doing hierarchical meshing
-    public float minimumArea; // Minimum allowed element area
+    public double minimumArea; // Minimum allowed element area
     public long nr_elements; // Number of elements
     public long nr_clusters; // Number of clusters
     public int tvertex_elimination; // If doing T-vertex elimination for rendering
     public HierarchyClusteringMode clustering; // Clustering mode, 0 => no clustering
     public ORACLE oracle; // Refinement oracle to be used
     public StochasticRadiosityElement topCluster; // Top cluster element of element hierarchy
-    public ArrayList<Vector3Df> coords;
-    public ArrayList<Vector3Df> normals; // Created during element subdivision
-    public ArrayList<Vector3Df> texCoords; // Created during element subdivision
-    public ArrayList<Vertex> vertices;
+    public ArrayList<Vector3Dd> coords;
+    public ArrayList<Vector3Dd> normals; // Created during element subdivision
+    public ArrayList<Vector3Dd> texCoords; // Created during element subdivision
+    public ArrayList<RpkVertex> vertices;
 
     public ElementHierarchyState() {
-        epsilon = 0.0f;
+        epsilon = 0.0;
         do_h_meshing = 0;
-        minimumArea = 0.0f;
+        minimumArea = 0.0;
         nr_elements = 0;
         nr_clusters = 0;
         tvertex_elimination = 0;
@@ -57,6 +58,7 @@ public class ElementHierarchyState {
         normals = null;
         texCoords = null;
         vertices = null;
+        radianceElements = null;
     }
 
     public static void setActiveState(ElementHierarchyState state) {
@@ -70,5 +72,16 @@ public class ElementHierarchyState {
         return activeStatePtr;
     }
 
+    public RadianceElementTable getRadianceElements() {
+        return radianceElements;
+    }
+
+    public void setRadianceElements(RadianceElementTable inRadianceElements) {
+        radianceElements = inRadianceElements;
+    }
+
+    // The scene's table of top-level elements, bound when the method is initialized;
+    // null while the method has not been initialized (nothing to terminate then)
+    private RadianceElementTable radianceElements;
     private static ElementHierarchyState activeStatePtr = null;
 }

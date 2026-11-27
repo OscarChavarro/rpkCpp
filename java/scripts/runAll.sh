@@ -1,8 +1,8 @@
 #!/bin/bash
 # Starts the test corpus (scripts/runCorpus.sh) in the background and returns
 # at once; the runs go on after the terminal is closed. With no arguments it
-# also starts the scenes outside the corpus (OPTIONAL_TABLE in corpus.sh, empty
-# in this port), each writing output/<log>.status when it ends. Arguments select corpus
+# also starts the scenes outside the corpus (OPTIONAL_TABLE in corpus.sh: 08
+# soda), each writing output/<log>.status when it ends. Arguments select corpus
 # entries by image or script name, as in runCorpus.sh.
 # The corpus runs write output/<image>.ppm, output/<log>.log and
 # output/<log>.err, the files testReviewResults.sh reads; runCorpus.sh's own

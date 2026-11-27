@@ -4,18 +4,20 @@ Random walk generation
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.Random;
 
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public final class Tracepath {
     @FunctionalInterface
@@ -57,7 +59,7 @@ Sets numberOfNodes to zero (forgets old path, but does not free the memory for t
     /**
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
-    private static void pathAddNode(Path path, Patch patch, double prob, Vector3Df inPoint, Vector3Df outpoint) {
+    private static void pathAddNode(Path path, Patch patch, double prob, Vector3Dd inPoint, Vector3Dd outpoint) {
         if ( path.numberOfNodes >= path.nodesAllocated ) {
             StochasticRaytracingPathNode[] newNodes = new StochasticRaytracingPathNode[path.nodesAllocated + 20];
             for ( int i = 0; i < newNodes.length; i++ ) {
@@ -115,13 +117,13 @@ when no longer needed
         PatchProbabilityCallback survivalProbabilityCallBack,
         Path path)
     {
-        Vector3Df inPoint = new Vector3Df(0.0f, 0.0f, 0.0f);
-        Vector3Df outpoint = new Vector3Df(0.0f, 0.0f, 0.0f);
+        Vector3Dd inPoint = new Vector3Dd(0.0, 0.0, 0.0);
+        Vector3Dd outpoint = new Vector3Dd(0.0, 0.0, 0.0);
         Patch P = origin;
         double survivalProb;
         Ray ray;
-        RayHit hit;
-        RayHit hitStore = new RayHit();
+        RpkRayHit hit;
+        RpkRayHit hitStore = new RpkRayHit();
 
         StochasticRelaxation.activeState().tracedPaths++;
         clearPath(path);
@@ -132,9 +134,9 @@ when no longer needed
             McradP.topLevelStochasticRadiosityElement(P).rayIndex++;
             if ( path.numberOfNodes > 1 && StochasticRelaxation.activeState().continuousRandomWalk != 0 ) {
                 // Scattered ray originates at point of incidence of previous ray
-                ray.position = path.nodes[path.numberOfNodes - 1].inPoint;
+                ray = ray.withOrigin(path.nodes[path.numberOfNodes - 1].inPoint);
             }
-            path.nodes[path.numberOfNodes - 1].outpoint = ray.position;
+            path.nodes[path.numberOfNodes - 1].outpoint = ray.getOrigin();
 
             hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, ray, hitStore);
             if ( hit == null ) {
@@ -208,22 +210,16 @@ Traces 'numberOfPaths' paths with given birth probabilities
         freePathNodes(path);
 
         // updateCallBack radiance, compute new total and un-shot flux
-        StochasticRelaxation.activeState().unShotFlux.clear();
-        StochasticRelaxation.activeState().unShotYmp = 0.0f;
-        StochasticRelaxation.activeState().totalFlux.clear();
-        StochasticRelaxation.activeState().totalYmp = 0.0f;
+        StochasticRelaxation.activeState().unShotFlux = new ColorRgb(0.0, 0.0, 0.0);
+        StochasticRelaxation.activeState().unShotYmp = 0.0;
+        StochasticRelaxation.activeState().totalFlux = new ColorRgb(0.0, 0.0, 0.0);
+        StochasticRelaxation.activeState().totalYmp = 0.0;
 
         for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
             Patch patch = scenePatches.get(i);
             updateCallBack.apply(patch, (double)numberOfPaths / sumProbabilities);
-            StochasticRelaxation.activeState().unShotFlux.addScaled(
-                StochasticRelaxation.activeState().unShotFlux,
-                (float)Math.PI * patch.area,
-                McradP.getTopLevelPatchUnShotRad(patch)[0]);
-            StochasticRelaxation.activeState().totalFlux.addScaled(
-                StochasticRelaxation.activeState().totalFlux,
-                (float)Math.PI * patch.area,
-                McradP.getTopLevelPatchRad(patch)[0]);
+            StochasticRelaxation.activeState().unShotFlux = (StochasticRelaxation.activeState().unShotFlux).addScaled((double)Math.PI * patch.getArea(), McradP.getTopLevelPatchUnShotRad(patch)[0]);
+            StochasticRelaxation.activeState().totalFlux = (StochasticRelaxation.activeState().totalFlux).addScaled((double)Math.PI * patch.getArea(), McradP.getTopLevelPatchRad(patch)[0]);
         }
     }
 }

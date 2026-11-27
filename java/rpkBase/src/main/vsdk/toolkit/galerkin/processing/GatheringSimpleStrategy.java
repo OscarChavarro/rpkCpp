@@ -1,11 +1,15 @@
 package vsdk.toolkit.galerkin.processing;
 
+import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.scene.DirectPotentialTable;
+import vsdk.toolkit.common.color.ColorRgb;
+
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.GalerkinRole;
 import vsdk.toolkit.render.Potential;
@@ -14,15 +18,15 @@ import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class GatheringSimpleStrategy extends GatheringStrategy {
-    private static void patchUpdatePotential(Patch patch) {
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
-        GatheringStrategy.pushPullPotential(topLevelElement, 0.0f);
+    private static void patchUpdatePotential(Patch patch, DirectPotentialTable directPotentials, GalerkinState galerkinState) {
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
+        GatheringStrategy.pushPullPotential(topLevelElement, 0.0, directPotentials);
     }
 
-    private static void patchUpdateRadiance(Patch patch, GalerkinState galerkinState) {
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+    private static void patchUpdateRadiance(Patch patch, GalerkinState galerkinState, FaceColorTable faceColors) {
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
         vsdk.toolkit.galerkin.GalerkinBasis.pushPullRadiance(topLevelElement, galerkinState);
-        GalerkinRadianceMethod.recomputePatchColor(patch);
+        GalerkinRadianceMethod.recomputePatchColor(patch, faceColors);
     }
 
     private static void patchLazyCreateInteractions(
@@ -30,15 +34,11 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
         Patch patch,
         GalerkinState galerkinState)
     {
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
 
         if ( !topLevelElement.radiance[0].isBlack()
              && (topLevelElement.flags & ElementFlags.INTERACTIONS_CREATED_MASK) == 0 ) {
-            LinkingSimpleStrategy.createInitialLinks(
-                scene,
-                galerkinState,
-                GalerkinRole.SOURCE,
-                topLevelElement);
+            LinkingSimpleStrategy.createInitialLinks( scene, galerkinState, GalerkinRole.SOURCE, topLevelElement);
             topLevelElement.flags |= ElementFlags.INTERACTIONS_CREATED_MASK;
         }
     }
@@ -48,7 +48,7 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
         Scene scene,
         GalerkinState galerkinState)
     {
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
 
         // Don't gather to patches without importance. This optimisation can not
         // be combined with lazy linking based on radiance
@@ -61,11 +61,7 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
               || galerkinState.lazyLinking == 0
               || galerkinState.importanceDriven != 0)
              && (topLevelElement.flags & ElementFlags.INTERACTIONS_CREATED_MASK) == 0 ) {
-            LinkingSimpleStrategy.createInitialLinks(
-                scene,
-                galerkinState,
-                GalerkinRole.RECEIVER,
-                topLevelElement);
+            LinkingSimpleStrategy.createInitialLinks( scene, galerkinState, GalerkinRole.RECEIVER, topLevelElement);
             topLevelElement.flags |= ElementFlags.INTERACTIONS_CREATED_MASK;
         }
 
@@ -75,7 +71,7 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
         // Immediately convert received radiance into radiance, make the representation
         // consistent and recompute the color of the patch when doing Gauss-Seidel.
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
-            GatheringSimpleStrategy.patchUpdateRadiance(patch, galerkinState);
+            GatheringSimpleStrategy.patchUpdateRadiance(patch, galerkinState, scene.getFaceColors());
         }
     }
 
@@ -83,7 +79,7 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
     }
 
     @Override
-    public boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RenderOptions renderOptions) {
+    public boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RendererConfiguration renderOptions) {
         if ( galerkinState.importanceDriven != 0
              && (galerkinState.iterationNumber <= 1 || scene.camera.changed != 0) ) {
             Potential.updateDirectPotential(scene, renderOptions);
@@ -95,15 +91,12 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
              && galerkinState.lazyLinking != 0
              && galerkinState.importanceDriven == 0 ) {
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-                GatheringSimpleStrategy.patchLazyCreateInteractions(
-                    scene,
-                    scene.patchList.get(i),
-                    galerkinState);
+                GatheringSimpleStrategy.patchLazyCreateInteractions( scene, scene.patchList.get(i), galerkinState);
             }
         }
 
         // No visualisation with ambient term for gathering radiosity algorithms
-        galerkinState.ambientRadiance.clear();
+        galerkinState.ambientRadiance = new ColorRgb(0.0, 0.0, 0.0);
 
         // One iteration = gather to all patches
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
@@ -113,13 +106,13 @@ public final class GatheringSimpleStrategy extends GatheringStrategy {
         // Update the radiosity after gathering to all patches with Jacobi
         if ( galerkinState.isJacobi() ) {
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-                GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList.get(i), galerkinState);
+                GatheringSimpleStrategy.patchUpdateRadiance(scene.patchList.get(i), galerkinState, scene.getFaceColors());
             }
         }
 
         if ( galerkinState.importanceDriven != 0 ) {
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-                GatheringSimpleStrategy.patchUpdatePotential(scene.patchList.get(i));
+                GatheringSimpleStrategy.patchUpdatePotential(scene.patchList.get(i), scene.getDirectPotentials(), galerkinState);
             }
         }
 

@@ -2,12 +2,12 @@ package vsdk.toolkit.io.context;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.dataStructures.LookUpTable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.scene.RadianceMethod;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public final class ParseRuntimeContext extends ParseContext {
     public ParseOptionsContext parserConfig;
@@ -37,22 +37,21 @@ public final class ParseRuntimeContext extends ParseContext {
     public ReaderContext readerContext;
     public String currentMaterialName;
     public int geometryStackHeadIndex;
-    public ArrayList<Geometry>[] geometryStack;
-    public ArrayList<Vector3Df> currentPointList;
-    public ArrayList<Vector3Df> currentNormalList;
-    public ArrayList<Vertex> currentVertexList;
+    public ArrayList<RpkGeometry>[] geometryStack;
+    public ArrayList<Vector3Dd> currentPointList;
+    public ArrayList<Vector3Dd> currentNormalList;
+    public ArrayList<RpkVertex> currentVertexList;
     public ArrayList<Patch> currentFaceList;
-    public ArrayList<Geometry> currentGeometryList;
+    public ArrayList<RpkGeometry> currentGeometryList;
     public String currentObjectName;
     public TransformStackContext transformContext;
     public ColorContext unNamedColorContext;
     public ColorContext currentColor;
     public boolean inSurface;
     public boolean inComplex;
-    public boolean warpConeEnds;
     public LookUpTable<VertexContext> vertexLookUpTable;
-    public ArrayList<Geometry> allGeometries;
-    public ArrayList<Geometry> geometries;
+    public ArrayList<RpkGeometry> allGeometries;
+    public ArrayList<RpkGeometry> geometries;
     public ArrayList<RpkMaterial> materials;
 
     public ParseRuntimeContext() {
@@ -92,7 +91,6 @@ public final class ParseRuntimeContext extends ParseContext {
         currentColor = colorRepository.currentColor;
         inSurface = geometryBuildState.inSurface;
         inComplex = geometryBuildState.inComplex;
-        warpConeEnds = geometryBuildState.warpConeEnds;
         vertexLookUpTable = vertexRepository.vertexLookUpTable;
         allGeometries = geometryBuildState.allGeometries;
         geometries = geometryBuildState.geometries;

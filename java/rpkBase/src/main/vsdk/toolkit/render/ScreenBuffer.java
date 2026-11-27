@@ -3,11 +3,10 @@ package vsdk.toolkit.render;
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.scene.Camera;
@@ -20,18 +19,18 @@ and an associated RGB framebuffer
 
 12/10/99 : The screen buffer has now a camera variable that states
            from where the image is made. Several functions
-           are provided to handle pixel float coordinates,
+           are provided to handle pixel double coordinates,
            pixel numbers and screen boundaries. These are
            derived from the camera variable
 */
 public class ScreenBuffer {
-    private ColorRgbMutable[] radiance;
-    private ColorRgbMutable[] rgbColor;
+    private ColorRgb[] radiance;
+    private ColorRgb[] rgbColor;
     private Camera camera;
 
     private boolean synced;
-    private float factor;
-    private float addFactor;
+    private double factor;
+    private double addFactor;
     private boolean rgbImage; // Indicates an RGB image ( = no radiance conversion!)
     private ToneMappingContext toneMapOptions;
 
@@ -56,7 +55,7 @@ public class ScreenBuffer {
         target.X = source.X;
         target.Y = source.Y;
         target.Z = source.Z;
-        target.background = new ColorRgbMutable(source.background.getR(), source.background.getG(), source.background.getB());
+        target.background = new ColorRgb(source.background.getR(), source.background.getG(), source.background.getB());
         target.changed = source.changed;
         target.pixelWidth = source.pixelWidth;
         target.pixelHeight = source.pixelHeight;
@@ -89,23 +88,23 @@ public class ScreenBuffer {
         camera = copyCamera(inCamera);
 
         if (radiance == null) {
-            radiance = new ColorRgbMutable[camera.xSize * camera.ySize];
-            rgbColor = new ColorRgbMutable[camera.xSize * camera.ySize];
+            radiance = new ColorRgb[camera.xSize * camera.ySize];
+            rgbColor = new ColorRgb[camera.xSize * camera.ySize];
             for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-                radiance[i] = new ColorRgbMutable();
-                rgbColor[i] = new ColorRgbMutable();
+                radiance[i] = new ColorRgb();
+                rgbColor[i] = new ColorRgb();
             }
         }
 
         // Clear
-        ColorRgbMutable black = new ColorRgbMutable(0.0, 0.0, 0.0);
+        ColorRgb black = new ColorRgb(0.0, 0.0, 0.0);
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i] = new ColorRgbMutable(0.0, 0.0, 0.0);
-            rgbColor[i] = new ColorRgbMutable(black.getR(), black.getG(), black.getB());
+            radiance[i] = new ColorRgb(0.0, 0.0, 0.0);
+            rgbColor[i] = new ColorRgb(black.getR(), black.getG(), black.getB());
         }
 
-        factor = 1.0f;
-        addFactor = 1.0f;
+        factor = 1.0;
+        addFactor = 1.0;
         synced = true;
         rgbImage = false;
     }
@@ -120,8 +119,8 @@ Constructor : make an screen buffer from a camera definition
         toneMapOptions = inToneMapOptions;
         init(camera, defaultCamera);
         synced = false;
-        factor = 1.0f;
-        addFactor = 1.0f;
+        factor = 1.0;
+        addFactor = 1.0;
         rgbImage = false;
     }
 
@@ -142,7 +141,7 @@ Copy dimensions and contents (radiance only) from source
 
         // Now the resolution is ok.
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i] = new ColorRgbMutable(source.radiance[i].getR(), source.radiance[i].getG(), source.radiance[i].getB());
+            radiance[i] = new ColorRgb(source.radiance[i].getR(), source.radiance[i].getG(), source.radiance[i].getB());
         }
         synced = false;
     }
@@ -162,33 +161,33 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
         int N = getVRes() * getHRes();
 
         for (int i = 0; i < N; i++) {
-            radiance[i] = new ColorRgbMutable(
+            radiance[i] = new ColorRgb(
                 src1.radiance[i].getR() + src2.radiance[i].getR(),
                 src1.radiance[i].getG() + src2.radiance[i].getG(),
                 src1.radiance[i].getB() + src2.radiance[i].getB());
         }
     }
 
-    public void add(int x, int y, ColorRgbMutable inRadiance) {
+    public void add(int x, int y, ColorRgb inRadiance) {
         int index = x + (camera.ySize - y - 1) * camera.xSize;
 
-        radiance[index] = new ColorRgbMutable(
+        radiance[index] = new ColorRgb(
             radiance[index].getR() + addFactor * inRadiance.getR(),
             radiance[index].getG() + addFactor * inRadiance.getG(),
             radiance[index].getB() + addFactor * inRadiance.getB());
         synced = false;
     }
 
-    public void set(int x, int y, ColorRgbMutable inRadiance) {
+    public void set(int x, int y, ColorRgb inRadiance) {
         int index = x + (camera.ySize - y - 1) * camera.xSize;
-        radiance[index] = new ColorRgbMutable(
+        radiance[index] = new ColorRgb(
             addFactor * inRadiance.getR(),
             addFactor * inRadiance.getG(),
             addFactor * inRadiance.getB());
         synced = false;
     }
 
-    public ColorRgbMutable get(int x, int y) {
+    public ColorRgb get(int x, int y) {
         int index = x + (camera.ySize - y - 1) * camera.xSize;
 
         return radiance[index];
@@ -215,28 +214,28 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
 
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
         ip.setToneMappingContext(activeToneMapOptions);
-        ip.gamma[0] = (float)activeToneMapOptions.gamma.getR(); // For default radiance -> display RGB
-        ip.gamma[1] = (float)activeToneMapOptions.gamma.getG();
-        ip.gamma[2] = (float)activeToneMapOptions.gamma.getB();
+        ip.gamma[0] = (double)activeToneMapOptions.gamma.getR(); // For default radiance -> display RGB
+        ip.gamma[1] = (double)activeToneMapOptions.gamma.getG();
+        ip.gamma[2] = (double)activeToneMapOptions.gamma.getB();
         for (int i = camera.ySize - 1; i >= 0; i--) {
             // Write scan lines
             if (!isRgbImage()) {
                 ColorRgb[] scanline = new ColorRgb[camera.xSize];
                 int rowStart = i * camera.xSize;
                 for (int j = 0; j < camera.xSize; j++) {
-                    scanline[j] = radiance[rowStart + j].toImmutable();
+                    scanline[j] = radiance[rowStart + j];
                 }
                 ip.writeRadianceRGB(scanline);
             }
             else {
-                float[] rgbFloatArray = new float[3 * camera.xSize];
+                double[] rgbFloatArray = new double[3 * camera.xSize];
                 int rowStart = i * camera.xSize;
                 for (int j = 0; j < camera.xSize; j++) {
-                    ColorRgbMutable color = radiance[rowStart + j];
+                    ColorRgb color = radiance[rowStart + j];
                     int base = 3 * j;
-                    rgbFloatArray[base] = (float)color.getR();
-                    rgbFloatArray[base + 1] = (float)color.getG();
-                    rgbFloatArray[base + 2] = (float)color.getB();
+                    rgbFloatArray[base] = (double)color.getR();
+                    rgbFloatArray[base + 1] = (double)color.getG();
+                    rgbFloatArray[base + 2] = (double)color.getB();
                 }
                 ip.writeDisplayRGB(rgbFloatArray);
             }
@@ -252,7 +251,7 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
             syncLine(y);
         }
 
-        ColorRgbMutable[] scanline = new ColorRgbMutable[camera.xSize];
+        ColorRgb[] scanline = new ColorRgb[camera.xSize];
         int rowStart = y * camera.xSize;
         for (int i = 0; i < camera.xSize; i++) {
             scanline[i] = rgbColor[rowStart + i];
@@ -261,16 +260,16 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
     }
 
     public void sync() {
-        ColorRgbMutable tmpRad = new ColorRgbMutable();
+        ColorRgb tmpRad = new ColorRgb();
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
 
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            tmpRad.scaledCopy(factor, new ColorRgbMutable(radiance[i]));
+            tmpRad = (new ColorRgb(radiance[i])).multiply(factor);
             if (!isRgbImage()) {
-                ToneMap.radianceToRgb(tmpRad, rgbColor[i], activeToneMapOptions);
+                rgbColor[i] = ToneMap.radianceToRgb(tmpRad, activeToneMapOptions);
             }
             else {
-                tmpRad.set(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
+                tmpRad = new ColorRgb(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
             }
         }
 
@@ -278,19 +277,16 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
     }
 
     protected void syncLine(int lineNumber) {
-        ColorRgbMutable tmpRad = new ColorRgbMutable();
+        ColorRgb tmpRad = new ColorRgb();
         ToneMappingContext activeToneMapOptions = requireToneMappingContext();
 
         for (int i = 0; i < camera.xSize; i++) {
-            tmpRad.scaledCopy(factor, new ColorRgbMutable(radiance[lineNumber * camera.xSize + i]));
+            tmpRad = (new ColorRgb(radiance[lineNumber * camera.xSize + i])).multiply(factor);
             if (!isRgbImage()) {
-                ToneMap.radianceToRgb(tmpRad, rgbColor[lineNumber * camera.xSize + i], activeToneMapOptions);
+                rgbColor[lineNumber * camera.xSize + i] = ToneMap.radianceToRgb(tmpRad, activeToneMapOptions);
             }
             else {
-                tmpRad.set(
-                    rgbColor[lineNumber * camera.xSize + i].getR(),
-                    rgbColor[lineNumber * camera.xSize + i].getG(),
-                    rgbColor[lineNumber * camera.xSize + i].getB());
+                tmpRad = new ColorRgb(rgbColor[lineNumber * camera.xSize + i].getR(), rgbColor[lineNumber * camera.xSize + i].getG(), rgbColor[lineNumber * camera.xSize + i].getB());
             }
         }
     }
@@ -306,45 +302,45 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
         toneMapOptions = inToneMapOptions;
     }
 
-    public float getScreenXMin() {
-        return -camera.pixelWidth * (float)camera.xSize / 2.0f;
+    public double getScreenXMin() {
+        return -camera.pixelWidth * (double)camera.xSize / 2.0;
     }
 
-    public float getScreenYMin() {
-        return -camera.pixelHeight * (float)camera.ySize / 2.0f;
+    public double getScreenYMin() {
+        return -camera.pixelHeight * (double)camera.ySize / 2.0;
     }
 
-    public float getPixXSize() {
+    public double getPixXSize() {
         return camera.pixelWidth;
     }
 
-    public float getPixYSize() {
+    public double getPixYSize() {
         return camera.pixelHeight;
     }
 
-    public Vector2Df getPixelPoint(int nx, int ny, float xOffset, float yOffset) {
-        return new Vector2Df(
-            getScreenXMin() + ((float)nx + xOffset) * getPixXSize(),
-            getScreenYMin() + ((float)ny + yOffset) * getPixYSize());
+    public Vector2Dd getPixelPoint(int nx, int ny, double xOffset, double yOffset) {
+        return new Vector2Dd(
+            getScreenXMin() + ((double)nx + xOffset) * getPixXSize(),
+            getScreenYMin() + ((double)ny + yOffset) * getPixYSize());
     }
 
-    public Vector2Df getPixelPoint(int nx, int ny) {
-        return getPixelPoint(nx, ny, 0.5f, 0.5f);
+    public Vector2Dd getPixelPoint(int nx, int ny) {
+        return getPixelPoint(nx, ny, 0.5, 0.5);
     }
 
-    public Vector2Df getPixelCenter(int nx, int ny) {
-        return getPixelPoint(nx, ny, 0.5f, 0.5f);
+    public Vector2Dd getPixelCenter(int nx, int ny) {
+        return getPixelPoint(nx, ny, 0.5, 0.5);
     }
 
-    public int getNx(float x) {
+    public int getNx(double x) {
         return (int)Math.floor((x - getScreenXMin()) / getPixXSize());
     }
 
-    public int getNy(float y) {
+    public int getNy(double y) {
         return (int)Math.floor((y - getScreenYMin()) / getPixYSize());
     }
 
-    public void getPixel(float x, float y, int[] nx, int[] ny) {
+    public void getPixel(double x, double y, int[] nx, int[] ny) {
         if (nx != null && nx.length > 0) {
             nx[0] = getNx(x);
         }
@@ -357,15 +353,15 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
 Un-normalized vector pointing from the eye point to the
 point with given fractional pixel coordinates
 */
-    public Vector3Df getPixelVector(int nx, int ny, float xOffset, float yOffset) {
-        Vector2Df pix = getPixelPoint(nx, ny, xOffset, yOffset);
-        Vector3Df dir = new Vector3Df();
+    public Vector3Dd getPixelVector(int nx, int ny, double xOffset, double yOffset) {
+        Vector2Dd pix = getPixelPoint(nx, ny, xOffset, yOffset);
+        Vector3Dd dir = new Vector3Dd();
         dir = camera.Z.add(camera.X.multiply(pix.x())).add(camera.Y.multiply(pix.y()));
         return dir;
     }
 
-    public Vector3Df getPixelVector(int nx, int ny) {
-        return getPixelVector(nx, ny, 0.5f, 0.5f);
+    public Vector3Dd getPixelVector(int nx, int ny) {
+        return getPixelVector(nx, ny, 0.5, 0.5);
     }
 
     /**
@@ -379,8 +375,8 @@ Screen resolution
         return camera.ySize;
     }
 
-    public static float computeFluxToRadFactor(Camera camera, int pixX, int pixY) {
-        Vector3Df dir = new Vector3Df();
+    public static double computeFluxToRadFactor(Camera camera, int pixX, int pixY) {
+        Vector3Dd dir = new Vector3Dd();
         double h = camera.pixelWidth;
         double v = camera.pixelHeight;
 
@@ -390,34 +386,34 @@ Screen resolution
         double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
         double ySample = y + v * 0.5;
 
-        dir = camera.Z.add(camera.X.multiply((float)xSample)).add(camera.Y.multiply((float)ySample));
+        dir = camera.Z.add(camera.X.multiply((double)xSample)).add(camera.Y.multiply((double)ySample));
         double distPixel2 = dir.lengthSquared();
         double distPixel = Math.sqrt(distPixel2);
-        dir = dir.multiplyByInverse((float)distPixel, Numeric.EPSILON_FLOAT);
+        dir = dir.multiplyByInverse((double)distPixel, Numeric.EPSILON);
 
         double factor = 1.0 / (h * v);
 
         factor *= distPixel2; // r(eye->pixel)^2
         factor /= Math.pow(dir.dotProduct(camera.Z), 2);  // cos^2
 
-        return (float)factor;
+        return (double)factor;
     }
 
-    public float getScreenXMax() {
-        return camera.pixelWidth * (float)camera.xSize / 2.0f;
+    public double getScreenXMax() {
+        return camera.pixelWidth * (double)camera.xSize / 2.0;
     }
 
-    public float getScreenYMax() {
-        return camera.pixelHeight * (float)camera.ySize / 2.0f;
+    public double getScreenYMax() {
+        return camera.pixelHeight * (double)camera.ySize / 2.0;
     }
 
-    public ColorRgbMutable getBiLinear(float x, float y) {
+    public ColorRgb getBiLinear(double x, double y) {
         int[] nx0v = new int[1];
         int[] ny0v = new int[1];
         int nx1;
         int ny1;
-        Vector2Df center;
-        ColorRgbMutable color = new ColorRgbMutable();
+        Vector2Dd center;
+        ColorRgb color = new ColorRgb();
 
         getPixel(x, y, nx0v, ny0v);
         int nx0 = nx0v[0];
@@ -447,24 +443,27 @@ Screen resolution
         // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
         // nx0 and nx1 may be the same (at border of image). Same for ny
 
-        ColorRgbMutable c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
-        ColorRgbMutable c1 = get(nx1, ny0); // u = 1
-        ColorRgbMutable c2 = get(nx1, ny1); // u = 1, v = 1
-        ColorRgbMutable c3 = get(nx0, ny1); // v = 1
+        ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
+        ColorRgb c1 = get(nx1, ny0); // u = 1
+        ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
+        ColorRgb c3 = get(nx0, ny1); // v = 1
 
-        color.interpolateBiLinear(
-            new ColorRgbMutable(c0),
-            new ColorRgbMutable(c1),
-            new ColorRgbMutable(c2),
-            new ColorRgbMutable(c3),
-            x, y);
+        {
+            final double cc = x * y;
+            final double bb = x - cc;
+            final double dd = y - cc;
+            color = new ColorRgb(
+                new ColorRgb(c0).getR() + bb * (new ColorRgb(c1).getR() - new ColorRgb(c0).getR()) + cc * (new ColorRgb(c2).getR() - new ColorRgb(c0).getR()) + dd * (new ColorRgb(c3).getR() - new ColorRgb(c0).getR()),
+                new ColorRgb(c0).getG() + bb * (new ColorRgb(c1).getG() - new ColorRgb(c0).getG()) + cc * (new ColorRgb(c2).getG() - new ColorRgb(c0).getG()) + dd * (new ColorRgb(c3).getG() - new ColorRgb(c0).getG()),
+                new ColorRgb(c0).getB() + bb * (new ColorRgb(c1).getB() - new ColorRgb(c0).getB()) + cc * (new ColorRgb(c2).getB() - new ColorRgb(c0).getB()) + dd * (new ColorRgb(c3).getB() - new ColorRgb(c0).getB()));
+        }
 
-        return new ColorRgbMutable(color);
+        return new ColorRgb(color);
     }
 
-    public void scaleRadiance(float inFactor) {
+    public void scaleRadiance(double inFactor) {
         for (int i = 0; i < camera.xSize * camera.ySize; i++) {
-            radiance[i] = new ColorRgbMutable(
+            radiance[i] = new ColorRgb(
                 radiance[i].getR() * inFactor,
                 radiance[i].getG() * inFactor,
                 radiance[i].getB() * inFactor);
@@ -473,11 +472,11 @@ Screen resolution
         synced = false;
     }
 
-    public void setAddScaleFactor(float inFactor) {
+    public void setAddScaleFactor(double inFactor) {
         addFactor = inFactor;
     }
 
-    public void setFactor(float inFactor) {
+    public void setFactor(double inFactor) {
         factor = inFactor;
     }
 

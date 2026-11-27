@@ -1,8 +1,7 @@
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
@@ -12,7 +11,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 /**
 A surface sampler is for scattering on surfaces. Here we need
@@ -29,7 +28,7 @@ public abstract class SurfaceSampler extends Sampler {
         m_computeBsdfComponents = false;
     }
 
-    protected static void DetermineRayType(SimpleRaytracingPathNode thisNode, SimpleRaytracingPathNode newNode, Vector3Df dir) {
+    protected static void DetermineRayType(SimpleRaytracingPathNode thisNode, SimpleRaytracingPathNode newNode, Vector3Dd dir) {
         double cosThisPatch = dir.dotProduct(thisNode.m_normal);
 
         if ( cosThisPatch < 0 ) {
@@ -53,42 +52,42 @@ public abstract class SurfaceSampler extends Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    public ColorRgbMutable
+    public ColorRgb
     DoBsdfEval(
         PhongBidirectionalScatteringDistributionFunction bsdf,
-        RayHit hit,
+        RpkRayHit hit,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3Df in,
-        Vector3Df out,
+        Vector3Dd in,
+        Vector3Dd out,
         byte flags,
         BsdfComp bsdfComp)
     {
         if ( m_computeBsdfComponents ) {
             if ( bsdf == null ) {
-                return new ColorRgbMutable();
+                return new ColorRgb();
             } else {
                 BsdfComp localBsdfComp = bsdfComp != null ? bsdfComp : new BsdfComp();
-                ColorRgbMutable[] components = localBsdfComp.asArray();
+                ColorRgb[] components = localBsdfComp.asArray();
                 ColorRgb[] componentArray = new ColorRgb[components.length];
                 for ( int i = 0; i < componentArray.length; i++ ) {
                     componentArray[i] = new ColorRgb(0.0, 0.0, 0.0);
                 }
                 ColorRgb radiance = bsdf.bsdfEvalComponents(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF, componentArray);
                 for ( int i = 0; i < componentArray.length; i++ ) {
-                    components[i] = new ColorRgbMutable(componentArray[i]);
+                    components[i] = new ColorRgb(componentArray[i]);
                 }
-                return new ColorRgbMutable(radiance);
+                return new ColorRgb(radiance);
             }
         } else {
             if ( bsdfComp != null ) {
                 bsdfComp.Clear();
             }
-            ColorRgbMutable radiance = new ColorRgbMutable();
+            ColorRgb radiance = new ColorRgb();
             if ( bsdf == null ) {
-                radiance = new ColorRgbMutable();
+                radiance = new ColorRgb();
             } else {
-                radiance = new ColorRgbMutable(bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF));
+                radiance = new ColorRgb(bsdf.evaluate(hit.shadingContext(), inBsdf, outBsdf, in, out, flags & 0xFF));
             }
             return radiance;
         }

@@ -7,10 +7,10 @@ package vsdk.toolkit.raycasting.simple;
 import java.util.ArrayList;
 import vsdk.toolkit.common.Random;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.raycasting.common.BoxFilter;
@@ -79,7 +79,7 @@ public final class RayMatter extends RayTracer {
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if (rayMatter != null) {
             rayMatter = null;
@@ -138,7 +138,7 @@ public final class RayMatter extends RayTracer {
         // Main loop for ray matter
         for (int y = 0; y < camera.ySize; y++) {
             for (int x = 0; x < camera.xSize; x++) {
-                float hits = 0;
+                double hits = 0;
 
                 for (int i = 0; i < rayMatterState.samplesPerPixel; i++) {
                     // Uniform random var
@@ -152,9 +152,9 @@ public final class RayMatter extends RayTracer {
 
                     // Generate ray
                     Ray ray = new Ray();
-                    ray.position = camera.eyePosition;
-                    ray.direction = screenBuffer.getPixelVector(x, y, (float)dx[0], (float)dy[0]);
-                    ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+                    ray = ray.withOrigin(camera.eyePosition);
+                    ray = ray.withDirection(screenBuffer.getPixelVector(x, y, (double)dx[0], (double)dy[0]));
+                    ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
                     // Check if hit
                     if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) != null) {
@@ -163,13 +163,13 @@ public final class RayMatter extends RayTracer {
                 }
 
                 // Add matte value to screen buffer
-                float value = (hits / (float)rayMatterState.samplesPerPixel);
-                if (value > 1.0f) {
-                    value = 1.0f;
+                double value = (hits / (double)rayMatterState.samplesPerPixel);
+                if (value > 1.0) {
+                    value = 1.0;
                 }
 
-                ColorRgbMutable matte = new ColorRgbMutable();
-                matte.set(value, value, value);
+                ColorRgb matte = new ColorRgb();
+                matte = new ColorRgb(value, value, value);
                 screenBuffer.add(x, y, matte);
             }
 

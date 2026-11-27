@@ -1,21 +1,22 @@
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 // Importon: identical to IrrPhoton, but with some extra functions
 public class Importon extends IrrPhoton {
     public void
-    SetAll(float imp, float pot, float foot) {
+    SetAll(double imp, double pot, double foot) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power.r = imp;
+        m_power = new ColorRgb(imp, imp, imp);
     }
 
     public void
-    PSetAll(float imp, float pot, float foot) {
+    PSetAll(double imp, double pot, double foot) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance.r = imp;
+        m_irradiance = new ColorRgb(imp, imp, imp);
     }
 
     public Importon() {
@@ -23,26 +24,26 @@ public class Importon extends IrrPhoton {
     }
 
     public Importon(
-        Vector3Df pos,
-        float importance,
-        float potential,
-        float footprint,
-        Vector3Df dir)
+        Vector3Dd pos,
+        double importance,
+        double potential,
+        double footprint,
+        Vector3Dd dir)
     {
         super();
-        m_pos = new Vector3Df(pos.x(), pos.y(), pos.z());
-        m_dir = new Vector3Df(dir.x(), dir.y(), dir.z());
+        m_pos = new Vector3Dd(pos.x(), pos.y(), pos.z());
+        m_dir = new Vector3Dd(dir.x(), dir.y(), dir.z());
 
         SetAll(importance, potential, footprint);
     }
 
-    public float
+    public double
     Importance() {
-        return (float)m_power.getR();
+        return (double)m_power.getR();
     }
 
-    public float
+    public double
     PImportance() {
-        return (float)m_irradiance.getR();
+        return (double)m_irradiance.getR();
     }
 }

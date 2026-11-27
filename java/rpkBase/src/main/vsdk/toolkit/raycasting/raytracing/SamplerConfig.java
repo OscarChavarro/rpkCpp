@@ -9,10 +9,10 @@ import vsdk.toolkit.common.Random;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -258,7 +258,7 @@ public class SamplerConfig {
         int flags,
         byte bsdfFlagsE,
         byte bsdfFlagsL,
-        Vector3Df[] pDirEl)
+        Vector3Dd[] pDirEl)
     {
         SimpleRaytracingPathNode nodeEP; // previous nodes
         SimpleRaytracingPathNode nodeLP;
@@ -267,14 +267,14 @@ public class SamplerConfig {
         double dist2;
         double dist;
         double geom;
-        Vector3Df dirLE = new Vector3Df();
-        Vector3Df dirEL = new Vector3Df();
+        Vector3Dd dirLE = new Vector3Dd();
+        Vector3Dd dirEL = new Vector3Dd();
 
         dirEL = nodeY.m_hit.getPoint().subtract(nodeX.m_hit.getPoint());
         dist2 = dirEL.lengthSquared();
         dist = Math.sqrt(dist2);
-        dirEL = dirEL.multiplyByInverse((float)dist, Numeric.EPSILON_FLOAT);
-        dirLE = dirEL.multiply(-1.0f);
+        dirEL = dirEL.multiplyByInverse((double)dist, Numeric.EPSILON);
+        dirLE = dirEL.multiply(-1.0);
 
         if ( pDirEl != null ) {
             pDirEl[0] = dirEL;
@@ -363,7 +363,7 @@ public class SamplerConfig {
         // bsdf(EP->E->L)
         if ( nodeEP == null ) {
             // Eye
-            nodeX.m_bsdfEval = new ColorRgbMutable(1.0, 1.0, 1.0);
+            nodeX.m_bsdfEval = new ColorRgb(1.0, 1.0, 1.0);
             nodeX.m_bsdfComp.Clear();
             nodeX.m_bsdfComp.Fill(nodeX.m_bsdfEval, (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT);
         } else {
@@ -382,9 +382,9 @@ public class SamplerConfig {
         if ( nodeLP == null ) {
             // nodeL is  light source
             if ( nodeY.m_hit.getMaterial() == null || nodeY.m_hit.getMaterial().getEdf() == null ) {
-                nodeY.m_bsdfEval = new ColorRgbMutable();
+                nodeY.m_bsdfEval = new ColorRgb();
             } else {
-                nodeY.m_bsdfEval = new ColorRgbMutable(nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
+                nodeY.m_bsdfEval = new ColorRgb(nodeY.m_hit.getMaterial().getEdf().phongEdfEval(
                     nodeY.m_hit.shadingContext(), dirLE, bsdfFlagsL & 0xFF, null));
             }
             nodeY.m_bsdfComp.Clear();
@@ -416,7 +416,7 @@ public class SamplerConfig {
         SamplerConfig eyeConfig,
         SamplerConfig lightConfig,
         int flags,
-        Vector3Df[] pDirEl)
+        Vector3Dd[] pDirEl)
     {
         return pathNodeConnect(
             camera,

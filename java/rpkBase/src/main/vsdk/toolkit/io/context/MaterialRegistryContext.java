@@ -35,20 +35,20 @@ public class MaterialRegistryContext {
         MaterialContext materialContext = new MaterialContext();
         materialContext.clock = 1;
         materialContext.sided = false;
-        materialContext.nr = 1.0f;
-        materialContext.ni = 0.0f;
-        materialContext.rd = 0.0f;
+        materialContext.nr = 1.0;
+        materialContext.ni = 0.0;
+        materialContext.rd = 0.0;
         materialContext.rd_c.copy(ColorContext.DEFAULT_COLOR_CONTEXT);
-        materialContext.td = 0.0f;
+        materialContext.td = 0.0;
         materialContext.td_c.copy(ColorContext.DEFAULT_COLOR_CONTEXT);
-        materialContext.ed = 0.0f;
+        materialContext.ed = 0.0;
         materialContext.ed_c.copy(ColorContext.DEFAULT_COLOR_CONTEXT);
-        materialContext.rs = 0.0f;
+        materialContext.rs = 0.0;
         materialContext.rs_c.copy(ColorContext.DEFAULT_COLOR_CONTEXT);
-        materialContext.rs_a = 0.0f;
-        materialContext.ts = 0.0f;
+        materialContext.rs_a = 0.0;
+        materialContext.ts = 0.0;
         materialContext.ts_c.copy(ColorContext.DEFAULT_COLOR_CONTEXT);
-        materialContext.ts_a = 0.0f;
+        materialContext.ts_a = 0.0;
         return materialContext;
     }
 }

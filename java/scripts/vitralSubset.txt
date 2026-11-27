@@ -4,22 +4,29 @@
 # scripts/vitralSubset.sh --check compares each with a VITRAL checkout (its
 # java/base/src/main) byte for byte and fails on any file of base/src/main
 # missing from this list; --refresh copies them from it.
-# Pin: VITRAL 9c443919 (Java port: lineal algebra on single precision; the
-# environment/material classes of plan step 2a, the
-# environment/geometry/spatialIndex contract with its linear, binned SAH and
-# grid indexes, BinnedSahHierarchy, Ray and RaytraceStatistics), plus the
-# classes taken into VITRAL's Java port in the base/rpkBase split:
-# common/memoryManagement/MemoryPool and io/wrapper/FileUncompressWrapper,
-# PipeInputStream, PipeOutputStream and StreamOpenMode.
-# RenderPark's lineal algebra uses VITRAL's Vector2Df, Vector3Df, Vector4Df,
-# Matrix4x4f and Matrix2x2 (RenderPark's Vector2D, Vector3D, Vector4D,
-# Matrix4x4 and Matrix2x2 were removed), with io/wrapper/Vector3DPrinter and
-# Matrix2x2Printer. The C++ subset (cpp/scripts/vitralSubset.txt) also lists
-# the java/* emulation classes and AlgebraPrimitives.cpp, which have no Java
-# file; this list adds the Java-only classes the subset depends on (Entity,
-# EntityEvent, EntityListener, FundamentalEntity, ModelElement,
-# BinnedSahHierarchyNode, BinnedSahLeafVisitor, BinnedSahStoppingLeafVisitor,
-# _BinnedSahBox, _BinnedSahBuildTask,
+# Pin: VITRAL 20e67173 (Cpp port: operations to support radiosity on double
+# precision arithmetic) plus the matching uncommitted Java port changes of
+# vitral/java: the operations of 20e67173 in Vector3Dd (lengthSquared,
+# manhattanLength, distance, distanceSquared, multiplyByInverse, normalized,
+# dominantAxis, component) and Vector2Dd (subtract, lengthSquared), and
+# KDTree, KDQuery, KDTreeAdapter, Matrix2x2, PlanarFace, PhongLobe,
+# PhongMaterial, ScatteringArithmetic, ScatteringFrame, SurfaceShadingPoint,
+# Texture and Vector3DPrinter moved from float to double in place.
+# RenderPark's lineal algebra uses VITRAL's double precision Vector2Dd,
+# Vector3Dd, Vector4Dd, Matrix4x4d and Matrix2x2 (the float classes stay in
+# the list as dependencies of the subset only), VITRAL's Ray
+# (environment/geometry/element/Ray, RenderPark's own Ray was removed) and
+# VITRAL's Cie color model (RenderPark's static Cie was removed). The MGF
+# reader builds its primitives with VITRAL's Sphere, Cone, Torus, Tube and
+# Prism exported to a PolyhedralBoundedSolid, so this list takes the closure of
+# those classes (environment/geometry/volume and its polyhedralBoundedSolid
+# kernel, surface/polygon, environment/scene, media, processing and their
+# dependencies, computed with scripts/vitralClosure.py). The C++ subset
+# (cpp/scripts/vitralSubset.txt) also lists the java/* emulation classes and
+# AlgebraPrimitives.cpp, which have no Java file; this list adds the Java-only
+# classes the subset depends on (Entity, EntityEvent, EntityListener,
+# FundamentalEntity, ModelElement, BinnedSahHierarchyNode, BinnedSahLeafVisitor,
+# BinnedSahStoppingLeafVisitor, _BinnedSahBox, _BinnedSahBuildTask,
 # ScatteringArithmetic).
 vsdk/toolkit/common/Entity.java
 vsdk/toolkit/common/EntityEvent.java
@@ -28,8 +35,14 @@ vsdk/toolkit/common/FundamentalEntity.java
 vsdk/toolkit/common/ModelElement.java
 vsdk/toolkit/common/VSDK.java
 vsdk/toolkit/common/VSDKFatalException.java
+vsdk/toolkit/common/color/Cie.java
 vsdk/toolkit/common/color/ColorRgb.java
+vsdk/toolkit/common/dataStructures/ArrayLinkable.java
+vsdk/toolkit/common/dataStructures/ArrayListOfDoubles.java
+vsdk/toolkit/common/dataStructures/ArrayListOfInts.java
 vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.java
+vsdk/toolkit/common/dataStructures/BinaryTreeNode.java
+vsdk/toolkit/common/dataStructures/CircularArrayList.java
 vsdk/toolkit/common/dataStructures/KDQuery.java
 vsdk/toolkit/common/dataStructures/KDTree.java
 vsdk/toolkit/common/dataStructures/KDTreeAdapter.java
@@ -48,15 +61,43 @@ vsdk/toolkit/common/linealAlgebra/Vector4Dd.java
 vsdk/toolkit/common/linealAlgebra/Vector4Df.java
 vsdk/toolkit/common/logging/Logger.java
 vsdk/toolkit/common/memoryManagement/MemoryPool.java
+vsdk/toolkit/common/numerics/FloatingInterval.java
+vsdk/toolkit/common/statistics/PolyhedralBoundedSolidStatistics.java
 vsdk/toolkit/common/statistics/RaytraceStatistics.java
+vsdk/toolkit/environment/geometry/Geometry.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchyNode.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahLeafVisitor.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahStoppingLeafVisitor.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahTriangleHierarchy.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/GridTriangleHierarchy.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleAccelerationStructure.java
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleMeshAccelerationMethod.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBox.java
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBuildTask.java
+vsdk/toolkit/environment/geometry/element/GeometryBounds.java
+vsdk/toolkit/environment/geometry/element/GeometryContainment.java
+vsdk/toolkit/environment/geometry/element/GeometryDistanceStatus.java
+vsdk/toolkit/environment/geometry/element/Intersection.java
 vsdk/toolkit/environment/geometry/element/PlanarFace.java
 vsdk/toolkit/environment/geometry/element/Ray.java
+vsdk/toolkit/environment/geometry/element/RayBoundary.java
+vsdk/toolkit/environment/geometry/element/RayCrossing.java
+vsdk/toolkit/environment/geometry/element/RayCrossingKind.java
+vsdk/toolkit/environment/geometry/element/RayCrossingQuery.java
+vsdk/toolkit/environment/geometry/element/RayCrossingSink.java
+vsdk/toolkit/environment/geometry/element/RayCrossingSupport.java
+vsdk/toolkit/environment/geometry/element/RayFirstHitStatus.java
+vsdk/toolkit/environment/geometry/element/RayHit.java
+vsdk/toolkit/environment/geometry/element/RayInstancePath.java
+vsdk/toolkit/environment/geometry/element/RayInstanceStep.java
+vsdk/toolkit/environment/geometry/element/RaySolidBoundary.java
+vsdk/toolkit/environment/geometry/element/RaySolidClassification.java
+vsdk/toolkit/environment/geometry/element/RaySolidQueryStatus.java
+vsdk/toolkit/environment/geometry/element/SurfaceDetail.java
+vsdk/toolkit/environment/geometry/element/Triangle.java
+vsdk/toolkit/environment/geometry/element/Vertex.java
+vsdk/toolkit/environment/geometry/element/Vertex2D.java
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.java
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.java
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.java
@@ -66,17 +107,82 @@ vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.java
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.java
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.java
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.java
+vsdk/toolkit/environment/geometry/surface/HalfSpace.java
+vsdk/toolkit/environment/geometry/surface/InfinitePlane.java
+vsdk/toolkit/environment/geometry/surface/QuadMesh.java
+vsdk/toolkit/environment/geometry/surface/Surface.java
+vsdk/toolkit/environment/geometry/surface/TriangleMesh.java
+vsdk/toolkit/environment/geometry/surface/TriangleMeshGroup.java
+vsdk/toolkit/environment/geometry/surface/TriangleMeshIntersectionIndex.java
+vsdk/toolkit/environment/geometry/surface/_TriangleMeshGroupClosestHit.java
+vsdk/toolkit/environment/geometry/surface/polygon/Polygon2D.java
+vsdk/toolkit/environment/geometry/surface/polygon/_Polygon2DContour.java
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDistance.java
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDistanceBounds.java
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDualBound.java
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidMinimumDistance.java
+vsdk/toolkit/environment/geometry/volume/Box.java
+vsdk/toolkit/environment/geometry/volume/Cone.java
+vsdk/toolkit/environment/geometry/volume/OrthogonalEllipsoidDistance.java
+vsdk/toolkit/environment/geometry/volume/Prism.java
+vsdk/toolkit/environment/geometry/volume/QuadraticInteriorBound.java
+vsdk/toolkit/environment/geometry/volume/Solid.java
+vsdk/toolkit/environment/geometry/volume/Sphere.java
+vsdk/toolkit/environment/geometry/volume/Torus.java
+vsdk/toolkit/environment/geometry/volume/Tube.java
+vsdk/toolkit/environment/geometry/volume/Volume.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolid.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerConstructions.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerOperators.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidFaceGeometry.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidGeometricValidator.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidNumericPolicy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidPredicates.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidRepair.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologyEditing.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologySummary.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidValidationEngine.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricCollapsedLaminaStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricPlanarityStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictFaceIntersectionsStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictLoopsStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidTopologicalValidator.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidValidationStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_TopologicalIntegrityStrategy.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidEdge.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidFace.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidHalfEdge.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidLoop.java
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidVertex.java
 vsdk/toolkit/environment/material/Material.java
 vsdk/toolkit/environment/material/PhongLobe.java
 vsdk/toolkit/environment/material/PhongMaterial.java
 vsdk/toolkit/environment/material/ScatteringArithmetic.java
 vsdk/toolkit/environment/material/ScatteringComponent.java
 vsdk/toolkit/environment/material/ScatteringFrame.java
+vsdk/toolkit/environment/material/SimpleMaterial.java
 vsdk/toolkit/environment/material/SurfaceShadingPoint.java
 vsdk/toolkit/environment/material/Texture.java
+vsdk/toolkit/environment/scene/AffinePlacementStatus.java
+vsdk/toolkit/environment/scene/AffineToleranceMap.java
+vsdk/toolkit/environment/scene/InstanceRayCrossingBuffer.java
+vsdk/toolkit/environment/scene/SceneSolid.java
+vsdk/toolkit/io/PersistenceElement.java
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.java
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.java
 vsdk/toolkit/io/wrapper/PipeInputStream.java
 vsdk/toolkit/io/wrapper/PipeOutputStream.java
 vsdk/toolkit/io/wrapper/StreamOpenMode.java
 vsdk/toolkit/io/wrapper/Vector3DPrinter.java
+vsdk/toolkit/media/Image.java
+vsdk/toolkit/media/IndexedColorImageUncompressed.java
+vsdk/toolkit/media/MediaEntity.java
+vsdk/toolkit/media/NormalMap.java
+vsdk/toolkit/media/RGBAImageUncompressed.java
+vsdk/toolkit/media/RGBAPixel.java
+vsdk/toolkit/media/RGBColorPalette.java
+vsdk/toolkit/media/RGBImageUncompressed.java
+vsdk/toolkit/media/RGBPixel.java
+vsdk/toolkit/processing/ComputationalGeometry.java
+vsdk/toolkit/processing/Containment.java
+vsdk/toolkit/processing/ProcessingElement.java

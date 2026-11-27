@@ -1,9 +1,10 @@
 package vsdk.toolkit.scene;
 
+import vsdk.toolkit.environment.geometry.spatialIndex.GridSpatialIndex;
 import java.util.ArrayList;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -20,16 +21,19 @@ public class Scene {
     private Patch[] faceTable;
     private int numberOfFaces;
     private FaceBoundsTable faceBounds; // Owned; bounds of the faceTable entries
+    private DirectPotentialTable directPotentials; // Owned; direct potential of the faceTable entries
+    private FaceVisibilityTable faceVisibility; // Owned; direct visibility of the faceTable entries
+    private FaceColorTable faceColors; // Owned; display color of the faceTable entries
+    private RadianceElementTable radianceElements; // Owned table; top-level radiance element of the faceTable entries
     private SceneAccelerationMethod accelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
     private SceneQuery sceneQuery; // Owned; built by buildSceneQuery
     private SceneQueryWorkspace sceneQueryWorkspace; // Owned; query scratch of the single-threaded callers
 
     public Background background;
     public Camera camera;
-    public ArrayList<Geometry> geometryList;
-    public ArrayList<Geometry> clusteredGeometryList;
-    public Geometry clusteredRootGeometry;
-    public VisibilityQueryRecorder visibilityQueryRecorder; // Ray capture runs only, otherwise null
+    public ArrayList<RpkGeometry> geometryList;
+    public ArrayList<RpkGeometry> clusteredGeometryList;
+    public RpkGeometry clusteredRootGeometry;
 
     // The list of all patches in the current scene
     public ArrayList<Patch> patchList;
@@ -43,10 +47,13 @@ public class Scene {
         geometryList = null;
         clusteredGeometryList = new ArrayList<>();
         clusteredRootGeometry = null;
-        visibilityQueryRecorder = null;
         faceTable = null;
         numberOfFaces = 0;
         faceBounds = null;
+        directPotentials = null;
+        faceVisibility = null;
+        faceColors = null;
+        radianceElements = null;
         accelerationMethod = SceneAccelerationMethod.WALD2007_ACCELERATION;
         sceneQuery = null;
         sceneQueryWorkspace = null;
@@ -73,11 +80,11 @@ public class Scene {
             sceneQuery.destroy();
             sceneQuery = null;
         }
-        if (visibilityQueryRecorder != null) {
-            visibilityQueryRecorder.close();
-            visibilityQueryRecorder = null;
-        }
         faceBounds = null;
+        directPotentials = null;
+        faceVisibility = null;
+        faceColors = null;
+        deleteRadianceElements();
         faceTable = null;
         numberOfFaces = 0;
         if (background != null) {
@@ -115,7 +122,7 @@ public class Scene {
         if (compound.children != null) {
             System.out.printf("    . Outer children: %d\n", compound.children.size());
             for (int i = 0; i < compound.children.size(); i++) {
-                Geometry child = compound.children.get(i);
+                RpkGeometry child = compound.children.get(i);
                 System.out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child.className));
                 if (child.className == GeometryClassId.SURFACE_MESH) {
                     printSurfaceMesh((MeshSurface)child, 6);
@@ -145,7 +152,7 @@ public class Scene {
         System.out.printf("= geometryList ================================================================\n");
         System.out.printf("Geometries on list: %d\n", geometryList.size());
         for (int i = 0; i < geometryList.size(); i++) {
-            Geometry geometry = geometryList.get(i);
+            RpkGeometry geometry = geometryList.get(i);
             System.out.printf("  - Index: [%d of %d] / [%s]\n", i + 1, geometryList.size(), printGeometryType(geometry.className));
             System.out.printf("    . Id: %d\n", geometry.id);
             System.out.printf("    . %s\n", geometry.isDuplicate ? "Duplicate" : "Original");
@@ -167,7 +174,7 @@ public class Scene {
         System.out.printf("= clusteredGeometryList ================================================================\n");
         System.out.printf("Geometry clusters on list: %d\n", clusteredGeometryList.size());
         for (int i = 0; i < clusteredGeometryList.size(); i++) {
-            Geometry geometry = clusteredGeometryList.get(i);
+            RpkGeometry geometry = clusteredGeometryList.get(i);
             System.out.printf("  - Index: [%d of %d] / [%s]\n", i + 1, clusteredGeometryList.size(), printGeometryType(geometry.className));
             System.out.printf("    . Id: %d\n", geometry.id);
             System.out.printf("    . %s\n", geometry.isDuplicate ? "Duplicate" : "Original");
@@ -195,11 +202,11 @@ public class Scene {
         for (int i = 0; i < patchList.size(); i++) {
             Patch patch = patchList.get(i);
             System.out.printf("  - patch[%d]: vertices: %d, area: %03f\n",
-                i, patch.numberOfVertices, patch.area);
+                i, patch.getNumberOfVertices(), patch.getArea());
         }
     }
 
-    private static void printClusterHierarchy(Geometry node, int level, int[] elementCount) {
+    private static void printClusterHierarchy(RpkGeometry node, int level, int[] elementCount) {
         if (level == 0) {
             System.out.printf("= clusteredRootGeometry ================================================================\n");
         }
@@ -254,8 +261,10 @@ public class Scene {
     private void printSceneQuery() {
         System.out.printf("= scene query (%s) ===========================================================\n",
             SceneQuery.methodName(accelerationMethod));
-        if (sceneQuery != null && sceneQuery.getLegacyGrid() != null) {
-            sceneQuery.getLegacyGrid().print();
+        if (sceneQuery != null && accelerationMethod == SceneAccelerationMethod.VOXEL_ACCELERATION) {
+            GridSpatialIndex grid = (GridSpatialIndex)sceneQuery.getIndex();
+            System.out.printf("%d items in %d grids, %d cells per axis in the top grid\n",
+                grid.getNumberOfItems(), grid.getNumberOfGrids(), grid.getResolution(0));
         }
     }
 
@@ -270,15 +279,14 @@ public class Scene {
 
     /**
     Builds the scene query over the face table with the acceleration method,
-    and the scene's workspace for it (reporting to visibilityQueryRecorder in
-    ray capture runs). Called once, after buildFaceTable.
+    and the scene's workspace for it. Called once, after buildFaceTable.
     */
     public void buildSceneQuery() {
         if (sceneQuery != null) {
             sceneQuery.destroy();
         }
         sceneQuery = new SceneQuery(this, accelerationMethod);
-        sceneQueryWorkspace = new SceneQueryWorkspace(sceneQuery, visibilityQueryRecorder);
+        sceneQueryWorkspace = new SceneQueryWorkspace(sceneQuery);
     }
 
     public SceneQuery getSceneQuery() {
@@ -289,7 +297,7 @@ public class Scene {
         return sceneQueryWorkspace;
     }
 
-    private static void collectFaces(Geometry geometry, Patch[] table, int capacity, int[] count, int[] conflicts) {
+    private static void collectFaces(RpkGeometry geometry, Patch[] table, int capacity, int[] count, int[] conflicts) {
         if (geometry == null) {
             return;
         }
@@ -297,7 +305,7 @@ public class Scene {
         // exactly the interval [first, count[0] - 1] once its subtree is visited
         final int first = count[0];
         if (geometry.className == GeometryClassId.COMPOUND) {
-            ArrayList<Geometry> children = ((Compound)geometry).children;
+            ArrayList<RpkGeometry> children = ((Compound)geometry).children;
             if (children != null) {
                 for (int i = 0; i < children.size(); i++) {
                     collectFaces(children.get(i), table, capacity, count, conflicts);
@@ -306,7 +314,7 @@ public class Scene {
             geometry.setFaceIndexRange(first, count[0] - 1);
             return;
         }
-        ArrayList<Patch> patches = Geometry.patchListReference(geometry);
+        ArrayList<Patch> patches = RpkGeometry.patchListReference(geometry);
         for (int i = 0; patches != null && i < patches.size(); i++) {
             Patch patch = patches.get(i);
             if (patch.getFaceIndex() >= 0 || count[0] >= capacity) {
@@ -328,6 +336,10 @@ public class Scene {
     */
     public void buildFaceTable() {
         faceBounds = null;
+        directPotentials = null;
+        faceVisibility = null;
+        faceColors = null;
+        deleteRadianceElements();
         faceTable = null;
         numberOfFaces = 0;
         final int capacity = patchList != null ? patchList.size() : 0;
@@ -352,6 +364,47 @@ public class Scene {
                 capacity, numberOfFaces, conflicts[0], unreached));
         }
         faceBounds = new FaceBoundsTable(faceTable, numberOfFaces);
+        directPotentials = new DirectPotentialTable(numberOfFaces);
+        faceVisibility = new FaceVisibilityTable(numberOfFaces);
+        faceColors = new FaceColorTable(numberOfFaces);
+        radianceElements = new RadianceElementTable(numberOfFaces);
+    }
+
+    /**
+    Deletes the top-level radiance elements still bound to faces and the table.
+    Radiance methods unbind (and destroy) their elements when they are replaced;
+    the elements of the method in use at teardown are released here, as the
+    faces' destructors did when they held them
+    */
+    private void deleteRadianceElements() {
+        if ( radianceElements != null ) {
+            for ( int i = 0; i < radianceElements.getNumberOfFaces(); i++ ) {
+                radianceElements.set(i, null);
+            }
+        }
+        radianceElements = null;
+    }
+
+    // Per-face solver data: written by Potential.updateDirectPotential, read
+    // by the importance-driven solvers
+    public DirectPotentialTable getDirectPotentials() {
+        return directPotentials;
+    }
+
+    // Written by Potential.updateDirectVisibility, read by the importance-driven
+    // stochastic radiosity
+    public FaceVisibilityTable getFaceVisibility() {
+        return faceVisibility;
+    }
+
+    // Written by the radiance methods after each step, read by the displays
+    public FaceColorTable getFaceColors() {
+        return faceColors;
+    }
+
+    // Filled by Radiance.setRadianceMethod, read by the radiance methods
+    public RadianceElementTable getRadianceElements() {
+        return radianceElements;
     }
 
     public int getNumberOfFaces() {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.color.ColorRgbMutable;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.io.context.ColorContext;
@@ -47,11 +46,27 @@ a pointer to the material if found, or nullptr if not found
             && Math.abs(c.getB()) < VSDK.EPSILON;
     }
 
-    private static ColorRgb gray(ColorRgb c) {
+    private static ColorRgb gray(ColorRgb c, Cie colorSpace) {
         return new ColorRgb(
-            Cie.spectrumGray(c.getR(), c.getG(), c.getB()),
-            Cie.spectrumGray(c.getR(), c.getG(), c.getB()),
-            Cie.spectrumGray(c.getR(), c.getG(), c.getB()));
+            colorSpace.spectrumGray(c.getR(), c.getG(), c.getB()),
+            colorSpace.spectrumGray(c.getR(), c.getG(), c.getB()),
+            colorSpace.spectrumGray(c.getR(), c.getG(), c.getB()));
+    }
+
+    /**
+    Returns true if the color was desaturated during clipping against the
+    monitor gamut
+    */
+    private static boolean clipGamut(double[] rgb) {
+        // Really SHOULD desaturate instead of just clipping!
+        boolean desaturated = false;
+        for ( int i = 0; i < 3; i++ ) {
+            if ( rgb[i] < 0.0 ) {
+                rgb[i] = 0.0;
+                desaturated = true;
+            }
+        }
+        return desaturated;
     }
 
     /**
@@ -86,8 +101,8 @@ a pointer to the material if found, or nullptr if not found
             }
         }
 
-        Cie.transformColorFromXYZ2RGB(xyz, rgb);
-        if ( Cie.clipGamut(rgb) ) {
+        context.parserConfig.getColorSpace().transformColorFromXYZ2RGB(xyz, rgb);
+        if ( MgfMaterialEntitySupport.clipGamut(rgb) ) {
             MgfEntityControl.doWarning("color desaturated during gamut clipping", context);
         }
         return new ColorRgb(rgb[0], rgb[1], rgb[2]);
@@ -107,7 +122,7 @@ a pointer to the material if found, or nullptr if not found
 
         MgfMaterialEntitySupport.specSamples(col, samples);
 
-        double mx = -Float.MAX_VALUE;
+        double mx = -Double.MAX_VALUE;
         for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
             if ( samples[i] > mx ) {
                 mx = samples[i];
@@ -155,24 +170,24 @@ a pointer to the material if found, or nullptr if not found
         // Check/correct range of reflectances and transmittances
         A = addColor(Rd, Rs);
         double a = MgfMaterialEntitySupport.colorMax(A);
-        if ( a > 1.0 - Numeric.EPSILON_FLOAT ) {
+        if ( a > 1.0 - Numeric.EPSILON ) {
             MgfEntityControl.doWarning("invalid material specification: total reflectance shall be < 1", context);
-            a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+            a = (1.0 - Numeric.EPSILON) / a;
             Rd = scaleColor(Rd, a);
             Rs = scaleColor(Rs, a);
         }
 
         A = addColor(Td, Ts);
         a = MgfMaterialEntitySupport.colorMax(A);
-        if ( a > 1.0 - Numeric.EPSILON_FLOAT ) {
+        if ( a > 1.0 - Numeric.EPSILON ) {
             MgfEntityControl.doWarning("invalid material specification: total transmittance shall be < 1", context);
-            a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+            a = (1.0 - Numeric.EPSILON) / a;
             Td = scaleColor(Td, a);
             Ts = scaleColor(Ts, a);
         }
 
         // Convert lumen / m^2 to W / m^2
-        Ed = scaleColor(Ed, 1.0 / Cie.WHITE_EFFICACY);
+        Ed = scaleColor(Ed, 1.0 / context.parserConfig.getColorSpace().getLuminousEfficacy());
 
         ColorRgb Es = new ColorRgb(0.0, 0.0, 0.0);
 
@@ -195,31 +210,31 @@ a pointer to the material if found, or nullptr if not found
         }
 
         if ( context.monochrome ) {
-            Ed = gray(Ed);
-            Es = gray(Es);
-            Rd = gray(Rd);
-            Rs = gray(Rs);
-            Td = gray(Td);
-            Ts = gray(Ts);
+            final Cie colorSpace = context.parserConfig.getColorSpace();
+            Ed = gray(Ed, colorSpace);
+            Es = gray(Es, colorSpace);
+            Rd = gray(Rd, colorSpace);
+            Rs = gray(Rs, colorSpace);
+            Td = gray(Td, colorSpace);
+            Ts = gray(Ts, colorSpace);
         }
 
-        // The lobes keep their exponents in single precision
         PhongLobe emission = null;
         if ( !isBlack(Ed) || !isBlack(Es) ) {
             final double Ne = 0.0;
-            emission = new PhongLobe(Ed, Es, (float) Ne);
+            emission = new PhongLobe(Ed, Es, (double)Ne);
         }
 
         PhongLobe reflection = null;
         if ( !isBlack(Rd) || !isBlack(Rs) ) {
-            reflection = new PhongLobe(Rd, Rs, (float) Nr);
+            reflection = new PhongLobe(Rd, Rs, (double)Nr);
         }
 
         PhongLobe transmission = null;
-        float refractionIndexReal = 1.0F;
-        float refractionIndexImaginary = 0.0F;
+        double refractionIndexReal = 1.0;
+        double refractionIndexImaginary = 0.0;
         if ( !isBlack(Td) || !isBlack(Ts) ) {
-            transmission = new PhongLobe(Td, Ts, (float) Nt);
+            transmission = new PhongLobe(Td, Ts, (double)Nt);
             refractionIndexReal = currentMaterialContext.nr;
             refractionIndexImaginary = currentMaterialContext.ni;
         }
@@ -355,8 +370,8 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.nr = Float.parseFloat(av[1]);
-                currentMaterialContext.ni = Float.parseFloat(av[2]);
+                currentMaterialContext.nr = Double.parseDouble(av[1]);
+                currentMaterialContext.ni = Double.parseDouble(av[2]);
                 if (currentMaterialContext.nr <= VSDK.EPSILON) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
@@ -371,7 +386,7 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.rd = Float.parseFloat(av[1]);
+                currentMaterialContext.rd = Double.parseDouble(av[1]);
                 if (currentMaterialContext.rd < 0.0 || currentMaterialContext.rd > 1.0) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
@@ -387,7 +402,7 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.ed = Float.parseFloat(av[1]);
+                currentMaterialContext.ed = Double.parseDouble(av[1]);
                 if (currentMaterialContext.ed < 0.0) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
@@ -403,7 +418,7 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.td = Float.parseFloat(av[1]);
+                currentMaterialContext.td = Double.parseDouble(av[1]);
                 if (currentMaterialContext.td < 0.0 || currentMaterialContext.td > 1.0) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
@@ -419,8 +434,8 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.rs = Float.parseFloat(av[1]);
-                currentMaterialContext.rs_a = Float.parseFloat(av[2]);
+                currentMaterialContext.rs = Double.parseDouble(av[1]);
+                currentMaterialContext.rs_a = Double.parseDouble(av[2]);
                 if (currentMaterialContext.rs < 0.0 || currentMaterialContext.rs > 1.0 ||
                      currentMaterialContext.rs_a < 0.0) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -437,8 +452,8 @@ This routine returns true if the current material has changed
                 if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                currentMaterialContext.ts = Float.parseFloat(av[1]);
-                currentMaterialContext.ts_a = Float.parseFloat(av[2]);
+                currentMaterialContext.ts = Double.parseDouble(av[1]);
+                currentMaterialContext.ts_a = Double.parseDouble(av[2]);
                 if (currentMaterialContext.ts < 0.0 || currentMaterialContext.ts > 1.0 ||
                      currentMaterialContext.ts_a < 0.0) {
                     return ParseErrorContext.MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;

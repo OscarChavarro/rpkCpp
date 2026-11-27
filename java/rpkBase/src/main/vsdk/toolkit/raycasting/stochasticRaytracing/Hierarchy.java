@@ -4,20 +4,21 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.scene.RadianceElementTable;
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public final class Hierarchy {
-    private static final float DEFAULT_EH_EPSILON = 5e-4f;
-    private static final float DEFAULT_EH_MINIMUM_AREA = 1e-6f;
+    private static final double DEFAULT_EH_EPSILON = 5e-4;
+    private static final double DEFAULT_EH_MINIMUM_AREA = 1e-6;
     private static final boolean DEFAULT_EH_HIERARCHICAL_MESHING = true;
     private static final boolean DEFAULT_EH_T_VERTEX_ELIMINATION = true;
     private static final HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyClusteringMode.ORIENTED_CLUSTERING;
@@ -37,7 +38,7 @@ public final class Hierarchy {
         ElementHierarchyState.activeState().nr_clusters = 0;
     }
 
-    public static void elementHierarchyInit(Geometry clusteredWorldGeometry) {
+    public static void elementHierarchyInit(RpkGeometry clusteredWorldGeometry) {
         // These lists hold vertices created during hierarchical refinement
         ElementHierarchyState.activeState().coords = new ArrayList<>();
         ElementHierarchyState.activeState().normals = new ArrayList<>();
@@ -52,16 +53,17 @@ public final class Hierarchy {
         StochasticRadiosityElement.stochasticRadiosityElementDestroyClusterHierarchy(ElementHierarchyState.activeState().topCluster);
         ElementHierarchyState.activeState().topCluster = null;
 
-        // Destroy surface elements
-        for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
+        // Destroy surface elements (only bound once the method was initialized)
+        RadianceElementTable radianceElements = ElementHierarchyState.activeState().getRadianceElements();
+        for ( int i = 0; radianceElements != null && scenePatches != null && i < scenePatches.size(); i++ ) {
             Patch patch = scenePatches.get(i);
             // Need to be destroyed before destroying the automatically created vertices
             StochasticRadiosityElement.stochasticRadiosityElementDestroy(McradP.topLevelStochasticRadiosityElement(patch));
-            patch.radianceData = null; // Prevents destroying a 2nd time later
+            radianceElements.set(patch.getFaceIndex(), null); // Prevents destroying a 2nd time later
         }
 
         // Delete vertices
-        ArrayList<Vertex> vertices = ElementHierarchyState.activeState().vertices;
+        ArrayList<RpkVertex> vertices = ElementHierarchyState.activeState().vertices;
         if ( vertices != null ) {
             for ( int i = 0; i < vertices.size(); i++ ) {
                 vertices.set(i, null);
@@ -101,7 +103,7 @@ Special refinement action used to indicate that a link is admissible
         StochasticRadiosityElement srctop,
         double[] us,
         double[] vs,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         // Doesn't do anything
         return link;
@@ -118,7 +120,7 @@ Refinement action 2: subdivide the receiver using regular quadtree subdivision
         StochasticRadiosityElement srctop,
         double[] us,
         double[] vs,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         StochasticRadiosityElement rcv = link.rcv;
         if ( rcv.isCluster() ) {
@@ -144,7 +146,7 @@ Refinement action 3: subdivide the source using regular quadtree subdivision
         StochasticRadiosityElement srcTop,
         double[] us,
         double[] vs,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         StochasticRadiosityElement src = link.src;
         if ( src.isCluster() ) {
@@ -167,8 +169,8 @@ Refinement action 3: subdivide the source using regular quadtree subdivision
 Cheap form factor estimate to drive hierarchical refinement
 as in Hanrahan SIGGRAPH'91
 */
-    static float formFactorEstimate(StochasticRadiosityElement rcv, StochasticRadiosityElement src) {
-        Vector3Df D = new Vector3Df();
+    static double formFactorEstimate(StochasticRadiosityElement rcv, StochasticRadiosityElement src) {
+        Vector3Dd D = new Vector3Dd();
         D = src.midPoint.subtract(rcv.midPoint);
 
         double d = D.length();
@@ -182,26 +184,26 @@ as in Hanrahan SIGGRAPH'91
         if ( c2 < f2 ) {
             c2 = f2;
         }
-        return (float)(f * c1 * c2);
+        return (double)(f * c1 * c2);
     }
 
     static boolean lowPowerLink(Link link, Statistics statistics) {
         StochasticRadiosityElement rcv = link.rcv;
         StochasticRadiosityElement src = link.src;
-        ColorRgbMutable rhoSrcRad = new ColorRgbMutable();
-        float ff = formFactorEstimate(rcv, src);
-        float threshold;
-        float propagatedPower;
+        ColorRgb rhoSrcRad = new ColorRgb();
+        double ff = formFactorEstimate(rcv, src);
+        double threshold;
+        double propagatedPower;
 
         // Compute receiver reflectance times source radiosity
-        rhoSrcRad.scaledCopy((float)Math.PI, src.radiance[0]);
+        rhoSrcRad = src.radiance[0].multiply((double)Math.PI);
         if ( !rcv.isCluster() ) {
-            ColorRgbMutable rd = McradP.topLevelStochasticRadiosityElement(rcv.patch).Rd;
-            rhoSrcRad.selfScalarProduct(rd);
+            ColorRgb rd = McradP.topLevelStochasticRadiosityElement(rcv.patch).Rd;
+            rhoSrcRad = rhoSrcRad.multiply(rd);
         }
 
-        threshold = (float) (ElementHierarchyState.activeState().epsilon * statistics.radiance.maxSelfEmittedPower.maximumComponent());
-        propagatedPower = (float) (rcv.area * ff * rhoSrcRad.maximumComponent());
+        threshold = (double)(ElementHierarchyState.activeState().epsilon * statistics.radiance.maxSelfEmittedPower.maximumComponent());
+        propagatedPower = (double)(rcv.area * ff * rhoSrcRad.maximumComponent());
         if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
             propagatedPower *= rcv.importance;
             if ( !rcv.isCluster() ) {
@@ -284,7 +286,7 @@ after refinement
         double[] us,
         double[] vs,
         ORACLE evaluateLink,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( ElementHierarchyState.activeState().do_h_meshing == 0 ) {
             link.rcv = rcvTop;

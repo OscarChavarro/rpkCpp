@@ -8,7 +8,7 @@ import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 
 /*
 The classes of the C++ header RefinementWorkspace.h, kept in one file as
@@ -125,7 +125,7 @@ final class RefinementTask {
     private final Interaction interaction;
     private final GalerkinElement receiver;
     private final GalerkinElement source;
-    private final ArrayList<Geometry> candidatesList;
+    private final ArrayList<RpkGeometry> candidatesList;
     private int worker;
     private long firstEvent;
     private long endEvent;
@@ -145,7 +145,7 @@ final class RefinementTask {
     RefinementTask(
         GalerkinElement inReceiver,
         GalerkinElement inSource,
-        ArrayList<Geometry> inCandidatesList)
+        ArrayList<RpkGeometry> inCandidatesList)
     {
         interaction = null;
         receiver = inReceiver;
@@ -170,7 +170,7 @@ final class RefinementTask {
         return source;
     }
 
-    ArrayList<Geometry> getCandidatesList() {
+    ArrayList<RpkGeometry> getCandidatesList() {
         return candidatesList;
     }
 
@@ -411,7 +411,7 @@ Nothing is owned.
 public final class RefinementWorkspace {
     private final SceneQueryWorkspace sceneQueryWorkspace;
     private final FormFactorWorkspace formFactorWorkspace;
-    private final MemoryPool<float[]> coefficientsPool;
+    private final MemoryPool<double[]> coefficientsPool;
     private final RefinementRecord record;
     private final ReentrantLock subdivisionLock;
     private final RefinementScheduler scheduler;
@@ -419,7 +419,7 @@ public final class RefinementWorkspace {
     RefinementWorkspace(
         SceneQueryWorkspace inSceneQueryWorkspace,
         FormFactorWorkspace inFormFactorWorkspace,
-        MemoryPool<float[]> inCoefficientsPool,
+        MemoryPool<double[]> inCoefficientsPool,
         RefinementRecord inRecord,
         ReentrantLock inSubdivisionLock,
         RefinementScheduler inScheduler)
@@ -440,7 +440,7 @@ public final class RefinementWorkspace {
         return formFactorWorkspace;
     }
 
-    MemoryPool<float[]> getCoefficientsPool() {
+    MemoryPool<double[]> getCoefficientsPool() {
         return coefficientsPool;
     }
 

@@ -1,7 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 
 /**
 References:
@@ -13,76 +12,76 @@ public final class TumblinRushmeierToneMap extends ToneMap {
     // C's M_PI literal
     private static final double M_PI = 3.14159265358979323846;
 
-    private float invCMaximum;
-    private float lrwmComp;
-    private float lrwmDisplay;
-    private float lrwExponent;
-    private float lda;
+    private double invCMaximum;
+    private double lrwmComp;
+    private double lrwmDisplay;
+    private double lrwExponent;
+    private double lda;
 
     public TumblinRushmeierToneMap() {
-        invCMaximum = 0.0F;
-        lrwmComp = 0.0F;
-        lrwmDisplay = 0.0F;
-        lrwExponent = 0.0F;
-        lda = 0.0F;
+        invCMaximum = 0.0;
+        lrwmComp = 0.0;
+        lrwmDisplay = 0.0;
+        lrwExponent = 0.0;
+        lda = 0.0;
     }
 
     @Override
-    public void init(ToneMappingContext toneMapOptions) {
-        final float lwa = toneMapOptions.realWorldAdaptionLuminance;
-        final float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-        final float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
-        lda = maximumDisplayLuminance / (float) Math.sqrt(maximumDisplayContrast);
+    protected void initParameters(ToneMappingContext toneMapOptions) {
+        final double lwa = toneMapOptions.realWorldAdaptionLuminance;
+        final double maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+        final double maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
+        lda = maximumDisplayLuminance / (double)Math.sqrt(maximumDisplayContrast);
 
         // Equation [COHE1993](9.16): alpha(L_w), beta(L_w)
-        float l10 = (float) Math.log10(tmoCandelaLambert(lwa));
-        final float alpha = 0.4F * l10 + 2.92F;
-        final float beta = -0.4F * (l10 * l10) - 2.584F * l10 + 2.0208F;
+        double l10 = (double)Math.log10(tmoCandelaLambert(lwa));
+        final double alpha = 0.4 * l10 + 2.92;
+        final double beta = -0.4 * (l10 * l10) - 2.584 * l10 + 2.0208;
 
         // Equation [COHE1993](9.16): alpha(L_d), beta(L_d)
-        l10 = (float) Math.log10(tmoCandelaLambert(lda));
-        final float alphaD = 0.4F * l10 + 2.92F;
-        final float betaD = -0.4F * (l10 * l10) - 2.584F * l10 + 2.0208F;
+        l10 = (double)Math.log10(tmoCandelaLambert(lda));
+        final double alphaD = 0.4 * l10 + 2.92;
+        final double betaD = -0.4 * (l10 * l10) - 2.584 * l10 + 2.0208;
 
         // Equation [COHE1993](9.18): L_d from L_w using adaptation-dependent exponent and scale
         lrwExponent = alpha / alphaD;
-        lrwmComp = (float) Math.pow(10.0F, (beta - betaD) / alphaD);
+        lrwmComp = (double)Math.pow(10.0, (beta - betaD) / alphaD);
         lrwmDisplay = lrwmComp / (tmoCandelaLambert(maximumDisplayLuminance));
-        invCMaximum = 1.0F / maximumDisplayContrast;
+        invCMaximum = 1.0 / maximumDisplayContrast;
     }
 
     @Override
-    public ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) {
-        final float rwl = (float) Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-        float scale;
+    public ColorRgb scaleForComputations(ColorRgb radiance) {
+        final double rwl = (double)getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+        double scale;
 
         if ( rwl > 0.0 ) {
-            final float m = tmoLambertCandela(
-                    (float) Math.pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmComp);
-            scale = m > 0.0F ? m / rwl : 0.0F;
+            final double m = tmoLambertCandela(
+                    (double)Math.pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmComp);
+            scale = m > 0.0 ? m / rwl : 0.0;
         } else {
-            scale = 0.0F;
+            scale = 0.0;
         }
 
-        radiance.scale(scale);
+        radiance = radiance.multiply(scale);
         return radiance;
     }
 
     @Override
-    public ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) {
-        final float rwl = (float) M_PI * (float) Cie.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-        final float eff = (float) Cie.getLuminousEfficacy();
-        radiance.scale(eff * (float) M_PI);
+    public ColorRgb scaleForDisplay(ColorRgb radiance) {
+        final double rwl = (double)M_PI * (double)getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+        final double eff = (double)getColorSpace().getLuminousEfficacy();
+        radiance = radiance.multiply(eff * (double)M_PI);
 
-        float scale;
+        double scale;
         if ( rwl > 0.0 ) {
-            final float m = ((float) Math.pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmDisplay - invCMaximum);
-            scale = m > 0.0F ? m / rwl : 0.0F;
+            final double m = ((double)Math.pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmDisplay - invCMaximum);
+            scale = m > 0.0 ? m / rwl : 0.0;
         } else {
-            scale = 0.0F;
+            scale = 0.0;
         }
 
-        radiance.scale(scale);
+        radiance = radiance.multiply(scale);
         return radiance;
     }
 }

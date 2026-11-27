@@ -1,22 +1,23 @@
 package vsdk.toolkit.skin;
 
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.MaterialColorFlags;
 
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.RpkMaterial;
 
 /**
 Surfaces are basically a list of patches representing a simple object with given material.
 */
-public final class MeshSurface extends Geometry {
+public final class MeshSurface extends RpkGeometry {
     private static int nextSurfaceId = 0;
 
     /**
@@ -34,13 +35,13 @@ public final class MeshSurface extends Geometry {
     and normals list. Different vertices can share the same coordinates and/or
     normals.
     */
-    public ArrayList<Vertex> vertices;
+    public ArrayList<RpkVertex> vertices;
 
     // A list of positions at the vertices of the patches of the surface
-    public ArrayList<Vector3Df> positions;
+    public ArrayList<Vector3Dd> positions;
 
     // A list of normals at the vertices of the patches
-    public ArrayList<Vector3Df> normals;
+    public ArrayList<Vector3Dd> normals;
 
     /**
     The patches making up the MeshSurface. Each patch contains pointers to three
@@ -59,10 +60,10 @@ public final class MeshSurface extends Geometry {
     public MeshSurface(
         String inObjectName,
         RpkMaterial inMaterial,
-        ArrayList<Vector3Df> inPoints,
-        ArrayList<Vector3Df> inNormals,
-        ArrayList<Vector3Df> texCoords,
-        ArrayList<Vertex> inVertices,
+        ArrayList<Vector3Dd> inPoints,
+        ArrayList<Vector3Dd> inNormals,
+        ArrayList<Vector3Dd> texCoords,
+        ArrayList<RpkVertex> inVertices,
         ArrayList<Patch> inFaces,
         int inFlags) {
         super();
@@ -95,7 +96,7 @@ public final class MeshSurface extends Geometry {
         // Compute vertex colors
         if (colorFlags != MaterialColorFlags.VERTEX_COLORS) {
             for (int i = 0; vertices != null && i < vertices.size(); i++) {
-                vertices.get(i).computeColor();
+                vertices.get(i).computeColor(null); // No face colors exist while loading
             }
         }
 
@@ -136,9 +137,6 @@ public final class MeshSurface extends Geometry {
         }
 
         if (faces != null) {
-            for (int i = 0; i < faces.size(); i++) {
-                faces.get(i).destroy();
-            }
             faces.clear();
             faces = null;
         }
@@ -146,7 +144,7 @@ public final class MeshSurface extends Geometry {
         super.destroy();
     }
 
-    private static void normalizeVertexColor(Vertex vertex) {
+    private static void normalizeVertexColor(RpkVertex vertex) {
         long numberOfPatches = 0;
 
         if (vertex.patches != null) {
@@ -154,9 +152,11 @@ public final class MeshSurface extends Geometry {
         }
 
         if (numberOfPatches > 0) {
-            vertex.color.r /= (float)numberOfPatches;
-            vertex.color.g /= (float)numberOfPatches;
-            vertex.color.b /= (float)numberOfPatches;
+            final double invPatchCount = 1.0 / (double)numberOfPatches;
+            vertex.color = new ColorRgb(
+                vertex.color.getR() * invPatchCount,
+                vertex.color.getG() * invPatchCount,
+                vertex.color.getB() * invPatchCount);
         }
     }
 
@@ -166,12 +166,12 @@ public final class MeshSurface extends Geometry {
     information about the intersection point. See geometry.h for more explanation.
     */
     @Override
-    public RayHit discretizationIntersect(
+    public RpkRayHit discretizationIntersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions) {
         return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
     }

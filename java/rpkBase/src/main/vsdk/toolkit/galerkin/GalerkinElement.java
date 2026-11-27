@@ -5,23 +5,23 @@ Galerkin finite elements: one structure for both surface and cluster elements
 package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.QuadCubatureRule;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.numericalAnalysis.TriangleCubatureRule;
-import vsdk.toolkit.scene.Polygon;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.scene.ConvexPolygon;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.environment.geometry.elements.ElementTypes;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
@@ -38,17 +38,17 @@ public class GalerkinElement extends Element {
     private static int numberOfClusters = 0;
 
     public Patch patch;
-    public Geometry geometry;
-    public float potential; // Total potential of the element
-    public float receivedPotential; // Potential received during the last iteration
-    public float unShotPotential; // Un-shot potential (progressive refinement radiosity)
-    public float directPotential;
+    public RpkGeometry geometry;
+    public double potential; // Total potential of the element
+    public double receivedPotential; // Potential received during the last iteration
+    public double unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    public double directPotential;
     public ArrayList<Object> interactions; // Links with other patches: when using
                                            // a shooting algorithm, the links are kept with the source element. When doing gathering,
                                            // the links are kept with the receiver element
-    public float minimumArea; // Equal to area for a surface element or the area
+    public double minimumArea; // Equal to area for a surface element or the area
                               // of the smallest surface element in a cluster
-    public float blockerSize; // Equivalent blocker size for multi-resolution visibility
+    public double blockerSize; // Equivalent blocker size for multi-resolution visibility
     public int numberOfPatches; // Number of patches in a cluster
     public int scratchVisibilityUsageCounter; // Used only on Z-depth visibility clustering strategy
     public int childNumber; // Rang nr of regular sub-element in parent
@@ -61,19 +61,19 @@ public class GalerkinElement extends Element {
 
     private static Matrix2x2[] buildQuadTransforms() {
         return new Matrix2x2[] {
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f),
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f),
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f),
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f)
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.0),
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.0),
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.5),
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.5)
         };
     }
 
     private static Matrix2x2[] buildTriangleTransforms() {
         return new Matrix2x2[] {
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f),
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f),
-            new Matrix2x2(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f),
-            new Matrix2x2(-0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f)
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.0),
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.5, 0.0),
+            new Matrix2x2(0.5, 0.0, 0.0, 0.5, 0.0, 0.5),
+            new Matrix2x2(-0.5, 0.0, 0.0, -0.5, 0.5, 0.5)
         };
     }
 
@@ -84,13 +84,13 @@ public class GalerkinElement extends Element {
         className = ElementTypes.ELEMENT_GALERKIN;
         patch = null;
         geometry = null;
-        potential = 0.0f;
-        receivedPotential = 0.0f;
-        unShotPotential = 0.0f;
-        directPotential = 0.0f;
+        potential = 0.0;
+        receivedPotential = 0.0;
+        unShotPotential = 0.0;
+        directPotential = 0.0;
         interactions = new ArrayList<>();
-        minimumArea = 0.0f;
-        blockerSize = 0.0f;
+        minimumArea = 0.0;
+        blockerSize = 0.0;
         numberOfPatches = 0;
         scratchVisibilityUsageCounter = 0;
         childNumber = 0;
@@ -104,31 +104,30 @@ public class GalerkinElement extends Element {
         patch = inPatch;
         geometry = null;
         flags &= ~ElementFlags.IS_CLUSTER_MASK;
-        area = inPatch == null ? 0.0f : inPatch.area;
+        area = inPatch == null ? 0.0 : inPatch.getArea();
         minimumArea = area;
-        blockerSize = 2.0f * (float)Math.sqrt(area / Math.PI);
+        blockerSize = 2.0 * (double)Math.sqrt(area / Math.PI);
         numberOfPatches = inPatch == null ? 0 : 1;
-        directPotential = inPatch == null ? 0.0f : inPatch.directPotential;
+        directPotential = 0.0; // Every face starts without direct potential (DirectPotentialTable)
 
         if ( inPatch != null ) {
             Rd = PatchVisitor.averageNormalAlbedo(inPatch, BsdfComponent.BRDF_DIFFUSE_COMPONENT);
-            if ( inPatch.material != null && inPatch.material.getEdf() != null ) {
+            if ( inPatch.getMaterial() != null && inPatch.getMaterial().getEdf() != null ) {
                 flags |= ElementFlags.IS_LIGHT_SOURCE_MASK;
                 Ed = PatchVisitor.averageEmittance(inPatch, XxdfComponentFlag.DIFFUSE_COMPONENT);
-                Ed.scaleInverse(Math.PI, Ed);
+                Ed = Ed.scaleInverse(Math.PI);
             }
-            inPatch.radianceData = this;
         }
 
         reAllocCoefficients();
     }
 
-    public GalerkinElement(Geometry inGeometry, GalerkinState inGalerkinState) {
+    public GalerkinElement(RpkGeometry inGeometry, GalerkinState inGalerkinState) {
         this(inGalerkinState);
         geometry = inGeometry;
         patch = null;
         flags |= ElementFlags.IS_CLUSTER_MASK;
-        Rd.setMonochrome(1.0f);
+        Rd = new ColorRgb(1.0, 1.0, 1.0);
         reAllocCoefficients();
         numberOfClusters++;
     }
@@ -145,11 +144,16 @@ public class GalerkinElement extends Element {
         return numberOfElements - numberOfClusters;
     }
 
-    public static GalerkinElement fromPatch(Patch patch) {
-        if ( patch == null || patch.radianceData == null || !(patch.radianceData instanceof GalerkinElement) ) {
+    /**
+    Checked lookup of the top-level element of a face; null when the face has
+    no Galerkin element
+    */
+    public static GalerkinElement fromPatch(GalerkinState galerkinState, Patch patch) {
+        Element element = galerkinState.boundElement(patch);
+        if ( !(element instanceof GalerkinElement) ) {
             return null;
         }
-        return (GalerkinElement)patch.radianceData;
+        return (GalerkinElement)element;
     }
 
     public static void initializeBasis() {
@@ -163,7 +167,7 @@ public class GalerkinElement extends Element {
             TriangleCubatureRule.degree8Rule());
     }
 
-    public static int renderMode(RenderOptions renderOptions) {
+    public static int renderMode(RendererConfiguration renderOptions) {
         if ( renderOptions == null ) {
             return GalerkinElementRenderMode.FLAT.value;
         }
@@ -195,11 +199,11 @@ public class GalerkinElement extends Element {
             GalerkinElement child = new GalerkinElement(galerkinState);
             child.patch = patch;
             child.parent = this;
-            child.transformToParent = (patch.numberOfVertices == 3)
+            child.transformToParent = (patch.getNumberOfVertices() == 3)
                 ? triangleToParentTransformMatrix[i]
                 : quadToParentTransformMatrix[i];
-            child.area = 0.25f * area;
-            child.blockerSize = 2.0f * (float)Math.sqrt(child.area / Math.PI);
+            child.area = 0.25 * area;
+            child.blockerSize = 2.0 * (double)Math.sqrt(child.area / Math.PI);
             child.childNumber = i;
             child.reAllocCoefficients();
             GalerkinBasis.push(this, radiance, child, child.radiance);
@@ -225,7 +229,7 @@ public class GalerkinElement extends Element {
         Element childElement;
         double uu = u[0];
         double vv = v[0];
-        switch ( patch.numberOfVertices ) {
+        switch ( patch.getNumberOfVertices() ) {
             case 3:
                 if ( uu + vv <= 0.5 ) {
                     childElement = regularSubElements[0];
@@ -284,13 +288,13 @@ public class GalerkinElement extends Element {
         return leaf;
     }
 
-    public int vertices(Vector3Df[] p) {
+    public int vertices(Vector3Dd[] p) {
         if ( p == null ) {
             return 0;
         }
 
         if ( isCluster() ) {
-            BoundingBox boundingBox = new BoundingBox();
+            RpkAxisAlignedBoundingBox boundingBox = new RpkAxisAlignedBoundingBox();
             bounds(boundingBox);
             boundingBox.corners(p);
             return 8;
@@ -301,41 +305,41 @@ public class GalerkinElement extends Element {
         }
 
         Matrix2x2 topTrans = null;
-        Vector2Df uv;
+        Vector2Dd uv;
         if ( transformToParent != null ) {
             topTrans = topTransform();
         }
 
-        uv = new Vector2Df(0.0f, 0.0f);
+        uv = new Vector2Dd(0.0, 0.0);
         if ( transformToParent != null ) uv = topTrans.transformPoint(uv);
         p[0] = patch.uniformPoint(uv.x(), uv.y());
 
-        uv = new Vector2Df(1.0f, 0.0f);
+        uv = new Vector2Dd(1.0, 0.0);
         if ( transformToParent != null ) uv = topTrans.transformPoint(uv);
         p[1] = patch.uniformPoint(uv.x(), uv.y());
 
-        if ( patch.numberOfVertices == 4 ) {
-            uv = new Vector2Df(1.0f, 1.0f);
+        if ( patch.getNumberOfVertices() == 4 ) {
+            uv = new Vector2Dd(1.0, 1.0);
             if ( transformToParent != null ) uv = topTrans.transformPoint(uv);
             p[2] = patch.uniformPoint(uv.x(), uv.y());
 
-            uv = new Vector2Df(0.0f, 1.0f);
+            uv = new Vector2Dd(0.0, 1.0);
             if ( transformToParent != null ) uv = topTrans.transformPoint(uv);
             p[3] = patch.uniformPoint(uv.x(), uv.y());
         }
         else {
-            uv = new Vector2Df(0.0f, 1.0f);
+            uv = new Vector2Dd(0.0, 1.0);
             if ( transformToParent != null ) uv = topTrans.transformPoint(uv);
             p[2] = patch.uniformPoint(uv.x(), uv.y());
             if ( p.length > 3 ) {
-                p[3] = new Vector3Df(0.0f, 0.0f, 0.0f);
+                p[3] = new Vector3Dd(0.0, 0.0, 0.0);
             }
         }
 
-        return patch.numberOfVertices;
+        return patch.getNumberOfVertices();
     }
 
-    public BoundingBox bounds(BoundingBox boundingBox) {
+    public RpkAxisAlignedBoundingBox bounds(RpkAxisAlignedBoundingBox boundingBox) {
         if ( boundingBox == null ) {
             return null;
         }
@@ -345,7 +349,7 @@ public class GalerkinElement extends Element {
             return boundingBox;
         }
 
-        Vector3Df[] p = new Vector3Df[] {new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()};
+        Vector3Dd[] p = new Vector3Dd[] {new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()};
         int numberOfVertices = vertices(p);
         for ( int i = 0; i < numberOfVertices; i++ ) {
             boundingBox.enlargeToIncludePoint(p[i]);
@@ -353,24 +357,24 @@ public class GalerkinElement extends Element {
         return boundingBox;
     }
 
-    public Vector3Df midPoint() {
+    public Vector3Dd midPoint() {
         if ( isCluster() ) {
-            return geometry != null ? geometry.boundingBox.center() : new Vector3Df();
+            return geometry != null ? geometry.boundingBox.center() : new Vector3Dd();
         }
 
-        Vector3Df[] p = new Vector3Df[] {new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()};
+        Vector3Dd[] p = new Vector3Dd[] {new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()};
         int numberOfVertices = vertices(p);
-        Vector3Df c = new Vector3Df();
+        Vector3Dd c = new Vector3Dd();
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c = c.add(p[i]);
         }
         if ( numberOfVertices > 0 ) {
-            c = c.multiply((float)(1.0 / numberOfVertices));
+            c = c.multiply((double)(1.0 / numberOfVertices));
         }
         return c;
     }
 
-    public void initPolygon(Polygon polygon) {
+    public void initPolygon(ConvexPolygon polygon) {
         if ( polygon == null ) {
             return;
         }
@@ -382,10 +386,10 @@ public class GalerkinElement extends Element {
             return;
         }
 
-        polygon.normal = new Vector3Df(patch.getNormal().x(), patch.getNormal().y(), patch.getNormal().z());
-        polygon.planeConstant = patch.planeConstant;
+        polygon.normal = new Vector3Dd(patch.getNormal().x(), patch.getNormal().y(), patch.getNormal().z());
+        polygon.planeConstant = patch.getPlaneConstant();
         polygon.numberOfVertices = vertices(polygon.vertex);
-        polygon.bounds = new BoundingBox();
+        polygon.bounds = new RpkAxisAlignedBoundingBox();
         for ( int i = 0; i < polygon.numberOfVertices; i++ ) {
             polygon.bounds.enlargeToIncludePoint(polygon.vertex[i]);
         }
@@ -417,26 +421,26 @@ public class GalerkinElement extends Element {
             }
         }
 
-        ColorRgbMutable[] defaultRadiance = new ColorRgbMutable[localBasisSize];
-        ColorRgbMutable[] defaultReceivedRadiance = new ColorRgbMutable[localBasisSize];
-        ColorRgbMutable[] defaultUnShotRadiance = new ColorRgbMutable[localBasisSize];
+        ColorRgb[] defaultRadiance = new ColorRgb[localBasisSize];
+        ColorRgb[] defaultReceivedRadiance = new ColorRgb[localBasisSize];
+        ColorRgb[] defaultUnShotRadiance = new ColorRgb[localBasisSize];
         for ( int i = 0; i < localBasisSize; i++ ) {
-            defaultRadiance[i] = new ColorRgbMutable();
-            defaultReceivedRadiance[i] = new ColorRgbMutable();
-            defaultUnShotRadiance[i] = new ColorRgbMutable();
+            defaultRadiance[i] = new ColorRgb();
+            defaultReceivedRadiance[i] = new ColorRgb();
+            defaultUnShotRadiance[i] = new ColorRgb();
         }
-        ColorRgbMutable.arrayClear(defaultRadiance, localBasisSize);
-        ColorRgbMutable.arrayClear(defaultReceivedRadiance, localBasisSize);
-        ColorRgbMutable.arrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgbMath.arrayClear(defaultRadiance, localBasisSize);
+        ColorRgbMath.arrayClear(defaultReceivedRadiance, localBasisSize);
+        ColorRgbMath.arrayClear(defaultUnShotRadiance, localBasisSize);
 
         if ( radiance != null ) {
-            ColorRgbMutable.arrayCopy(defaultRadiance, radiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMath.arrayCopy(defaultRadiance, radiance, Math.min(basisSize, localBasisSize));
         }
         if ( receivedRadiance != null ) {
-            ColorRgbMutable.arrayCopy(defaultReceivedRadiance, receivedRadiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMath.arrayCopy(defaultReceivedRadiance, receivedRadiance, Math.min(basisSize, localBasisSize));
         }
         if ( unShotRadiance != null ) {
-            ColorRgbMutable.arrayCopy(defaultUnShotRadiance, unShotRadiance, Math.min(basisSize, localBasisSize));
+            ColorRgbMath.arrayCopy(defaultUnShotRadiance, unShotRadiance, Math.min(basisSize, localBasisSize));
         }
 
         radiance = defaultRadiance;

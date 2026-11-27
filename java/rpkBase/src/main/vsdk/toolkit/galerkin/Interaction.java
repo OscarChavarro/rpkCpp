@@ -11,8 +11,8 @@ public class Interaction {
 
     public GalerkinElement receiverElement;
     public GalerkinElement sourceElement;
-    public float[] K; // Coupling coefficient(s), stored top to bottom, left to right
-    public float deltaK; // Used for approximation error estimation over the link (always a single coefficient)
+    public double[] K; // Coupling coefficient(s), stored top to bottom, left to right
+    public double deltaK; // Used for approximation error estimation over the link (always a single coefficient)
     public boolean ownsK;
     public byte numberOfBasisFunctionsOnReceiver;
     public byte numberOfBasisFunctionsOnSource;
@@ -26,8 +26,8 @@ public class Interaction {
     public Interaction(
         GalerkinElement inReceiverElement,
         GalerkinElement inSourceElement,
-        float[] inK,
-        float inDeltaK,
+        double[] inK,
+        double inDeltaK,
         byte inNumberOfBasisFunctionsOnReceiver,
         byte inNumberOfBasisFunctionsOnSource,
         byte inNumberOfReceiverCubaturePositions,
@@ -44,7 +44,7 @@ public class Interaction {
         if ( n <= 0 ) {
             n = 1;
         }
-        K = new float[n];
+        K = new double[n];
         if ( inK != null ) {
             System.arraycopy(inK, 0, K, 0, Math.min(inK.length, K.length));
         }
@@ -99,7 +99,7 @@ public class Interaction {
         if ( n <= 0 ) {
             n = 1;
         }
-        newInteraction.K = new float[n];
+        newInteraction.K = new double[n];
         if ( interaction.K != null ) {
             System.arraycopy(interaction.K, 0, newInteraction.K, 0, Math.min(interaction.K.length, newInteraction.K.length));
         }

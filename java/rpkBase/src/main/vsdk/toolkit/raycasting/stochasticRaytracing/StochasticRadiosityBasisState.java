@@ -7,16 +7,16 @@ public class StochasticRadiosityBasisState {
     public static final int NUMBER_OF_APPROXIMATION_TYPES = 5;
 
     public ApproximationTypeDescription[] approxDesc;
-    public GalerkinBasis[][] basis;
-    public GalerkinBasis triBasis;
-    public GalerkinBasis quadBasis;
-    public GalerkinBasis dummyBasis;
-    public GalerkinBasis clusterBasis;
+    public StochasticRadiosityBasis[][] basis;
+    public StochasticRadiosityBasis triBasis;
+    public StochasticRadiosityBasis quadBasis;
+    public StochasticRadiosityBasis dummyBasis;
+    public StochasticRadiosityBasis clusterBasis;
     public Matrix2x2[] quadUpTransform;
     public Matrix2x2[] triangleUpTransform;
     public boolean inited;
 
-    static final GalerkinBasis.BasisFunction[] oneBasisTable = new GalerkinBasis.BasisFunction[] {
+    static final StochasticRadiosityBasis.BasisFunction[] oneBasisTable = new StochasticRadiosityBasis.BasisFunction[] {
         Basismcrad::oneBasis
     };
 
@@ -26,19 +26,19 @@ public class StochasticRadiosityBasisState {
             approxDesc[i] = new ApproximationTypeDescription();
         }
 
-        basis = new GalerkinBasis[StochasticRadiosityElementTypeInfo.NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
+        basis = new StochasticRadiosityBasis[StochasticRadiosityElementTypeInfo.NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
 
         triBasis = Basistrimcrad.createBasis();
         quadBasis = Basismcrad.stochasticRadiosityCreateQuadBasis();
 
-        dummyBasis = new GalerkinBasis();
+        dummyBasis = new StochasticRadiosityBasis();
         dummyBasis.description = "dummy basis";
         dummyBasis.size = 0;
         dummyBasis.function = null;
         dummyBasis.dualFunction = null;
         dummyBasis.regularFilter = null;
 
-        clusterBasis = new GalerkinBasis();
+        clusterBasis = new StochasticRadiosityBasis();
         clusterBasis.description = "cluster basis";
         clusterBasis.size = 1;
         clusterBasis.function = oneBasisTable;
@@ -59,15 +59,15 @@ public class StochasticRadiosityBasisState {
         approxDesc[4].name = "cubic";
         approxDesc[4].basis_size = 10;
 
-        quadUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-        quadUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-        quadUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-        quadUpTransform[3] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f);
+        quadUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+        quadUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+        quadUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+        quadUpTransform[3] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.5);
 
-        triangleUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-        triangleUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-        triangleUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-        triangleUpTransform[3] = createTransform(-0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f);
+        triangleUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+        triangleUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+        triangleUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+        triangleUpTransform[3] = createTransform(-0.5, 0.0, 0.0, -0.5, 0.5, 0.5);
 
         inited = false;
     }
@@ -83,7 +83,7 @@ public class StochasticRadiosityBasisState {
         return activeStatePtr;
     }
 
-    static Matrix2x2 createTransform(float m00, float m01, float m10, float m11, float t0, float t1) {
+    static Matrix2x2 createTransform(double m00, double m01, double m10, double m11, double t0, double t1) {
         return new Matrix2x2(m00, m01, m10, m11, t0, t1);
     }
 

@@ -1,18 +1,18 @@
 package vsdk.toolkit.io.mgf;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.context.GeometryAssemblyContext;
 import vsdk.toolkit.io.context.ParseErrorContext;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.TokenValidationContext;
 import vsdk.toolkit.numericalAnalysis.MeshSurfaceVisitor;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 /**
 Hierarchical object names tracking
@@ -68,9 +68,9 @@ public class MgfObjectNameSupport {
     public static void mgfObjectNewSurface(ParseRuntimeContext context) {
         // Note: lists created here will be transferred to new MeshSurface,
         // should not be deleted from MgfParseSession
-        context.currentPointList = new ArrayList<Vector3Df>();
-        context.currentNormalList = new ArrayList<Vector3Df>();
-        context.currentVertexList = new ArrayList<Vertex>();
+        context.currentPointList = new ArrayList<Vector3Dd>();
+        context.currentNormalList = new ArrayList<Vector3Dd>();
+        context.currentVertexList = new ArrayList<RpkVertex>();
         context.currentFaceList = new ArrayList<Patch>();
         context.inSurface = true;
 
@@ -100,7 +100,7 @@ public class MgfObjectNameSupport {
 
     public static void mgfObjectSurfaceDone(ParseRuntimeContext context) {
         if (context.currentGeometryList == null) {
-            context.currentGeometryList = new ArrayList<Geometry>();
+            context.currentGeometryList = new ArrayList<RpkGeometry>();
             context.geometryBuildState.currentGeometryList = context.currentGeometryList;
         }
 
@@ -120,7 +120,7 @@ public class MgfObjectNameSupport {
         }
 
         if (context.currentFaceList != null && context.currentFaceList.size() > 0) {
-            Geometry newGeometry = new MeshSurface(
+            RpkGeometry newGeometry = new MeshSurface(
                 context.currentObjectName,
                 context.currentMaterial,
                 context.currentPointList,
@@ -167,7 +167,7 @@ public class MgfObjectNameSupport {
             MgfObjectNameSupport.mgfObjectNewSurface(context);
         } else {
             // End of object definition
-            Geometry newGeometry = null;
+            RpkGeometry newGeometry = null;
 
             if (context.inSurface) {
                 MgfObjectNameSupport.mgfObjectSurfaceDone(context);

@@ -1,8 +1,8 @@
 package vsdk.toolkit.render;
 
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 
 public class OctreeChild {
-    public Geometry geometry;
-    public float distance;
+    public RpkGeometry geometry;
+    public double distance;
 }

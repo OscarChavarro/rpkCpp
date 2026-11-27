@@ -22,7 +22,7 @@ import vsdk.toolkit.render.jogl.visualDebugTools.GlutDebugToolsModel;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 import vsdk.toolkit.environment.geometry.elements.VertexCompareFlags;
 import vsdk.toolkit.tonemap.FerwerdaToneMap;
 import vsdk.toolkit.tonemap.LightnessToneMap;
@@ -31,13 +31,13 @@ import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 import vsdk.toolkit.tonemap.TumblinRushmeierToneMap;
 import vsdk.toolkit.tonemap.WardToneMap;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.io.mgf.MgfParserLoader;
 
 public class RpkApplication {
     private static final boolean DEFAULT_MONOCHROME = false;
-    private static final RpkMaterial defaultMaterial = new RpkMaterial("(default)", null, false, null, null, null, 1.0F, 0.0F, false);
+    private static final RpkMaterial defaultMaterial = new RpkMaterial("(default)", null, false, null, null, null, 1.0, 0.0, false);
     private int imageOutputWidth;
     private int imageOutputHeight;
     private Scene scene;
@@ -45,7 +45,7 @@ public class RpkApplication {
     private RadianceMethod selectedRadianceMethod;
     private ToneMap selectedToneMap;
     private ToneMappingContext toneMapOptions;
-    private RenderOptions renderOptions;
+    private RendererConfiguration renderOptions;
     private RayTracer rayTracer;
     private boolean glutDebugEnabled;
 
@@ -60,7 +60,7 @@ public class RpkApplication {
 
         scene = new Scene();
         mgfContext = new ParseRuntimeContext();
-        renderOptions = new RenderOptions();
+        renderOptions = new RendererConfiguration();
     }
 
     /**
@@ -70,7 +70,7 @@ Global initializations
         // Default vertex compare flags: both location and normal is relevant. Two
         // vertices without normal, but at the same location, are to be considered
         // different
-        Vertex.setCompareFlags(VertexCompareFlags.VERTEX_COMPARE_LOCATION | VertexCompareFlags.VERTEX_COMPARE_NORMAL);
+        RpkVertex.setCompareFlags(VertexCompareFlags.VERTEX_COMPARE_LOCATION | VertexCompareFlags.VERTEX_COMPARE_NORMAL);
     }
 
     private void selectToneMapByName(String name) {
@@ -243,6 +243,7 @@ Processes command line arguments
         mgfContext.parserConfig.monochrome = DEFAULT_MONOCHROME;
         mgfContext.currentMaterial = defaultMaterial;
         mgfContext.materialState.currentMaterial = defaultMaterial;
+        mgfContext.parserConfig.setColorSpace(toneMapOptions.getColorSpace());
         selectToneMapByName(initializationToneMapName[0]); // Note this is used for basic Galerkin model initialization
         SceneBuilder.sceneBuilderCreateModel(argcRef, argv, mgfContext, scene, toneMapOptions);
         selectToneMapByName(renderToneMapName[0]);

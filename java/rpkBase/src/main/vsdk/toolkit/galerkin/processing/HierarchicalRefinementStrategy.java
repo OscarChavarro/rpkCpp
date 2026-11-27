@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.IntConsumer;
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.memoryManagement.MemoryPool;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.ShadowStatistics;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -26,11 +26,11 @@ import vsdk.toolkit.galerkin.ShaftCullStrategy;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
-import vsdk.toolkit.scene.Polygon;
+import vsdk.toolkit.scene.ConvexPolygon;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.ElementFlags;
-import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
@@ -38,8 +38,8 @@ Shaft culling stuff for hierarchical refinement
 */
 public class HierarchicalRefinementStrategy {
     private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
-    private static final MemoryPool<float[]> hierarchicalCoefficientsPool =
-        new MemoryPool<>(() -> new float[K_SIZE]);
+    private static final MemoryPool<double[]> hierarchicalCoefficientsPool =
+        new MemoryPool<>(() -> new double[K_SIZE]);
     private static boolean hierarchicalCoefficientsPoolInitialized = false;
 
     private static void ensureHierarchicalCoefficientsPool() {
@@ -66,7 +66,7 @@ public class HierarchicalRefinementStrategy {
     private static final ThreadLocal<Integer> refineTreeDepth = ThreadLocal.withInitial(() -> 0);
     private static void hierarchicRefinementCull(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         boolean isClusteredGeometry,
         GalerkinState galerkinState)
@@ -77,11 +77,11 @@ public class HierarchicalRefinementStrategy {
 
         if ( galerkinState.shaftCullMode == vsdk.toolkit.galerkin.GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT
             || galerkinState.shaftCullMode == vsdk.toolkit.galerkin.GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING ) {
-            Shaft shaft = new Shaft();
-            Polygon rcvPolygon = new Polygon();
-            Polygon srcPolygon = new Polygon();
-            BoundingBox srcBounds = new BoundingBox();
-            BoundingBox rcvBounds = new BoundingBox();
+            Shaft shaft = new Shaft(scene.getFaceBounds());
+            ConvexPolygon rcvPolygon = new ConvexPolygon();
+            ConvexPolygon srcPolygon = new ConvexPolygon();
+            RpkAxisAlignedBoundingBox srcBounds = new RpkAxisAlignedBoundingBox();
+            RpkAxisAlignedBoundingBox rcvBounds = new RpkAxisAlignedBoundingBox();
 
             if ( galerkinState.exactVisibility != 0
                 && !interaction.receiverElement.isCluster()
@@ -91,9 +91,7 @@ public class HierarchicalRefinementStrategy {
                 shaft.constructFromPolygonToPolygon(rcvPolygon, srcPolygon);
             }
             else {
-                shaft.constructFromBoundingBoxes(
-                    interaction.receiverElement.bounds(rcvBounds),
-                    interaction.sourceElement.bounds(srcBounds));
+                shaft.constructFromBoundingBoxes( interaction.receiverElement.bounds(rcvBounds), interaction.sourceElement.bounds(srcBounds));
             }
 
             if ( interaction.receiverElement.isCluster() ) {
@@ -110,7 +108,7 @@ public class HierarchicalRefinementStrategy {
                 shaft.setShaftOmit(interaction.sourceElement.patch);
             }
 
-            ArrayList<Geometry> arr = new ArrayList<>();
+            ArrayList<RpkGeometry> arr = new ArrayList<>();
             if ( isClusteredGeometry ) {
                 shaft.cullGeometry(scene.clusteredRootGeometry, arr, galerkinState.shaftCullStrategy);
             }
@@ -122,7 +120,7 @@ public class HierarchicalRefinementStrategy {
     }
 
     private static void hierarchicRefinementUnCull(
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         GalerkinState galerkinState)
     {
         if ( galerkinState.shaftCullMode == vsdk.toolkit.galerkin.GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT
@@ -131,7 +129,7 @@ public class HierarchicalRefinementStrategy {
         }
     }
 
-    private static double hierarchicRefinementColorToError(ColorRgbMutable radiance) {
+    private static double hierarchicRefinementColorToError(ColorRgb radiance) {
         return radiance != null ? radiance.maximumComponent() : 0.0;
     }
 
@@ -166,12 +164,12 @@ public class HierarchicalRefinementStrategy {
 
     private static double hierarchicRefinementApproximationError(
         Interaction interaction,
-        ColorRgbMutable srcRho,
-        ColorRgbMutable rcvRho,
+        ColorRgb srcRho,
+        ColorRgb rcvRho,
         GalerkinState galerkinState)
     {
-        ColorRgbMutable error = new ColorRgbMutable();
-        ColorRgbMutable srcRad;
+        ColorRgb error = new ColorRgb();
+        ColorRgb srcRad;
 
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL
             || galerkinState.isJacobi() ) {
@@ -193,14 +191,14 @@ public class HierarchicalRefinementStrategy {
             }
         }
 
-        error.scalarProductScaled(rcvRho, interaction.deltaK, srcRad);
-        error.abs();
+        error = rcvRho.multiply(interaction.deltaK).multiply(srcRad);
+        error = error.absolute();
         return hierarchicRefinementColorToError(error);
     }
 
     private static double sourceClusterRadianceVariationError(
         Interaction interaction,
-        ColorRgbMutable rcvRho,
+        ColorRgb rcvRho,
         double receiverArea,
         GalerkinState galerkinState)
     {
@@ -209,26 +207,26 @@ public class HierarchicalRefinementStrategy {
             return 0.0;
         }
 
-        Vector3Df[] rcVertices = new Vector3Df[] {
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()
+        Vector3Dd[] rcVertices = new Vector3Dd[] {
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()
         };
         int numberOfReceiverVertices = interaction.receiverElement.vertices(rcVertices);
 
-        ColorRgbMutable minimumSourceRadiance = new ColorRgbMutable();
-        ColorRgbMutable maximumSourceRadiance = new ColorRgbMutable();
-        ColorRgbMutable error = new ColorRgbMutable();
-        minimumSourceRadiance.setMonochrome(Float.MAX_VALUE);
-        maximumSourceRadiance.setMonochrome(-Float.MAX_VALUE);
+        ColorRgb minimumSourceRadiance = new ColorRgb();
+        ColorRgb maximumSourceRadiance = new ColorRgb();
+        ColorRgb error = new ColorRgb();
+        minimumSourceRadiance = new ColorRgb(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        maximumSourceRadiance = new ColorRgb(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
         for ( int i = 0; i < numberOfReceiverVertices; i++ ) {
-            ColorRgbMutable radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
+            ColorRgb radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
                 interaction.sourceElement, rcVertices[i], galerkinState);
-            minimumSourceRadiance.minimum(minimumSourceRadiance, radiance);
-            maximumSourceRadiance.maximum(maximumSourceRadiance, radiance);
+            minimumSourceRadiance = minimumSourceRadiance.minimum(radiance);
+            maximumSourceRadiance = maximumSourceRadiance.maximum(radiance);
         }
-        error.subtract(maximumSourceRadiance, minimumSourceRadiance);
-        error.scalarProductScaled(rcvRho, (float)(K / receiverArea), error);
-        error.abs();
+        error = maximumSourceRadiance.subtract(minimumSourceRadiance);
+        error = rcvRho.multiply((double)(K / receiverArea)).multiply(error);
+        error = error.absolute();
         return hierarchicRefinementColorToError(error);
     }
 
@@ -241,22 +239,22 @@ public class HierarchicalRefinementStrategy {
         }
 
         double receiveArea;
-        ColorRgbMutable rcvRho = new ColorRgbMutable();
+        ColorRgb rcvRho = new ColorRgb();
         if ( interaction.receiverElement.isCluster() ) {
-            rcvRho.setMonochrome(1.0f);
+            rcvRho = new ColorRgb(1.0, 1.0, 1.0);
             receiveArea = ClusterTraversalStrategy.receiverArea(interaction, galerkinState);
         }
         else {
-            rcvRho = interaction.receiverElement.patch.radianceData.Rd;
+            rcvRho = interaction.receiverElement.galerkinState.topLevelElement(interaction.receiverElement.patch).Rd;
             receiveArea = interaction.receiverElement.area;
         }
 
-        ColorRgbMutable srcRho = new ColorRgbMutable();
+        ColorRgb srcRho = new ColorRgb();
         if ( interaction.sourceElement.isCluster() ) {
-            srcRho.setMonochrome(1.0f);
+            srcRho = new ColorRgb(1.0, 1.0, 1.0);
         }
         else {
-            srcRho = interaction.sourceElement.patch.radianceData.Rd;
+            srcRho = interaction.sourceElement.galerkinState.topLevelElement(interaction.sourceElement.patch).Rd;
         }
 
         double threshold = hierarchicRefinementLinkErrorThreshold(interaction, receiveArea, galerkinState);
@@ -320,7 +318,7 @@ public class HierarchicalRefinementStrategy {
             interaction.receiverElement.basisUsed = (byte)a;
         }
 
-        ColorRgbMutable[] srcRad;
+        ColorRgb[] srcRad;
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
             srcRad = interaction.sourceElement.unShotRadiance;
         }
@@ -328,28 +326,25 @@ public class HierarchicalRefinementStrategy {
             srcRad = interaction.sourceElement.radiance;
         }
 
-        ColorRgbMutable linkClusterRad = new ColorRgbMutable();
+        ColorRgb linkClusterRad = new ColorRgb();
         if ( interaction.sourceElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
             linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
-            srcRad = new ColorRgbMutable[] {linkClusterRad};
+            srcRad = new ColorRgb[] {linkClusterRad};
         }
 
         if ( interaction.receiverElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
             ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, galerkinState);
         }
         else {
-            ColorRgbMutable[] rcvRad = interaction.receiverElement.receivedRadiance;
+            ColorRgb[] rcvRad = interaction.receiverElement.receivedRadiance;
             if ( interaction.numberOfBasisFunctionsOnReceiver == 1
                 && interaction.numberOfBasisFunctionsOnSource == 1 ) {
-                rcvRad[0].addScaled(rcvRad[0], interaction.K[0], srcRad[0]);
+                rcvRad[0] = rcvRad[0].addScaled(interaction.K[0], srcRad[0]);
             }
             else {
                 for ( int alpha = 0; alpha < a; alpha++ ) {
                     for ( int beta = 0; beta < b; beta++ ) {
-                        rcvRad[alpha].addScaled(
-                            rcvRad[alpha],
-                            interaction.K[alpha * interaction.numberOfBasisFunctionsOnSource + beta],
-                            srcRad[beta]);
+                        rcvRad[alpha] = rcvRad[alpha].addScaled(interaction.K[alpha * interaction.numberOfBasisFunctionsOnSource + beta], srcRad[beta]);
                     }
                 }
             }
@@ -357,13 +352,13 @@ public class HierarchicalRefinementStrategy {
 
         if ( galerkinState.importanceDriven != 0
              && galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-            float K = interaction.K[0];
-            ColorRgbMutable srcRho = new ColorRgbMutable();
+            double K = interaction.K[0];
+            ColorRgb srcRho = new ColorRgb();
             if ( interaction.sourceElement.isCluster() ) {
-                srcRho.setMonochrome(1.0f);
+                srcRho = new ColorRgb(1.0, 1.0, 1.0);
             }
             else {
-                srcRho = interaction.sourceElement.patch.radianceData.Rd;
+                srcRho = interaction.sourceElement.galerkinState.topLevelElement(interaction.sourceElement.patch).Rd;
             }
             interaction.receiverElement.receivedPotential +=
                 K * hierarchicRefinementColorToError(srcRho) * interaction.sourceElement.unShotPotential;
@@ -387,13 +382,13 @@ public class HierarchicalRefinementStrategy {
         if ( galerkinState.importanceDriven != 0 ) {
             if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL
                  || galerkinState.isJacobi() ) {
-                float K = interaction.K[0];
-                ColorRgbMutable rcvRho = new ColorRgbMutable();
+                double K = interaction.K[0];
+                ColorRgb rcvRho = new ColorRgb();
                 if ( interaction.receiverElement.isCluster() ) {
-                    rcvRho.setMonochrome(1.0f);
+                    rcvRho = new ColorRgb(1.0, 1.0, 1.0);
                 }
                 else {
-                    rcvRho = interaction.receiverElement.patch.radianceData.Rd;
+                    rcvRho = interaction.receiverElement.galerkinState.topLevelElement(interaction.receiverElement.patch).Rd;
                 }
                 interaction.sourceElement.receivedPotential +=
                     K * hierarchicRefinementColorToError(rcvRho) * interaction.receiverElement.potential;
@@ -406,7 +401,7 @@ public class HierarchicalRefinementStrategy {
 
     private static int hierarchicRefinementCreateSubdivisionLink(
         Scene scene,
-        ArrayList<Geometry> candidatesList,
+        ArrayList<RpkGeometry> candidatesList,
         GalerkinElement receiverElement,
         GalerkinElement sourceElement,
         Interaction interaction,
@@ -430,15 +425,7 @@ public class HierarchicalRefinementStrategy {
 
         boolean isSceneGeometry = (candidatesList == scene.geometryList);
         boolean isClusteredGeometry = (candidatesList == scene.clusteredGeometryList);
-        FormFactorStrategy.computeAreaToAreaFormFactorVisibility(
-            scene.getSceneQuery(),
-            workspace.getSceneQueryWorkspace(),
-            workspace.getFormFactorWorkspace(),
-            candidatesList,
-            isSceneGeometry,
-            isClusteredGeometry,
-            interaction,
-            galerkinState);
+        FormFactorStrategy.computeAreaToAreaFormFactorVisibility( scene.getSceneQuery(), workspace.getSceneQueryWorkspace(), workspace.getFormFactorWorkspace(), candidatesList, isSceneGeometry, isClusteredGeometry, interaction, galerkinState);
 
         // Warnings kept by a parallel worker become events, in their order
         RefinementRecord record = workspace.getRecord();
@@ -515,7 +502,7 @@ public class HierarchicalRefinementStrategy {
     */
     private static void refineOrForkSubInteraction(
         Scene scene,
-        ArrayList<Geometry> candidatesList,
+        ArrayList<RpkGeometry> candidatesList,
         GalerkinElement receiverElement,
         GalerkinElement sourceElement,
         GalerkinState galerkinState,
@@ -532,14 +519,14 @@ public class HierarchicalRefinementStrategy {
 
     private static void refineSubInteraction(
         Scene scene,
-        ArrayList<Geometry> candidatesList,
+        ArrayList<RpkGeometry> candidatesList,
         GalerkinElement receiverElement,
         GalerkinElement sourceElement,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
         Interaction subInteraction = new Interaction();
-        MemoryPool<float[]> coefficientsPool = workspace.getCoefficientsPool();
+        MemoryPool<double[]> coefficientsPool = workspace.getCoefficientsPool();
         boolean usingPool = true;
         subInteraction.K = coefficientsPool.allocate(K_SIZE);
         if ( subInteraction.K == null ) {
@@ -548,13 +535,13 @@ public class HierarchicalRefinementStrategy {
             }
             if ( subInteraction.K == null ) {
                 usingPool = false;
-                subInteraction.K = new float[K_SIZE];
+                subInteraction.K = new double[K_SIZE];
             }
         }
         subInteraction.ownsK = !usingPool;
 
         @SuppressWarnings("unchecked")
-        ArrayList<Geometry>[] candidates = new ArrayList[] {candidatesList};
+        ArrayList<RpkGeometry>[] candidates = new ArrayList[] {candidatesList};
         if ( hierarchicRefinementCreateSubdivisionLink(
                 scene,
                 candidates[0],
@@ -575,13 +562,13 @@ public class HierarchicalRefinementStrategy {
 
     private static void hierarchicRefinementRegularSubdivideSource(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         boolean isClusteredGeometry,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
-        ArrayList<Geometry> backup = candidatesList[0];
+        ArrayList<RpkGeometry> backup = candidatesList[0];
         hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
         GalerkinElement sourceElement = interaction.sourceElement;
         GalerkinElement receiverElement = interaction.receiverElement;
@@ -608,13 +595,13 @@ public class HierarchicalRefinementStrategy {
 
     private static void hierarchicRefinementRegularSubdivideReceiver(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         boolean isClusteredGeometry,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
-        ArrayList<Geometry> backup = candidatesList[0];
+        ArrayList<RpkGeometry> backup = candidatesList[0];
         hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
         GalerkinElement sourceElement = interaction.sourceElement;
         GalerkinElement receiverElement = interaction.receiverElement;
@@ -641,13 +628,13 @@ public class HierarchicalRefinementStrategy {
 
     private static void hierarchicRefinementSubdivideSourceCluster(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         boolean isClusteredGeometry,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
-        ArrayList<Geometry> backup = candidatesList[0];
+        ArrayList<RpkGeometry> backup = candidatesList[0];
         hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
         GalerkinElement sourceElement = interaction.sourceElement;
         GalerkinElement receiverElement = interaction.receiverElement;
@@ -663,7 +650,7 @@ public class HierarchicalRefinementStrategy {
                 Patch patch = childElement.patch;
                 if ( patch != null && (
                     (receiverElement.isCluster() && receiverElement.geometry != null
-                        && receiverElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.planeConstant))
+                        && receiverElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.getPlaneConstant()))
                     || (!receiverElement.isCluster() && receiverElement.patch != null
                         && !receiverElement.patch.facing(patch)) ) ) {
                     continue;
@@ -677,13 +664,13 @@ public class HierarchicalRefinementStrategy {
 
     private static void hierarchicRefinementSubdivideReceiverCluster(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         boolean isClusteredGeometry,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
-        ArrayList<Geometry> backup = candidatesList[0];
+        ArrayList<RpkGeometry> backup = candidatesList[0];
         hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
         GalerkinElement sourceElement = interaction.sourceElement;
         GalerkinElement receiverElement = interaction.receiverElement;
@@ -699,7 +686,7 @@ public class HierarchicalRefinementStrategy {
                 Patch patch = child.patch;
                 if ( patch != null && (
                     (sourceElement.isCluster() && sourceElement.geometry != null
-                        && sourceElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.planeConstant))
+                        && sourceElement.geometry.getBoundingBox().behindPlane(patch.getNormal(), patch.getPlaneConstant()))
                     || (!sourceElement.isCluster() && sourceElement.patch != null
                         && !sourceElement.patch.facing(patch)) ) ) {
                     continue;
@@ -713,7 +700,7 @@ public class HierarchicalRefinementStrategy {
 
     private static boolean refineRecursive(
         Scene scene,
-        ArrayList<Geometry>[] candidatesList,
+        ArrayList<RpkGeometry>[] candidatesList,
         Interaction interaction,
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
@@ -763,14 +750,14 @@ public class HierarchicalRefinementStrategy {
         GalerkinState galerkinState,
         RefinementWorkspace workspace)
     {
-        ArrayList<Geometry> candidateOccluderList = scene.clusteredGeometryList;
+        ArrayList<RpkGeometry> candidateOccluderList = scene.clusteredGeometryList;
 
         if ( galerkinState.exactVisibility != 0 && interaction.visibility == (byte)255 ) {
             candidateOccluderList = null;
         }
 
         @SuppressWarnings("unchecked")
-        ArrayList<Geometry>[] arr = new ArrayList[] {candidateOccluderList};
+        ArrayList<RpkGeometry>[] arr = new ArrayList[] {candidateOccluderList};
         return refineRecursive(scene, arr, interaction, galerkinState, workspace);
     }
 
@@ -839,9 +826,16 @@ public class HierarchicalRefinementStrategy {
             }
 
             // Refined interactions are removed with order-preserving in-place compaction
-            // to avoid one temporary list plus O(n) remove(Object) scans per element
+            // to avoid one temporary list plus O(n) remove(Object) scans per element.
+            // Only the interactions present when the loop starts are refined: the links
+            // that their refinement stores in this same list (the receiver kept, the
+            // source subdivided) already had their light transport when created. The
+            // original RenderPark prepends them (InteractionListAdd), out of the
+            // iteration's way; this list appends them, so they are kept but not
+            // visited, or their light would be transported twice in the iteration
             ArrayList<Object> interactions = parentElement.interactions;
             if ( interactions != null ) {
+                final int numberOfInteractions = interactions.size();
                 int writeIndex = 0;
                 for ( int readIndex = 0; readIndex < interactions.size(); readIndex++ ) {
                     Object o = interactions.get(readIndex);
@@ -853,7 +847,7 @@ public class HierarchicalRefinementStrategy {
                         continue;
                     }
                     Interaction interaction = (Interaction)o;
-                    if ( refineInteraction(scene, interaction, galerkinState, workspace) ) {
+                    if ( readIndex < numberOfInteractions && refineInteraction(scene, interaction, galerkinState, workspace) ) {
                         Interaction.interactionDestroy(interaction);
                     } else {
                         if ( writeIndex != readIndex ) {
@@ -885,32 +879,22 @@ public class HierarchicalRefinementStrategy {
     them in the order of the serial refinement (refineInteractionsInternal), so
     that every floating point sum and every list is the serial one.
     Interactions are those of the element lists when the iteration starts, in the
-    serial post-order. The serial refinement of an element also visits the links
-    that the element's own refinement appends to its list (receiver kept, source
-    subdivided); the commit visits them serially, as the serial loop does.
+    serial post-order. Neither the serial refinement nor the commit visits the links
+    that an element's own refinement appends to its list (receiver kept, source
+    subdivided): their light transport was done when they were created.
     Threads are java.lang.Thread (the C++ port uses VITRAL's java::Thread mirror).
     */
 
-    // Java adaptation: the coefficient pools of the workers (MemoryPool<float[]>
+    // Java adaptation: the coefficient pools of the workers (MemoryPool<double[]>
     // keeps its arrays) are kept from one iteration to the next instead of being
     // created by every worker in every iteration. Pool w is used only by worker
     // w; the list is changed only before the workers start
-    private static final ArrayList<MemoryPool<float[]>> workerCoefficientsPools = new ArrayList<>();
+    private static final ArrayList<MemoryPool<double[]>> workerCoefficientsPools = new ArrayList<>();
 
-    private static boolean parallelRefinementSupported(Scene scene, GalerkinState galerkinState) {
+    private static boolean parallelRefinementSupported(GalerkinState galerkinState) {
         return galerkinState.clusteringStrategy == GalerkinClusteringStrategy.ISOTROPIC
             && galerkinState.shaftCullMode == GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING
-            && galerkinState.multiResolutionVisibility == 0
-            && scene.getSceneQueryWorkspace().getRecorder() == null;
-    }
-
-    /**
-    Java only: the legacy voxel grid traversal uses single threaded scratch (the
-    grid's ray box and the static scratch of Geometry, MinMaxBox and of the
-    patch intersections it does), so parallel workers need another index
-    */
-    private static boolean parallelSceneQuerySupported(Scene scene) {
-        return scene.getSceneQuery().getLegacyGrid() == null;
+            && galerkinState.multiResolutionVisibility == 0;
     }
 
     private static int numberOfRefinementThreads(GalerkinState galerkinState) {
@@ -1155,33 +1139,20 @@ public class HierarchicalRefinementStrategy {
     transport, new interactions, element ids, warnings) is then committed in
     the serial order. Configurations whose refinement reads or writes shared
     scratch (non isotropic clustering, shaft culling, multi-resolution
-    visibility, ray capture and, in Java, the legacy voxel grid) are refined
-    serially
+    visibility) are refined serially
     */
     public static void refineInteractionsInParallel(
         Scene scene,
         GalerkinElement parentElement,
         GalerkinState galerkinState)
     {
-        if ( !parallelRefinementSupported(scene, galerkinState) ) {
+        if ( !parallelRefinementSupported(galerkinState) ) {
             if ( galerkinState.iterationNumber <= 1 ) {
-                Logger.reportMessage(null, Logger.WARNING, "refineInteractionsInParallel",
-                    "Parallel Jacobi needs isotropic clustering, no shaft culling, no multi-resolution visibility "
-                    + "and no ray capture: refining serially");
+                Logger.reportMessage(null, Logger.WARNING, "refineInteractionsInParallel", "Parallel Jacobi needs isotropic clustering, no shaft culling " + "and no multi-resolution visibility: refining serially");
             }
             refineInteractions(scene, parentElement, galerkinState);
             return;
         }
-        if ( !parallelSceneQuerySupported(scene) ) {
-            if ( galerkinState.iterationNumber <= 1 ) {
-                Logger.reportMessage(null, Logger.WARNING, "refineInteractionsInParallel",
-                    "Parallel Jacobi needs a scene acceleration method other than the legacy voxel grid "
-                    + "(Java port): refining serially");
-            }
-            refineInteractions(scene, parentElement, galerkinState);
-            return;
-        }
-
         prepareRefinementIterationState(galerkinState);
 
         // The interactions of the element lists are the items, in the serial order
@@ -1206,7 +1177,7 @@ public class HierarchicalRefinementStrategy {
             shadowStatistics[w] = new ShadowStatistics();
         }
         while ( workerCoefficientsPools.size() < numberOfThreads ) {
-            MemoryPool<float[]> pool = new MemoryPool<>(() -> new float[K_SIZE]);
+            MemoryPool<double[]> pool = new MemoryPool<>(() -> new double[K_SIZE]);
             pool.init(16L * 1024L * 1024L);
             workerCoefficientsPools.add(pool);
         }
@@ -1263,14 +1234,6 @@ public class HierarchicalRefinementStrategy {
 
         // Phase 2: commit in the serial order; light transport is collected, in
         // that order, and done at the end (in parallel, keeping each element's order)
-        ensureHierarchicalCoefficientsPool();
-        RefinementWorkspace serialWorkspace = new RefinementWorkspace(
-            scene.getSceneQueryWorkspace(),
-            galerkinState.formFactorWorkspace,
-            hierarchicalCoefficientsPool,
-            null,
-            null,
-            null);
         ArrayList<Interaction> transports = new ArrayList<>();
         int[] nextElementId = new int[] {firstNewElementId};
         for ( int g = 0; g < groups.size(); g++ ) {
@@ -1279,23 +1242,12 @@ public class HierarchicalRefinementStrategy {
             int writeIndex = 0;
             for ( int readIndex = 0; readIndex < interactions.size(); readIndex++ ) {
                 Interaction interaction = (Interaction)interactions.get(readIndex);
-                boolean refined;
+                // A link appended by this element's refinement (readIndex beyond the
+                // items) is kept: its light transport was collected when committed
+                boolean refined = false;
                 if ( readIndex < group.getNumberOfItems() ) {
                     refined = commitRefinementTask(
                         scheduler, scheduler.getItem(group.getFirstItem() + readIndex), records, transports, nextElementId);
-                }
-                else if ( hierarchicRefinementEvaluateInteraction(interaction, galerkinState)
-                          == InteractionEvaluationCode.ACCURATE_ENOUGH ) {
-                    // A link appended by this element's refinement, visited as the serial loop does
-                    transports.add(interaction);
-                    refined = false;
-                }
-                else {
-                    // Not expected (the link was accurate enough when stored): refine it
-                    // serially, after the light transport collected so far
-                    applyLightTransports(transports, galerkinState, 1);
-                    transports.clear();
-                    refined = refineInteraction(scene, interaction, galerkinState, serialWorkspace);
                 }
                 if ( refined ) {
                     Interaction.interactionDestroy(interaction);

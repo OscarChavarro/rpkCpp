@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
@@ -67,21 +67,21 @@ public final class FlagChainList extends CircularList<FlagChain> {
         }
     }
 
-    public ColorRgbMutable compute(BiPath path) {
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgbMutable tmpCol;
+    public ColorRgb compute(BiPath path) {
+        ColorRgb result = new ColorRgb();
+        ColorRgb tmpCol;
 
-        result.clear();
+        result = new ColorRgb(0.0, 0.0, 0.0);
 
         CircularListIterator<FlagChain> iter = new CircularListIterator<>(this);
         FlagChain chain;
 
         while ( (chain = iter.nextOnSequence()) != null ) {
             tmpCol = chain.compute(path);
-            result.add(new ColorRgbMutable(tmpCol), result);
+            result = (new ColorRgb(tmpCol)).add(result);
         }
 
-        return new ColorRgbMutable(result);
+        return new ColorRgb(result);
     }
 
     /**

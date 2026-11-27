@@ -4,13 +4,14 @@ Routines dealing with view potential
 
 package vsdk.toolkit.render;
 
+import vsdk.toolkit.scene.FaceVisibilityTable;
+import vsdk.toolkit.scene.DirectPotentialTable;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.render.sgl.SglContext;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
@@ -22,13 +23,13 @@ public class Potential {
     /**
 Updates directly received potential for all patches
 */
-    public static void updateDirectPotential(Scene scene, RenderOptions renderOptions) {
+    public static void updateDirectPotential(Scene scene, RendererConfiguration renderOptions) {
         Canvas.canvasPushMode();
 
-        SglContext target = SoftIds.setupSoftFrameBuffer(scene.camera);
-        SoftIds.softRenderPatches(scene, renderOptions, target);
-        long[] x = {target.width};
-        long[] y = {target.height};
+        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        SoftIds.renderVisibleFaces(scene, renderOptions, target);
+        long[] x = {target.getWidth()};
+        long[] y = {target.getHeight()};
 
         Canvas.canvasPullMode();
 
@@ -42,42 +43,42 @@ Updates directly received potential for all patches
         }
         for (int i = 0; scene.patchList != null && i < scene.patchList.size(); i++) {
             Patch patch = scene.patchList.get(i);
-            id2patch[patch.id] = patch;
+            id2patch[patch.getId()] = patch;
         }
 
         // Allocate space for an array to hold the new direct potential of the patches
-        float[] newDirectImportance = new float[maximumPatchId + 1];
+        double[] newDirectImportance = new double[maximumPatchId + 1];
         for (int i = 0; i <= maximumPatchId; i++) {
-            newDirectImportance[i] = 0.0f;
+            newDirectImportance[i] = 0.0;
         }
 
         // h and v are the horizontal resp. vertical distance between two
         // neighboring pixels on the screen
-        float h = 2.0f * (float)Math.tan(scene.camera.horizontalFov * (float)Math.PI / 180.0f) / (float)x[0];
-        float v = 2.0f * (float)Math.tan(scene.camera.verticalFov * (float)Math.PI / 180.0f) / (float)y[0];
-        float pixelArea = h * v;
+        double h = 2.0 * (double)Math.tan(scene.camera.horizontalFov * (double)Math.PI / 180.0) / (double)x[0];
+        double v = 2.0 * (double)Math.tan(scene.camera.verticalFov * (double)Math.PI / 180.0) / (double)y[0];
+        double pixelArea = h * v;
 
-        float ySample;
+        double ySample;
         long j;
-        for (j = y[0] - 1, ySample = -v * (float)(y[0] - 1) / 2.0f;
+        for (j = y[0] - 1, ySample = -v * (double)(y[0] - 1) / 2.0;
              j >= 0;
              j--, ySample += v) {
-            long rowStart = j * x[0];
-            float xSample = -h * (float)(x[0] - 1) / 2.0f;
+            double xSample = -h * (double)(x[0] - 1) / 2.0;
             for (long i = 0; i < x[0]; i++, xSample += h) {
-                Patch visible = target.patchBuffer[(int)(rowStart + i)];
-                long the_id = visible == null ? 0 : visible.id & 0xffffffL;
+                final SglFaceIndex face = target.getSample((int)i, (int)j);
+                long the_id = face.isBackground() ? 0 :
+                    scene.getFace(face.getIndex()).getId() & 0xffffffL;
 
                 if (the_id > 0 && the_id <= maximumPatchId) {
-                    Vector3Df pixDir = new Vector3Df();
+                    Vector3Dd pixDir = new Vector3Dd();
 
                     // Compute direction to center of pixel
-                    pixDir = scene.camera.Z.add(scene.camera.X.multiply((float)xSample)).add(scene.camera.Y.multiply(ySample));
+                    pixDir = scene.camera.Z.add(scene.camera.X.multiply((double)xSample)).add(scene.camera.Y.multiply(ySample));
 
                     // Delta_importance = (cosine of the angle between the direction to
                     // the pixel and the viewing direction, over the distance from the
                     // eye point to the pixel) squared, times area of the pixel
-                    float deltaImportance = scene.camera.Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
+                    double deltaImportance = scene.camera.Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
                     deltaImportance *= deltaImportance * pixelArea;
                     newDirectImportance[(int)the_id] += deltaImportance;
                 }
@@ -97,10 +98,12 @@ Updates directly received potential for all patches
             Patch patch = id2patch[i];
 
             if (patch != null) {
-                patch.directPotential = newDirectImportance[i] / patch.area;
+                DirectPotentialTable directPotentials = scene.getDirectPotentials();
+                final int faceIndex = patch.getFaceIndex();
+                directPotentials.set(faceIndex, newDirectImportance[i] / patch.getArea());
 
-                if (patch.directPotential > Statistics.instance().potential.maxDirectPotential) {
-                    Statistics.instance().potential.maxDirectPotential = patch.directPotential;
+                if (directPotentials.get(faceIndex) > Statistics.instance().potential.maxDirectPotential) {
+                    Statistics.instance().potential.maxDirectPotential = directPotentials.get(faceIndex);
                 }
                 Statistics.instance().potential.totalDirectPotential += newDirectImportance[i];
                 Statistics.instance().potential.averageDirectPotential += newDirectImportance[i];
@@ -113,35 +116,32 @@ Updates directly received potential for all patches
         Statistics.instance().potential.averageDirectPotential /= Statistics.instance().radiance.totalArea;
     }
 
-    private static void softGetPatchPointers(SglContext sgl, ArrayList<Patch> scenePatches) {
-        for (int i = 0; scenePatches != null && i < scenePatches.size(); i++) {
-            scenePatches.get(i).setInvisible();
-        }
+    private static void softUpdateDirectVisibility(Scene scene, RendererConfiguration renderOptions) {
+        long t = System.nanoTime();
+        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        SoftIds.renderVisibleFaces(scene, renderOptions, target);
 
-        int pixelCount = sgl.width * sgl.height;
-        for (int i = 0; i < pixelCount; i++) {
-            Patch P = sgl.patchBuffer[i];
-            if (P != null) {
-                P.setVisible();
+        FaceVisibilityTable faceVisibility = scene.getFaceVisibility();
+        for ( int i = 0; i < faceVisibility.getNumberOfFaces(); i++ ) {
+            faceVisibility.setVisible(i, false);
+        }
+        for ( int y = 0; y < target.getHeight(); y++ ) {
+            for ( int x = 0; x < target.getWidth(); x++ ) {
+                final SglFaceIndex face = target.getSample(x, y);
+                if ( !face.isBackground() ) {
+                    faceVisibility.setVisible(face.getIndex(), true);
+                }
             }
         }
-    }
-
-    private static void softUpdateDirectVisibility(Scene scene, RenderOptions renderOptions) {
-        long t = System.nanoTime();
-        SglContext currentSglContext = SoftIds.setupSoftFrameBuffer(scene.camera);
-
-        SoftIds.softRenderPatches(scene, renderOptions, currentSglContext);
-        Potential.softGetPatchPointers(currentSglContext, scene.patchList);
 
         System.err.printf("Determining visible patches in software took %g sec\n",
-            (float)((double)(System.nanoTime() - t) / 1000000000.0));
+            (double)((double)(System.nanoTime() - t) / 1000000000.0));
     }
 
     /**
 Updates view visibility status of all patches
 */
-    public static void updateDirectVisibility(Scene scene, RenderOptions renderOptions) {
+    public static void updateDirectVisibility(Scene scene, RendererConfiguration renderOptions) {
         Canvas.canvasPushMode();
         Potential.softUpdateDirectVisibility(scene, renderOptions);
         Canvas.canvasPullMode();

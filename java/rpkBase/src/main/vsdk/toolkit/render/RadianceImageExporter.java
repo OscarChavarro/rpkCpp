@@ -3,11 +3,11 @@ package vsdk.toolkit.render;
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
@@ -23,7 +23,7 @@ public final class RadianceImageExporter {
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if (outputStream == null || scene == null || scene.camera == null) {
             return;
@@ -49,7 +49,7 @@ public final class RadianceImageExporter {
             for (int x = 0; x < width[0]; x++) {
                 Patch patch = idRenderer.getPatchAtPixel(x, y);
                 if (patch != null) {
-                    ColorRgbMutable radiance = RadianceImageExporter.getRadianceAtPixel(
+                    ColorRgb radiance = RadianceImageExporter.getRadianceAtPixel(
                         screenBuffer,
                         scene.camera,
                         x,
@@ -98,41 +98,41 @@ public final class RadianceImageExporter {
         }
     }
 
-    private static ColorRgbMutable getRadianceAtPixel(
+    private static ColorRgb getRadianceAtPixel(
         ScreenBuffer screenBuffer,
         Camera camera,
         int x,
         int y,
         Patch patch,
         RadianceMethod radianceMethod,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
-        ColorRgbMutable radiance = new ColorRgbMutable();
-        radiance.clear();
+        ColorRgb radiance = new ColorRgb();
+        radiance = new ColorRgb(0.0, 0.0, 0.0);
 
         if (screenBuffer == null || camera == null || patch == null || radianceMethod == null || renderOptions == null) {
             return radiance;
         }
 
-        Vector3Df rayDirection = screenBuffer.getPixelVector(x, y);
-        rayDirection = rayDirection.normalized(Numeric.EPSILON_FLOAT);
+        Vector3Dd rayDirection = screenBuffer.getPixelVector(x, y);
+        rayDirection = rayDirection.normalized(Numeric.EPSILON);
 
-        float denominator = patch.getNormal().dotProduct(rayDirection);
-        if (denominator <= Numeric.EPSILON_FLOAT && denominator >= -Numeric.EPSILON_FLOAT) {
+        double denominator = patch.getNormal().dotProduct(rayDirection);
+        if (denominator <= Numeric.EPSILON && denominator >= -Numeric.EPSILON) {
             return radiance;
         }
 
-        float distance =
-            -(patch.getNormal().dotProduct(camera.eyePosition) + patch.planeConstant) / denominator;
-        Vector3Df hitPoint = new Vector3Df();
+        double distance =
+            -(patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant()) / denominator;
+        Vector3Dd hitPoint = new Vector3Dd();
         hitPoint = camera.eyePosition.add(rayDirection.multiply(distance));
 
         double[] u = new double[1];
         double[] v = new double[1];
         patch.uv(hitPoint, u, v);
-        RadianceImageExporter.clipUv(patch.numberOfVertices, u, v);
+        RadianceImageExporter.clipUv(patch.getNumberOfVertices(), u, v);
 
-        Vector3Df eyeDirection = new Vector3Df(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
+        Vector3Dd eyeDirection = new Vector3Dd(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
         return radianceMethod.getRadiance(camera, patch, u[0], v[0], eyeDirection, renderOptions);
     }
 }

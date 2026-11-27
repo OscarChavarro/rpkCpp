@@ -1,11 +1,11 @@
 package vsdk.toolkit.common.dataStructures;
 
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.logging.Logger;
 
 /** A three-dimensional tree. Radius and distances are squared distances. */
 public final class KDTree<T> {
-    public static final float KD_MAX_RADIUS = 1e10f;
+    public static final double KD_MAX_RADIUS = 1e10;
     private final KDTreeAdapter<T> adapter;
     private final boolean copyData;
     private KDTreeNode<T> root;
@@ -23,7 +23,7 @@ public final class KDTree<T> {
     public void addPoint(T value, short flags) {
         T stored = copyData ? adapter.copy(value) : value;
         KDTreeNode<T> node = new KDTreeNode<>(stored, flags);
-        Vector3Df point = adapter.getKDPosition(stored);
+        Vector3Dd point = adapter.getKDPosition(stored);
         KDTreeNode<T> parent = null;
         KDTreeNode<T> current = root;
         while (current != null) {
@@ -35,11 +35,11 @@ public final class KDTree<T> {
         if (parent == null) {
             root = node;
         } else {
-            Vector3Df parentPoint = adapter.getKDPosition(parent.data);
+            Vector3Dd parentPoint = adapter.getKDPosition(parent.data);
             if (parent.loson == null && parent.hison == null) {
-                float dx = Math.abs(point.x() - parentPoint.x());
-                float dy = Math.abs(point.y() - parentPoint.y());
-                float dz = Math.abs(point.z() - parentPoint.z());
+                double dx = Math.abs(point.x() - parentPoint.x());
+                double dy = Math.abs(point.y() - parentPoint.y());
+                double dz = Math.abs(point.z() - parentPoint.z());
                 int axis = dx > dy ? (dx > dz ? 0 : 2) : (dy > dz ? 1 : 2);
                 parent.setDiscriminator(axis);
             }
@@ -53,7 +53,7 @@ public final class KDTree<T> {
         ++unbalancedCount;
     }
 
-    public int query(Vector3Df point, int count, T[] results, float[] distances, float radius, short excluded) {
+    public int query(Vector3Dd point, int count, T[] results, double[] distances, double radius, short excluded) {
         if (count <= 0) return 0;
         if (distances == null && count > 1000) {
             Logger.reportMessage(this, Logger.ERROR, "KDTree::query", "Too many nodes requested");
@@ -63,7 +63,7 @@ public final class KDTree<T> {
         q.point = point;
         q.wanted = count;
         q.results = results;
-        q.distances = distances == null ? new float[1000] : distances;
+        q.distances = distances == null ? new double[1000] : distances;
         q.maximumDistance = radius;
         q.squaredRadius = radius;
         q.excludeFlags = excluded;
@@ -72,10 +72,10 @@ public final class KDTree<T> {
         return q.found;
     }
 
-    private float distance(T value, Vector3Df point) {
-        Vector3Df position = adapter.getKDPosition(value);
-        float d = position.x() - point.x();
-        float result = d * d;
+    private double distance(T value, Vector3Dd point) {
+        Vector3Dd position = adapter.getKDPosition(value);
+        double d = position.x() - point.x();
+        double result = d * d;
         d = position.y() - point.y();
         result += d * d;
         d = position.z() - point.z();
@@ -84,7 +84,7 @@ public final class KDTree<T> {
     }
 
     private void consider(T data, int flags, KDQuery<T> q) {
-        float dist = distance(data, q.point);
+        double dist = distance(data, q.point);
         if (dist >= q.maximumDistance || (flags & q.excludeFlags) != 0) return;
         if (q.found < q.wanted) {
             int child = q.found;
@@ -118,12 +118,12 @@ public final class KDTree<T> {
 
     private void swapResults(KDQuery<T> q, int a, int b) {
         T value = q.results[a]; q.results[a] = q.results[b]; q.results[b] = value;
-        float dist = q.distances[a]; q.distances[a] = q.distances[b]; q.distances[b] = dist;
+        double dist = q.distances[a]; q.distances[a] = q.distances[b]; q.distances[b] = dist;
     }
 
     private void queryRec(KDTreeNode<T> node, KDQuery<T> q) {
         consider(node.data, node.flags, q);
-        float d = adapter.getKDPosition(node.data).component(node.discriminator()) - q.point.component(node.discriminator());
+        double d = adapter.getKDPosition(node.data).component(node.discriminator()) - q.point.component(node.discriminator());
         KDTreeNode<T> near = d >= 0 ? node.loson : node.hison;
         KDTreeNode<T> far = d >= 0 ? node.hison : node.loson;
         if (near != null) queryRec(near, q);
@@ -135,7 +135,7 @@ public final class KDTree<T> {
         BalancedKDTreeNode<T> node = balanced[index];
         if (index < firstLeaf) {
             int axis = node.discriminator();
-            float d = adapter.getKDPosition(node.data).component(axis) - q.point.component(axis);
+            double d = adapter.getKDPosition(node.data).component(axis) - q.point.component(axis);
             int near = (index << 1) + 1;
             int far = near + 1;
             if (d < 0) { int temp = near; near = far; far = temp; }
@@ -181,24 +181,24 @@ public final class KDTree<T> {
     }
 
     private int bestAxis(BalancedKDTreeNode<T>[] nodes, int low, int high) {
-        float[] min = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
-        float[] max = {-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
+        double[] min = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
+        double[] max = {-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
         for (int i = low; i <= high; ++i) {
-            Vector3Df p = adapter.getKDPosition(nodes[i].data);
+            Vector3Dd p = adapter.getKDPosition(nodes[i].data);
             for (int axis = 0; axis < 3; ++axis) {
-                float v = p.component(axis);
+                double v = p.component(axis);
                 if (v < min[axis]) min[axis] = v;
                 if (v > max[axis]) max[axis] = v;
             }
         }
         int axis = 0;
-        float spread = max[0] - min[0];
+        double spread = max[0] - min[0];
         if (max[1] - min[1] > spread) { axis = 1; spread = max[1] - min[1]; }
         if (max[2] - min[2] > spread) axis = 2;
         return axis;
     }
 
-    private float value(BalancedKDTreeNode<T>[] nodes, int index, int axis) {
+    private double value(BalancedKDTreeNode<T>[] nodes, int index, int axis) {
         return adapter.getKDPosition(nodes[index].data).component(axis);
     }
     private void swap(BalancedKDTreeNode<T>[] nodes, int a, int b) {

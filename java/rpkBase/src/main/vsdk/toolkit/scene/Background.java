@@ -1,7 +1,7 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class Background {
@@ -16,14 +16,14 @@ public class Background {
     positions towards the background). If probabilityDensityFunction is non-null, also fills
     in the probability of sampling this direction with sample()
     */
-    public ColorRgbMutable radiance(
-        Vector3Df position,
-        Vector3Df direction,
-        float[] probabilityDensityFunction) {
+    public ColorRgb radiance(
+        Vector3Dd position,
+        Vector3Dd direction,
+        double[] probabilityDensityFunction) {
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
-            probabilityDensityFunction[0] = 0.0f;
+            probabilityDensityFunction[0] = 0.0;
         }
-        return new ColorRgbMutable(0.0, 0.0, 0.0);
+        return new ColorRgb(0.0, 0.0, 0.0);
     }
 
     /*
@@ -36,42 +36,42 @@ public class Background {
     in from the sampled direction or the probability of sampling the
     direction are computed on the fly.
     */
-    public Vector3Df sample(
-        Vector3Df position,
-        float xi1,
-        float xi2,
-        ColorRgbMutable radianceValue,
-        float[] probabilityDensityFunction) {
+    public Vector3Dd sample(
+        Vector3Dd position,
+        double xi1,
+        double xi2,
+        ColorRgb radianceValue,
+        double[] probabilityDensityFunction) {
         if (probabilityDensityFunction != null && probabilityDensityFunction.length > 0) {
-            probabilityDensityFunction[0] = 0.0f;
+            probabilityDensityFunction[0] = 0.0;
         }
-        return new Vector3Df();
+        return new Vector3Dd();
     }
 
     /*
     Computes total power emitted by the background (= integral over
     the full sphere of the background radiance.
     */
-    public ColorRgbMutable power(Vector3Df position) {
-        return new ColorRgbMutable(0.0, 0.0, 0.0);
+    public ColorRgb power(Vector3Dd position) {
+        return new ColorRgb(0.0, 0.0, 0.0);
     }
 
-    public static ColorRgbMutable backgroundRadiance(
+    public static ColorRgb backgroundRadiance(
         Background bkg,
-        Vector3Df position,
-        Vector3Df direction,
-        float[] probabilityDensityFunction) {
+        Vector3Dd position,
+        Vector3Dd direction,
+        double[] probabilityDensityFunction) {
         if (bkg == null) {
-            return new ColorRgbMutable(0.0, 0.0, 0.0);
+            return new ColorRgb(0.0, 0.0, 0.0);
         }
         else {
             return bkg.radiance(position, direction, probabilityDensityFunction);
         }
     }
 
-    public static ColorRgbMutable backgroundPower(Background bkg, Vector3Df position) {
+    public static ColorRgb backgroundPower(Background bkg, Vector3Dd position) {
         if (bkg == null) {
-            return new ColorRgbMutable(0.0, 0.0, 0.0);
+            return new ColorRgb(0.0, 0.0, 0.0);
         }
         else {
             return bkg.power(position);

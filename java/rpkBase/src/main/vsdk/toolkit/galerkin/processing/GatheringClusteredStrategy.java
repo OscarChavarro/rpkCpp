@@ -1,6 +1,8 @@
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.common.color.ColorRgb;
+
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
@@ -13,9 +15,9 @@ import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class GatheringClusteredStrategy extends GatheringStrategy {
-    private static float updatePotential(GalerkinElement cluster) {
+    private static double updatePotential(GalerkinElement cluster) {
         if ( (cluster.flags & ElementFlags.IS_CLUSTER_MASK) != 0 ) {
-            cluster.potential = 0.0f;
+            cluster.potential = 0.0;
             for ( int i = 0; cluster.irregularSubElements != null && i < cluster.irregularSubElements.size(); i++ ) {
                 if ( !(cluster.irregularSubElements.get(i) instanceof GalerkinElement) ) {
                     continue;
@@ -28,13 +30,11 @@ public final class GatheringClusteredStrategy extends GatheringStrategy {
         return cluster.potential;
     }
 
-    private static void updateClusterDirectPotential(GalerkinElement element, float potentialIncrement) {
+    private static void updateClusterDirectPotential(GalerkinElement element, double potentialIncrement) {
         if ( element.regularSubElements != null ) {
             for ( int i = 0; i < 4; i++ ) {
                 if ( element.regularSubElements[i] instanceof GalerkinElement ) {
-                    GatheringClusteredStrategy.updateClusterDirectPotential(
-                        (GalerkinElement)element.regularSubElements[i],
-                        potentialIncrement);
+                    GatheringClusteredStrategy.updateClusterDirectPotential( (GalerkinElement)element.regularSubElements[i], potentialIncrement);
                 }
             }
         }
@@ -46,14 +46,14 @@ public final class GatheringClusteredStrategy extends GatheringStrategy {
     }
 
     @Override
-    public boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RenderOptions renderOptions) {
+    public boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RendererConfiguration renderOptions) {
         if ( galerkinState.importanceDriven != 0
              && (galerkinState.iterationNumber <= 1 || scene.camera.changed != 0) ) {
             Potential.updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
                 Patch patch = scene.patchList.get(i);
-                GalerkinElement top = (GalerkinElement)patch.radianceData;
-                float potentialIncrement = patch.directPotential - top.directPotential;
+                GalerkinElement top = galerkinState.topLevelElement(patch);
+                double potentialIncrement = scene.getDirectPotentials().get(patch.getFaceIndex()) - top.directPotential;
                 GatheringClusteredStrategy.updateClusterDirectPotential(top, potentialIncrement);
             }
             GatheringClusteredStrategy.updatePotential(galerkinState.topCluster);
@@ -68,7 +68,7 @@ public final class GatheringClusteredStrategy extends GatheringStrategy {
             LinkingClusteredStrategy.createInitialLinks(galerkinState.topCluster, GalerkinRole.RECEIVER, galerkinState);
         }
 
-        float userErrorThreshold = galerkinState.relLinkErrorThreshold;
+        double userErrorThreshold = galerkinState.relLinkErrorThreshold;
 
         // Refines and computes light transport over the refined links
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.PARALLEL_JACOBI ) {
@@ -84,15 +84,15 @@ public final class GatheringClusteredStrategy extends GatheringStrategy {
         GalerkinBasis.pushPullRadiance(galerkinState.topCluster, galerkinState);
 
         if ( galerkinState.importanceDriven != 0 ) {
-            GatheringStrategy.pushPullPotential(galerkinState.topCluster, 0.0f);
+            GatheringStrategy.pushPullPotential(galerkinState.topCluster, 0.0, scene.getDirectPotentials());
         }
 
         // No visualisation with ambient term for gathering radiosity algorithms
-        galerkinState.ambientRadiance.clear();
+        galerkinState.ambientRadiance = new ColorRgb(0.0, 0.0, 0.0);
 
         // Update the display colors of the patches
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-            GalerkinRadianceMethod.recomputePatchColor(scene.patchList.get(i));
+            GalerkinRadianceMethod.recomputePatchColor(scene.patchList.get(i), scene.getFaceColors());
         }
         return false; // Never done
     }

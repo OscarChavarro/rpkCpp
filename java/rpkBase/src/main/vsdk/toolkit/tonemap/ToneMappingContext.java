@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public class ToneMappingContext {
     // Gamma correction table
@@ -9,55 +9,54 @@ public class ToneMappingContext {
     public static final int GAMMA_TABLE_SIZE = (1 << GAMMA_TABLE_BITS) + 1;
 
     // Fixed radiance rescaling before tone mapping
-    public float brightness_adjust; // Brightness adjustment factor
-    public float pow_bright_adjust; // pow(2, brightness_adjust)
+    public double brightness_adjust; // Brightness adjustment factor
+    public double pow_bright_adjust; // pow(2, brightness_adjust)
 
     // Variable / non-linear radiance rescaling parameters
     public ToneMapAdaptationMethod staticAdaptationMethod;
-    public float realWorldAdaptionLuminance;
-    public float maximumDisplayLuminance;
-    public float maximumDisplayContrast;
+    public double realWorldAdaptionLuminance;
+    public double maximumDisplayLuminance;
+    public double maximumDisplayContrast;
 
-    // Conversion from radiance (COLOR type) to display RGB
-    public float xr; // Monitor primary colors
-    public float yr;
-    public float xg;
-    public float yg;
-    public float xb;
-    public float yb;
-    public float xw; // Monitor white point
-    public float yw;
 
     // Display RGB mapping (corrects display non-linear response)
-    public ColorRgbMutable gamma; // Gamma factors for red, green, blue
-    public float[][] gammaTab; // Gamma correction tables for red, green and blue
+    public ColorRgb gamma; // Gamma factors for red, green, blue
+    public double[][] gammaTab; // Gamma correction tables for red, green and blue
 
-    private static final float DEFAULT_GAMMA = 1.7f;
-    private static final float DEFAULT_TM_LWA = 10.0f;
-    private static final float DEFAULT_TM_LD_MAXIMUM = 100.0f;
-    private static final float DEFAULT_TM_C_MAXIMUM = 50.0f;
+    // Conversion from radiance to display RGB
+    private Cie colorSpace;
+
+    private static final double DEFAULT_GAMMA = 1.7;
+    private static final double DEFAULT_TM_LWA = 10.0;
+    private static final double DEFAULT_TM_LD_MAXIMUM = 100.0;
+    private static final double DEFAULT_TM_C_MAXIMUM = 50.0;
 
     public ToneMappingContext() {
-        brightness_adjust = 0.0f;
-        pow_bright_adjust = (float) Math.pow(2.0F, brightness_adjust);
+        brightness_adjust = 0.0;
+        pow_bright_adjust = (double)Math.pow(2.0, brightness_adjust);
 
         staticAdaptationMethod = ToneMapAdaptationMethod.TMA_MEDIAN;
         realWorldAdaptionLuminance = DEFAULT_TM_LWA;
         maximumDisplayLuminance = DEFAULT_TM_LD_MAXIMUM;
         maximumDisplayContrast = DEFAULT_TM_C_MAXIMUM;
 
-        xr = 0.640f;
-        yr = 0.330f;
-        xg = 0.290f;
-        yg = 0.600f;
-        xb = 0.150f;
-        yb = 0.060f;
-        xw = 0.333333333333f;
-        yw = 0.333333333333f;
-        Cie.computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
+        // Monitor primaries and white point
+        colorSpace = new Cie(
+            0.640, 0.330,
+            0.290, 0.600,
+            0.150, 0.060,
+            0.333333333333, 0.333333333333);
 
-        gamma = new ColorRgbMutable(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
-        gammaTab = new float[3][GAMMA_TABLE_SIZE];
+        gamma = new ColorRgb(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+        gammaTab = new double[3][GAMMA_TABLE_SIZE];
         ToneMap.recomputeGammaTables(this, gamma);
+    }
+
+    public Cie getColorSpace() {
+        return colorSpace;
+    }
+
+    public void setColorSpace(Cie inColorSpace) {
+        colorSpace = inColorSpace;
     }
 }

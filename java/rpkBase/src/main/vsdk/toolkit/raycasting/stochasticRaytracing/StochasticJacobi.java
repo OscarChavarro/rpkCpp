@@ -15,28 +15,28 @@ import vsdk.toolkit.common.Random;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter;
 import vsdk.toolkit.scene.SceneQuery;
 import vsdk.toolkit.scene.SceneQueryWorkspace;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public final class StochasticJacobi {
     @FunctionalInterface
     public interface GetRadianceCallback {
-        ColorRgbMutable[] apply(StochasticRadiosityElement elem);
+        ColorRgb[] apply(StochasticRadiosityElement elem);
     }
 
     @FunctionalInterface
     public interface GetImportanceCallback {
-        float apply(StochasticRadiosityElement elem);
+        double apply(StochasticRadiosityElement elem);
     }
 
     @FunctionalInterface
@@ -76,21 +76,18 @@ public final class StochasticJacobi {
     }
 
     private static void stochasticJacobiPrintMessage(long nrRays) {
-        System.err.printf("%s-directional ",
-            StochasticRelaxation.activeState().bidirectionalTransfers != 0 ? "Bi" : "Uni");
+        System.err.printf("%s-directional ", StochasticRelaxation.activeState().bidirectionalTransfers != 0 ? "Bi" : "Uni");
         if ( getRadianceCallback != null && getImportanceCallback != null ) {
             System.err.printf("combined ");
         }
         if ( getRadianceCallback != null ) {
-            System.err.printf("%s radiance ",
-                StochasticRelaxation.activeState().importanceDriven != 0 ? "importance-driven " : "");
+            System.err.printf("%s radiance ", StochasticRelaxation.activeState().importanceDriven != 0 ? "importance-driven " : "");
         }
         if ( getRadianceCallback != null && getImportanceCallback != null ) {
             System.err.printf("and ");
         }
         if ( getImportanceCallback != null ) {
-            System.err.printf("%s importance ",
-                StochasticRelaxation.activeState().radianceDriven != 0 ? "radiance-driven " : "");
+            System.err.printf("%s importance ", StochasticRelaxation.activeState().radianceDriven != 0 ? "radiance-driven " : "");
         }
         System.err.printf("propagation");
         if ( useControlVariate != 0 ) {
@@ -107,20 +104,17 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
         if ( getRadianceCallback != null ) {
             // Probability proportional to power to be propagated
-            ColorRgbMutable[] callbackRadiance = getRadianceCallback.apply(elem);
-            ColorRgbMutable radiance = new ColorRgbMutable();
-            radiance.set(
-                callbackRadiance[0].getR(),
-                callbackRadiance[0].getG(),
-                callbackRadiance[0].getB());
+            ColorRgb[] callbackRadiance = getRadianceCallback.apply(elem);
+            ColorRgb radiance = new ColorRgb();
+            radiance = new ColorRgb(callbackRadiance[0].getR(), callbackRadiance[0].getG(), callbackRadiance[0].getB());
             if ( StochasticRelaxation.activeState().constantControlVariate != 0 ) {
-                radiance.subtract(radiance, StochasticRelaxation.activeState().controlRadiance);
+                radiance = radiance.subtract(StochasticRelaxation.activeState().controlRadiance);
             }
             prob = elem.area * radiance.sumAbsComponents();
             if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
                 // Weight with received importance
-                float w = elem.importance - elem.sourceImportance;
-                prob *= (w > 0.0f) ? w : 0.0f;
+                double w = elem.importance - elem.sourceImportance;
+                prob *= (w > 0.0) ? w : 0.0;
             }
         }
 
@@ -130,8 +124,8 @@ Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 
             if ( StochasticRelaxation.activeState().radianceDriven != 0 ) {
                 // Received-radiance weighted importance transport
-                ColorRgbMutable receivedRadiance = new ColorRgbMutable();
-                receivedRadiance.subtract(elem.radiance[0], elem.sourceRad);
+                ColorRgb receivedRadiance = new ColorRgb();
+                receivedRadiance = elem.radiance[0].subtract(elem.sourceRad);
                 prob2 *= receivedRadiance.sumAbsComponents();
             }
 
@@ -153,7 +147,7 @@ clear accumulators of all kinds of sample weights and contributions
             Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
         }
         if ( getImportanceCallback != null ) {
-            elem.receivedImportance = 0.0f;
+            elem.receivedImportance = 0.0;
         }
     }
 
@@ -168,11 +162,11 @@ sampling probabilities at leaf elements
             return;
         }
 
-        stochasticRadiosityElement.samplingProbability = 0.0f;
+        stochasticRadiosityElement.samplingProbability = 0.0;
         if ( !stochasticRadiosityElement.traverseAllChildren(StochasticJacobi::stochasticJacobiElementSetup) ) {
             // Elem is a leaf element. We need to compute the sum of the un-normalized
             // sampling "probabilities" at the leaf elements
-            stochasticRadiosityElement.samplingProbability = (float)stochasticJacobiProbability(stochasticRadiosityElement);
+            stochasticRadiosityElement.samplingProbability = (double)stochasticJacobiProbability(stochasticRadiosityElement);
             sumOfProbabilities += stochasticRadiosityElement.samplingProbability;
         }
         if ( stochasticRadiosityElement.parent != null ) {
@@ -190,10 +184,9 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
 */
     private static boolean stochasticJacobiSetup(ArrayList<Patch> scenePatches) {
         // Determine constant control radiosity if required
-        StochasticRelaxation.activeState().controlRadiance.clear();
+        StochasticRelaxation.activeState().controlRadiance = new ColorRgb(0.0, 0.0, 0.0);
         if ( useControlVariate != 0 ) {
-            StochasticRelaxation.activeState().controlRadiance =
-                Ccr.determineControlRadiosity(getRadianceCallback::apply, null, scenePatches);
+            StochasticRelaxation.activeState().controlRadiance = Ccr.determineControlRadiosity(getRadianceCallback::apply, null, scenePatches, StochasticRelaxation.activeState().toneMapOptions.getColorSpace());
         }
 
         sumOfProbabilities = 0.0;
@@ -209,8 +202,8 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
     /**
 Returns radiance to be propagated from the given location of the element
 */
-    private static ColorRgbMutable stochasticJacobiGetSourceRadiance(StochasticRadiosityElement src, double us, double vs) {
-        ColorRgbMutable[] srcRad = getRadianceCallback.apply(src);
+    private static ColorRgb stochasticJacobiGetSourceRadiance(StochasticRadiosityElement src, double us, double vs) {
+        ColorRgb[] srcRad = getRadianceCallback.apply(src);
         return Basismcrad.colorAtUv(src.basis, srcRad, us, vs);
     }
 
@@ -218,7 +211,7 @@ Returns radiance to be propagated from the given location of the element
         StochasticRadiosityElement rcv,
         double ur,
         double vr,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         StochasticRadiosityElement src,
         double fraction,
         double weight)
@@ -229,13 +222,13 @@ Returns radiance to be propagated from the given location of the element
         for ( int i = 0; i < rcv.basis.size; i++ ) {
             double dual = rcv.basis.dualFunction[i].eval(ur, vr) / rcv.area;
             double w = dual * fraction / (double)numberOfRaysToShoot;
-            rcv.receivedRadiance[i].addScaled(rcv.receivedRadiance[i], (float)w, rayPower);
+            rcv.receivedRadiance[i] = rcv.receivedRadiance[i].addScaled((double)w, rayPower);
         }
     }
 
     private static void stochasticJacobiPropagateRadianceToClusterIsotropic(
         StochasticRadiosityElement cluster,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         StochasticRadiosityElement src,
         double fraction,
         double weight)
@@ -244,7 +237,7 @@ Returns radiance to be propagated from the given location of the element
             // Keep parameters used in C++ signature.
         }
         double w = fraction / cluster.area / (double)numberOfRaysToShoot;
-        cluster.receivedRadiance[0].addScaled(cluster.receivedRadiance[0], (float)w, rayPower);
+        cluster.receivedRadiance[0] = cluster.receivedRadiance[0].addScaled((double)w, rayPower);
     }
 
     /**
@@ -252,19 +245,19 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
     private static void stochasticJacobiPropagateRadianceClusterRecursive(
         StochasticRadiosityElement currentElement,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         Ray ray,
-        float dir,
+        double dir,
         double projectedArea,
         double fraction)
     {
         if ( currentElement != null && !currentElement.isCluster() ) {
             // Trivial case
-            double c = -dir * currentElement.patch.getNormal().dotProduct(ray.direction);
+            double c = -dir * currentElement.patch.getNormal().dotProduct(ray.getDirection());
             if ( c > 0.0 ) {
                 double aFraction = fraction * (c * currentElement.area / projectedArea);
                 double w = aFraction / currentElement.area / (double)numberOfRaysToShoot;
-                currentElement.receivedRadiance[0].addScaled(currentElement.receivedRadiance[0], (float)w, rayPower);
+                currentElement.receivedRadiance[0] = currentElement.receivedRadiance[0].addScaled((double)w, rayPower);
             }
         } else {
             // Recursive case
@@ -286,9 +279,9 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 
     private static void stochasticJacobiPropagateRadianceToClusterOriented(
         StochasticRadiosityElement cluster,
-        ColorRgbMutable rayPower,
+        ColorRgb rayPower,
         Ray ray,
-        float dir,
+        double dir,
         StochasticRadiosityElement src,
         double projectedArea,
         double fraction,
@@ -306,12 +299,12 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
     private static void stochasticJacobiReceiverProjectedAreaRecursive(
         StochasticRadiosityElement currentElement,
         Ray ray,
-        float dir,
+        double dir,
         double[] area)
     {
         if ( currentElement != null && !currentElement.isCluster() ) {
             // Trivial case
-            double c = -dir * currentElement.patch.getNormal().dotProduct(ray.direction);
+            double c = -dir * currentElement.patch.getNormal().dotProduct(ray.getDirection());
             if ( c > 0.0 ) {
                 area[0] += c * currentElement.area;
             }
@@ -331,7 +324,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
         }
     }
 
-    private static double stochasticJacobiReceiverProjectedArea(StochasticRadiosityElement cluster, Ray ray, float dir) {
+    private static double stochasticJacobiReceiverProjectedArea(StochasticRadiosityElement cluster, Ray ray, double dir) {
         double[] area = new double[] {0.0};
         stochasticJacobiReceiverProjectedAreaRecursive(cluster, ray, dir, area);
         return area[0];
@@ -357,10 +350,10 @@ the receiver is a cluster
         double srcProb,
         double rcvProb,
         Ray ray,
-        float dir)
+        double dir)
     {
-        ColorRgbMutable radiance;
-        ColorRgbMutable rayPower = new ColorRgbMutable();
+        ColorRgb radiance;
+        ColorRgb rayPower = new ColorRgb();
         double area;
         double weight = sumOfProbabilities / srcProb; // src area / normalised src prob
         double fraction = srcProb / (srcProb + rcvProb); // 1 for uni-directional transfers
@@ -373,9 +366,9 @@ the receiver is a cluster
 
         radiance = stochasticJacobiGetSourceRadiance(src, us, vs);
         if ( StochasticRelaxation.activeState().constantControlVariate != 0 ) {
-            radiance.subtract(radiance, StochasticRelaxation.activeState().controlRadiance);
+            radiance = radiance.subtract(StochasticRelaxation.activeState().controlRadiance);
         }
-        rayPower.scaledCopy((float)weight, radiance);
+        rayPower = radiance.multiply((double)weight);
 
         if ( !rcv.isCluster() ) {
             stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);
@@ -414,13 +407,13 @@ Idem but for importance
         double srcProb,
         double rcvProb,
         Ray ray,
-        float dir)
+        double dir)
     {
         if ( ray == null || us < -1 || vs < -1 || ur < -1 || vr < -1 || dir < -2 ) {
             // Keep parameters used in C++ signature.
         }
         double w = sumOfProbabilities / (srcProb + rcvProb) / rcv.area / (double)numberOfRaysToShoot;
-        rcv.receivedImportance += (float)(
+        rcv.receivedImportance += (double)(
             w * StochasticRadiosityElement.stochasticRadiosityElementScalarReflectance(src) * getImportanceCallback.apply(src));
 
         if ( ElementHierarchyState.activeState().do_h_meshing != 0 ||
@@ -447,8 +440,8 @@ is from P to Q
         double srcProb,
         double rcvProb,
         Ray ray,
-        float dir,
-        RenderOptions renderOptions)
+        double dir,
+        RendererConfiguration renderOptions)
     {
         Link link = Hierarchy.topLink(Q, P);
         double[] rcvU = new double[] {uq};
@@ -472,7 +465,7 @@ is from P to Q
         double srcProb,
         double rcvProb,
         Ray ray,
-        float dir)
+        double dir)
     {
         // No refinement (yet) for importance: propagate between toplevel surfaces
         stochasticJacobiPropagateImportance(P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, dir);
@@ -493,7 +486,7 @@ bi-directionality if requested
         double uq,
         double vq,
         Ray ray,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         double srcProb;
         double[] us = new double[] {up};
@@ -512,21 +505,21 @@ bi-directionality if requested
 
             if ( getRadianceCallback != null ) {
                 stochasticJacobiRefineAndPropagateRadiance(
-                    src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0f, renderOptions);
+                    src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0, renderOptions);
                 stochasticJacobiRefineAndPropagateRadiance(
-                    rcv, ur[0], vr[0], Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0f, renderOptions);
+                    rcv, ur[0], vr[0], Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0, renderOptions);
             }
             if ( getImportanceCallback != null ) {
-                stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0f);
-                stochasticJacobiRefineAndPropagateImportance(Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0f);
+                stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, srcProb, rcvProb, ray, +1.0);
+                stochasticJacobiRefineAndPropagateImportance(Q, uq, vq, P, up, vp, rcvProb, srcProb, ray, -1.0);
             }
         } else {
             if ( getRadianceCallback != null ) {
                 stochasticJacobiRefineAndPropagateRadiance(
-                    src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0f, renderOptions);
+                    src, us[0], vs[0], P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0, renderOptions);
             }
             if ( getImportanceCallback != null ) {
-                stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0f);
+                stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, srcProb, 0.0, ray, +1.0);
             }
         }
     }
@@ -568,7 +561,7 @@ bi-directionality if requested
     /**
 Determines uniform (u,v) parameters of hit point on hit patch
 */
-    private static void stochasticJacobiUniformHitCoordinates(RayHit hit, double[] uHit, double[] vHit) {
+    private static void stochasticJacobiUniformHitCoordinates(RpkRayHit hit, double[] uHit, double[] vHit) {
         if ( (hit.getFlags() & RayHitFlag.UV) != 0 ) {
             // (u,v) coordinates obtained as side result of intersection test
             uHit[0] = hit.getUv().x;
@@ -577,7 +570,7 @@ Determines uniform (u,v) parameters of hit point on hit patch
                 hit.getPatch().biLinearToUniform(uHit, vHit);
             }
         } else {
-            Vector3Df position = hit.getPoint();
+            Vector3Dd position = hit.getPoint();
             hit.getPatch().uniformUv(position, uHit, vHit);
         }
 
@@ -607,7 +600,7 @@ hit patch (and back for bidirectional transfers)
         int nMostSignificantBit,
         long mostSignificantBit1,
         long rMostSignificantBit2,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( getRadianceCallback != null ) {
             StochasticRelaxation.activeState().tracedRays++;
@@ -621,8 +614,8 @@ hit patch (and back for bidirectional transfers)
             src.patch,
             stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
-        RayHit hitStore = new RayHit();
-        RayHit hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, src.patch, ray, hitStore);
+        RpkRayHit hitStore = new RpkRayHit();
+        RpkRayHit hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, src.patch, ray, hitStore);
 
         if ( hit != null ) {
             double[] uHit = new double[] {0.0};
@@ -657,15 +650,14 @@ Determines nr of rays to shoot from element and shoots this number of rays
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         StochasticRadiosityElement element,
         int raysThisElem,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         int[] sampleRange = new int[1]; // Determines a range in which to generate a sample
         long[] mostSignificantBit1 = new long[1]; // See monteCarloRadiosityElementRange() and NextSample()
         long[] rMostSignificantBit2 = new long[1];
 
         // Sample number range for 4D Niederreiter sequence
-        StochasticRadiosityElement.stochasticRadiosityElementRange(
-            element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
+        StochasticRadiosityElement.stochasticRadiosityElementRange( element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
 
         // Shoot the rays
         for ( int i = 0; i < raysThisElem; i++ ) {
@@ -686,7 +678,7 @@ Determines nr of rays to shoot from element and shoots this number of rays
         double rnd,
         long[] rayCount,
         double[] cumulative,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( element.regularSubElements == null ) {
             // Trivial case
@@ -722,7 +714,7 @@ Fire off rays from the leaf elements, propagate radiance/importance
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         double rnd = Random.drand48();
         long[] rayCount = new long[] {0};
@@ -751,7 +743,7 @@ approximation of total and un-shot radiance and importance
         if ( getRadianceCallback != null ) {
             if ( useControlVariate != 0 ) {
                 // Add constant radiosity contribution to received flux
-                elem.receivedRadiance[0].add(elem.receivedRadiance[0], StochasticRelaxation.activeState().controlRadiance);
+                elem.receivedRadiance[0] = elem.receivedRadiance[0].add(StochasticRelaxation.activeState().controlRadiance);
             }
             // Multiply with reflectivity on leaf elements only
             Coefficientsmcrad.stochasticRadiosityMultiplyCoefficients(elem.Rd, elem.receivedRadiance, elem.basis);
@@ -759,19 +751,10 @@ approximation of total and un-shot radiance and importance
 
         reflectCallback.apply(elem, (double)numberOfRaysToShoot / sumOfProbabilities);
 
-        StochasticRelaxation.activeState().unShotFlux.addScaled(
-            StochasticRelaxation.activeState().unShotFlux,
-            (float)Math.PI * elem.area,
-            elem.unShotRadiance[0]);
-        StochasticRelaxation.activeState().totalFlux.addScaled(
-            StochasticRelaxation.activeState().totalFlux,
-            (float)Math.PI * elem.area,
-            elem.radiance[0]);
-        StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.addScaled(
-            StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux,
-            (float)(Math.PI * elem.area * (elem.importance - elem.sourceImportance)),
-            elem.unShotRadiance[0]);
-        StochasticRelaxation.activeState().unShotYmp += (float)(elem.area * Math.abs(elem.unShotImportance));
+        StochasticRelaxation.activeState().unShotFlux = (StochasticRelaxation.activeState().unShotFlux).addScaled((double)Math.PI * elem.area, elem.unShotRadiance[0]);
+        StochasticRelaxation.activeState().totalFlux = (StochasticRelaxation.activeState().totalFlux).addScaled((double)Math.PI * elem.area, elem.radiance[0]);
+        StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux = (StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux).addScaled((double)(Math.PI * elem.area * (elem.importance - elem.sourceImportance)), elem.unShotRadiance[0]);
+        StochasticRelaxation.activeState().unShotYmp += (double)(elem.area * Math.abs(elem.unShotImportance));
         StochasticRelaxation.activeState().totalYmp += elem.area * elem.importance;
     }
 
@@ -779,21 +762,19 @@ approximation of total and un-shot radiance and importance
         if ( getRadianceCallback != null ) {
             if ( parent.isCluster() && !child.isCluster() ) {
                 // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
-                ColorRgbMutable rad = new ColorRgbMutable(
+                ColorRgb rad = new ColorRgb(
                     parent.receivedRadiance[0].getR(), parent.receivedRadiance[0].getG(), parent.receivedRadiance[0].getB());
-                ColorRgbMutable Rd = child.Rd;
-                rad.selfScalarProduct(Rd);
-                StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(
-                    parent, child, new ColorRgbMutable[] {rad}, child.receivedRadiance);
+                ColorRgb Rd = child.Rd;
+                rad = rad.multiply(Rd);
+                StochasticRadiosityElement.stochasticRadiosityElementPushRadiance( parent, child, new ColorRgb[] {rad}, child.receivedRadiance);
             } else {
-                StochasticRadiosityElement.stochasticRadiosityElementPushRadiance(
-                    parent, child, parent.receivedRadiance, child.receivedRadiance);
+                StochasticRadiosityElement.stochasticRadiosityElementPushRadiance( parent, child, parent.receivedRadiance, child.receivedRadiance);
             }
         }
 
         if ( getImportanceCallback != null ) {
-            float[] parentImportance = new float[] {parent.receivedImportance};
-            float[] childImportance = new float[] {child.receivedImportance};
+            double[] parentImportance = new double[] {parent.receivedImportance};
+            double[] childImportance = new double[] {child.receivedImportance};
             StochasticRadiosityElement.stochasticRadiosityElementPushImportance(parentImportance, childImportance);
             child.receivedImportance = childImportance[0];
         }
@@ -805,15 +786,14 @@ approximation of total and un-shot radiance and importance
             StochasticRadiosityElement.stochasticRadiosityElementPullRadiance(parent, child, parent.unShotRadiance, child.unShotRadiance);
         }
         if ( getImportanceCallback != null ) {
-            float[] parentImportance = new float[] {parent.importance};
-            float[] childImportance = new float[] {child.importance};
+            double[] parentImportance = new double[] {parent.importance};
+            double[] childImportance = new double[] {child.importance};
             StochasticRadiosityElement.stochasticRadiosityElementPullImportance(parent, child, parentImportance, childImportance);
             parent.importance = parentImportance[0];
 
-            float[] parentUnShotImportance = new float[] {parent.unShotImportance};
-            float[] childUnShotImportance = new float[] {child.unShotImportance};
-            StochasticRadiosityElement.stochasticRadiosityElementPullImportance(
-                parent, child, parentUnShotImportance, childUnShotImportance);
+            double[] parentUnShotImportance = new double[] {parent.unShotImportance};
+            double[] childUnShotImportance = new double[] {child.unShotImportance};
+            StochasticRadiosityElement.stochasticRadiosityElementPullImportance( parent, child, parentUnShotImportance, childUnShotImportance);
             parent.unShotImportance = parentUnShotImportance[0];
         }
     }
@@ -827,7 +807,7 @@ Clears everything to be pulled from children elements to zero
             Coefficientsmcrad.stochasticRadiosityClearCoefficients(parent.unShotRadiance, parent.basis);
         }
         if ( getImportanceCallback != null ) {
-            parent.importance = parent.unShotImportance = 0.0f;
+            parent.importance = parent.unShotImportance = 0.0;
         }
     }
 
@@ -856,10 +836,10 @@ Clears everything to be pulled from children elements to zero
 
         stochasticJacobiPullRdEd(child);
 
-        parent.Ed.addScaled(parent.Ed, child.area / parent.area, child.Ed);
-        parent.Rd.addScaled(parent.Rd, child.area / parent.area, child.Rd);
+        parent.Ed = parent.Ed.addScaled(child.area / parent.area, child.Ed);
+        parent.Rd = parent.Rd.addScaled(child.area / parent.area, child.Rd);
         if ( parent.isCluster() ) {
-            parent.Rd.setMonochrome(1.0f);
+            parent.Rd = new ColorRgb(1.0, 1.0, 1.0);
         }
     }
 
@@ -870,18 +850,18 @@ Clears everything to be pulled from children elements to zero
             return;
         }
 
-        element.Ed.clear();
-        element.Rd.clear();
+        element.Ed = new ColorRgb(0.0, 0.0, 0.0);
+        element.Rd = new ColorRgb(0.0, 0.0, 0.0);
         element.traverseAllChildren(StochasticJacobi::stochasticJacobiPullRdEdFromChild);
     }
 
     private static void stochasticJacobiPushUpdatePullSweep() {
         // Update radiance, compute new total and un-shot flux
-        StochasticRelaxation.activeState().unShotFlux.clear();
-        StochasticRelaxation.activeState().unShotYmp = 0.0f;
-        StochasticRelaxation.activeState().totalFlux.clear();
-        StochasticRelaxation.activeState().totalYmp = 0.0f;
-        StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.clear();
+        StochasticRelaxation.activeState().unShotFlux = new ColorRgb(0.0, 0.0, 0.0);
+        StochasticRelaxation.activeState().unShotYmp = 0.0;
+        StochasticRelaxation.activeState().totalFlux = new ColorRgb(0.0, 0.0, 0.0);
+        StochasticRelaxation.activeState().totalYmp = 0.0;
+        StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux = new ColorRgb(0.0, 0.0, 0.0);
 
         // Update reflectances and emittances (refinement yields more accurate estimates
         // on textured surfaces)
@@ -921,7 +901,7 @@ propagation of importance and radiance does not work yet.
         GetImportanceCallback getImportanceCallBack,
         UpdateCallback updateCallBack,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         stochasticJacobiInitGlobals((int)numberOfRays, getRadianceCallBack, getImportanceCallBack, updateCallBack);
         stochasticJacobiPrintMessage(numberOfRays);

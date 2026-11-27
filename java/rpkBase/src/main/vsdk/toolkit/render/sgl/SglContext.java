@@ -1,201 +1,89 @@
-/**
-Small Graphics Library
-*/
-
 package vsdk.toolkit.render.sgl;
-
-/**
-Small Graphics Library. Software rendering into a user
-accessible memory buffer. E.getG(). for clustering where a small number
-of patches needs to be ID rendered very often
-*/
 
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Matrix4x4f;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
-import vsdk.toolkit.common.linealAlgebra.Vector4Df;
-import vsdk.toolkit.environment.geometry.elements.Element;
-import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.common.linealAlgebra.Vector4Dd;
 
+/** Projection, viewport and optional depth plane shared by typed SGL targets. */
 public class SglContext {
-    private static final Matrix4x4f IDENTITY_MATRIX = new Matrix4x4f();
+    private final int width;
+    private final int height;
+    private Window viewport;
+    private Matrix4x4d transform;
+    private final long[] depthBuffer;
 
-    /** The current transform is the entry 0 of the transform stack */
-    private void setCurrentTransform(Matrix4x4f transform) {
-        transformStack[0] = transform;
-        currentTransform = transform;
+    public SglContext(int inWidth, int inHeight, boolean depthTesting) {
+        width = inWidth;
+        height = inHeight;
+        viewport = window(0, 0, inWidth - 1, inHeight - 1);
+        transform = new Matrix4x4d();
+        depthBuffer = depthTesting ? new long[inWidth * inHeight] : null;
     }
 
-    private static void clearFrameBuffer(SglContext sglContext, long backgroundColor) {
-        int viewportOrigin = sglContext.vp_y * sglContext.width + sglContext.vp_x;
-        for (int j = 0; j < sglContext.vp_height; j++) {
-            int rowStart = viewportOrigin + j * sglContext.width;
-            for (int i = 0; i < sglContext.vp_width; i++) {
-                int pixelIndex = rowStart + i;
-                sglContext.frameBuffer[pixelIndex] = backgroundColor;
-                sglContext.patchBuffer[pixelIndex] = null;
-                sglContext.galerkinElementBuffer[pixelIndex] = null;
-            }
-        }
+    private static Window window(int x0, int y0, int x1, int y1) {
+        Window result = new Window();
+        result.x0 = x0;
+        result.y0 = y0;
+        result.x1 = x1;
+        result.y1 = y1;
+        return result;
     }
 
-    private static Matrix4x4f identityMatrix() {
-        return IDENTITY_MATRIX;
+    public int getWidth() {
+        return width;
     }
 
-    public Matrix4x4f[] transformStack; // Transform stack
-    public Matrix4x4f currentTransform;
-    public boolean clipping; // Whether to do clipping or not
-    public int vp_x; // Viewport
-    public int vp_y;
-    public double near; // Depth range
-    public double far;
-
-    public SglPixelContent pixelData;
-    public long[] frameBuffer;
-    public Patch[] patchBuffer;
-    public Element[] galerkinElementBuffer;
-
-    public long currentPixel;
-    public Patch currentPatch;
-    public Element currentGalerkinElement;
-
-    public long[] depthBuffer; // Z buffer
-
-    public int width; // canvas size
-    public int height;
-    public int vp_width;
-    public int vp_height;
-
-    /**
-Creates and destroys an SGL rendering context.
-*/
-    public SglContext(int width, int height) {
-        transformStack = new Matrix4x4f[SglConstants.SGL_TRANSFORM_STACK_SIZE];
-        for (int i = 0; i < transformStack.length; i++) {
-            transformStack[i] = new Matrix4x4f();
-        }
-
-        // Frame buffer
-        this.width = width;
-        this.height = height;
-        frameBuffer = new long[width * height];
-        patchBuffer = new Patch[width * height];
-        galerkinElementBuffer = new Element[width * height];
-
-        for (int i = 0; i < width * height; i++) {
-            frameBuffer[i] = 0;
-            patchBuffer[i] = null;
-            galerkinElementBuffer[i] = null;
-        }
-
-        pixelData = SglPixelContent.PIXEL;
-
-        // No Z buffer
-        depthBuffer = null;
-
-        // Transform stack and current transform
-        setCurrentTransform(identityMatrix());
-
-        currentPixel = 0;
-        currentPatch = null;
-        currentGalerkinElement = null;
-
-        clipping = true;
-
-        // Default viewport and depth range
-        vp_x = 0;
-        vp_y = 0;
-        vp_width = width;
-        vp_height = height;
-        near = 0.0;
-        far = 1.0;
+    public int getHeight() {
+        return height;
     }
 
-    /**
-Returns current sgl renderer
-*/
-    public void sglClearZBuffer(long defZVal) {
-        int viewportOrigin = vp_y * width + vp_x;
-        for (int j = 0; j < vp_height; j++) {
-            int rowStart = viewportOrigin + j * width;
-            for (int i = 0; i < vp_width; i++) {
-                depthBuffer[rowStart + i] = defZVal;
-            }
-        }
+    public int getViewportWidth() {
+        return viewport.x1 - viewport.x0 + 1;
     }
 
-    public void sglClear(long backgroundColor, long defZVal) {
-        SglContext.clearFrameBuffer(this, backgroundColor);
-        sglClearZBuffer(defZVal);
+    public int getViewportHeight() {
+        return viewport.y1 - viewport.y0 + 1;
     }
 
-    public void sglDepthTesting(boolean on) {
-        if (on) {
-            if (depthBuffer != null) {
-                return;
-            }
-            else {
-                depthBuffer = new long[width * height];
-            }
-        }
-        else {
-            if (depthBuffer != null) {
-                depthBuffer = null;
-            }
-            else {
-                return;
-            }
-        }
+    public Window getViewport() {
+        return viewport;
     }
 
-    public void sglClipping(boolean on) {
-        clipping = on;
+    public long[] getDepthBuffer() {
+        return depthBuffer;
     }
 
-    public void sglLoadMatrix(Matrix4x4f xf) {
-        setCurrentTransform(xf);
-    }
-
-    public void sglMultiplyMatrix(Matrix4x4f xf) {
-        setCurrentTransform(currentTransform.multiply(xf));
-    }
-
-    public void sglSetPatch(Patch patch) {
-        pixelData = SglPixelContent.PATCH_POINTER;
-        currentPatch = patch;
-    }
-
-    public void sglSetGalerkinElement(Element galerkinElement) {
-        pixelData = SglPixelContent.ELEMENT_POINTER;
-        currentGalerkinElement = galerkinElement;
-    }
-
-    public void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight) {
-        vp_x = x;
-        vp_y = y;
-        vp_width = viewPortWidth;
-        vp_height = viewPortHeight;
-    }
-
-    public void sglPolygon(int numberOfVertices, Vector3Df[] vertices) {
-        Polygon pol = new Polygon();
-        Window win = new Window();
-        PolygonBox clip_box = new PolygonBox(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-
-        if (numberOfVertices > (clipping ? (PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON - 6) : PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON)) {
-            Logger.reportMessage(this, Logger.ERROR, "sglPolygon", String.format("Too many vertices (max. %d)", PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON));
+    public void setViewport(int x, int y, int viewportWidth, int viewportHeight) {
+        if ( x < 0 || y < 0 || viewportWidth <= 0 || viewportHeight <= 0 ||
+             viewportWidth > width - x || viewportHeight > height - y ) {
+            Logger.reportMessage(this, Logger.ERROR, "setViewport", "Viewport lies outside the raster target");
             return;
         }
 
+        viewport = window(x, y, x + viewportWidth - 1, y + viewportHeight - 1);
+    }
+
+    public void setTransform(Matrix4x4d matrix) {
+        transform = matrix;
+    }
+
+    public boolean projectPolygon(int numberOfVertices, Vector3Dd[] vertices, ScreenPolygon pol) {
+        PolygonBox clipBox = new PolygonBox(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+
+        if ( numberOfVertices < 3 || numberOfVertices > PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON - 6 ) {
+            Logger.reportMessage(this, Logger.ERROR, "projectPolygon", "Invalid vertex count for polygon rasterization");
+            return false;
+        }
+
         // Transform the vertices and fill in a Poly
-        for (int i = 0; i < numberOfVertices; i++) {
+        for ( int i = 0; i < numberOfVertices; i++ ) {
             PolygonVertex vertex = pol.vertices[i];
-            final Vector4Df v = currentTransform.multiply(
-                new Vector4Df(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0f));
-            if (v.w() > -VSDK.EPSILON && v.w() < VSDK.EPSILON) {
-                return;
+            final Vector4Dd v = transform.multiply(
+                new Vector4Dd(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0));
+            if ( v.w() > -VSDK.EPSILON && v.w() < VSDK.EPSILON ) {
+                return false;
             }
             vertex.sx = v.x();
             vertex.sy = v.y();
@@ -203,38 +91,22 @@ Returns current sgl renderer
             vertex.sw = v.w();
         }
         pol.n = numberOfVertices;
-        pol.mask = 0;
-
-        if (clipping) {
-            pol.mask = Poly.mask(0L) |
-                Poly.mask(Double.BYTES) |
-                Poly.mask(2L * Double.BYTES) |
-                Poly.mask(3L * Double.BYTES);
-            if (Poly.clipToBox(pol, clip_box) == PolygonClipResult.POLY_CLIP_OUT) {
-                return;
-            }
+        pol.mask = Poly.mask(0L) |
+            Poly.mask(Double.BYTES) |
+            Poly.mask(2L * Double.BYTES) |
+            Poly.mask(3L * Double.BYTES);
+        if ( Poly.clipToBox(pol, clipBox) == PolygonClipResult.POLY_CLIP_OUT ) {
+            return false;
         }
 
         // Perspective divide and transformation to viewport and depth range
-        for (int i = 0; i < pol.n; i++) {
+        for ( int i = 0; i < pol.n; i++ ) {
             PolygonVertex vertex = pol.vertices[i];
-            vertex.sx = (double)vp_x + (vertex.sx / vertex.sw + 1.0) * (double)vp_width * 0.5;
-            vertex.sy = (double)vp_y + (vertex.sy / vertex.sw + 1.0) * (double)vp_height * 0.5;
-            vertex.sz = (near + (vertex.sz / vertex.sw + 1.0) * far * 0.5) * (double)SglConstants.SGL_MAXIMUM_Z;
+            vertex.sx = (double)viewport.x0 + (vertex.sx / vertex.sw + 1.0) * (double)getViewportWidth() * 0.5;
+            vertex.sy = (double)viewport.y0 + (vertex.sy / vertex.sw + 1.0) * (double)getViewportHeight() * 0.5;
+            vertex.sz = ((vertex.sz / vertex.sw + 1.0) * 0.5) * (double)SglConstants.SGL_MAXIMUM_Z;
         }
 
-        // Window
-        win.x0 = vp_x;
-        win.y0 = vp_y;
-        win.x1 = vp_x + vp_width - 1;
-        win.y1 = vp_y + vp_height - 1;
-
-        // Scan convert the polygon: use optimized version for flat shading with or without Z buffering
-        if (depthBuffer != null) {
-            Poly.scanZ(this, pol, win);
-        }
-        else {
-            Poly.scanFlat(this, pol, win);
-        }
+        return true;
     }
 }

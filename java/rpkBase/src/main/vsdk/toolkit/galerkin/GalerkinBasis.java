@@ -5,10 +5,10 @@ Higher order approximations for Galerkin radiosity
 package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 
 /**
@@ -34,36 +34,36 @@ public class GalerkinBasis {
     // sigma. See PushRadiance() and PullRadiance() in basis.c
     public double[][][] regularFilter = new double[4][MAX_BASIS_SIZE][MAX_BASIS_SIZE];
 
-    public static ColorRgbMutable radianceAtPoint(
+    public static ColorRgb radianceAtPoint(
         GalerkinElement element,
-        ColorRgbMutable[] coefficients,
+        ColorRgb[] coefficients,
         double u,
         double v)
     {
-        ColorRgbMutable c = new ColorRgbMutable();
+        ColorRgb c = new ColorRgb();
         if ( element == null || coefficients == null ) {
             return c;
         }
 
         GalerkinBasis basis = mutableBasisForVertexCount(
-            element.patch != null ? element.patch.numberOfVertices : 4);
+            element.patch != null ? element.patch.getNumberOfVertices() : 4);
         if ( basis == null ) {
             return c;
         }
 
         int n = Math.min(element.basisUsed, Math.min(basis.size, coefficients.length));
         for ( int i = 0; i < n; i++ ) {
-            float f = (float)basis.function[i].evaluate(u, v);
-            c.addScaled(c, f, coefficients[i]);
+            double f = (double)basis.function[i].evaluate(u, v);
+            c = c.addScaled(f, coefficients[i]);
         }
         return c;
     }
 
     public static void push(
         GalerkinElement element,
-        ColorRgbMutable[] parentCoefficients,
+        ColorRgb[] parentCoefficients,
         GalerkinElement child,
-        ColorRgbMutable[] childCoefficients)
+        ColorRgb[] childCoefficients)
     {
         if ( element == null || child == null || parentCoefficients == null || childCoefficients == null ) {
             return;
@@ -71,25 +71,19 @@ public class GalerkinBasis {
 
         int sigma = child.childNumber;
         if ( element.isCluster() ) {
-            ColorRgbMutable.arrayClear(childCoefficients, child.basisSize);
-            childCoefficients[0].set(
-                parentCoefficients[0].getR(),
-                parentCoefficients[0].getG(),
-                parentCoefficients[0].getB());
+            ColorRgbMath.arrayClear(childCoefficients, child.basisSize);
+            childCoefficients[0] = new ColorRgb(parentCoefficients[0].getR(), parentCoefficients[0].getG(), parentCoefficients[0].getB());
             return;
         }
 
         if ( sigma < 0 || sigma > 3 ) {
             Logger.reportMessage(null, Logger.ERROR, "GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
-            ColorRgbMutable.arrayClear(childCoefficients, child.basisSize);
-            childCoefficients[0].set(
-                parentCoefficients[0].getR(),
-                parentCoefficients[0].getG(),
-                parentCoefficients[0].getB());
+            ColorRgbMath.arrayClear(childCoefficients, child.basisSize);
+            childCoefficients[0] = new ColorRgb(parentCoefficients[0].getR(), parentCoefficients[0].getG(), parentCoefficients[0].getB());
             return;
         }
 
-        GalerkinBasis basis = basisForVertexCount(child.patch != null ? child.patch.numberOfVertices : 4);
+        GalerkinBasis basis = basisForVertexCount(child.patch != null ? child.patch.getNumberOfVertices() : 4);
         if ( basis == null ) {
             return;
         }
@@ -97,11 +91,11 @@ public class GalerkinBasis {
         int a = Math.min(child.basisSize, childCoefficients.length);
         int b = Math.min(element.basisSize, parentCoefficients.length);
         for ( int beta = 0; beta < a; beta++ ) {
-            childCoefficients[beta].clear();
+            childCoefficients[beta] = new ColorRgb(0.0, 0.0, 0.0);
             for ( int alpha = 0; alpha < b; alpha++ ) {
                 double f = basis.regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK.EPSILON || f > VSDK.EPSILON ) {
-                    childCoefficients[beta].addScaled(childCoefficients[beta], (float)f, parentCoefficients[alpha]);
+                    childCoefficients[beta] = childCoefficients[beta].addScaled((double)f, parentCoefficients[alpha]);
                 }
             }
         }
@@ -111,11 +105,11 @@ public class GalerkinBasis {
         if ( top == null || galerkinState == null ) {
             return;
         }
-        ColorRgbMutable[] bdown = new ColorRgbMutable[MAX_BASIS_SIZE];
-        ColorRgbMutable[] bup = new ColorRgbMutable[MAX_BASIS_SIZE];
+        ColorRgb[] bdown = new ColorRgb[MAX_BASIS_SIZE];
+        ColorRgb[] bup = new ColorRgb[MAX_BASIS_SIZE];
         for ( int i = 0; i < MAX_BASIS_SIZE; i++ ) {
-            bdown[i] = new ColorRgbMutable();
-            bup[i] = new ColorRgbMutable();
+            bdown[i] = new ColorRgb();
+            bup[i] = new ColorRgb();
         }
         pushPullRadianceRecursive(top, bdown, bup, galerkinState);
     }
@@ -153,9 +147,9 @@ public class GalerkinBasis {
 
     private static void pull(
         GalerkinElement parent,
-        ColorRgbMutable[] parentCoefficients,
+        ColorRgb[] parentCoefficients,
         GalerkinElement child,
-        ColorRgbMutable[] childCoefficients)
+        ColorRgb[] childCoefficients)
     {
         if ( parent == null || parentCoefficients == null || child == null || childCoefficients == null ) {
             return;
@@ -163,37 +157,35 @@ public class GalerkinBasis {
 
         int sigma = child.childNumber;
         if ( parent.isCluster() ) {
-            ColorRgbMutable.arrayClear(parentCoefficients, parent.basisSize);
-            parentCoefficients[0].scaledCopy(
-                parent.area > 0.0f ? child.area / parent.area : 0.0f,
-                childCoefficients[0]);
+            ColorRgbMath.arrayClear(parentCoefficients, parent.basisSize);
+            parentCoefficients[0] = childCoefficients[0].multiply(parent.area > 0.0 ? child.area / parent.area : 0.0);
             return;
         }
 
         if ( sigma < 0 || sigma > 3 ) {
             Logger.reportMessage(null, Logger.ERROR, "stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
-            ColorRgbMutable.arrayClear(parentCoefficients, parent.basisSize);
-            parentCoefficients[0].set(childCoefficients[0].getR(), childCoefficients[0].getG(), childCoefficients[0].getB());
+            ColorRgbMath.arrayClear(parentCoefficients, parent.basisSize);
+            parentCoefficients[0] = new ColorRgb(childCoefficients[0].getR(), childCoefficients[0].getG(), childCoefficients[0].getB());
             return;
         }
 
-        GalerkinBasis basis = GalerkinBasis.basisForVertexCount(child.patch != null ? child.patch.numberOfVertices : 4);
+        GalerkinBasis basis = GalerkinBasis.basisForVertexCount(child.patch != null ? child.patch.getNumberOfVertices() : 4);
         for ( int alpha = 0; alpha < parent.basisSize; alpha++ ) {
-            parentCoefficients[alpha].clear();
+            parentCoefficients[alpha] = new ColorRgb(0.0, 0.0, 0.0);
             for ( int beta = 0; beta < child.basisSize; beta++ ) {
                 double f = basis.regularFilter[sigma][alpha][beta];
                 if ( f < -VSDK.EPSILON || f > VSDK.EPSILON ) {
-                    parentCoefficients[alpha].addScaled(parentCoefficients[alpha], (float)f, childCoefficients[beta]);
+                    parentCoefficients[alpha] = parentCoefficients[alpha].addScaled((double)f, childCoefficients[beta]);
                 }
             }
-            parentCoefficients[alpha].scale(0.25f);
+            parentCoefficients[alpha] = parentCoefficients[alpha].multiply(0.25);
         }
     }
 
     private static void pushPullRadianceRecursive(
         GalerkinElement element,
-        ColorRgbMutable[] bdown,
-        ColorRgbMutable[] bup,
+        ColorRgb[] bdown,
+        ColorRgb[] bup,
         GalerkinState galerkinState)
     {
         if ( element == null ) {
@@ -202,23 +194,23 @@ public class GalerkinBasis {
 
         int n = Math.min(element.basisSize, bdown.length);
         for ( int i = 0; i < n; i++ ) {
-            bdown[i].addScaled(bdown[i], element.area > 0.0f ? 1.0f / element.area : 0.0f, element.receivedRadiance[i]);
-            element.receivedRadiance[i].clear();
-            bup[i].clear();
+            bdown[i] = bdown[i].addScaled(element.area > 0.0 ? 1.0 / element.area : 0.0, element.receivedRadiance[i]);
+            element.receivedRadiance[i] = new ColorRgb(0.0, 0.0, 0.0);
+            bup[i] = new ColorRgb(0.0, 0.0, 0.0);
         }
 
         if ( element.regularSubElements == null && element.irregularSubElements == null && element.patch != null ) {
             // Leaf-element, multiply with reflectivity at the lowest level
-            ColorRgbMutable rho = element.patch.radianceData.Rd;
+            ColorRgb rho = element.galerkinState.topLevelElement(element.patch).Rd;
             for ( int i = 0; i < n; i++ ) {
-                bup[i].scalarProduct(rho, bdown[i]);
+                bup[i] = rho.multiply(bdown[i]);
             }
 
             if ( galerkinState.isJacobi()
                 || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
                 // Add self-emitted radiance
-                ColorRgbMutable Ed = element.patch.radianceData.Ed;
-                bup[0].add(bup[0], Ed);
+                ColorRgb Ed = element.galerkinState.topLevelElement(element.patch).Ed;
+                bup[0] = bup[0].add(Ed);
             }
         }
 
@@ -228,13 +220,13 @@ public class GalerkinBasis {
                     continue;
                 }
                 GalerkinElement child = (GalerkinElement)element.regularSubElements[i];
-                ColorRgbMutable[] btmp = freshColorArray();
-                ColorRgbMutable[] bdown2 = freshColorArray();
-                ColorRgbMutable[] bup2 = freshColorArray();
+                ColorRgb[] btmp = freshColorArray();
+                ColorRgb[] bdown2 = freshColorArray();
+                ColorRgb[] bup2 = freshColorArray();
                 push(element, bdown, child, bdown2);
                 pushPullRadianceRecursive(child, bdown2, btmp, galerkinState);
                 pull(element, bup2, child, btmp);
-                ColorRgbMutable.arrayAdd(bup, bup2, n);
+                ColorRgbMath.arrayAdd(bup, bup2, n);
             }
         }
 
@@ -244,28 +236,28 @@ public class GalerkinBasis {
                     continue;
                 }
                 GalerkinElement subElement = (GalerkinElement)element.irregularSubElements.get(i);
-                ColorRgbMutable[] btmp = freshColorArray();
-                ColorRgbMutable[] bdown2 = freshColorArray();
-                ColorRgbMutable[] bup2 = freshColorArray();
+                ColorRgb[] btmp = freshColorArray();
+                ColorRgb[] bdown2 = freshColorArray();
+                ColorRgb[] bup2 = freshColorArray();
                 if ( element.isCluster() ) {
                     push(element, bdown, subElement, bdown2);
                 }
                 else {
-                    ColorRgbMutable.arrayClear(bdown2, n);
+                    ColorRgbMath.arrayClear(bdown2, n);
                 }
                 pushPullRadianceRecursive(subElement, bdown2, btmp, galerkinState);
                 pull(element, bup2, subElement, btmp);
-                ColorRgbMutable.arrayAdd(bup, bup2, n);
+                ColorRgbMath.arrayAdd(bup, bup2, n);
             }
         }
 
         if ( galerkinState.isJacobi()
             || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
-            ColorRgbMutable.arrayCopy(element.radiance, bup, n);
+            ColorRgbMath.arrayCopy(element.radiance, bup, n);
         }
         else {
-            ColorRgbMutable.arrayAdd(element.radiance, bup, n);
-            ColorRgbMutable.arrayAdd(element.unShotRadiance, bup, n);
+            ColorRgbMath.arrayAdd(element.radiance, bup, n);
+            ColorRgbMath.arrayAdd(element.unShotRadiance, bup, n);
         }
     }
 
@@ -282,7 +274,7 @@ public class GalerkinBasis {
             for ( int beta = 0; beta < childSize; beta++ ) {
                 double x = 0.0;
                 for ( int k = 0; k < cubatureRule.numberOfNodes; k++ ) {
-                    Vector2Df up = new Vector2Df((float)cubatureRule.u[k], (float)cubatureRule.v[k]);
+                    Vector2Dd up = new Vector2Dd((double)cubatureRule.u[k], (double)cubatureRule.v[k]);
                     up = upTransform.transformPoint(up);
                     x += cubatureRule.w[k]
                         * parentBasis.function[alpha].evaluate(up.x(), up.y())
@@ -293,10 +285,10 @@ public class GalerkinBasis {
         }
     }
 
-    private static ColorRgbMutable[] freshColorArray() {
-        ColorRgbMutable[] c = new ColorRgbMutable[MAX_BASIS_SIZE];
+    private static ColorRgb[] freshColorArray() {
+        ColorRgb[] c = new ColorRgb[MAX_BASIS_SIZE];
         for ( int i = 0; i < MAX_BASIS_SIZE; i++ ) {
-            c[i] = new ColorRgbMutable();
+            c[i] = new ColorRgb();
         }
         return c;
     }

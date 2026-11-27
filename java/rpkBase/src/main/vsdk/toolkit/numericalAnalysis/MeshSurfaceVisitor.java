@@ -1,55 +1,9 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-/**
-Initializes MeshSurface/Patch links with safe defaults without running numerical analysis.
-*/
-
-/**
-Fills in the MeshSurface back pointer of the face belonging to the given surface
-*/
-
-/**
-Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
-*/
-
 
 public class MeshSurfaceVisitor {
-    private static void surfaceConnectFace(MeshSurface mesh, Patch face) {
-        int i;
-
-        face.material = mesh.material;
-
-        // Also fill in a nicer default color for the patch
-        switch (mesh.colorFlags) {
-            case MaterialColorFlags.FACE_COLORS:
-                break;
-            case MaterialColorFlags.VERTEX_COLORS:
-                // Average color of the vertices
-                face.color.set(0, 0, 0);
-                for (i = 0; i < face.numberOfVertices; i++) {
-                    face.color.r += face.vertex[i].color.r;
-                    face.color.g += face.vertex[i].color.g;
-                    face.color.b += face.vertex[i].color.b;
-                }
-                face.color.r /= (float)i;
-                face.color.g /= (float)i;
-                face.color.b /= (float)i;
-                break;
-            default: {
-                ColorRgbMutable rho;
-                rho = PatchVisitor.averageNormalAlbedo(
-                    face,
-                    BsdfComponent.BRDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT);
-                face.color = new ColorRgbMutable(rho);
-            }
-        }
-    }
-
     /**
     Initializes MeshSurface/Patch links with safe defaults without running numerical analysis.
     */
@@ -62,8 +16,18 @@ public class MeshSurfaceVisitor {
             if (face == null) {
                 continue;
             }
-            face.material = mesh.material;
+            face.setMaterial(mesh.material);
         }
+    }
+
+    /**
+    Fills in the MeshSurface back pointer of the face belonging to the given surface
+    */
+    private static void surfaceConnectFace(MeshSurface mesh, Patch face) {
+        face.setMaterial(mesh.material);
+        // Face display colors start black in the scene's FaceColorTable. The color
+        // defaults that used to be derived here never applied: MeshSurface.colorFlags
+        // is reset to NO_COLORS before the faces are connected.
     }
 
     /**

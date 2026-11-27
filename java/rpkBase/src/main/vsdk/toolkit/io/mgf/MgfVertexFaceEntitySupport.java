@@ -6,8 +6,7 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector2Df;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.io.context.EntityTypeContext;
 import vsdk.toolkit.io.context.ParseErrorContext;
@@ -17,7 +16,7 @@ import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.io.context.VertexContext;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.Vertex;
+import vsdk.toolkit.environment.geometry.elements.RpkVertex;
 
 public class MgfVertexFaceEntitySupport {
     private static final int MAXIMUM_FACE_VERTICES = 100;
@@ -27,75 +26,72 @@ public class MgfVertexFaceEntitySupport {
     }
 
     /**
-The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
-into polygons. In the official release of the parser library, these routines
-are internal (declared static in parse.c and no reference to them in parser.h).
-The parser was changed so we can call them in order not to have to duplicate
-the code
+Turns a surface primitive (sphere, torus, cylinder, ring, cone or prism)
+into faces, through the VITRAL geometry of MgfVitralPrimitiveTessellator
     */
     private static int doDiscreteConic(int argc, String[] argv, ParseRuntimeContext context) {
         int en = MgfEntityControl.mgfEntity(argv[0], context);
 
         switch (en) {
             case EntityTypeContext.SPHERE:
-                return MgfSphereEntityExpander.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handleSphere(argc, argv, context);
             case EntityTypeContext.TORUS:
-                return MgfTorusEntityExpander.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handleTorus(argc, argv, context);
             case EntityTypeContext.CYLINDER:
-                return MgfCylinderEntityExpander.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handleCylinder(argc, argv, context);
             case EntityTypeContext.RING:
-                return MgfRingEntityTessellator.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handleRing(argc, argv, context);
             case EntityTypeContext.CONE:
-                return MgfConeEntityTessellator.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handleCone(argc, argv, context);
             case EntityTypeContext.PRISM:
-                return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
+                return MgfVitralPrimitiveTessellator.handlePrism(argc, argv, context);
             default:
                 Logger.reportMessage(null, Logger.FATAL_ERROR, "mgf.c: doDiscreteConic", String.format("Unsupported geometry entity number %d", en));
                 return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
         }
     }
 
-    private static Vector3Df installPoint(float x, float y, float z, ParseRuntimeContext context) {
-        Vector3Df coord = new Vector3Df(x, y, z);
+    private static Vector3Dd installPoint(double x, double y, double z, ParseRuntimeContext context) {
+        Vector3Dd coord = new Vector3Dd(x, y, z);
         context.currentPointList.add(coord);
         return coord;
     }
 
-    private static Vector3Df installNormal(float x, float y, float z, ParseRuntimeContext context) {
-        Vector3Df norm = new Vector3Df(x, y, z);
+    private static Vector3Dd installNormal(double x, double y, double z, ParseRuntimeContext context) {
+        Vector3Dd norm = new Vector3Dd(x, y, z);
         context.currentNormalList.add(norm);
         return norm;
     }
 
-    private static Vertex installVertex(Vector3Df coord, Vector3Df norm, ParseRuntimeContext context) {
+    private static RpkVertex installVertex(Vector3Dd coord, Vector3Dd norm, ParseRuntimeContext context) {
         ArrayList<Patch> newPatchList = new ArrayList<Patch>();
-        Vertex v = new Vertex(coord, norm, null, newPatchList);
+        RpkVertex v = new RpkVertex(coord, norm, null, newPatchList);
         context.currentVertexList.add(v);
         return v;
     }
 
-    private static Vertex getVertex(String name, ParseRuntimeContext context) {
+    private static RpkVertex getVertex(String name, ParseRuntimeContext context) {
         VertexContext vp = MgfVertexFaceEntitySupport.getNamedVertex(name, context);
         if (vp == null) {
             return null;
         }
 
-        Vertex theVertex = vp.vertex;
+        RpkVertex theVertex = vp.vertex;
         if (theVertex == null
          || vp.clock >= 1
          || vp.xid != MgfVertexFaceEntitySupport.transformXid(context.transformContext)
          || MgfTessellationMath.isNull(vp.n, VSDK.EPSILON)) {
             // New vertex, or updated vertex or same vertex, but other transform, or
             // vertex without normal: create a new Vertex
-            Vector3Df theNormal;
+            Vector3Dd theNormal;
 
             Vector3Dd vert = MgfTransformationSupport.mgfTransformPoint(vp.p, context);
-            Vector3Df thePoint = installPoint((float)vert.x(), (float)vert.y(), (float)vert.z(), context);
+            Vector3Dd thePoint = installPoint((double)vert.x(), (double)vert.y(), (double)vert.z(), context);
             if (MgfTessellationMath.isNull(vp.n, VSDK.EPSILON)) {
                 theNormal = null;
             } else {
                 Vector3Dd norm = MgfTransformationSupport.mgfTransformVector(vp.n, context);
-                theNormal = installNormal((float)norm.x(), (float)norm.y(), (float)norm.z(), context);
+                theNormal = installNormal((double)norm.x(), (double)norm.y(), (double)norm.z(), context);
             }
             theVertex = installVertex(thePoint, theNormal, context);
             vp.vertex = theVertex;
@@ -110,12 +106,12 @@ the code
 Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
     */
-    private static Vertex getBackFaceVertex(Vertex v, ParseRuntimeContext context) {
-        Vertex back = v.back;
+    private static RpkVertex getBackFaceVertex(RpkVertex v, ParseRuntimeContext context) {
+        RpkVertex back = v.back;
 
         if (back == null) {
-            Vector3Df point = v.point;
-            Vector3Df normal = v.normal;
+            Vector3Dd point = v.point;
+            Vector3Dd normal = v.normal;
             if (normal != null) {
                 normal = installNormal(-normal.x(), -normal.y(), -normal.z(), context);
             }
@@ -128,7 +124,7 @@ the given vertex. For back-faces of two-sided surfaces
         return back;
     }
 
-    private static Patch newFace(Vertex v1, Vertex v2, Vertex v3, Vertex v4, ParseRuntimeContext context) {
+    private static Patch newFace(RpkVertex v1, RpkVertex v2, RpkVertex v3, RpkVertex v4, ParseRuntimeContext context) {
         Patch theFace;
         int numberOfVertices = v4 != null ? 4 : 3;
 
@@ -143,7 +139,7 @@ the given vertex. For back-faces of two-sided surfaces
         }
 
         // If we are doing radiance computations, create radiance data for the patch
-        if (theFace.material != null && context.radianceMethod != null) {
+        if (theFace.getMaterial() != null && context.radianceMethod != null) {
             context.radianceMethod.createPatchData(theFace);
         }
 
@@ -155,13 +151,13 @@ the given vertex. For back-faces of two-sided surfaces
     /**
 Computes the normal to the patch plane (null for a degenerate polygon)
     */
-    private static Vector3Df faceNormal(int numberOfVertices, Vertex[] v) {
-        Vector3Df n = new Vector3Df(0, 0, 0);
-        Vector3Df cur = v[numberOfVertices - 1].point.subtract(v[0].point);
+    private static Vector3Dd faceNormal(int numberOfVertices, RpkVertex[] v) {
+        Vector3Dd n = new Vector3Dd(0, 0, 0);
+        Vector3Dd cur = v[numberOfVertices - 1].point.subtract(v[0].point);
         for (int i = 0; i < numberOfVertices; i++) {
-            Vector3Df prev = cur;
+            Vector3Dd prev = cur;
             cur = v[i].point.subtract(v[0].point);
-            n = new Vector3Df(
+            n = new Vector3Dd(
                 n.x() + ((prev.y() - cur.y()) * (prev.z() + cur.z())),
                 n.y() + ((prev.z() - cur.z()) * (prev.x() + cur.x())),
                 n.z() + ((prev.x() - cur.x()) * (prev.y() + cur.y())));
@@ -172,21 +168,21 @@ Computes the normal to the patch plane (null for a degenerate polygon)
             // Degenerate normal --> degenerate polygon
             return null;
         }
-        return n.multiplyByInverse((float)localNorm, Numeric.EPSILON_FLOAT);
+        return n.multiplyByInverse((double)localNorm, Numeric.EPSILON);
     }
 
     /**
 Given a vector p in 3D space and an index i, which is X, Y
 or Z, projects the vector on the YZ, XZ or XY plane respectively
     */
-    private static Vector2Df vectorProject(Vector2Df r, Vector3Df p, CoordinateAxis i) {
+    private static Vector2Dd vectorProject(Vector2Dd r, Vector3Dd p, CoordinateAxis i) {
         switch (i) {
             case X:
-                return new Vector2Df(p.y(), p.z());
+                return new Vector2Dd(p.y(), p.z());
             case Y:
-                return new Vector2Df(p.x(), p.z());
+                return new Vector2Dd(p.x(), p.z());
             case Z:
-                return new Vector2Df(p.x(), p.y());
+                return new Vector2Dd(p.x(), p.y());
             default:
                 return r;
         }
@@ -197,13 +193,13 @@ Tests whether the polygon is convex or concave. This is accomplished by projecti
 onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
     */
-    private static boolean faceIsConvex(int numberOfVertices, Vertex[] v, Vector3Df normal) {
-        Vector2Df[] v2d = new Vector2Df[MAXIMUM_FACE_VERTICES + 1];
+    private static boolean faceIsConvex(int numberOfVertices, RpkVertex[] v, Vector3Dd normal) {
+        Vector2Dd[] v2d = new Vector2Dd[MAXIMUM_FACE_VERTICES + 1];
         for (int i = 0; i < v2d.length; i++) {
-            v2d[i] = new Vector2Df();
+            v2d[i] = new Vector2Dd();
         }
-        Vector2Df p = new Vector2Df();
-        Vector2Df c = new Vector2Df();
+        Vector2Dd p = new Vector2Dd();
+        Vector2Dd c = new Vector2Dd();
         int i;
 
         CoordinateAxis index = CoordinateAxis.values()[normal.dominantAxis()];
@@ -233,7 +229,7 @@ the cross product of succeeding edges: the signs are all equal for a convex poly
     /**
 Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
     */
-    private static boolean pointInsideTriangle2D(Vector2Df p, Vector2Df p1, Vector2Df p2, Vector2Df p3) {
+    private static boolean pointInsideTriangle2D(Vector2Dd p, Vector2Dd p1, Vector2Dd p2, Vector2Dd p3) {
         // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
         double u0 = p.x() - p1.x();
         double v0 = p.y() - p1.y();
@@ -271,7 +267,7 @@ Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
     /**
 Returns true if the 2D segments p1-p2 and p3-p4 intersect
     */
-    private static boolean segmentsIntersect2D(Vector2Df p1, Vector2Df p2, Vector2Df p3, Vector2Df p4) {
+    private static boolean segmentsIntersect2D(Vector2Dd p1, Vector2Dd p2, Vector2Dd p3, Vector2Dd p4) {
         double a;
         double b;
         double c;
@@ -340,13 +336,13 @@ ANSI-C version of face2tri, but I changed it a lot to make it more robust.
 Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
     */
-    private static void doComplexFace(int n, Vertex[] v, Vector3Df normal, Vertex[] backVertex, ParseRuntimeContext context) {
-        Vector3Df center = new Vector3Df();
-        center = new Vector3Df(0.0f, 0.0f, 0.0f);
+    private static void doComplexFace(int n, RpkVertex[] v, Vector3Dd normal, RpkVertex[] backVertex, ParseRuntimeContext context) {
+        Vector3Dd center = new Vector3Dd();
+        center = new Vector3Dd(0.0, 0.0, 0.0);
         for (int i = 0; i < n; i++) {
             center = center.add(v[i].point);
         }
-        center = center.multiplyByInverse((float)n, Numeric.EPSILON_FLOAT);
+        center = center.multiplyByInverse((double)n, Numeric.EPSILON);
 
         double maxD = center.distance(v[0].point);
         int max = 0;
@@ -370,17 +366,17 @@ the (indispensable) Graphics Gems books
         }
         int p2 = (p1 + 1) % n;
         normal = v[p2].point.subtract(v[p1].point).crossProduct(v[p0].point.subtract(v[p1].point));
-        normal = normal.normalized(Numeric.EPSILON_FLOAT);
+        normal = normal.normalized(Numeric.EPSILON);
         CoordinateAxis index = CoordinateAxis.values()[normal.dominantAxis()];
 
-        Vector2Df[] q = new Vector2Df[MAXIMUM_FACE_VERTICES + 1];
+        Vector2Dd[] q = new Vector2Dd[MAXIMUM_FACE_VERTICES + 1];
         for (int i = 0; i < n; i++) {
-            q[i] = new Vector2Df();
+            q[i] = new Vector2Dd();
             q[i] = vectorProject(q[i], v[i].point, index);
         }
 
         int corners = n;
-        Vector3Df nn = new Vector3Df();
+        Vector3Dd nn = new Vector3Dd();
 
         p0 = -1;
         while (corners >= 3) {
@@ -411,7 +407,7 @@ the (indispensable) Graphics Gems books
 
                 nn = v[p2].point.subtract(v[p1].point).crossProduct(v[p0].point.subtract(v[p1].point));
                 a = nn.length();
-                nn = nn.multiplyByInverse((float)a, Numeric.EPSILON_FLOAT);
+                nn = nn.multiplyByInverse((double)a, Numeric.EPSILON);
                 d = nn.distance(normal);
 
                 good = true;
@@ -447,9 +443,9 @@ the (indispensable) Graphics Gems books
                 Patch face = newFace(v[p0], v[p1], v[p2], null, context);
                 if (context.currentMaterial.isSided() == false && face != null) {
                     Patch twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], null, context);
-                    face.twin = twin;
+                    face.setTwin(twin);
                     if (twin != null) {
-                        twin.twin = face;
+                        twin.setTwin(face);
                     }
                 }
             }
@@ -483,8 +479,8 @@ the (indispensable) Graphics Gems books
             context.materialState.currentMaterial = holder[0];
         }
 
-        Vertex[] v = new Vertex[MAXIMUM_FACE_VERTICES + 1];
-        Vertex[] backV = new Vertex[MAXIMUM_FACE_VERTICES + 1];
+        RpkVertex[] v = new RpkVertex[MAXIMUM_FACE_VERTICES + 1];
+        RpkVertex[] backV = new RpkVertex[MAXIMUM_FACE_VERTICES + 1];
 
         for (int i = 0; i < argc - 1; i++) {
             v[i] = getVertex(argv[i + 1], context);
@@ -498,7 +494,7 @@ the (indispensable) Graphics Gems books
             }
         }
 
-        Vector3Df normal = faceNormal(argc - 1, v);
+        Vector3Dd normal = faceNormal(argc - 1, v);
 
         if (normal == null) {
             MgfEntityControl.doWarning("degenerate face", context);
@@ -515,9 +511,9 @@ the (indispensable) Graphics Gems books
             face = newFace(v[0], v[1], v[2], null, context);
             if (context.currentMaterial.isSided() == false && face != null) {
                 twin = newFace(backV[2], backV[1], backV[0], null, context);
-                face.twin = twin;
+                face.setTwin(twin);
                 if (twin != null) {
-                    twin.twin = face;
+                    twin.setTwin(face);
                 }
             }
         } else if (argc == 5) {
@@ -526,9 +522,9 @@ the (indispensable) Graphics Gems books
                 face = newFace(v[0], v[1], v[2], v[3], context);
                 if (context.currentMaterial.isSided() == false && face != null) {
                     twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
-                    face.twin = twin;
+                    face.setTwin(twin);
                     if (twin != null) {
-                        twin.twin = face;
+                        twin.setTwin(face);
                     }
                 }
             } else {

@@ -26,8 +26,8 @@ public class BidirectionalPathTracingConfiguration {
 
     public DensityBuffer dBuffer;
     public DensityBuffer dBuffer2;
-    public float xSample;
-    public float ySample;
+    public double xSample;
+    public double ySample;
     public SimpleRaytracingPathNode eyePath;
     public SimpleRaytracingPathNode lightPath;
 

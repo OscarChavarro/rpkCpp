@@ -13,7 +13,6 @@ public class BinaryModelSnapshotRecordData {
     public boolean inSurface;
     public boolean monochrome;
     public boolean singleSided;
-    public boolean warpConeEnds;
     public int numberOfQuarterCircleDivisions;
     public int readerContextIndex;
     public int transformContextIndex;
@@ -39,7 +38,6 @@ public class BinaryModelSnapshotRecordData {
         inSurface = false;
         monochrome = false;
         singleSided = false;
-        warpConeEnds = false;
         numberOfQuarterCircleDivisions = 0;
         readerContextIndex = 0;
         transformContextIndex = 0;

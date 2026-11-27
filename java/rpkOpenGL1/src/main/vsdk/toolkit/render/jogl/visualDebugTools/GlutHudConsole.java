@@ -54,7 +54,7 @@ public final class GlutHudConsole {
         try {
             gl.glDisable(GL2.GL_LIGHTING);
             gl.glDisable(GL2.GL_TEXTURE_2D);
-            gl.glColor3f(1.0f, 1.0f, 0.0f);
+            gl.glColor3d(1.0, 1.0, 0.0);
             gl.glRasterPos2i(x, y);
 
             for ( int i = 0; i < text.length(); i++ ) {

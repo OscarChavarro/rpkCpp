@@ -1,14 +1,14 @@
 package vsdk.toolkit.material;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.material.PhongMaterial;
 
 /**
 RenderPark's view of the scattering of a material (its split BSDF: the
 reflection, the transmission and the texture): the evaluation, sampling and
 density functions the raytracers call, with RenderPark's argument types.
-Every function converts its arguments (Vector3Df to Vector3Df, the shading
+Every function converts its arguments (Vector3Dd to Vector3Dd, the shading
 context to a SurfaceShadingPoint, the media to their VITRAL materials) and
 answers through the VITRAL PhongMaterial; the scattering model itself lives
 in VITRAL (plan step 2b). The material and the media are the ones of the
@@ -34,7 +34,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
     /**
     No material defines its own shading frame: callers build a default one
     */
-    public static boolean bsdfShadingFrame(ShadingContext context, Vector3Df X, Vector3Df Y, Vector3Df Z) {
+    public static boolean bsdfShadingFrame(ShadingContext context, Vector3Dd X, Vector3Dd Y, Vector3Dd Z) {
         return false;
     }
 
@@ -42,7 +42,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
     Scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
     */
     public ColorRgb splitBsdfScatteredPower(ShadingContext context, int flags) {
-        final Vector3Df textureCoordinate = context.getTexCoord();
+        final Vector3Dd textureCoordinate = context.getTexCoord();
         return material.scatteredPower(
             flags, context.hasFlag(ShadingContextFlag.SHCTX_TEXTURE_COORDINATE) ? textureCoordinate : null);
     }
@@ -55,11 +55,11 @@ public class PhongBidirectionalScatteringDistributionFunction {
         index.set(material.getRefractionIndex(), material.getRefractionIndexImaginary());
     }
 
-    public Vector3Df sample(
+    public Vector3Dd sample(
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3Df in,
+        Vector3Dd in,
         int doRussianRoulette,
         int flags,
         double x1,
@@ -75,8 +75,8 @@ public class PhongBidirectionalScatteringDistributionFunction {
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3Df in,
-        Vector3Df out,
+        Vector3Dd in,
+        Vector3Dd out,
         int flags)
     {
         return material.scatteringEvaluate(
@@ -88,8 +88,8 @@ public class PhongBidirectionalScatteringDistributionFunction {
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3Df in,
-        Vector3Df out,
+        Vector3Dd in,
+        Vector3Dd out,
         int flags,
         double[] probabilityDensityFunction,
         double[] probabilityDensityFunctionRR)
@@ -104,8 +104,8 @@ public class PhongBidirectionalScatteringDistributionFunction {
         ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
-        Vector3Df in,
-        Vector3Df out,
+        Vector3Dd in,
+        Vector3Dd out,
         int flags,
         ColorRgb[] colArray)
     {

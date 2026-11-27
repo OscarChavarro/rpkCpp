@@ -1,71 +1,71 @@
 package vsdk.toolkit.render.jogl;
 
 import java.util.ArrayList;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
+import vsdk.toolkit.skin.RpkGeometry;
 
 public final class RenderOpenGL {
     private RenderOpenGL() {
     }
 
-    private static void renderGeomBounds(Camera camera, Geometry geometry) {
+    private static void renderGeomBounds(Camera camera, RpkGeometry geometry) {
         if ( geometry == null ) {
             return;
         }
-        BoundingBox geometryBoundingBox = geometry.getBoundingBox();
+        RpkAxisAlignedBoundingBox geometryBoundingBox = geometry.getBoundingBox();
         if ( geometry.bounded ) {
             renderBoundingBox(geometryBoundingBox);
         }
 
         if ( geometry.isCompound() ) {
-            ArrayList<Geometry> geometryList = Geometry.primitiveListCopy(geometry);
+            ArrayList<RpkGeometry> geometryList = RpkGeometry.primitiveListCopy(geometry);
             for ( int i = 0; geometryList != null && i < geometryList.size(); i++ ) {
                 renderGeomBounds(camera, geometryList.get(i));
             }
         }
     }
 
-    public static void renderGetNearFar(Camera camera, ArrayList<Geometry> sceneGeometries) {
-        BoundingBox bounds = new BoundingBox();
+    public static void renderGetNearFar(Camera camera, ArrayList<RpkGeometry> sceneGeometries) {
+        RpkAxisAlignedBoundingBox bounds = new RpkAxisAlignedBoundingBox();
 
         if ( sceneGeometries == null || sceneGeometries.isEmpty() ) {
-            camera.far = 10.0F;
-            camera.near = 0.1F;
+            camera.far = 10.0;
+            camera.near = 0.1;
             return;
         }
 
-        Geometry.listBounds(sceneGeometries, bounds);
+        RpkGeometry.listBounds(sceneGeometries, bounds);
         camera.fitClippingPlanes(bounds);
     }
 
-    public static void renderBoundingBox(BoundingBox boundingBox) {
+    public static void renderBoundingBox(RpkAxisAlignedBoundingBox boundingBox) {
         if ( boundingBox == null ) {
             return;
         }
 
-        Vector3Df[] p = new Vector3Df[8];
+        Vector3Dd[] p = new Vector3Dd[8];
         for ( int i = 0; i < p.length; i++ ) {
-            p[i] = new Vector3Df();
+            p[i] = new Vector3Dd();
         }
 
-        float minX = boundingBox.minX();
-        float minY = boundingBox.minY();
-        float minZ = boundingBox.minZ();
-        float maxX = boundingBox.maxX();
-        float maxY = boundingBox.maxY();
-        float maxZ = boundingBox.maxZ();
+        double minX = boundingBox.minX();
+        double minY = boundingBox.minY();
+        double minZ = boundingBox.minZ();
+        double maxX = boundingBox.maxX();
+        double maxY = boundingBox.maxY();
+        double maxZ = boundingBox.maxZ();
 
-        p[0] = new Vector3Df(minX, minY, minZ);
-        p[1] = new Vector3Df(maxX, minY, minZ);
-        p[2] = new Vector3Df(minX, maxY, minZ);
-        p[3] = new Vector3Df(maxX, maxY, minZ);
-        p[4] = new Vector3Df(minX, minY, maxZ);
-        p[5] = new Vector3Df(maxX, minY, maxZ);
-        p[6] = new Vector3Df(minX, maxY, maxZ);
-        p[7] = new Vector3Df(maxX, maxY, maxZ);
+        p[0] = new Vector3Dd(minX, minY, minZ);
+        p[1] = new Vector3Dd(maxX, minY, minZ);
+        p[2] = new Vector3Dd(minX, maxY, minZ);
+        p[3] = new Vector3Dd(maxX, maxY, minZ);
+        p[4] = new Vector3Dd(minX, minY, maxZ);
+        p[5] = new Vector3Dd(maxX, minY, maxZ);
+        p[6] = new Vector3Dd(minX, maxY, maxZ);
+        p[7] = new Vector3Dd(maxX, maxY, maxZ);
 
         Opengl.openGlRenderLine(p[0], p[1]);
         Opengl.openGlRenderLine(p[1], p[3]);
@@ -81,7 +81,7 @@ public final class RenderOpenGL {
         Opengl.openGlRenderLine(p[3], p[7]);
     }
 
-    public static void renderBoundingBoxHierarchy(Camera camera, ArrayList<Geometry> sceneGeometries, RenderOptions renderOptions) {
+    public static void renderBoundingBoxHierarchy(Camera camera, ArrayList<RpkGeometry> sceneGeometries, RendererConfiguration renderOptions) {
         if ( renderOptions == null ) {
             return;
         }
@@ -91,7 +91,7 @@ public final class RenderOpenGL {
         }
     }
 
-    public static void renderClusterHierarchy(Camera camera, ArrayList<Geometry> clusteredGeometryList, RenderOptions renderOptions) {
+    public static void renderClusterHierarchy(Camera camera, ArrayList<RpkGeometry> clusteredGeometryList, RendererConfiguration renderOptions) {
         if ( renderOptions == null ) {
             return;
         }

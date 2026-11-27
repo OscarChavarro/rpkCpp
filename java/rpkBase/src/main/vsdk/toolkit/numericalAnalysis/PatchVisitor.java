@@ -1,9 +1,9 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 import vsdk.toolkit.environment.material.PhongMaterial;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;
 /**
@@ -15,11 +15,11 @@ Computes average scattered power and emittance of the Patch
 public class PatchVisitor {
     private static int getNumberOfSamples(Patch patch) {
         int numberOfSamples = 1;
-        if ( patch.material.getSurfaceMaterial().isTextured() ) {
-            if (patch.vertex[0].textureCoordinates == patch.vertex[1].textureCoordinates
-                && patch.vertex[0].textureCoordinates == patch.vertex[2].textureCoordinates
-                && (patch.numberOfVertices == 3 || patch.vertex[0].textureCoordinates == patch.vertex[3].textureCoordinates)
-                && patch.vertex[0].textureCoordinates != null) {
+        if ( patch.getMaterial().getSurfaceMaterial().isTextured() ) {
+            if (patch.getVertices()[0].textureCoordinates == patch.getVertices()[1].textureCoordinates
+                && patch.getVertices()[0].textureCoordinates == patch.getVertices()[2].textureCoordinates
+                && (patch.getNumberOfVertices() == 3 || patch.getVertices()[0].textureCoordinates == patch.getVertices()[3].textureCoordinates)
+                && patch.getVertices()[0].textureCoordinates != null) {
                 // All vertices have same texture coordinates (important special case)
                 numberOfSamples = 1;
             }
@@ -34,48 +34,48 @@ public class PatchVisitor {
     Use next function (with PatchListIterate) to close any open files of the patch use for recording
     Computes average scattered power and emittance of the Patch
     */
-    public static ColorRgbMutable averageNormalAlbedo(Patch patch, int components) {
-        ColorRgbMutable albedo = new ColorRgbMutable(0.0, 0.0, 0.0);
-        final PhongMaterial material = patch.material.getSurfaceMaterial();
-        RayHit hit = new RayHit();
+    public static ColorRgb averageNormalAlbedo(Patch patch, int components) {
+        ColorRgb albedo = new ColorRgb(0.0, 0.0, 0.0);
+        final PhongMaterial material = patch.getMaterial().getSurfaceMaterial();
+        RpkRayHit hit = new RpkRayHit();
 
-        hit.init(patch, patch.midPoint(), patch.getNormal(), patch.material);
+        hit.init(patch, patch.midPoint(), patch.getNormal(), patch.getMaterial());
 
         final int numberOfSamples = getNumberOfSamples(patch);
-        albedo.clear();
+        albedo = new ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; i < numberOfSamples; i++ ) {
-            ColorRgbMutable sample;
+            ColorRgb sample;
             final long[] xi = Niederreiter31.niederreiter31(i);
             hit.setUv(xi[0] * Niederreiter31.RECIP, xi[1] * Niederreiter31.RECIP);
             if ( material.isTextured() ) {
-                Vector3Df[] texCoord = {new Vector3Df()};
+                Vector3Dd[] texCoord = {new Vector3Dd()};
                 if ( hit.getTexCoord(texCoord) ) {
-                    final Vector3Df textureCoordinate = texCoord[0];
-                    sample = new ColorRgbMutable(material.scatteredPower(components, textureCoordinate));
+                    final Vector3Dd textureCoordinate = texCoord[0];
+                    sample = new ColorRgb(material.scatteredPower(components, textureCoordinate));
                 } else {
-                    sample = new ColorRgbMutable(material.scatteredPower(components, null));
+                    sample = new ColorRgb(material.scatteredPower(components, null));
                 }
             } else {
-                sample = new ColorRgbMutable(material.scatteredPower(components, null));
+                sample = new ColorRgb(material.scatteredPower(components, null));
             }
-            albedo.add(albedo, sample);
+            albedo = albedo.add(sample);
         }
-        albedo.scaleInverse((float) numberOfSamples, albedo);
+        albedo = albedo.scaleInverse((double)numberOfSamples);
 
         return albedo;
     }
 
-    public static ColorRgbMutable averageEmittance(Patch patch, int components) {
-        ColorRgbMutable emittance = new ColorRgbMutable(0.0, 0.0, 0.0);
-        final PhongMaterial material = patch.material.getSurfaceMaterial();
+    public static ColorRgb averageEmittance(Patch patch, int components) {
+        ColorRgb emittance = new ColorRgb(0.0, 0.0, 0.0);
+        final PhongMaterial material = patch.getMaterial().getSurfaceMaterial();
 
         final int numberOfSamples = getNumberOfSamples(patch);
-        emittance.clear();
+        emittance = new ColorRgb(0.0, 0.0, 0.0);
         for ( int i = 0; i < numberOfSamples; i++ ) {
-            ColorRgbMutable sample = new ColorRgbMutable(material.emittance(components));
-            emittance.add(emittance, sample);
+            ColorRgb sample = new ColorRgb(material.emittance(components));
+            emittance = emittance.add(sample);
         }
-        emittance.scaleInverse((float) numberOfSamples, emittance);
+        emittance = emittance.scaleInverse((double)numberOfSamples);
 
         return emittance;
     }

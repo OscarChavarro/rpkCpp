@@ -1,6 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.scene.DirectPotentialTable;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.scene.Scene;
@@ -16,22 +17,22 @@ Numerical integration for Jacobi or Gauss-Seidel Galerkin radiosity.
 See [COHE1993] section 5.3.2.
 */
 public abstract class GatheringStrategy {
-    protected static float pushPullPotential(GalerkinElement element, float down) {
+    protected static double pushPullPotential(GalerkinElement element, double down, DirectPotentialTable directPotentials) {
         if ( element == null ) {
-            return 0.0f;
+            return 0.0;
         }
-        down += element.area > 0.0f ? (element.receivedPotential / element.area) : 0.0f;
-        element.receivedPotential = 0.0f;
-        float up = 0.0f;
+        down += element.area > 0.0 ? (element.receivedPotential / element.area) : 0.0;
+        element.receivedPotential = 0.0;
+        double up = 0.0;
 
         if ( element.regularSubElements == null && element.irregularSubElements == null ) {
-            up = down + (element.patch != null ? element.patch.directPotential : 0.0f);
+            up = down + (element.patch != null ? directPotentials.get(element.patch.getFaceIndex()) : 0.0);
         }
 
         if ( element.regularSubElements != null ) {
             for ( int i = 0; i < 4; i++ ) {
                 if ( element.regularSubElements[i] instanceof GalerkinElement ) {
-                    up += 0.25f * pushPullPotential((GalerkinElement)element.regularSubElements[i], down);
+                    up += 0.25 * pushPullPotential((GalerkinElement)element.regularSubElements[i], down, directPotentials);
                 }
             }
         }
@@ -42,10 +43,10 @@ public abstract class GatheringStrategy {
                     continue;
                 }
                 GalerkinElement subElement = (GalerkinElement)element.irregularSubElements.get(j);
-                float localDown = element.isCluster() ? down : 0.0f;
-                up += element.area > 0.0f
-                    ? (subElement.area / element.area) * pushPullPotential(subElement, localDown)
-                    : 0.0f;
+                double localDown = element.isCluster() ? down : 0.0;
+                up += element.area > 0.0
+                    ? (subElement.area / element.area) * pushPullPotential(subElement, localDown, directPotentials)
+                    : 0.0;
             }
         }
 
@@ -56,5 +57,5 @@ public abstract class GatheringStrategy {
     public GatheringStrategy() {
     }
 
-    public abstract boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RenderOptions renderOptions);
+    public abstract boolean doGatheringIteration(Scene scene, GalerkinState galerkinState, RendererConfiguration renderOptions);
 }

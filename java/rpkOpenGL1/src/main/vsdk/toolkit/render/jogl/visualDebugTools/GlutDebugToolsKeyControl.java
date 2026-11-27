@@ -1,5 +1,6 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
+import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import java.awt.event.KeyEvent;
 import java.util.function.BiConsumer;
 import vsdk.toolkit.scene.Scene;
@@ -19,10 +20,10 @@ public final class GlutDebugToolsKeyControl {
         }
 
         Patch patch = scene.patchList.get(patchIndex);
-        if ( patch == null || patch.radianceData == null ) {
+        if ( patch == null || GalerkinRadianceMethod.galerkinState.boundElement(patch) == null ) {
             return false;
         }
-        return patch.radianceData.className == ElementTypes.ELEMENT_GALERKIN;
+        return GalerkinRadianceMethod.galerkinState.boundElement(patch).className == ElementTypes.ELEMENT_GALERKIN;
     }
 
     private static void stepSelectedPatchIndex(int[] selectedPatchIndex, int delta, Scene scene) {
@@ -203,25 +204,25 @@ public final class GlutDebugToolsKeyControl {
                 if ( debugState == null ) {
                     return false;
                 }
-                debugState.angleAroundViewportV += 1.0f;
+                debugState.angleAroundViewportV += 1.0;
                 break;
             case KeyEvent.VK_RIGHT:
                 if ( debugState == null ) {
                     return false;
                 }
-                debugState.angleAroundViewportV -= 1.0f;
+                debugState.angleAroundViewportV -= 1.0;
                 break;
             case KeyEvent.VK_DOWN:
                 if ( debugState == null ) {
                     return false;
                 }
-                debugState.angleAroundViewportU += 1.0f;
+                debugState.angleAroundViewportU += 1.0;
                 break;
             case KeyEvent.VK_UP:
                 if ( debugState == null ) {
                     return false;
                 }
-                debugState.angleAroundViewportU -= 1.0f;
+                debugState.angleAroundViewportU -= 1.0;
                 break;
             default:
                 return false;

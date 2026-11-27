@@ -1,23 +1,24 @@
 package vsdk.toolkit.galerkin;
 
+import vsdk.toolkit.scene.FaceBoundsTable;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.environment.geometry.element.Ray;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
-import vsdk.toolkit.scene.Polygon;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.scene.ConvexPolygon;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.BoundingBoxCoordinateIndex;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 /**
 References:
@@ -46,9 +47,11 @@ public class Shaft {
     private static final int MIN_MAX_DIMENSIONS = 6;
     private static final int NONE = -1;
 
-    private BoundingBox referenceItem1; // Bounding boxes of the reference items
-    private BoundingBox referenceItem2;
-    private final BoundingBox extentBoundingBox;
+    private final FaceBoundsTable faceBounds; // Owned by the scene; bounds of the culled patches
+
+    private RpkAxisAlignedBoundingBox referenceItem1; // Bounding boxes of the reference items
+    private RpkAxisAlignedBoundingBox referenceItem2;
+    private final RpkAxisAlignedBoundingBox extentBoundingBox;
     private final ShaftPlane[] planeSet;
     private long numberOfPlanesInSet; // Number of planes in plane-set
 
@@ -57,8 +60,8 @@ public class Shaft {
     private final int[] geometryIdsToAvoidOpening; // Geometries not to be opened during shaft culling, maximum 2
     private int numberOfGeometriesToAvoidOpen;
 
-    private Vector3Df center1; // The line segment from center1 to center2 is guaranteed to lay within the shaft
-    private Vector3Df center2;
+    private Vector3Dd center1; // The line segment from center1 to center2 is guaranteed to lay within the shaft
+    private Vector3Dd center2;
     private boolean cut; // Full occlusion flag set when one patch cuts the shaft
 
     private static void ensurePatchSetPoolInitialized() {
@@ -68,7 +71,14 @@ public class Shaft {
         }
     }
 
-    private static PatchSet createPatchSetWithPool(ArrayList<Patch> patches) {
+    private PatchSet createPatchSetWithPool(ArrayList<Patch> patches) {
+        // The union of the face bounds, from the scene's table: the same box
+        // RpkGeometry.patchListBounds computes from the vertices
+        final RpkAxisAlignedBoundingBox patchBounds = new RpkAxisAlignedBoundingBox();
+        for ( int i = 0; patches != null && i < patches.size(); i++ ) {
+            patchBounds.enlarge(faceBounds.get(patches.get(i).getFaceIndex()));
+        }
+
         ensurePatchSetPoolInitialized();
         PatchSet patchSet = patchSetPool.allocate(1);
         if (patchSet == null) {
@@ -77,19 +87,18 @@ public class Shaft {
             }
         }
         if (patchSet == null) {
-            patchSet = new PatchSet(patches);
+            return new PatchSet(patches, patchBounds);
         }
-        else {
-            patchSet.resetFrom(patches);
-        }
+        patchSet.resetFrom(patches, patchBounds);
         patchSet.setMemoryPoolManaged(true);
         return patchSet;
     }
 
-    public Shaft() {
+    public Shaft(FaceBoundsTable inFaceBounds) {
+        faceBounds = inFaceBounds;
         referenceItem1 = null;
         referenceItem2 = null;
-        extentBoundingBox = new BoundingBox();
+        extentBoundingBox = new RpkAxisAlignedBoundingBox();
         planeSet = new ShaftPlane[SHAFT_MAX_PLANES];
         for (int i = 0; i < planeSet.length; i++) {
             planeSet[i] = new ShaftPlane();
@@ -99,17 +108,17 @@ public class Shaft {
         geometryIdsToAvoidOpening = new int[MAX_SKIP_ELEMENTS];
         numberOfGeometriesToOmit = 0;
         numberOfGeometriesToAvoidOpen = 0;
-        center1 = new Vector3Df();
-        center2 = new Vector3Df();
+        center1 = new Vector3Dd();
+        center2 = new Vector3Dd();
         cut = false;
     }
 
-    public static void freeCandidateList(ArrayList<Geometry> candidateList) {
+    public static void freeCandidateList(ArrayList<RpkGeometry> candidateList) {
         // Only destroy geometries that were generated for shaft culling
         for (int i = candidateList != null ? candidateList.size() - 1 : -1; i >= 0; i--) {
-            Geometry geometry = candidateList.get(i);
+            RpkGeometry geometry = candidateList.get(i);
             if (geometry != null && geometry.shaftCullGeometry) {
-                Geometry.destroy(geometry);
+                RpkGeometry.destroy(geometry);
                 if (geometry instanceof PatchSet) {
                     PatchSet patchSet = (PatchSet) geometry;
                     if (patchSet.isMemoryPoolManaged()) {
@@ -136,13 +145,13 @@ public class Shaft {
         if (patch == null || numberOfGeometriesToOmit >= MAX_SKIP_ELEMENTS) {
             return;
         }
-        patchIdsToOmit[numberOfGeometriesToOmit++] = patch.id;
+        patchIdsToOmit[numberOfGeometriesToOmit++] = patch.getId();
     }
 
     /**
     Marks a geometry as one not to be opened during shaft culling.
     */
-    public void setShaftDontOpen(Geometry geometry) {
+    public void setShaftDontOpen(RpkGeometry geometry) {
         if (geometry == null || numberOfGeometriesToAvoidOpen >= MAX_SKIP_ELEMENTS) {
             return;
         }
@@ -152,7 +161,7 @@ public class Shaft {
     /**
     Constructs a shaft for two given bounding boxes.
     */
-    public void constructFromBoundingBoxes(BoundingBox boundingBox1, BoundingBox boundingBox2) {
+    public void constructFromBoundingBoxes(RpkAxisAlignedBoundingBox boundingBox1, RpkAxisAlignedBoundingBox boundingBox2) {
         numberOfGeometriesToOmit = 0;
         numberOfGeometriesToAvoidOpen = 0;
         cut = false;
@@ -197,13 +206,13 @@ public class Shaft {
                     continue;
                 }
 
-                float u1 = referenceItem1.valueAt(i);
-                float v1 = referenceItem1.valueAt(j);
-                float u2 = referenceItem2.valueAt(i);
-                float v2 = referenceItem2.valueAt(j);
+                double u1 = referenceItem1.valueAt(i);
+                double v1 = referenceItem1.valueAt(j);
+                double u2 = referenceItem2.valueAt(i);
+                double v2 = referenceItem2.valueAt(j);
 
-                float du;
-                float dv;
+                double du;
+                double dv;
 
                 if ((i <= BoundingBoxCoordinateIndex.MIN_Z && j <= BoundingBoxCoordinateIndex.MIN_Z)
                     || (i >= BoundingBoxCoordinateIndex.MAX_X && j >= BoundingBoxCoordinateIndex.MAX_X)) {
@@ -220,15 +229,15 @@ public class Shaft {
                 ShaftPlane localPlane = planeSet[localPlaneIndex];
                 localPlane.n[a] = du;
                 localPlane.n[b] = dv;
-                localPlane.n[3 - a - b] = 0.0f;
+                localPlane.n[3 - a - b] = 0.0;
                 localPlane.d = -(du * u1 + dv * v1);
 
                 localPlane.coordinateOffset[0] =
-                    localPlane.n[0] > 0.0f ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
+                    localPlane.n[0] > 0.0 ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
                 localPlane.coordinateOffset[1] =
-                    localPlane.n[1] > 0.0f ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
+                    localPlane.n[1] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
                 localPlane.coordinateOffset[2] =
-                    localPlane.n[2] > 0.0f ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
+                    localPlane.n[2] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
 
                 localPlaneIndex++;
             }
@@ -243,13 +252,13 @@ public class Shaft {
     if the polygon is cut by the plane and COPLANAR if the polygon lies on the
     plane within tolerance distance d*VSDK.EPSILON.
     */
-    private static ShaftPlanePosition testPolygonWithRespectToPlane(Polygon polygon, Vector3Df normal, double d) {
+    private static ShaftPlanePosition testPolygonWithRespectToPlane(ConvexPolygon polygon, Vector3Dd normal, double d) {
         boolean out = false; // out = there are positions on the positive side of the plane
         boolean in = false; // in  = there are positions on the negative side of the plane
 
         for (int i = 0; i < polygon.numberOfVertices; i++) {
             double e = normal.dotProduct(polygon.vertex[i]) + d;
-            double tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON_FLOAT) * polygon.vertex[i].manhattanLength();
+            double tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON) * polygon.vertex[i].manhattanLength();
             out |= (e > tolerance);
             in |= (e < -tolerance);
             if (out && in) {
@@ -268,8 +277,8 @@ public class Shaft {
     so, and false if not.
     */
     private static boolean verifyPolygonWithRespectToPlane(
-        Polygon polygon,
-        Vector3Df normal,
+        ConvexPolygon polygon,
+        Vector3Dd normal,
         double d,
         ShaftPlanePosition side)
     {
@@ -278,7 +287,7 @@ public class Shaft {
 
         for (int i = 0; i < polygon.numberOfVertices; i++) {
             double e = normal.dotProduct(polygon.vertex[i]) + d;
-            double tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON_FLOAT) * polygon.vertex[i].manhattanLength();
+            double tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON) * polygon.vertex[i].manhattanLength();
             out |= e > tolerance;
             if (out && side == ShaftPlanePosition.INSIDE) {
                 return false;
@@ -307,8 +316,8 @@ public class Shaft {
     on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
     if the point is on the plane within tolerance distance d*VSDK.EPSILON.
     */
-    private static ShaftPlanePosition testPointWithRespectToPlane(Vector3Df p, Vector3Df normal, double d) {
-        double tolerance = Math.abs(d * VSDK.EPSILON) + (Numeric.EPSILON_FLOAT) * p.manhattanLength();
+    private static ShaftPlanePosition testPointWithRespectToPlane(Vector3Dd p, Vector3Dd normal, double d) {
+        double tolerance = Math.abs(d * VSDK.EPSILON) + (Numeric.EPSILON) * p.manhattanLength();
         double e = normal.dotProduct(p) + d;
         if (e < -tolerance) {
             return ShaftPlanePosition.INSIDE;
@@ -374,22 +383,22 @@ public class Shaft {
     /**
     Fills in normal and plane constant, as well as coordinate offset parameters.
     */
-    private static void fillInPlane(ShaftPlane plane, float nx, float ny, float nz, float d) {
+    private static void fillInPlane(ShaftPlane plane, double nx, double ny, double nz, double d) {
         plane.n[0] = nx;
         plane.n[1] = ny;
         plane.n[2] = nz;
         plane.d = d;
 
-        plane.coordinateOffset[0] = plane.n[0] > 0.0f ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
-        plane.coordinateOffset[1] = plane.n[1] > 0.0f ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
-        plane.coordinateOffset[2] = plane.n[2] > 0.0f ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
+        plane.coordinateOffset[0] = plane.n[0] > 0.0 ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
+        plane.coordinateOffset[1] = plane.n[1] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Y : BoundingBoxCoordinateIndex.MAX_Y;
+        plane.coordinateOffset[2] = plane.n[2] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
     }
 
     /**
     Construct the planes determining the shaft that use edges of polygon1 and vertices of polygon2.
     */
-    private void constructPolygonToPolygonPlanes(Polygon polygon1, Polygon polygon2) {
-        Vector3Df normal = new Vector3Df();
+    private void constructPolygonToPolygonPlanes(ConvexPolygon polygon1, ConvexPolygon polygon2) {
+        Vector3Dd normal = new Vector3Dd();
         int localPlaneIndex = (int)numberOfPlanesInSet;
         int maxPlanesPerEdge;
 
@@ -427,23 +436,23 @@ public class Shaft {
 
         for (int i = 0; i < polygon1.numberOfVertices; i++) {
             // For each edge of polygon1
-            Vector3Df current = polygon1.vertex[i];
-            Vector3Df next = polygon1.vertex[(i + 1) % polygon1.numberOfVertices];
+            Vector3Dd current = polygon1.vertex[i];
+            Vector3Dd next = polygon1.vertex[(i + 1) % polygon1.numberOfVertices];
             int planesFoundForEdge = 0;
 
             for (int j = 0; j < polygon2.numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++) {
                 // For each vertex of polygon2
-                Vector3Df other = polygon2.vertex[j];
+                Vector3Dd other = polygon2.vertex[j];
 
                 // Compute normal and plane constant of plane formed by current, next and other
                 normal = other.subtract(next).crossProduct(current.subtract(next));
-                float localNorm = normal.length();
+                double localNorm = normal.length();
                 if (localNorm < VSDK.EPSILON) {
                     continue;
                 }
                 // Co-linear vertices, try next vertex on polygon2
-                normal = normal.multiplyByInverse(localNorm, Numeric.EPSILON_FLOAT);
-                float d = -normal.dotProduct(current);
+                normal = normal.multiplyByInverse(localNorm, Numeric.EPSILON);
+                double d = -normal.dotProduct(current);
 
                 // Test position of polygon1 with respect to constructed plane.
                 ShaftPlanePosition side =
@@ -485,7 +494,7 @@ public class Shaft {
     /**
     Constructs a shaft enclosing the two given polygons.
     */
-    public void constructFromPolygonToPolygon(Polygon polygon1, Polygon polygon2) {
+    public void constructFromPolygonToPolygon(ConvexPolygon polygon1, ConvexPolygon polygon2) {
         // No reference bounding boxes to test with
         referenceItem1 = null;
         referenceItem2 = null;
@@ -508,13 +517,13 @@ public class Shaft {
         for (int i = 1; i < polygon1.numberOfVertices; i++) {
             center1 = center1.add(polygon1.vertex[i]);
         }
-        center1 = center1.multiplyByInverse((float)polygon1.numberOfVertices, Numeric.EPSILON_FLOAT);
+        center1 = center1.multiplyByInverse((double)polygon1.numberOfVertices, Numeric.EPSILON);
 
         center2 = polygon2.vertex[0];
         for (int i = 1; i < polygon2.numberOfVertices; i++) {
             center2 = center2.add(polygon2.vertex[i]);
         }
-        center2 = center2.multiplyByInverse((float)polygon2.numberOfVertices, Numeric.EPSILON_FLOAT);
+        center2 = center2.multiplyByInverse((double)polygon2.numberOfVertices, Numeric.EPSILON);
 
         // Determine shaft planes
         numberOfPlanesInSet = 0;
@@ -526,11 +535,11 @@ public class Shaft {
     Tests a bounding volume against the shaft: returns INSIDE if inside shaft,
     OVERLAP if it overlaps, OUTSIDE if it is outside shaft.
     */
-    private static float evaluatePlane(ShaftPlane plane, float x, float y, float z) {
+    private static double evaluatePlane(ShaftPlane plane, double x, double y, double z) {
         return plane.n[0] * x + plane.n[1] * y + plane.n[2] * z + plane.d;
     }
 
-    private ShaftPlanePosition boundingBoxTest(BoundingBox parameterBoundingBox) {
+    private ShaftPlanePosition boundingBoxTest(RpkAxisAlignedBoundingBox parameterBoundingBox) {
         // Test against extent box
         if (parameterBoundingBox.disjointToOtherBoundingBox(extentBoundingBox)) {
             return ShaftPlanePosition.OUTSIDE;
@@ -539,7 +548,7 @@ public class Shaft {
         // Test against plane set: if nearest corner is on/outside any shaft plane, object is outside
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             ShaftPlane localPlane = planeSet[i];
-            float e = evaluatePlane(
+            double e = evaluatePlane(
                 localPlane,
                 parameterBoundingBox.valueAt(localPlane.coordinateOffset[0]),
                 parameterBoundingBox.valueAt(localPlane.coordinateOffset[1]),
@@ -558,7 +567,7 @@ public class Shaft {
         // If farthest corner is outside any shaft plane, it overlaps; otherwise inside
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             ShaftPlane localPlane = planeSet[i];
-            float e = evaluatePlane(
+            double e = evaluatePlane(
                 localPlane,
                 parameterBoundingBox.valueAt((localPlane.coordinateOffset[0] + 3) % 6),
                 parameterBoundingBox.valueAt((localPlane.coordinateOffset[1] + 3) % 6),
@@ -584,25 +593,23 @@ public class Shaft {
     private static final double[] shaftPatchTestScratchPTol = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
     private static final double[] shaftPatchTestScratchE = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
     private static final ShaftPlanePosition[] shaftPatchTestScratchSide = new ShaftPlanePosition[Patch.MAXIMUM_VERTICES_PER_PATCH];
-    private static final Ray shaftPatchTestScratchRay = new Ray();
-    private static final RayHit shaftPatchTestScratchHitStore = new RayHit();
-    private static final float[] shaftPatchTestScratchDistance = new float[1];
+    private static final RpkRayHit shaftPatchTestScratchHitStore = new RpkRayHit();
+    private static final double[] shaftPatchTestScratchDistance = new double[1];
 
     private ShaftPlanePosition shaftPatchTest(Patch patch) {
         int[] inAll = shaftPatchTestScratchInAll;
         double[] tMin = shaftPatchTestScratchTMin;
         double[] tMax = shaftPatchTestScratchTMax;
         double[] pTol = shaftPatchTestScratchPTol;
-        Ray ray = shaftPatchTestScratchRay;
-        RayHit hitStore = shaftPatchTestScratchHitStore;
+        RpkRayHit hitStore = shaftPatchTestScratchHitStore;
 
         // Start by assuming all vertices are inside all shaft planes
         boolean someOut = false;
-        for (int j = 0; j < patch.numberOfVertices; j++) {
+        for (int j = 0; j < patch.getNumberOfVertices(); j++) {
             inAll[j] = 1;
             tMin[j] = 0.0;
             tMax[j] = 1.0;
-            pTol[j] = (Numeric.EPSILON_FLOAT) * patch.vertex[j].point.manhattanLength();
+            pTol[j] = (Numeric.EPSILON) * patch.getVertices()[j].point.manhattanLength();
         }
 
         for (int i = 0; i < numberOfPlanesInSet; i++) {
@@ -613,8 +620,8 @@ public class Shaft {
             boolean in = false;
             boolean out = false;
 
-            for (int j = 0; j < patch.numberOfVertices; j++) {
-                Vector3Df v = patch.vertex[j].point;
+            for (int j = 0; j < patch.getNumberOfVertices(); j++) {
+                Vector3Dd v = patch.getVertices()[j].point;
                 e[j] = evaluatePlane(localPlane, v.x(), v.y(), v.z());
                 double tolerance = Math.abs(localPlane.d) * VSDK.EPSILON + pTol[j];
                 side[j] = ShaftPlanePosition.COPLANAR;
@@ -640,9 +647,9 @@ public class Shaft {
                 // At least one vertex inside and one outside this plane
                 someOut = true;
 
-                for (int j = 0; j < patch.numberOfVertices; j++) {
+                for (int j = 0; j < patch.getNumberOfVertices(); j++) {
                     // Reduce segment of edge that can lie within shaft
-                    int k = (j + 1) % patch.numberOfVertices;
+                    int k = (j + 1) % patch.getNumberOfVertices();
                     if (side[j] != side[k]) {
                         if (side[k] == ShaftPlanePosition.OUTSIDE) {
                             // Decrease tMax[j]
@@ -693,7 +700,7 @@ public class Shaft {
             return ShaftPlanePosition.INSIDE;
         }
 
-        for (int j = 0; j < patch.numberOfVertices; j++) {
+        for (int j = 0; j < patch.getNumberOfVertices(); j++) {
             if (inAll[j] != 0) {
                 // At least one patch vertex is really inside shaft
                 return ShaftPlanePosition.OVERLAP;
@@ -701,7 +708,7 @@ public class Shaft {
         }
 
         // All vertices are outside or on shaft. Check whether edges intersect shaft
-        for (int j = 0; j < patch.numberOfVertices; j++) {
+        for (int j = 0; j < patch.getNumberOfVertices(); j++) {
             if (tMin[j] + VSDK.EPSILON < tMax[j] - VSDK.EPSILON) {
                 return ShaftPlanePosition.OVERLAP;
             }
@@ -709,13 +716,12 @@ public class Shaft {
 
         // All vertices and edges are outside shaft. Either patch is fully outside,
         // or it cuts the shaft.
-        ray.position = center1;
-        ray.direction = center2.subtract(center1);
-        float[] dist = shaftPatchTestScratchDistance;
-        dist[0] = 1.0f - Numeric.EPSILON_FLOAT;
+        final Ray ray = Ray.fromAffine(center1, center2.subtract(center1));
+        double[] dist = shaftPatchTestScratchDistance;
+        dist[0] = 1.0 - Numeric.EPSILON;
         if (patch.intersect(
             ray,
-            Numeric.EPSILON_FLOAT,
+            Numeric.EPSILON,
             dist,
             RayHitFlag.FRONT | RayHitFlag.BACK,
             hitStore,
@@ -742,7 +748,7 @@ public class Shaft {
     /**
     Returns true if geometry is not to be opened during shaft culling.
     */
-    private boolean closedGeometry(Geometry geometry) {
+    private boolean closedGeometry(RpkGeometry geometry) {
         for (int i = 0; i < numberOfGeometriesToAvoidOpen && i < MAX_SKIP_ELEMENTS; i++) {
             if (geometryIdsToAvoidOpening[i] == geometry.id) {
                 return true;
@@ -759,16 +765,14 @@ public class Shaft {
         culledPatchList.clear();
         for (int i = 0; patchList != null && i < patchList.size() && !cut; i++) {
             Patch patch = patchList.get(i);
-            if (patch.omit != 0 || patchIsOnOmitSet(patch.id)) {
+            if (patchIsOnOmitSet(patch.getId())) {
                 continue;
             }
 
-            if (patch.boundingBox == null) {
-                patch.computeBoundingBox();
-            }
-
-            ShaftPlanePosition boundingBoxSide = boundingBoxTest(patch.boundingBox);
-            // If patch bounding box overlaps, do definitive patch test.
+            ShaftPlanePosition boundingBoxSide = boundingBoxTest(faceBounds.get(patch.getFaceIndex()));
+            // Patch bounding box is inside the shaft, or overlaps with it. If it
+            // overlaps, do a more expensive, but definitive, test to see whether
+            // the patch itself is inside, outside or overlapping the shaft
             if (boundingBoxSide != ShaftPlanePosition.OUTSIDE
                 && (boundingBoxSide == ShaftPlanePosition.INSIDE
                     || shaftPatchTest(patch) != ShaftPlanePosition.OUTSIDE)) {
@@ -780,14 +784,14 @@ public class Shaft {
     /**
     Adds geometry to candidate list, duplicating if it was created during previous shaft culling.
     */
-    private static void keep(Geometry geometry, ArrayList<Geometry> candidateList) {
+    private void keep(RpkGeometry geometry, ArrayList<RpkGeometry> candidateList) {
         if (geometry == null || candidateList == null) {
             return;
         }
 
         if (geometry.shaftCullGeometry && geometry.className == GeometryClassId.PATCH_SET) {
             PatchSet oldPatchSet = (PatchSet)geometry;
-            Geometry newGeometry = createPatchSetWithPool(oldPatchSet.getPatchList());
+            RpkGeometry newGeometry = createPatchSetWithPool(oldPatchSet.getPatchList());
             newGeometry.shaftCullGeometry = true;
             newGeometry.isDuplicate = true;
             candidateList.add(newGeometry);
@@ -800,7 +804,7 @@ public class Shaft {
     /**
     Breaks geometry into components and does shaft culling on components.
     */
-    private void shaftCullOpen(Geometry geometry, ArrayList<Geometry> candidateList, ShaftCullStrategy strategy) {
+    private void shaftCullOpen(RpkGeometry geometry, ArrayList<RpkGeometry> candidateList, ShaftCullStrategy strategy) {
         if (geometry == null || candidateList == null) {
             return;
         }
@@ -810,7 +814,7 @@ public class Shaft {
             doCulling(compound.children, candidateList, strategy);
         }
         else {
-            ArrayList<Patch> geometryPatchesList = Geometry.patchListReference(geometry);
+            ArrayList<Patch> geometryPatchesList = RpkGeometry.patchListReference(geometry);
             ArrayList<Patch> culledPatches = new ArrayList<>();
             cullPatches(geometryPatchesList, culledPatches);
 
@@ -828,7 +832,7 @@ public class Shaft {
     Tests geometry with respect to shaft. If inside or overlapping, it is either
     copied as-is or opened depending on shaft culling strategy.
     */
-    public void cullGeometry(Geometry geometry, ArrayList<Geometry> candidateList, ShaftCullStrategy strategy) {
+    public void cullGeometry(RpkGeometry geometry, ArrayList<RpkGeometry> candidateList, ShaftCullStrategy strategy) {
         if (geometry == null || candidateList == null) {
             return;
         }
@@ -863,7 +867,7 @@ public class Shaft {
     /**
     Adds all objects from world that overlap or lie inside the shaft to candidate list.
     */
-    public void doCulling(ArrayList<Geometry> world, ArrayList<Geometry> candidateList, ShaftCullStrategy strategy) {
+    public void doCulling(ArrayList<RpkGeometry> world, ArrayList<RpkGeometry> candidateList, ShaftCullStrategy strategy) {
         if (candidateList == null) {
             return;
         }

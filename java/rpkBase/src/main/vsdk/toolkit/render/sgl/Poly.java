@@ -69,7 +69,7 @@ public class Poly {
         dst.b = src.b;
     }
 
-    private static void polygonSwap(Polygon a, Polygon b) {
+    private static void polygonSwap(ScreenPolygon a, ScreenPolygon b) {
         int temporaryN = a.n;
         long temporaryMask = a.mask;
         PolygonVertex[] temporaryVertices = a.vertices;
@@ -136,7 +136,7 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
         }
     }
 
-    private static void clipToHalfSpace(Polygon p, Polygon q, int index, double sign, double k) {
+    private static void clipToHalfSpace(ScreenPolygon p, ScreenPolygon q, int index, double sign, double k) {
         q.n = 0;
         q.mask = p.mask;
 
@@ -178,7 +178,7 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
         }
     }
 
-    private static void clipAndSwap(int elementIndex, double sign, double k, Polygon p, Polygon q, Polygon p1) {
+    private static void clipAndSwap(int elementIndex, double sign, double k, ScreenPolygon p, ScreenPolygon q, ScreenPolygon p1) {
         Poly.clipToHalfSpace(p, q, elementIndex, sign, sign * k);
         if (q.n == 0) {
             p1.n = 0;
@@ -203,14 +203,14 @@ POLY_CLIP_PARTIAL is returned.
 Given an n-gon as input, clipping against 6 planes could generate an
 (n+6)gon, so POLY_N_MAX in poly.h must be big enough to allow that.
 */
-    public static int clipToBox(Polygon p1, PolygonBox box) {
+    public static int clipToBox(ScreenPolygon p1, PolygonBox box) {
         int x0out = 0;
         int x1out = 0;
         int y0out = 0;
         int y1out = 0;
         int z0out = 0;
         int z1out = 0;
-        Polygon p2 = new Polygon();
+        ScreenPolygon p2 = new ScreenPolygon();
 
         if (p1.n + 6 > PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON) {
             System.err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
@@ -261,8 +261,8 @@ Given an n-gon as input, clipping against 6 planes could generate an
 
         // Now clip against each of the planes that might cut the polygon,
         // at each step toggling between polygons p1 and p2
-        Polygon p = p1;
-        Polygon q = p2;
+        ScreenPolygon p = p1;
+        ScreenPolygon q = p2;
         if (x0out != 0) {
             Poly.clipAndSwap(0 /*sx*/, -1.0, box.x0, p, q, p1);
         }
@@ -317,7 +317,7 @@ p1 and p2 in p, put change with respect to y in dp
     /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
-    private static void scanlineFlat(SglContext sglContext, int y, PolygonVertex l, PolygonVertex r, Window win) {
+    private static <S> void scanlineFlat(S[] samples, int stride, S value, int y, PolygonVertex l, PolygonVertex r, Window win) {
         int lx = (int)Math.ceil(l.sx - 0.5);
         if (lx < win.x0) {
             lx = win.x0;
@@ -331,26 +331,17 @@ Output scanline by sampling polygon at Y = y + 0.5
             return;
         }
 
-        int rowStart = y * sglContext.width;
+        int rowStart = y * stride;
         for (int x = lx; x <= rx; x++) {
             // Scan in x, generating pixels
-            int pixelIndex = rowStart + x;
-            if (sglContext.pixelData == SglPixelContent.PATCH_POINTER) {
-                sglContext.patchBuffer[pixelIndex] = sglContext.currentPatch;
-            }
-            else if (sglContext.pixelData == SglPixelContent.ELEMENT_POINTER) {
-                sglContext.galerkinElementBuffer[pixelIndex] = sglContext.currentGalerkinElement;
-            }
-            else {
-                sglContext.frameBuffer[pixelIndex] = sglContext.currentPixel;
-            }
+            samples[rowStart + x] = value;
         }
     }
 
     /**
 Scan convert a polygon, calling pixelProc at each pixel with an
-interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
-Polygon is clipped in 2-D to win, the screen space window.
+interpolated Poly_vert structure.  ScreenPolygon can be clockwise or ccw.
+ScreenPolygon is clipped in 2-D to win, the screen space window.
 
 Scan conversion is done on the basis of Poly_vert fields sx and sy.
 These two must always be interpolated, and only they have special meaning
@@ -370,7 +361,7 @@ sx=x+.5 and sy=y+.5, since sampling is done at pixel centers
 p: polygon
 win: 2-D screen space clipping window
 */
-    public static void scanFlat(SglContext sglContext, Polygon p, Window win) {
+    public static <S> void scanFlat(S[] samples, int stride, S value, ScreenPolygon p, Window win) {
         int i;
         int y;
         PolygonVertex l = new PolygonVertex();
@@ -426,10 +417,10 @@ win: 2-D screen space clipping window
                 // Do scan lines till end of l or r edge
                 if (y >= win.y0 && y <= win.y1) {
                     if (l.sx <= r.sx) {
-                        Poly.scanlineFlat(sglContext, y, l, r, win);
+                        Poly.scanlineFlat(samples, stride, value, y, l, r, win);
                     }
                     else {
-                        Poly.scanlineFlat(sglContext, y, r, l, win);
+                        Poly.scanlineFlat(samples, stride, value, y, r, l, win);
                     }
                 }
                 y++;
@@ -466,7 +457,7 @@ p1 and p2 in p, put change with respect to y in dp
     /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
-    private static void scanlineZ(SglContext sglContext, int y, PolygonVertex l, PolygonVertex r, Window win) {
+    private static <S> void scanlineZ(S[] samples, long[] depth, int stride, S value, int y, PolygonVertex l, PolygonVertex r, Window win) {
         int lx = (int)Math.ceil(l.sx - 0.5);
         if (lx < win.x0) {
             lx = win.x0;
@@ -490,21 +481,13 @@ Output scanline by sampling polygon at Y = y + 0.5
         long z = (long)(l.sz + dzf * frac);
         long dz = (long)dzf;
 
-        int rowStart = y * sglContext.width;
+        int rowStart = y * stride;
         int pixelIndex = rowStart + lx;
         for (int x = lx; x <= rx; x++) {
             // Scan in x, generating pixels
-            if (z <= sglContext.depthBuffer[pixelIndex]) {
-                if (sglContext.pixelData == SglPixelContent.PATCH_POINTER) {
-                    sglContext.patchBuffer[pixelIndex] = sglContext.currentPatch;
-                }
-                else if (sglContext.pixelData == SglPixelContent.ELEMENT_POINTER) {
-                    sglContext.galerkinElementBuffer[pixelIndex] = sglContext.currentGalerkinElement;
-                }
-                else {
-                    sglContext.frameBuffer[pixelIndex] = sglContext.currentPixel;
-                }
-                sglContext.depthBuffer[pixelIndex] = z;
+            if (z <= depth[pixelIndex]) {
+                samples[pixelIndex] = value;
+                depth[pixelIndex] = z;
             }
             pixelIndex++;
             z += dz;
@@ -513,8 +496,8 @@ Output scanline by sampling polygon at Y = y + 0.5
 
     /**
 Scan convert a polygon, calling pixelProc at each pixel with an
-interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
-Polygon is clipped in 2-D to window, the screen space window.
+interpolated Poly_vert structure.  ScreenPolygon can be clockwise or ccw.
+ScreenPolygon is clipped in 2-D to window, the screen space window.
 
 Scan conversion is done on the basis of Poly_vert fields sx and sy.
 These two must always be interpolated, and only they have special meaning
@@ -531,7 +514,7 @@ All the fields of point indicated by p->mask will be valid inside pixel proc
 except sx and sy. If they were computed, they would have values
 sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
 */
-    public static void scanZ(SglContext sglContext, Polygon p, Window window) {
+    public static <S> void scanZ(S[] samples, long[] depth, int stride, S value, ScreenPolygon p, Window window) {
         int i;
 
         double yMin = Numeric.HUGE_DOUBLE_VALUE;
@@ -586,10 +569,10 @@ sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
                 // Do scan lines till end of l or r edge
                 if (y >= window.y0 && y <= window.y1) {
                     if (l.sx <= r.sx) {
-                        Poly.scanlineZ(sglContext, y, l, r, window);
+                        Poly.scanlineZ(samples, depth, stride, value, y, l, r, window);
                     }
                     else {
-                        Poly.scanlineZ(sglContext, y, r, l, window);
+                        Poly.scanlineZ(samples, depth, stride, value, y, r, l, window);
                     }
                 }
                 y++;

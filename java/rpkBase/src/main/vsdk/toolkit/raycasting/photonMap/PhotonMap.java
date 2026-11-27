@@ -5,16 +5,16 @@ import vsdk.toolkit.common.Random;
 import java.io.PrintStream;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 
 public class PhotonMap {
     protected PhotonMapState photonMapState;
@@ -37,7 +37,7 @@ public class PhotonMap {
 
     // A grid is permanently allocated for importance sampling
     protected SampleGrid2D m_grid;
-    protected Vector3Df m_sampleLastPos;
+    protected Vector3Dd m_sampleLastPos;
 
     // Space to hold the photons and distances for queries
 
@@ -47,16 +47,16 @@ public class PhotonMap {
                         the supplied reconstruction normal. */
 
     protected Photon[] m_photons;
-    protected float[] m_distances;
-    protected float[] m_cosines; // photon dir * reconstruction normal
+    protected double[] m_distances;
+    protected double[] m_cosines; // photon dir * reconstruction normal
     protected boolean m_cosinesOk; // indicates if cosines are computed
 
     // nearest photon queries must use these functions!
     protected int
     doQuery(
-        Vector3Df position,
+        Vector3Dd position,
         int numberOfPhotons,
-        float maximumRadius,
+        double maximumRadius,
         short excludeFlags)
     {
         m_cosinesOk = false;
@@ -69,34 +69,34 @@ public class PhotonMap {
             excludeFlags);
     }
 
-    protected int doQuery(Vector3Df pos) {
+    protected int doQuery(Vector3Dd pos) {
         m_cosinesOk = false;
         return m_kdtree.query(
             pos,
             m_estimate_nrp[0] /*pmapstate.reconPhotons*/,
             m_photons,
             m_distances,
-            (float)GetMaxR2(),
+            (double)GetMaxR2(),
             (short)0);
     }
 
     protected IrrPhoton
-    DoIrradianceQuery(Vector3Df position, Vector3Df normal, float maxR2) {
-        return m_kdtree.normalPhotonQuery(position, normal, 0.8f, maxR2);
+    DoIrradianceQuery(Vector3Dd position, Vector3Dd normal, double maxR2) {
+        return m_kdtree.normalPhotonQuery(position, normal, 0.8, maxR2);
     }
 
     protected IrrPhoton
-    DoIrradianceQuery(Vector3Df position, Vector3Df normal) {
-        return DoIrradianceQuery(position, normal, Float.MAX_VALUE);
+    DoIrradianceQuery(Vector3Dd position, Vector3Dd normal) {
+        return DoIrradianceQuery(position, normal, Double.MAX_VALUE);
     }
 
     // Compute cosines of photons with a supplied normal
-    protected void computeCosines(Vector3Df normal) {
+    protected void computeCosines(Vector3Dd normal) {
         if ( !m_cosinesOk ) {
             m_nrpCosinePos = 0;
 
             for ( int i = 0; i < m_nrpFound; i++ ) {
-                Vector3Df dir = m_photons[i].dir();
+                Vector3Dd dir = m_photons[i].dir();
                 m_cosines[i] = dir.dotProduct(normal);
                 if ( m_cosines[i] > 0 ) {
                     m_nrpCosinePos++;
@@ -108,7 +108,7 @@ public class PhotonMap {
     }
 
     // Add a photon taking possible irrPhoton into account
-    protected void doAddPhoton(Photon photon, Vector3Df normal, short flags) {
+    protected void doAddPhoton(Photon photon, Vector3Dd normal, short flags) {
         if ( m_precomputeIrradiance ) {
             IrrPhoton irrPhoton = new IrrPhoton();
             irrPhoton.copy(photon);
@@ -120,69 +120,69 @@ public class PhotonMap {
     }
 
     public static boolean
-    zeroAlbedo(PhongBidirectionalScatteringDistributionFunction bsdf, RayHit hit, byte flags) {
-        ColorRgbMutable color;
+    zeroAlbedo(PhongBidirectionalScatteringDistributionFunction bsdf, RpkRayHit hit, byte flags) {
+        ColorRgb color;
         if ( bsdf == null ) {
-            color = new ColorRgbMutable();
-            color.clear();
+            color = new ColorRgb();
+            color = new ColorRgb(0.0, 0.0, 0.0);
         } else {
-            color = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags & 0xFF));
+            color = new ColorRgb(bsdf.splitBsdfScatteredPower(hit.shadingContext(), flags & 0xFF));
         }
         return (color.average() < VSDK.EPSILON);
     }
 
-    private static float getFalseMonochrome(float val, PhotonMapState photonMapState) {
-        float max = photonMapState.falseColMax;
+    private static double getFalseMonochrome(double val, PhotonMapState photonMapState) {
+        double max = photonMapState.falseColMax;
 
         if ( photonMapState.falseColLog != 0 ) {
-            max = (float)Math.log(1.0 + max);
-            val = (float)Math.log(1.0 + val);
+            max = (double)Math.log(1.0 + max);
+            val = (double)Math.log(1.0 + val);
         }
 
-        float tmp = Math.min(val, max);
+        double tmp = Math.min(val, max);
         tmp = (tmp / max);
 
         return tmp;
     }
 
     // Convert a value val given a maximum into some nice color
-    public static ColorRgbMutable getFalseColor(float val, PhotonMapState photonMapState) {
-        ColorRgbMutable col = new ColorRgbMutable();
-        float tmp;
-        float r = 0;
-        float g = 0;
-        float b = 0;
+    public static ColorRgb getFalseColor(double val, PhotonMapState photonMapState) {
+        ColorRgb col = new ColorRgb();
+        double tmp;
+        double r = 0;
+        double g = 0;
+        double b = 0;
 
         if ( photonMapState.falseColMono != 0 ) {
             tmp = PhotonMap.getFalseMonochrome(val, photonMapState);
-            col.set(tmp, tmp, tmp);
+            col = new ColorRgb(tmp, tmp, tmp);
             return col;
         }
 
-        float max = photonMapState.falseColMax;
+        double max = photonMapState.falseColMax;
 
         if ( photonMapState.falseColLog != 0 ) {
-            max = (float)Math.log(1.0 + max);
-            val = (float)Math.log(1.0 + val);
+            max = (double)Math.log(1.0 + max);
+            val = (double)Math.log(1.0 + val);
         }
 
         tmp = Math.min(val, max);
 
         // Does some log scale ?
 
-        tmp = 3.0f * (tmp / max);
+        tmp = 3.0 * (tmp / max);
 
         if ( tmp <= 1.0 ) {
             b = tmp;
         } else if ( tmp < 2.0 ) {
-            g = tmp - 1.0f;
-            b = 1.0f - g;
+            g = tmp - 1.0;
+            b = 1.0 - g;
         } else {
-            r = tmp - 2.0f;
-            g = 1.0f - r;
+            r = tmp - 2.0;
+            g = 1.0 - r;
         }
 
-        col.set(r, g, b);
+        col = new ColorRgb(r, g, b);
         return col;
     }
 
@@ -206,11 +206,11 @@ public class PhotonMap {
         m_totalPhotons = 0;
 
         m_grid = new SampleGrid2D(2, 4);
-        m_sampleLastPos = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        m_sampleLastPos = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
 
         m_photons = new Photon[PhotonMapState.MAXIMUM_RECON_PHOTONS];
-        m_distances = new float[PhotonMapState.MAXIMUM_RECON_PHOTONS];
-        m_cosines = new float[PhotonMapState.MAXIMUM_RECON_PHOTONS];
+        m_distances = new double[PhotonMapState.MAXIMUM_RECON_PHOTONS];
+        m_cosines = new double[PhotonMapState.MAXIMUM_RECON_PHOTONS];
 
         m_nrpFound = 0;  // No valid photons in array
         m_cosinesOk = true;
@@ -259,7 +259,7 @@ public class PhotonMap {
     /**
 Adding photons, returns if photon was added
 */
-    public boolean addPhoton(Photon photon, Vector3Df normal, short flags) {
+    public boolean addPhoton(Photon photon, Vector3Dd normal, short flags) {
         Random.drand48(); // Just to keep in sync with density controlled storage
 
         doAddPhoton(photon, normal, flags);
@@ -273,8 +273,8 @@ Adding photons, returns if photon was added
 
     private static double
     computeAcceptProb(
-        float currentD,
-        float requiredD,
+        double currentD,
+        double requiredD,
         PhotonMapState photonMapState)
     {
         // Step function
@@ -303,11 +303,11 @@ Adding photons, returns if photon was added
         // -- Check the flags
         // -- normal weighted average?
 
-        ColorRgbMutable deltaPower = new ColorRgbMutable();
-        float factor = 1.0f / (float)m_nrpCosinePos;
+        ColorRgb deltaPower = new ColorRgb();
+        double factor = 1.0 / (double)m_nrpCosinePos;
 
-        ColorRgbMutable pow = photon.power();
-        deltaPower.scaledCopy(factor, pow);
+        ColorRgb pow = photon.power();
+        deltaPower = pow.multiply(factor);
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( m_cosines[i] > 0.0 ) {
@@ -319,15 +319,15 @@ Adding photons, returns if photon was added
     public boolean
     DC_AddPhoton(
         Photon photon,
-        RayHit hit,
-        float requiredD,
+        RpkRayHit hit,
+        double requiredD,
         short flags)
     {
         // Get current density
-        // Vector3Df pos = photon.Pos();
+        // Vector3Dd pos = photon.Pos();
         boolean stored;
 
-        float currentD = getCurrentDensity(hit, photonMapState.distribPhotons);
+        double currentD = getCurrentDensity(hit, photonMapState.distribPhotons);
         // m_photons and m_distances is valid now !!
 
         // Compute acceptance probability
@@ -381,29 +381,29 @@ Get a maximum radius^2 to be used when locating photons
 
     // Precompute Irradiance
     public void photonPrecomputeIrradiance(Camera camera, IrrPhoton photon) {
-        ColorRgbMutable irradiance = new ColorRgbMutable();
-        irradiance.clear();
+        ColorRgb irradiance = new ColorRgb();
+        irradiance = new ColorRgb(0.0, 0.0, 0.0);
 
         // Locate the nearest photons using a max radius limit
-        Vector3Df pos = photon.pos();
+        Vector3Dd pos = photon.pos();
         m_nrpFound = doQuery(pos);
 
         if ( m_nrpFound > 3 ) {
             // Construct irradiance estimate
-            float maxDistance = m_distances[0];
+            double maxDistance = m_distances[0];
 
             for ( int i = 0; i < m_nrpFound; i++ ) {
                 if ( photon.Normal().dotProduct(m_photons[i].dir()) > 0 ) {
-                    ColorRgbMutable power = m_photons[i].power();
-                    irradiance.add(irradiance, power);
+                    ColorRgb power = m_photons[i].power();
+                    irradiance = irradiance.add(power);
                 }
             }
 
             // Now we have incoming radiance integrated over area estimate,
             // so we convert it to irradiance, maxDistance is already squared
             // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-            float factor = (1.0f / ((float)Math.PI * (float)Math.PI * maxDistance * (float)m_totalPaths));
-            irradiance.scale(factor);
+            double factor = (1.0 / ((double)Math.PI * (double)Math.PI * maxDistance * (double)m_totalPaths));
+            irradiance = irradiance.multiply(factor);
         }
 
         photon.SetIrradiance(irradiance);
@@ -422,22 +422,22 @@ Get a maximum radius^2 to be used when locating photons
 
     public boolean
     irradianceReconstruct(
-        RayHit hit,
-        Vector3Df outDir,
-        ColorRgbMutable diffuseAlbedo,
-        ColorRgbMutable result)
+        RpkRayHit hit,
+        Vector3Dd outDir,
+        ColorRgb diffuseAlbedo,
+        ColorRgb[] result)
     {
         if ( !m_irradianceComputed ) {
             precomputeIrradiance();
         }
 
-        Vector3Df normal = hit.getNormal();
-        Vector3Df position = hit.getPoint();
+        Vector3Dd normal = hit.getNormal();
+        Vector3Dd position = hit.getPoint();
         IrrPhoton photon = DoIrradianceQuery(position, normal);
         hit.setNormal(normal);
 
         if ( photon != null ) {
-            result.scalarProduct(photon.m_irradiance, diffuseAlbedo);
+            result[0] = photon.m_irradiance.multiply(diffuseAlbedo);
             return true;
         } else {
             // No appropriate photon found
@@ -446,30 +446,30 @@ Get a maximum radius^2 to be used when locating photons
     }
 
     // reconstruct
-    public ColorRgbMutable reconstruct(
-        RayHit hit,
-        Vector3Df outDir,
+    public ColorRgb reconstruct(
+        RpkRayHit hit,
+        Vector3Dd outDir,
         PhongBidirectionalScatteringDistributionFunction bsdf,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf)
     {
         // Find the nearest photons
-        ColorRgbMutable result = new ColorRgbMutable();
-        ColorRgbMutable eval = new ColorRgbMutable();
-        ColorRgbMutable col = new ColorRgbMutable();
+        ColorRgb result = new ColorRgb();
+        ColorRgb eval = new ColorRgb();
+        ColorRgb col = new ColorRgb();
 
-        result.clear();
+        result = new ColorRgb(0.0, 0.0, 0.0);
 
-        ColorRgbMutable diffuseAlbedo = new ColorRgbMutable();
-        ColorRgbMutable glossyAlbedo = new ColorRgbMutable();
+        ColorRgb diffuseAlbedo = new ColorRgb();
+        ColorRgb glossyAlbedo = new ColorRgb();
 
-        diffuseAlbedo.clear();
-        glossyAlbedo.clear();
+        diffuseAlbedo = new ColorRgb(0.0, 0.0, 0.0);
+        glossyAlbedo = new ColorRgb(0.0, 0.0, 0.0);
 
         if ( bsdf != null ) {
-            diffuseAlbedo = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
+            diffuseAlbedo = new ColorRgb(bsdf.splitBsdfScatteredPower(hit.shadingContext(), BsdfComponent.BRDF_DIFFUSE_COMPONENT));
             // -- TODO Irradiance pre-computation for diffuse transmission
-            glossyAlbedo = new ColorRgbMutable(bsdf.splitBsdfScatteredPower(hit.shadingContext(),
+            glossyAlbedo = new ColorRgb(bsdf.splitBsdfScatteredPower(hit.shadingContext(),
                 BsdfComponent.BTDF_DIFFUSE_COMPONENT | BsdfComponent.BRDF_GLOSSY_COMPONENT | BsdfComponent.BTDF_GLOSSY_COMPONENT));
         }
 
@@ -480,8 +480,9 @@ Get a maximum radius^2 to be used when locating photons
                 return result; // No reflectance
             } else {
                 if ( m_precomputeIrradiance ) {
-                    if ( irradianceReconstruct(hit, outDir, diffuseAlbedo, result) ) {
-                        return result;
+                    final ColorRgb[] irradianceResult = new ColorRgb[] {new ColorRgb(0.0, 0.0, 0.0)};
+                    if ( irradianceReconstruct(hit, outDir, diffuseAlbedo, irradianceResult) ) {
+                        return irradianceResult[0];
                     } else {
                         // No appropriate irradiance photon -> do normal reconstruction
                     }
@@ -492,7 +493,7 @@ Get a maximum radius^2 to be used when locating photons
         // Normal reconstruct...
 
         // Locate nearest photons using a max radius limit
-        Vector3Df position = hit.getPoint();
+        Vector3Dd position = hit.getPoint();
         m_nrpFound = doQuery(position);
 
         if ( m_nrpFound < 3 ) {
@@ -500,15 +501,15 @@ Get a maximum radius^2 to be used when locating photons
         }
 
         // Construct radiance estimate
-        float maxDistance = m_distances[0];
+        double maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            Vector3Df dir = m_photons[i].dir();
+            Vector3Dd dir = m_photons[i].dir();
 
             if ( bsdf == null ) {
-                eval.clear();
+                eval = new ColorRgb(0.0, 0.0, 0.0);
             } else {
-                eval = new ColorRgbMutable(bsdf.evaluate(
+                eval = new ColorRgb(bsdf.evaluate(
                     hit.shadingContext(),
                     inBsdf,
                     outBsdf,
@@ -519,56 +520,56 @@ Get a maximum radius^2 to be used when locating photons
                     BsdfComponent.BRDF_GLOSSY_COMPONENT |
                     BsdfComponent.BTDF_GLOSSY_COMPONENT));
             }
-            ColorRgbMutable power = m_photons[i].power();
+            ColorRgb power = m_photons[i].power();
 
-            col.scalarProduct(eval, power);
-            result.add(result, col);
+            col = eval.multiply(power);
+            result = result.add(col);
         }
 
         // Now we have a radiance integrated over area estimate,
         // so we convert it to radiance, maxDistance is already squared
 
-        float factor = 1.0f / ((float)Math.PI * maxDistance * (float)m_totalPaths);
+        double factor = 1.0 / ((double)Math.PI * maxDistance * (double)m_totalPaths);
 
-        result.scale(factor);
+        result = result.multiply(factor);
 
         return result;
     }
 
-    public float getCurrentDensity(RayHit hit, int nrPhotons) {
+    public double getCurrentDensity(RpkRayHit hit, int nrPhotons) {
         // Find the nearest photons
         if ( nrPhotons == 0 ) {
             nrPhotons = m_estimate_nrp[0];
         }
 
         if ( nrPhotons == 0 ) {
-            return 0.0f;
+            return 0.0;
         }
 
-        Vector3Df position = hit.getPoint();
-        m_nrpFound = doQuery(position, nrPhotons, (float)GetMaxR2(), (short)0);
+        Vector3Dd position = hit.getPoint();
+        m_nrpFound = doQuery(position, nrPhotons, (double)GetMaxR2(), (short)0);
 
         if ( m_nrpFound < 3 ) {
-            return 0.0f;
+            return 0.0;
         }
 
         // Construct density estimate
-        float maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
+        double maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
 
         computeCosines(hit.getGeometricNormal()); // Shading normal?
 
         if ( m_nrpCosinePos <= 3 ) {
-            return 0.0f;
+            return 0.0;
         }
 
-        return (float)(m_nrpCosinePos / (Math.PI * maxDistance));
+        return (double)(m_nrpCosinePos / (Math.PI * maxDistance));
     }
 
     /**
 Return a color coded density of the photon map
 */
-    public ColorRgbMutable getDensityColor(RayHit hit) {
-        float density = getCurrentDensity(hit, 0);
+    public ColorRgb getDensityColor(RpkRayHit hit) {
+        double density = getCurrentDensity(hit, 0);
 
         return PhotonMap.getFalseColor(density, photonMapState);
     }
@@ -584,9 +585,9 @@ Return a color coded density of the photon map
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
     public double
-    sample(Vector3Df position, double[] r, double[] s, CoordinateSystem coord, byte flag, float n) {
+    sample(Vector3Dd position, double[] r, double[] s, CoordinateSystem coord, byte flag, double n) {
         // -- Epsilon in as a function of scene/camera measure ??
-        if ( !Numeric.vectorsEqual(m_sampleLastPos, position, 0.0001f) ) {
+        if ( !Numeric.vectorsEqual(m_sampleLastPos, position, 0.0001) ) {
             // Need a new grid
 
             m_grid.init();
@@ -602,9 +603,9 @@ Return a color coded density of the photon map
                 // in a local spherical frame before building the 2D sampling grid.
                 m_photons[i].findRS(pr, ps, coord, flag, n);
 
-                ColorRgbMutable color = m_photons[i].power();
+                ColorRgb color = m_photons[i].power();
 
-                m_grid.add(pr[0], ps[0], color.average() / (float)m_nrPhotons);
+                m_grid.add(pr[0], ps[0], color.average() / (double)m_nrPhotons);
             }
 
             m_grid.EnsureNonZeroEntries();

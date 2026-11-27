@@ -11,12 +11,10 @@ formats, etc.
 */
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Matrix4x4f;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
-import vsdk.toolkit.render.sgl.SglConstants;
-import vsdk.toolkit.render.sgl.SglContext;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -24,92 +22,65 @@ import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public class SoftIds {
-    /**
-Sets up a software rendering context and initialises transforms and
-viewport for the current view.
-*/
-    public static SglContext setupSoftFrameBuffer(Camera camera) {
-        SglContext sgl = new SglContext(camera.xSize, camera.ySize);
-        sgl.sglDepthTesting(true);
-        sgl.sglClipping(true);
-        sgl.sglClear(0, SglConstants.SGL_MAXIMUM_Z);
-
-        Matrix4x4f p = Camera.perspectiveMatrix(
-            camera.fieldOfVision * 2.0f * (float)Math.PI / 180.0f,
-            (float)camera.xSize / (float)camera.ySize,
-            camera.near,
-            camera.far);
-        sgl.sglLoadMatrix(p);
-        Matrix4x4f l = Camera.lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
-        sgl.sglMultiplyMatrix(l);
-
-        return sgl;
-    }
-
-    public static void softRenderPatch(
+    private static void drawPatch(
         Patch patch,
         Camera camera,
-        RenderOptions renderOptions,
-        SglContext sglContext)
+        RendererConfiguration renderOptions,
+        FaceVisibilityBuffer target)
     {
-        if (patch == null || camera == null || renderOptions == null || sglContext == null) {
+        if ( renderOptions.backfaceCulling &&
+             patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < VSDK.EPSILON ) {
             return;
         }
 
-        Vector3Df[] vertices = new Vector3Df[4];
-
-        if (renderOptions.backfaceCulling &&
-            patch.getNormal().dotProduct(camera.eyePosition) + patch.planeConstant < VSDK.EPSILON) {
-            return;
+        Vector3Dd[] vertices = new Vector3Dd[4];
+        final int count = patch.getNumberOfVertices();
+        for ( int i = 0; i < count; i++ ) {
+            vertices[i] = patch.getVertices()[i].point;
         }
-
-        vertices[0] = patch.vertex[0].point;
-        vertices[1] = patch.vertex[1].point;
-        vertices[2] = patch.vertex[2].point;
-        if (patch.numberOfVertices > 3) {
-            vertices[3] = patch.vertex[3].point;
-        }
-
-        sglContext.sglSetPatch(patch);
-        sglContext.sglPolygon(patch.numberOfVertices, vertices);
+        target.drawPolygon(count, vertices, new SglFaceIndex(patch.getFaceIndex()));
     }
 
-    public static void softRenderPatches(Scene scene, RenderOptions renderOptions, SglContext sglContext) {
-        if (scene == null || renderOptions == null || sglContext == null) {
+    /** Renders into a cleared target with the camera's dimensions and full viewport. */
+    public static void renderVisibleFaces(Scene scene, RendererConfiguration renderOptions, FaceVisibilityBuffer target) {
+        if ( renderOptions == null ) {
             return;
         }
 
-        for (int i = 0; scene.patchList != null && i < scene.patchList.size(); i++) {
-            SoftIds.softRenderPatch(scene.patchList.get(i), scene.camera, renderOptions, sglContext);
+        final Camera camera = scene.camera;
+        final Matrix4x4d projection = Camera.perspectiveMatrix(
+            camera.fieldOfVision * 2.0 * (double)Math.PI / 180.0,
+            (double)camera.xSize / (double)camera.ySize,
+            camera.near,
+            camera.far);
+        final Matrix4x4d view = Camera.lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
+        target.setTransform(projection.multiply(view));
+
+        for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
+            final Patch patch = scene.patchList.get(i);
+            if ( patch != null ) {
+                drawPatch(patch, camera, renderOptions, target);
+            }
         }
     }
 
     /**
-Software ID rendering
-
-Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
-the patches visible through each pixel or 0 if the background is visible through
-the pixel. x is normally the width and y the height of the canvas window
+Legacy patch ID export. Zero represents the background.
 */
-    public static long[] softRenderIds(long[] x, long[] y, Scene scene, RenderOptions renderOptions) {
-        SglContext currentSglContext = SoftIds.setupSoftFrameBuffer(scene.camera);
-        SoftIds.softRenderPatches(scene, renderOptions, currentSglContext);
+    public static long[] softRenderIds(long[] width, long[] height, Scene scene, RendererConfiguration renderOptions) {
+        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        renderVisibleFaces(scene, renderOptions, target);
 
-        if (x != null && x.length > 0) {
-            x[0] = currentSglContext.width;
+        width[0] = target.getWidth();
+        height[0] = target.getHeight();
+        long[] ids = new long[(int)(width[0] * height[0])];
+        for ( int y = 0; y < height[0]; y++ ) {
+            final int rowStart = (int)(y * width[0]);
+            for ( int x = 0; x < width[0]; x++ ) {
+                final SglFaceIndex face = target.getSample(x, y);
+                ids[rowStart + x] = face.isBackground() ? 0 : scene.getFace(face.getIndex()).getId();
+            }
         }
-        if (y != null && y.length > 0) {
-            y[0] = currentSglContext.height;
-        }
-
-        long[] ids = new long[currentSglContext.width * currentSglContext.height];
-        // softRenderPatches renders patch pointers, which the rasterizer stores in
-        // the patch buffer; translate them to patch IDs (0 for the background)
-        for ( int i = 0; i < currentSglContext.width * currentSglContext.height; i++ ) {
-            final Patch patch = currentSglContext.patchBuffer[i];
-            ids[i] = patch != null ? patch.id : 0;
-        }
-
         return ids;
     }
 
@@ -117,7 +88,7 @@ the pixel. x is normally the width and y the height of the canvas window
 Renders in memory an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
-    public static void softRenderPixels(int width, int height, ColorRgbMutable[] rgb, ToneMappingContext toneMapOptions) {
+    public static void softRenderPixels(int width, int height, ColorRgb[] rgb, ToneMappingContext toneMapOptions) {
         // Length of one row of RGBA image data rounded up to a multiple of 8
         int rowLength = (4 * width * Byte.BYTES + 7) & ~7;
         byte[] c = new byte[height * rowLength + 8];
@@ -126,11 +97,11 @@ left corner of image, relative to the lower left corner of the window)
             int rowRgbStart = j * width;
             int rowStart = j * rowLength;
             for (int i = 0; i < width; i++) {
-                ColorRgbMutable corrected_rgb = new ColorRgbMutable(
+                ColorRgb corrected_rgb = new ColorRgb(
                     rgb[rowRgbStart + i].getR(),
                     rgb[rowRgbStart + i].getG(),
                     rgb[rowRgbStart + i].getB());
-                ToneMap.toneMappingGammaCorrection(corrected_rgb, toneMapOptions);
+                corrected_rgb = ToneMap.toneMappingGammaCorrection(corrected_rgb, toneMapOptions);
                 int pixelOffset = rowStart + 4 * i;
                 c[pixelOffset] = (byte)(int)(corrected_rgb.getR() * 255.0);
                 c[pixelOffset + 1] = (byte)(int)(corrected_rgb.getG() * 255.0);

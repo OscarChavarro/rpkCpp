@@ -1,5 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
+import vsdk.toolkit.scene.FaceColorTable;
 import vsdk.toolkit.common.Random;
 
 import java.io.OutputStream;
@@ -7,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
@@ -90,13 +91,13 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
     }
 
     @Override
-    public ColorRgbMutable getRadiance(
+    public ColorRgb getRadiance(
         Camera camera,
         Patch patch,
         double u,
         double v,
-        Vector3Df dir,
-        RenderOptions renderOptions)
+        Vector3Dd dir,
+        RendererConfiguration renderOptions)
     {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
@@ -121,7 +122,7 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
     public void writeVRML(
         Camera camera,
         OutputStream outputStream,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( camera == null || outputStream == null || renderOptions == null ) {
             // Not implemented in C++ version either.
@@ -133,9 +134,7 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
         StochasticRadiosityBasisState.setActiveState(stochasticRadiosityBasisState);
-        if ( scene == null ) {
-            // scene is intentionally unused in C++ implementation.
-        }
+        ElementHierarchyState.activeState().setRadianceElements(scene.getRadianceElements());
         StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
         if ( StochasticRelaxation.activeState().toneMapOptions == null ) {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
@@ -170,22 +169,22 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
     /**
 Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 */
-    private static long stochasticRelaxationRadiosityRandomRound(float x) {
+    private static long stochasticRelaxationRadiosityRandomRound(double x) {
         long l = (long)Math.floor(x);
-        if ( Random.drand48() < (x - (float)l) ) {
+        if ( Random.drand48() < (x - (double)l) ) {
             l++;
         }
         return l;
     }
 
-    private static void stochasticRelaxationRadiosityRecomputeDisplayColors(ArrayList<Patch> scenePatches) {
+    private static void stochasticRelaxationRadiosityRecomputeDisplayColors(ArrayList<Patch> scenePatches, FaceColorTable faceColors) {
         StochasticRadiosityElement topElement = ElementHierarchyState.activeState().topCluster;
         if ( topElement != null ) {
             topElement.traverseClusterLeafElements(StochasticRadiosityElement::stochasticRadiosityElementComputeNewVertexColors);
             topElement.traverseClusterLeafElements(StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors);
         } else {
             for ( int i = 0; scenePatches != null && i < scenePatches.size(); i++ ) {
-                Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i));
+                Mcrad.monteCarloRadiosityPatchComputeNewColor(scenePatches.get(i), faceColors);
             }
         }
     }
@@ -207,7 +206,7 @@ distribution
         return w / StochasticRadiosityElement.stochasticRadiosityElementScalarReflectance(elem);
     }
 
-    private static ColorRgbMutable[] stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement elem) {
+    private static ColorRgb[] stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement elem) {
         return elem.unShotRadiance;
     }
 
@@ -215,21 +214,21 @@ distribution
         // Each incremental iteration computes a different contribution to the
         // solution. The quality factor of the result remains constant
         if ( StochasticRelaxation.activeState().discardIncremental != 0 ) {
-            elem.quality = 0.0f;
+            elem.quality = 0.0;
             if ( !repeatedDiscardIncrementalWarning ) {
                 Logger.reportMessage(null, Logger.WARNING, "stochasticRelaxationRadiosityElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
             }
             repeatedDiscardIncrementalWarning = true;
         } else {
-            elem.quality = (float)stochasticRelaxationRadiosityQualityFactor(elem, w);
+            elem.quality = (double)stochasticRelaxationRadiosityQualityFactor(elem, w);
         }
 
         Coefficientsmcrad.stochasticRadiosityAddCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityCopyCoefficients(elem.unShotRadiance, elem.receivedRadiance, elem.basis);
         if ( StochasticRelaxation.activeState().setSource != 0 ) {
             // Copy direct illumination and forget self emitted illumination
-            elem.radiance[0].set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
-            elem.sourceRad.set(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
+            elem.radiance[0] = new ColorRgb(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
+            elem.sourceRad = new ColorRgb(elem.receivedRadiance[0].getR(), elem.receivedRadiance[0].getG(), elem.receivedRadiance[0].getB());
         }
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.receivedRadiance, elem.basis);
     }
@@ -239,18 +238,18 @@ distribution
             StochasticRelaxation.activeState().cpuSeconds,
             StochasticRelaxation.activeState().tracedRays,
             StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses);
-        StochasticRelaxation.activeState().unShotFlux.print(System.err);
+        System.err.printf("%g %g %g", StochasticRelaxation.activeState().unShotFlux.getR(), StochasticRelaxation.activeState().unShotFlux.getG(), StochasticRelaxation.activeState().unShotFlux.getB());
         System.err.printf(", total flux = ");
-        StochasticRelaxation.activeState().totalFlux.print(System.err);
+        System.err.printf("%g %g %g", StochasticRelaxation.activeState().totalFlux.getR(), StochasticRelaxation.activeState().totalFlux.getG(), StochasticRelaxation.activeState().totalFlux.getB());
         System.err.printf(", indirect importance weighted un-shot flux = ");
-        StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.print(System.err);
+        System.err.printf("%g %g %g", StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.getR(), StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.getG(), StochasticRelaxation.activeState().indirectImportanceWeightedUnShotFlux.getB());
         System.err.printf("\n");
     }
 
     private static void stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         Scene scene,
         RadianceMethod radianceMethod,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         double refUnShot;
         long stepNumber = 0;
@@ -282,7 +281,7 @@ distribution
                 break;
             }
             numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                (float)(unShotFraction * (double)StochasticRelaxation.activeState().initialNumberOfRays *
+                (double)(unShotFraction * (double)StochasticRelaxation.activeState().initialNumberOfRays *
                     StochasticRadiosityBasisState.activeState()
                         .approxDesc[StochasticRelaxation.activeState().approximationOrderType.ordinal()].basis_size));
 
@@ -305,7 +304,7 @@ distribution
             Mcrad.monteCarloRadiosityUpdateCpuSecs();
             stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
             if ( unShotFraction > 0.3 ) {
-                stochasticRelaxationRadiosityRecomputeDisplayColors(scene.patchList);
+                stochasticRelaxationRadiosityRecomputeDisplayColors(scene.patchList, scene.getFaceColors());
             }
         }
 
@@ -317,7 +316,7 @@ distribution
         }
     }
 
-    private static float stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement elem) {
+    private static double stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement elem) {
         return elem.unShotImportance;
     }
 
@@ -327,7 +326,7 @@ distribution
         }
         elem.importance += elem.receivedImportance;
         elem.unShotImportance = elem.receivedImportance;
-        elem.receivedImportance = 0.0f;
+        elem.receivedImportance = 0.0;
     }
 
     private static void stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
@@ -344,7 +343,7 @@ distribution
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         long stepNumber = 0;
         int radianceDriven = StochasticRelaxation.activeState().radianceDriven;
@@ -368,7 +367,7 @@ distribution
             // proportional to the number of basis functions in the rad. approx. */
             double unShotFraction = StochasticRelaxation.activeState().unShotYmp / StochasticRelaxation.activeState().sourceYmp;
             long numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                (float)unShotFraction * (float)StochasticRelaxation.activeState().initialNumberOfRays);
+                (double)unShotFraction * (double)StochasticRelaxation.activeState().initialNumberOfRays);
             if ( unShotFraction < 0.01 ) {
                 break;
             }
@@ -397,7 +396,7 @@ distribution
         StochasticRelaxation.activeState().weightedSampling = weightedSampling;
     }
 
-    private static ColorRgbMutable[] stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement elem) {
+    private static ColorRgb[] stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement elem) {
         return elem.radiance;
     }
 
@@ -419,19 +418,19 @@ distribution
                 // Quality of new solution is so high that it must take over
                 k = 0.0;
             }
-            elem.quality += (float)quality; // Add quality
+            elem.quality += (double)quality; // Add quality
         }
 
         // Subtract source radiosity
-        elem.radiance[0].subtract(elem.radiance[0], elem.sourceRad);
+        elem.radiance[0] = elem.radiance[0].subtract(elem.sourceRad);
 
         // Combine with previous results
-        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((float)k, elem.radiance, elem.basis);
-        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((1.0f - (float)k), elem.receivedRadiance, elem.basis);
+        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((double)k, elem.radiance, elem.basis);
+        Coefficientsmcrad.stochasticRadiosityScaleCoefficients((1.0 - (double)k), elem.receivedRadiance, elem.basis);
         Coefficientsmcrad.stochasticRadiosityAddCoefficients(elem.radiance, elem.receivedRadiance, elem.basis);
 
         // Re-add source radiosity
-        elem.radiance[0].add(elem.radiance[0], elem.sourceRad);
+        elem.radiance[0] = elem.radiance[0].add(elem.sourceRad);
 
         // Clear un-shot and received radiance
         Coefficientsmcrad.stochasticRadiosityClearCoefficients(elem.unShotRadiance, elem.basis);
@@ -444,7 +443,7 @@ distribution
             StochasticRelaxation.activeState().tracedRays,
             StochasticRelaxation.activeState().tracedRays - StochasticRelaxation.activeState().numberOfMisses);
         System.err.printf(", total flux = ");
-        StochasticRelaxation.activeState().totalFlux.print(System.err);
+        System.err.printf("%g %g %g", StochasticRelaxation.activeState().totalFlux.getR(), StochasticRelaxation.activeState().totalFlux.getG(), StochasticRelaxation.activeState().totalFlux.getB());
         if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
             System.err.printf("\ntotal importance rays = %d, total importance = %g, total area = %g",
                 StochasticRelaxation.activeState().importanceTracedRays,
@@ -458,7 +457,7 @@ distribution
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         System.err.printf("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration);
         StochasticJacobi.doStochasticJacobiIteration(
@@ -475,7 +474,7 @@ distribution
         stochasticRelaxationRadiosityPrintRegularStats();
     }
 
-    private static float stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement elem) {
+    private static double stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement elem) {
         return elem.importance;
     }
 
@@ -486,16 +485,16 @@ distribution
         double k = (double)StochasticRelaxation.activeState().prevImportanceTracedRays /
             (double)StochasticRelaxation.activeState().importanceTracedRays;
 
-        elem.importance = (float)(
+        elem.importance = (double)(
             k * (elem.importance - elem.sourceImportance) + (1.0 - k) * elem.receivedImportance + elem.sourceImportance);
-        elem.unShotImportance = elem.receivedImportance = 0.0f;
+        elem.unShotImportance = elem.receivedImportance = 0.0;
     }
 
     private static void stochasticRelaxationRadiosityDoRegularImportanceIteration(
         SceneQuery sceneQuery,
         SceneQueryWorkspace sceneWorldSceneQueryWorkspace,
         ArrayList<Patch> scenePatches,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         long numberOfRays;
         int doHierarchicMeshing = ElementHierarchyState.activeState().do_h_meshing;
@@ -540,7 +539,7 @@ required for some of the experimental stuff to work
             return;
         }
 
-        stochasticRadiosityElement.quality = 0.0f;
+        stochasticRadiosityElement.quality = 0.0;
         stochasticRadiosityElement.traverseAllChildren(StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementDiscardIncremental);
     }
 
@@ -552,7 +551,7 @@ required for some of the experimental stuff to work
     }
 
     @Override
-    public boolean doStep(Scene scene, RenderOptions renderOptions) {
+    public boolean doStep(Scene scene, RendererConfiguration renderOptions) {
         StochasticRelaxation.setActiveState(stochasticRelaxationState);
         ElementHierarchyState.setActiveState(elementHierarchyState);
         StochasticRadiosityBasisState.setActiveState(stochasticRadiosityBasisState);
@@ -610,7 +609,7 @@ required for some of the experimental stuff to work
             stochasticRelaxationRadiosityDoRegularRadianceIteration(scene.getSceneQuery(), scene.getSceneQueryWorkspace(), scene.patchList, renderOptions);
         }
 
-        stochasticRelaxationRadiosityRecomputeDisplayColors(scene.patchList);
+        stochasticRelaxationRadiosityRecomputeDisplayColors(scene.patchList, scene.getFaceColors());
 
         System.err.printf("%s\n", getStats());
 

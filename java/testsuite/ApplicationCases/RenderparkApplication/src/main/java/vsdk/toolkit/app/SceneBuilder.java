@@ -7,7 +7,7 @@ import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupCore;
 import vsdk.toolkit.common.color.Cie;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.bin.reader.BinaryModelDeserializer;
@@ -25,14 +25,13 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.SceneQuery;
-import vsdk.toolkit.scene.VisibilityQueryRecorder;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 public final class SceneBuilder {
     private static final int ALL_XXDF_COMPONENTS =
@@ -52,34 +51,34 @@ public final class SceneBuilder {
     }
 
     private static void sceneBuilderPatchAccumulateStats(Patch patch) {
-        ColorRgbMutable E = PatchVisitor.averageEmittance(patch, ALL_XXDF_COMPONENTS);
-        ColorRgbMutable R = PatchVisitor.averageNormalAlbedo(patch, ALL_BSDF_COMPONENTS);
-        ColorRgbMutable power = new ColorRgbMutable();
+        ColorRgb E = PatchVisitor.averageEmittance(patch, ALL_XXDF_COMPONENTS);
+        ColorRgb R = PatchVisitor.averageNormalAlbedo(patch, ALL_BSDF_COMPONENTS);
+        ColorRgb power = new ColorRgb();
 
-        Statistics.instance().radiance.totalArea += patch.area;
-        power.scaledCopy(patch.area, E);
-        Statistics.instance().radiance.totalEmittedPower.add(Statistics.instance().radiance.totalEmittedPower, power);
-        Statistics.instance().radiance.averageReflectivity.addScaled(Statistics.instance().radiance.averageReflectivity, patch.area, R);
-        E.scale(1.0f / (float)Math.PI);
-        Statistics.instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics.instance().radiance.maxSelfEmittedRadiance);
-        Statistics.instance().radiance.maxSelfEmittedPower.maximum(power, Statistics.instance().radiance.maxSelfEmittedPower);
+        Statistics.instance().radiance.totalArea += patch.getArea();
+        power = E.multiply(patch.getArea());
+        Statistics.instance().radiance.totalEmittedPower = (Statistics.instance().radiance.totalEmittedPower).add(power);
+        Statistics.instance().radiance.averageReflectivity = (Statistics.instance().radiance.averageReflectivity).addScaled(patch.getArea(), R);
+        E = E.multiply(1.0 / (double)Math.PI);
+        Statistics.instance().radiance.maxSelfEmittedRadiance = E.maximum(Statistics.instance().radiance.maxSelfEmittedRadiance);
+        Statistics.instance().radiance.maxSelfEmittedPower = power.maximum(Statistics.instance().radiance.maxSelfEmittedPower);
     }
 
     private static void sceneBuilderComputeStats(Scene scene) {
-        Vector3Df zero = new Vector3Df();
-        ColorRgbMutable one = new ColorRgbMutable();
-        ColorRgbMutable averageAbsorption = new ColorRgbMutable();
-        ColorRgbMutable BP;
+        Vector3Dd zero = new Vector3Dd();
+        ColorRgb one = new ColorRgb();
+        ColorRgb averageAbsorption = new ColorRgb();
+        ColorRgb BP;
 
-        one.setMonochrome(1.0f);
-        zero = new Vector3Df(0, 0, 0);
+        one = new ColorRgb(1.0, 1.0, 1.0);
+        zero = new Vector3Dd(0, 0, 0);
 
         // Initialize
-        Statistics.instance().radiance.totalEmittedPower.clear();
-        Statistics.instance().radiance.averageReflectivity.clear();
-        Statistics.instance().radiance.maxSelfEmittedRadiance.clear();
-        Statistics.instance().radiance.maxSelfEmittedPower.clear();
-        Statistics.instance().radiance.totalArea = 0.0f;
+        Statistics.instance().radiance.totalEmittedPower = new ColorRgb(0.0, 0.0, 0.0);
+        Statistics.instance().radiance.averageReflectivity = new ColorRgb(0.0, 0.0, 0.0);
+        Statistics.instance().radiance.maxSelfEmittedRadiance = new ColorRgb(0.0, 0.0, 0.0);
+        Statistics.instance().radiance.maxSelfEmittedPower = new ColorRgb(0.0, 0.0, 0.0);
+        Statistics.instance().radiance.totalArea = 0.0;
 
         // Accumulate
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
@@ -87,20 +86,16 @@ public final class SceneBuilder {
         }
 
         // Averages
-        Statistics.instance().radiance.averageReflectivity.scaleInverse(
-            Statistics.instance().radiance.totalArea,
-            Statistics.instance().radiance.averageReflectivity);
-        averageAbsorption.subtract(one, Statistics.instance().radiance.averageReflectivity);
-        Statistics.instance().radiance.estimatedAverageRadiance.scaleInverse(
-            (float)Math.PI * Statistics.instance().radiance.totalArea,
-            Statistics.instance().radiance.totalEmittedPower);
+        Statistics.instance().radiance.averageReflectivity = (Statistics.instance().radiance.averageReflectivity).scaleInverse(Statistics.instance().radiance.totalArea);
+        averageAbsorption = one.subtract(Statistics.instance().radiance.averageReflectivity);
+        Statistics.instance().radiance.estimatedAverageRadiance = (Statistics.instance().radiance.totalEmittedPower).scaleInverse((double)Math.PI * Statistics.instance().radiance.totalArea);
 
         // Include background radiation
         BP = Background.backgroundPower(scene.background, zero);
-        BP.scale(1.0f / (4.0f * (float)Math.PI));
-        Statistics.instance().radiance.totalEmittedPower.add(Statistics.instance().radiance.totalEmittedPower, BP);
-        Statistics.instance().radiance.estimatedAverageRadiance.add(Statistics.instance().radiance.estimatedAverageRadiance, BP);
-        Statistics.instance().radiance.estimatedAverageRadiance.divide(Statistics.instance().radiance.estimatedAverageRadiance, averageAbsorption);
+        BP = BP.multiply(1.0 / (4.0 * (double)Math.PI));
+        Statistics.instance().radiance.totalEmittedPower = (Statistics.instance().radiance.totalEmittedPower).add(BP);
+        Statistics.instance().radiance.estimatedAverageRadiance = (Statistics.instance().radiance.estimatedAverageRadiance).add(BP);
+        Statistics.instance().radiance.estimatedAverageRadiance = (Statistics.instance().radiance.estimatedAverageRadiance).divide(averageAbsorption);
 
         Statistics.instance().potential.totalDirectPotential = 0.0;
         Statistics.instance().potential.maxDirectPotential = 0.0;
@@ -124,8 +119,8 @@ a light source (i.e. when the surfaces material has a non-null edf)
 */
     private static void sceneBuilderAddPatchToLightSourceListIfLightSource(ArrayList<Patch> lights, Patch patch) {
         if ( patch != null
-             && patch.material != null
-             && patch.material.getEdf() != null ) {
+             && patch.getMaterial() != null
+             && patch.getMaterial().getEdf() != null ) {
             lights.add(patch);
             Statistics.instance().reader.numberOfLightSources++;
         }
@@ -154,9 +149,9 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
-    private static Geometry sceneBuilderCreateClusterHierarchy(ArrayList<Patch> patches) {
+    private static RpkGeometry sceneBuilderCreateClusterHierarchy(ArrayList<Patch> patches) {
         PatchClusterOctreeNode rootCluster;
-        Geometry rootGeometry;
+        RpkGeometry rootGeometry;
 
         // Create a toplevel cluster containing (references to) all the patches in the scene
         rootCluster = new PatchClusterOctreeNode(patches);
@@ -176,9 +171,9 @@ than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" 
 Builds a linear list of patches making up all the geometries in the list, whether
 they are primitive or not
 */
-    private static void sceneBuilderPatchList(ArrayList<Geometry> geometryList, ArrayList<Patch> patchList) {
+    private static void sceneBuilderPatchList(ArrayList<RpkGeometry> geometryList, ArrayList<Patch> patchList) {
         for ( int i = 0; geometryList != null && i < geometryList.size(); i++ ) {
-            Geometry geometry = geometryList.get(i);
+            RpkGeometry geometry = geometryList.get(i);
             if ( geometry.isCompound() ) {
                 // Recursive case
                 Compound compound = (Compound)geometry;
@@ -186,7 +181,7 @@ they are primitive or not
             }
             else {
                 // Trivial case
-                ArrayList<Patch> patchesFromNonCompounds = Geometry.patchListReference(geometry);
+                ArrayList<Patch> patchesFromNonCompounds = RpkGeometry.patchListReference(geometry);
 
                 for ( int j = 0; patchesFromNonCompounds != null && j < patchesFromNonCompounds.size(); j++ ) {
                     Patch patch = patchesFromNonCompounds.get(j);
@@ -198,12 +193,12 @@ they are primitive or not
         }
     }
 
-    private static void sceneBuilderFillFacesBackPointers(ArrayList<Geometry> geometryList) {
+    private static void sceneBuilderFillFacesBackPointers(ArrayList<RpkGeometry> geometryList) {
         if ( geometryList == null ) {
             return;
         }
         for ( int i = 0; i < geometryList.size(); i++ ) {
-            Geometry geometry = geometryList.get(i);
+            RpkGeometry geometry = geometryList.get(i);
             if ( geometry == null ) {
                 continue;
             }
@@ -219,15 +214,15 @@ they are primitive or not
     }
 
     private static void sceneBuilderCollectGeometriesRecursive(
-        ArrayList<Geometry> source,
-        ArrayList<Geometry> target)
+        ArrayList<RpkGeometry> source,
+        ArrayList<RpkGeometry> target)
     {
         if ( source == null || target == null ) {
             return;
         }
 
         for ( int i = 0; i < source.size(); i++ ) {
-            Geometry geometry = source.get(i);
+            RpkGeometry geometry = source.get(i);
             if ( geometry == null ) {
                 continue;
             }
@@ -271,7 +266,6 @@ they are primitive or not
         mgfContext.materials = mgfModel.materials;
         mgfContext.monochrome = mgfModel.monochrome;
         mgfContext.singleSided = mgfModel.singleSided;
-        mgfContext.warpConeEnds = mgfModel.warpConeEnds;
         mgfContext.numberOfQuarterCircleDivisions = mgfModel.numberOfQuarterCircleDivisions;
         mgfContext.readerContext = mgfModel.readerContext;
         mgfContext.transformContext = mgfModel.transformContext;
@@ -290,7 +284,6 @@ they are primitive or not
         mgfContext.geometryBuildState.geometryStackHeadIndex = mgfContext.geometryStackHeadIndex;
         mgfContext.geometryBuildState.inComplex = mgfContext.inComplex;
         mgfContext.geometryBuildState.inSurface = mgfContext.inSurface;
-        mgfContext.geometryBuildState.warpConeEnds = mgfContext.warpConeEnds;
         mgfContext.materialState.materials = mgfContext.materials;
         mgfContext.parserConfig.monochrome = mgfContext.monochrome;
         mgfContext.parserConfig.singleSided = mgfContext.singleSided;
@@ -323,26 +316,26 @@ they are primitive or not
         }
     }
 
-    private static void removeEmptyMeshSurfaces(ParseRuntimeContext mgfContext, ArrayList<Geometry> geometryList) {
+    private static void removeEmptyMeshSurfaces(ParseRuntimeContext mgfContext, ArrayList<RpkGeometry> geometryList) {
         if ( geometryList == null ) {
             return;
         }
 
         for ( int i = 0; i < geometryList.size(); i++ ) {
-            Geometry geometry = geometryList.get(i);
+            RpkGeometry geometry = geometryList.get(i);
             if ( geometry.className == GeometryClassId.SURFACE_MESH ) {
                 MeshSurface mesh = (MeshSurface)geometry;
                 if ( mesh.vertices != null && mesh.vertices.size() == 0 ) {
                     if ( mgfContext.allGeometries != null ) {
                         for ( int j = 0; j < mgfContext.allGeometries.size(); j++ ) {
-                            Geometry deletionCandidate = mgfContext.allGeometries.get(j);
+                            RpkGeometry deletionCandidate = mgfContext.allGeometries.get(j);
                             if ( deletionCandidate == geometry ) {
                                 mgfContext.allGeometries.remove(j);
                                 break;
                             }
                         }
                     }
-                    Geometry.destroy(geometry);
+                    RpkGeometry.destroy(geometry);
                     geometryList.remove(i);
                     i--;
                 }
@@ -507,9 +500,7 @@ Returns true if successful
                  && batchOptions.exportBinary
                  && batchOptions.binaryOutputFilename != null
                  && !batchOptions.binaryOutputFilename.isEmpty() ) {
-                System.err.printf(
-                    "Exporting loaded ParseSnapshotContext to binary '%s' ... ",
-                    batchOptions.binaryOutputFilename);
+                System.err.printf( "Exporting loaded ParseSnapshotContext to binary '%s' ... ", batchOptions.binaryOutputFilename);
                 System.err.flush();
                 boolean binarySaved = BinaryModelSerializer.write(
                     mgfModel,
@@ -528,10 +519,7 @@ Returns true if successful
         SceneBuilder.sceneBuilderFillFacesBackPointers(scene.geometryList);
 
         long t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "Reading took %g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "Reading took %g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Check for errors
@@ -549,10 +537,7 @@ Returns true if successful
         SceneBuilder.sceneBuilderPatchList(scene.geometryList, scene.patchList);
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Build the list of patches on light sources from the patch list
@@ -562,10 +547,7 @@ Returns true if successful
         SceneBuilder.sceneBuilderFillLightSourcePatchList(scene);
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Build a cluster hierarchy for the new scene
@@ -577,7 +559,7 @@ Returns true if successful
         // The top-level clusters, as RenderPark's ClusteredWorld: the children of
         // the root cluster, or the root itself when it is not a compound
         if ( scene.clusteredRootGeometry.className == GeometryClassId.COMPOUND ) {
-            ArrayList<Geometry> children = ((Compound)scene.clusteredRootGeometry).children;
+            ArrayList<RpkGeometry> children = ((Compound)scene.clusteredRootGeometry).children;
             for ( int i = 0; children != null && i < children.size(); i++ ) {
                 scene.clusteredGeometryList.add(children.get(i));
             }
@@ -591,45 +573,27 @@ Returns true if successful
         scene.buildFaceTable();
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Create the scene query, over the index the -scene-acceleration option chose
-        if ( VisibilityQueryRecorder.captureEnabled() ) {
-            // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
-            final VisibilityQueryRecorder recorder = new VisibilityQueryRecorder(System.getenv("RPK_RAY_CAPTURE_FILE"));
-            scene.visibilityQueryRecorder = recorder;
-            Runtime.getRuntime().addShutdownHook(new Thread(recorder::close));
-        }
         scene.buildSceneQuery();
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "Scene index (%s) creation took %g secs.\n",
-            SceneQuery.methodName(scene.getAccelerationMethod()),
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "Scene index (%s) creation took %g secs.\n", SceneQuery.methodName(scene.getAccelerationMethod()), (double)(t - last) / 1000000000.0);
         last = t;
 
+        final Cie colorSpace = toneMapOptions.getColorSpace();
         // Estimate average radiance, for radiance to display RGB conversion
         System.err.printf("Computing some scene statistics ... ");
         System.err.flush();
 
         Statistics.instance().reader.numberOfPatches = Statistics.instance().reader.numberOfElements;
         SceneBuilder.sceneBuilderComputeStats(scene);
-        Statistics.instance().radiance.referenceLuminance =
-            5.42
-                * ((1.0 - Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.getR(), Statistics.instance().radiance.averageReflectivity.getG(), Statistics.instance().radiance.averageReflectivity.getB()))
-                    * Cie.spectrumLuminance(Statistics.instance().radiance.estimatedAverageRadiance.getR(), Statistics.instance().radiance.estimatedAverageRadiance.getG(), Statistics.instance().radiance.estimatedAverageRadiance.getB()));
+        Statistics.instance().radiance.referenceLuminance = 5.42 * ((1.0 - colorSpace.spectrumGray(Statistics.instance().radiance.averageReflectivity.getR(), Statistics.instance().radiance.averageReflectivity.getG(), Statistics.instance().radiance.averageReflectivity.getB())) * colorSpace.spectrumLuminance(Statistics.instance().radiance.estimatedAverageRadiance.getR(), Statistics.instance().radiance.estimatedAverageRadiance.getG(), Statistics.instance().radiance.estimatedAverageRadiance.getB()));
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Initialize tone mapping
@@ -639,10 +603,7 @@ Returns true if successful
         Adaptation.initSceneAdaptation(scene.patchList, toneMapOptions);
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
         last = t;
 
         // Print statistics report
@@ -655,11 +616,11 @@ Returns true if successful
                 + "         radiance.maxSelfEmittedPower ..............: %f W\n"
                 + "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
                 + "         totalArea ........................: %f m2\n",
-            Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.getR(), Statistics.instance().radiance.totalEmittedPower.getG(), Statistics.instance().radiance.totalEmittedPower.getB()),
-            Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.getR(), Statistics.instance().radiance.estimatedAverageRadiance.getG(), Statistics.instance().radiance.estimatedAverageRadiance.getB()),
-            Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.getR(), Statistics.instance().radiance.averageReflectivity.getG(), Statistics.instance().radiance.averageReflectivity.getB()),
-            Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.getR(), Statistics.instance().radiance.maxSelfEmittedRadiance.getG(), Statistics.instance().radiance.maxSelfEmittedRadiance.getB()),
-            Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.getR(), Statistics.instance().radiance.maxSelfEmittedPower.getG(), Statistics.instance().radiance.maxSelfEmittedPower.getB()),
+            colorSpace.spectrumGray(Statistics.instance().radiance.totalEmittedPower.getR(), Statistics.instance().radiance.totalEmittedPower.getG(), Statistics.instance().radiance.totalEmittedPower.getB()),
+            colorSpace.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.getR(), Statistics.instance().radiance.estimatedAverageRadiance.getG(), Statistics.instance().radiance.estimatedAverageRadiance.getB()),
+            colorSpace.spectrumGray(Statistics.instance().radiance.averageReflectivity.getR(), Statistics.instance().radiance.averageReflectivity.getG(), Statistics.instance().radiance.averageReflectivity.getB()),
+            colorSpace.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.getR(), Statistics.instance().radiance.maxSelfEmittedRadiance.getG(), Statistics.instance().radiance.maxSelfEmittedRadiance.getB()),
+            colorSpace.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.getR(), Statistics.instance().radiance.maxSelfEmittedPower.getG(), Statistics.instance().radiance.maxSelfEmittedPower.getB()),
             toneMapOptions.realWorldAdaptionLuminance,
             Statistics.instance().radiance.totalArea);
         //scene->print();
@@ -671,10 +632,7 @@ Returns true if successful
         Radiance.setRadianceMethod(mgfContext.radianceMethod, scene, toneMapOptions);
 
         t = System.nanoTime();
-        System.err.printf(
-            Locale.US,
-            "%g secs.\n",
-            (double)(t - last) / 1000000000.0);
+        System.err.printf( Locale.US, "%g secs.\n", (double)(t - last) / 1000000000.0);
 
         // Remove possible render hooks
         RenderHookList.removeAllRenderHooks();

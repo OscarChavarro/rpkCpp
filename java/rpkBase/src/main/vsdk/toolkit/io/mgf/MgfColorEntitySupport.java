@@ -81,8 +81,8 @@ public class MgfColorEntitySupport {
                 if (!TokenValidationContext.isFloat(av[1]) || !TokenValidationContext.isFloat(av[2])) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                context.currentColor.cx = Float.parseFloat(av[1]);
-                context.currentColor.cy = Float.parseFloat(av[2]);
+                context.currentColor.cx = Double.parseDouble(av[1]);
+                context.currentColor.cy = Double.parseDouble(av[2]);
                 context.currentColor.flags = (short)(ColorContext.COLOR_DEFINED_WITH_XY_FLAG | ColorContext.COLOR_XY_IS_SET_FLAG);
                 if (context.currentColor.cx < 0.0 || context.currentColor.cy < 0.0 ||
                      context.currentColor.cx + context.currentColor.cy > 1.0) {

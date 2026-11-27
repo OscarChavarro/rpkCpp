@@ -138,6 +138,76 @@ public final class Vector3Dd extends FundamentalEntity
         return new Vector3Dd(x - b.x, y - b.y, z - b.z);
     }
 
+    /**
+    Square of the length (the dot product with itself)
+    */
+    public double lengthSquared() {
+        return x * x + y * y + z * z;
+    }
+
+    /**
+    Sum of the absolute values of the components (the L1 norm)
+    */
+    public double manhattanLength() {
+        return absolute(x) + absolute(y) + absolute(z);
+    }
+
+    /**
+    Distance to the given point: the length of (other - this)
+    */
+    public double distance(Vector3Dd other) {
+        return other.subtract(this).length();
+    }
+
+    /**
+    Square of the distance to the given point
+    */
+    public double distanceSquared(Vector3Dd other) {
+        return other.subtract(this).lengthSquared();
+    }
+
+    /**
+    Scales by 1 / s, or returns this vector unchanged when s is within
+    [-epsilon, epsilon]. The factor 1 / s is computed once and multiplies
+    each component
+    */
+    public Vector3Dd multiplyByInverse(double s, double epsilon) {
+        final double factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+        return new Vector3Dd(factor * x, factor * y, factor * z);
+    }
+
+    /**
+    Scales by the inverse of the length, or returns this vector unchanged
+    when the length is within [-epsilon, epsilon]. Unlike normalized(), the
+    threshold applies to the length, and a unit vector is also rescaled
+    */
+    public Vector3Dd normalized(double epsilon) {
+        return multiplyByInverse(length(), epsilon);
+    }
+
+    /**
+    Index of the component of largest absolute value: 0 for x, 1 for y,
+    2 for z; ties go to x before y and y before z
+    */
+    public int dominantAxis() {
+        final double ax = absolute(x);
+        final double ay = absolute(y);
+        final double az = absolute(z);
+        double m = ay > az ? ay : az;
+        m = ax > m ? ax : m;
+        if ( m == ax ) {
+            return 0;
+        }
+        return m == ay ? 1 : 2;
+    }
+
+    /**
+    The component of the given axis: 0 for x, 1 for y, 2 for z
+    */
+    public double component(int axis) {
+        return axis == 0 ? x : (axis == 1 ? y : z);
+    }
+
     public float[] exportToFloatArrayVector()
     {
         return new float[]{(float)x, (float)y, (float)z, 1};
@@ -275,5 +345,9 @@ public final class Vector3Dd extends FundamentalEntity
         result = 31 * result + Double.hashCode(y);
         result = 31 * result + Double.hashCode(z);
         return result;
+    }
+
+    private static double absolute(double a) {
+        return a < 0.0 ? -a : a;
     }
 }

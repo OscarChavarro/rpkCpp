@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 /**
 All bases are orthonormal on their standard domain
 */
-public class GalerkinBasis {
+public class StochasticRadiosityBasis {
     public static final int MAX_BASIS_SIZE = 10;
 
     @FunctionalInterface

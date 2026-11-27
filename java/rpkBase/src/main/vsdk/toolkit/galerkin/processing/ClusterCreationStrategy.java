@@ -1,14 +1,15 @@
 package vsdk.toolkit.galerkin.processing;
 
+import vsdk.toolkit.galerkin.ColorRgbMath;
 import java.util.ArrayList;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.ElementFlags;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class ClusterCreationStrategy {
@@ -33,7 +34,7 @@ public class ClusterCreationStrategy {
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
 given parent cluster
 */
-    private static void geomAddClusterChild(Geometry geometry, GalerkinElement galerkinElement, GalerkinState galerkinState) {
+    private static void geomAddClusterChild(RpkGeometry geometry, GalerkinElement galerkinElement, GalerkinState galerkinState) {
         GalerkinElement cluster = ClusterCreationStrategy.createClusterHierarchy(geometry, galerkinState);
 
         if ( galerkinElement.irregularSubElements == null ) {
@@ -51,7 +52,7 @@ Adds the toplevel (surface) element of the patch to the list of irregular
 sub-elements of the galerkinElement
 */
     private static void patchAddClusterChild(Patch patch, GalerkinElement galerkinElement) {
-        GalerkinElement surfaceElement = patch == null ? null : GalerkinElement.fromPatch(patch);
+        GalerkinElement surfaceElement = patch == null ? null : galerkinElement.galerkinState.topLevelElement(patch);
 
         if ( galerkinElement.irregularSubElements == null ) {
             galerkinElement.irregularSubElements = new ArrayList<>();
@@ -69,10 +70,10 @@ lowest level clusters and so up
 */
     private static void clusterInit(GalerkinElement galerkinElement, GalerkinState galerkinState) {
         // Total area of surfaces inside the galerkinElement is sum of the areas of the sub-clusters + pull radiance
-        galerkinElement.area = 0.0f;
+        galerkinElement.area = 0.0;
         galerkinElement.numberOfPatches = 0;
-        galerkinElement.minimumArea = Float.MAX_VALUE;
-        ColorRgbMutable.arrayClear(galerkinElement.radiance, galerkinElement.basisSize);
+        galerkinElement.minimumArea = Double.MAX_VALUE;
+        ColorRgbMath.arrayClear(galerkinElement.radiance, galerkinElement.basisSize);
         for ( int i = 0;
               galerkinElement.irregularSubElements != null && i < galerkinElement.irregularSubElements.size();
               i++ ) {
@@ -82,22 +83,22 @@ lowest level clusters and so up
             }
             galerkinElement.area += subCluster.area;
             galerkinElement.numberOfPatches += subCluster.numberOfPatches;
-            galerkinElement.radiance[0].addScaled(galerkinElement.radiance[0], subCluster.area, subCluster.radiance[0]);
+            galerkinElement.radiance[0] = galerkinElement.radiance[0].addScaled(subCluster.area, subCluster.radiance[0]);
             if ( subCluster.minimumArea < galerkinElement.minimumArea ) {
                 galerkinElement.minimumArea = subCluster.minimumArea;
             }
             galerkinElement.flags |= (subCluster.flags & ElementFlags.IS_LIGHT_SOURCE_MASK);
-            galerkinElement.Ed.addScaled(galerkinElement.Ed, subCluster.area, subCluster.Ed);
+            galerkinElement.Ed = galerkinElement.Ed.addScaled(subCluster.area, subCluster.Ed);
         }
 
-        if ( galerkinElement.area > Numeric.EPSILON_FLOAT ) {
-            galerkinElement.radiance[0].scale(1.0f / galerkinElement.area);
-            galerkinElement.Ed.scale(1.0f / galerkinElement.area);
+        if ( galerkinElement.area > Numeric.EPSILON ) {
+            galerkinElement.radiance[0] = galerkinElement.radiance[0].multiply(1.0 / galerkinElement.area);
+            galerkinElement.Ed = galerkinElement.Ed.multiply(1.0 / galerkinElement.area);
         }
 
         // Also pull un-shot radiance for the "shooting" methods
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-            ColorRgbMutable.arrayClear(galerkinElement.unShotRadiance, galerkinElement.basisSize);
+            ColorRgbMath.arrayClear(galerkinElement.unShotRadiance, galerkinElement.basisSize);
             for ( int i = 0;
                   galerkinElement.irregularSubElements != null && i < galerkinElement.irregularSubElements.size();
                   i++ ) {
@@ -105,17 +106,16 @@ lowest level clusters and so up
                 if ( subCluster == null ) {
                     continue;
                 }
-                galerkinElement.unShotRadiance[0].addScaled(
-                    galerkinElement.unShotRadiance[0], subCluster.area, subCluster.unShotRadiance[0]);
+                galerkinElement.unShotRadiance[0] = galerkinElement.unShotRadiance[0].addScaled(subCluster.area, subCluster.unShotRadiance[0]);
             }
-            if ( galerkinElement.area > Numeric.EPSILON_FLOAT ) {
-                galerkinElement.unShotRadiance[0].scale(1.0f / galerkinElement.area);
+            if ( galerkinElement.area > Numeric.EPSILON ) {
+                galerkinElement.unShotRadiance[0] = galerkinElement.unShotRadiance[0].multiply(1.0 / galerkinElement.area);
             }
         }
 
         // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility
         galerkinElement.blockerSize = galerkinElement.geometry == null
-            ? 0.0f
+            ? 0.0
             : galerkinElement.geometry.boundingBox.maxExtent();
     }
 
@@ -125,7 +125,7 @@ returns the created cluster.
 
 Note that geometry is always of types Compound or PatchSet.
 */
-    public static GalerkinElement createClusterHierarchy(Geometry geometry, GalerkinState galerkinState) {
+    public static GalerkinElement createClusterHierarchy(RpkGeometry geometry, GalerkinState galerkinState) {
         if ( geometry == null ) {
             return null;
         }
@@ -138,13 +138,13 @@ Note that geometry is always of types Compound or PatchSet.
 
         // Recursively creates list of sub-clusters
         if ( geometry.isCompound() ) {
-            ArrayList<Geometry> geometryList = Geometry.primitiveListCopy(geometry);
+            ArrayList<RpkGeometry> geometryList = RpkGeometry.primitiveListCopy(geometry);
             for ( int i = 0; geometryList != null && i < geometryList.size(); i++ ) {
                 geomAddClusterChild(geometryList.get(i), newGalerkinElement, galerkinState);
             }
         }
         else {
-            ArrayList<Patch> patchList = Geometry.patchListReference(geometry);
+            ArrayList<Patch> patchList = RpkGeometry.patchListReference(geometry);
             for ( int i = 0; patchList != null && i < patchList.size(); i++ ) {
                 patchAddClusterChild(patchList.get(i), newGalerkinElement);
             }

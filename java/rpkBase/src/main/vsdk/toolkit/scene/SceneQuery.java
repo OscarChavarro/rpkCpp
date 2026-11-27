@@ -2,12 +2,12 @@ package vsdk.toolkit.scene;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.linealAlgebra.Ray;
+import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.boundingVolumeHierarchy.BinnedSahHierarchy;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
-import vsdk.toolkit.environment.geometry.elements.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RpkRayHit;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.spatialIndex.BinnedSahSpatialIndex;
 import vsdk.toolkit.environment.geometry.spatialIndex.GridSpatialIndex;
@@ -16,9 +16,9 @@ import vsdk.toolkit.environment.geometry.spatialIndex.SpatialGroupTree;
 import vsdk.toolkit.environment.geometry.spatialIndex.SpatialIndex;
 import vsdk.toolkit.environment.geometry.spatialIndex.SpatialQueryMode;
 import vsdk.toolkit.environment.geometry.spatialIndex.SpatialQueryResult;
-import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.Compound;
-import vsdk.toolkit.skin.Geometry;
+import vsdk.toolkit.skin.RpkGeometry;
 
 /**
 The scene's visibility query: the nearest (or, with RayHitFlag.ANY, some)
@@ -36,10 +36,9 @@ of the scene geometry requires a new query.
 public final class SceneQuery {
     private final Scene scene;
     private final SceneAccelerationMethod method;
-    private VoxelGrid legacyGrid; // Owned; LEGACY_VOXEL_ACCELERATION only
-    private SpatialIndex index; // Owned; the other methods
+    private SpatialIndex index; // Owned
 
-    private static void boxValues(BoundingBox box, double[] values) {
+    private static void boxValues(RpkAxisAlignedBoundingBox box, double[] values) {
         values[0] = box.minX();
         values[1] = box.minY();
         values[2] = box.minZ();
@@ -50,21 +49,21 @@ public final class SceneQuery {
 
     /**
     Adds the members of a geometry of the cluster hierarchy to its group, in the
-    order the legacy grid visits them: the children of a compound, the patches
+    order RenderPark's original grid visited them: the children of a compound, the patches
     (as their face indices) of any other geometry
     */
-    private static void addMembers(SpatialGroupTree tree, int group, Geometry geometry) {
+    private static void addMembers(SpatialGroupTree tree, int group, RpkGeometry geometry) {
         if (geometry.isCompound()) {
-            ArrayList<Geometry> children = ((Compound)geometry).children;
+            ArrayList<RpkGeometry> children = ((Compound)geometry).children;
             for (int i = 0; children != null && i < children.size(); i++) {
-                Geometry child = children.get(i);
+                RpkGeometry child = children.get(i);
                 double[] box = new double[6];
                 boxValues(child.boundingBox, box);
                 addMembers(tree, tree.addGroup(group, child.bounded ? box : null), child);
             }
             return;
         }
-        ArrayList<Patch> patches = Geometry.patchListReference(geometry);
+        ArrayList<Patch> patches = RpkGeometry.patchListReference(geometry);
         for (int i = 0; patches != null && i < patches.size(); i++) {
             tree.addPrimitive(group, patches.get(i).getFaceIndex());
         }
@@ -73,30 +72,19 @@ public final class SceneQuery {
     public SceneQuery(Scene inScene, SceneAccelerationMethod inMethod) {
         scene = inScene;
         method = inMethod;
-        legacyGrid = null;
-        index = null;
-        if (method == SceneAccelerationMethod.LEGACY_VOXEL_ACCELERATION) {
-            legacyGrid = new VoxelGrid(scene.clusteredRootGeometry);
-        }
-        else {
-            index = buildIndex(scene, method);
-        }
+        index = buildIndex(scene, method);
     }
 
     public void destroy() {
-        if (legacyGrid != null) {
-            legacyGrid.freeVoxelGridElements();
-            legacyGrid = null;
-        }
         index = null;
     }
 
     /**
     The VITRAL index of a method over the scene's face table, primitive i
-    being face i, or null for LEGACY_VOXEL_ACCELERATION. The caller owns it.
+    being face i. The caller owns it.
     WALD2007 gets the face boxes padded by the face tolerance plus a relative
     margin, so that each contains every point the face test may accept; the
-    grid gets the unpadded boxes (it pads them as the legacy grid does) and
+    grid gets the unpadded boxes (it pads them as RenderPark's grid did) and
     the cluster hierarchy as its tree of groups.
     */
     public static SpatialIndex buildIndex(Scene scene, SceneAccelerationMethod method) {
@@ -112,7 +100,7 @@ public final class SceneQuery {
             double[] low = new double[3];
             double[] high = new double[3];
             for (int i = 0; i < numberOfFaces; i++) {
-                BoundingBox box = faceBounds.get(i);
+                RpkAxisAlignedBoundingBox box = faceBounds.get(i);
                 final double extent = box.maxExtent();
                 low[0] = box.minX();
                 low[1] = box.minY();
@@ -120,7 +108,7 @@ public final class SceneQuery {
                 high[0] = box.maxX();
                 high[1] = box.maxY();
                 high[2] = box.maxZ();
-                final double tolerance = scene.getFace(i).tolerance;
+                final double tolerance = scene.getFace(i).getTolerance();
                 for (int axis = 0; axis < 3; axis++) {
                     final double magnitude = Math.max(Math.abs(low[axis]), Math.abs(high[axis]));
                     final double padding = tolerance + 1e-4 * extent + 1e-5 * magnitude;
@@ -144,7 +132,7 @@ public final class SceneQuery {
                     rawBoxes.add(box[k]);
                 }
             }
-            Geometry root = scene.clusteredRootGeometry;
+            RpkGeometry root = scene.clusteredRootGeometry;
             double[] rootBox = new double[6];
             boxValues(root.boundingBox, rootBox);
             SpatialGroupTree tree = new SpatialGroupTree(rawBoxes, rootBox);
@@ -155,11 +143,9 @@ public final class SceneQuery {
         return null;
     }
 
-    /** The option name of a method: legacy, voxel, wald2007, bruteforce */
+    /** The option name of a method: voxel, wald2007, bruteforce */
     public static String methodName(SceneAccelerationMethod method) {
         switch (method) {
-            case LEGACY_VOXEL_ACCELERATION:
-                return "legacy";
             case VOXEL_ACCELERATION:
                 return "voxel";
             case WALD2007_ACCELERATION:
@@ -177,12 +163,11 @@ public final class SceneQuery {
             return null;
         }
         SceneAccelerationMethod[] methods = new SceneAccelerationMethod[] {
-            SceneAccelerationMethod.LEGACY_VOXEL_ACCELERATION,
             SceneAccelerationMethod.VOXEL_ACCELERATION,
             SceneAccelerationMethod.WALD2007_ACCELERATION,
             SceneAccelerationMethod.BRUTE_FORCE_ACCELERATION
         };
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             if (name.equals(methodName(methods[i]))) {
                 return methods[i];
             }
@@ -194,39 +179,30 @@ public final class SceneQuery {
         return method;
     }
 
-    public VoxelGrid getLegacyGrid() {
-        return legacyGrid;
-    }
-
     public SpatialIndex getIndex() {
         return index;
     }
 
     /**
-    As RenderPark's VoxelGrid.gridIntersect: returns hitStore filled with the
+    As RenderPark's original grid query: returns hitStore filled with the
     accepted hit and sets maximumDistance[0] to its distance, or returns null
     and leaves both unchanged when no face is hit in
     [minimumDistance, maximumDistance[0]]
     */
-    public RayHit intersect(
+    public RpkRayHit intersect(
         Ray ray,
-        float minimumDistance,
-        float[] maximumDistance,
+        double minimumDistance,
+        double[] maximumDistance,
         int hitFlags,
-        RayHit hitStore,
+        RpkRayHit hitStore,
         RayExclusionSet exclusions,
         SceneQueryWorkspace workspace) {
-        if (legacyGrid != null) {
-            return legacyGrid.gridIntersect(
-                ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions, workspace.getLegacyWorkspace());
-        }
-
         SceneFaceRayTest test = workspace.getFaceRayTest(scene);
         test.set(ray, hitFlags, exclusions, hitStore);
         final vsdk.toolkit.environment.geometry.element.Ray indexRay =
             vsdk.toolkit.environment.geometry.element.Ray.fromAffine(
-                new Vector3Dd(ray.position.x(), ray.position.y(), ray.position.z()),
-                new Vector3Dd(ray.direction.x(), ray.direction.y(), ray.direction.z()),
+                new Vector3Dd(ray.getOrigin().x(), ray.getOrigin().y(), ray.getOrigin().z()),
+                new Vector3Dd(ray.getDirection().x(), ray.getDirection().y(), ray.getDirection().z()),
                 0.0);
         final SpatialQueryMode mode = (hitFlags & RayHitFlag.ANY) != 0
             ? SpatialQueryMode.ANY_HIT : SpatialQueryMode.CLOSEST_HIT;
@@ -235,7 +211,7 @@ public final class SceneQuery {
         if (!result.hasHit()) {
             return null;
         }
-        maximumDistance[0] = (float)result.getParameter();
+        maximumDistance[0] = (double)result.getParameter();
         return hitStore;
     }
 }

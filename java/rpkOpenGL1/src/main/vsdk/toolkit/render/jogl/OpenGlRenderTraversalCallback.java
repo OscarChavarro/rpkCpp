@@ -1,7 +1,7 @@
 package vsdk.toolkit.render.jogl;
 
 import vsdk.toolkit.environment.geometry.elements.Patch;
-import vsdk.toolkit.material.RenderOptions;
+import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.scene.Camera;
 
 public class OpenGlRenderTraversalCallback<T> {
@@ -17,7 +17,7 @@ public class OpenGlRenderTraversalCallback<T> {
         this.callbackData = callbackData;
     }
 
-    public void apply(Patch patch, Camera camera, RenderOptions renderOptions) {
+    public void apply(Patch patch, Camera camera, RendererConfiguration renderOptions) {
         if (callbackWithData != null) callbackWithData.apply(patch, camera, renderOptions, callbackData);
         else if (callbackWithoutData != null) callbackWithoutData.apply(patch, camera, renderOptions);
     }

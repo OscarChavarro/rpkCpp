@@ -8,14 +8,16 @@ Galerkin radiosity, with the following variants:
 
 package vsdk.toolkit.galerkin;
 
+import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.scene.DirectPotentialTable;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
-import vsdk.toolkit.common.color.ColorRgbMutable;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.material.RenderOptions;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.material.RendererConfiguration;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.wrl.VrmlWriter;
 import vsdk.toolkit.material.BsdfComponent;
@@ -64,25 +66,24 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
         }
     }
 
-    public static void recomputePatchColor(Patch patch) {
-        if ( patch == null || !(patch.radianceData instanceof GalerkinElement) ) {
-            return;
-        }
-
-        GalerkinElement element = (GalerkinElement)patch.radianceData;
-        ColorRgbMutable reflectivity = element.Rd;
-        ColorRgbMutable radVis = new ColorRgbMutable();
+    /**
+    Recomputes the color of a patch using ambient radiance term, ... if requested for
+    */
+    public static void recomputePatchColor(Patch patch, FaceColorTable faceColors) {
+        GalerkinElement element = galerkinState.topLevelElement(patch);
+        ColorRgb reflectivity = element.Rd;
+        ColorRgb radVis = new ColorRgb();
 
         // Compute the patches color based on its radiance + ambient radiance if desired
         if ( galerkinState.useAmbientRadiance != 0 ) {
-            radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
-            radVis.add(radVis, element.radiance[0]);
-            ToneMap.radianceToRgb(radVis, patch.color, galerkinState.toneMapOptions);
+            radVis = reflectivity.multiply(galerkinState.ambientRadiance);
+            radVis = radVis.add(element.radiance[0]);
+            faceColors.set(patch.getFaceIndex(), ToneMap.radianceToRgb(radVis, galerkinState.toneMapOptions));
         }
         else {
-            ToneMap.radianceToRgb(element.radiance[0], patch.color, galerkinState.toneMapOptions);
+            faceColors.set(patch.getFaceIndex(), ToneMap.radianceToRgb(element.radiance[0], galerkinState.toneMapOptions));
         }
-        patch.computeVertexColors();
+        patch.computeVertexColors(faceColors);
     }
 
     public GalerkinRadianceMethod() {
@@ -112,28 +113,24 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
         }
     }
 
-    private static void patchInit(Patch patch) {
-        if ( patch == null || !(patch.radianceData instanceof GalerkinElement) ) {
-            return;
-        }
-
-        GalerkinElement element = (GalerkinElement)patch.radianceData;
-        ColorRgbMutable reflectivity = element.Rd;
-        ColorRgbMutable selfEmittanceRadiance = element.Ed;
+    private static void patchInit(Patch patch, DirectPotentialTable directPotentials, FaceColorTable faceColors) {
+        GalerkinElement element = galerkinState.topLevelElement(patch);
+        ColorRgb reflectivity = element.Rd;
+        ColorRgb selfEmittanceRadiance = element.Ed;
 
         if ( galerkinState.useConstantRadiance != 0 ) {
             // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
             // '95, Dublin, Ireland, June 1995, p 336-344
-            element.radiance[0].scalarProduct(reflectivity, galerkinState.constantRadiance);
-            element.radiance[0].add(element.radiance[0], selfEmittanceRadiance);
+            element.radiance[0] = reflectivity.multiply(galerkinState.constantRadiance);
+            element.radiance[0] = element.radiance[0].add(selfEmittanceRadiance);
             if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-                element.unShotRadiance[0].subtract(element.radiance[0], galerkinState.constantRadiance);
+                element.unShotRadiance[0] = element.radiance[0].subtract(galerkinState.constantRadiance);
             }
         }
         else {
-            element.radiance[0].set(selfEmittanceRadiance.getR(), selfEmittanceRadiance.getG(), selfEmittanceRadiance.getB());
+            element.radiance[0] = new ColorRgb(selfEmittanceRadiance.getR(), selfEmittanceRadiance.getG(), selfEmittanceRadiance.getB());
             if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.SOUTH_WELL ) {
-                element.unShotRadiance[0].set(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
+                element.unShotRadiance[0] = new ColorRgb(element.radiance[0].getR(), element.radiance[0].getG(), element.radiance[0].getB());
             }
         }
 
@@ -142,42 +139,43 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
                 case GAUSS_SEIDEL:
                 case JACOBI:
                 case PARALLEL_JACOBI:
-                    element.potential = patch.directPotential;
+                    element.potential = directPotentials.get(patch.getFaceIndex());
                     break;
                 case SOUTH_WELL:
-                    element.potential = patch.directPotential;
-                    element.unShotPotential = patch.directPotential;
+                    element.potential = directPotentials.get(patch.getFaceIndex());
+                    element.unShotPotential = directPotentials.get(patch.getFaceIndex());
                     break;
                 default:
                     Logger.reportMessage(null, Logger.FATAL_ERROR, "patchInit", "Invalid iteration method");
             }
         }
 
-        recomputePatchColor(patch);
+        recomputePatchColor(patch, faceColors);
     }
 
     @Override
     public void initialize(Scene scene, ToneMappingContext toneMapOptions) {
+        galerkinState.setRadianceElements(scene.getRadianceElements());
         galerkinState.toneMapOptions = toneMapOptions;
         if ( galerkinState.toneMapOptions == null ) {
             Logger.reportMessage(this, Logger.FATAL_ERROR, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
         }
 
         galerkinState.iterationNumber = 0;
-        galerkinState.cpuSeconds = 0.0f;
+        galerkinState.cpuSeconds = 0.0;
 
         GalerkinElement.initializeBasis();
 
         galerkinState.constantRadiance = Statistics.instance().radiance.estimatedAverageRadiance;
         if ( galerkinState.useConstantRadiance != 0 ) {
-            galerkinState.ambientRadiance.clear();
+            galerkinState.ambientRadiance = new ColorRgb(0.0, 0.0, 0.0);
         }
         else {
             galerkinState.ambientRadiance = Statistics.instance().radiance.estimatedAverageRadiance;
         }
 
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
-            patchInit(scene.patchList.get(i));
+            patchInit(scene.patchList.get(i), scene.getDirectPotentials(), scene.getFaceColors());
         }
 
         galerkinState.topCluster = ClusterCreationStrategy.createClusterHierarchy(
@@ -190,11 +188,11 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
         }
 
         galerkinState.lastClusterId = -1;
-        galerkinState.lastEye = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        galerkinState.lastEye = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     @Override
-    public boolean doStep(Scene scene, RenderOptions renderOptions) {
+    public boolean doStep(Scene scene, RendererConfiguration renderOptions) {
         if ( galerkinState.iterationNumber < 0 ) {
             Logger.reportMessage(this, Logger.ERROR, "doGalerkinOneStep", "method not initialized");
             return true; // Done, don't continue!
@@ -268,15 +266,6 @@ Disposes of the cluster hierarchy
             ScratchVisibilityStrategy.scratchTerminate(galerkinState);
         }
 
-        if ( scenePatches != null ) {
-            for ( int i = 0; i < scenePatches.size(); i++ ) {
-                Patch patch = scenePatches.get(i);
-                if ( patch != null ) {
-                    recomputePatchColor(patch);
-                }
-            }
-        }
-
         if ( galerkinState.topCluster != null ) {
             galerkinDestroyClusterHierarchy(galerkinState.topCluster);
             galerkinState.topCluster = null;
@@ -286,14 +275,14 @@ Disposes of the cluster hierarchy
 
     private static void updateCpuSecs() {
         final long t = System.nanoTime();
-        galerkinState.cpuSeconds += (float)((double)(t - galerkinState.lastClock) / 1000000000.0);
+        galerkinState.cpuSeconds += (double)((double)(t - galerkinState.lastClock) / 1000000000.0);
         galerkinState.lastClock = t;
     }
 
-    private ColorRgbMutable computePatchRadiance(Patch patch, double u, double v) {
+    private ColorRgb computePatchRadiance(Patch patch, double u, double v) {
         if ( patch == null ) {
-            ColorRgbMutable black = new ColorRgbMutable();
-            black.clear();
+            ColorRgb black = new ColorRgb();
+            black = new ColorRgb(0.0, 0.0, 0.0);
             return black;
         }
 
@@ -305,36 +294,36 @@ Disposes of the cluster hierarchy
             v = vv[0];
         }
 
-        GalerkinElement topLevelElement = GalerkinElement.fromPatch(patch);
+        GalerkinElement topLevelElement = GalerkinElement.fromPatch(galerkinState, patch);
         if ( topLevelElement == null ) {
-            ColorRgbMutable black = new ColorRgbMutable();
-            black.clear();
+            ColorRgb black = new ColorRgb();
+            black = new ColorRgb(0.0, 0.0, 0.0);
             return black;
         }
         double[] uu = new double[] {u};
         double[] vv = new double[] {v};
         GalerkinElement leaf = topLevelElement.regularLeafAtPoint(uu, vv);
-        ColorRgbMutable rad = vsdk.toolkit.galerkin.GalerkinBasis.radianceAtPoint(leaf, leaf.radiance, uu[0], vv[0]);
+        ColorRgb rad = vsdk.toolkit.galerkin.GalerkinBasis.radianceAtPoint(leaf, leaf.radiance, uu[0], vv[0]);
 
         if ( galerkinState.useAmbientRadiance != 0 ) {
             // Add ambient radiance
-            ColorRgbMutable reflectivity = patch.radianceData.Rd;
-            ColorRgbMutable ambientRadiance = new ColorRgbMutable();
-            ambientRadiance.scalarProduct(reflectivity, galerkinState.ambientRadiance);
-            rad.add(rad, ambientRadiance);
+            ColorRgb reflectivity = galerkinState.topLevelElement(patch).Rd;
+            ColorRgb ambientRadiance = new ColorRgb();
+            ambientRadiance = reflectivity.multiply(galerkinState.ambientRadiance);
+            rad = rad.add(ambientRadiance);
         }
 
         return rad;
     }
 
     @Override
-    public ColorRgbMutable getRadiance(
+    public ColorRgb getRadiance(
         Camera camera,
         Patch patch,
         double u,
         double v,
-        Vector3Df dir,
-        RenderOptions renderOptions)
+        Vector3Dd dir,
+        RendererConfiguration renderOptions)
     {
         if ( camera != null || dir != null || renderOptions != null ) {
             // Parameters intentionally unused in this method.
@@ -344,14 +333,12 @@ Disposes of the cluster hierarchy
 
     @Override
     public Element createPatchData(Patch patch) {
-        return patch.radianceData = new GalerkinElement(patch, galerkinState);
+        return new GalerkinElement(patch, galerkinState);
     }
 
     @Override
     public void destroyPatchData(Patch patch) {
-        if ( patch != null ) {
-            patch.radianceData = null;
-        }
+        // Java: the garbage collector disposes of the element once the table drops it
     }
 
     @Override
@@ -379,7 +366,7 @@ Disposes of the cluster hierarchy
     public void writeVRML(
         Camera camera,
         OutputStream outputStream,
-        RenderOptions renderOptions)
+        RendererConfiguration renderOptions)
     {
         if ( camera == null || outputStream == null || renderOptions == null ) {
             return;
@@ -411,7 +398,7 @@ Disposes of the cluster hierarchy
         PersistenceElement.writeBytes(vrmlOutputStream, bytes, bytes.length);
     }
 
-    private static void writeVertexCoord(Vector3Df p) {
+    private static void writeVertexCoord(Vector3Dd p) {
         if ( p == null ) {
             return;
         }
@@ -431,9 +418,9 @@ Disposes of the cluster hierarchy
             return;
         }
         GalerkinElement galerkinElement = (GalerkinElement)element;
-        Vector3Df[] v = new Vector3Df[] {
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-            new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()
+        Vector3Dd[] v = new Vector3Dd[] {
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+            new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()
         };
         int numberOfVertices = galerkinElement.vertices(v);
         for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -453,7 +440,7 @@ Disposes of the cluster hierarchy
         writeFormatted("%s", "\n\t}\n");
     }
 
-    private static void writeVertexColor(ColorRgbMutable color) {
+    private static void writeVertexColor(ColorRgb color) {
         if ( color == null ) {
             return;
         }
@@ -477,10 +464,10 @@ Disposes of the cluster hierarchy
             return;
         }
 
-        ColorRgbMutable[] vertexRadiosity = new ColorRgbMutable[] {
-            new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable(), new ColorRgbMutable()
+        ColorRgb[] vertexRadiosity = new ColorRgb[] {
+            new ColorRgb(), new ColorRgb(), new ColorRgb(), new ColorRgb()
         };
-        int numberOfVertices = galerkinElement.patch.numberOfVertices;
+        int numberOfVertices = galerkinElement.patch.getNumberOfVertices();
         if ( numberOfVertices == 3 ) {
             vertexRadiosity[0] = GalerkinBasis.radianceAtPoint(galerkinElement, galerkinElement.radiance, 0.0, 0.0);
             vertexRadiosity[1] = GalerkinBasis.radianceAtPoint(galerkinElement, galerkinElement.radiance, 1.0, 0.0);
@@ -494,17 +481,17 @@ Disposes of the cluster hierarchy
         }
 
         if ( galerkinState.useAmbientRadiance != 0 ) {
-            ColorRgbMutable reflectivity = galerkinElement.patch.radianceData.Rd;
-            ColorRgbMutable ambient = new ColorRgbMutable();
-            ambient.scalarProduct(reflectivity, galerkinState.ambientRadiance);
+            ColorRgb reflectivity = galerkinElement.galerkinState.topLevelElement(galerkinElement.patch).Rd;
+            ColorRgb ambient = new ColorRgb();
+            ambient = reflectivity.multiply(galerkinState.ambientRadiance);
             for ( int i = 0; i < numberOfVertices; i++ ) {
-                vertexRadiosity[i].add(vertexRadiosity[i], ambient);
+                vertexRadiosity[i] = vertexRadiosity[i].add(ambient);
             }
         }
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            ColorRgbMutable col = new ColorRgbMutable();
-            ToneMap.radianceToRgb(vertexRadiosity[i], col, galerkinState.toneMapOptions);
+            ColorRgb col;
+            col = ToneMap.radianceToRgb(vertexRadiosity[i], galerkinState.toneMapOptions);
             writeVertexColor(col);
         }
     }
@@ -521,7 +508,7 @@ Disposes of the cluster hierarchy
         writeFormatted("%s", "\n\t}\n");
     }
 
-    private static void writeColors(RenderOptions renderOptions) {
+    private static void writeColors(RendererConfiguration renderOptions) {
         if ( renderOptions == null ) {
             return;
         }
@@ -548,7 +535,7 @@ Disposes of the cluster hierarchy
         if ( galerkinElement.patch == null ) {
             return;
         }
-        for ( int i = 0; i < galerkinElement.patch.numberOfVertices; i++ ) {
+        for ( int i = 0; i < galerkinElement.patch.getNumberOfVertices(); i++ ) {
             writeCoordIndex(vertexId);
             vertexId++;
         }

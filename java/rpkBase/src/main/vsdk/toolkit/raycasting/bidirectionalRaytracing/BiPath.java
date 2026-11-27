@@ -4,8 +4,8 @@ Stores eyePath and lightPath, lengths and end nodes
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.color.ColorRgbMutable;
-import vsdk.toolkit.common.linealAlgebra.Vector3Df;
+import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
 public class BiPath {
@@ -19,15 +19,15 @@ public class BiPath {
 
     public double m_pdfLNE; // pdf for sampling the light point separately
 
-    public Vector3Df m_dirEL;
-    public Vector3Df m_dirLE;  // connection dir's
+    public Vector3Dd m_dirEL;
+    public Vector3Dd m_dirLE;  // connection dir's
 
     public double m_geomConnect;
 
     // Constructor
     public BiPath() {
-        m_dirEL = new Vector3Df();
-        m_dirLE = new Vector3Df();
+        m_dirEL = new Vector3Dd();
+        m_dirLE = new Vector3Dd();
         init();
     }
 
@@ -47,17 +47,17 @@ public class BiPath {
     Evaluate the radiance contribution of a bipath. Only Function
     evaluation, no pdf involved
     */
-    public ColorRgbMutable evalRadiance() {
-        ColorRgbMutable col = new ColorRgbMutable();
+    public ColorRgb evalRadiance() {
+        ColorRgb col = new ColorRgb();
         double factor = 1.0;
         SimpleRaytracingPathNode node;
 
-        col.setMonochrome(1.0f);
+        col = new ColorRgb(1.0, 1.0, 1.0);
 
         node = m_eyePath;
 
         for ( int i = 0; i < m_eyeSize; i++ ) {
-            col.selfScalarProduct(new ColorRgbMutable(node.m_bsdfEval));
+            col = col.multiply(new ColorRgb(node.m_bsdfEval));
             factor *= node.m_G;
             node = node.next();
         }
@@ -65,16 +65,16 @@ public class BiPath {
         node = m_lightPath;
 
         for ( int i = 0; i < m_lightSize; i++ ) {
-            col.selfScalarProduct(new ColorRgbMutable(node.m_bsdfEval));
+            col = col.multiply(new ColorRgb(node.m_bsdfEval));
             factor *= node.m_G;
             node = node.next();
         }
 
         factor *= m_geomConnect; // Next event ray geometry factor
 
-        col.scale((float)factor);
+        col = col.multiply((double)factor);
 
-        return new ColorRgbMutable(col);
+        return new ColorRgb(col);
     }
 
     /**
@@ -103,11 +103,11 @@ public class BiPath {
 
     // Evaluate weight/pdf for a bipath, taking into account other pdf's
     // depending on the config (baseConfig).
-    public float
+    public double
     evalPdfAndWeight(
         BidirectionalPathRaytracerConfig baseConfig,
-        float[] pPdf,
-        float[] pWeight)
+        double[] pPdf,
+        double[] pWeight)
     {
         int currentConnect;
         double pdfAcc;
@@ -225,13 +225,13 @@ public class BiPath {
         weight = weight / pdfSum;
 
         if ( pWeight != null && pWeight.length > 0 ) {
-            pWeight[0] = (float)weight;
+            pWeight[0] = (double)weight;
         }
 
         if ( pPdf != null && pPdf.length > 0 ) {
-            pPdf[0] = (float)realPdf;
+            pPdf[0] = (double)realPdf;
         }
 
-        return (float)(weight / realPdf);
+        return (double)(weight / realPdf);
     }
 }

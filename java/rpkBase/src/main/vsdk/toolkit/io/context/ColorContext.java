@@ -31,9 +31,9 @@ public class ColorContext {
     public short flags; // What's been set
     public short[] straightSamples; // Spectral samples, min wl to max
     public long spectralStraightSum; // Straight sum of spectral values
-    public float cx; // Chromaticity X value
-    public float cy; // Chromaticity Y value
-    public float eff; // Efficacy (lumens / watt)
+    public double cx; // Chromaticity X value
+    public double cy; // Chromaticity Y value
+    public double eff; // Efficacy (lumens / watt)
 
     static {
         DEFAULT_COLOR_CONTEXT = createContext(
@@ -41,9 +41,9 @@ public class ColorContext {
             COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
             fill(COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE),
             (long)NUMBER_OF_SPECTRAL_SAMPLES * COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-            (float)(1.0 / 3.0),
-            (float)(1.0 / 3.0),
-            178.006f);
+            (double)(1.0 / 3.0),
+            (double)(1.0 / 3.0),
+            178.006);
 
         // Derived CIE 1931 Primaries (imaginary)
         cie_xp = createContext(
@@ -57,9 +57,9 @@ public class ColorContext {
                 8336, 8336, 8336, 8336, 8336, 8336
             },
             127424L,
-            1.0f,
-            0.0f,
-            0.0f);
+            1.0,
+            0.0,
+            0.0);
 
         cie_yp = createContext(
             1,
@@ -72,9 +72,9 @@ public class ColorContext {
                 -4066, -4066, -4066, -4066, -4066, -4066
             },
             -23035L,
-            0.0f,
-            1.0f,
-            0.0f);
+            0.0,
+            1.0,
+            0.0);
 
         cie_zp = createContext(
             1,
@@ -87,9 +87,9 @@ public class ColorContext {
                 -845, -845, -845, -845, -845
             },
             36057L,
-            0.0f,
-            0.0f,
-            0.0f);
+            0.0,
+            0.0,
+            0.0);
 
         // CIE 1931 Standard Observer curves
         cie_xf = createContext(
@@ -102,9 +102,9 @@ public class ColorContext {
                 114, 58, 29, 14, 7, 3, 2, 1, 0
             },
             106836L,
-            0.467f,
-            0.368f,
-            362.230f);
+            0.467,
+            0.368,
+            362.230);
 
         cie_yf = createContext(
             1,
@@ -116,9 +116,9 @@ public class ColorContext {
                 5, 2, 1, 1, 0, 0
             },
             106856L,
-            0.398f,
-            0.542f,
-            493.525f);
+            0.398,
+            0.542,
+            493.525);
 
         cie_zf = createContext(
             1,
@@ -129,9 +129,9 @@ public class ColorContext {
                 11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             },
             106770L,
-            0.147f,
-            0.077f,
-            54.363f);
+            0.147,
+            0.077,
+            54.363);
     }
 
     public ColorContext() {
@@ -139,9 +139,9 @@ public class ColorContext {
         flags = 0;
         straightSamples = new short[NUMBER_OF_SPECTRAL_SAMPLES];
         spectralStraightSum = 0;
-        cx = 0.0f;
-        cy = 0.0f;
-        eff = 0.0f;
+        cx = 0.0;
+        cy = 0.0;
+        eff = 0.0;
     }
 
     public void copy(ColorContext source) {
@@ -157,7 +157,7 @@ public class ColorContext {
         eff = source.eff;
     }
 
-    private static ColorContext createContext(int inClock, int inFlags, int[] samples, long sum, float inCx, float inCy, float inEff) {
+    private static ColorContext createContext(int inClock, int inFlags, int[] samples, long sum, double inCx, double inCy, double inEff) {
         ColorContext colorContext = new ColorContext();
         colorContext.clock = inClock;
         colorContext.flags = (short)inFlags;
@@ -179,9 +179,9 @@ public class ColorContext {
         return values;
     }
 
-    private static float colorWaveLengthDeltaI() {
-        return (float)(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
-            (float)(NUMBER_OF_SPECTRAL_SAMPLES - 1);
+    private static double colorWaveLengthDeltaI() {
+        return (double)(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
+            (double)(NUMBER_OF_SPECTRAL_SAMPLES - 1);
     }
 
     private static double colorPeakLumensPerWatt() {
@@ -201,7 +201,7 @@ public class ColorContext {
     */
     public int setSpectrum(double wlMinimum, double wlMaximum, int ac, String[] av) {
         double scale;
-        float[] va = new float[ColorContext.NUMBER_OF_SPECTRAL_SAMPLES + 1];
+        double[] va = new double[ColorContext.NUMBER_OF_SPECTRAL_SAMPLES + 1];
         int i;
         int pos;
         int n;
@@ -243,20 +243,20 @@ public class ColorContext {
         scale = 0.0; // Get values and maximum
         pos = 0;
         for (i = 0; i < imax; i++) {
-            va[i] = 0.0f;
+            va[i] = 0.0;
             n = 0;
             while (boxPos < i + 0.5 && pos < ac) {
                 String value = av[argumentStartIndex + pos];
                 if (!TokenValidationContext.isFloat(value)) {
                     return ParseErrorContext.MGF_ERROR_ARGUMENT_TYPE;
                 }
-                va[i] += Float.parseFloat(value);
+                va[i] += Double.parseDouble(value);
                 pos++;
                 n++;
                 boxPos += boxStep;
             }
             if (n > 1) {
-                va[i] /= (float)n;
+                va[i] /= (double)n;
             }
             if (va[i] > scale) {
                 scale = va[i];
@@ -320,7 +320,7 @@ public class ColorContext {
         sf = ColorContext.COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
         spectralStraightSum = 0;
         for (int i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-            wl = (COLOR_MINIMUM_WAVE_LENGTH + (float)i * colorWaveLengthDeltaI()) * 1e-9;
+            wl = (COLOR_MINIMUM_WAVE_LENGTH + (double)i * colorWaveLengthDeltaI()) * 1e-9;
             spectralStraightSum += straightSamples[i] = (short)Math.round(sf * bBsp(wl, tk) + 0.5);
         }
         flags = (short)(COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG);
@@ -360,8 +360,8 @@ public class ColorContext {
             y /= (double)cie_yf.spectralStraightSum;
             z /= (double)cie_zf.spectralStraightSum;
             z += x + y;
-            cx = (float)(x / z);
-            cy = (float)(y / z);
+            cx = (double)(x / z);
+            cy = (double)(y / z);
             flags = (short)(flags | COLOR_XY_IS_SET_FLAG);
         }
         else if ((fl & COLOR_SPECTRUM_IS_SET_FLAG) != 0) {
@@ -391,11 +391,11 @@ public class ColorContext {
                 for (i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
                     y += cie_yf.straightSamples[i] * straightSamples[i];
                 }
-                eff = (float)(colorPeakLumensPerWatt() * y / (double)spectralStraightSum);
+                eff = (double)(colorPeakLumensPerWatt() * y / (double)spectralStraightSum);
             }
             else {
                 // flags & C_CS_XY from (x,y)
-                eff = (float)(cx * cie_xf.eff + cy * cie_yf.eff +
+                eff = (double)(cx * cie_xf.eff + cy * cie_yf.eff +
                     (1.0 - cx - cy) * cie_zf.eff);
             }
             flags = (short)(flags | COLOR_EFFICACY_FLAG);
@@ -411,18 +411,18 @@ public class ColorContext {
         double w2,
         ColorContext c2) {
         double scale;
-        float[] cMix = new float[ColorContext.NUMBER_OF_SPECTRAL_SAMPLES];
+        double[] cMix = new double[ColorContext.NUMBER_OF_SPECTRAL_SAMPLES];
 
         if (((c1.flags | c2.flags) & COLOR_DEFINED_WITH_SPECTRUM_FLAG) != 0) {
             int i;
             // Spectral mixing
             c1.fixColorRepresentation(COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
             c2.fixColorRepresentation(COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
-            w1 /= c1.eff * (float)c1.spectralStraightSum;
-            w2 /= c2.eff * (float)c2.spectralStraightSum;
+            w1 /= c1.eff * (double)c1.spectralStraightSum;
+            w2 /= c2.eff * (double)c2.spectralStraightSum;
             scale = 0.0;
             for (i = 0; i < ColorContext.NUMBER_OF_SPECTRAL_SAMPLES; i++) {
-                cMix[i] = (float)(w1 * c1.straightSamples[i] + w2 * c2.straightSamples[i]);
+                cMix[i] = (double)(w1 * c1.straightSamples[i] + w2 * c2.straightSamples[i]);
                 if (cMix[i] > scale) {
                     scale = cMix[i];
                 }
@@ -443,8 +443,8 @@ public class ColorContext {
                 return;
             }
             scale = 1.0 / scale;
-            cx = (float)((c1.cx * w1 / c1.cy + c2.cx * w2 / c2.cy) * scale);
-            cy = (float)((w1 + w2) * scale);
+            cx = (double)((c1.cx * w1 / c1.cy + c2.cx * w2 / c2.cy) * scale);
+            cy = (double)((w1 + w2) * scale);
             flags = (short)(COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG);
         }
     }
