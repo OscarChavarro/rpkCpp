@@ -1,14 +1,14 @@
 #ifndef PHNG_BDRCT_RFLCT_DSTRB_FNCTN
 #define PHNG_BDRCT_RFLCT_DSTRB_FNCTN
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 
 /**
 BRDF evaluation functions :
-  Vector3Df in : incoming ray direction (to patch)
-  Vector3Df out : reflected ray direction (from patch)
-  Vector3Df normal : normal vector
+  Vector3Dd in : incoming ray direction (to patch)
+  Vector3Dd out : reflected ray direction (from patch)
+  Vector3Dd normal : normal vector
   char flags : flags indicating which components must be
     evaluated
 */
@@ -16,9 +16,9 @@ class PhongBidirReflDistFunc {
   private:
     ColorRgb Kd;
     ColorRgb Ks;
-    float avgKd;
-    float avgKs;
-    float Ns;
+    double avgKd;
+    double avgKs;
+    double Ns;
 
     bool isSpecular() const;
 
@@ -28,15 +28,15 @@ public:
 
     const ColorRgb &getKd() const;
     const ColorRgb &getKs() const;
-    float getNs() const;
+    double getNs() const;
 
     ColorRgb reflectance(char flags) const;
-    ColorRgb evaluate(const Vector3Df *in, const Vector3Df *out, const Vector3Df *normal, char flags) const;
+    ColorRgb evaluate(const Vector3Dd *in, const Vector3Dd *out, const Vector3Dd *normal, char flags) const;
 
-    Vector3Df
+    Vector3Dd
     sample(
-        const Vector3Df *in,
-        const Vector3Df *normal,
+        const Vector3Dd *in,
+        const Vector3Dd *normal,
         int doRussianRoulette,
         char flags,
         double x1,
@@ -45,9 +45,9 @@ public:
 
     void
     evalProbDensFunc(
-        const Vector3Df *in,
-        const Vector3Df *out,
-        const Vector3Df *normal,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
+        const Vector3Dd *normal,
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
@@ -63,7 +63,7 @@ PhongBidirReflDistFunc::getKs() const {
     return Ks;
 }
 
-inline float
+inline double
 PhongBidirReflDistFunc::getNs() const {
     return Ns;
 }

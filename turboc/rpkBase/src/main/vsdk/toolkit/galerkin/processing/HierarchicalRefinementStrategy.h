@@ -19,14 +19,14 @@ class HierarchicalRefinementStrategy {
     static void
     hierarchicRefinementCull(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementUnCull(
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         const GalerkinState *galerkinState);
 
     static double
@@ -65,7 +65,7 @@ class HierarchicalRefinementStrategy {
     static int
     hierRefCreateSubdivLink(
         const Scene *scene,
-        const ArrayList<Geometry *> *candidatesList,
+        const ArrayList<RpkGeometry *> *candidatesList,
         GalerkinElement *receiverElement,
         GalerkinElement *sourceElement,
         Interaction *interaction,
@@ -78,7 +78,7 @@ class HierarchicalRefinementStrategy {
     static void
     refineSubInteraction(
         const Scene *scene,
-        ArrayList<Geometry *> *candidatesList,
+        ArrayList<RpkGeometry *> *candidatesList,
         GalerkinElement *receiverElement,
         GalerkinElement *sourceElement,
         GalerkinState *galerkinState,
@@ -87,7 +87,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierRefRegSbdvdSrc(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState,
@@ -96,7 +96,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierRefRegSbdvdRecv(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState,
@@ -105,7 +105,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierRefSbdvdSrcClust(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState,
@@ -114,7 +114,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierRefSbdvdRecvClust(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState,
@@ -123,7 +123,7 @@ class HierarchicalRefinementStrategy {
     static bool
     refineRecursive(
         const Scene *scene,
-        ArrayList<Geometry *> **candidatesList,
+        ArrayList<RpkGeometry *> **candidatesList,
         Interaction *interaction,
         GalerkinState *galerkinState,
         RefinementWorkspace *workspace);

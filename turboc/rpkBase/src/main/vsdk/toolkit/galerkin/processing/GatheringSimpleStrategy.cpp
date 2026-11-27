@@ -102,7 +102,7 @@ GatheringSimpleStrategy::patchGather(
 void
 GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
-    GatheringStrategy::pushPullPotential(topLevelElement, 0.0f);
+    GatheringStrategy::pushPullPotential(topLevelElement, 0.0);
 }
 
 /**
@@ -133,7 +133,7 @@ GatheringSimpleStrategy::doGatheringIteration(
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    galerkinState->ambientRadiance = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    galerkinState->ambientRadiance = ColorRgbMutable(0.0, 0.0, 0.0);
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {

@@ -35,15 +35,15 @@ MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
         case VERTEX_COLORS:
             // Average color of the vertices
             {
-            float r = 0.0f;
-            float g = 0.0f;
-            float b = 0.0f;
+            double r = 0.0;
+            double g = 0.0;
+            double b = 0.0;
             for ( i = 0; i < face->numberOfVertices; i++ ) {
                 r += face->vertex[i]->color.getR();
                 g += face->vertex[i]->color.getG();
                 b += face->vertex[i]->color.getB();
             }
-            const float inv = 1.0f / ((float)(i));
+            const double inv = 1.0 / ((double)(i));
             face->color = ColorRgb(r * inv, g * inv, b * inv);
             }
             break;

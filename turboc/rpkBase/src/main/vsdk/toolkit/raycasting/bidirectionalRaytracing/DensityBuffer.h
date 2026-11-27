@@ -23,21 +23,21 @@ class DensityBuffer {
     // by density estimation...
     ScreenBuffer *screenBuffer;
     BidirPathRaytrcCnfg *baseConfig;
-    float xMinimum; // Copy from screenBuffer
-    float xMaximum;
-    float yMinimum;
-    float yMaximum;
+    double xMinimum; // Copy from screenBuffer
+    double xMaximum;
+    double yMinimum;
+    double yMaximum;
     DensityHitList hitGrid[DHA_X_RES][DHA_Y_RES];
 
-    inline int xIndex(float x) const;
-    inline int yIndex(float y) const;
+    inline int xIndex(double x) const;
+    inline int yIndex(double y) const;
 
   public:
     DensityBuffer(ScreenBuffer *screen, BidirPathRaytrcCnfg *paramBaseConfig);
     ~DensityBuffer();
-    void add(float x, float y, ColorRgb color);
+    void add(double x, double y, ColorRgb color);
     ScreenBuffer *reconstruct();
-    ScreenBuffer *reconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
+    ScreenBuffer *reconstructVariable(ScreenBuffer *dest, double baseSize = 4.0);
 };
 
 #endif

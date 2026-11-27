@@ -155,7 +155,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
 
-    ColorRgb result(0.0f, 0.0f, 0.0f);
+    ColorRgb result(0.0, 0.0, 0.0);
 
     if ( (config->samplerConfig.surfaceSampler == NULL) ||
         (thisNode->m_depth >= config->samplerConfig.maxDepth) ) {
@@ -188,7 +188,7 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
 
         if ( numberOfSamples > 2 ) {
             // Some bigger value may be more efficient
-            ColorRgb albedo(0.0f, 0.0f, 0.0f);
+            ColorRgb albedo(0.0, 0.0, 0.0);
             if ( thisNode->m_useBsdf != NULL ) {
                 albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), si->flags);
             }
@@ -268,9 +268,9 @@ StochasticRaytracer::stchsRaytrcGetScttrRadn(
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * numberOfSamples);
 
                     radiance = ColorRgb(
-                        radiance.getR() * ((float)(factor)) * thisNode->m_bsdfEval.getR(),
-                        radiance.getG() * ((float)(factor)) * thisNode->m_bsdfEval.getG(),
-                        radiance.getB() * ((float)(factor)) * thisNode->m_bsdfEval.getB());
+                        radiance.getR() * ((double)(factor)) * thisNode->m_bsdfEval.getR(),
+                        radiance.getG() * ((double)(factor)) * thisNode->m_bsdfEval.getG(),
+                        radiance.getB() * ((double)(factor)) * thisNode->m_bsdfEval.getB());
                     result = ColorRgb(
                         result.getR() + radiance.getR(),
                         result.getG() + radiance.getG(),
@@ -302,8 +302,8 @@ StochasticRaytracer::srGetDirectRadiance(
 {
     ColorRgb result;
     ColorRgb radiance;
-    result = ColorRgb(0.0f, 0.0f, 0.0f);
-    Vector3Df dirEL;
+    result = ColorRgb(0.0, 0.0, 0.0);
+    Vector3Dd dirEL;
 
     if ( readout == READ_NOW && config->radMode == STORED_PHOTON_MAP ) {
         // We're reading out D|G, specular not with direct light
@@ -422,9 +422,9 @@ StochasticRaytracer::srGetDirectRadiance(
                             factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                       config->nextEventSamples);
                             radiance = ColorRgb(
-                                prevNode->m_bsdfEval.getR() * ((float)(factor)) * lightNode.m_bsdfEval.getR(),
-                                prevNode->m_bsdfEval.getG() * ((float)(factor)) * lightNode.m_bsdfEval.getG(),
-                                prevNode->m_bsdfEval.getB() * ((float)(factor)) * lightNode.m_bsdfEval.getB());
+                                prevNode->m_bsdfEval.getR() * ((double)(factor)) * lightNode.m_bsdfEval.getR(),
+                                prevNode->m_bsdfEval.getG() * ((double)(factor)) * lightNode.m_bsdfEval.getG(),
+                                prevNode->m_bsdfEval.getB() * ((double)(factor)) * lightNode.m_bsdfEval.getB());
 
                             // Collect outgoing radiance
                             result = ColorRgb(
@@ -499,17 +499,17 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             weight = cr / (cr + cl);
         }
 
-        Vector3Df position = thisNode->previous()->m_hit.getPoint();
+        Vector3Dd position = thisNode->previous()->m_hit.getPoint();
         result = ColorRgb(Background::backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), NULL));
         result = ColorRgb(
-            result.getR() * ((float)(weight)),
-            result.getG() * ((float)(weight)),
-            result.getB() * ((float)(weight)));
+            result.getR() * ((double)(weight)),
+            result.getG() * ((double)(weight)),
+            result.getB() * ((double)(weight)));
     } else {
         // Handle non-background
         const PhongEmitDistFunc *thisEdf = thisNode->m_hit.getMaterial()->getEdf();
 
-        result = ColorRgb(0.0f, 0.0f, 0.0f);
+        result = ColorRgb(0.0, 0.0, 0.0);
 
         // Stored radiance
         if ( (readout == READ_NOW) && (config->siStorage.flags != XxdfComponentFlagInfo::NO_COMPONENTS) ) {
@@ -519,13 +519,13 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = thisNode->m_hit.getPoint().distanceSquared(thisNode->previous()->m_hit.getPoint());
+                    double dist2 = thisNode->m_hit.getPoint().distanceSquared(thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapMethod->getNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
-                        radiance = ColorRgb(0.0f, 0.0f, 0.0f);
+                        radiance = ColorRgb(0.0, 0.0, 0.0);
                         readout = SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
@@ -538,7 +538,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 double v;
 
                 // (u, v) coordinates of intersection point
-                Vector3Df position = thisNode->m_hit.getPoint();
+                Vector3Dd position = thisNode->m_hit.getPoint();
                 thisNode->m_hit.getPatch()->uv(&position, &u, &v);
 
                 radiance = ColorRgb(radianceMethod->getRadiance(
@@ -550,7 +550,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 ColorRgb diffEmit;
 
                 if ( thisEdf == NULL ) {
-                    diffEmit = ColorRgb(0.0f, 0.0f, 0.0f);
+                    diffEmit = ColorRgb(0.0, 0.0, 0.0);
                 } else {
                     ShadingContext context = thisNode->m_hit.shadingContext(NULL);
                     diffEmit = thisEdf->phongEdfEval(
@@ -648,16 +648,16 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             }
 
             if ( thisEdf == NULL ) {
-                col = ColorRgb(0.0f, 0.0f, 0.0f);
+                col = ColorRgb(0.0, 0.0, 0.0);
             } else {
                 ShadingContext context = thisNode->m_hit.shadingContext(NULL);
                 col = thisEdf->phongEdfEval(&context, &(thisNode->m_inDirF), edfFlags, NULL);
             }
 
             result = ColorRgb(
-                result.getR() + ((float)(weight)) * col.getR(),
-                result.getG() + ((float)(weight)) * col.getG(),
-                result.getB() + ((float)(weight)) * col.getB());
+                result.getR() + ((double)(weight)) * col.getR(),
+                result.getG() + ((double)(weight)) * col.getG(),
+                result.getB() + ((double)(weight)) * col.getB());
         }
     }
 
@@ -685,7 +685,7 @@ StochasticRaytracer::calcPixel(
     ColorRgb result;
     StratifiedSampling2D stratified(config->samplesPerPixel);
 
-    result = ColorRgb(0.0f, 0.0f, 0.0f);
+    result = ColorRgb(0.0, 0.0, 0.0);
 
     // Frame coherent & correlated sampling
     if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
@@ -743,9 +743,9 @@ StochasticRaytracer::calcPixel(
 
             // Account for pixel sampling
             col = ColorRgb(
-                col.getR() * ((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev)),
-                col.getG() * ((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev)),
-                col.getB() * ((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev)));
+                col.getR() * ((double)(pixelNode.m_G / pixelNode.m_pdfFromPrev)),
+                col.getG() * ((double)(pixelNode.m_G / pixelNode.m_pdfFromPrev)),
+                col.getB() * ((double)(pixelNode.m_G / pixelNode.m_pdfFromPrev)));
             result = ColorRgb(
                 result.getR() + col.getR(),
                 result.getG() + col.getG(),
@@ -754,12 +754,12 @@ StochasticRaytracer::calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / ((float)(config->samplesPerPixel)));
+    double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / ((double)(config->samplesPerPixel)));
 
     result = ColorRgb(
-        result.getR() * ((float)(factor)),
-        result.getG() * ((float)(factor)),
-        result.getB() * ((float)(factor)));
+        result.getR() * ((double)(factor)),
+        result.getG() * ((double)(factor)),
+        result.getB() * ((double)(factor)));
     config->screen->add(nx, ny, result);
 
     // Frame coherent & correlated sampling

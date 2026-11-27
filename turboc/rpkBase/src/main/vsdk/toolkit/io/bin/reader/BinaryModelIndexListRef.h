@@ -1,5 +1,5 @@
-#ifndef BNRY_MDL_RDR_INDX_LIST_RCRD
-#define BNRY_MDL_RDR_INDX_LIST_RCRD
+#ifndef __BINARY_MODEL_INDEX_LIST_REF__
+#define __BINARY_MODEL_INDEX_LIST_REF__
 
 #include "java/util/ArrayList.h"
 

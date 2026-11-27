@@ -1,5 +1,5 @@
-#ifndef __SCOPED_ARRAY__
-#define __SCOPED_ARRAY__
+#ifndef __SCOPED_ARRAY_BUFFER__
+#define __SCOPED_ARRAY_BUFFER__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

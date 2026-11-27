@@ -5,22 +5,24 @@
 
 class FerwerdaToneMap: public ToneMap{ private:
     ColorRgb sf;
-    float msf;
-    float pmComp;
-    float pmDisplay;
-    float smComp;
-    float smDisplay;
-    float lda;
+    double msf;
+    double pmComp;
+    double pmDisplay;
+    double smComp;
+    double smDisplay;
+    double lda;
 
-    static float photopicOperator(float logLa);
-    static float scotopicOperator(float logLa);
-    static float mesopicScaleFactor(float logLwa);
+    static double photopicOperator(double logLa);
+    static double scotopicOperator(double logLa);
+    static double mesopicScaleFactor(double logLwa);
+
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions);
 
   public:
     FerwerdaToneMap();
     ~FerwerdaToneMap();
 
-    void init(const ToneMappingContext &toneMapOptions);
     ColorRgb scaleForComputations(ColorRgb radiance) const;
     ColorRgb scaleForDisplay(ColorRgb radiance) const;
 };

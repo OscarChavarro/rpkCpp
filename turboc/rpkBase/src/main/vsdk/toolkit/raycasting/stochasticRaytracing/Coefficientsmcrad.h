@@ -1,5 +1,5 @@
-#ifndef __COEFFICIENTS__
-#define __COEFFICIENTS__
+#ifndef __COEFFICIENTSMCRAD__
+#define __COEFFICIENTSMCRAD__
 
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
@@ -18,7 +18,7 @@ class Coefficientsmcrad{ public:
         }
     }
 
-    static inline void stchsRadScaleCoeff(float scale, ColorRgbMutable *color, const GalerkinBasis *galerkinBasis){ for ( int i = 0; i < galerkinBasis->size; i++){ color[i].scale(scale);
+    static inline void stchsRadScaleCoeff(double scale, ColorRgbMutable *color, const GalerkinBasis *galerkinBasis){ for ( int i = 0; i < galerkinBasis->size; i++){ color[i].scale(scale);
         }
     }
 

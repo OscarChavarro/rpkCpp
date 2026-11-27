@@ -14,10 +14,10 @@ RadianceStatistics::RadianceStatistics():
 void
 RadianceStatistics::reset() {
     totalArea = 0.0;
-    maxSelfEmittedRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
-    maxSelfEmittedPower = ColorRgb(0.0f, 0.0f, 0.0f);
+    maxSelfEmittedRadiance = ColorRgb(0.0, 0.0, 0.0);
+    maxSelfEmittedPower = ColorRgb(0.0, 0.0, 0.0);
     referenceLuminance = 0.0;
-    totalEmittedPower = ColorRgb(0.0f, 0.0f, 0.0f);
-    estimatedAverageRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
-    averageReflectivity = ColorRgb(0.0f, 0.0f, 0.0f);
+    totalEmittedPower = ColorRgb(0.0, 0.0, 0.0);
+    estimatedAverageRadiance = ColorRgb(0.0, 0.0, 0.0);
+    averageReflectivity = ColorRgb(0.0, 0.0, 0.0);
 }

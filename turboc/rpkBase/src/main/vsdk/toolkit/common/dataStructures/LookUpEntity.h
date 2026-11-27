@@ -1,5 +1,5 @@
-#ifndef __COMMON_LOOKUP_ENTITY__
-#define __COMMON_LOOKUP_ENTITY__
+#ifndef __LOOK_UP_ENTITY__
+#define __LOOK_UP_ENTITY__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

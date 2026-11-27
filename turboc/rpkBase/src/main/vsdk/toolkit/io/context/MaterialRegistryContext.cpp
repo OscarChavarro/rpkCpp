@@ -5,20 +5,20 @@ MaterialRegistryContext::createDefaultMgfMaterialContext() {
     MaterialContext context;
     context.clock = 1;
     context.sided = false;
-    context.nr = 1.0f;
-    context.ni = 0.0f;
-    context.rd = 0.0f;
+    context.nr = 1.0;
+    context.ni = 0.0;
+    context.rd = 0.0;
     context.rd_c = ColorContext::DEFAULT_COLOR_CONTEXT;
-    context.td = 0.0f;
+    context.td = 0.0;
     context.td_c = ColorContext::DEFAULT_COLOR_CONTEXT;
-    context.ed = 0.0f;
+    context.ed = 0.0;
     context.ed_c = ColorContext::DEFAULT_COLOR_CONTEXT;
-    context.rs = 0.0f;
+    context.rs = 0.0;
     context.rs_c = ColorContext::DEFAULT_COLOR_CONTEXT;
-    context.rs_a = 0.0f;
-    context.ts = 0.0f;
+    context.rs_a = 0.0;
+    context.ts = 0.0;
     context.ts_c = ColorContext::DEFAULT_COLOR_CONTEXT;
-    context.ts_a = 0.0f;
+    context.ts_a = 0.0;
     return context;
 }
 

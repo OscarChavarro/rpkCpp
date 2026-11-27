@@ -1,5 +1,5 @@
-#ifndef __SAMPLING__
-#define __SAMPLING__
+#ifndef __DISCRETE_SAMPLING__
+#define __DISCRETE_SAMPLING__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

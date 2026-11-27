@@ -6,13 +6,13 @@
 #define __MGF_HANDLER_GEOMETRY__
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateAxis.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
 #include "vsdk/toolkit/io/context/VertexContext.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class MgfVertexFaceEntitySupport {
   public:
@@ -27,18 +27,18 @@ class MgfVertexFaceEntitySupport {
     #define MAXIMUM_FACE_VERTICES 100
     static long transformXid(const TransformStackContext *xf);
     static int doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context);
-    static Vector3Df *installPoint(float x, float y, float z, const ParseRuntimeContext *context);
-    static Vector3Df *installNormal(float x, float y, float z, const ParseRuntimeContext *context);
-    static Vertex *installVertex(Vector3Df *coord, Vector3Df *norm, const ParseRuntimeContext *context);
-    static Vertex *getVertex(const char *name, ParseRuntimeContext *context);
-    static Vertex *getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context);
-    static Patch *newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context);
-    static Vector3Df *faceNormal(int numberOfVertices, Vertex **v, Vector3Df *normal);
-    static void vectorProject(Vector2Df &r, const Vector3Df &p, CoordinateAxis i);
-    static bool faceIsConvex(int numberOfVertices, Vertex **v, const Vector3Df *normal);
-    static bool pointInsideTriangle2D(const Vector2Df *p, const Vector2Df *p1, const Vector2Df *p2, const Vector2Df *p3);
-    static bool segmentsIntersect2D(const Vector2Df *p1, const Vector2Df *p2, const Vector2Df *p3, const Vector2Df *p4);
-    static void doComplexFace(int n, Vertex **v, Vector3Df *normal, Vertex **backVertex, ParseRuntimeContext *context);
+    static Vector3Dd *installPoint(double x, double y, double z, const ParseRuntimeContext *context);
+    static Vector3Dd *installNormal(double x, double y, double z, const ParseRuntimeContext *context);
+    static RpkVertex *installVertex(Vector3Dd *coord, Vector3Dd *norm, const ParseRuntimeContext *context);
+    static RpkVertex *getVertex(const char *name, ParseRuntimeContext *context);
+    static RpkVertex *getBackFaceVertex(RpkVertex *v, const ParseRuntimeContext *context);
+    static Patch *newFace(RpkVertex *v1, RpkVertex *v2, RpkVertex *v3, RpkVertex *v4, const ParseRuntimeContext *context);
+    static Vector3Dd *faceNormal(int numberOfVertices, RpkVertex **v, Vector3Dd *normal);
+    static void vectorProject(Vector2Dd &r, const Vector3Dd &p, CoordinateAxis i);
+    static bool faceIsConvex(int numberOfVertices, RpkVertex **v, const Vector3Dd *normal);
+    static bool pointInsideTriangle2D(const Vector2Dd *p, const Vector2Dd *p1, const Vector2Dd *p2, const Vector2Dd *p3);
+    static bool segmentsIntersect2D(const Vector2Dd *p1, const Vector2Dd *p2, const Vector2Dd *p3, const Vector2Dd *p4);
+    static void doComplexFace(int n, RpkVertex **v, Vector3Dd *normal, RpkVertex **backVertex, ParseRuntimeContext *context);
 };
 
 #endif

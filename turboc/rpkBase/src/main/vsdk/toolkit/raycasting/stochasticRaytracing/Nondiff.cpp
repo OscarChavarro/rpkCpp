@@ -43,7 +43,7 @@ Nondiff::makeLightSourceTable(const ArrayList<Patch *> *scenePatches, const Arra
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
         Coefficientsmcrad::stchsRadClearCoeff(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
-        McradP::topLvlStochRadElem(patch)->sourceRad = ColorRgb(0.0f, 0.0f, 0.0f);
+        McradP::topLvlStochRadElem(patch)->sourceRad = ColorRgb(0.0, 0.0, 0.0);
     }
 }
 
@@ -65,23 +65,25 @@ Nondiff::nextLightSample(const Patch *patch, double *zeta) {
     zeta[3] = xi[3];
 }
 
-RpkRay
+Ray
 Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
-    RpkRay ray;
+    Ray ray;
     do {
         double zeta[4];
-        RayHit hit;
+        RpkRayHit hit;
         nextLightSample(patch, zeta);
 
-        patch->uniformPoint(zeta[0], zeta[1], &ray.position);
+        Vector3Dd origin;
+        patch->uniformPoint(zeta[0], zeta[1], &origin);
+        ray.setOrigin(origin);
 
-        hit.init(patch, &ray.position, &patch->normal, patch->material);
+        hit.init(patch, &ray.getOrigin(), &patch->normal, patch->material);
         *dirSelectionPdf = 0.0;
-        ray.direction = Vector3Df(0.0, 0.0, 0.0);
+        ray.setDirection(Vector3Dd(0.0, 0.0, 0.0));
         if ( patch->material->getEdf() != NULL ) {
             ShadingContext context = hit.shadingContext(NULL);
-            ray.direction = patch->material->getEdf()->phongEdfSample(
-                &context, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+            ray.setDirection(patch->material->getEdf()->phongEdfSample(
+                &context, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf));
         }
     } while ( *dirSelectionPdf == 0.0 );
 
@@ -97,18 +99,18 @@ Nondiff::sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWor
     ColorRgb rad;
     double pointSelectionPdf;
     double dirSelectionPdf;
-    RpkRay ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
-    RayHit hitStore;
-    const RayHit *hit;
+    Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
+    RpkRayHit hitStore;
+    const RpkRayHit *hit;
 
     StochasticRelaxation::activeState().tracedRays++;
     hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
-        double outCos = ray.direction.dotProduct(light->patch->normal);
+        double outCos = ray.getDirection().dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgbMutable Rd = McradP::topLvlStochRadElem(hit->getPatch())->Rd;
-        float k = ((float)(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)));
+        double k = ((double)(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)));
         receivedRadiosity = ColorRgb(
             k * rad.getR() * Rd.getR(),
             k * rad.getG() * Rd.getG(),
@@ -154,14 +156,14 @@ Nondiff::sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *s
 
 void
 Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
-    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0, 0.0, 0.0);
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float k1 = ((float)(M_PI)) * patch->area;
+        double k1 = ((double)(M_PI)) * patch->area;
         ColorRgb us = ColorRgb(McradP::getTopLevelPatchUnShotRad(patch)[0]);
         ColorRgb tr = ColorRgb(McradP::getTopLevelPatchRad(patch)[0]);
         StochasticRelaxation::activeState().unShotFlux = ColorRgb(
@@ -172,7 +174,7 @@ Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
             StochasticRelaxation::activeState().totalFlux.getR() + k1 * tr.getR(),
             StochasticRelaxation::activeState().totalFlux.getG() + k1 * tr.getG(),
             StochasticRelaxation::activeState().totalFlux.getB() + k1 * tr.getB());
-        float k2 = ((float)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance);
+        double k2 = ((double)(M_PI)) * patch->area * (McradP::topLvlStochRadElem(patch)->importance - McradP::topLvlStochRadElem(patch)->sourceImportance);
         StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
             StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + k2 * us.getR(),
             StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + k2 * us.getG(),

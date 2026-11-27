@@ -22,19 +22,19 @@ class RefinementWorkspace {
     RefinementWorkspace(
         SceneQueryWorkspace *inSceneQueryWorkspace,
         FormFactorWorkspace *inFormFactorWorkspace,
-        MemoryPool<float> *inCoefficientsPool):
+        MemoryPool<double> *inCoefficientsPool):
         sceneQueryWorkspace(inSceneQueryWorkspace),
         formFactorWorkspace(inFormFactorWorkspace),
         coefficientsPool(inCoefficientsPool) {}
 
     SceneQueryWorkspace *getSceneQueryWorkspace() const { return sceneQueryWorkspace; }
     FormFactorWorkspace *getFormFactorWorkspace() const { return formFactorWorkspace; }
-    MemoryPool<float> *getCoefficientsPool() const { return coefficientsPool; }
+    MemoryPool<double> *getCoefficientsPool() const { return coefficientsPool; }
 
   private:
     SceneQueryWorkspace *sceneQueryWorkspace;
     FormFactorWorkspace *formFactorWorkspace;
-    MemoryPool<float> *coefficientsPool;
+    MemoryPool<double> *coefficientsPool;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
 
 /**
@@ -11,8 +11,8 @@ RayExclusionSet::RayExclusionSet(
     const Patch *p1,
     const Patch *p2,
     const Patch *p3,
-    const Geometry *geometry1,
-    const Geometry *geometry2):
+    const RpkGeometry *geometry1,
+    const RpkGeometry *geometry2):
     excludedPatch(),
     excludedGeometry1(geometry1),
     excludedGeometry2(geometry2),

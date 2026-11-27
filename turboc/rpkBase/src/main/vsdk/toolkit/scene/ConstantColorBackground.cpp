@@ -1,8 +1,8 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/scene/ConstantColorBackground.h"
 
-const float ConstantColorBackground::FOUR_PI = ((float)12.56637061435917295385);
-const float ConstantColorBackground::INV_FOUR_PI = ((float)0.07957747154594766788);
+const double ConstantColorBackground::FOUR_PI = ((double)12.56637061435917295385);
+const double ConstantColorBackground::INV_FOUR_PI = ((double)0.07957747154594766788);
 
 ConstantColorBackground::ConstantColorBackground():
     color()
@@ -17,9 +17,9 @@ ConstantColorBackground::ConstantColorBackground(const ColorRgbMutable &backgrou
 
 ColorRgbMutable
 ConstantColorBackground::radiance(
-    Vector3Df * /*position*/,
-    Vector3Df * /*direction*/,
-    float *probabilityDensityFunction) const
+    Vector3Dd * /*position*/,
+    Vector3Dd * /*direction*/,
+    double *probabilityDensityFunction) const
 {
     if ( probabilityDensityFunction != NULL ) {
         *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
@@ -27,18 +27,18 @@ ConstantColorBackground::radiance(
     return color;
 }
 
-Vector3Df
+Vector3Dd
 ConstantColorBackground::sample(
-    Vector3Df * /*position*/,
-    float xi1,
-    float xi2,
+    Vector3Dd * /*position*/,
+    double xi1,
+    double xi2,
     ColorRgbMutable *radianceValue,
-    float *probabilityDensityFunction) const
+    double *probabilityDensityFunction) const
 {
     const double phi = 2.0 * ((double)(Math::PI)) * ((double)(xi1));
-    const float z = 1.0f - 2.0f * xi2;
-    const float radialSquared = Math::max(0.0f, 1.0f - z * z);
-    const float radius = Math::sqrt(radialSquared);
+    const double z = 1.0 - 2.0 * xi2;
+    const double radialSquared = Math::max(0.0, 1.0 - z * z);
+    const double radius = Math::sqrt(radialSquared);
 
     if ( radianceValue != NULL ) {
         *radianceValue = color;
@@ -47,13 +47,13 @@ ConstantColorBackground::sample(
         *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
     }
 
-    Vector3Df direction;
-    direction = Vector3Df(radius * ((float)(Math::cos(phi))), radius * ((float)(Math::sin(phi))), z);
+    Vector3Dd direction;
+    direction = Vector3Dd(radius * ((double)(Math::cos(phi))), radius * ((double)(Math::sin(phi))), z);
     return direction;
 }
 
 ColorRgbMutable
-ConstantColorBackground::power(Vector3Df * /*position*/) const {
+ConstantColorBackground::power(Vector3Dd * /*position*/) const {
     ColorRgbMutable emittedPower;
     emittedPower.scaledCopy(ConstantColorBackground::FOUR_PI, color);
     return emittedPower;

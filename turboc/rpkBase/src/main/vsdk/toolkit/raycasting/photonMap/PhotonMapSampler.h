@@ -22,7 +22,7 @@ class PhotonMapSampler: public BsdfSampler{ private:
     bsdfGeometricIOR(const PhongBidirScattDistFunc *bsdf);
 
     static bool
-    chooseFresnelDirection( SimpleRaytracingPathNode *thisNode, char flags, double x2, Vector3Df *dir, double *pdfDir, ColorRgb *scatteringColor, bool *doCosInverse);
+    chooseFresnelDirection( SimpleRaytracingPathNode *thisNode, char flags, double x2, Vector3Dd *dir, double *pdfDir, ColorRgb *scatteringColor, bool *doCosInverse);
 
     bool
     fresnelSample( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneSceneQueryWorkspace, Background *sceneBackground, const SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x2, char flags);
@@ -34,7 +34,7 @@ class PhotonMapSampler: public BsdfSampler{ private:
     // scattered power as probabilities.
     // Returns true a component was chosen, false if absorbed
     static bool
-    chooseComponent( char flags1, char flags2, const PhongBidirScattDistFunc *bsdf, RayHit *hit, bool doRR, double *x, float *probabilityDensityFunction, bool *chose1);
+    chooseComponent( char flags1, char flags2, const PhongBidirScattDistFunc *bsdf, RpkRayHit *hit, bool doRR, double *x, double *probabilityDensityFunction, bool *chose1);
 
   public:
     PhotonMapSampler();

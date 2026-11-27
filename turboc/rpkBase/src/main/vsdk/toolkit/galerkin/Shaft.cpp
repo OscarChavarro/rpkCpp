@@ -45,7 +45,7 @@ Shaft::setShaftOmit(Patch *patch) {
 Marks a geometry as one not to be opened during shaft culling
 */
 void
-Shaft::setShaftDontOpen(Geometry *geometry) {
+Shaft::setShaftDontOpen(RpkGeometry *geometry) {
     geometryIdsToAvoidOpening[numberOfGeometriesToAvoidOpen++] = geometry->id;
 }
 
@@ -53,7 +53,7 @@ Shaft::setShaftDontOpen(Geometry *geometry) {
 Constructs a shaft for two given bounding boxes
 */
 void
-Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
+Shaft::constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAxisAlignedBoundingBox *boundingBox2) {
     numberOfGeometriesToOmit = 0;
     numberOfGeometriesToAvoidOpen = 0;
     cut = false;
@@ -96,13 +96,13 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
                 continue;
             }
 
-            float u1 = referenceItem1->valueAt(i);
-            float v1 = referenceItem1->valueAt(j);
-            float u2 = referenceItem2->valueAt(i);
-            float v2 = referenceItem2->valueAt(j);
+            double u1 = referenceItem1->valueAt(i);
+            double v1 = referenceItem1->valueAt(j);
+            double u2 = referenceItem2->valueAt(i);
+            double v2 = referenceItem2->valueAt(j);
 
-            float du;
-            float dv;
+            double du;
+            double dv;
 
             if ( (i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X) ) {
                 du = v2 - v1;
@@ -120,9 +120,9 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             localPlane.n[3 - a - b] = 0.0;
             localPlane.d = -(du * u1 + dv * v1);
 
-            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0f ? MIN_X : MAX_X;
-            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0f ? MIN_Y : MAX_Y;
-            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0f ? MIN_Z : MAX_Z;
+            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0 ? MIN_X : MAX_X;
+            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0 ? MIN_Y : MAX_Y;
+            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0 ? MIN_Z : MAX_Z;
 
             localPlaneIndex++;
         }
@@ -138,13 +138,13 @@ if the polygon is cut by the plane and COPLANAR if the polygon lay on the
 plane within tolerance distance d*VSDK::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Df *normal, const double d) {
+Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Dd *normal, const double d) {
     bool out = false; // out = there are positions on the positive side of the plane
     bool in = false; // in  = there are positions on the negative side of the plane
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON_FLOAT) * polygon->vertex[i].manhattanLength();
+        double tolerance = Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON) * polygon->vertex[i].manhattanLength();
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -166,7 +166,7 @@ so, and false if not
 bool
 Shaft::verifyPolygonWithRespectToPlane(
     const Polygon *polygon,
-    const Vector3Df *normal,
+    const Vector3Dd *normal,
     const double d,
     const ShaftPlanePosition side)
 {
@@ -175,7 +175,7 @@ Shaft::verifyPolygonWithRespectToPlane(
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON_FLOAT) * polygon->vertex[i].manhattanLength();
+        double tolerance = Math::abs(d) * VSDK::EPSILON + (Numeric::EPSILON) * polygon->vertex[i].manhattanLength();
         out |= e > tolerance;
         if ( out && (side == INSIDE) ) {
             return false;
@@ -206,8 +206,8 @@ on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
 if the point is on the plane within tolerance distance d*VSDK::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPointWithRespectToPlane(const Vector3Df *p, const Vector3Df *normal, double d) {
-    double tolerance = Math::abs(d * VSDK::EPSILON) + (Numeric::EPSILON_FLOAT) * p->manhattanLength();
+Shaft::testPointWithRespectToPlane(const Vector3Dd *p, const Vector3Dd *normal, double d) {
+    double tolerance = Math::abs(d * VSDK::EPSILON) + (Numeric::EPSILON) * p->manhattanLength();
     double e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return INSIDE;
@@ -273,7 +273,7 @@ Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
 Fills in normal and plane constant, as well as the coord_offset parameters
 */
 void
-Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
+Shaft::fillInPlane(ShaftPlane *plane, double nx, double ny, double nz, double d) {
     plane->n[0] = nx;
     plane->n[1] = ny;
     plane->n[2] = nz;
@@ -289,7 +289,7 @@ Construct the planes determining the shaft that use edges of p1 and vertices of 
 */
 void
 Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *polygon2) {
-    Vector3Df normal;
+    Vector3Dd normal;
     int localPlaneIndex = numberOfPlanesInSet;
     int maxPlanesPerEdge;
 
@@ -331,23 +331,23 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
 
     for ( int i = 0; i < polygon1->numberOfVertices; i++ ) {
         // For each edge of p1
-        const Vector3Df *current = &polygon1->vertex[i];
-        const Vector3Df *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        const Vector3Dd *current = &polygon1->vertex[i];
+        const Vector3Dd *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
         int planesFoundForEdge = 0;
 
         for ( int j = 0; j < polygon2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
             // For each vertex of p2
-            const Vector3Df *other = &polygon2->vertex[j];
+            const Vector3Dd *other = &polygon2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
             normal = (*other).subtract(*next).crossProduct((*current).subtract(*next));
-            float localNorm = normal.length();
+            double localNorm = normal.length();
             if ( localNorm < VSDK::EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            normal = normal.multiplyByInverse(localNorm, Numeric::EPSILON_FLOAT);
-            float d = -normal.dotProduct(*current);
+            normal = normal.multiplyByInverse(localNorm, Numeric::EPSILON);
+            double d = -normal.dotProduct(*current);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
@@ -414,13 +414,13 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
         center1 = center1.add(polygon1->vertex[i]);
     }
-    center1 = center1.multiplyByInverse(((float)(polygon1->numberOfVertices)), Numeric::EPSILON_FLOAT);
+    center1 = center1.multiplyByInverse(((double)(polygon1->numberOfVertices)), Numeric::EPSILON);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
         center2 = center2.add(polygon2->vertex[i]);
     }
-    center2 = center2.multiplyByInverse(((float)(polygon2->numberOfVertices)), Numeric::EPSILON_FLOAT);
+    center2 = center2.multiplyByInverse(((double)(polygon2->numberOfVertices)), Numeric::EPSILON);
 
     // Determine the shaft planes
     numberOfPlanesInSet = 0;
@@ -433,7 +433,7 @@ Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
 is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 */
 ShaftPlanePosition
-Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
+Shaft::boundingBoxTest(const RpkAxisAlignedBoundingBox *parameterBoundingBox) const {
     // Test against extent box
     if ( parameterBoundingBox->disjointToOtherBoundingBox(&extentBoundingBox) ) {
         return OUTSIDE;
@@ -487,9 +487,9 @@ Shaft::shaftPatchTest(Patch *patch) {
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
-    RpkRay ray;
-    float dist;
-    RayHit hitStore;
+    Ray ray;
+    double dist;
+    RpkRayHit hitStore;
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
     int someOut = false;
@@ -497,19 +497,19 @@ Shaft::shaftPatchTest(Patch *patch) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = (Numeric::EPSILON_FLOAT) * patch->vertex[j]->point->manhattanLength(); // Vertex tolerance
+        pTol[j] = (Numeric::EPSILON) * patch->vertex[j]->point->manhattanLength(); // RpkVertex tolerance
     }
 
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         // Test patch against i-th plane of the shaft
         const ShaftPlane &localPlane = planeSet[i];
-        Vector3Df planeNormal;
+        Vector3Dd planeNormal;
         double e[MAXIMUM_VERTICES_PER_PATCH];
         int side[MAXIMUM_VERTICES_PER_PATCH];
         int in = false;
         int out = false;
 
-        planeNormal = Vector3Df(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
+        planeNormal = Vector3Dd(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
 
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane.d;
@@ -610,11 +610,11 @@ Shaft::shaftPatchTest(Patch *patch) {
     // If the line segment connecting the midpoints of the polygons defining
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
-    ray.position = center1;
-    ray.direction = center2.subtract(center1);
-    dist = 1.0f - Numeric::EPSILON_FLOAT;
+    ray.setOrigin(center1);
+    ray.setDirection(center2.subtract(center1));
+    dist = 1.0 - Numeric::EPSILON;
     const RayExclusionSet noExclusions;
-    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, FRONT | BACK, &hitStore, noExclusions) ) {
+    if ( patch->intersect(&ray, Numeric::EPSILON, &dist, FRONT | BACK, &hitStore, noExclusions) ) {
         cut = true;
         return OVERLAP;
     }
@@ -639,7 +639,7 @@ Shaft::patchIsOnOmitSet(const unsigned id) const {
 Returns true if the geometry is not to be opened during shaft culling
 */
 bool
-Shaft::closedGeometry(const Geometry *geometry) const {
+Shaft::closedGeometry(const RpkGeometry *geometry) const {
     for ( int i = 0; i < numberOfGeometriesToAvoidOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( geometryIdsToAvoidOpening[i] == geometry->id ) {
             return true;
@@ -684,10 +684,10 @@ Adds the geometry to the candidateList, possibly duplicating if it
 was created during previous shaft culling
 */
 void
-Shaft::keep(Geometry *geometry, ArrayList<Geometry *> *candidateList) {
+Shaft::keep(RpkGeometry *geometry, ArrayList<RpkGeometry *> *candidateList) {
     if ( geometry->shaftCullGeometry && geometry->className == PATCH_SET ) {
         const PatchSet *oldPatchSet = ((const PatchSet *)(geometry));
-        Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
+        RpkGeometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
         newGeometry->shaftCullGeometry = true;
         newGeometry->isDuplicate = true;
         candidateList->add(newGeometry);
@@ -700,13 +700,13 @@ Shaft::keep(Geometry *geometry, ArrayList<Geometry *> *candidateList) {
 Breaks the geometry into it's components and does shaft culling on the components
 */
 void
-Shaft::shaftCullOpen(Geometry *geometry, ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
+Shaft::shaftCullOpen(RpkGeometry *geometry, ArrayList<RpkGeometry *> *candidateList, ShaftCullStrategy strategy) {
     if ( geometry->isCompound() ) {
         const Compound *compound = ((const Compound *)(geometry));
         doCulling(compound->children, candidateList, strategy);
     } else {
         // TODO: Check if this logic branch evers gets called
-        const ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
+        const ArrayList<Patch *> *geometryPatchesList = RpkGeometry::patchListReference(geometry);
         ArrayList<Patch *> culledPatches;
         cullPatches(geometryPatchesList, &culledPatches);
 
@@ -726,13 +726,13 @@ the current shaft culling strategy
 */
 void
 Shaft::cullGeometry(
-    Geometry *geometry,
-    ArrayList<Geometry *> *candidateList,
+    RpkGeometry *geometry,
+    ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
     if ( geometry->className == PATCH_SET ) {
-        // TODO: Review this, Patch is not a Geometry! Probably here we are getting non-sense int numbers,
-        // not related to any Geometry/PatchSet neither Patch id.
+        // TODO: Review this, Patch is not a RpkGeometry! Probably here we are getting non-sense int numbers,
+        // not related to any RpkGeometry/PatchSet neither Patch id.
         const Patch* patch = ((Patch *)(geometry));
         const unsigned patchId = patch->id;
 
@@ -780,8 +780,8 @@ doCulling - for other kinds of geoms, only a pointer is copied
 */
 void
 Shaft::doCulling(
-    const ArrayList<Geometry *> *world,
-    ArrayList<Geometry *> *candidateList,
+    const ArrayList<RpkGeometry *> *world,
+    ArrayList<RpkGeometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
     for ( int i = 0; world != NULL && i < world->size() && !cut; i++ ) {
@@ -793,15 +793,15 @@ Shaft::doCulling(
 Frees the memory occupied by a candidate list produced by doCulling
 */
 void
-Shaft::freeCandidateList(ArrayList<Geometry *> *candidateList) {
+Shaft::freeCandidateList(ArrayList<RpkGeometry *> *candidateList) {
     // Only destroy geometries that were generated for shaft culling
     for ( int i = candidateList != NULL ? ((int)candidateList->size()) - 1 : -1; i >= 0; i-- ) {
-        Geometry *geometry = candidateList->get(i);
+        RpkGeometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {
             if ( geometry->className == PATCH_SET ) {
-                Geometry::destroy(geometry);
+                RpkGeometry::destroy(geometry);
             } else {
-                Geometry::destroy(geometry);
+                RpkGeometry::destroy(geometry);
             }
         }
     }

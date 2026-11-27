@@ -24,17 +24,17 @@ Sampler::sampleTransfer(
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    Vector3Df *dir,
+    Vector3Dd *dir,
     double pdfDir)
 {
-    RpkRay ray;
-    ray.position = thisNode->m_hit.getPoint();
-    ray.direction = *dir;
+    Ray ray;
+    ray.setOrigin(thisNode->m_hit.getPoint());
+    ray.setDirection(*dir);
 
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = STOPS;
-    const RayHit *hit = RayTools::findRayIntersection(
+    const RpkRayHit *hit = RayTools::findRayIntersection(
         sceneQuery,
         sceneSceneQueryWorkspace,
         &ray,
@@ -66,12 +66,12 @@ Sampler::sampleTransfer(
 
     if ( hit->getFlags() & BACK ) {
         // Back hit, invert normal (only happens when newNode->m_inBsdf != NULL
-        Vector3Df normal;
+        Vector3Dd normal;
         normal = (newNode->m_hit.getNormal()).multiply(-1);
         newNode->m_hit.setNormal(&normal);
     }
 
-    newNode->m_inDirT = ray.direction;
+    newNode->m_inDirT = ray.getDirection();
     newNode->m_inDirF = newNode->m_inDirT.multiply(-1);
 
     // Check for shading normal vs. geometric normal errors
@@ -82,7 +82,7 @@ Sampler::sampleTransfer(
 
     // Compute geometry factor cos(a)*cos(b)/r^2
     double dist2;
-    Vector3Df tmpVec;
+    Vector3Dd tmpVec;
 
     double cosA = Math::abs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
     double cosB = Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
@@ -106,7 +106,7 @@ void
 SurfaceSampler::DetermineRayType(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    const Vector3Df *dir)
+    const Vector3Dd *dir)
 {
     double cosThisPatch = dir->dotProduct(thisNode->m_normal);
 

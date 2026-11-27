@@ -16,7 +16,6 @@ endif()
 option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
 option(MGF_ENABLED "Enable MGF reader modules" ON)
 option(FORCE_32BIT_UNIX_APPLE "Build 32-bit binaries on Linux/macOS (-m32)" ON)
-option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
 
 if(UNIX AND NOT APPLE)
     add_compile_options(-Wall -Wextra -pedantic)
@@ -81,13 +80,3 @@ if(MGF_ENABLED)
     target_compile_definitions(rpkBase-turboc PUBLIC MGF_ENABLED)
 endif()
 
-# The ray corpus is written sequentially, with 64-bit file offsets so that the
-# 32-bit build writes files beyond 2 GB
-set_source_files_properties(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/vsdk/toolkit/scene/VisibilityQueryRecorder.cpp
-    PROPERTIES COMPILE_DEFINITIONS _FILE_OFFSET_BITS=64
-)
-
-if(WITH_RAY_CAPTURE)
-    target_compile_definitions(rpkBase-turboc PUBLIC RPK_RAY_CAPTURE)
-endif()

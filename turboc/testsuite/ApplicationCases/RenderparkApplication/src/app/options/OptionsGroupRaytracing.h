@@ -1,5 +1,5 @@
-#ifndef __RAYTRACING_OPTIONS_GROUP__
-#define __RAYTRACING_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_RAYTRACING__
+#define __OPTIONS_GROUP_RAYTRACING__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

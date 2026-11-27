@@ -6,8 +6,8 @@
 Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
-#ifndef __ELEMENT_HIERARCHY__
-#define __ELEMENT_HIERARCHY__
+#ifndef __HIERARCHY__
+#define __HIERARCHY__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
@@ -22,12 +22,12 @@ class Hierarchy{ public:
     static Link *hierarchyRefine( Link *link, StochasticRadiosityElement *rcvTop, double *ur, double *vr, StochasticRadiosityElement *srcTop, double *us, double *vs, ORACLE evaluateLink, const RenderOptions *renderOptions);
 
     static void elementHierarchyDefaults();
-    static void elementHierarchyInit(Geometry *clusteredWorldGeometry);
+    static void elementHierarchyInit(RpkGeometry *clusteredWorldGeometry);
     static void elementHierarchyTerminate(const ArrayList<Patch *> *scenePatches);
 
   private:
-    #define DEFAULT_EH_EPSILON ((float)5e-4)
-    #define DEFAULT_EH_MINIMUM_AREA ((float)1e-6)
+    #define DEFAULT_EH_EPSILON ((double)5e-4)
+    #define DEFAULT_EH_MINIMUM_AREA ((double)1e-6)
     #define DEFAULT_EH_HIERARCHICAL_MESHING true
     #define DEFAULT_EH_T_VERTEX_ELIMINATION true
     #define DEFAULT_EH_CLUSTERING ORIENTED_CLUSTERING
@@ -36,7 +36,7 @@ class Hierarchy{ public:
     static Link *subdivideReceiverCallBack( Link *link, StochasticRadiosityElement *rcvtop, double *ur, double *vr, StochasticRadiosityElement *srctop, double *us, double *vs, const RenderOptions *renderOptions);
     static Link *subdivideSourceCallBack( Link *link, StochasticRadiosityElement *rcvtop, double *ur, double *vr, StochasticRadiosityElement *srctop, double *us, double *vs, const RenderOptions *renderOptions);
     static bool selfLink(const Link *link);
-    static float formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
+    static double formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
     static bool lowPowerLink(const Link *link, const Statistics *statistics);
     static REFINE_ACTION subDivideLargest(const Link *link);
 };

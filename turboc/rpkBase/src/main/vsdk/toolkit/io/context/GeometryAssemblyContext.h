@@ -2,14 +2,14 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __GEOMETRY_BUILD_STATE__
-#define __GEOMETRY_BUILD_STATE__
+#ifndef __GEOMETRY_ASSEMBLY_CONTEXT__
+#define __GEOMETRY_ASSEMBLY_CONTEXT__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class GeometryAssemblyContext {
   public:
@@ -19,22 +19,21 @@ class GeometryAssemblyContext {
 
     char *currentVertexName;
     int geometryStackHeadIndex;
-    ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+    ArrayList<RpkGeometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     // Those lists are transferred to MeshSurface objects and should not be deleted on transfer.
-    ArrayList<Vector3Df *> *currentPointList;
-    ArrayList<Vector3Df *> *currentNormalList;
-    ArrayList<Vertex *> *currentVertexList;
+    ArrayList<Vector3Dd *> *currentPointList;
+    ArrayList<Vector3Dd *> *currentNormalList;
+    ArrayList<RpkVertex *> *currentVertexList;
     ArrayList<Patch *> *currentFaceList;
-    ArrayList<Geometry *> *currentGeometryList;
+    ArrayList<RpkGeometry *> *currentGeometryList;
     char *currentObjectName;
     bool inSurface;
     bool inComplex;
-    bool warpConeEnds;
-    ArrayList<Geometry *> *allGeometries;
+    ArrayList<RpkGeometry *> *allGeometries;
 
     // Return model geometry output
-    ArrayList<Geometry *> *geometries;
+    ArrayList<RpkGeometry *> *geometries;
 
     GeometryAssemblyContext();
     ~GeometryAssemblyContext();

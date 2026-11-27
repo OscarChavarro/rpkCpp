@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/RevisedTumblinRushmeierToneMap.h"
 
 /**
@@ -22,16 +21,16 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 }
 
 void
-RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float lwa = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
+RevisedTumblinRushmeierToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
+    double lwa = toneMapOptions.realWorldAdaptionLuminance;
+    double maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    double maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
     ldaRTR = maximumDisplayLuminance / Math::sqrt(maximumDisplayContrast);
 
     // Equation [TUMB1999b](17): exponent gw/gd
     g = stevensGamma(lwa) / stevensGamma(ldaRTR);
     // Equation [TUMB1999b](20): gwd = gw / (1.855 + 0.4 * log10(Lda))
-    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * Math::log10(ldaRTR));
+    double gwd = stevensGamma(lwa) / (1.855 + 0.4 * Math::log10(ldaRTR));
     // Equation [TUMB1999b](19): m(Lwa) * Lda
     comp = Math::pow(Math::sqrt(maximumDisplayContrast), gwd - 1) * ldaRTR;
     display = comp / maximumDisplayLuminance;
@@ -39,8 +38,8 @@ RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    float rwl = Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-    float scale;
+    double rwl = getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+    double scale;
 
     if ( rwl > 0.0 ) {
         // Equation [TUMB1999b](17) in multiplicative scale form
@@ -55,31 +54,31 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = ((float)(M_PI)) * Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-    float eff = Cie::getLuminousEfficacy();
+    double rwl = ((double)(M_PI)) * getColorSpace().spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+    double eff = getColorSpace().getLuminousEfficacy();
     radiance = ColorRgb(
-        radiance.getR() * eff * ((float)(M_PI)),
-        radiance.getG() * eff * ((float)(M_PI)),
-        radiance.getB() * eff * ((float)(M_PI)));
+        radiance.getR() * eff * ((double)(M_PI)),
+        radiance.getG() * eff * ((double)(M_PI)),
+        radiance.getB() * eff * ((double)(M_PI)));
 
-    float scale;
+    double scale;
     if ( rwl > 0.0 ) {
         // Equation [TUMB1999b](17) in multiplicative scale form
         scale = display * Math::pow(rwl / lwaRTR, g) / rwl;
     } else {
-        scale = 0.0f;
+        scale = 0.0;
     }
 
     radiance = ColorRgb(radiance.getR() * scale, radiance.getG() * scale, radiance.getB() * scale);
     return radiance;
 }
 
-float
-RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
+double
+RevisedTumblinRushmeierToneMap::stevensGamma(double lum) {
     if ( lum > 100.0 ) {
-        return 2.655f;
+        return 2.655;
     } else {
         // Equation [TUMB1999b](18): g(L_a)
-        return 1.855f + 0.4f * Math::log10(lum + 2.3e-5f);
+        return 1.855 + 0.4 * Math::log10(lum + 2.3e-5);
     }
 }

@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -25,7 +25,7 @@ PhongBidirTransDistFunc::isSpecular() const {
 }
 
 PhongBidirTransDistFunc::PhongBidirTransDistFunc(
-    const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
+    const ColorRgb *inKd, const ColorRgb *inKs, const double inNs, const double inNr, const double inNi):
     refractionIndex()
 {
     Kd = *inKd;
@@ -44,9 +44,9 @@ Returns the transmittance of the BTDF
 */
 ColorRgb
 PhongBidirTransDistFunc::transmittance(char flags) const {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( flags & DIFFUSE_COMPONENT ) {
         r += Kd.getR();
@@ -69,7 +69,7 @@ PhongBidirTransDistFunc::transmittance(char flags) const {
     }
 
     ColorRgb result(r, g, b);
-    if ( !Float::isFinite(ColorRgbMutable(result).average()) ) {
+    if ( !Double::isFinite(ColorRgbMutable(result).average()) ) {
         Logger::reportMessage("PhongBidirectionalTransmittanceDistributionFunction", Logger::FATAL_ERROR, "transmittance", "Oops - result is not finite!");
     }
 
@@ -83,12 +83,12 @@ ColorRgb
 PhongBidirTransDistFunc::evaluate(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    const Vector3Df *in,
-    const Vector3Df *out,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
+    const Vector3Dd *normal,
     char flags) const
 {
-    Vector3Df inRev;
+    Vector3Dd inRev;
     inRev = (*in).multiply(-1.0);
 
     // Specular-like refraction can turn into reflection.
@@ -96,9 +96,9 @@ PhongBidirTransDistFunc::evaluate(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {
         // Diffuse part
@@ -124,12 +124,12 @@ PhongBidirTransDistFunc::evaluate(
     if ( (flags & nonDiffuseFlag) && (avgKs > 0) ) {
         // Specular part
         bool totalIR;
-        Vector3Df idealRefracted = Xxdf::idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
-        float localDotProduct = idealRefracted.dotProduct(*out);
+        Vector3Dd idealRefracted = Xxdf::idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
+        double localDotProduct = idealRefracted.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
-            float tmpFloat = Math::pow(localDotProduct, Ns); // cos(a) ^ n
-            tmpFloat *= (Ns + 2.0f) / (2.0f * ((float)(M_PI))); // Ks -> ks
+            double tmpFloat = Math::pow(localDotProduct, Ns); // cos(a) ^ n
+            tmpFloat *= (Ns + 2.0) / (2.0 * ((double)(M_PI))); // Ks -> ks
             r += tmpFloat * Ks.getR();
             g += tmpFloat * Ks.getG();
             b += tmpFloat * Ks.getB();
@@ -139,22 +139,22 @@ PhongBidirTransDistFunc::evaluate(
     return ColorRgb(r, g, b);
 }
 
-Vector3Df
+Vector3Dd
 PhongBidirTransDistFunc::sample(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    const Vector3Df *in,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *normal,
     int doRussianRoulette,
     char flags,
     double x1,
     double x2,
     double *probabilityDensityFunction) const
 {
-    Vector3Df newDir(0.0, 0.0, 0.0);
+    Vector3Dd newDir(0.0, 0.0, 0.0);
     bool totalIR;
-    Vector3Df idealDir;
-    Vector3Df invNormal;
+    Vector3Dd idealDir;
+    Vector3Dd invNormal;
     CoordinateSystem coord;
     double cosTheta;
     double localAverageKd;
@@ -162,9 +162,9 @@ PhongBidirTransDistFunc::sample(
     double scatteredPower;
     double diffPdf;
     double nonDiffPdf;
-    float tmpFloat;
+    double tmpFloat;
     char nonDiffuseFlag;
-    Vector3Df inRev;
+    Vector3Dd inRev;
     inRev = (*in).multiply(-1.0);
 
     *probabilityDensityFunction = 0;
@@ -255,21 +255,21 @@ void
 PhongBidirTransDistFunc::evalProbDensFunc(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    const Vector3Df *in,
-    const Vector3Df *out,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
+    const Vector3Dd *normal,
     char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
 {
-    Vector3Df inRev;
+    Vector3Dd inRev;
     inRev = (*in).multiply(-1.0);
 
     *probabilityDensityFunction = 0;
     *probabilityDensityFunctionRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
-    Vector3Df goodNormal;
+    Vector3Dd goodNormal;
     double cosIn = in->dotProduct(*normal);
 
     if ( cosIn >= 0 ) {
@@ -320,7 +320,7 @@ PhongBidirTransDistFunc::evalProbDensFunc(
     double nonDiffPdf = 0.0;
     if ( localAverageKs > 0 ) {
         double cosAlpha;
-        Vector3Df idealDir;
+        Vector3Dd idealDir;
         bool totalIR;
 
         if ( cosIn >= 0 ) {

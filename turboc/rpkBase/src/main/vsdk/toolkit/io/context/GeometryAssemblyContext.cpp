@@ -14,8 +14,7 @@ GeometryAssemblyContext::GeometryAssemblyContext():
     currentObjectName(NULL),
     inSurface(false),
     inComplex(false),
-    warpConeEnds(false),
-    allGeometries(new ArrayList<Geometry *>()),
+    allGeometries(new ArrayList<RpkGeometry *>()),
     geometries(NULL)
 {
 }

@@ -27,7 +27,7 @@ class Sampler {
         Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        Vector3Df *dir,
+        Vector3Dd *dir,
         double pdfDir);
 
 public:

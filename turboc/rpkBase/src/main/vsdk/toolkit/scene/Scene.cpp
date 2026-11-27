@@ -21,12 +21,11 @@ Scene::Scene():
     geometryList(),
     clusteredGeometryList(),
     clusteredRootGeometry(),
-    visibilityQueryRecorder(),
     patchList(),
     lightSourcePatchList()
 {
     camera = new Camera();
-    clusteredGeometryList = new ArrayList<Geometry *>();
+    clusteredGeometryList = new ArrayList<RpkGeometry *>();
 }
 
 Scene::~Scene() {
@@ -48,10 +47,6 @@ Scene::~Scene() {
     }
     delete sceneQueryWorkspace;
     sceneQueryWorkspace = NULL;
-    if ( visibilityQueryRecorder != NULL ) {
-        delete visibilityQueryRecorder;
-        visibilityQueryRecorder = NULL;
-    }
     delete sceneQuery;
     sceneQuery = NULL;
     delete faceBounds;
@@ -95,7 +90,7 @@ Scene::printCompound(const Compound *compound) {
     if ( compound->children != NULL ) {
         System::out.printf("    . Outer children: %ld\n", compound->children->size());
         for ( int i = 0; i < compound->children->size(); i++ ) {
-            const Geometry *child = compound->children->get(i);
+            const RpkGeometry *child = compound->children->get(i);
             System::out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == SURFACE_MESH ) {
                 printSurfaceMesh(((const MeshSurface *)(child)), 6);
@@ -129,7 +124,7 @@ Scene::printGeometries() const {
     System::out.printf("= geometryList ================================================================\n");
     System::out.printf("Geometries on list: %ld\n", geometryList->size());
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        RpkGeometry *geometry = geometryList->get(i);
         System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, geometryList->size(), printGeometryType(geometry->className));
         System::out.printf("    . Id: %d\n", geometry->id);
         System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
@@ -150,7 +145,7 @@ Scene::printClusteredGeometries() const {
     System::out.printf("= clusteredGeometryList ================================================================\n");
     System::out.printf("Geometry clusters on list: %ld\n", clusteredGeometryList->size());
     for ( int i = 0; i < clusteredGeometryList->size(); i++ ) {
-        Geometry *geometry = clusteredGeometryList->get(i);
+        RpkGeometry *geometry = clusteredGeometryList->get(i);
         System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, clusteredGeometryList->size(), printGeometryType(geometry->className));
         System::out.printf("    . Id: %d\n", geometry->id);
         System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
@@ -182,7 +177,7 @@ Scene::printPatches() const {
 }
 
 void
-Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount) {
+Scene::printClusterHierarchy(const RpkGeometry *node, int level, int *elementCount) {
     if ( level == 0 ) {
         System::out.printf("= clusteredRootGeometry ================================================================\n");
     }
@@ -250,7 +245,7 @@ Scene::buildSceneQuery() {
     delete sceneQueryWorkspace;
     delete sceneQuery;
     sceneQuery = new SceneQuery(this, accelerationMethod);
-    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery, visibilityQueryRecorder);
+    sceneQueryWorkspace = new SceneQueryWorkspace(*sceneQuery);
 }
 
 void
@@ -265,7 +260,7 @@ Scene::print() const {
 }
 
 void
-Scene::collectFaces(Geometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
+Scene::collectFaces(RpkGeometry *geometry, Patch **table, const int capacity, int *count, int *conflicts) {
     if ( geometry == NULL ) {
         return;
     }
@@ -273,7 +268,7 @@ Scene::collectFaces(Geometry *geometry, Patch **table, const int capacity, int *
     // exactly the interval [first, *count - 1] once its subtree is visited
     const int first = *count;
     if ( geometry->className == COMPOUND ) {
-        const ArrayList<Geometry *> *children = ((const Compound *)(geometry))->children;
+        const ArrayList<RpkGeometry *> *children = ((const Compound *)(geometry))->children;
         if ( children != NULL ) {
             for ( int i = 0; i < children->size(); i++ ) {
                 collectFaces(children->get(i), table, capacity, count, conflicts);
@@ -282,7 +277,7 @@ Scene::collectFaces(Geometry *geometry, Patch **table, const int capacity, int *
         geometry->setFaceIndexRange(first, *count - 1);
         return;
     }
-    const ArrayList<Patch *> *patches = Geometry::patchListReference(geometry);
+    const ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
     for ( int i = 0; patches != NULL && i < patches->size(); i++ ) {
         Patch *patch = patches->get(i);
         if ( patch->getFaceIndex() >= 0 || *count >= capacity ) {

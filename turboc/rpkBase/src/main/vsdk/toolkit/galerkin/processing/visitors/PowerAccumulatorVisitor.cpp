@@ -4,7 +4,7 @@
 
 PowerAccumulatorVisitor::PowerAccumulatorVisitor(
     ColorRgbMutable inSourceRadiance,
-    Vector3Df inSamplePoint)
+    Vector3Dd inSamplePoint)
 {
     sourceRadiance = inSourceRadiance;
     samplePoint = inSamplePoint;
@@ -30,19 +30,19 @@ PowerAccumulatorVisitor::visit(
     GalerkinElement *galerkinElement,
     const GalerkinState *galerkinState)
 {
-    float srcOs;
-    float dist;
-    Vector3Df dir;
+    double srcOs;
+    double dist;
+    Vector3Dd dir;
     ColorRgbMutable rad;
 
     dir = samplePoint.subtract(galerkinElement->patch->midPoint);
     dist = dir.length();
     if ( dist < VSDK::EPSILON ) {
-        srcOs = 1.0f;
+        srcOs = 1.0;
     } else {
         srcOs = dir.dotProduct(galerkinElement->patch->normal) / dist;
     }
-    if ( srcOs <= 0.0f ) {
+    if ( srcOs <= 0.0 ) {
         // Receiver point is behind the src
         return;
     }

@@ -89,9 +89,9 @@ by the chain. Eye and light node ARE INCLUDED
 ColorRgb
 FlagChain::compute(BiPath *path) const{ ColorRgb result;
     ColorRgb tmpCol;
-    float r = 1.0f;
-    float g = 1.0f;
-    float b = 1.0f;
+    double r = 1.0;
+    double g = 1.0;
+    double b = 1.0;
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -181,9 +181,9 @@ FlagChainList::addDisjoint(const FlagChain &chain){ if ( count > 0){ if ( chain.
 ColorRgb
 FlagChainList::compute(BiPath *path){ ColorRgb result;
     ColorRgb tmpCol;
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     FlagChainIterator iter(*this);
     const FlagChain *chain;
@@ -248,7 +248,7 @@ ColorRgb
 ContribHandler::compute(BiPath *path){ ColorRgb result;
     int length;
 
-    result = ColorRgb(0.0f, 0.0f, 0.0f);
+    result = ColorRgb(0.0, 0.0, 0.0);
 
     length = path->m_eyeSize + path->m_lightSize;
 

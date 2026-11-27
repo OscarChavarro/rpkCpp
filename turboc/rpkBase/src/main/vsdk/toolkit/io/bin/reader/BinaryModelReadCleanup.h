@@ -1,8 +1,8 @@
-#ifndef __BINARY_MODEL_READER_CLEANUP__
-#define __BINARY_MODEL_READER_CLEANUP__
+#ifndef __BINARY_MODEL_READ_CLEANUP__
+#define __BINARY_MODEL_READ_CLEANUP__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelGeometryRecordData.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelVertexRecordData.h"
@@ -11,19 +11,19 @@
 #include "vsdk/toolkit/io/context/ReaderContext.h"
 #include "vsdk/toolkit/io/context/TransformSequenceContext.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class BinaryModelReadCleanup {
   public:
     static void cleanupPartialModel(
-        ArrayList<Vector3Df *> &vectors,
-        ArrayList<Vertex *> &vertices,
+        ArrayList<Vector3Dd *> &vectors,
+        ArrayList<RpkVertex *> &vertices,
         ArrayList<Patch *> &patches,
-        ArrayList<Material *> &materials,
-        ArrayList<Geometry *> &geometries,
+        ArrayList<RpkMaterial *> &materials,
+        ArrayList<RpkGeometry *> &geometries,
         ArrayList<ColorContext *> &colorContexts,
         ArrayList<ReaderContext *> &readerContexts,
         ArrayList<TransformSequenceContext *> &transformArrays,

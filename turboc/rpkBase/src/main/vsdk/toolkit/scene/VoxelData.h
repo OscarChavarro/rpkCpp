@@ -2,7 +2,7 @@
 #define __VOXEL_DATA__
 
 #include "vsdk/toolkit/scene/VoxelDataFlags.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 class VoxelGrid;
@@ -17,7 +17,7 @@ Shared, read-only after the grid is built.
 class VoxelData {
   private:
     Patch *patch;
-    Geometry *geometry;
+    RpkGeometry *geometry;
     VoxelGrid *voxelGrid;
     unsigned flags; // Patch, geometry or grid
     int index;
@@ -25,11 +25,11 @@ class VoxelData {
   public:
     VoxelData(VoxelGrid *data, unsigned flags, int inIndex);
     VoxelData(Patch *data, unsigned flags, int inIndex);
-    VoxelData(Geometry *data, unsigned flags, int inIndex);
+    VoxelData(RpkGeometry *data, unsigned flags, int inIndex);
     virtual ~VoxelData();
 
     inline Patch *getPatch() const;
-    inline Geometry *getGeometry() const;
+    inline RpkGeometry *getGeometry() const;
     inline VoxelGrid *getVoxelGrid() const;
     inline int getIndex() const;
     inline bool isPatch() const;
@@ -42,7 +42,7 @@ VoxelData::getPatch() const {
     return patch;
 }
 
-inline Geometry *
+inline RpkGeometry *
 VoxelData::getGeometry() const {
     return geometry;
 }

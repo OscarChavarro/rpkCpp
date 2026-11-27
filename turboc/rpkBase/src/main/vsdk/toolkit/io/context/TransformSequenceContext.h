@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __TRANSFORM_ARRAY__
-#define __TRANSFORM_ARRAY__
+#ifndef __TRANSFORM_SEQUENCE_CONTEXT__
+#define __TRANSFORM_SEQUENCE_CONTEXT__
 
 #include "vsdk/toolkit/io/context/FilePositionContext.h"
 #include "vsdk/toolkit/io/context/TransformArrayContext.h"

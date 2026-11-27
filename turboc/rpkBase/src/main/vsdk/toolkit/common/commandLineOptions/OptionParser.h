@@ -1,5 +1,5 @@
-#ifndef OPTION_CORE_PARSER__
-#define OPTION_CORE_PARSER__
+#ifndef __OPTION_PARSER__
+#define __OPTION_PARSER__
 
 #include "vsdk/toolkit/common/commandLineOptions/OptionGroup.h"
 

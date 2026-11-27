@@ -7,7 +7,7 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
@@ -103,7 +103,7 @@ BinaryModelReadPrimitives::readInt64LE(InputStream &input) {
     return LONG_MAX;
 }
 
-float
+double
 BinaryModelReadPrimitives::readFloatLE(InputStream &input) {
     return PersistenceElement::readFloatLE(input);
 }
@@ -196,24 +196,24 @@ BinaryModelReadPrimitives::readColor(InputStream &input, ColorRgb *color) {
     if ( color == NULL ) {
         return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
     }
-    const float r = readFloatLE(input);
-    const float g = readFloatLE(input);
-    const float b = readFloatLE(input);
+    const double r = readFloatLE(input);
+    const double g = readFloatLE(input);
+    const double b = readFloatLE(input);
     *color = ColorRgb(r, g, b);
     return true;
 }
 
 bool
-BinaryModelReadPrimitives::readVector(InputStream &input, Vector3Df *vector) {
+BinaryModelReadPrimitives::readVector(InputStream &input, Vector3Dd *vector) {
     if ( vector == NULL ) {
         return reportReadError("BinaryModelReadPrimitives::readVector", "Null vector output pointer");
     }
-    *vector = Vector3Df(readFloatLE(input), readFloatLE(input), readFloatLE(input));
+    *vector = Vector3Dd(readFloatLE(input), readFloatLE(input), readFloatLE(input));
     return true;
 }
 
 bool
-BinaryModelReadPrimitives::readBoundingBoxCoordinates(InputStream &input, float coordinates[6]) {
+BinaryModelReadPrimitives::readBoundingBoxCoordinates(InputStream &input, double coordinates[6]) {
     if ( coordinates == NULL ) {
         return reportReadError("BinaryModelReadPrimitives::readBoundingBoxCoordinates", "Null bounding box coordinate buffer");
     }
@@ -224,15 +224,15 @@ BinaryModelReadPrimitives::readBoundingBoxCoordinates(InputStream &input, float 
 }
 
 bool
-BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]) {
+BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox *boundingBox, const double coordinates[6]) {
     if ( boundingBox == NULL || coordinates == NULL ) {
         return reportReadError("BinaryModelReadPrimitives::setBoundingBoxFromCoordinates", "Invalid bounding box assignment");
     }
-    BoundingBox parsed;
-    Vector3Df minPoint;
-    Vector3Df maxPoint;
-    minPoint = Vector3Df(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
-    maxPoint = Vector3Df(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
+    RpkAxisAlignedBoundingBox parsed;
+    Vector3Dd minPoint;
+    Vector3Dd maxPoint;
+    minPoint = Vector3Dd(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
+    maxPoint = Vector3Dd(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
     parsed.enlargeToIncludePoint(&minPoint);
     parsed.enlargeToIncludePoint(&maxPoint);
     boundingBox->copyFrom(&parsed);

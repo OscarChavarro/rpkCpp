@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __ENTITY_CONTEXT_INFO__
-#define __ENTITY_CONTEXT_INFO__
+#ifndef __ENTITY_NAMING_CONTEXT__
+#define __ENTITY_NAMING_CONTEXT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

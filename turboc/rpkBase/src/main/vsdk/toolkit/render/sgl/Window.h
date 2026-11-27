@@ -1,5 +1,5 @@
-#ifndef __SGL_WINDOW__
-#define __SGL_WINDOW__
+#ifndef __WINDOW__
+#define __WINDOW__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

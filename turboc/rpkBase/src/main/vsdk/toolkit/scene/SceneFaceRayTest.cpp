@@ -4,10 +4,10 @@
 
 SceneFaceRayTest::SceneFaceRayTest(
     const Scene &inScene,
-    const RpkRay *inRay,
+    const Ray *inRay,
     const int inHitFlags,
     const RayExclusionSet &inExclusions,
-    RayHit *inHitStore):
+    RpkRayHit *inHitStore):
     scene(inScene),
     ray(inRay),
     hitFlags(inHitFlags),
@@ -21,9 +21,9 @@ SceneFaceRayTest::~SceneFaceRayTest() {
 
 BOOLEAN
 SceneFaceRayTest::test(const int primitive, const double minimumT, const double maximumT, double *hitT) {
-    float distance = ((float)(maximumT));
-    const RayHit *hit = scene.getFace(primitive)->intersect(
-        ray, ((float)(minimumT)), &distance, hitFlags, hitStore, exclusions);
+    double distance = ((double)(maximumT));
+    const RpkRayHit *hit = scene.getFace(primitive)->intersect(
+        ray, ((double)(minimumT)), &distance, hitFlags, hitStore, exclusions);
     if ( hit == NULL ) {
         return FALSE;
     }

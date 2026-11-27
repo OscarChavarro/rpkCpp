@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/WardToneMap.h"
 
 /**
@@ -16,15 +15,15 @@ WardToneMap::~WardToneMap() {
 }
 
 void
-WardToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    lda = maximumDisplayLuminance / 2.0f;
+WardToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
+    double realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    double maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    lda = maximumDisplayLuminance / 2.0;
 
-    float p1 = Math::pow(lda, 0.4f);
-    float p2 = Math::pow(realWorldAdaptionLuminance, 0.4f);
-    float p3 = (1.219f + p1) / (1.219f + p2);
-    comp = Math::pow(p3, 2.5f);
+    double p1 = Math::pow(lda, 0.4);
+    double p2 = Math::pow(realWorldAdaptionLuminance, 0.4);
+    double p3 = (1.219 + p1) / (1.219 + p2);
+    comp = Math::pow(p3, 2.5);
     display = comp / maximumDisplayLuminance;
 }
 
@@ -38,7 +37,7 @@ WardToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 WardToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float eff = Cie::getLuminousEfficacy();
+    double eff = getColorSpace().getLuminousEfficacy();
     return ColorRgb(
         radiance.getR() * eff * display,
         radiance.getG() * eff * display,

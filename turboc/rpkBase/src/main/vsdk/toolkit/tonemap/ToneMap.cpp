@@ -7,15 +7,25 @@
 
 ToneMap *ToneMap::activeToneMap = NULL;
 
-ToneMap::ToneMap() {
+ToneMap::ToneMap(): colorSpace() {
 }
 
 ToneMap::~ToneMap() {
 }
 
+/**
+Takes the display color space of the context, then lets the concrete
+operator compute its parameters
+*/
+void
+ToneMap::init(const ToneMappingContext &toneMapOptions) {
+    colorSpace = toneMapOptions.getColorSpace();
+    initParameters(toneMapOptions);
+}
+
 int
-ToneMap::gammaTableEntry(float x) {
-    return ((int)(x * ((float)(1 << ToneMappingContext::GAMMA_TABLE_BITS))));
+ToneMap::gammaTableEntry(double x) {
+    return ((int)(x * ((double)(1 << ToneMappingContext::GAMMA_TABLE_BITS))));
 }
 
 void
@@ -34,14 +44,14 @@ ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
     return activeToneMap->scaleForDisplay(radiance);
 }
 
-float
-ToneMap::tmoCandelaLambert(float a) {
-    return a * ((float)(Math::PI)) * 1e-4f;
+double
+ToneMap::tmoCandelaLambert(double a) {
+    return a * ((double)(Math::PI)) * 1e-4;
 }
 
-float
-ToneMap::tmoLambertCandela(float a) {
-    return a / (((float)(Math::PI)) * 1e-4f);
+double
+ToneMap::tmoLambertCandela(double a) {
+    return a / (((double)(Math::PI)) * 1e-4);
 }
 
 void
@@ -51,7 +61,7 @@ ToneMap::recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, doub
     }
     for ( int i = 0; i <= (1 << ToneMappingContext::GAMMA_TABLE_BITS); i++ ) {
         toneMapOptions.gammaTab[index][i] =
-            ((float)(Math::pow(((double)(i)) / ((double)(1 << ToneMappingContext::GAMMA_TABLE_BITS)),
+            ((double)(Math::pow(((double)(i)) / ((double)(1 << ToneMappingContext::GAMMA_TABLE_BITS)),
             1.0 / gamma)));
     }
 }
@@ -97,8 +107,8 @@ ToneMap::radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &
     ToneMap::rescaleRadiance(color, &color, toneMapOptions);
     *rgb = ColorRgb(color.getR(), color.getG(), color.getB());
     *rgb = ColorRgb(
-        Math::max(0.0f, Math::min(1.0f, (float)rgb->getR())),
-        Math::max(0.0f, Math::min(1.0f, (float)rgb->getG())),
-        Math::max(0.0f, Math::min(1.0f, (float)rgb->getB())));
+        Math::max(0.0, Math::min(1.0, (double)rgb->getR())),
+        Math::max(0.0, Math::min(1.0, (double)rgb->getG())),
+        Math::max(0.0, Math::min(1.0, (double)rgb->getB())));
     return rgb;
 }

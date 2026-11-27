@@ -1,5 +1,5 @@
-#ifndef __BINARY_MODEL_READER__
-#define __BINARY_MODEL_READER__
+#ifndef __BINARY_MODEL_DESERIALIZER__
+#define __BINARY_MODEL_DESERIALIZER__
 
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 

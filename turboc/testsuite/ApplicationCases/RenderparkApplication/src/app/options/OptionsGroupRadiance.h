@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __RADIANCE_OPTIONS_GROUP__
-#define __RADIANCE_OPTIONS_GROUP__
+#ifndef __OPTIONS_GROUP_RADIANCE__
+#define __OPTIONS_GROUP_RADIANCE__
 
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"

@@ -1,5 +1,5 @@
-#ifndef __COMMON_LOOKUP_BEHAVIORS__
-#define __COMMON_LOOKUP_BEHAVIORS__
+#ifndef __LOOK_UP_BEHAVIORS__
+#define __LOOK_UP_BEHAVIORS__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

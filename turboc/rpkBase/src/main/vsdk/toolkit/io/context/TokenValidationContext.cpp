@@ -36,7 +36,7 @@ TokenValidationContext::skipInt(const char *text)
 }
 
 /**
-Skip float in string
+Skip double in string
 */
 const char *
 TokenValidationContext::skipFloat(const char *text)
@@ -89,7 +89,7 @@ TokenValidationContext::isIntDelimited(const char *text, const char *delimiters)
 }
 
 /**
-Check float format
+Check double format
 */
 bool
 TokenValidationContext::isFloat(const char *text)

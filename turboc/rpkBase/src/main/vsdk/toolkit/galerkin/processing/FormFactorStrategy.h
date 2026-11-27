@@ -6,7 +6,7 @@ All kind of form factor computations
 #define __FORM_FACTOR_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/GalerkinRole.h"
@@ -16,16 +16,16 @@ All kind of form factor computations
 
 class FormFactorStrategy {
   private:
-    static RayHit *
+    static RpkRayHit *
     shadowTestDiscretization(
-        RpkRay *ray,
-        const ArrayList<Geometry *> *geometrySceneList,
+        Ray *ray,
+        const ArrayList<RpkGeometry *> *geometrySceneList,
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
         ShadowCache *shadowCache,
-        float minimumDistance,
-        RayHit *hitStore,
+        double minimumDistance,
+        RpkRayHit *hitStore,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         const RayExclusionSet &exclusions);
@@ -36,7 +36,7 @@ class FormFactorStrategy {
         GalerkinRole role,
         const GalerkinState *galerkinState,
         CubatureRule **cr,
-        Vector3Df x[CUBATURE_MAXIMUM_NODES]);
+        Vector3Dd x[CUBATURE_MAXIMUM_NODES]);
 
     static double
     evaluatePointsPairKernel(
@@ -44,11 +44,11 @@ class FormFactorStrategy {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
-        const Vector3Df *x,
-        const Vector3Df *y,
+        const Vector3Dd *x,
+        const Vector3Dd *y,
         const GalerkinElement *receiverElement,
         const GalerkinElement *sourceElement,
-        const ArrayList<Geometry *> *shadowGeometryList,
+        const ArrayList<RpkGeometry *> *shadowGeometryList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState,
@@ -61,6 +61,13 @@ class FormFactorStrategy {
         const CubatureRule *sourceCubatureRule,
         const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
         const GalerkinState *galerkinState);
+
+    static void
+    boundPointToAreaFormFactors(
+        const CubatureRule *receiverCubatureRule,
+        const CubatureRule *sourceCubatureRule,
+        double sourceArea,
+        double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
 
     static inline void
     computeInteractionError(
@@ -99,7 +106,7 @@ class FormFactorStrategy {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneQueryWorkspace,
         FormFactorWorkspace *formFactorWorkspace,
-        const ArrayList<Geometry *> *geometryShadowList,
+        const ArrayList<RpkGeometry *> *geometryShadowList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         Interaction *link,

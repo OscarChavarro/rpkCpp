@@ -2,17 +2,17 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __OBJECT_HIERARCHY_STATE__
-#define __OBJECT_HIERARCHY_STATE__
+#ifndef __OBJECT_SCOPE_CONTEXT__
+#define __OBJECT_SCOPE_CONTEXT__
 
+#include "java/util/ArrayList.h"
 #include "vsdk/toolkit/io/context/ParseErrorContext.h"
 
 class ObjectScopeContext {
-  public:
-    char **objectNamesList;
-    int objectMaxName;
-    int objectNames;
+  private:
+    ArrayList<char *> objectNamesList;
 
+  public:
     ObjectScopeContext();
     ~ObjectScopeContext();
 
@@ -22,9 +22,6 @@ class ObjectScopeContext {
 
     ObjectScopeContext(const ObjectScopeContext &);
     ObjectScopeContext &operator=(const ObjectScopeContext &);
-
-  private:
-    #define OBJECT_NAMES_ALLOC_INCREMENT 16
 };
 
 #endif

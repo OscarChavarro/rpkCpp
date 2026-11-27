@@ -22,15 +22,15 @@ Element::Element():
     transformToParent()
 {
     flags = 0x00;
-    Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
-    Rd = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    Ed = ColorRgbMutable(0.0, 0.0, 0.0);
+    Rd = ColorRgbMutable(0.0, 0.0, 0.0);
 }
 
 /**
 Computes the transform relating a surface element to the toplevel element
 in the patch hierarchy by concatenating the up-transforms of the element
 and all parent elements. If the element is a toplevel element,
-(Matrix4x4f *)NULL is
+(Matrix4x4d *)NULL is
 returned and nothing is filled in in xf (no transform is necessary
 to transform positions on the element to the corresponding point on the toplevel
 element). In the other case, the composed transform is filled in in xf and

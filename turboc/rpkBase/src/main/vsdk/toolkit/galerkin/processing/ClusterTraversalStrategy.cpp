@@ -51,7 +51,7 @@ towards the samplePoint point
 ColorRgbMutable
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(
     GalerkinElement *sourceElement,
-    Vector3Df samplePoint,
+    Vector3Dd samplePoint,
     GalerkinState *galerkinState)
 {
     switch ( galerkinState->clusteringStrategy ) {
@@ -73,7 +73,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
             // Divide by the source area used for computing the form factor:
             // sourceElement->area / 4.0 (average projected area)
-            sourceRadiance.scale(4.0f / sourceElement->area);
+            sourceRadiance.scale(4.0 / sourceElement->area);
             return sourceRadiance;
         }
 
@@ -85,7 +85,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the samplePoint point
-                const BoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
@@ -94,7 +94,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
                 areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
-                sourceRadiance.scale(((float)(areaFactor)));
+                sourceRadiance.scale(((double)(areaFactor)));
                 return sourceRadiance;
             }
 
@@ -131,8 +131,8 @@ double
 ClusterTraversalStrategy::srfcPrjctAreaTSmplPnt(const GalerkinElement *receiverElement) {
     double rcvCos;
     double distance;
-    Vector3Df dir;
-    Vector3Df samplePoint;
+    Vector3Dd dir;
+    Vector3Dd samplePoint;
 
     dir = samplePoint.subtract(receiverElement->patch->midPoint);
     distance = dir.length();
@@ -157,7 +157,7 @@ double
 ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
-    Vector3Df samplePoint;
+    Vector3Dd samplePoint;
     double projectedArea;
 
     if ( !receiverElement->isCluster() || sourceElement == receiverElement ) {
@@ -184,7 +184,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 return receiverElement->area;
             } else {
-                const BoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
@@ -219,7 +219,7 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     ColorRgbMutable *rcvRad = rcv->receivedRadiance;
 
     if ( link->nmbrOBasisFnctnORecv == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0].addScaled(rcvRad[0], ((float)(areaFactor * link->K[0])), sourceRadiance[0]);
+        rcvRad[0].addScaled(rcvRad[0], ((double)(areaFactor * link->K[0])), sourceRadiance[0]);
     } else {
         int a = Math::min(link->nmbrOBasisFnctnORecv, rcv->basisSize);
         int b = Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
@@ -227,7 +227,7 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
             for ( int beta = 0; beta < b; beta++ ) {
                 rcvRad[alpha].addScaled(
                     rcvRad[alpha],
-                    ((float)(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta])),
+                    ((double)(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta])),
                     sourceRadiance[beta]);
             }
         }
@@ -260,7 +260,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
             break;
         }
         case Z_VISIBILITY: {
-            Vector3Df samplePoint = sourceElement->midPoint();
+            Vector3Dd samplePoint = sourceElement->midPoint();
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 OrientedGathererVisitor leafVisitor(link, srcRad);
                 ClusterTraversalStrategy::traverseAllLeafElements(
@@ -268,7 +268,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *src
                         receiverElement,
                         galerkinState);
             } else {
-                const BoundingBox *boundingBox =
+                const RpkAxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer

@@ -9,14 +9,13 @@ Galerkin radiosity, with the following variants:
 #include <stdarg.h>
 #include <string.h>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/wrl/VrmlWriter.h"
@@ -117,7 +116,7 @@ GalerkinRadianceMethod::appendStatsText(char *buffer, int *offset, const char *f
 }
 
 void
-GalerkinRadianceMethod::writeVertexCoord(const Vector3Df *p) {
+GalerkinRadianceMethod::writeVertexCoord(const Vector3Dd *p) {
     if ( numberOfWrites > 0 ) {
         writeFormatted("%s", ", ");
     }
@@ -132,7 +131,7 @@ GalerkinRadianceMethod::writeVertexCoord(const Vector3Df *p) {
 void
 GalerkinRadianceMethod::writeVertexCoords(Element *element) {
     const GalerkinElement *galerkinElement = ((GalerkinElement *)(element));
-    Vector3Df v[8];
+    Vector3Dd v[8];
     int numberOfVertices = galerkinElement->vertices(v);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         writeVertexCoord(&v[i]);
@@ -270,7 +269,7 @@ For counting how much CPU time was used for the computations
 void
 GalerkinRadianceMethod::updateCpuSecs() {
     const long long t = System::nanoTime();
-    galerkinState.cpuSeconds += ((float)(((double)(t - galerkinState.lastClock)) / 1000000000.0));
+    galerkinState.cpuSeconds += ((double)(((double)(t - galerkinState.lastClock)) / 1000000000.0));
     galerkinState.lastClock = t;
 }
 
@@ -363,7 +362,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 
     galerkinState.constantRadiance = ColorRgbMutable(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB());
     if ( galerkinState.useConstantRadiance ) {
-        galerkinState.ambientRadiance = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+        galerkinState.ambientRadiance = ColorRgbMutable(0.0, 0.0, 0.0);
     } else {
         galerkinState.ambientRadiance = ColorRgbMutable(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB());
     }
@@ -382,7 +381,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 
     // Global variables for scratch rendering
     galerkinState.lastClusterId = -1;
-    galerkinState.lastEye = Vector3Df(Float::MAX_VALUE, Float::MAX_VALUE, Float::MAX_VALUE);
+    galerkinState.lastEye = Vector3Dd(Double::MAX_VALUE, Double::MAX_VALUE, Double::MAX_VALUE);
 }
 
 bool
@@ -474,7 +473,7 @@ GalerkinRadianceMethod::getRadiance(
     Patch *patch,
     double u,
     double v,
-    Vector3Df /*dir*/,
+    Vector3Dd /*dir*/,
     const RenderOptions * /*renderOptions*/) const
 {
     return computePatchRadiance(patch, u, v);
@@ -526,9 +525,9 @@ GalerkinRadianceMethod::getStats() const {
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
+                           galerkinState.toneMapOptions->getColorSpace().spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
                    galerkinState.relLinkErrorThreshold *
-                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
+                   galerkinState.toneMapOptions->getColorSpace().spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

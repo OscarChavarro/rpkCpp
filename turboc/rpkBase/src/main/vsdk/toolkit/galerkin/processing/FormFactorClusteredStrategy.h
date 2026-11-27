@@ -1,8 +1,8 @@
 #ifndef FORM_FCTR_CLSTR_STRTG
 #define FORM_FCTR_CLSTR_STRTG
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/galerkin/Interaction.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
@@ -18,22 +18,22 @@ class FormFactorClusteredStrategy {
 
     static double
     geomListMultiResVis(
-        const ArrayList<Geometry *> *geometryOccluderList,
+        const ArrayList<RpkGeometry *> *geometryOccluderList,
         ShadowCache *shadowCache,
-        RpkRay *ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize,
+        Ray *ray,
+        double rcvDist,
+        double srcSize,
+        double minimumFeatureSize,
         const RayExclusionSet &exclusions);
 
     static double
     geomMultiResVis(
         ShadowCache *shadowCache,
-        Geometry *geometry,
-        RpkRay *ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize,
+        RpkGeometry *geometry,
+        Ray *ray,
+        double rcvDist,
+        double srcSize,
+        double minimumFeatureSize,
         const RayExclusionSet &exclusions);
 };
 

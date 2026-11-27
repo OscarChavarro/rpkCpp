@@ -14,19 +14,19 @@ Implementation of the special importance map functions
 bool
 ImportanceMap::addPhoton(
     Photon &photon,
-    Vector3Df normal,
+    Vector3Dd normal,
     short flags)
 {
     return PhotonMap::addPhoton(photon, normal, flags);
 }
 
 // reconstruct
-float
-ImportanceMap::reconstructImportance(Vector3Df /*pos*/, const Vector3Df &normal) const  {
-    float maxDistance;
-    float result = 0.0;
-    float importance;
-    float factor;
+double
+ImportanceMap::reconstructImportance(Vector3Dd /*pos*/, const Vector3Dd &normal) const  {
+    double maxDistance;
+    double result = 0.0;
+    double importance;
+    double factor;
 
     // Nearest photons must be found beforehand!
 
@@ -36,12 +36,12 @@ ImportanceMap::reconstructImportance(Vector3Df /*pos*/, const Vector3Df &normal)
     for ( int i = 0; i < m_nrpFound; i++ ) {
         const Photon *importon = m_photons[i];
 
-        Vector3Df dir = importon->dir();
+        Vector3Dd dir = importon->dir();
 
         // No bsdf eval : incoming importance !!!!!!
-        importance = ((float)(importon->power().getR()));
+        importance = ((double)(importon->power().getR()));
 
-        float cos_theta = dir.dotProduct(normal);
+        double cos_theta = dir.dotProduct(normal);
         if ( cos_theta > 0.0 ) {
             result += importance;
         }
@@ -54,16 +54,16 @@ ImportanceMap::reconstructImportance(Vector3Df /*pos*/, const Vector3Df &normal)
         return 0;
     }
 
-    factor = 1.0f / (((float)(M_PI)) * maxDistance * ((float)(m_totalPaths)));
+    factor = 1.0 / (((double)(M_PI)) * maxDistance * ((double)(m_totalPaths)));
     result *= factor;
 
     return result;
 }
 
-float
-ImportanceMap::getImpReqDensity(const Camera *camera, const Vector3Df &pos, const Vector3Df &normal) const {
+double
+ImportanceMap::getImpReqDensity(const Camera *camera, const Vector3Dd &pos, const Vector3Dd &normal) const {
     // reconstruct importance
-    float density = reconstructImportance(pos, normal);
+    double density = reconstructImportance(pos, normal);
 
     // We want impScale photons per pixel density, account for
     // the pixel area here
@@ -73,13 +73,13 @@ ImportanceMap::getImpReqDensity(const Camera *camera, const Vector3Df &pos, cons
     return density;
 }
 
-float
-ImportanceMap::getRequiredDensity(const Camera *camera, Vector3Df pos, Vector3Df normal) {
+double
+ImportanceMap::getRequiredDensity(const Camera *camera, Vector3Dd pos, Vector3Dd normal) {
     if ( m_nrPhotons == 0 ) {
         return photonMapState.constantRD;
     }  // Safety, if no importance map was constructed
 
-    float density;
+    double density;
 
     checkNBalance();
 
@@ -92,7 +92,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3Df pos, Vector3Df
         if ( photon ) {
             switch ( photonMapState.importanceOption ) {
                 case USE_IMPORTANCE:
-                    density = ((float)(photon->m_irradiance.getR()));
+                    density = ((double)(photon->m_irradiance.getR()));
                     density *= *m_impScalePtr;
                     break;
                 default:
@@ -130,11 +130,11 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3Df pos, Vector3Df
 void
 ImportanceMap::ComputeAllRequiredDensities(
     const Camera *camera,
-    Vector3Df &pos,
-    const Vector3Df &normal,
-    float *imp,
-    float *pot,
-    float *diff)
+    Vector3Dd &pos,
+    const Vector3Dd &normal,
+    double *imp,
+    double *pot,
+    double *diff)
 {
     // Query photons, to be used by the appropriate req dest method
     m_nrpFound = doQuery(&pos);
@@ -148,11 +148,11 @@ ImportanceMap::ComputeAllRequiredDensities(
 
 void
 ImportanceMap::photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) {
-    float imp;
-    float pot;
-    float diff = float();
-    Vector3Df pos = photon->pos();
-    Vector3Df normal = photon->Normal();
+    double imp;
+    double pot;
+    double diff = double();
+    Vector3Dd pos = photon->pos();
+    Vector3Dd normal = photon->Normal();
 
     ComputeAllRequiredDensities(camera, pos, normal, &imp, &pot, &diff);
 
@@ -179,8 +179,8 @@ ImportanceMap::precomputeIrradiance() {
 
     PhotonMap::precomputeIrradiance();
 
-    m_avgImp /= ((float)(m_nrPhotons));
-    m_totalMaxDistance *= 20.0f / ((float)(*m_estimate_nrp));
+    m_avgImp /= ((double)(m_nrPhotons));
+    m_totalMaxDistance *= 20.0 / ((double)(*m_estimate_nrp));
 }
 
 #endif

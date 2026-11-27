@@ -1,8 +1,8 @@
-#ifndef __MGF_VERTEX_CONTEXT__
-#define __MGF_VERTEX_CONTEXT__
+#ifndef __VERTEX_CONTEXT__
+#define __VERTEX_CONTEXT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class VertexContext {
   public:
@@ -10,13 +10,13 @@ class VertexContext {
     Vector3Dd n; // Normal
     long xid; // Transform id of transform last time the vertex was modified (or created)
     int clock; // Incremented each change -- resettable
-    Vertex *vertex;
+    RpkVertex *vertex;
 
     VertexContext():
         p(), n(), xid(), clock(), vertex() {
     }
 
-    VertexContext(const Vector3Dd &inP, const Vector3Dd &inN, long inXid, int inClock, Vertex *inVertex):
+    VertexContext(const Vector3Dd &inP, const Vector3Dd &inN, long inXid, int inClock, RpkVertex *inVertex):
         p(), n(), xid(), clock(), vertex() {
         p = inP;
         n = inN;

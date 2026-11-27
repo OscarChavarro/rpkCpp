@@ -2,10 +2,10 @@
 Some utility routines for ray intersections and for statistics
 */
 
-#ifndef __RAY_TOOLS__
-#define __RAY_TOOLS__
+#ifndef __RAYTOOLS__
+#define __RAYTOOLS__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/Camera.h"
@@ -14,14 +14,14 @@ Some utility routines for ray intersections and for statistics
 
 class RayTools {
   public:
-    static RayHit *
+    static RpkRayHit *
     findRayIntersection(
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-        RpkRay *ray,
+        Ray *ray,
         Patch *patch,
         const PhongBidirScattDistFunc *currentBsdf,
-        RayHit *hitStore);
+        RpkRayHit *hitStore);
 
     static bool
     pathNodesVisible(
@@ -37,21 +37,21 @@ class RayTools {
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         const SimpleRaytracingPathNode *eyeNode,
         const SimpleRaytracingPathNode *node,
-        float *pixX,
-        float *pixY);
+        double *pixX,
+        double *pixY);
 
   private:
     static int pathFrontHitFlags();
 
-    static RayHit *
+    static RpkRayHit *
     traceWorld(
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
-        RpkRay *ray,
+        Ray *ray,
         Patch *patch,
         unsigned int flags,
         Patch *extraPatch,
-        RayHit *hitStore);
+        RpkRayHit *hitStore);
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __POLYGON__
 #define __POLYGON__
 
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 /**
@@ -12,10 +12,10 @@ MAXIMUM_VERTICES_PER_PATCH or less (namely, triangles and quads only)
 */
 class Polygon {
   public:
-    Vector3Df normal;
-    float planeConstant;
-    BoundingBox bounds;
-    Vector3Df vertex[MAXIMUM_VERTICES_PER_PATCH];
+    Vector3Dd normal;
+    double planeConstant;
+    RpkAxisAlignedBoundingBox bounds;
+    Vector3Dd vertex[MAXIMUM_VERTICES_PER_PATCH];
     int numberOfVertices;
     char index;
 

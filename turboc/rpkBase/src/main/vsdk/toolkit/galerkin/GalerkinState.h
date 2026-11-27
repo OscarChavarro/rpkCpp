@@ -5,10 +5,10 @@
 #ifndef __GALERKIN_STATE__
 #define __GALERKIN_STATE__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/render/sgl/SglContext.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasisType.h"
 #include "vsdk/toolkit/galerkin/GalerkinClusteringStrategy.h"
@@ -50,9 +50,9 @@ class GalerkinState {
 
     // Parameters that control accuracy
     GalerkinErrorNorm errorNorm; // Control radiance or power error?
-    float relMinElemArea; // Subdivision of elements that are smaller than the total
+    double relMinElemArea; // Subdivision of elements that are smaller than the total
         // surface area of the scene times this number, will not be allowed
-    float relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
+    double relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
         // when controlling the radiance error and to the maximum
         // self-emitted power when controlling the power error
     double refinementMinimumArea;
@@ -69,10 +69,10 @@ class GalerkinState {
     SglContext *scratch;
     int scratchFrameBufferSize;
     int lastClusterId; // Used for caching cluster and eye point
-    Vector3Df lastEye; // Rendered into the scratch frame buffer
+    Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     long long lastClock; // For CPU timing (nanoseconds)
-    float cpuSeconds;
+    double cpuSeconds;
 
     ShaftCullStrategy shaftCullStrategy;
     ToneMappingContext *toneMapOptions;
@@ -93,8 +93,8 @@ class GalerkinState {
 
     #define DEFAULT_GAL_HIERARCHICAL true
     #define DEFAULT_GAL_ITERATION_METHOD JACOBI
-    #define DEFAULT_GAL_REL_MIN_ELEM_AREA ((float)1e-6)
-    #define DF_GAL_REL_LINK_ERRR_THRSH ((float)1e-5)
+    #define DEFAULT_GAL_REL_MIN_ELEM_AREA ((double)1e-6)
+    #define DF_GAL_REL_LINK_ERRR_THRSH ((double)1e-5)
     #define DEFAULT_GAL_IMPORTANCE_DRIVEN false
     #define DEFAULT_GAL_CLUSTERED true
     #define DEFAULT_GAL_LAZY_LINKING true

@@ -35,8 +35,8 @@ class BidirPathTraceConfig {
 
     DensityBuffer *dBuffer;
     DensityBuffer *dBuffer2;
-    float xSample;
-    float ySample;
+    double xSample;
+    double ySample;
     SimpleRaytracingPathNode *eyePath;
     SimpleRaytracingPathNode *lightPath;
 

@@ -4,19 +4,21 @@
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 
 class RevisedTumblinRushmeierToneMap: public ToneMap{ private:
-    float g;
-    float comp;
-    float display;
-    float lwaRTR;
-    float ldaRTR;
+    double g;
+    double comp;
+    double display;
+    double lwaRTR;
+    double ldaRTR;
 
-    static float stevensGamma(float lum);
+    static double stevensGamma(double lum);
+
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions);
 
   public:
     RevisedTumblinRushmeierToneMap();
     ~RevisedTumblinRushmeierToneMap();
 
-    void init(const ToneMappingContext &toneMapOptions);
     ColorRgb scaleForComputations(ColorRgb radiance) const;
     ColorRgb scaleForDisplay(ColorRgb radiance) const;
 };

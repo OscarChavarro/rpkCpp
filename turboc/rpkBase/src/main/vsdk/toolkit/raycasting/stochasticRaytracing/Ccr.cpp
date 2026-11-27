@@ -8,7 +8,6 @@ Determination of constant control radiosity value
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Ccr.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -30,7 +29,7 @@ Ccr::initCtrlRadRec(
     if ( element->regularSubElements == NULL ) {
         // Trivial case
         ColorRgb rad = ColorRgb(getRadianceCallback(element)[0]);
-        float weightedArea = element->area;
+        double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method != RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
@@ -80,8 +79,8 @@ Ccr::initialControlRadiosity(
     ColorRgb totalFluxColor;
     ColorRgb maxRadColor;
     double area = 0.0;
-    totalFluxColor = ColorRgb(0.0f, 0.0f, 0.0f);
-    maxRadColor = ColorRgb(0.0f, 0.0f, 0.0f);
+    totalFluxColor = ColorRgb(0.0, 0.0, 0.0);
+    maxRadColor = ColorRgb(0.0, 0.0, 0.0);
 
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
@@ -96,24 +95,24 @@ Ccr::initialControlRadiosity(
                 &area);
     }
 
-    *minRad = ColorRgb(0.0f, 0.0f, 0.0f);
+    *minRad = ColorRgb(0.0, 0.0, 0.0);
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
     *fMax = ColorRgb(
-        ((float)(area)) * maxRadColor.getR() - totalFluxColor.getR(),
-        ((float)(area)) * maxRadColor.getG() - totalFluxColor.getG(),
-        ((float)(area)) * maxRadColor.getB() - totalFluxColor.getB());
+        ((double)(area)) * maxRadColor.getR() - totalFluxColor.getR(),
+        ((double)(area)) * maxRadColor.getG() - totalFluxColor.getG(),
+        ((double)(area)) * maxRadColor.getB() - totalFluxColor.getB());
 }
 
 void
 Ccr::refineComponent(
-    float *minRad,
-    float *maxRad,
-    float *fMin,
-    float *fMax,
-    const float *f,
-    const float *rad)
+    double *minRad,
+    double *maxRad,
+    double *fMin,
+    double *fMax,
+    const double *f,
+    const double *rad)
 {
     int iMin;
 
@@ -163,7 +162,7 @@ Ccr::refineControlRadiosityRecursive(
         // Trivial case
         ColorRgb B = ColorRgb(getRadianceCallback(element)[0]);
         ColorRgb s = getScalingCallback ? getScalingCallback(element) : *colorOne;
-        float weightedArea = element->area;
+        double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method !=
              RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -206,7 +205,7 @@ Ccr::refineControlRadiosity(
     ColorRgb rad[NUMBER_OF_INTERVALS + 1];
     ColorRgb d;
 
-    colorOne = ColorRgb(1.0f, 1.0f, 1.0f);
+    colorOne = ColorRgb(1.0, 1.0, 1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
     d = ColorRgb(
@@ -214,8 +213,8 @@ Ccr::refineControlRadiosity(
         maxRad->getG() - minRad->getG(),
         maxRad->getB() - minRad->getB());
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-        float a = ((float)(i)) / ((float)(NUMBER_OF_INTERVALS));
-        f[i] = ColorRgb(0.0f, 0.0f, 0.0f);
+        double a = ((double)(i)) / ((double)(NUMBER_OF_INTERVALS));
+        f[i] = ColorRgb(0.0, 0.0, 0.0);
         rad[i] = ColorRgb(
             minRad->getR() + a * d.getR(),
             minRad->getG() + a * d.getG(),
@@ -234,8 +233,8 @@ Ccr::refineControlRadiosity(
 
     // Find sub-interval containing optimal control radiosity (component-wise)
     for ( int s = 0; s < 3; s++ ) {
-        float fc[NUMBER_OF_INTERVALS + 1];
-        float radC[NUMBER_OF_INTERVALS + 1];
+        double fc[NUMBER_OF_INTERVALS + 1];
+        double radC[NUMBER_OF_INTERVALS + 1];
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             // Copy components
             switch ( s ) {
@@ -255,10 +254,10 @@ Ccr::refineControlRadiosity(
                     break;
             }
         }
-        float minC;
-        float maxC;
-        float fMinC;
-        float fMaxC;
+        double minC;
+        double maxC;
+        double fMinC;
+        double fMaxC;
         if ( s == 0 ) {
             minC = minRad->getR();
             maxC = maxRad->getR();
@@ -310,7 +309,8 @@ ColorRgb
 Ccr::determineControlRadiosity(
     GetRadianceCallback getRadiance,
     GetScalingCallback getScaling,
-    const ArrayList<Patch *> *scenePatches)
+    const ArrayList<Patch *> *scenePatches,
+    const Cie &colorSpace)
 {
     ColorRgb minRad;
     ColorRgb maxRad;
@@ -318,12 +318,12 @@ Ccr::determineControlRadiosity(
     ColorRgb fMax;
     ColorRgb beta;
     ColorRgb delta;
-    float eps = 0.001f;
+    double eps = 0.001;
     int sweep = 0;
 
     getRadianceCallback = getRadiance;
     getScalingCallback = getScaling;
-    beta = ColorRgb(0.0f, 0.0f, 0.0f);
+    beta = ColorRgb(0.0, 0.0, 0.0);
     if ( getRadianceCallback == NULL ) {
         return beta;
     }
@@ -332,24 +332,24 @@ Ccr::determineControlRadiosity(
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
     delta = ColorRgb(
-        fMax.getR() - (1.0f + eps) * fMin.getR(),
-        fMax.getG() - (1.0f + eps) * fMin.getG(),
-        fMax.getB() - (1.0f + eps) * fMin.getB());
-    while ( (Math::max(delta.getR(), Math::max(delta.getG(), delta.getB())) > 0.0f) || sweep < 4 ) {
+        fMax.getR() - (1.0 + eps) * fMin.getR(),
+        fMax.getG() - (1.0 + eps) * fMin.getG(),
+        fMax.getB() - (1.0 + eps) * fMin.getB());
+    while ( (Math::max(delta.getR(), Math::max(delta.getG(), delta.getB())) > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
         delta = ColorRgb(
-            fMax.getR() - (1.0f + eps) * fMin.getR(),
-            fMax.getG() - (1.0f + eps) * fMin.getG(),
-            fMax.getB() - (1.0f + eps) * fMin.getB());
+            fMax.getR() - (1.0 + eps) * fMin.getR(),
+            fMax.getG() - (1.0 + eps) * fMin.getG(),
+            fMax.getB() - (1.0 + eps) * fMin.getB());
     }
 
     beta = ColorRgb(
-        0.5f * (minRad.getR() + maxRad.getR()),
-        0.5f * (minRad.getG() + maxRad.getG()),
-        0.5f * (minRad.getB() + maxRad.getB()));
+        0.5 * (minRad.getR() + maxRad.getR()),
+        0.5 * (minRad.getG() + maxRad.getG()),
+        0.5 * (minRad.getB() + maxRad.getB()));
     System::err.printf("(%g, %g, %g)", beta.getR(), beta.getG(), beta.getB());
-    System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
+    System::err.printf(" (%g lux)", M_PI * colorSpace.spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
     System::err.printf("\n");
     return beta;
 }

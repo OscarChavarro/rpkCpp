@@ -25,7 +25,7 @@ BsdfSampler::sample(
     double pdfDir;
 
     // Sample direction
-    Vector3Df dir(0.0, 0.0, 0.0);
+    Vector3Dd dir(0.0, 0.0, 0.0);
     pdfDir = 0.0;
 
     if ( thisNode->m_useBsdf != NULL ) {
@@ -50,7 +50,7 @@ BsdfSampler::sample(
     newNode->accmlRssnRlttFctrs = thisNode->accmlRssnRlttFctrs;
     if ( doRR ) {
         ColorRgb albedo;
-        albedo = ColorRgb(0.0f, 0.0f, 0.0f);
+        albedo = ColorRgb(0.0, 0.0, 0.0);
         if ( thisNode->m_useBsdf != NULL ) {
             albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), flags);
         }
@@ -132,12 +132,12 @@ BsdfSampler::evalPDF(
     // More efficient with extra params?
     double dist2;
     double dist;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = Math::sqrt(dist2);
-    outDir = outDir.multiplyByInverse(((float)(dist)), Numeric::EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(((double)(dist)), Numeric::EPSILON);
 
     // Beware : NOT RECIPROKE!
     double pdfDir;
@@ -179,7 +179,7 @@ BsdfSampler::EvalPDFPrev(
     double cosB;
     double pdfH;
     double pdfRRH;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     if ( pdf == NULL ) {
         pdf = &pdfH;
@@ -190,7 +190,7 @@ BsdfSampler::EvalPDFPrev(
 
     // More efficient with extra params?
     outDir = (prevNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
-    outDir = outDir.normalized(Numeric::EPSILON_FLOAT);
+    outDir = outDir.normalized(Numeric::EPSILON);
 
     // Beware : NOT RECIPROCAL!
     pdfDir = 0.0;

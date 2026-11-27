@@ -36,7 +36,7 @@ RenderOptions::~RenderOptions() {
 }
 
 void
-RenderOptions::setLineWidth(const float width) {
+RenderOptions::setLineWidth(const double width) {
     lineWidth = width;
 }
 

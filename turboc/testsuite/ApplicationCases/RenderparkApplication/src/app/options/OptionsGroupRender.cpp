@@ -63,15 +63,15 @@ OptionsGroupRender::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = NULL;
-    float r = strtof(argv[0], &endPointer);
+    double r = strtod(argv[0], &endPointer);
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    float g = strtof(argv[1], &endPointer);
+    double g = strtod(argv[1], &endPointer);
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    float b = strtof(argv[2], &endPointer);
+    double b = strtod(argv[2], &endPointer);
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }

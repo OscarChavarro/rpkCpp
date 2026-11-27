@@ -21,7 +21,7 @@ PixelSampler::sample(
     bool /*doRR*/,
     char /*flags*/)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
 
     // Pre-conditions: 1. thisNode == eye 2. prevNode == NULL 3. SetPixel called
 
@@ -29,10 +29,10 @@ PixelSampler::sample(
     double xSample = (m_px + camera->pixelWidth * x1);
     double ySample = (m_py + camera->pixelHeight * x2);
 
-    dir = camera->Z.add(camera->X.multiply(((float)(xSample)))).add(camera->Y.multiply(((float)(ySample))));
+    dir = camera->Z.add(camera->X.multiply(((double)(xSample)))).add(camera->Y.multiply(((double)(ySample))));
     double distPixel2 = dir.lengthSquared();
     double distPixel = Math::sqrt(distPixel2);
-    dir = dir.multiplyByInverse(((float)(distPixel)), Numeric::EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(((double)(distPixel)), Numeric::EPSILON);
 
     double cosPixel = Math::abs(camera->Z.dotProduct(dir));
 
@@ -52,7 +52,7 @@ PixelSampler::sample(
     // "Bsdf" in thisNode
 
     // Potential is one for all directions through a pixel
-    thisNode->m_bsdfEval = ColorRgb(1.0f, 1.0f, 1.0f);
+    thisNode->m_bsdfEval = ColorRgb(1.0, 1.0, 1.0);
 
     // Make sure evaluation of eye components always includes the diff ref.
     thisNode->m_bsdfComp.Clear();
@@ -92,13 +92,13 @@ PixelSampler::evalPDF(
     double cosA;
     double cosB;
     double pdf;
-    Vector3Df outDir;
+    Vector3Dd outDir;
 
     // More efficient with extra params?
     outDir = (newNode->m_hit.getPoint()).subtract(thisNode->m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = Math::sqrt(dist2);
-    outDir = outDir.multiplyByInverse(((float)(dist)), Numeric::EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(((double)(dist)), Numeric::EPSILON);
 
     // pdf = 1 / A_pixel transformed to area measure
 

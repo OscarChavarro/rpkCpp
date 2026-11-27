@@ -10,7 +10,7 @@ Saves the result of a radiosity computation as a VRML file
 #define __VRML_WRITER__
 
 #include "java/io/OutputStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4f.h"
+#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Camera.h"
 
@@ -34,24 +34,24 @@ class VrmlWriter {
 
     static Camera *nextSavedCamera(Camera *previous);
 
-    static Matrix4x4f transformModel(
+    static Matrix4x4d transformModel(
         const Camera *camera,
-        Vector3Df *modelRotationAxis,
-        float *modelRotationAngle);
+        Vector3Dd *modelRotationAxis,
+        double *modelRotationAngle);
 
     static void writeViewPoint(
         OutputStream *outputStream,
-        const Matrix4x4f *modelTransform,
+        const Matrix4x4d *modelTransform,
         const Camera *camera,
         const char *viewPointName);
 
     static void writeViewPoints(
         const Camera *camera,
         OutputStream *outputStream,
-        const Matrix4x4f *modelTransform);
+        const Matrix4x4d *modelTransform);
 
     static void writeFormatted(OutputStream *outputStream, const char *format, ...);
-    static void recoverRotationParameters(const Matrix4x4f &rotation, float *angle, Vector3Df *axis);
+    static void recoverRotationParameters(const Matrix4x4d &rotation, double *angle, Vector3Dd *axis);
 };
 
 #endif

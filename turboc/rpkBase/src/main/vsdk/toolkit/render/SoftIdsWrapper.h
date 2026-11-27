@@ -1,5 +1,5 @@
-#ifndef _SOFT_IDS_WRAPPER__
-#define _SOFT_IDS_WRAPPER__
+#ifndef __SOFT_IDS_WRAPPER__
+#define __SOFT_IDS_WRAPPER__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/render/Softids.h"

@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/memoryManagement/CppReAlloc.h"
 #include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
 #include "vsdk/toolkit/io/image/Dkcolor.h"
 
@@ -20,15 +19,10 @@ Get a temporary buffer
 BYTE *
 DkColor::tempBuffer(unsigned int length) {
     if ( length > temporaryBufferLength ) {
-        if ( temporaryBufferLength > 0 ) {
-            temporaryBuffer = CppReAlloc::reAlloc(
-                temporaryBuffer,
-                ((int)(temporaryBufferLength)),
-                ((int)(length)));
-        } else {
-            temporaryBuffer = new BYTE[length];
-        }
-        temporaryBufferLength = temporaryBuffer == NULL ? 0 : length;
+        // Contents are scratch data, so the old buffer need not be preserved
+        delete[] temporaryBuffer;
+        temporaryBuffer = new BYTE[length];
+        temporaryBufferLength = length;
     }
     return temporaryBuffer;
 }

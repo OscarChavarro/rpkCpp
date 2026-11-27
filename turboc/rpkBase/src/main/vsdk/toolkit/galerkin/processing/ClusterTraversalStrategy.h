@@ -1,5 +1,5 @@
-#ifndef __CLUSTER_GALERKIN__
-#define __CLUSTER_GALERKIN__
+#ifndef __CLUSTER_TRAVERSAL_STRATEGY__
+#define __CLUSTER_TRAVERSAL_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
@@ -21,7 +21,7 @@ class ClusterTraversalStrategy {
     static double receiverArea(Interaction *link, GalerkinState *galerkinState);
     static void gatherRadiance(Interaction *link, ColorRgbMutable *srcRad, GalerkinState *galerkinState);
     static ColorRgbMutable maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
-    static ColorRgbMutable clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3Df samplePoint, GalerkinState *galerkinState);
+    static ColorRgbMutable clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3Dd samplePoint, GalerkinState *galerkinState);
 };
 
 #endif

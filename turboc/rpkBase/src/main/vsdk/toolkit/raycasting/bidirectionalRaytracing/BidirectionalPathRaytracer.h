@@ -34,13 +34,13 @@ class BidirectionalPathRaytracer: public RayTracer{ private:
     static bool spikeCheck(ColorRgb color);
 
     static void
-    addWithSpikeCheck( BidirPathTraceConfig *config, const BiPath *path, int nx, int ny, float pix_x, float pix_y, ColorRgb f, bool radSample = false);
+    addWithSpikeCheck( BidirPathTraceConfig *config, const BiPath *path, int nx, int ny, double pix_x, double pix_y, ColorRgb f, bool radSample = false);
 
     static void
     handlePathX0( Camera *camera, Background *sceneBackground, BidirPathTraceConfig *config, BiPath *path);
 
     static ColorRgb
-    computeNeFluxEstimate( Camera *camera, BidirPathTraceConfig *config, BiPath *path, float *pPdf = NULL, float *pWeight = NULL, ColorRgb *fRad = NULL);
+    computeNeFluxEstimate( Camera *camera, BidirPathTraceConfig *config, BiPath *path, double *pPdf = NULL, double *pWeight = NULL, ColorRgb *fRad = NULL);
 
     static void
     handlePathXx( Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Background *sceneBackground, BidirPathTraceConfig *config, BiPath *path);

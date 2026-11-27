@@ -1,5 +1,5 @@
-#ifndef STCHS_RYTRC_CSCTT_INFO
-#define STCHS_RYTRC_CSCTT_INFO
+#ifndef __SCATTER_INFO__
+#define __SCATTER_INFO__
 
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
 

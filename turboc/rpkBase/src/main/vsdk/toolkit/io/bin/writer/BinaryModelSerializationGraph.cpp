@@ -2,13 +2,13 @@
 
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/skin/Compound.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -17,7 +17,7 @@
 #include "vsdk/toolkit/io/bin/writer/BinaryModelSerializationGraph.h"
 
 bool
-BinaryModelSerializationGraph::ensureVector(const Vector3Df *value) {
+BinaryModelSerializationGraph::ensureVector(const Vector3Dd *value) {
     if ( value == NULL ) {
         return true;
     }
@@ -39,7 +39,7 @@ BinaryModelSerializationGraph::ensureVector(const Vector3Df *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureMaterial(const Material *value) {
+BinaryModelSerializationGraph::ensureMaterial(const RpkMaterial *value) {
     if ( value == NULL ) {
         return true;
     }
@@ -61,7 +61,7 @@ BinaryModelSerializationGraph::ensureMaterial(const Material *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureVertex(const Vertex *value) {
+BinaryModelSerializationGraph::ensureVertex(const RpkVertex *value) {
     if ( value == NULL ) {
         return true;
     }
@@ -152,7 +152,7 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
 }
 
 bool
-BinaryModelSerializationGraph::ensureGeometry(const Geometry *value) {
+BinaryModelSerializationGraph::ensureGeometry(const RpkGeometry *value) {
     if ( value == NULL ) {
         return true;
     }
@@ -306,7 +306,7 @@ BinaryModelSerializationGraph::ensureTransformContext(const TransformStackContex
 }
 
 bool
-BinaryModelSerializationGraph::collectVectorList(const ArrayList<Vector3Df *> *list) {
+BinaryModelSerializationGraph::collectVectorList(const ArrayList<Vector3Dd *> *list) {
     if ( list == NULL ) {
         return true;
     }
@@ -319,7 +319,7 @@ BinaryModelSerializationGraph::collectVectorList(const ArrayList<Vector3Df *> *l
 }
 
 bool
-BinaryModelSerializationGraph::collectVertexList(const ArrayList<Vertex *> *list) {
+BinaryModelSerializationGraph::collectVertexList(const ArrayList<RpkVertex *> *list) {
     if ( list == NULL ) {
         return true;
     }
@@ -345,7 +345,7 @@ BinaryModelSerializationGraph::collectPatchList(const ArrayList<Patch *> *list) 
 }
 
 bool
-BinaryModelSerializationGraph::collectMaterialList(const ArrayList<Material *> *list) {
+BinaryModelSerializationGraph::collectMaterialList(const ArrayList<RpkMaterial *> *list) {
     if ( list == NULL ) {
         return true;
     }
@@ -358,7 +358,7 @@ BinaryModelSerializationGraph::collectMaterialList(const ArrayList<Material *> *
 }
 
 bool
-BinaryModelSerializationGraph::collectGeometryList(const ArrayList<Geometry *> *list) {
+BinaryModelSerializationGraph::collectGeometryList(const ArrayList<RpkGeometry *> *list) {
     if ( list == NULL ) {
         return true;
     }

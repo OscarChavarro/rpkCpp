@@ -1,5 +1,5 @@
-#ifndef __WORDS_CONTEXT__
-#define __WORDS_CONTEXT__
+#ifndef __TOKEN_VALIDATION_CONTEXT__
+#define __TOKEN_VALIDATION_CONTEXT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

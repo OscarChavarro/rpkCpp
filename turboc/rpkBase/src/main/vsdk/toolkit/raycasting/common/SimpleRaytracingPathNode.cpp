@@ -129,7 +129,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() const {
 
 void
 SimpleRaytracingPathNode::assignBsdfAndNormal() {
-    const Material *thisMaterial;
+    const RpkMaterial *thisMaterial;
 
     if ( m_hit.getPatch() == NULL ) {
         // Invalid node

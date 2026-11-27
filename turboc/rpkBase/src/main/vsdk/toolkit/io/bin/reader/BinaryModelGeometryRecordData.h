@@ -12,7 +12,7 @@ class BinaryModelGeometryRecordData {
     bool shaftCullGeometry;
     bool omit;
     bool isDuplicate;
-    float boundingBoxCoordinates[6];
+    double boundingBoxCoordinates[6];
     bool hasRayIntersectionBox;
     bool hasRadianceData;
 

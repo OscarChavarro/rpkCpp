@@ -101,7 +101,7 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
         prob = elem->area * (Math::abs(radiance.getR()) + Math::abs(radiance.getG()) + Math::abs(radiance.getB()));
         if ( StochasticRelaxation::activeState().importanceDriven ) {
             // Weight with received importance
-            float w = elem->importance - elem->sourceImportance;
+            double w = elem->importance - elem->sourceImportance;
             prob *= ((w > 0.0) ? w : 0.0);
         }
     }
@@ -157,7 +157,7 @@ StochasticJacobi::stochasticJacobiElementSetup(Element *element) {
     if ( !stochasticRadiosityElement->traverseAllChildren(stochasticJacobiElementSetup) ) {
         // Elem is a leaf element. We need to compute the sum of the un-normalized
         // sampling "probabilities" at the leaf elements
-        stochasticRadiosityElement->samplingProbability = ((float)(stochasticJacobiProbability(stochasticRadiosityElement)));
+        stochasticRadiosityElement->samplingProbability = ((double)(stochasticJacobiProbability(stochasticRadiosityElement)));
         sumOfProbabilities += stochasticRadiosityElement->samplingProbability;
     }
     if ( stochasticRadiosityElement->parent ) {
@@ -175,9 +175,10 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
 bool
 StochasticJacobi::stochasticJacobiSetup(const ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
-    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().controlRadiance = ColorRgb(0.0, 0.0, 0.0);
     if ( useControlVariate ) {
-        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(getRadianceCallback, NULL, scenePatches);
+        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(
+            getRadianceCallback, NULL, scenePatches, StochasticRelaxation::activeState().toneMapOptions->getColorSpace());
     }
 
     sumOfProbabilities = 0.0;
@@ -212,7 +213,7 @@ StochasticJacobi::stchsJacPropRadnTSurf(
     for ( int i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
         double w = dual * fraction / ((double)(numberOfRaysToShoot));
-        rcv->receivedRadiance[i].addScaled(rcv->receivedRadiance[i], ((float)(w)), rayPower);
+        rcv->receivedRadiance[i].addScaled(rcv->receivedRadiance[i], ((double)(w)), rayPower);
     }
 }
 
@@ -225,7 +226,7 @@ StochasticJacobi::stchsJacPropRadnTClustIstrp(
     double /*weight*/)
 {
     double w = fraction / cluster->area / ((double)(numberOfRaysToShoot));
-    cluster->receivedRadiance[0].addScaled(cluster->receivedRadiance[0], ((float)(w)), rayPower);
+    cluster->receivedRadiance[0].addScaled(cluster->receivedRadiance[0], ((double)(w)), rayPower);
 }
 
 /**
@@ -235,18 +236,18 @@ void
 StochasticJacobi::stchsJacPropRadnClustRec(
     StochasticRadiosityElement *currentElement,
     ColorRgbMutable rayPower,
-    RpkRay *ray,
-    float dir,
+    Ray *ray,
+    double dir,
     double projectedArea,
     double fraction)
 {
     if ( currentElement != NULL && !currentElement->isCluster() ) {
         // Trivial case
-        double c = -dir * currentElement->patch->normal.dotProduct(ray->direction);
+        double c = -dir * currentElement->patch->normal.dotProduct(ray->getDirection());
         if ( c > 0.0 ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
             double w = aFraction / currentElement->area / ((double)(numberOfRaysToShoot));
-            currentElement->receivedRadiance[0].addScaled(currentElement->receivedRadiance[0], ((float)(w)), rayPower);
+            currentElement->receivedRadiance[0].addScaled(currentElement->receivedRadiance[0], ((double)(w)), rayPower);
         }
     } else {
         // Recursive case
@@ -266,8 +267,8 @@ void
 StochasticJacobi::stchsJacPropRadnTClustOrntd(
     StochasticRadiosityElement *cluster,
     ColorRgbMutable rayPower,
-    RpkRay *ray,
-    float dir,
+    Ray *ray,
+    double dir,
     const StochasticRadiosityElement * /*src*/,
     double projectedArea,
     double fraction,
@@ -282,13 +283,13 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 void
 StochasticJacobi::stchsJacRecvPrjctAreaRec(
     const StochasticRadiosityElement *currentElement,
-    RpkRay *ray,
-    float dir,
+    Ray *ray,
+    double dir,
     double *area)
 {
     if ( currentElement != NULL && !currentElement->isCluster() ) {
         // Trivial case
-        double c = -dir * currentElement->patch->normal.dotProduct(ray->direction);
+        double c = -dir * currentElement->patch->normal.dotProduct(ray->getDirection());
         if ( c > 0.0 ) {
             *area += c * currentElement->area;
         }
@@ -306,7 +307,7 @@ StochasticJacobi::stchsJacRecvPrjctAreaRec(
 }
 
 double
-StochasticJacobi::stchsJacRecvPrjctArea(const StochasticRadiosityElement *cluster, RpkRay *ray, float dir) {
+StochasticJacobi::stchsJacRecvPrjctArea(const StochasticRadiosityElement *cluster, Ray *ray, double dir) {
     double area = 0.0;
     stchsJacRecvPrjctAreaRec(cluster, ray, dir, &area);
     return area;
@@ -332,8 +333,8 @@ StochasticJacobi::stchsJacPropRadn(
     double vr,
     double src_prob,
     double rcv_prob,
-    RpkRay *ray,
-    float dir)
+    Ray *ray,
+    double dir)
 {
     ColorRgbMutable radiance;
     ColorRgbMutable rayPower;
@@ -354,7 +355,7 @@ StochasticJacobi::stchsJacPropRadn(
             radiance.getG() - StochasticRelaxation::activeState().controlRadiance.getG(),
             radiance.getB() - StochasticRelaxation::activeState().controlRadiance.getB());
     }
-    rayPower.scaledCopy(((float)(weight)), radiance);
+    rayPower.scaledCopy(((double)(weight)), radiance);
 
     if ( !rcv->isCluster() ) {
         stchsJacPropRadnTSurf(rcv, ur, vr, rayPower, src, fraction, weight);
@@ -393,11 +394,11 @@ StochasticJacobi::stchsJacPropImp(
     double /*vr*/,
     double src_prob,
     double rcv_prob,
-    const RpkRay * /*ray*/,
-    float /*dir*/)
+    const Ray * /*ray*/,
+    double /*dir*/)
 {
     double w = sumOfProbabilities / (src_prob + rcv_prob) / rcv->area / ((double)(numberOfRaysToShoot));
-    rcv->receivedImportance += ((float)(w * StochasticRadiosityElement::stchsRadElemSclrRefl(src) * getImportanceCallback(src)));
+    rcv->receivedImportance += ((double)(w * StochasticRadiosityElement::stchsRadElemSclrRefl(src) * getImportanceCallback(src)));
 
     if ( ElementHierarchyState::activeState().do_h_meshing ||
          ElementHierarchyState::activeState().clustering != NO_CLUSTERING ) {
@@ -423,8 +424,8 @@ StochasticJacobi::stchsJacRfnAPropRadn(
     double vq,
     double src_prob,
     double rcv_prob,
-    RpkRay *ray,
-    float dir,
+    Ray *ray,
+    double dir,
     const RenderOptions *renderOptions)
 {
     Link link = Link();
@@ -444,8 +445,8 @@ StochasticJacobi::stchsJacRfnAPropImp(
     double vq,
     double src_prob,
     double rcv_prob,
-    const RpkRay *ray,
-    float dir)
+    const Ray *ray,
+    double dir)
 {
     // No refinement (yet) for importance: propagate between toplevel surfaces
     stchsJacPropImp(P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, dir);
@@ -466,7 +467,7 @@ StochasticJacobi::stchsJacRfnAProp(
     StochasticRadiosityElement *Q,
     double uq,
     double vq,
-    RpkRay *ray,
+    Ray *ray,
     const RenderOptions *renderOptions)
 {
     double src_prob;
@@ -532,7 +533,7 @@ StochasticJacobi::stochasticJacobiNextSample(
 Determines uniform (u,v) parameters of hit point on hit patch
 */
 void
-StochasticJacobi::stchsJacUnfrmHitCrdnt(const RayHit *hit, double *uHit, double *vHit) {
+StochasticJacobi::stchsJacUnfrmHitCrdnt(const RpkRayHit *hit, double *uHit, double *vHit) {
     if ( hit->getFlags() & UV ) {
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->getUv().x;
@@ -541,7 +542,7 @@ StochasticJacobi::stchsJacUnfrmHitCrdnt(const RayHit *hit, double *uHit, double 
             hit->getPatch()->biLinearToUniform(uHit, vHit);
         }
     } else {
-        Vector3Df position = hit->getPoint();
+        Vector3Dd position = hit->getPoint();
         hit->getPatch()->uniformUv(&position, uHit, vHit);
     }
 
@@ -583,11 +584,11 @@ StochasticJacobi::stochasticJacobiElementShootRay(
     }
 
     double zeta[4];
-    RpkRay ray = Localline::mcrGenerateLocalLine(src->patch,
+    Ray ray = Localline::mcrGenerateLocalLine(src->patch,
                                stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
-    RayHit hitStore;
-    const RayHit *hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, src->patch, &ray, &hitStore);
+    RpkRayHit hitStore;
+    const RpkRayHit *hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, src->patch, &ray, &hitStore);
 
     if ( hit ) {
         double uHit = 0.0;
@@ -726,7 +727,7 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
 
     reflectCallback(elem, ((double)(numberOfRaysToShoot)) / sumOfProbabilities);
 
-    const float kFlux = ((float)(M_PI)) * elem->area;
+    const double kFlux = ((double)(M_PI)) * elem->area;
     StochasticRelaxation::activeState().unShotFlux = ColorRgb(
         StochasticRelaxation::activeState().unShotFlux.getR() + kFlux * elem->unShotRadiance[0].getR(),
         StochasticRelaxation::activeState().unShotFlux.getG() + kFlux * elem->unShotRadiance[0].getG(),
@@ -735,7 +736,7 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
         StochasticRelaxation::activeState().totalFlux.getR() + kFlux * elem->radiance[0].getR(),
         StochasticRelaxation::activeState().totalFlux.getG() + kFlux * elem->radiance[0].getG(),
         StochasticRelaxation::activeState().totalFlux.getB() + kFlux * elem->radiance[0].getB());
-    const float kImpFlux = ((float)(M_PI)) * elem->area * (elem->importance - elem->sourceImportance);
+    const double kImpFlux = ((double)(M_PI)) * elem->area * (elem->importance - elem->sourceImportance);
     StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(
         StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getR() + kImpFlux * elem->unShotRadiance[0].getR(),
         StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux.getG() + kImpFlux * elem->unShotRadiance[0].getG(),
@@ -827,7 +828,7 @@ StochasticJacobi::stchsJacPullRdEdFromChld(Element *element) {
         parent->Rd.getG() + (child->area / parent->area) * child->Rd.getG(),
         parent->Rd.getB() + (child->area / parent->area) * child->Rd.getB());
     if ( parent->isCluster() )
-        parent->Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+        parent->Rd = ColorRgbMutable(1.0, 1.0, 1.0);
 }
 
 void
@@ -836,19 +837,19 @@ StochasticJacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) 
         return;
     }
 
-    element->Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
-    element->Rd = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    element->Ed = ColorRgbMutable(0.0, 0.0, 0.0);
+    element->Rd = ColorRgbMutable(0.0, 0.0, 0.0);
     element->traverseAllChildren(stchsJacPullRdEdFromChld);
 }
 
 void
 StochasticJacobi::stchsJacPushUpdPullSwp() {
     // Update radiance, compute new total and un-shot flux
-    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
-    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().indrcImpWghtdUnShotFlux = ColorRgb(0.0, 0.0, 0.0);
 
     // Update reflectances and emittances (refinement yields more accurate estimates
     // on textured surfaces)

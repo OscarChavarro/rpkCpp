@@ -1,5 +1,5 @@
-#ifndef __MGF_ENTITY_HANDLER__
-#define __MGF_ENTITY_HANDLER__
+#ifndef __ENTITY_DISPATCH_CONTEXT__
+#define __ENTITY_DISPATCH_CONTEXT__
 
 #include "vsdk/toolkit/io/context/HandlerRoleContext.h"
 #include "vsdk/toolkit/io/context/ParseContext.h"

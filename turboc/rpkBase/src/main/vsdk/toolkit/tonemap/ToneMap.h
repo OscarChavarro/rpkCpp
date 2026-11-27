@@ -3,6 +3,7 @@
 
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.h"
+#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 /**
@@ -11,7 +12,8 @@ Most of the functions have similar meaning as for a radiance or ray-tracing meth
 class ToneMap {
   private:
     static ToneMap *activeToneMap;
-    static int gammaTableEntry(float x);
+    Cie colorSpace;
+    static int gammaTableEntry(double x);
     static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
     static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
     static ColorRgb *rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions);
@@ -24,17 +26,24 @@ class ToneMap {
     transformation rule comes from Glassner's book, table 13.3, seems to
     be OK.
     */
-    static float tmoCandelaLambert(float a);
+    static double tmoCandelaLambert(double a);
 
     /**
     Transforms luminance from lamberts to cd/m^2 to lamberts.
     */
-    static float tmoLambertCandela(float a);
+    static double tmoLambertCandela(double a);
+
+    const Cie &getColorSpace() const { return colorSpace; }
+
+    /**
+    Computes the parameters of the concrete operator from the context
+    */
+    virtual void initParameters(const ToneMappingContext &toneMapOptions) = 0;
 
   public:
     ToneMap();
     virtual ~ToneMap();
-    virtual void init(const ToneMappingContext &toneMapOptions) = 0;
+    void init(const ToneMappingContext &toneMapOptions);
 
     /**
     Knowing the display luminance "dl" this function determines the

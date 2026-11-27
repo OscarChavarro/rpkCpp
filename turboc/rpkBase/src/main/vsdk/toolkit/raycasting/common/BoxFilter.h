@@ -1,5 +1,5 @@
-#ifndef ___BOX_FILTER__
-#define ___BOX_FILTER__
+#ifndef __BOX_FILTER__
+#define __BOX_FILTER__
 
 #include "vsdk/toolkit/raycasting/common/PixelFilter.h"
 

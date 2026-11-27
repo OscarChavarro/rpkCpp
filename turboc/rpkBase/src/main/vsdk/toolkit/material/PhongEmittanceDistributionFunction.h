@@ -13,7 +13,7 @@ class PhongEmitDistFunc {
     ColorRgb Kd;
     ColorRgb kd;
     ColorRgb Ks;
-    float Ns;
+    double Ns;
 
     bool isSpecular() const;
 
@@ -23,27 +23,27 @@ public:
 
     const ColorRgb &getKd() const;
     const ColorRgb &getKs() const;
-    float getNs() const;
+    double getNs() const;
 
     static bool edfIsTextured();
 
     static bool
     edfShadingFrame(
         const ShadingContext &context,
-        const Vector3Df *X,
-        const Vector3Df *Y,
-        const Vector3Df *Z);
+        const Vector3Dd *X,
+        const Vector3Dd *Y,
+        const Vector3Dd *Z);
 
     ColorRgb phongEmittance(const ShadingContext *context, char flags) const;
 
     ColorRgb
     phongEdfEval(
         const ShadingContext *context,
-        const Vector3Df *out,
+        const Vector3Dd *out,
         char flags,
         double *probabilityDensityFunction) const;
 
-    Vector3Df
+    Vector3Dd
     phongEdfSample(
         const ShadingContext *context,
         char flags,
@@ -63,7 +63,7 @@ PhongEmitDistFunc::getKs() const {
     return Ks;
 }
 
-inline float
+inline double
 PhongEmitDistFunc::getNs() const {
     return Ns;
 }

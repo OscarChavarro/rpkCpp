@@ -11,42 +11,42 @@ Background::~Background() {
 
 ColorRgbMutable
 Background::radiance(
-    Vector3Df * /*position*/,
-    Vector3Df * /*direction*/,
-    float *probabilityDensityFunction) const
+    Vector3Dd * /*position*/,
+    Vector3Dd * /*direction*/,
+    double *probabilityDensityFunction) const
 {
     if ( probabilityDensityFunction != NULL ) {
-        *probabilityDensityFunction = 0.0f;
+        *probabilityDensityFunction = 0.0;
     }
-    return ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    return ColorRgbMutable(0.0, 0.0, 0.0);
 }
 
-Vector3Df
+Vector3Dd
 Background::sample(
-    Vector3Df * /*position*/,
-    float /*xi1*/,
-    float /*xi2*/,
+    Vector3Dd * /*position*/,
+    double /*xi1*/,
+    double /*xi2*/,
     ColorRgbMutable *radianceValue,
-    float *probabilityDensityFunction) const
+    double *probabilityDensityFunction) const
 {
     if ( radianceValue != NULL ) {
-        *radianceValue = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+        *radianceValue = ColorRgbMutable(0.0, 0.0, 0.0);
     }
     if ( probabilityDensityFunction != NULL ) {
-        *probabilityDensityFunction = 0.0f;
+        *probabilityDensityFunction = 0.0;
     }
-    return Vector3Df();
+    return Vector3Dd();
 }
 
 ColorRgbMutable
-Background::power(Vector3Df * /*position*/) const {
-    return ColorRgbMutable(0.0f, 0.0f, 0.0f);
+Background::power(Vector3Dd * /*position*/) const {
+    return ColorRgbMutable(0.0, 0.0, 0.0);
 }
 
 ColorRgbMutable
-Background::backgroundPower(Background *bkg, Vector3Df *position) {
+Background::backgroundPower(Background *bkg, Vector3Dd *position) {
     if ( !bkg ) {
-        return ColorRgbMutable(0.0f, 0.0f, 0.0f);
+        return ColorRgbMutable(0.0, 0.0, 0.0);
     } else {
         return bkg->power(position);
     }
@@ -56,11 +56,11 @@ Background::backgroundPower(Background *bkg, Vector3Df *position) {
 ColorRgbMutable
 Background::backgroundRadiance(
         Background *bkg,
-        Vector3Df *position,
-        Vector3Df *direction,
-        float *probabilityDensityFunction) {
+        Vector3Dd *position,
+        Vector3Dd *direction,
+        double *probabilityDensityFunction) {
     if ( !bkg ) {
-        return ColorRgbMutable(0.0f, 0.0f, 0.0f);
+        return ColorRgbMutable(0.0, 0.0, 0.0);
     } else {
         return bkg->radiance(position, direction, probabilityDensityFunction);
     }

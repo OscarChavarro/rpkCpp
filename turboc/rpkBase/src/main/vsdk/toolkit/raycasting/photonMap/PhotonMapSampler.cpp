@@ -26,26 +26,26 @@ PhotonMapSampler::chooseComponent(
     char flags1,
     char flags2,
     const PhongBidirScattDistFunc *bsdf,
-    RayHit *hit,
+    RpkRayHit *hit,
     bool doRR,
     double *x,
-    float *probabilityDensityFunction,
+    double *probabilityDensityFunction,
     bool *chose1)
 {
     ColorRgb color;
-    float power1;
-    float power2;
-    float totalPower;
+    double power1;
+    double power2;
+    double totalPower;
 
     // Choose between flags1 or flags2 scattering
-    color = ColorRgb(0.0f, 0.0f, 0.0f);
+    color = ColorRgb(0.0, 0.0, 0.0);
 
     if ( bsdf != NULL ) {
         color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags1);
     }
     power1 = ColorRgbMutable(color).average();
 
-    color = ColorRgb(0.0f, 0.0f, 0.0f);
+    color = ColorRgb(0.0, 0.0, 0.0);
     if ( bsdf != NULL ) {
         color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags2);
     }
@@ -98,7 +98,7 @@ PhotonMapSampler::sample(
 {
     const PhongBidirScattDistFunc *bsdf = thisNode->m_useBsdf;
     bool sChosen;
-    float pdfChoice;
+    double pdfChoice;
     char sFlagMask;
 
     const char sFLAGS = BsdfComponentInfo::BSDF_SPECULAR_COMPONENT;
@@ -179,7 +179,7 @@ PhotonMapSampler::chooseFresnelDirection(
     SimpleRaytracingPathNode *thisNode,
     char flags,
     double x2,
-    Vector3Df *dir,
+    Vector3Dd *dir,
     double *pdfDir,
     ColorRgb *scatteringColor,
     bool *doCosInverse)
@@ -192,13 +192,13 @@ PhotonMapSampler::chooseFresnelDirection(
     // would be zero
     const PhongBidirScattDistFunc *bsdf = thisNode->m_useBsdf;
     ColorRgb reflectance;
-    reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
+    reflectance = ColorRgb(0.0, 0.0, 0.0);
     if ( bsdf != NULL ) {
         reflectance = bsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
-    transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
+    transmittance = ColorRgb(0.0, 0.0, 0.0);
     if ( bsdf != NULL ) {
         transmittance = bsdf->splitBsdfScatteredPower(thisNode->m_hit.shadingContext(NULL), SPECULAR_COMPONENT);
     }
@@ -212,12 +212,12 @@ PhotonMapSampler::chooseFresnelDirection(
     }
 
     // Fresnel reflection factor is computed.
-    float cosI;
-    float cost;
-    float F;  // Fresnel reflection. (Refraction = 1 - T)
+    double cosI;
+    double cost;
+    double F;  // Fresnel reflection. (Refraction = 1 - T)
     bool tir; // total internal reflection
-    Vector3Df reflectedDir;
-    Vector3Df refractedDir;
+    Vector3Dd reflectedDir;
+    Vector3Dd refractedDir;
 
     if ( reflective ) {
         if ( flags & BRDF_SPECULAR_COMPONENT ) {
@@ -256,25 +256,25 @@ PhotonMapSampler::chooseFresnelDirection(
                 Logger::reportMessage("PhotonMapSampler", Logger::ERROR, "fresnelSample", "cost < 0");
             }
 
-            float rParallel;
-            float rPerpendicular;
-            float nt = nc_out.getNr();
-            float ni = nc_in.getNr();
+            double rParallel;
+            double rPerpendicular;
+            double nt = nc_out.getNr();
+            double ni = nc_in.getNr();
 
             rParallel = (nt * cosI - ni * cost) / (nt * cosI + ni * cost);
             rPerpendicular = (ni * cosI - nt * cost) / (ni * cosI + nt * cost);
 
-            F = 0.5f * (rParallel * rParallel + rPerpendicular * rPerpendicular);
+            F = 0.5 * (rParallel * rParallel + rPerpendicular * rPerpendicular);
         } else {
             F = 0; // All in refracted dir, which == reflected dir
         }
     }
 
-    float T = 1.0f - F;
+    double T = 1.0 - F;
     bool reflected;
 
     // Choose reflection or refraction
-    float sum = 0.0;
+    double sum = 0.0;
 
     if ( flags & BTDF_SPECULAR_COMPONENT ) {
         sum += T;
@@ -341,7 +341,7 @@ PhotonMapSampler::fresnelSample(
     double x2,
     char flags)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
     double pdfDir;
     bool doCosInverse;
     ColorRgb scatteringColor;
@@ -364,8 +364,8 @@ PhotonMapSampler::fresnelSample(
     // given by ChooseFresnelDirection, but may be divided by a cosine
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
-        float cosB = Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
-        float inv = (cosB < -VSDK::EPSILON || cosB > VSDK::EPSILON) ? 1.0f / cosB : 1.0f;
+        double cosB = Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
+        double inv = (cosB < -VSDK::EPSILON || cosB > VSDK::EPSILON) ? 1.0 / cosB : 1.0;
         thisNode->m_bsdfEval = ColorRgb(
             inv * scatteringColor.getR(),
             inv * scatteringColor.getG(),
@@ -418,7 +418,7 @@ PhotonMapSampler::gdSample(
     // Choose G or D
     const PhongBidirScattDistFunc *bsdf = thisNode->m_useBsdf;
     bool dChosen;
-    float pdfChoice;
+    double pdfChoice;
 
     // Choose between D or G scattering
     if ( !chooseComponent(BRDF_DIFFUSE_COMPONENT & flags,
@@ -435,7 +435,7 @@ PhotonMapSampler::gdSample(
     // Importance sampling using photon map x_1 & x_2 get transformed
 
     CoordinateSystem coord;
-    float glossy_exponent;
+    double glossy_exponent;
 
     if ( dChosen ) {
         // Equation [ARVO1995b](6) in CoordinateSystem::setFromZAxis builds the

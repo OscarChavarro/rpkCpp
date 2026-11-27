@@ -1,5 +1,5 @@
-#ifndef __ENTITY_CONTEXT__
-#define __ENTITY_CONTEXT__
+#ifndef __ENTITY_TYPE_CONTEXT__
+#define __ENTITY_TYPE_CONTEXT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

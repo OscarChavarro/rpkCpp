@@ -56,15 +56,15 @@ StochasticRadiosityBasisState::StochasticRadiosityBasisState():
     clusterBasis.dualFunction = StochasticRadiosityBasisState::oneBasisTable;
     clusterBasis.regularFilter = NULL;
 
-    quadUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-    quadUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-    quadUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-    quadUpTransform[3] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f);
+    quadUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+    quadUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+    quadUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+    quadUpTransform[3] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.5);
 
-    triangleUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-    triangleUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-    triangleUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-    triangleUpTransform[3] = createTransform(-0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f);
+    triangleUpTransform[0] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.0);
+    triangleUpTransform[1] = createTransform(0.5, 0.0, 0.0, 0.5, 0.5, 0.0);
+    triangleUpTransform[2] = createTransform(0.5, 0.0, 0.0, 0.5, 0.0, 0.5);
+    triangleUpTransform[3] = createTransform(-0.5, 0.0, 0.0, -0.5, 0.5, 0.5);
 }
 
 void
@@ -88,7 +88,7 @@ StochasticRadiosityBasisState::activeStatePtr() {
 }
 
 Matrix2x2
-StochasticRadiosityBasisState::createTransform(float m00, float m01, float m10, float m11, float t0, float t1) {
+StochasticRadiosityBasisState::createTransform(double m00, double m01, double m10, double m11, double t0, double t1) {
     return Matrix2x2(m00, m01, m10, m11, t0, t1);
 }
 
@@ -149,10 +149,10 @@ Basismcrad::computeFilterCoefficients(
         for ( int b = 0; b < child_size; b++ ) {
             double x = 0.0;
             for ( int k = 0; k < cr->numberOfNodes; k++ ) {
-                Vector2Df up;
-                up = Vector2Df(((float)(cr->u[k])), ((float)(cr->v[k])));
+                Vector2Dd up;
+                up = Vector2Dd(((double)(cr->u[k])), ((double)(cr->v[k])));
                 up = upxfm->transformPoint(up);
-                x += cr->w[k] * parent_basis->function[a](up.x(), up.y()) *
+                x += cr->w[k] * parent_basis->function[a](up.x, up.y) *
                      child_basis->function[b](cr->u[k], cr->v[k]);
             }
             (*filter)[a][b] = x;
@@ -215,14 +215,14 @@ Returns color at a given point, with parameters (u,v)
 */
 ColorRgbMutable
 Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v) {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
     for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        r += ((float)(s)) * rad[i].getR();
-        g += ((float)(s)) * rad[i].getG();
-        b += ((float)(s)) * rad[i].getB();
+        r += ((double)(s)) * rad[i].getR();
+        g += ((double)(s)) * rad[i].getG();
+        b += ((double)(s)) * rad[i].getB();
     }
     return ColorRgbMutable(r, g, b);
 }
@@ -234,11 +234,11 @@ the result to the destination coefficients
 void
 Basismcrad::filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER *h, ColorRgbMutable *child, int n) {
     for ( int i = 0; i < n; i++ ) {
-        float r = child[i].getR();
-        float g = child[i].getG();
-        float b = child[i].getB();
+        double r = child[i].getR();
+        double g = child[i].getG();
+        double b = child[i].getB();
         for ( int j = 0; j < n; j++ ) {
-            float w = ((float)((*h)[j][i]));
+            double w = ((double)((*h)[j][i]));
             r += w * parent[j].getR();
             g += w * parent[j].getG();
             b += w * parent[j].getB();
@@ -250,12 +250,12 @@ Basismcrad::filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER
 void
 Basismcrad::filterColorUp(const ColorRgbMutable *child, GalerkinBasis::FILTER *h, ColorRgbMutable *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
-        float r = parent[i].getR();
-        float g = parent[i].getG();
-        float b = parent[i].getB();
+        double r = parent[i].getR();
+        double g = parent[i].getG();
+        double b = parent[i].getB();
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            float w = ((float)(H));
+            double w = ((double)(H));
             r += w * child[j].getR();
             g += w * child[j].getG();
             b += w * child[j].getB();

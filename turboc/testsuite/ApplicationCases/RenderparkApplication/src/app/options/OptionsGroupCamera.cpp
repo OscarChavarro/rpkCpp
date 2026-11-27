@@ -3,37 +3,37 @@
 #include "vsdk/toolkit/common/commandLineOptions/OptionParser.h"
 #include "app/options/OptionsGroupCamera.h"
 
-const Vector3Df OptionsGroupCamera::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
-const Vector3Df OptionsGroupCamera::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
-const Vector3Df OptionsGroupCamera::DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
+const Vector3Dd OptionsGroupCamera::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
+const Vector3Dd OptionsGroupCamera::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
+const Vector3Dd OptionsGroupCamera::DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
 const ColorRgb OptionsGroupCamera::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 Camera OptionsGroupCamera::cameraState;
 
 void
-OptionsGroupCamera::cameraSetEyePositionOption(Vector3Df &val) {
+OptionsGroupCamera::cameraSetEyePositionOption(Vector3Dd &val) {
     cameraState.setEyePosition(val.x(), val.y(), val.z());
 }
 
 void
-OptionsGroupCamera::cameraSetLookPositionOption(Vector3Df &val) {
+OptionsGroupCamera::cameraSetLookPositionOption(Vector3Dd &val) {
     cameraState.setLookPosition(val.x(), val.y(), val.z());
 }
 
 void
-OptionsGroupCamera::cameraSetUpDirectionOption(Vector3Df &val) {
+OptionsGroupCamera::cameraSetUpDirectionOption(Vector3Dd &val) {
     cameraState.setUpDirection(val.x(), val.y(), val.z());
 }
 
 void
-OptionsGroupCamera::cameraSetFieldOfViewOption(float &val) {
+OptionsGroupCamera::cameraSetFieldOfViewOption(double &val) {
     cameraState.setFieldOfView(val);
 }
 
 void
 OptionsGroupCamera::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
-    Vector3Df eyePosition = DEFAULT_CAMERA_EYE_POSITION;
-    Vector3Df lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
-    Vector3Df upDirection = DEFAULT_CAMERA_UP_DIRECTION;
+    Vector3Dd eyePosition = DEFAULT_CAMERA_EYE_POSITION;
+    Vector3Dd lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
+    Vector3Dd upDirection = DEFAULT_CAMERA_UP_DIRECTION;
     ColorRgbMutable backgroundColorSelected = ColorRgbMutable(DEFAULT_BACKGROUND_COLOR.getR(), DEFAULT_BACKGROUND_COLOR.getG(), DEFAULT_BACKGROUND_COLOR.getB());
 
     camera->set(
@@ -54,15 +54,15 @@ OptionsGroupCamera::cameraParseOptions(
         int imageWidth,
         int imageHeight)
 {
-    TypedOption<Vector3Df> eyePointOpt("-eyepoint", &cameraState.eyePosition, 3, OptionsGroupCamera::cameraSetEyePositionOption, OptionsGroupCamera::parseVector3);
-    TypedOption<Vector3Df> centerOpt("-center", &cameraState.lookPosition, 3, OptionsGroupCamera::cameraSetLookPositionOption, OptionsGroupCamera::parseVector3);
-    TypedOption<Vector3Df> upDirOpt("-updir", &cameraState.upDirection, 3, OptionsGroupCamera::cameraSetUpDirectionOption, OptionsGroupCamera::parseVector3);
-    TypedOption<float> fovOpt("-fov", &cameraState.fieldOfVision, 1, OptionsGroupCamera::cameraSetFieldOfViewOption, NULL);
+    TypedOption<Vector3Dd> eyePointOpt("-eyepoint", &cameraState.eyePosition, 3, OptionsGroupCamera::cameraSetEyePositionOption, OptionsGroupCamera::parseVector3);
+    TypedOption<Vector3Dd> centerOpt("-center", &cameraState.lookPosition, 3, OptionsGroupCamera::cameraSetLookPositionOption, OptionsGroupCamera::parseVector3);
+    TypedOption<Vector3Dd> upDirOpt("-updir", &cameraState.upDirection, 3, OptionsGroupCamera::cameraSetUpDirectionOption, OptionsGroupCamera::parseVector3);
+    TypedOption<double> fovOpt("-fov", &cameraState.fieldOfVision, 1, OptionsGroupCamera::cameraSetFieldOfViewOption, NULL);
     OptionBase cameraOptions[] = {
-        REGISTER_OPTION(Vector3Df, eyePointOpt, 4),
-        REGISTER_OPTION(Vector3Df, centerOpt, 4),
-        REGISTER_OPTION(Vector3Df, upDirOpt, 3),
-        REGISTER_OPTION(float, fovOpt, 4)
+        REGISTER_OPTION(Vector3Dd, eyePointOpt, 4),
+        REGISTER_OPTION(Vector3Dd, centerOpt, 4),
+        REGISTER_OPTION(Vector3Dd, upDirOpt, 3),
+        REGISTER_OPTION(double, fovOpt, 4)
     };
 
     OptionsGroupCamera::cameraDefaults(&cameraState, imageWidth, imageHeight);
@@ -74,20 +74,20 @@ OptionsGroupCamera::cameraParseOptions(
 }
 
 bool
-OptionsGroupCamera::parseVector3(int argc, char **argv, Vector3Df &value) {
+OptionsGroupCamera::parseVector3(int argc, char **argv, Vector3Dd &value) {
     if ( argc < 3 || argv == NULL || argv[0] == NULL || argv[1] == NULL || argv[2] == NULL ) {
         return false;
     }
     char *endPointer = NULL;
-    value = value.withX(strtof(argv[0], &endPointer));
+    value = value.withX(strtod(argv[0], &endPointer));
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value = value.withY(strtof(argv[1], &endPointer));
+    value = value.withY(strtod(argv[1], &endPointer));
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value = value.withZ(strtof(argv[2], &endPointer));
+    value = value.withZ(strtod(argv[2], &endPointer));
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }

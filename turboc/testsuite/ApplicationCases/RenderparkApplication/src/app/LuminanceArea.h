@@ -9,8 +9,8 @@ selection.
 */
 class LuminanceArea {
   public:
-    float luminance;
-    float area;
+    double luminance;
+    double area;
 };
 
 #endif

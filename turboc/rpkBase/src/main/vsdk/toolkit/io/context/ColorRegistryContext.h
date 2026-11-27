@@ -1,5 +1,5 @@
-#ifndef __COLOR_REPOSITORY__
-#define __COLOR_REPOSITORY__
+#ifndef __COLOR_REGISTRY_CONTEXT__
+#define __COLOR_REGISTRY_CONTEXT__
 
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpTable.h"

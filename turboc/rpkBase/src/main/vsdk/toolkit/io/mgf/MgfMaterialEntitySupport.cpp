@@ -5,12 +5,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpEntity.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
@@ -23,7 +22,7 @@ addColor(const ColorRgb &a, const ColorRgb &b) {
 }
 
 static ColorRgb
-scaleColor(const ColorRgb &c, float scale) {
+scaleColor(const ColorRgb &c, double scale) {
     return ColorRgb(c.getR() * scale, c.getG() * scale, c.getB() * scale);
 }
 
@@ -38,10 +37,10 @@ isBlack(const ColorRgb &c) {
 Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or NULL if not found
 */
-Material *
+RpkMaterial *
 MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeContext *context) {
     for ( int i = 0; context->materials != NULL && i < context->materials->size(); i++ ) {
-        Material *m = context->materials->get(i);
+        RpkMaterial *m = context->materials->get(i);
         if ( m != NULL && m->getName() != NULL && strcmp(m->getName(), name) == 0 ) {
             return m;
         }
@@ -50,18 +49,35 @@ MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeCon
 }
 
 /**
+Returns true if the color was desaturated during clipping against the
+monitor gamut
+*/
+bool
+MgfMaterialEntitySupport::clipGamut(double *rgb) {
+    // Really SHOULD desaturate instead of just clipping!
+    bool desaturated = false;
+    for ( int i = 0; i < 3; i++ ) {
+        if ( rgb[i] < 0.0 ) {
+            rgb[i] = 0.0;
+            desaturated = true;
+        }
+    }
+    return desaturated;
+}
+
+/**
 Translates mgf color into out color representation
 */
 void
-MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
-    float xyz[3];
-    float rgb[3];
+MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
+    double xyz[3];
+    double rgb[3];
 
     cin->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     if ( cin->cy > VSDK::EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
-        xyz[1] = 1.0f * intensity;
-        xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
+        xyz[1] = 1.0 * intensity;
+        xyz[2] = (1.0 - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
         MgfEntityControl::doWarning("invalid color specification (Y<=0) ... setting to black", context);
         xyz[0] = 0.0;
@@ -74,38 +90,38 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorR
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;
         }
-        if ( xyz[1] < 1.0 ) {
+        if ( xyz[1] < 0.0 ) {
             xyz[1] = 0.0;
         }
-        if ( xyz[2] < 2.0 ) {
+        if ( xyz[2] < 0.0 ) {
             xyz[2] = 0.0;
         }
     }
 
-    Cie::transformColorFromXYZ2RGB(xyz, rgb);
-    if ( Cie::clipGamut(rgb) ) {
+    context->parserConfig.getColorSpace().transformColorFromXYZ2RGB(xyz, rgb);
+    if ( MgfMaterialEntitySupport::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
     *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
 }
 
 void
-MgfMaterialEntitySupport::specSamples(const ColorRgb &col, float *rgb) {
+MgfMaterialEntitySupport::specSamples(const ColorRgb &col, double *rgb) {
     rgb[0] = col.getR();
     rgb[1] = col.getG();
     rgb[2] = col.getB();
 }
 
-float
+double
 MgfMaterialEntitySupport::colorMax(const ColorRgb &col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
-    float samples[NUMBER_OF_SAMPLES];
+    double samples[NUMBER_OF_SAMPLES];
 
     MgfMaterialEntitySupport::specSamples(col, samples);
 
-    float mx = -Float::MAX_VALUE;
+    double mx = -Double::MAX_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
@@ -122,14 +138,14 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 bool
-MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
-    ColorRgb Ed(0.0f, 0.0f, 0.0f);
-    ColorRgb Es(0.0f, 0.0f, 0.0f);
-    ColorRgb Rd(0.0f, 0.0f, 0.0f);
-    ColorRgb Td(0.0f, 0.0f, 0.0f);
-    ColorRgb Rs(0.0f, 0.0f, 0.0f);
-    ColorRgb Ts(0.0f, 0.0f, 0.0f);
-    ColorRgb A(0.0f, 0.0f, 0.0f);
+MgfMaterialEntitySupport::mgfGetCurrentMaterial(RpkMaterial **material, bool allSurfacesSided, ParseRuntimeContext *context) {
+    ColorRgb Ed(0.0, 0.0, 0.0);
+    ColorRgb Es(0.0, 0.0, 0.0);
+    ColorRgb Rd(0.0, 0.0, 0.0);
+    ColorRgb Td(0.0, 0.0, 0.0);
+    ColorRgb Rs(0.0, 0.0, 0.0);
+    ColorRgb Ts(0.0, 0.0, 0.0);
+    ColorRgb A(0.0, 0.0, 0.0);
     MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
@@ -143,7 +159,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
         return false;
     }
 
-    Material *storedMaterial = MgfMaterialEntitySupport::materialLookup(materialName, context);
+    RpkMaterial *storedMaterial = MgfMaterialEntitySupport::materialLookup(materialName, context);
     if ( storedMaterial != NULL && currentMaterialContext->clock == 0 ) {
         *material = storedMaterial;
         return true;
@@ -159,52 +175,53 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     // Check/correct range of reflectances and transmittances
     A = addColor(Rd, Rs);
-    float a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
+    double a = MgfMaterialEntitySupport::colorMax(A);
+    if ( a > 1.0 - Numeric::EPSILON ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
-        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON) / a;
         Rd = scaleColor(Rd, a);
         Rs = scaleColor(Rs, a);
     }
 
     A = addColor(Td, Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0 - Numeric::EPSILON ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
-        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON) / a;
         Td = scaleColor(Td, a);
         Ts = scaleColor(Ts, a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed = scaleColor(Ed, 1.0f / Cie::WHITE_EFFICACY);
-    Es = ColorRgb(0.0f, 0.0f, 0.0f);
+    Ed = scaleColor(Ed, 1.0 / context->parserConfig.getColorSpace().getLuminousEfficacy());
+    Es = ColorRgb(0.0, 0.0, 0.0);
 
-    float Nr;
-    float Nt;
+    double Nr;
+    double Nt;
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
     if ( currentMaterialContext->rs_a != 0.0 ) {
-        Nr = 0.6f / currentMaterialContext->rs_a;
+        Nr = 0.6 / currentMaterialContext->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
     if ( currentMaterialContext->ts_a != 0.0 ) {
-        Nt = 0.6f / currentMaterialContext->ts_a;
+        Nt = 0.6 / currentMaterialContext->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
     }
 
     if ( context->monochrome ) {
-        const float EdGray = Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB());
-        const float EsGray = Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB());
-        const float RdGray = Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB());
-        const float RsGray = Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB());
-        const float TdGray = Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB());
-        const float TsGray = Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB());
+        const Cie &colorSpace = context->parserConfig.getColorSpace();
+        const double EdGray = colorSpace.spectrumGray(Ed.getR(), Ed.getG(), Ed.getB());
+        const double EsGray = colorSpace.spectrumGray(Es.getR(), Es.getG(), Es.getB());
+        const double RdGray = colorSpace.spectrumGray(Rd.getR(), Rd.getG(), Rd.getB());
+        const double RsGray = colorSpace.spectrumGray(Rs.getR(), Rs.getG(), Rs.getB());
+        const double TdGray = colorSpace.spectrumGray(Td.getR(), Td.getG(), Td.getB());
+        const double TsGray = colorSpace.spectrumGray(Ts.getR(), Ts.getG(), Ts.getB());
         Ed = ColorRgb(EdGray, EdGray, EdGray);
         Es = ColorRgb(EsGray, EsGray, EsGray);
         Rd = ColorRgb(RdGray, RdGray, RdGray);
@@ -215,7 +232,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     PhongEmitDistFunc* edf = NULL;
     if ( !isBlack(Ed) || !isBlack(Es) ) {
-        CONSTEXPR float Ne = 0.0;
+        CONSTEXPR double Ne = 0.0;
         edf = new PhongEmitDistFunc(&Ed, &Es, Ne);
     }
 
@@ -236,7 +253,7 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     PhongBidirScattDistFunc *bsdf = new PhongBidirScattDistFunc(brdf, btdf, NULL);
 
-    (*material) = new Material(
+    (*material) = new RpkMaterial(
         materialName,
          edf,
          bsdf,
@@ -260,7 +277,7 @@ MgfMaterialEntitySupport::initMaterialContextTables(ParseRuntimeContext *context
 This routine returns true if the current material has changed
 */
 bool
-MgfMaterialEntitySupport::mgfMaterialChanged(const Material *material, const ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfMaterialChanged(const RpkMaterial *material, const ParseRuntimeContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == NULL || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -362,8 +379,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->nr = strtof(av[1], NULL);
-            currentMaterialContext->ni = strtof(av[2], NULL);
+            currentMaterialContext->nr = strtod(av[1], NULL);
+            currentMaterialContext->ni = strtod(av[2], NULL);
             if ( currentMaterialContext->nr <= VSDK::EPSILON ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;
             }
@@ -378,7 +395,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->rd = strtof(av[1], NULL);
+            currentMaterialContext->rd = strtod(av[1], NULL);
             if ( currentMaterialContext->rd < 0. || currentMaterialContext->rd > 1.0 ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;
             }
@@ -394,7 +411,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->ed = strtof(av[1], NULL);
+            currentMaterialContext->ed = strtod(av[1], NULL);
             if ( currentMaterialContext->ed < 0.0 ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;
             }
@@ -410,7 +427,7 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->td = strtof(av[1], NULL);
+            currentMaterialContext->td = strtod(av[1], NULL);
             if ( currentMaterialContext->td < 0.0 || currentMaterialContext->td > 1.0 ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;
             }
@@ -426,8 +443,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->rs = strtof(av[1], NULL);
-            currentMaterialContext->rs_a = strtof(av[2], NULL);
+            currentMaterialContext->rs = strtod(av[1], NULL);
+            currentMaterialContext->rs_a = strtod(av[2], NULL);
             if ( currentMaterialContext->rs < 0.0 || currentMaterialContext->rs > 1.0 ||
                  currentMaterialContext->rs_a < 0.0 ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;
@@ -444,8 +461,8 @@ MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRun
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            currentMaterialContext->ts = strtof(av[1], NULL);
-            currentMaterialContext->ts_a = strtof(av[2], NULL);
+            currentMaterialContext->ts = strtod(av[1], NULL);
+            currentMaterialContext->ts_a = strtod(av[2], NULL);
             if ( currentMaterialContext->ts < 0.0 || currentMaterialContext->ts > 1.0 ||
                  currentMaterialContext->ts_a < 0.0 ) {
                 return MGF_ERRR_ILLGL_ARGMN_VAL;

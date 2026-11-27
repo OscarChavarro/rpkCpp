@@ -8,11 +8,11 @@ Jacobian for a quadrilateral patch is J(u, v) = A + B.u + C.v
 */
 class Jacobian {
   public:
-    float A;
-    float B;
-    float C;
+    double A;
+    double B;
+    double C;
 
-    explicit Jacobian(float inA, float inB, float inC);
+    explicit Jacobian(double inA, double inB, double inC);
     virtual ~Jacobian();
 };
 

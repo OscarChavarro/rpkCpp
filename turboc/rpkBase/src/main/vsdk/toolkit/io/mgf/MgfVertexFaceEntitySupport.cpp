@@ -10,17 +10,12 @@
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpEntity.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"
-#include "vsdk/toolkit/io/mgf/MgfConeEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfCylinderEntityExpander.h"
+#include "vsdk/toolkit/io/mgf/MgfVitralPrimitiveTessellator.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
-#include "vsdk/toolkit/io/mgf/MgfPrismEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfRingEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfSphereEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfVertexFaceEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfObjectNameSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfTransformationSupport.h"
-#include "vsdk/toolkit/io/mgf/MgfTorusEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfTessellationMath.h"
 
 long
@@ -29,11 +24,8 @@ MgfVertexFaceEntitySupport::transformXid(const TransformStackContext *xf) {
 }
 
 /**
-The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
-into polygons. In the official release of the parser library, these routines
-are internal (declared static in parse.c and no reference to them in parser.h).
-The parser was changed so we can call them in order not to have to duplicate
-the code
+Turns a surface primitive (sphere, torus, cylinder, ring, cone or prism)
+into faces, through the VITRAL geometry of MgfVitralPrimitiveTessellator
 */
 int
 MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context) {
@@ -41,70 +33,70 @@ MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRu
 
     switch ( en ) {
         case SPHERE:
-            return MgfSphereEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleSphere(argc, argv, context);
         case TORUS:
-            return MgfTorusEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleTorus(argc, argv, context);
         case CYLINDER:
-            return MgfCylinderEntityExpander::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleCylinder(argc, argv, context);
         case RING:
-            return MgfRingEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleRing(argc, argv, context);
         case CONE:
-            return MgfConeEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handleCone(argc, argv, context);
         case PRISM:
-            return MgfPrismEntityTessellator::handleEntity(argc, argv, context);
+            return MgfVitralPrimitiveTessellator::handlePrism(argc, argv, context);
         default:
             Logger::reportMessage("MgfVertexFaceEntitySupport", Logger::FATAL_ERROR, "mgf.c: doDiscreteConic", LoggerFormat::format("Unsupported geometry entity number %d", en));
             return MGF_ERROR_UNKNOWN_ENTITY;
     }
 }
 
-Vector3Df *
-MgfVertexFaceEntitySupport::installPoint(float x, float y, float z, const ParseRuntimeContext *context) {
-    Vector3Df *coord = new Vector3Df(x, y, z);
+Vector3Dd *
+MgfVertexFaceEntitySupport::installPoint(double x, double y, double z, const ParseRuntimeContext *context) {
+    Vector3Dd *coord = new Vector3Dd(x, y, z);
     context->currentPointList->add(coord);
     return coord;
 }
 
-Vector3Df *
-MgfVertexFaceEntitySupport::installNormal(float x, float y, float z, const ParseRuntimeContext *context) {
-    Vector3Df *norm = new Vector3Df(x, y, z);
+Vector3Dd *
+MgfVertexFaceEntitySupport::installNormal(double x, double y, double z, const ParseRuntimeContext *context) {
+    Vector3Dd *norm = new Vector3Dd(x, y, z);
     context->currentNormalList->add(norm);
     return norm;
 }
 
-Vertex *
-MgfVertexFaceEntitySupport::installVertex(Vector3Df *coord, Vector3Df *norm, const ParseRuntimeContext *context) {
+RpkVertex *
+MgfVertexFaceEntitySupport::installVertex(Vector3Dd *coord, Vector3Dd *norm, const ParseRuntimeContext *context) {
     ArrayList<Patch *> *newPatchList = new ArrayList<Patch *>();
-    Vertex *v = new Vertex(coord, norm, NULL, newPatchList);
+    RpkVertex *v = new RpkVertex(coord, norm, NULL, newPatchList);
     context->currentVertexList->add(v);
     return v;
 }
 
-Vertex *
+RpkVertex *
 MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *context) {
     VertexContext *vp = MgfVertexFaceEntitySupport::getNamedVertex(name, context);
     if ( vp == NULL ) {
         return NULL;
     }
 
-    Vertex *theVertex = vp->vertex;
+    RpkVertex *theVertex = vp->vertex;
     if ( !theVertex
          || vp->clock >= 1
          || vp->xid != MgfVertexFaceEntitySupport::transformXid(context->transformContext)
          || MgfTessellationMath::isNull(vp->n, VSDK::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
-        // vertex without normal: create a new Vertex
+        // vertex without normal: create a new RpkVertex
         Vector3Dd vert;
         Vector3Dd norm;
-        Vector3Df *theNormal;
+        Vector3Dd *theNormal;
 
         MgfTransformationSupport::mgfTransformPoint(&vert, &vp->p, context);
-        Vector3Df *thePoint = installPoint(((float)(vert.x())), ((float)(vert.y())), ((float)(vert.z())), context);
+        Vector3Dd *thePoint = installPoint(((double)(vert.x())), ((double)(vert.y())), ((double)(vert.z())), context);
         if ( MgfTessellationMath::isNull(vp->n, VSDK::EPSILON) ) {
             theNormal = NULL;
         } else {
             MgfTransformationSupport::mgfTransformVector(&norm, &vp->n, context);
-            theNormal = installNormal(((float)(norm.x())), ((float)(norm.y())), ((float)(norm.z())), context);
+            theNormal = installNormal(((double)(norm.x())), ((double)(norm.y())), ((double)(norm.z())), context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->vertex = theVertex;
@@ -119,13 +111,13 @@ MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *con
 Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
-Vertex *
-MgfVertexFaceEntitySupport::getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context) {
-    Vertex *back = v->back;
+RpkVertex *
+MgfVertexFaceEntitySupport::getBackFaceVertex(RpkVertex *v, const ParseRuntimeContext *context) {
+    RpkVertex *back = v->back;
 
     if ( !back ) {
-        Vector3Df *point = v->point;
-        Vector3Df *normal = v->normal;
+        Vector3Dd *point = v->point;
+        Vector3Dd *normal = v->normal;
         if ( normal ) {
             normal = installNormal(-normal->x(), -normal->y(), -normal->z(), context);
         }
@@ -138,7 +130,7 @@ MgfVertexFaceEntitySupport::getBackFaceVertex(Vertex *v, const ParseRuntimeConte
 }
 
 Patch *
-MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context) {
+MgfVertexFaceEntitySupport::newFace(RpkVertex *v1, RpkVertex *v2, RpkVertex *v3, RpkVertex *v4, const ParseRuntimeContext *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -165,15 +157,15 @@ MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *
 /**
 Computes the normal to the patch plane
 */
-Vector3Df *
-MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, Vertex **v, Vector3Df *normal) {
-    Vector3Df cur;
-    Vector3Df n;
+Vector3Dd *
+MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, RpkVertex **v, Vector3Dd *normal) {
+    Vector3Dd cur;
+    Vector3Dd n;
 
-    n = Vector3Df(0, 0, 0);
+    n = Vector3Dd(0, 0, 0);
     cur = (*(v[numberOfVertices - 1]->point)).subtract(*(v[0]->point));
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        Vector3Df prev = cur;
+        Vector3Dd prev = cur;
         cur = (*(v[i]->point)).subtract(*(v[0]->point));
         n = n.withX(n.x() + ((prev.y() - cur.y()) * (prev.z() + cur.z())));
         n = n.withY(n.y() + ((prev.z() - cur.z()) * (prev.x() + cur.x())));
@@ -185,7 +177,7 @@ MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, Vertex **v, Vector3
         // Degenerate normal --> degenerate polygon
         return NULL;
     }
-    n = n.multiplyByInverse(((float)(localNorm)), Numeric::Numeric::EPSILON_FLOAT);
+    n = n.multiplyByInverse(((double)(localNorm)), Numeric::Numeric::EPSILON);
     *normal = n;
 
     return normal;
@@ -196,7 +188,7 @@ Given a vector p in 3D space and an index i, which is X, Y
 or Z, projects the vector on the YZ, XZ or XY plane respectively
 */
 void
-MgfVertexFaceEntitySupport::vectorProject(Vector2Df &r, const Vector3Df &p, const CoordinateAxis i) {
+MgfVertexFaceEntitySupport::vectorProject(Vector2Dd &r, const Vector3Dd &p, const CoordinateAxis i) {
     switch ( i ) {
         case X:
             r = r.withX(p.y());
@@ -221,10 +213,10 @@ onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
 bool
-MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3Df *normal) {
-    Vector2Df v2d[MAXIMUM_FACE_VERTICES + 1];
-    Vector2Df p;
-    Vector2Df c;
+MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, RpkVertex **v, const Vector3Dd *normal) {
+    Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1];
+    Vector2Dd p;
+    Vector2Dd c;
     int i;
 
     int index = ((CoordinateAxis)(normal->dominantAxis()));
@@ -232,14 +224,14 @@ MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, Vertex **v, const
         vectorProject(v2d[i], *(v[i]->point), ((CoordinateAxis)(index)));
     }
 
-    p = Vector2Df(v2d[3].x() - v2d[2].x(), v2d[3].y() - v2d[2].y());
-    c = Vector2Df(v2d[0].x() - v2d[3].x(), v2d[0].y() - v2d[3].y());
-    int sign = (p.x() * c.y() > c.x() * p.y()) ? 1 : -1;
+    p = Vector2Dd(v2d[3].x - v2d[2].x, v2d[3].y - v2d[2].y);
+    c = Vector2Dd(v2d[0].x - v2d[3].x, v2d[0].y - v2d[3].y);
+    int sign = (p.x * c.y > c.x * p.y) ? 1 : -1;
 
     for ( i = 1; i < numberOfVertices; i++ ) {
-        p = Vector2Df(c.x(), c.y());
-        c = Vector2Df(v2d[i].x() - v2d[i - 1].x(), v2d[i].y() - v2d[i - 1].y());
-        if ( ((p.x() * c.y() > c.x() * p.y()) ? 1 : -1) != sign ) {
+        p = Vector2Dd(c.x, c.y);
+        c = Vector2Dd(v2d[i].x - v2d[i - 1].x, v2d[i].y - v2d[i - 1].y);
+        if ( ((p.x * c.y > c.x * p.y) ? 1 : -1) != sign ) {
             return false;
         }
     }
@@ -251,14 +243,14 @@ MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, Vertex **v, const
 Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
 bool
-MgfVertexFaceEntitySupport::pointInsideTriangle2D(const Vector2Df *p, const Vector2Df *p1, const Vector2Df *p2, const Vector2Df *p3) {
+MgfVertexFaceEntitySupport::pointInsideTriangle2D(const Vector2Dd *p, const Vector2Dd *p1, const Vector2Dd *p2, const Vector2Dd *p3) {
     // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
-    double u0 = p->x() - p1->x();
-    double v0 = p->y() - p1->y();
-    double u1 = p2->x() - p1->x();
-    double v1 = p2->y() - p1->y();
-    double u2 = p3->x() - p1->x();
-    double v2 = p3->y() - p1->y();
+    double u0 = p->x - p1->x;
+    double v0 = p->y - p1->y;
+    double u1 = p2->x - p1->x;
+    double v1 = p2->y - p1->y;
+    double u2 = p3->x - p1->x;
+    double v2 = p3->y - p1->y;
 
     double a = 10.0;
     double b = 10.0; // Values large enough so the result would be false
@@ -290,28 +282,28 @@ MgfVertexFaceEntitySupport::pointInsideTriangle2D(const Vector2Df *p, const Vect
 Returns true if the 2D segments p1-p2 and p3-p4 intersect
 */
 bool
-MgfVertexFaceEntitySupport::segmentsIntersect2D(const Vector2Df *p1, const Vector2Df *p2, const Vector2Df *p3, const Vector2Df *p4) {
+MgfVertexFaceEntitySupport::segmentsIntersect2D(const Vector2Dd *p1, const Vector2Dd *p2, const Vector2Dd *p3, const Vector2Dd *p4) {
     double a;
     double b;
     double c;
     bool coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
-    double du = Math::abs(p2->x() - p1->x());
-    double dv = Math::abs(p2->y() - p1->y());
+    double du = Math::abs(p2->x - p1->x);
+    double dv = Math::abs(p2->y - p1->y);
     if ( du > VSDK::EPSILON || dv > VSDK::EPSILON ) {
         if ( dv > du ) {
             a = 1.0;
-            b = -(p2->x() - p1->x()) / (p2->y() - p1->y());
-            c = -(p1->x() + b * p1->y());
+            b = -(p2->x - p1->x) / (p2->y - p1->y);
+            c = -(p1->x + b * p1->y);
         } else {
-            a = -(p2->y() - p1->y()) / (p2->x() - p1->x());
+            a = -(p2->y - p1->y) / (p2->x - p1->x);
             b = 1.0;
-            c = -(a * p1->x() + p1->y());
+            c = -(a * p1->x + p1->y);
         }
 
-        double r3 = a * p3->x() + b * p3->y() + c;
-        double r4 = a * p4->x() + b * p4->y() + c;
+        double r3 = a * p3->x + b * p3->y + c;
+        double r4 = a * p4->x + b * p4->y + c;
 
         if ( Math::abs(r3) < VSDK::EPSILON && Math::abs(r4) < VSDK::EPSILON ) {
             coLinear = true;
@@ -321,21 +313,21 @@ MgfVertexFaceEntitySupport::segmentsIntersect2D(const Vector2Df *p1, const Vecto
     }
 
     if ( !coLinear ) {
-        du = Math::abs(p4->x() - p3->x());
-        dv = Math::abs(p4->y() - p3->y());
+        du = Math::abs(p4->x - p3->x);
+        dv = Math::abs(p4->y - p3->y);
         if ( du > VSDK::EPSILON || dv > VSDK::EPSILON ) {
             if ( dv > du ) {
                 a = 1.0;
-                b = -(p4->x() - p3->x()) / (p4->y() - p3->y());
-                c = -(p3->x() + b * p3->y());
+                b = -(p4->x - p3->x) / (p4->y - p3->y);
+                c = -(p3->x + b * p3->y);
             } else {
-                a = -(p4->y() - p3->y()) / (p4->x() - p3->x());
+                a = -(p4->y - p3->y) / (p4->x - p3->x);
                 b = 1.0;
-                c = -(a * p3->x() + p3->y());
+                c = -(a * p3->x + p3->y);
             }
 
-            double r1 = a * p1->x() + b * p1->y() + c;
-            double r2 = a * p2->x() + b * p2->y() + c;
+            double r1 = a * p1->x + b * p1->y + c;
+            double r2 = a * p2->x + b * p2->y + c;
 
             if ( Math::abs(r1) < VSDK::EPSILON && Math::abs(r2) < VSDK::EPSILON ) {
                 coLinear = true;
@@ -360,14 +352,14 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 void
-MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3Df *normal, Vertex **backVertex, ParseRuntimeContext *context) {
-    Vector3Df center;
+MgfVertexFaceEntitySupport::doComplexFace(int n, RpkVertex **v, Vector3Dd *normal, RpkVertex **backVertex, ParseRuntimeContext *context) {
+    Vector3Dd center;
 
-    center = Vector3Df(0.0, 0.0, 0.0);
+    center = Vector3Dd(0.0, 0.0, 0.0);
     for ( int i = 0; i < n; i++ ) {
         center = center.add(*(v[i]->point));
     }
-    center = center.multiplyByInverse(((float)(n)), Numeric::EPSILON_FLOAT);
+    center = center.multiplyByInverse(((double)(n)), Numeric::EPSILON);
 
     double maxD = center.distance(*(v[0]->point));
     int max = 0;
@@ -392,17 +384,17 @@ MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3Df *normal, 
     }
     int p2 = (p1 + 1) % n;
     *normal = (*(v[p2]->point)).subtract(*(v[p1]->point)).crossProduct((*(v[p0]->point)).subtract(*(v[p1]->point)));
-    *normal = normal->normalized(Numeric::EPSILON_FLOAT);
+    *normal = normal->normalized(Numeric::EPSILON);
     int index = ((CoordinateAxis)(normal->dominantAxis()));
 
-    Vector2Df q[MAXIMUM_FACE_VERTICES + 1];
+    Vector2Dd q[MAXIMUM_FACE_VERTICES + 1];
     for ( int i = 0; i < n; i++ ) {
         vectorProject(q[i], *(v[i]->point), ((CoordinateAxis)(index)));
     }
 
     int good;
     int corners = n;
-    Vector3Df nn;
+    Vector3Dd nn;
 
     p0 = -1;
     while ( corners >= 3 ) {
@@ -432,7 +424,7 @@ MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3Df *normal, 
 
             nn = (*(v[p2]->point)).subtract(*(v[p1]->point)).crossProduct((*(v[p0]->point)).subtract(*(v[p1]->point)));
             a = nn.length();
-            nn = nn.multiplyByInverse(((float)(a)), Numeric::EPSILON_FLOAT);
+            nn = nn.multiplyByInverse(((double)(a)), Numeric::EPSILON);
             d = nn.distance(*normal);
 
             good = true;
@@ -502,8 +494,8 @@ MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseR
         MgfMaterialEntitySupport::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
     }
 
-    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
-    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
+    RpkVertex *v[MAXIMUM_FACE_VERTICES + 1];
+    RpkVertex *backV[MAXIMUM_FACE_VERTICES + 1];
 
     for ( int i = 0; i < argc - 1; i++ ) {
         v[i] = getVertex(argv[i + 1], context);
@@ -516,14 +508,14 @@ MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseR
             backV[i] = getBackFaceVertex(v[i], context);
     }
 
-    Vector3Df normal;
+    Vector3Dd normal;
 
     if ( !faceNormal(argc - 1, v, &normal) ) {
         MgfEntityControl::doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
-        Vector3Df backNormal;
+        Vector3Dd backNormal;
         backNormal = normal.multiply(-1.0);
     }
 
@@ -626,7 +618,7 @@ MgfVertexFaceEntitySupport::handleFaceWithHolesEntity(int argc, const char **arg
         }
         MgfTransformationSupport::mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
 
-        copied[i] = false; // Vertex not yet copied to argumentsToFaceWithoutHoles
+        copied[i] = false; // RpkVertex not yet copied to argumentsToFaceWithoutHoles
     }
 
     // Copy the outer contour
@@ -697,7 +689,7 @@ MgfVertexFaceEntitySupport::handleFaceWithHolesEntity(int argc, const char **arg
         }
 
         // Shift the elements in new contour starting at position nearestCopied
-        // num+2 places further. Vertex new contour[nearestCopied] will be connected
+        // num+2 places further. RpkVertex new contour[nearestCopied] will be connected
         // to vertex nearestOther ... last, first ... nearestOther and
         // back to newContour[nearestCopied]
         for ( k = numberOfVerticesInNewContour - 1; k >= nearestCopied; k-- ) {

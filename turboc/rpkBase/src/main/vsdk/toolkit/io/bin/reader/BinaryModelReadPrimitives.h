@@ -8,11 +8,11 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 
 class BinaryModelReadPrimitives {
   public:
@@ -29,16 +29,16 @@ class BinaryModelReadPrimitives {
     static short readInt16LE(InputStream &input);
     static int readInt32LE(InputStream &input);
     static long readInt64LE(InputStream &input);
-    static float readFloatLE(InputStream &input);
+    static double readFloatLE(InputStream &input);
     static double readDoubleLE(InputStream &input);
     static bool expectTag(InputStream &input, const char expected[4]);
     static bool readNonNegativeCount(InputStream &input, const char *what, int *count);
     static bool readNullableString(InputStream &input, char **value, bool *hasValue);
     static bool duplicateNullableString(bool hasValue, const char *value, char **text);
     static bool readColor(InputStream &input, ColorRgb *color);
-    static bool readVector(InputStream &input, Vector3Df *vector);
-    static bool readBoundingBoxCoordinates(InputStream &input, float coordinates[6]);
-    static bool setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]);
+    static bool readVector(InputStream &input, Vector3Dd *vector);
+    static bool readBoundingBoxCoordinates(InputStream &input, double coordinates[6]);
+    static bool setBoundingBoxFromCoordinates(RpkAxisAlignedBoundingBox *boundingBox, const double coordinates[6]);
     static bool readIndexList(InputStream &input, const char *what, BinaryModelIndexListRef *record);
 
     template <typename T>

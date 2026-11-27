@@ -6,8 +6,8 @@
 Higher order approximations for Galerkin radiosity
 */
 
-#ifndef __BASIS__
-#define __BASIS__
+#ifndef __BASISMCRAD__
+#define __BASISMCRAD__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
@@ -41,7 +41,7 @@ class StochasticRadiosityBasisState{ public:
     static BasisFunction oneBasisTable[1];
     static GalerkinBasis stchsRadCreateQuadBasis();
     static StochasticRadiosityBasisState *&activeStatePtr();
-    static Matrix2x2 createTransform(float m00, float m01, float m10, float m11, float t0, float t1);
+    static Matrix2x2 createTransform(double m00, double m01, double m10, double m11, double t0, double t1);
 };
 
 class Basismcrad{ public:

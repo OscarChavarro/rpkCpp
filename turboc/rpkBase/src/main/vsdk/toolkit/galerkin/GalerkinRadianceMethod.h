@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __GALERKIN_RADIOSITY_METHOD__
-#define __GALERKIN_RADIOSITY_METHOD__
+#ifndef __GALERKIN_RADIANCE_METHOD__
+#define __GALERKIN_RADIANCE_METHOD__
 
 #include <stdarg.h>
 
@@ -27,7 +27,7 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     static String formatToString(const char *format, va_list arguments);
     static void writeFormatted(const char *format, ...);
     static void appendStatsText(char *buffer, int *offset, const char *format, ...);
-    static void writeVertexCoord(const Vector3Df *point);
+    static void writeVertexCoord(const Vector3Dd *point);
     static void writeVertexCoords(Element *element);
     static void writeCoords();
     static void writeVertexColor(const ColorRgbMutable *color);
@@ -50,11 +50,11 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     }
 
     static inline void
-    galerkinSetPotential(Patch *patch, float value){ ((GalerkinElement *)(patch->radianceData))->potential = value;
+    galerkinSetPotential(Patch *patch, double value){ ((GalerkinElement *)(patch->radianceData))->potential = value;
     }
 
     static inline void
-    galerkinSetUnShotPotential(Patch *patch, float value){ ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
+    galerkinSetUnShotPotential(Patch *patch, double value){ ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
     }
 
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
@@ -72,7 +72,7 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgbMutable getRadiance(Camera *, Patch *patch, double u, double v, Vector3Df, const RenderOptions *) const;
+    ColorRgbMutable getRadiance(Camera *, Patch *patch, double u, double v, Vector3Dd, const RenderOptions *) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;

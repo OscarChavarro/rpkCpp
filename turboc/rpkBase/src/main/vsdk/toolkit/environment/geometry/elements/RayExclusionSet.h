@@ -4,7 +4,7 @@
 #include "vsdk/toolkit/environment/geometry/elements/PatchConstants.h"
 
 class Patch;
-class Geometry;
+class RpkGeometry;
 
 /**
 Patches and geometries that a visibility query must ignore, typically the
@@ -24,8 +24,8 @@ Shared, read-only: it has no setters, and every query is const.
 class RayExclusionSet {
   private:
     const Patch *excludedPatch[MAX_EXCLUDED_PATCHES];
-    const Geometry *excludedGeometry1;
-    const Geometry *excludedGeometry2;
+    const RpkGeometry *excludedGeometry1;
+    const RpkGeometry *excludedGeometry2;
     // Face index intervals of the excluded geometries, empty when first > last
     int excludedFirstFace1;
     int excludedLastFace1;
@@ -41,15 +41,15 @@ class RayExclusionSet {
         const Patch *p1,
         const Patch *p2,
         const Patch *p3,
-        const Geometry *geometry1,
-        const Geometry *geometry2);
+        const RpkGeometry *geometry1,
+        const RpkGeometry *geometry2);
 
     inline bool excludesPatch(const Patch *patch) const;
-    inline bool excludesGeometry(const Geometry *geometry) const;
+    inline bool excludesGeometry(const RpkGeometry *geometry) const;
     inline bool excludesFace(int faceIndex) const;
     inline const Patch *getExcludedPatch(int index) const;
-    inline const Geometry *getExcludedGeometry1() const;
-    inline const Geometry *getExcludedGeometry2() const;
+    inline const RpkGeometry *getExcludedGeometry1() const;
+    inline const RpkGeometry *getExcludedGeometry2() const;
 };
 
 inline
@@ -110,7 +110,7 @@ RayExclusionSet::excludesPatch(const Patch *patch) const {
 }
 
 inline bool
-RayExclusionSet::excludesGeometry(const Geometry *geometry) const {
+RayExclusionSet::excludesGeometry(const RpkGeometry *geometry) const {
     return geometry == excludedGeometry1 || geometry == excludedGeometry2;
 }
 
@@ -128,12 +128,12 @@ RayExclusionSet::getExcludedPatch(const int index) const {
     return excludedPatch[index];
 }
 
-inline const Geometry *
+inline const RpkGeometry *
 RayExclusionSet::getExcludedGeometry1() const {
     return excludedGeometry1;
 }
 
-inline const Geometry *
+inline const RpkGeometry *
 RayExclusionSet::getExcludedGeometry2() const {
     return excludedGeometry2;
 }

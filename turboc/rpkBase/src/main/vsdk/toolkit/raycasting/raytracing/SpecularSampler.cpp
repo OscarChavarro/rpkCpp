@@ -22,13 +22,13 @@ SpecularSampler::sample(
     bool /*doRR*/,
     char flags)
 {
-    Vector3Df dir;
+    Vector3Dd dir;
     double pdfDir = 1.0;
     bool reflect;
 
     // Choose a scattering mode : reflection vs. refraction
     ColorRgb reflectance;
-    reflectance = ColorRgb(0.0f, 0.0f, 0.0f);
+    reflectance = ColorRgb(0.0, 0.0, 0.0);
     if ( thisNode->m_useBsdf != NULL ) {
         ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
@@ -36,7 +36,7 @@ SpecularSampler::sample(
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
     ColorRgb transmittance;
-    transmittance = ColorRgb(0.0f, 0.0f, 0.0f);
+    transmittance = ColorRgb(0.0, 0.0, 0.0);
     if ( thisNode->m_useBsdf != NULL ) {
         ShadingContext context = thisNode->m_hit.shadingContext(NULL);
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
@@ -44,9 +44,9 @@ SpecularSampler::sample(
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 
-    float avgReflectance = ColorRgbMutable(reflectance).average();
-    float avgTransmittance = ColorRgbMutable(transmittance).average();
-    float avgScattering = avgReflectance + avgTransmittance;
+    double avgReflectance = ColorRgbMutable(reflectance).average();
+    double avgTransmittance = ColorRgbMutable(transmittance).average();
+    double avgScattering = avgReflectance + avgTransmittance;
 
     if ( avgScattering < VSDK::EPSILON ) {
         return false;

@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __PHOTON_MAP_RADIOSITY_
-#define __PHOTON_MAP_RADIOSITY_
+#ifndef __PHOTON_MAP_RADIANCE_METHOD__
+#define __PHOTON_MAP_RADIANCE_METHOD__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
@@ -46,7 +46,7 @@ class PhotonMapRadianceMethod: public RadianceMethod{ private:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3Df dir, const RenderOptions *renderOptions) const;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *renderOptions) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;

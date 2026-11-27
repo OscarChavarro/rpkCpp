@@ -1,14 +1,14 @@
-#ifndef __MATERIAL_STATE__
-#define __MATERIAL_STATE__
+#ifndef __MATERIAL_SELECTION_CONTEXT__
+#define __MATERIAL_SELECTION_CONTEXT__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 
 class MaterialSelectionContext {
   public:
-    Material *currentMaterial;
+    RpkMaterial *currentMaterial;
     char *currentMaterialName;
-    ArrayList<Material *> *materials;
+    ArrayList<RpkMaterial *> *materials;
 
     MaterialSelectionContext();
 };

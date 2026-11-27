@@ -2,11 +2,11 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __CLUSTER__
-#define __CLUSTER__
+#ifndef __PATCH_CLUSTER_OCTREE_NODE__
+#define __PATCH_CLUSTER_OCTREE_NODE__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
 class PatchClusterOctreeNode {
   private:
@@ -16,29 +16,29 @@ class PatchClusterOctreeNode {
 
     ArrayList<Patch *> *patches;
     PatchClusterOctreeNode *children[8]; // Clusters form an octree
-    BoundingBox boundingBox; // Bounding box for the cluster
-    Vector3Df boundingBoxCentroid; // Mid-point of the bounding box
-    static ArrayList<Geometry *> *clusterNodeGeometriesToDelete;
-    static void addToDeletionCache(Geometry *geometry);
+    RpkAxisAlignedBoundingBox boundingBox; // Bounding box for the cluster
+    Vector3Dd boundingBoxCentroid; // Mid-point of the bounding box
+    static ArrayList<RpkGeometry *> *clusterNodeGeometriesToDelete;
+    static void addToDeletionCache(RpkGeometry *geometry);
 
     PatchClusterOctreeNode();
     bool movePatchToSubOctantCluster(int patchIndexOnParent) const;
     void clusterAddPatch(Patch *patch);
-    int octantIndex(const Vector3Df &p) const;
+    int octantIndex(const Vector3Dd &p) const;
 
   public:
     explicit PatchClusterOctreeNode(const ArrayList<Patch *> *inPatches);
     virtual ~PatchClusterOctreeNode();
 
     void splitCluster();
-    Geometry *convertClusterToGeometry() const;
+    RpkGeometry *convertClusterToGeometry() const;
     static void deleteCachedGeometries();
     void print(int level) const;
 };
 
 inline int
-PatchClusterOctreeNode::octantIndex(const Vector3Df &p) const {
-    Vector3Df c = boundingBox.center();
+PatchClusterOctreeNode::octantIndex(const Vector3Dd &p) const {
+    Vector3Dd c = boundingBox.center();
     int index = 0;
 
     if (p.x() > c.x()) {

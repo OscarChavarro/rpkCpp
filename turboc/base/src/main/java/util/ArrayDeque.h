@@ -1,0 +1,58 @@
+#ifndef __ARRAY_DEQUE__
+#define __ARRAY_DEQUE__
+
+#include "vsdk/toolkit/common/VSDK.h"
+#include "java/lang/Object.h"
+template <class E>
+class ArrayDeque : public Object {
+private:
+    E *elements;
+    long head;
+    long tail;
+    long capacity;
+    enum { MIN_INITIAL_CAPACITY = 16 };
+
+    void doubleCapacity();
+    long mask() const;
+    void allocate(long numElements);
+
+public:
+    ArrayDeque();
+    explicit ArrayDeque(long numElements);
+    ArrayDeque(const ArrayDeque& other);
+    ArrayDeque& operator=(const ArrayDeque& other);
+    ~ArrayDeque();
+
+    // Capacity operations
+    long size() const;
+    BOOLEAN isEmpty() const;
+    void clear();
+
+    // Add operations
+    void addFirst(const E& e);
+    void addLast(const E& e);
+    void push(const E& e);
+
+    // Remove operations
+    E removeFirst();
+    E removeLast();
+    E pop();
+
+    // Peek operations
+    E peekFirst() const;
+    E peekLast() const;
+
+    // Poll operations
+    E pollFirst();
+    E pollLast();
+
+    // Utility
+    void dispose();
+
+    // Iterator-like access (minimal)
+    E get(long index) const;
+};
+
+#include "java/util/ArrayDeque.txx"
+
+#endif

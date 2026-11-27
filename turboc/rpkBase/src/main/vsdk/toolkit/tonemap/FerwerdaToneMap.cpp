@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/tonemap/FerwerdaToneMap.h"
 
 /**
@@ -10,7 +9,7 @@ pp. 249-258.
 */
 
 FerwerdaToneMap::FerwerdaToneMap():
-    sf(0.062f, 0.608f, 0.330f),
+    sf(0.062, 0.608, 0.330),
     msf(),
     pmComp(),
     pmDisplay(),
@@ -24,10 +23,10 @@ FerwerdaToneMap::~FerwerdaToneMap() {
 }
 
 void
-FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    lda = maximumDisplayLuminance / 2.0f;
+FerwerdaToneMap::initParameters(const ToneMappingContext &toneMapOptions) {
+    double realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    double maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    lda = maximumDisplayLuminance / 2.0;
 
     // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)
     msf = FerwerdaToneMap::mesopicScaleFactor(Math::log10(realWorldAdaptionLuminance));
@@ -43,11 +42,11 @@ FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
-    ColorRgb p = ColorRgb(0.0f, 0.0f, 0.0f);
-    float sl;
+    ColorRgb p = ColorRgb(0.0, 0.0, 0.0);
+    double sl;
 
     // Convert to photometric values
-    float eff = Cie::getLuminousEfficacy();
+    double eff = getColorSpace().getLuminousEfficacy();
     radiance = ColorRgb(radiance.getR() * eff, radiance.getG() * eff, radiance.getB() * eff);
 
     // Compute the scotopic grayscale shift
@@ -68,11 +67,11 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
-    ColorRgb p = ColorRgb(0.0f, 0.0f, 0.0f);
-    float sl;
+    ColorRgb p = ColorRgb(0.0, 0.0, 0.0);
+    double sl;
 
     // Convert to photometric values
-    float eff = Cie::getLuminousEfficacy();
+    double eff = getColorSpace().getLuminousEfficacy();
     radiance = ColorRgb(radiance.getR() * eff, radiance.getG() * eff, radiance.getB() * eff);
 
     // Compute the scotopic grayscale shift
@@ -91,43 +90,43 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
     return radiance;
 }
 
-float
-FerwerdaToneMap::photopicOperator(float logLa) {
+double
+FerwerdaToneMap::photopicOperator(double logLa) {
     // Equation [FERW1996](4): piecewise approximation of log(t_p(L_a))
-    float r;
+    double r;
     if ( logLa <= -2.6 ) {
-        r = -0.72f;
+        r = -0.72;
     } else if ( logLa >= 1.9 ) {
-        r = logLa - 1.255f;
+        r = logLa - 1.255;
     } else {
-        r = Math::pow(0.249f * logLa + 0.65f, 2.7f) - 0.72f;
+        r = Math::pow(0.249 * logLa + 0.65, 2.7) - 0.72;
     }
 
-    return Math::pow(10.0f, r);
+    return Math::pow(10.0, r);
 }
 
-float
-FerwerdaToneMap::scotopicOperator(float logLa) {
+double
+FerwerdaToneMap::scotopicOperator(double logLa) {
     // Equation [FERW1996](5): piecewise approximation of log(t_s(L_a))
-    float r;
+    double r;
     if ( logLa <= -3.94 ) {
-        r = -2.86f;
+        r = -2.86;
     } else if ( logLa >= -1.44 ) {
-            r = logLa - 0.395f;
+            r = logLa - 0.395;
         } else {
-            r = Math::pow(0.405f * logLa + 1.6f, 2.18f) - 2.86f;
+            r = Math::pow(0.405 * logLa + 1.6, 2.18) - 2.86;
         }
 
-    return Math::pow(10.0f, r);
+    return Math::pow(10.0, r);
 }
 
-float
-FerwerdaToneMap::mesopicScaleFactor(float logLwa) {
+double
+FerwerdaToneMap::mesopicScaleFactor(double logLwa) {
     if ( logLwa < -2.5 ) {
         return 1.0;
     } else if ( logLwa > 0.8 ) {
             return 0.0;
         } else {
-            return (0.8f - logLwa) / 3.3f;
+            return (0.8 - logLwa) / 3.3;
         }
 }

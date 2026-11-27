@@ -117,7 +117,7 @@ Batch::batchSaveRadianceImage(
 
     System::out.printf(
         "%g secs.\n",
-        ((float)(((double)(System::nanoTime() - t)) / 1000000000.0)));
+        ((double)(((double)(System::nanoTime() - t)) / 1000000000.0)));
     Canvas::canvasPullMode();
 }
 
@@ -149,7 +149,7 @@ Batch::batchSaveRadianceModel(
 
     System::out.printf(
         "%g secs.\n",
-        ((float)(((double)(System::nanoTime() - t)) / 1000000000.0)));
+        ((double)(((double)(System::nanoTime() - t)) / 1000000000.0)));
     Canvas::canvasPullMode();
 }
 
@@ -163,7 +163,7 @@ Batch::batchExecuteRadianceSimulation(
 {
     long startTime;
     long wasted_start;
-    float wastedSecs;
+    double wastedSecs;
 
     if ( scene->geometryList == NULL || scene->geometryList->size() == 0 ) {
         System::out.printf("Empty world? Missing argument to some command line parameter option?\n");
@@ -252,7 +252,7 @@ Batch::batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            wastedSecs += ((float)(
+            wastedSecs += ((double)(
                 ((double)(wasted_start - System::nanoTime())) / 1000000000.0));
 
             System::out.flush();
@@ -264,7 +264,7 @@ Batch::batchExecuteRadianceSimulation(
 
     if ( batchOptions.timings ) {
         System::out.printf("Radiance total time %g secs.\n",
-                ((float)(((double)(System::nanoTime() - startTime)) / 1000000000.0)) - wastedSecs);
+                ((double)(((double)(System::nanoTime() - startTime)) / 1000000000.0)) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
@@ -284,7 +284,7 @@ Batch::batchExecuteRadianceSimulation(
 
             if ( batchOptions.timings ) {
                 System::out.printf("Raytracing total time %g secs.\n",
-                        ((float)(((double)(System::nanoTime() - startTime)) / 1000000000.0)));
+                        ((double)(((double)(System::nanoTime() - startTime)) / 1000000000.0)));
             }
 
             Batch::batchProcessFile(

@@ -2,9 +2,10 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __TONE_MAPPING_CONTEXT_H
-#define __TONE_MAPPING_CONTEXT_H
+#ifndef __TONE_MAPPING_CONTEXT__
+#define __TONE_MAPPING_CONTEXT__
 
+#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/tonemap/ToneMapAdaptationMethod.h"
 
@@ -17,37 +18,34 @@ class ToneMappingContext {
     };
 
     // Fixed radiance rescaling before tone mapping
-    float brightness_adjust; // Brightness adjustment factor
-    float pow_bright_adjust; // pow(2, brightness_adjust)
+    double brightness_adjust; // Brightness adjustment factor
+    double pow_bright_adjust; // pow(2, brightness_adjust)
 
     // Variable / non-linear radiance rescaling parameters
     ToneMapAdaptationMethod staticAdaptationMethod;
-    float realWorldAdaptionLuminance;
-    float maximumDisplayLuminance;
-    float maximumDisplayContrast;
-
-    // Conversion from radiance (COLOR type) to display RGB
-    float xr; // Monitor primary colors
-    float yr;
-    float xg;
-    float yg;
-    float xb;
-    float yb;
-    float xw; // Monitor white point
-    float yw;
+    double realWorldAdaptionLuminance;
+    double maximumDisplayLuminance;
+    double maximumDisplayContrast;
 
     // Display RGB mapping (corrects display non-linear response)
     ColorRgb gamma; // Gamma factors for red, green, blue
-    float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
+    double gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
 
     ToneMappingContext();
     ~ToneMappingContext();
 
+    // Conversion from radiance (COLOR type) to display RGB: monitor primary
+    // colors and white point
+    const Cie &getColorSpace() const { return colorSpace; }
+    void setColorSpace(const Cie &inColorSpace) { colorSpace = inColorSpace; }
+
   private:
-    static const float DEFAULT_GAMMA;
-    static const float DEFAULT_TM_LWA;
-    static const float DEFAULT_TM_LD_MAXIMUM;
-    static const float DEFAULT_TM_C_MAXIMUM;
+    Cie colorSpace;
+
+    static const double DEFAULT_GAMMA;
+    static const double DEFAULT_TM_LWA;
+    static const double DEFAULT_TM_LD_MAXIMUM;
+    static const double DEFAULT_TM_C_MAXIMUM;
 };
 
 #endif

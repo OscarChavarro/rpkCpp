@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RAYTRACING_STATE__
-#define __STOCHASTIC_RAYTRACING_STATE__
+#ifndef __STOCHASTIC_RELAXATION__
+#define __STOCHASTIC_RELAXATION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorKind.h"
@@ -22,9 +22,9 @@ class StochasticRelaxation {
     ColorRgb unShotFlux;
     ColorRgb totalFlux;
     ColorRgb indrcImpWghtdUnShotFlux;
-    float unShotYmp;
-    float totalYmp; // Sum over all patches of area * importance
-    float sourceYmp;
+    double unShotYmp;
+    double totalYmp; // Sum over all patches of area * importance
+    double sourceYmp;
     int rayUnitsPerIt; // To increase or decrease initial nr of rays
     int bidirectionalTransfers; // For bidirectional energy transfers
     int constantControlVariate; // For constant control variate variance reduction
@@ -57,7 +57,7 @@ class StochasticRelaxation {
     int doNonDiffuseFirstShot; // Initial shooting pass handles non-diffuse lights
     int initialLightSourceSamples; // Initial shot samples per light source
     long long lastClock; // For computation timings (nanoseconds)
-    float cpuSeconds; // CPU time spent in calculations
+    double cpuSeconds; // CPU time spent in calculations
     ToneMappingContext *toneMapOptions;
 
     StochasticRelaxation();

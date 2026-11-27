@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {
@@ -25,19 +25,19 @@ Computes average scattered power and emittance of the Patch
 */
 ColorRgb
 PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-    RayHit hit;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
+    RpkRayHit hit;
 
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample(0.0f, 0.0f, 0.0f);
+        ColorRgb sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        Vector3Df position = hit.getPoint();
+        Vector3Dd position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
         if ( patch->material->getBsdf() != NULL ) {
             sample = patch->material->getBsdf()->splitBsdfScatteredPower(hit.shadingContext(NULL), components);
@@ -46,24 +46,24 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         g += sample.getG();
         b += sample.getB();
     }
-    const float inv = 1.0f / ((float)(numberOfSamples));
+    const double inv = 1.0 / ((double)(numberOfSamples));
     return ColorRgb(r * inv, g * inv, b * inv);
 }
 
 ColorRgb
 PatchVisitor::averageEmittance(Patch *patch, char components) {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-    RayHit hit;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
+    RpkRayHit hit;
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample(0.0f, 0.0f, 0.0f);
+        ColorRgb sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        Vector3Df position = hit.getPoint();
+        Vector3Dd position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().x, hit.getUv().y, &position);
 
         if ( patch->material->getEdf() != NULL ) {
@@ -74,6 +74,6 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         g += sample.getG();
         b += sample.getB();
     }
-    const float inv = 1.0f / ((float)(numberOfSamples));
+    const double inv = 1.0 / ((double)(numberOfSamples));
     return ColorRgb(r * inv, g * inv, b * inv);
 }

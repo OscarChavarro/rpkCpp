@@ -1,5 +1,5 @@
-#ifndef __SHOOTING__
-#define __SHOOTING__
+#ifndef __SHOOTING_STRATEGY__
+#define __SHOOTING_STRATEGY__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
@@ -16,12 +16,12 @@ See [COHE1993].5.3.3. section
 */
 class ShootingStrategy {
   private:
-    static inline float
+    static inline double
     galerkinGetPotential(Patch *patch) {
         return ((GalerkinElement *)(patch->radianceData))->potential;
     }
 
-    static inline float
+    static inline double
     galerkinGetUnShotPotential(Patch *patch) {
         return ((GalerkinElement *)(patch->radianceData))->unShotPotential;
     }
@@ -38,8 +38,8 @@ class ShootingStrategy {
         const Patch *patch,
         GalerkinState *galerkinState);
 
-    static float
-    shootingPushPullPotential(GalerkinElement *element, float down);
+    static double
+    shootingPushPullPotential(GalerkinElement *element, double down);
 
     static void
     patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState);
@@ -59,7 +59,7 @@ class ShootingStrategy {
     static void propagatePotential(const Scene *scene, GalerkinState *galerkinState);
 
     static void
-    shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);
+    shootingUpdateDirectPotential(GalerkinElement *galerkinElement, double potentialIncrement);
 
   public:
     static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions);

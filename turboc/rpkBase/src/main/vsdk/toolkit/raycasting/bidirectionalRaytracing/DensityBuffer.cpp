@@ -10,14 +10,14 @@
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/Kernel2D.h"
 
 inline int
-DensityBuffer::xIndex(float x) const {
+DensityBuffer::xIndex(double x) const {
     return Math::min(
         ((int)(DensityBuffer::DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum))),
         DensityBuffer::DHA_X_RES - 1);
 }
 
 inline int
-DensityBuffer::yIndex(float y) const {
+DensityBuffer::yIndex(double y) const {
     return Math::min(
             ((int)(DensityBuffer::DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum))),
             DensityBuffer::DHA_Y_RES - 1);
@@ -44,9 +44,9 @@ DensityBuffer::~DensityBuffer() {
 Add a hit
 */
 void
-DensityBuffer::add(float x, float y, ColorRgb color) {
-    float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
-                   * ((float)(baseConfig->totalSamples));
+DensityBuffer::add(double x, double y, ColorRgb color) {
+    double factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
+                   * ((double)(baseConfig->totalSamples));
     ColorRgb tmpCol;
 
     if ( ColorRgbMutable(color).average() > VSDK::EPSILON ) {
@@ -69,8 +69,8 @@ DensityBuffer::reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
-    float h = 8.0f * Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
-              / Math::sqrt(((float)(baseConfig->samplesPerPixel)));
+    double h = 8.0 * Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
+              / Math::sqrt(((double)(baseConfig->samplesPerPixel)));
 
     System::out.printf("h = %f\n", h);
 
@@ -79,7 +79,7 @@ DensityBuffer::reconstruct() {
     int maxK;
     DensityHit hit;
     Kernel2D kernel;
-    Vector2Df center;
+    Vector2Dd center;
 
     kernel.SetH(h);
 
@@ -90,9 +90,9 @@ DensityBuffer::reconstruct() {
             for ( int k = 0; k < maxK; k++ ) {
                 hit = (hitGrid[i][j])[k];
 
-                center = Vector2Df(hit.m_x, hit.m_y);
+                center = Vector2Dd(hit.m_x, hit.m_y);
 
-                kernel.cover(center, 1.0f / ((float)(baseConfig->totalSamples)), hit.color, screenBuffer);
+                kernel.cover(center, 1.0 / ((double)(baseConfig->totalSamples)), hit.color, screenBuffer);
             }
         }
     }
@@ -102,7 +102,7 @@ DensityBuffer::reconstruct() {
 
 
 ScreenBuffer *
-DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
+DensityBuffer::reconstructVariable(ScreenBuffer *dest, double baseSize) {
     // For all samples -> compute pixel coverage
 
     // Base Kernel size. Now spread over a number of pixels
@@ -112,7 +112,7 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
     int maxK;
     DensityHit hit;
     Kernel2D kernel;
-    Vector2Df center;
+    Vector2Dd center;
 
     for ( int i = 0; i < DensityBuffer::DHA_X_RES; i++ ) {
         for ( int j = 0; j < DensityBuffer::DHA_Y_RES; j++ ) {
@@ -121,7 +121,7 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
             for ( int k = 0; k < maxK; k++ ) {
                 hit = (hitGrid[i][j])[k];
 
-                center = Vector2Df(hit.m_x, hit.m_y);
+                center = Vector2Dd(hit.m_x, hit.m_y);
 
                 kernel.varCover(center, hit.color, screenBuffer, dest, ((int)(baseConfig->totalSamples)),
                                 baseConfig->samplesPerPixel, baseSize);

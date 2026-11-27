@@ -3,7 +3,7 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be NULL
 */
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
@@ -11,7 +11,7 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 
 static ColorRgb
 black() {
-    return ColorRgb(0.0f, 0.0f, 0.0f);
+    return ColorRgb(0.0, 0.0, 0.0);
 }
 
 static ColorRgb
@@ -20,7 +20,7 @@ addColor(const ColorRgb &a, const ColorRgb &b) {
 }
 
 static ColorRgb
-addScaledColor(const ColorRgb &a, float scale, const ColorRgb &b) {
+addScaledColor(const ColorRgb &a, double scale, const ColorRgb &b) {
     return ColorRgb(a.getR() + scale * b.getR(), a.getG() + scale * b.getG(), a.getB() + scale * b.getB());
 }
 
@@ -71,9 +71,9 @@ needed)
 bool
 PhongBidirScattDistFunc::bsdfShadingFrame(
     const ShadingContext & /*context*/,
-    const Vector3Df * /*X*/,
-    const Vector3Df * /*Y*/,
-    const Vector3Df * /*Z*/)
+    const Vector3Dd * /*X*/,
+    const Vector3Dd * /*Y*/,
+    const Vector3Dd * /*Z*/)
 {
     return false;
 }
@@ -90,7 +90,7 @@ PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const Shad
         return col;
     }
 
-    const Vector3Df texCoord = context.getTexCoord();
+    const Vector3Dd texCoord = context.getTexCoord();
     return texture->evaluateColor(texCoord.x(), texCoord.y());
 }
 
@@ -109,7 +109,7 @@ PhongBidirScattDistFunc::splitBsdfScatteredPower(const ShadingContext &context, 
 
     if ( brdf ) {
         ColorRgb reflectance = brdf->reflectance(flags);
-        if ( !Float::isFinite(ColorRgbMutable(reflectance).average()) ) {
+        if ( !Double::isFinite(ColorRgbMutable(reflectance).average()) ) {
             Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::FATAL_ERROR, "brdfReflectance", "Oops - test Rd is not finite!");
         }
 
@@ -133,10 +133,10 @@ PhongBidirScattDistFunc::splitBsdfIsTextured() const {
 /**
 Albedo is assumed to be 1
 */
-Vector3Df
+Vector3Dd
 PhongBidirScattDistFunc::texturedScattererSample(
-    const Vector3Df * /*in*/,
-    const Vector3Df *normal,
+    const Vector3Dd * /*in*/,
+    const Vector3Dd *normal,
     double x1,
     double x2,
     double *probabilityDensityFunction)
@@ -149,9 +149,9 @@ PhongBidirScattDistFunc::texturedScattererSample(
 
 void
 PhongBidirScattDistFunc::texturedScattererEvalPdf(
-    const Vector3Df * /*in*/,
-    const Vector3Df *out,
-    const Vector3Df *normal,
+    const Vector3Dd * /*in*/,
+    const Vector3Dd *out,
+    const Vector3Dd *normal,
     double *probabilityDensityFunction)
 {
     *probabilityDensityFunction = normal->dotProduct(*out) / M_PI;
@@ -237,25 +237,25 @@ Sampling and pdf evaluation
 Sampling routines, parameters as in evaluation, except that two
 random numbers x1 and x2 are needed (2D sampling process)
 */
-Vector3Df
+Vector3Dd
 PhongBidirScattDistFunc::sample(
     const ShadingContext &context,
     const PhongBidirScattDistFunc *inBsdf,
     const PhongBidirScattDistFunc *outBsdf,
-    const Vector3Df *in,
+    const Vector3Dd *in,
     int doRussianRoulette,
     char flags,
     double x1,
     double x2,
     double *probabilityDensityFunction) const
 {
-    Vector3Df normal;
-    Vector3Df out;
+    Vector3Dd normal;
+    Vector3Dd out;
 
     *probabilityDensityFunction = 0; // So we can return safely
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "sample", "Couldn't determine shading normal");
-        out = Vector3Df(0.0, 0.0, 1.0);
+        out = Vector3Dd(0.0, 0.0, 1.0);
         return out;
     }
     normal = context.getShadingNormal();
@@ -327,9 +327,9 @@ PhongBidirScattDistFunc::sample(
         case SAMPLE_TRANSMISSION:
             if ( btdf == NULL ) {
                 p = 0.0;
-                out = out.withX(0.0f);
-                out = out.withY(0.0f);
-                out = out.withZ(0.0f);
+                out = out.withX(0.0);
+                out = out.withY(0.0);
+                out = out.withZ(0.0);
             } else {
                 out = btdf->sample(inIndex, outIndex, in, &normal, false, btdfFlags, x1, x2, &p);
             }
@@ -373,9 +373,9 @@ PhongBidirScattDistFunc::sample(
 
 double
 PhongBidirScattDistFunc::texturedScattererEval(
-    const Vector3Df * /*in*/,
-    const Vector3Df * /*out*/,
-    const Vector3Df * /*normal*/)
+    const Vector3Dd * /*in*/,
+    const Vector3Dd * /*out*/,
+    const Vector3Dd * /*normal*/)
 {
     return (1.0 / M_PI);
 }
@@ -396,12 +396,12 @@ PhongBidirScattDistFunc::evaluate(
     const ShadingContext &context,
     const PhongBidirScattDistFunc *inBsdf,
     const PhongBidirScattDistFunc *outBsdf,
-    const Vector3Df *in,
-    const Vector3Df *out,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
     char flags) const
 {
     ColorRgb result = black();
-    Vector3Df normal;
+    Vector3Dd normal;
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::reportMessage("PhongBidirectionalScatteringDistributionFunction", Logger::WARNING, "evaluate", "Couldn't determine shading normal");
         return result;
@@ -412,7 +412,7 @@ PhongBidirScattDistFunc::evaluate(
         double textureBsdf = PhongBidirScattDistFunc::texturedScattererEval(
                 in, out, &normal);
         ColorRgb textureCol = PhongBidirScattDistFunc::splitBsdfEvalTexture(texture, context);
-        result = addScaledColor(result, ((float)(textureBsdf)), textureCol);
+        result = addScaledColor(result, ((double)(textureBsdf)), textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -457,8 +457,8 @@ PhongBidirScattDistFunc::evalProbDensFunc(
     const ShadingContext &context,
     const PhongBidirScattDistFunc *inBsdf,
     const PhongBidirScattDistFunc *outBsdf,
-    const Vector3Df *in,
-    const Vector3Df *out,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
     char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
@@ -473,7 +473,7 @@ PhongBidirScattDistFunc::evalProbDensFunc(
     RefractionIndex outIndex = RefractionIndex();
     char brdfFlags;
     char btdfFlags;
-    Vector3Df normal;
+    Vector3Dd normal;
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
@@ -543,8 +543,8 @@ PhongBidirScattDistFunc::bsdfEvalComponents(
         const ShadingContext &context,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
-        const Vector3Df *out,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
         const char flags,
         ColorRgb *colArray) const
 {

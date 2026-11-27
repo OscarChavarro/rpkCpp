@@ -23,7 +23,7 @@
 class RpkApplication {
   private:
     #define DEFAULT_MONOCHROME false
-    static Material defaultMaterial;
+    static RpkMaterial defaultMaterial;
     int imageOutputWidth;
     int imageOutputHeight;
     Scene *scene;

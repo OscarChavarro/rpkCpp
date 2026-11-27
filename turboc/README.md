@@ -60,29 +60,19 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      `vsdk/toolkit/common/logging/LoggerFormat` wraps it for `Logger::reportMessage` messages
 11. `explicit operator ColorRgb()` in `ColorRgbMutable` -> implicit conversion operator
    - C++98 has no explicit conversion operators
-12. RenderPark's ray class `Ray` -> `RpkRay` (`common/linealAlgebra/RpkRay.h`)
-   - Without namespaces, VITRAL's `Ray` (`environment/geometry/element/Ray.h`,
-     used by the spatial indexes) and RenderPark's ray need distinct names, as in the cpp port
+12. RenderPark's ray class `RpkRay` was removed, as in the cpp port
+   - Visibility and tracing use VITRAL's `Ray` (`environment/geometry/element/Ray.h`)
+     through `setOrigin`/`setDirection` and `getOrigin`/`getDirection`
+   - RenderPark classes whose names collide with VITRAL's without namespaces carry
+     the cpp port's names: `RpkGeometry`, `RpkRayHit`, `RpkVertex`, `RpkMaterial`
+     and `RpkAxisAlignedBoundingBox`
 13. Spatial index support code of the cpp port in the C++98 subset
    - It is VITRAL's turboc port's (`base/`): `SpatialQueryMode` is a plain enum nested
      in a class (`SpatialQueryMode::ANY_HIT`, of type `SpatialQueryMode::Value`), and
      `GridSpatialIndex::queryWith` is `query` (no member templates)
-14. Ray capture (`WITH_RAY_CAPTURE`, `scripts/captureRays.sh`)
-   - The `.vqc` corpus is the cpp port's format, written field by field as
-     32-bit little-endian values instead of host-order `fwrite` of `int` (16 bits
-     on Turbo C++ 3.0), so both ports write the same file
-   - The cpp port's `long long` counters are `double` values holding whole numbers:
-     exact up to 2^53, printed with `%.0f` as the same digits as `%lld`. Turbo C++ 3.0
-     has no 64-bit integer and C++98 has no `long long`
-   - Corpus files are only written sequentially: no `fseek`/`ftell`, so no file
-     offset is held in a `long`. The CMake build compiles the recorder with
-     `_FILE_OFFSET_BITS=64`, so the 32-bit build writes files beyond 2 GB (a FAT16
-     DOS volume caps a file at 2 GB)
-   - `captureRays.sh` writes the accounting files to `turboc/doc/rayCorpus`, not to the
-     cpp port's top-level `doc/rayCorpus`
-   - The ray corpus replay that consumed the corpora
-     (`testsuite/ApplicationCases/RayCorpusReplay`, `scripts/replayRays.sh`,
-     `WITH_RAY_REPLAY`, `SceneConsumer`) was removed, as in the cpp port
+14. Ray capture was removed, as in the cpp port: `VisibilityQueryRecorder`,
+    `scripts/captureRays.sh`, `WITH_RAY_CAPTURE`/`RAY_CAPTURE` and every
+    `RPK_RAY_CAPTURE` block are gone
 15. Galerkin refinement stays serial: no parallel Jacobi
    - The cpp port's `-gr-iteration-method parallel-jacobi` (`PARALLEL_JACOBI`) and
      `-gr-threads` are not offered: Turbo C++ 3.0 under DOS has no threads
@@ -102,17 +92,28 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      `Interaction::uncountedDuplicate`, the deferred "nodes too close" warnings of
      `FormFactorWorkspace` and the parallel refinement and commit functions
 
-16. Lineal algebra from VITRAL's turboc port
+16. Lineal algebra from VITRAL's turboc port, in double precision
    - RenderPark's mutable `Vector2D`, `Vector3D`, `Vector4D` and `Matrix4x4` were removed,
-     as in the cpp port: the port uses VITRAL's immutable `Vector2Df`, `Vector3Df`,
-     `Vector4Df`, `Matrix4x4f` and `Matrix2x2`, `Numeric::EPSILON` and
-     `Numeric::HUGE_FLOAT_VALUE` became `VSDK::EPSILON` and `Float::MAX_VALUE`, and
-     `Camera::lookAtMatrix`/`perspectiveMatrix`, `Numeric::vectorsEqual` and
-     `VrmlWriter::recoverRotationParameters` hold what RenderPark keeps of its own
+     as in the cpp port: the port uses VITRAL's immutable `Vector2Dd`, `Vector3Dd`,
+     `Vector4Dd`, `Matrix4x4d` and `Matrix2x2`, and `Camera::lookAtMatrix`/`perspectiveMatrix`,
+     `Numeric::vectorsEqual` and `VrmlWriter::recoverRotationParameters` hold what
+     RenderPark keeps of its own
+   - As in the cpp port (68cdbb93), every `float` of `rpkBase` and the program is a
+     `double`, except `PersistenceElement` (the 4-byte binary model format);
+     `Numeric::EPSILON_FLOAT` became `Numeric::EPSILON` and `Float::MAX_VALUE`
+     became `Double::MAX_VALUE`
    - Kept, unlike the cpp port, because this port has not taken the steps that retired
      them there: `Patch` keeps its own face data (`normal`, `midPoint`, the `Jacobian`
      class) since it does not hold a VITRAL `PlanarFace` yet, and `MinMaxBox` stays
      for the legacy voxel grid (`scene/VoxelGrid`), which this port still offers
+
+17. The MGF reader builds sphere, cone, cylinder, ring, torus and prism patches
+    from VITRAL primitives (`io/mgf/MgfVitralPrimitiveTessellator`,
+    `MgfBoundaryFaceEmitter`, `MgfSurfaceNormalModel`), as in the cpp port; the
+    reader's own tessellators and expanders were removed
+18. `Cie` is VITRAL's immutable color space (`common/color/Cie`), owned by
+    `ToneMappingContext` and copied into `ToneMap` (`init` takes it, then calls
+    `initParameters`) and into the MGF `ParseOptionsContext`, as in the cpp port
 
 ## Library layout
 
@@ -152,6 +153,13 @@ This port is built as 32-bit code (`-m32`), as Turbo C targets do, so a process
 can address at most 4 GB. Scene `08_soda` needs more than that for its
 radiosity hierarchy: the render still finishes and writes an image, but the
 solution is not the one the 64-bit ports converge to, so it does not match
-the golden `cpp/etc/goldenImagesForTests/08_soda.ppm`. For that reason `scripts/testReviewResults.sh`
-leaves `08_soda` out of the golden image test. `scripts/08_runSoda.sh` is kept
-so the scene can still be rendered by hand.
+the golden `cpp/etc/goldenImagesForTests/08_soda.ppm`. For that reason the
+corpus (`scripts/corpus.sh`) leaves `08_soda` out, and `scripts/08_runSoda.sh`
+is kept so the scene can still be rendered by hand.
+
+`scripts/testReviewResults.sh` checks, as in the cpp port, that every output
+equals its reference image `etc/goldenImagesForTests/<image>.ppm`
+(`compare -metric AE` = 0); `--capture-references` copies the current outputs
+there. The golden images of the project are the cpp port's
+(`../cpp/etc/goldenImagesForTests`): the references are captured only after the
+outputs were compared with those (`compare -metric AE` and `-metric RMSE`).

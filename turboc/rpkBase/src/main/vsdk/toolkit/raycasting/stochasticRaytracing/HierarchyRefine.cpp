@@ -99,9 +99,9 @@ Hierarchy::selfLink(const Link *link) {
 Cheap form factor estimate to drive hierarchical refinement
 as in Hanrahan SIGGRAPH'91
 */
-float
+double
 Hierarchy::formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src) {
-    Vector3Df D;
+    Vector3Dd D;
     D = src->midPoint.subtract(rcv->midPoint);
 
     double d = D.length();
@@ -115,7 +115,7 @@ Hierarchy::formFactorEstimate(const StochasticRadiosityElement *rcv, const Stoch
     if ( c2 < f2 ) {
         c2 = f2;
     }
-    return ((float)(f * c1 * c2));
+    return ((double)(f * c1 * c2));
 }
 
 bool
@@ -126,15 +126,15 @@ Hierarchy::lowPowerLink(
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
     ColorRgb rhoSrcRad;
-    float ff = formFactorEstimate(rcv, src);
-    float threshold;
-    float propagatedPower;
+    double ff = formFactorEstimate(rcv, src);
+    double threshold;
+    double propagatedPower;
 
     // Compute receiver reflectance times source radiosity
     rhoSrcRad = ColorRgb(
-        ((float)(M_PI)) * src->radiance[0].getR(),
-        ((float)(M_PI)) * src->radiance[0].getG(),
-        ((float)(M_PI)) * src->radiance[0].getB());
+        ((double)(M_PI)) * src->radiance[0].getR(),
+        ((double)(M_PI)) * src->radiance[0].getG(),
+        ((double)(M_PI)) * src->radiance[0].getB());
     if ( !rcv->isCluster() ) {
         ColorRgbMutable Rd = McradP::topLvlStochRadElem(rcv->patch)->Rd;
         rhoSrcRad = ColorRgb(

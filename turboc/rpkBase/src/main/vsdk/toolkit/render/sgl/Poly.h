@@ -6,8 +6,8 @@
 Definitions for polygon package
 */
 
-#ifndef __POLY_HDR__
-#define __POLY_HDR__
+#ifndef __POLY__
+#define __POLY__
 
 #include <stddef.h>
 

@@ -1,7 +1,7 @@
 #ifndef __INTERACTION__
 #define __INTERACTION__
 
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
 class GalerkinElement;
 
@@ -16,10 +16,10 @@ class Interaction {
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
-    float *K; // Coupling coefficient(s), stored top to bottom, left to right
-    float k0; // Inline storage for K when there is a single basis function on both ends,
+    double *K; // Coupling coefficient(s), stored top to bottom, left to right
+    double k0; // Inline storage for K when there is a single basis function on both ends,
         // avoiding a heap allocation for the common case; K then points here
-    float deltaK; // Used for approximation error estimation over the link (always a single coefficient)
+    double deltaK; // Used for approximation error estimation over the link (always a single coefficient)
     bool ownsK;
     unsigned char nmbrOBasisFnctnORecv;
     unsigned char numberOfBasisFunctionsOnSource;
@@ -30,8 +30,8 @@ class Interaction {
     explicit Interaction(
         GalerkinElement *inReceiverElement,
         GalerkinElement *inSourceElement,
-        const float *inK,
-        float inDeltaK,
+        const double *inK,
+        double inDeltaK,
         unsigned char iNumOBasisFnctnORecv,
         unsigned char iNumOBasisFnctnOSrc,
         unsigned char iNumORecvCbtrPstns,

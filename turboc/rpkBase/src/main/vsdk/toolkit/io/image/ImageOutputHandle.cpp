@@ -27,25 +27,25 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 }
 
 inline ColorRgb
-ImageOutputHandle::gammaCorrect(const ColorRgb &rgb, const float gamma[3]) {
+ImageOutputHandle::gammaCorrect(const ColorRgb &rgb, const double gamma[3]) {
     return ColorRgb(
-        gamma[0] == 1.0f ? rgb.getR() : Math::pow(rgb.getR(), 1.0 / ((double)(gamma[0]))),
-        gamma[1] == 1.0f ? rgb.getG() : Math::pow(rgb.getG(), 1.0 / ((double)(gamma[1]))),
-        gamma[2] == 1.0f ? rgb.getB() : Math::pow(rgb.getB(), 1.0 / ((double)(gamma[2]))));
+        gamma[0] == 1.0 ? rgb.getR() : Math::pow(rgb.getR(), 1.0 / ((double)(gamma[0]))),
+        gamma[1] == 1.0 ? rgb.getG() : Math::pow(rgb.getG(), 1.0 / ((double)(gamma[1]))),
+        gamma[2] == 1.0 ? rgb.getB() : Math::pow(rgb.getB(), 1.0 / ((double)(gamma[2]))));
 }
 
 int
-ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
+ImageOutputHandle::writeDisplayRGB(double *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         ColorRgb displayRgb(rgbFloatArray[3 * i], rgbFloatArray[3 * i + 1], rgbFloatArray[3 * i + 2]);
         // Apply gamma correction
         displayRgb = gammaCorrect(displayRgb, gamma);
-        // Convert float to byte representation
-        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0f));
-        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0f));
-        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0f));
+        // Convert double to byte representation
+        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0));
+        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0));
+        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0));
     }
 
     // Output display RGB values
@@ -74,10 +74,10 @@ ImageOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
         // Apply gamma correction
         displayRgb = gammaCorrect(displayRgb, gamma);
 
-        // Convert float to byte representation
-        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0f));
-        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0f));
-        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0f));
+        // Convert double to byte representation
+        rgb[3 * i] = ((unsigned char)(displayRgb.getR() * 255.0));
+        rgb[3 * i + 1] = ((unsigned char)(displayRgb.getG() * 255.0));
+        rgb[3 * i + 2] = ((unsigned char)(displayRgb.getB() * 255.0));
     }
 
     // Output display RGB values

@@ -7,7 +7,7 @@ Photon::findRS(
     double *r,
     double *s,
     const CoordinateSystem *coord,
-    char flag, float n) const
+    char flag, double n) const
 {
     // Determine angles
     double phi;

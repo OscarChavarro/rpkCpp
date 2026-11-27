@@ -35,7 +35,7 @@ StochasticRadiosityElement::markCoefficientPoolsInitialized() {
 }
 
 void
-StochasticRadiosityElement::vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
+StochasticRadiosityElement::vertexAttachElement(RpkVertex *v, StochasticRadiosityElement *elem) {
     elem->className = ELEMENT_STOCHASTIC_RADIOSITY;
     if ( v->radianceData == NULL ) {
         v->radianceData = new ArrayList<Element *>();
@@ -103,7 +103,7 @@ StochasticRadiosityElement::createElement() {
     elem->sourceImportance = 0.0;
     elem->importanceRayIndex = 0;
 
-    elem->midPoint = Vector3Df(0.0, 0.0, 0.0);
+    elem->midPoint = Vector3Dd(0.0, 0.0, 0.0);
     elem->vertices[0] = elem->vertices[1] = elem->vertices[2] = elem->vertices[3] = NULL;
     elem->parent = NULL;
     elem->regularSubElements = NULL;
@@ -137,7 +137,7 @@ StochasticRadiosityElement::stchsRadElemCreateFromPtch(Patch *patch) {
     Coefficientsmcrad::stchsRadClearCoeff(elem->receivedRadiance, elem->basis);
 
     elem->Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-    elem->Ed.scaleInverse(((float)(M_PI)), elem->Ed);
+    elem->Ed.scaleInverse(((double)(M_PI)), elem->Ed);
     elem->Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -147,14 +147,14 @@ StochasticRadiosityElement::~StochasticRadiosityElement() {
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::mntCarloRadCreateClust(Geometry *geometry) {
+StochasticRadiosityElement::mntCarloRadCreateClust(RpkGeometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
 
     elem->geometry = geometry;
     elem->flags = IS_CLUSTER_MASK;
 
-    elem->Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
-    elem->Ed = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    elem->Rd = ColorRgbMutable(1.0, 1.0, 1.0);
+    elem->Ed = ColorRgbMutable(0.0, 0.0, 0.0);
 
     // elem->area will be computed from the sub-elements in the cluster later
     elem->midPoint = geometry->boundingBox.center();
@@ -185,7 +185,7 @@ StochasticRadiosityElement::mntCarloRadCreateSurfElemChld(Patch *patch, Stochast
 }
 
 void
-StochasticRadiosityElement::mntCarloRadCreateClustChld(Geometry *geom, StochasticRadiosityElement *parent) {
+StochasticRadiosityElement::mntCarloRadCreateClustChld(RpkGeometry *geom, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *subCluster = mntCarloRadCreateClustHierRec(geom);
     subCluster->parent = parent;
     subCluster->className = ELEMENT_STOCHASTIC_RADIOSITY;
@@ -215,16 +215,16 @@ StochasticRadiosityElement::mntCarloRadInitClustPull(StochasticRadiosityElement 
 
 void
 StochasticRadiosityElement::mntCarloRadCreateClustChildren(StochasticRadiosityElement *parent) {
-    Geometry *geometry = parent->geometry;
+    RpkGeometry *geometry = parent->geometry;
 
     if ( geometry->isCompound() ) {
-        ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
             mntCarloRadCreateClustChld(geometryList->get(i), parent);
         }
         delete geometryList;
     } else {
-        const ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != NULL && i < patchList->size(); i++ ) {
             mntCarloRadCreateSurfElemChld(patchList->get(i), parent);
         }
@@ -237,7 +237,7 @@ StochasticRadiosityElement::mntCarloRadCreateClustChildren(StochasticRadiosityEl
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::mntCarloRadCreateClustHierRec(Geometry *world) {
+StochasticRadiosityElement::mntCarloRadCreateClustHierRec(RpkGeometry *world) {
     StochasticRadiosityElement *topCluster = mntCarloRadCreateClust(world);
     world->radianceData = topCluster;
     mntCarloRadCreateClustChildren(topCluster);
@@ -245,7 +245,7 @@ StochasticRadiosityElement::mntCarloRadCreateClustHierRec(Geometry *world) {
 }
 
 StochasticRadiosityElement *
-StochasticRadiosityElement::stchsRadElemCreateFromGeom(Geometry *world) {
+StochasticRadiosityElement::stchsRadElemCreateFromGeom(RpkGeometry *world) {
     if ( !world ) {
         return NULL;
     } else {
@@ -378,56 +378,56 @@ StochasticRadiosityElement::stchsRadElemRegLeafElemAPnt(StochasticRadiosityEleme
     return leaf;
 }
 
-Vector3Df *
-StochasticRadiosityElement::mntCarloRadInstCoord(const Vector3Df *coord) {
-    Vector3Df *v = new Vector3Df(*coord);
+Vector3Dd *
+StochasticRadiosityElement::mntCarloRadInstCoord(const Vector3Dd *coord) {
+    Vector3Dd *v = new Vector3Dd(*coord);
     ElementHierarchyState::activeState().coords->add(v);
     return v;
 }
 
-Vector3Df *
-StochasticRadiosityElement::mntCarloRadInstNorm(const Vector3Df *norm) {
-    Vector3Df *v = new Vector3Df(*norm);
+Vector3Dd *
+StochasticRadiosityElement::mntCarloRadInstNorm(const Vector3Dd *norm) {
+    Vector3Dd *v = new Vector3Dd(*norm);
     ElementHierarchyState::activeState().normals->add(v);
     return v;
 }
 
-Vector3Df *
-StochasticRadiosityElement::mntCarloRadInstTexCoord(const Vector3Df *texCoord) {
-    Vector3Df *t = new Vector3Df(*texCoord);
+Vector3Dd *
+StochasticRadiosityElement::mntCarloRadInstTexCoord(const Vector3Dd *texCoord) {
+    Vector3Dd *t = new Vector3Dd(*texCoord);
     ElementHierarchyState::activeState().texCoords->add(t);
     return t;
 }
 
-Vertex *
-StochasticRadiosityElement::mntCarloRadInstVtx(Vector3Df *coord, Vector3Df *norm, Vector3Df *texCoord) {
+RpkVertex *
+StochasticRadiosityElement::mntCarloRadInstVtx(Vector3Dd *coord, Vector3Dd *norm, Vector3Dd *texCoord) {
     ArrayList<Patch *> *newPatchList = new ArrayList<Patch *>();
-    Vertex *v = new Vertex(coord, norm, texCoord, newPatchList);
+    RpkVertex *v = new RpkVertex(coord, norm, texCoord, newPatchList);
     ElementHierarchyState::activeState().vertices->add(v);
     return v;
 }
 
-Vertex *
-StochasticRadiosityElement::mntCarloRadNewMidVtx(StochasticRadiosityElement *elem, const Vertex *v1, const Vertex *v2) {
-    Vector3Df coord;
-    Vector3Df norm;
-    Vector3Df texCoord;
-    Vector3Df *p;
-    Vector3Df *n;
-    Vector3Df *t;
+RpkVertex *
+StochasticRadiosityElement::mntCarloRadNewMidVtx(StochasticRadiosityElement *elem, const RpkVertex *v1, const RpkVertex *v2) {
+    Vector3Dd coord;
+    Vector3Dd norm;
+    Vector3Dd texCoord;
+    Vector3Dd *p;
+    Vector3Dd *n;
+    Vector3Dd *t;
 
-    coord = (*(v1->point)).add(*(v2->point)).multiply(0.5f);
+    coord = (*(v1->point)).add(*(v2->point)).multiply(0.5);
     p = mntCarloRadInstCoord(&coord);
 
     if ( v1->normal && v2->normal ) {
-        norm = (*(v1->normal)).add(*(v2->normal)).multiply(0.5f);
+        norm = (*(v1->normal)).add(*(v2->normal)).multiply(0.5);
         n = mntCarloRadInstNorm(&norm);
     } else {
         n = &elem->patch->normal;
     }
 
     if ( v1->textureCoordinates && v2->textureCoordinates ) {
-        texCoord = (*(v1->textureCoordinates)).add(*(v2->textureCoordinates)).multiply(0.5f);
+        texCoord = (*(v1->textureCoordinates)).add(*(v2->textureCoordinates)).multiply(0.5);
         t = mntCarloRadInstTexCoord(&texCoord);
     } else {
         t = NULL;
@@ -448,8 +448,8 @@ found.
 */
 StochasticRadiosityElement *
 StochasticRadiosityElement::mntCarloRadElemNghbr(const StochasticRadiosityElement *elem, int edgeNumber) {
-    const Vertex *from = elem->vertices[edgeNumber];
-    const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+    const RpkVertex *from = elem->vertices[edgeNumber];
+    const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
 
     for ( int i = 0; to->radianceData != NULL && i < to->radianceData->size(); i++ ) {
         Element *element = to->radianceData->get(i);
@@ -474,10 +474,10 @@ StochasticRadiosityElement::mntCarloRadElemNghbr(const StochasticRadiosityElemen
     return NULL;
 }
 
-Vertex *
+RpkVertex *
 StochasticRadiosityElement::stchsRadElemEdgeMidVtx(const StochasticRadiosityElement *elem, int edgeNumber) {
-    Vertex *v = NULL;
-    const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+    RpkVertex *v = NULL;
+    const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
     const StochasticRadiosityElement *neighbour = mntCarloRadElemNghbr(elem, edgeNumber);
 
     if ( neighbour && neighbour->regularSubElements ) {
@@ -544,25 +544,25 @@ StochasticRadiosityElement::stchsRadElemEdgeMidVtx(const StochasticRadiosityElem
     return v;
 }
 
-Vertex *
+RpkVertex *
 StochasticRadiosityElement::mntCarloRadNewEdgeMidVtx(StochasticRadiosityElement *elem, int edgeNumber) {
-    Vertex *v = StochasticRadiosityElement::stchsRadElemEdgeMidVtx(elem, edgeNumber);
+    RpkVertex *v = StochasticRadiosityElement::stchsRadElemEdgeMidVtx(elem, edgeNumber);
     if ( v == NULL ) {
         // First time we split the edge, create the midpoint vertex
-        const Vertex *from = elem->vertices[edgeNumber];
-        const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
+        const RpkVertex *from = elem->vertices[edgeNumber];
+        const RpkVertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
         v = mntCarloRadNewMidVtx(elem, from, to);
     }
     return v;
 }
 
-Vector3Df
+Vector3Dd
 StochasticRadiosityElement::galerkinElementMidpoint(StochasticRadiosityElement *elem) {
-    elem->midPoint = Vector3Df(0.0, 0.0, 0.0);
+    elem->midPoint = Vector3Dd(0.0, 0.0, 0.0);
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         elem->midPoint = elem->midPoint.add(*elem->vertices[i]->point);
     }
-    elem->midPoint = elem->midPoint.multiplyByInverse(((float)(elem->numberOfVertices)), Numeric::EPSILON_FLOAT);
+    elem->midPoint = elem->midPoint.multiplyByInverse(((double)(elem->numberOfVertices)), Numeric::EPSILON);
 
     return elem->midPoint;
 }
@@ -576,7 +576,7 @@ StochasticRadiosityElement::stchsRadElemITex(const StochasticRadiosityElement *e
         Logger::reportMessage("StochasticRadiosityElement", Logger::FATAL_ERROR, "stchsRadElemITex", "this routine should not be called for cluster elements");
         return false;
     }
-    const Material *mat = elem->patch->material;
+    const RpkMaterial *mat = elem->patch->material;
     return mat->getBsdf() != NULL
         && (mat->getBsdf()->splitBsdfIsTextured() || PhongEmitDistFunc::edfIsTextured());
 }
@@ -584,9 +584,9 @@ StochasticRadiosityElement::stchsRadElemITex(const StochasticRadiosityElement *e
 /**
 Uses elem->Rd for surface elements
 */
-float
+double
 StochasticRadiosityElement::stchsRadElemSclrRefl(const StochasticRadiosityElement *elem) {
-    float rd;
+    double rd;
 
     if ( elem->isCluster() ) {
         return 1.0;
@@ -595,7 +595,7 @@ StochasticRadiosityElement::stchsRadElemSclrRefl(const StochasticRadiosityElemen
     rd = elem->Rd.maximumComponent();
     if ( rd < VSDK::EPSILON ) {
         // Avoid divisions by zero
-        rd = Numeric::EPSILON_FLOAT;
+        rd = Numeric::EPSILON;
     }
     return rd;
 }
@@ -614,7 +614,7 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
     NiederreiterIndex n;
     ColorRgbMutable albedo;
     ColorRgbMutable emittance;
-    RayHit hit;
+    RpkRayHit hit;
     hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
 
     isTextured = StochasticRadiosityElement::stchsRadElemITex(elem);
@@ -628,7 +628,7 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
         ColorRgbMutable sample;
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(((double)(xi[0])) * RECIP, ((double)(xi[1])) * RECIP);
-        Vector3Df position = hit.getPoint();
+        Vector3Dd position = hit.getPoint();
         patch->uniformPoint(hit.getUv().x, hit.getUv().y, &position);
         hit.setPoint(&position);
         if ( patch->material->getBsdf() ) {
@@ -644,8 +644,8 @@ StochasticRadiosityElement::mntCarloRadElemCompAvgReflAEmit(StochasticRadiosityE
             emittance.add(emittance, sample);
         }
     }
-    elem->Rd.scaleInverse(((float)(numberOfSamples)), albedo);
-    elem->Ed.scaleInverse(((float)(numberOfSamples)), emittance);
+    elem->Rd.scaleInverse(((double)(numberOfSamples)), albedo);
+    elem->Ed.scaleInverse(((double)(numberOfSamples)), emittance);
 }
 
 /**
@@ -677,10 +677,10 @@ StochasticRadiosityElement *
 StochasticRadiosityElement::mntCarloRadCreateSurfSubElem(
         StochasticRadiosityElement *parent,
         int childNumber,
-        Vertex *v0,
-        Vertex *v1,
-        Vertex *v2,
-        Vertex *v3)
+        RpkVertex *v0,
+        RpkVertex *v1,
+        RpkVertex *v2,
+        RpkVertex *v3)
 {
     StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
     StochasticRadiosityElement *elem = createElement();
@@ -696,7 +696,7 @@ StochasticRadiosityElement::mntCarloRadCreateSurfSubElem(
         vertexAttachElement(elem->vertices[i], elem);
     }
 
-    elem->area = 0.25f * parent->area; // Regular elements, regular subdivision
+    elem->area = 0.25 * parent->area; // Regular elements, regular subdivision
     elem->midPoint = galerkinElementMidpoint(elem);
 
     elem->parent = parent;
@@ -722,12 +722,12 @@ StochasticRadiosityElement **
 StochasticRadiosityElement::mntCarloRadRegSbdvdTri(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
     (void)renderOptions;
 
-    Vertex *v0 = element->vertices[0];
-    Vertex *v1 = element->vertices[1];
-    Vertex *v2 = element->vertices[2];
-    Vertex *m0 = mntCarloRadNewEdgeMidVtx(element, 0);
-    Vertex *m1 = mntCarloRadNewEdgeMidVtx(element, 1);
-    Vertex *m2 = mntCarloRadNewEdgeMidVtx(element, 2);
+    RpkVertex *v0 = element->vertices[0];
+    RpkVertex *v1 = element->vertices[1];
+    RpkVertex *v2 = element->vertices[2];
+    RpkVertex *m0 = mntCarloRadNewEdgeMidVtx(element, 0);
+    RpkVertex *m1 = mntCarloRadNewEdgeMidVtx(element, 1);
+    RpkVertex *m2 = mntCarloRadNewEdgeMidVtx(element, 2);
 
     mntCarloRadCreateSurfSubElem(element, 0, v0, m0, m2, NULL);
     mntCarloRadCreateSurfSubElem(element, 1, m0, v1, m1, NULL);
@@ -741,15 +741,15 @@ StochasticRadiosityElement **
 StochasticRadiosityElement::mntCarloRadRegSbdvdQuad(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
     (void)renderOptions;
 
-    Vertex *v0 = element->vertices[0];
-    Vertex *v1 = element->vertices[1];
-    Vertex *v2 = element->vertices[2];
-    Vertex *v3 = element->vertices[3];
-    Vertex *m0 = mntCarloRadNewEdgeMidVtx(element, 0);
-    Vertex *m1 = mntCarloRadNewEdgeMidVtx(element, 1);
-    Vertex *m2 = mntCarloRadNewEdgeMidVtx(element, 2);
-    Vertex *m3 = mntCarloRadNewEdgeMidVtx(element, 3);
-    Vertex *mm = mntCarloRadNewMidVtx(element, m0, m2);
+    RpkVertex *v0 = element->vertices[0];
+    RpkVertex *v1 = element->vertices[1];
+    RpkVertex *v2 = element->vertices[2];
+    RpkVertex *v3 = element->vertices[3];
+    RpkVertex *m0 = mntCarloRadNewEdgeMidVtx(element, 0);
+    RpkVertex *m1 = mntCarloRadNewEdgeMidVtx(element, 1);
+    RpkVertex *m2 = mntCarloRadNewEdgeMidVtx(element, 2);
+    RpkVertex *m3 = mntCarloRadNewEdgeMidVtx(element, 3);
+    RpkVertex *mm = mntCarloRadNewMidVtx(element, m0, m2);
 
     mntCarloRadCreateSurfSubElem(element, 0, v0, m0, mm, m3);
     mntCarloRadCreateSurfSubElem(element, 1, m0, v1, m1, mm);
@@ -884,7 +884,7 @@ StochasticRadiosityElement::stchsRadElemPushRadn(
 }
 
 void
-StochasticRadiosityElement::stchsRadElemPushImp(const float *parentImportance, float *childImportance) {
+StochasticRadiosityElement::stchsRadElemPushImp(const double *parentImportance, double *childImportance) {
     *childImportance += *parentImportance;
 }
 
@@ -895,7 +895,7 @@ StochasticRadiosityElement::stchsRadElemPullRadn(
     ColorRgbMutable *parentRad,
     const ColorRgbMutable *childRad)
 {
-    float areaFactor = child->area / parent->area;
+    double areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
         parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
@@ -907,7 +907,7 @@ StochasticRadiosityElement::stchsRadElemPullRadn(
 }
 
 void
-StochasticRadiosityElement::stchsRadElemPullImp(const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, float *parent_imp, const float *child_imp) {
+StochasticRadiosityElement::stchsRadElemPullImp(const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, double *parent_imp, const double *child_imp) {
     *parent_imp += child->area / parent->area * (*child_imp);
 }
 

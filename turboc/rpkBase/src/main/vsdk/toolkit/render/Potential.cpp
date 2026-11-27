@@ -50,38 +50,38 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
-    float *newDirectImportance = new float[maximumPatchId + 1];
+    double *newDirectImportance = new double[maximumPatchId + 1];
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         newDirectImportance[i] = 0.0;
     }
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    float h = 2.0f * Math::tan(scene->camera->horizontalFov * ((float)(M_PI)) / 180.0f) / ((float)(x));
-    float v = 2.0f * Math::tan(scene->camera->verticalFov * ((float)(M_PI)) / 180.0f) / ((float)(y));
-    float pixelArea = h * v;
+    double h = 2.0 * Math::tan(scene->camera->horizontalFov * ((double)(M_PI)) / 180.0) / ((double)(x));
+    double v = 2.0 * Math::tan(scene->camera->verticalFov * ((double)(M_PI)) / 180.0) / ((double)(y));
+    double pixelArea = h * v;
 
-    float ySample;
+    double ySample;
     long j;
-    for ( j = y - 1, ySample = -v * ((float)(y - 1)) / 2.0f;
+    for ( j = y - 1, ySample = -v * ((double)(y - 1)) / 2.0;
           j >= 0;
           j--, ySample += v ) {
         const long rowStart = j * x;
-        float xSample = -h * ((float)(x - 1)) / 2.0f;
+        double xSample = -h * ((double)(x - 1)) / 2.0;
         for ( long i = 0; i < x; i++, xSample += h ) {
             const Patch *visible = target->patchBuffer[rowStart + i];
             const unsigned long the_id = visible == NULL ? 0 : visible->id & 0xffffffUL;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
-                Vector3Df pixDir;
+                Vector3Dd pixDir;
 
                 // Compute direction to center of pixel
-                pixDir = scene->camera->Z.add(scene->camera->X.multiply(((float)(xSample)))).add(scene->camera->Y.multiply(ySample));
+                pixDir = scene->camera->Z.add(scene->camera->X.multiply(((double)(xSample)))).add(scene->camera->Y.multiply(ySample));
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                float deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
+                double deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
                 newDirectImportance[the_id] += deltaImportance;
             } else if ( the_id > maximumPatchId ) {
@@ -147,7 +147,7 @@ Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *r
     delete currentSglContext;
 
     System::err.printf("Determining visible patches in software took %g sec\n",
-        ((float)(((double)(System::nanoTime() - t)) / 1000000000.0)));
+        ((double)(((double)(System::nanoTime() - t)) / 1000000000.0)));
 }
 
 /**

@@ -77,22 +77,22 @@ VrmlWriter::nextSavedCamera(Camera *previous) {
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
 */
-Matrix4x4f
-VrmlWriter::transformModel(const Camera *camera, Vector3Df *modelRotationAxis, float *modelRotationAngle) {
-    Vector3Df upAxis;
+Matrix4x4d
+VrmlWriter::transformModel(const Camera *camera, Vector3Dd *modelRotationAxis, double *modelRotationAngle) {
+    Vector3Dd upAxis;
 
-    upAxis = Vector3Df(0.0, 1.0, 0.0);
+    upAxis = Vector3Dd(0.0, 1.0, 0.0);
     const double cosA = camera->upDirection.dotProduct(upAxis);
     if ( cosA < 1.0 - VSDK::EPSILON ) {
-        *modelRotationAngle = ((float)(Math::acos(cosA)));
+        *modelRotationAngle = ((double)(Math::acos(cosA)));
         *modelRotationAxis = camera->upDirection.crossProduct(upAxis);
-        *modelRotationAxis = modelRotationAxis->normalized(Numeric::EPSILON_FLOAT);
-        return Matrix4x4f().axisRotation(*modelRotationAngle, *modelRotationAxis);
+        *modelRotationAxis = modelRotationAxis->normalized(Numeric::EPSILON);
+        return Matrix4x4d().axisRotation(*modelRotationAngle, *modelRotationAxis);
     }
 
-    *modelRotationAxis = Vector3Df(0.0, 1.0, 0.0);
+    *modelRotationAxis = Vector3Dd(0.0, 1.0, 0.0);
     *modelRotationAngle = 0.0;
-    Matrix4x4f identity;
+    Matrix4x4d identity;
     return identity;
 }
 
@@ -101,30 +101,30 @@ Recovers the rotation axis and angle from the given rotation matrix.
 There is no check whether the transform really is a rotation.
 */
 void
-VrmlWriter::recoverRotationParameters(const Matrix4x4f &rotation, float *angle, Vector3Df *axis) {
-    const float c = (rotation.get(0, 0) + rotation.get(1, 1) + rotation.get(2, 2) - 1.0f) * 0.5f;
-    if ( c > 1.0f - VSDK::EPSILON ) {
-        *angle = 0.0f;
-        *axis = Vector3Df(0.0f, 0.0f, 1.0f);
-    } else if ( c < -1.0f + VSDK::EPSILON ) {
-        *angle = ((float)(M_PI));
-        float x = Math::sqrt((rotation.get(0, 0) + 1.0f) * 0.5f);
-        float y = Math::sqrt((rotation.get(1, 1) + 1.0f) * 0.5f);
-        float z = Math::sqrt((rotation.get(2, 2) + 1.0f) * 0.5f);
+VrmlWriter::recoverRotationParameters(const Matrix4x4d &rotation, double *angle, Vector3Dd *axis) {
+    const double c = (rotation.get(0, 0) + rotation.get(1, 1) + rotation.get(2, 2) - 1.0) * 0.5;
+    if ( c > 1.0 - VSDK::EPSILON ) {
+        *angle = 0.0;
+        *axis = Vector3Dd(0.0, 0.0, 1.0);
+    } else if ( c < -1.0 + VSDK::EPSILON ) {
+        *angle = ((double)(M_PI));
+        double x = Math::sqrt((rotation.get(0, 0) + 1.0) * 0.5);
+        double y = Math::sqrt((rotation.get(1, 1) + 1.0) * 0.5);
+        double z = Math::sqrt((rotation.get(2, 2) + 1.0) * 0.5);
 
         // Assume x positive, determine sign of y and z
-        if ( rotation.get(1, 0) < 0.0f ) {
+        if ( rotation.get(1, 0) < 0.0 ) {
             y = -y;
         }
-        if ( rotation.get(2, 0) < 0.0f ) {
+        if ( rotation.get(2, 0) < 0.0 ) {
             z = -z;
         }
-        *axis = Vector3Df(x, y, z);
+        *axis = Vector3Dd(x, y, z);
     } else {
         *angle = Math::acos(c);
-        const float s = Math::sqrt(1.0f - c * c);
-        const float r = 1.0f / (2.0f * s);
-        *axis = Vector3Df(
+        const double s = Math::sqrt(1.0 - c * c);
+        const double r = 1.0 / (2.0 * s);
+        *axis = Vector3Dd(
             (rotation.get(2, 1) - rotation.get(1, 2)) * r,
             (rotation.get(0, 2) - rotation.get(2, 0)) * r,
             (rotation.get(1, 0) - rotation.get(0, 1)) * r);
@@ -137,35 +137,35 @@ Write VRML ViewPoint node for the given camera position
 void
 VrmlWriter::writeViewPoint(
     OutputStream *outputStream,
-    const Matrix4x4f *modelTransform,
+    const Matrix4x4d *modelTransform,
     const Camera *camera,
     const char *viewPointName)
 {
-    Vector3Df X;
-    Vector3Df Y;
-    Vector3Df Z;
-    Vector3Df viewRotationAxis;
-    Vector3Df eyePosition;
-    float viewRotationAngle;
+    Vector3Dd X;
+    Vector3Dd Y;
+    Vector3Dd Z;
+    Vector3Dd viewRotationAxis;
+    Vector3Dd eyePosition;
+    double viewRotationAngle;
 
     X = camera->X.multiply(1.0); // camera->X positions right in window
     Y = camera->Y.multiply(-1.0); // camera->Y positions down in window, VRML wants y up
     Z = camera->Z.multiply(-1.0); // camera->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform (its rotation part)
-    const Matrix4x4f modelRotation = modelTransform->withoutTranslation();
+    const Matrix4x4d modelRotation = modelTransform->withoutTranslation();
     X = modelRotation.multiply(X);
     Y = modelRotation.multiply(Y);
     Z = modelRotation.multiply(Z);
 
     // Construct view orientation transform and recover axis and angle
-    const float orientation[4][4] = {
-        {X.x(), Y.x(), Z.x(), 0.0f},
-        {X.y(), Y.y(), Z.y(), 0.0f},
-        {X.z(), Y.z(), Z.z(), 0.0f},
-        {0.0f, 0.0f, 0.0f, 1.0f}
+    const double orientation[4][4] = {
+        {X.x(), Y.x(), Z.x(), 0.0},
+        {X.y(), Y.y(), Z.y(), 0.0},
+        {X.z(), Y.z(), Z.z(), 0.0},
+        {0.0, 0.0, 0.0, 1.0}
     };
-    recoverRotationParameters(Matrix4x4f(orientation), &viewRotationAngle, &viewRotationAxis);
+    recoverRotationParameters(Matrix4x4d(orientation), &viewRotationAngle, &viewRotationAxis);
 
     // Apply model transform to eye point
     eyePosition = modelRotation.multiply(camera->eyePosition);
@@ -188,7 +188,7 @@ void
 VrmlWriter::writeViewPoints(
     const Camera *camera,
     OutputStream *outputStream,
-    const Matrix4x4f *modelTransform)
+    const Matrix4x4d *modelTransform)
 {
     Camera *localCamera = NULL;
     int count = 1;
@@ -211,8 +211,8 @@ VrmlWriter::writeHeader(
     OutputStream *outputStream,
     const RenderOptions *renderOptions)
 {
-    Vector3Df modelRotationAxis;
-    float modelRotationAngle;
+    Vector3Dd modelRotationAxis;
+    double modelRotationAngle;
 
     writeFormatted(outputStream, "#VRML V2.0 utf8\n\n");
 
@@ -224,7 +224,7 @@ VrmlWriter::writeHeader(
 
     writeFormatted(outputStream, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
-    const Matrix4x4f modelTransform = transformModel(camera, &modelRotationAxis, &modelRotationAngle);
+    const Matrix4x4d modelTransform = transformModel(camera, &modelRotationAxis, &modelRotationAngle);
     writeViewPoints(camera, outputStream, &modelTransform);
 
     writeFormatted(

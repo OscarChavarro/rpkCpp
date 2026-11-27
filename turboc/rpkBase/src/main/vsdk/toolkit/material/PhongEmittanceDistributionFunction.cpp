@@ -7,7 +7,7 @@
 
 static ColorRgb
 black() {
-    return ColorRgb(0.0f, 0.0f, 0.0f);
+    return ColorRgb(0.0, 0.0, 0.0);
 }
 
 static bool
@@ -23,7 +23,7 @@ addColor(const ColorRgb &a, const ColorRgb &b) {
 }
 
 static ColorRgb
-scaleColor(float scale, const ColorRgb &c) {
+scaleColor(double scale, const ColorRgb &c) {
     return ColorRgb(scale * c.getR(), scale * c.getG(), scale * c.getB());
 }
 
@@ -44,9 +44,9 @@ PhongEmitDistFunc::PhongEmitDistFunc(
     const ColorRgb *KsParameter,
     double NsParameter):
     Kd(*KdParameter),
-    kd(scaleColor((1.00f / ((float)(M_PI))), *KdParameter)),
+    kd(scaleColor((1.00 / ((double)(M_PI))), *KdParameter)),
     Ks(*KsParameter),
-    Ns(((float)(NsParameter)))
+    Ns(((double)(NsParameter)))
 {
     if ( !isBlack(Ks) ) {
         Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfCreate", "Non-diffuse light sources not yet implemented");
@@ -96,11 +96,11 @@ computed and returned in probabilityDensityFunction
 ColorRgb
 PhongEmitDistFunc::phongEdfEval(
     const ShadingContext *context,
-    const Vector3Df *out,
+    const Vector3Dd *out,
     char flags,
     double *probabilityDensityFunction) const
 {
-    Vector3Df normal;
+    Vector3Dd normal;
     ColorRgb result = black();
     double cosL;
     if ( probabilityDensityFunction ) {
@@ -142,7 +142,7 @@ by flags. If emitted_radiance is not a null pointer, the emitted radiance along
 the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
 of the generated direction is computed and returned in probabilityDensityFunction
 */
-Vector3Df
+Vector3Dd
 PhongEmitDistFunc::phongEdfSample(
     const ShadingContext *context,
     char flags,
@@ -158,7 +158,7 @@ PhongEmitDistFunc::phongEdfSample(
         *probabilityDensityFunction = 0.0;
     }
 
-    Vector3Df dir(0.0, 0.0, 1.0);
+    Vector3Dd dir(0.0, 0.0, 1.0);
     if ( flags & DIFFUSE_COMPONENT ) {
         double sProbabilityDensityFunction;
         CoordinateSystem coord;
@@ -167,7 +167,7 @@ PhongEmitDistFunc::phongEdfSample(
             Logger::reportMessage("PhongEmittanceDistributionFunction", Logger::WARNING, "phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
-        Vector3Df normal = context->getShadingNormal();
+        Vector3Dd normal = context->getShadingNormal();
 
         // Section [ARVO1995b].2: two independent samples (xi1, xi2) in [0,1]^2
         // are mapped to a direction on the hemisphere after building a local frame.
@@ -177,7 +177,7 @@ PhongEmitDistFunc::phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            *selfEmittedRadiance = scaleColor((1.0f / ((float)(M_PI))), Kd);
+            *selfEmittedRadiance = scaleColor((1.0 / ((double)(M_PI))), Kd);
         }
     }
 
@@ -202,8 +202,8 @@ needed)
 bool
 PhongEmitDistFunc::edfShadingFrame(
     const ShadingContext & /*context*/,
-    const Vector3Df * /*X*/,
-    const Vector3Df * /*Y*/,
-    const Vector3Df * /*Z*/) {
+    const Vector3Dd * /*X*/,
+    const Vector3Dd * /*Y*/,
+    const Vector3Dd * /*Z*/) {
     return false;
 }

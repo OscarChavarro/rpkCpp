@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/memoryManagement/MemoryPool.txx"
@@ -6,7 +6,7 @@
 #include "vsdk/toolkit/galerkin/GalerkinBasis.h"
 #include "vsdk/toolkit/galerkin/processing/LinkingClusteredStrategy.h"
 
-static MemoryPool<float> gLinkingClusteredPool;
+static MemoryPool<double> gLinkingClusteredPool;
 static bool gLinkingClusteredPoolInitialized = false;
 
 static void ensureLinkingClusteredPool() {
@@ -46,8 +46,8 @@ LinkingClusteredStrategy::createInitialLinks(
     }
 
     // Assume no light transport (overlapping receiver and source)
-    float *K;
-    const float deltaK = Float::MAX_VALUE; // Huge value error on the form factor
+    double *K;
+    const double deltaK = Double::MAX_VALUE; // Huge value error on the form factor
     bool kFromPool = false;
     ensureLinkingClusteredPool();
 
@@ -61,7 +61,7 @@ LinkingClusteredStrategy::createInitialLinks(
         if ( K != NULL ) {
             kFromPool = true;
         } else {
-            K = new float[1];
+            K = new double[1];
         }
         K[0] = 0.0;
     } else {
@@ -75,7 +75,7 @@ LinkingClusteredStrategy::createInitialLinks(
         if ( K != NULL ) {
             kFromPool = true;
         } else {
-            K = new float[KSize];
+            K = new double[KSize];
         }
         for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
             K[i] = 0.0;

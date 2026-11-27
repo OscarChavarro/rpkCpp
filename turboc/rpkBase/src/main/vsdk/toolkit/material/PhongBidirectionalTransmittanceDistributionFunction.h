@@ -1,7 +1,7 @@
 #ifndef PHNG_BDRCT_TRNSM_DSTRB_FNCTN
 #define PHNG_BDRCT_TRNSM_DSTRB_FNCTN
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/material/RefractionIndex.h"
@@ -15,20 +15,20 @@ class PhongBidirTransDistFunc {
   private:
     ColorRgb Kd;
     ColorRgb Ks;
-    float avgKd;
-    float avgKs;
-    float Ns;
+    double avgKd;
+    double avgKs;
+    double Ns;
     RefractionIndex refractionIndex;
 
     bool isSpecular() const;
 
   public:
-    explicit PhongBidirTransDistFunc(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
+    explicit PhongBidirTransDistFunc(const ColorRgb *inKd, const ColorRgb *inKs, double inNs, double inNr, double inNi);
     virtual ~PhongBidirTransDistFunc();
 
     const ColorRgb &getKd() const;
     const ColorRgb &getKs() const;
-    float getNs() const;
+    double getNs() const;
     const RefractionIndex &getRefractionIndex() const;
 
     ColorRgb transmittance(char flags) const;
@@ -37,17 +37,17 @@ class PhongBidirTransDistFunc {
     evaluate(
         RefractionIndex inIndex,
         RefractionIndex outIndex,
-        const Vector3Df *in,
-        const Vector3Df *out,
-        const Vector3Df *normal,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
+        const Vector3Dd *normal,
         char flags) const;
 
-    Vector3Df
+    Vector3Dd
     sample(
         RefractionIndex inIndex,
         RefractionIndex outIndex,
-        const Vector3Df *in,
-        const Vector3Df *normal,
+        const Vector3Dd *in,
+        const Vector3Dd *normal,
         int doRussianRoulette,
         char flags,
         double x1,
@@ -58,9 +58,9 @@ class PhongBidirTransDistFunc {
     evalProbDensFunc(
         RefractionIndex inIndex,
         RefractionIndex outIndex,
-        const Vector3Df *in,
-        const Vector3Df *out,
-        const Vector3Df *normal,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
+        const Vector3Dd *normal,
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
@@ -80,7 +80,7 @@ PhongBidirTransDistFunc::getKs() const {
     return Ks;
 }
 
-inline float
+inline double
 PhongBidirTransDistFunc::getNs() const {
     return Ns;
 }

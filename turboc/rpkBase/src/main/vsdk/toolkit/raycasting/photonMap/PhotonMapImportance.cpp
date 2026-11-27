@@ -34,11 +34,11 @@ PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node)
 bool
 PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
     if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
-        float importanceF = ColorRgbMutable(importance).average();
-        float potentialF = 1.0;
+        double importanceF = ColorRgbMutable(importance).average();
+        double potentialF = 1.0;
 
         // Compute footprint
-        float footprintF = 1.0;
+        double footprintF = 1.0;
 
         Importon importon(node->m_hit.getPoint(), importanceF, potentialF, footprintF, node->m_inDirF);
 
@@ -68,10 +68,10 @@ PhotonMapImportance::tracePotentialPath(
     }
     photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-    ColorRgb accImportance(1.0f, 1.0f, 1.0f);  // Track importance along the ray
+    ColorRgb accImportance(1.0, 1.0, 1.0);  // Track importance along the ray
 
     // Adjust importance for eye ray
-    float factor = ((float)(path->m_G / path->m_pdfFromPrev));
+    double factor = ((double)(path->m_G / path->m_pdfFromPrev));
     accImportance = ColorRgb(
         factor * accImportance.getR(),
         factor * accImportance.getG(),
@@ -117,7 +117,7 @@ PhotonMapImportance::tracePotentialPath(
             accImportance.getR() * prev->m_bsdfEval.getR(),
             accImportance.getG() * prev->m_bsdfEval.getG(),
             accImportance.getB() * prev->m_bsdfEval.getB());
-        factor = ((float)(node->m_G / node->m_pdfFromPrev));
+        factor = ((double)(node->m_G / node->m_pdfFromPrev));
         accImportance = ColorRgb(
             factor * accImportance.getR(),
             factor * accImportance.getG(),

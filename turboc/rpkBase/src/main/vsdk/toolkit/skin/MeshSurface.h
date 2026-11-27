@@ -2,19 +2,19 @@
 Surfaces are basically a list of patches representing a simple object with given material
 */
 
-#ifndef __SURFACE__
-#define __SURFACE__
+#ifndef __MESH_SURFACE__
+#define __MESH_SURFACE__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/material/MaterialColorFlags.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
-class MeshSurface: public Geometry{ private:
+class MeshSurface: public RpkGeometry{ private:
     static int nextSurfaceId;
 
-    static void normalizeVertexColor(Vertex *vertex);
+    static void normalizeVertexColor(RpkVertex *vertex);
 
   public:
     int meshId;
@@ -28,31 +28,31 @@ class MeshSurface: public Geometry{ private:
     and 'normals' list. Different vertices can share the same coordinates and/or
     normals
     */
-    ArrayList<Vertex *> *vertices;
+    ArrayList<RpkVertex *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
-    ArrayList<Vector3Df *> *positions;
+    ArrayList<Vector3Dd *> *positions;
 
     // A list of normals at the vertices of the patches
-    ArrayList<Vector3Df *> *normals;
+    ArrayList<Vector3Dd *> *normals;
 
     /**
     The patches making up the MeshSurface. Each patch contains pointers to three
     or four vertices in the 'vertices' list of the MeshSurface. Different patches
-    can share the same Vertex. Each vertex also contains a list of pointers to
+    can share the same RpkVertex. Each vertex also contains a list of pointers to
     the patches that share the vertex. This can be used for e.g. Gouraud shading
     if a color is assigned to each vertex. Each patch also contains a back pointer to
     to MeshSurface to which it belongs
     */
     ArrayList<Patch *> *faces;
 
-    Material *material;
+    RpkMaterial *material;
 
-    MeshSurface( char *inObjectName, Material *inMaterial, ArrayList<Vector3Df *> *inPoints, ArrayList<Vector3Df *> *inNormals, const ArrayList<Vector3Df *> * /*texCoords*/, ArrayList<Vertex *> *inVertices, ArrayList<Patch *> *inFaces, MaterialColorFlags inFlags);
+    MeshSurface( char *inObjectName, RpkMaterial *inMaterial, ArrayList<Vector3Dd *> *inPoints, ArrayList<Vector3Dd *> *inNormals, const ArrayList<Vector3Dd *> * /*texCoords*/, ArrayList<RpkVertex *> *inVertices, ArrayList<Patch *> *inFaces, MaterialColorFlags inFlags);
     ~MeshSurface();
 
-    RayHit *
-    discretizationIntersect( RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
+    RpkRayHit *
+    discretizationIntersect( Ray *ray, double minimumDistance, double *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
 };
 
 #endif

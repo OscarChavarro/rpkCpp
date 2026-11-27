@@ -6,13 +6,13 @@ class KDTreeNode {
   public:
     KDTreeNode<T> *loson;
     KDTreeNode<T> *hison;
-    int m_flags;
-    T *m_data;
+    int flags;
+    T *data;
 
     void findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const;
-    int discriminator() const { return m_flags & 0xF; }
-    void setDiscriminator(int discriminator) { m_flags = (m_flags & 0xFFF0) | discriminator; }
-    int flags() const { return m_flags & 0xFFF0; }
+    int discriminator() const { return flags & 0xF; }
+    void setDiscriminator(int discriminator) { flags = (flags & 0xFFF0) | discriminator; }
+    int getFlags() const { return flags & 0xFFF0; }
 };
 
 #endif

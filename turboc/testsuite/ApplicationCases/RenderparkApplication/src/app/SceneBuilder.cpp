@@ -1,6 +1,3 @@
-#ifdef RPK_RAY_CAPTURE
-    #include <stdlib.h>
-#endif
 #include <string.h>
 
 #include "java/io/FileInputStream.h"
@@ -9,7 +6,6 @@
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/scene/PatchClusterOctreeNode.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
@@ -48,9 +44,9 @@ SceneBuilder::sceneBldPtchAccumStats(Patch *patch) {
         Statistics::instance().radiance.averageReflectivity.getG() + patch->area * reflectance.getG(),
         Statistics::instance().radiance.averageReflectivity.getB() + patch->area * reflectance.getB());
     emittance = ColorRgb(
-        emittance.getR() * (1.0f / ((float)(M_PI))),
-        emittance.getG() * (1.0f / ((float)(M_PI))),
-        emittance.getB() * (1.0f / ((float)(M_PI))));
+        emittance.getR() * (1.0 / ((double)(M_PI))),
+        emittance.getG() * (1.0 / ((double)(M_PI))),
+        emittance.getB() * (1.0 / ((double)(M_PI))));
     Statistics::instance().radiance.maxSelfEmittedRadiance = ColorRgb(
         Math::max(emittance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getR()),
         Math::max(emittance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG()),
@@ -63,18 +59,18 @@ SceneBuilder::sceneBldPtchAccumStats(Patch *patch) {
 
 void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
-    Vector3Df zero;
-    ColorRgb one(1.0f, 1.0f, 1.0f);
-    ColorRgb averageAbsorption(0.0f, 0.0f, 0.0f);
-    ColorRgb BP(0.0f, 0.0f, 0.0f);
+    Vector3Dd zero;
+    ColorRgb one(1.0, 1.0, 1.0);
+    ColorRgb averageAbsorption(0.0, 0.0, 0.0);
+    ColorRgb BP(0.0, 0.0, 0.0);
 
-    zero = Vector3Df(0, 0, 0);
+    zero = Vector3Dd(0, 0, 0);
 
     // Initialize
-    Statistics::instance().radiance.totalEmittedPower = ColorRgb(0.0f, 0.0f, 0.0f);
-    Statistics::instance().radiance.averageReflectivity = ColorRgb(0.0f, 0.0f, 0.0f);
-    Statistics::instance().radiance.maxSelfEmittedRadiance = ColorRgb(0.0f, 0.0f, 0.0f);
-    Statistics::instance().radiance.maxSelfEmittedPower = ColorRgb(0.0f, 0.0f, 0.0f);
+    Statistics::instance().radiance.totalEmittedPower = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.averageReflectivity = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.maxSelfEmittedRadiance = ColorRgb(0.0, 0.0, 0.0);
+    Statistics::instance().radiance.maxSelfEmittedPower = ColorRgb(0.0, 0.0, 0.0);
     Statistics::instance().radiance.totalArea = 0.0;
 
     // Accumulate
@@ -92,16 +88,16 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
         one.getG() - Statistics::instance().radiance.averageReflectivity.getG(),
         one.getB() - Statistics::instance().radiance.averageReflectivity.getB());
     Statistics::instance().radiance.estimatedAverageRadiance = ColorRgb(
-        Statistics::instance().radiance.totalEmittedPower.getR() / (((float)(M_PI)) * Statistics::instance().radiance.totalArea),
-        Statistics::instance().radiance.totalEmittedPower.getG() / (((float)(M_PI)) * Statistics::instance().radiance.totalArea),
-        Statistics::instance().radiance.totalEmittedPower.getB() / (((float)(M_PI)) * Statistics::instance().radiance.totalArea));
+        Statistics::instance().radiance.totalEmittedPower.getR() / (((double)(M_PI)) * Statistics::instance().radiance.totalArea),
+        Statistics::instance().radiance.totalEmittedPower.getG() / (((double)(M_PI)) * Statistics::instance().radiance.totalArea),
+        Statistics::instance().radiance.totalEmittedPower.getB() / (((double)(M_PI)) * Statistics::instance().radiance.totalArea));
 
     // Include background radiation
     BP = ColorRgb(Background::backgroundPower(scene->background, &zero));
     BP = ColorRgb(
-        BP.getR() * (1.0f / (4.0f * ((float)(M_PI)))),
-        BP.getG() * (1.0f / (4.0f * ((float)(M_PI)))),
-        BP.getB() * (1.0f / (4.0f * ((float)(M_PI)))));
+        BP.getR() * (1.0 / (4.0 * ((double)(M_PI)))),
+        BP.getG() * (1.0 / (4.0 * ((double)(M_PI)))),
+        BP.getB() * (1.0 / (4.0 * ((double)(M_PI)))));
     Statistics::instance().radiance.totalEmittedPower = ColorRgb(
         Statistics::instance().radiance.totalEmittedPower.getR() + BP.getR(),
         Statistics::instance().radiance.totalEmittedPower.getG() + BP.getG(),
@@ -170,10 +166,10 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
-Geometry *
+RpkGeometry *
 SceneBuilder::sceneBldCreateClustHier(const ArrayList<Patch *> *patches) {
     PatchClusterOctreeNode *rootCluster;
-    Geometry *rootGeometry;
+    RpkGeometry *rootGeometry;
 
     // Create a toplevel cluster containing (references to) all the patches in the scene
     rootCluster = new PatchClusterOctreeNode(patches);
@@ -194,16 +190,16 @@ Builds a linear list of patches making up all the geometries in the list, whethe
 they are primitive or not
 */
 void
-SceneBuilder::sceneBuilderPatchList(const ArrayList<Geometry *> *geometryList, ArrayList<Patch *> *patchList) {
+SceneBuilder::sceneBuilderPatchList(const ArrayList<RpkGeometry *> *geometryList, ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        RpkGeometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
             const Compound *compound = ((const Compound *)(geometry));
             SceneBuilder::sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
-            const ArrayList<Patch *> *patchesFromNonCompounds = Geometry::patchListReference(geometry);
+            const ArrayList<Patch *> *patchesFromNonCompounds = RpkGeometry::patchListReference(geometry);
 
             for ( int j = 0; patchesFromNonCompounds != NULL && j < patchesFromNonCompounds->size(); j++ ) {
                 Patch *patch = patchesFromNonCompounds->get(j);
@@ -216,12 +212,12 @@ SceneBuilder::sceneBuilderPatchList(const ArrayList<Geometry *> *geometryList, A
 }
 
 void
-SceneBuilder::sceneBldFillFcsBackPntrs(const ArrayList<Geometry *> *geometryList) {
+SceneBuilder::sceneBldFillFcsBackPntrs(const ArrayList<RpkGeometry *> *geometryList) {
     if ( geometryList == NULL ) {
         return;
     }
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        RpkGeometry *geometry = geometryList->get(i);
         if ( geometry == NULL ) {
             continue;
         }
@@ -238,15 +234,15 @@ SceneBuilder::sceneBldFillFcsBackPntrs(const ArrayList<Geometry *> *geometryList
 
 void
 SceneBuilder::sceneBldCollectGeomsRec(
-    const ArrayList<Geometry *> *source,
-    ArrayList<Geometry *> *target)
+    const ArrayList<RpkGeometry *> *source,
+    ArrayList<RpkGeometry *> *target)
 {
     if ( source == NULL || target == NULL ) {
         return;
     }
 
     for ( int i = 0; i < source->size(); i++ ) {
-        Geometry *geometry = source->get(i);
+        RpkGeometry *geometry = source->get(i);
         if ( geometry == NULL ) {
             continue;
         }
@@ -297,7 +293,7 @@ SceneBuilder::sceneBldApplyMdlTMgfCtx(ParseRuntimeContext *mgfContext, ParseSnap
     mgfContext->currentMaterial = NULL;
     if ( mgfContext->materials != NULL && mgfContext->currentMaterialName != NULL ) {
         for ( int i = 0; i < mgfContext->materials->size(); i++ ) {
-            Material *material = mgfContext->materials->get(i);
+            RpkMaterial *material = mgfContext->materials->get(i);
             if ( material != NULL
                  && material->getName() != NULL
                  && strcmp(material->getName(), mgfContext->currentMaterialName) == 0 ) {
@@ -311,7 +307,7 @@ SceneBuilder::sceneBldApplyMdlTMgfCtx(ParseRuntimeContext *mgfContext, ParseSnap
         mgfContext->allGeometries->dispose();
         delete mgfContext->allGeometries;
     }
-    mgfContext->allGeometries = new ArrayList<Geometry *>();
+    mgfContext->allGeometries = new ArrayList<RpkGeometry *>();
     SceneBuilder::sceneBldCollectGeomsRec(mgfModel->currentGeometryList, mgfContext->allGeometries);
     if ( mgfModel->geometries != mgfModel->currentGeometryList ) {
         SceneBuilder::sceneBldCollectGeomsRec(mgfModel->geometries, mgfContext->allGeometries);
@@ -319,14 +315,14 @@ SceneBuilder::sceneBldApplyMdlTMgfCtx(ParseRuntimeContext *mgfContext, ParseSnap
 }
 
 void
-SceneBuilder::removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, ArrayList<Geometry *> *geometryList) {
+SceneBuilder::removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, ArrayList<RpkGeometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        const Geometry *geometry = geometryList->get(i);
+        const RpkGeometry *geometry = geometryList->get(i);
         if ( geometry->className == SURFACE_MESH ) {
             const MeshSurface *mesh = ((const MeshSurface *)(geometry));
             if ( mesh->vertices->size() == 0 ) {
                 for ( int j = 0; j < mgfContext->allGeometries->size(); j++ ) {
-                    const Geometry *deletionCandidate = mgfContext->allGeometries->get(j);
+                    const RpkGeometry *deletionCandidate = mgfContext->allGeometries->get(j);
                     if ( deletionCandidate == geometry ) {
                         mgfContext->allGeometries->remove(j);
                         break;
@@ -557,7 +553,7 @@ SceneBuilder::sceneBuilderReadFile(
     long long t = System::nanoTime();
     System::err.printf(
         "Reading took %g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     delete[] currentDirectory;
@@ -580,7 +576,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Build the list of patches on light sources from the patch list
@@ -592,7 +588,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Build a cluster hierarchy for the new scene
@@ -604,7 +600,7 @@ SceneBuilder::sceneBuilderReadFile(
     // The top-level clusters, as RenderPark's ClusteredWorld: the children of
     // the root cluster, or the root itself when it is not a compound
     if ( scene->clusteredRootGeometry->className == COMPOUND ) {
-        const ArrayList<Geometry *> *children = ((const Compound *)(scene->clusteredRootGeometry))->children;
+        const ArrayList<RpkGeometry *> *children = ((const Compound *)(scene->clusteredRootGeometry))->children;
         for ( int i = 0; children != NULL && i < children->size(); i++ ) {
             scene->clusteredGeometryList->add(children->get(i));
         }
@@ -619,21 +615,17 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Create the scene query, over the index the -scene-acceleration option chose
-#ifdef RPK_RAY_CAPTURE
-    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file
-    scene->visibilityQueryRecorder = new VisibilityQueryRecorder(getenv("RPK_RAY_CAPTURE_FILE"));
-#endif
     scene->buildSceneQuery();
 
     t = System::nanoTime();
     System::err.printf(
         "Scene index (%s) creation took %g secs.\n",
         SceneQuery::methodName(scene->getAccelerationMethod()),
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -642,11 +634,12 @@ SceneBuilder::sceneBuilderReadFile(
 
     Statistics::instance().reader.numberOfPatches = Statistics::instance().reader.numberOfElements;
     SceneBuilder::sceneBuilderComputeStats(scene);
-    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - Cie::spectrumGray(
+    const Cie &colorSpace = toneMapOptions.getColorSpace();
+    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - colorSpace.spectrumGray(
             Statistics::instance().radiance.averageReflectivity.getR(),
             Statistics::instance().radiance.averageReflectivity.getG(),
             Statistics::instance().radiance.averageReflectivity.getB())) *
-            Cie::spectrumLuminance(
+            colorSpace.spectrumLuminance(
             Statistics::instance().radiance.estimatedAverageRadiance.getR(),
             Statistics::instance().radiance.estimatedAverageRadiance.getG(),
             Statistics::instance().radiance.estimatedAverageRadiance.getB()));
@@ -654,7 +647,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Initialize tone mapping
@@ -666,7 +659,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
     last = t;
 
     // Print statistics report
@@ -677,11 +670,11 @@ SceneBuilder::sceneBuilderReadFile(
            "         radiance.maxSelfEmittedPower ..............: %f W\n"
            "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
            "         totalArea ........................: %f m2\n",
-           Cie::spectrumGray(Statistics::instance().radiance.totalEmittedPower.getR(), Statistics::instance().radiance.totalEmittedPower.getG(), Statistics::instance().radiance.totalEmittedPower.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB()),
-           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.totalEmittedPower.getR(), Statistics::instance().radiance.totalEmittedPower.getG(), Statistics::instance().radiance.totalEmittedPower.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.estimatedAverageRadiance.getR(), Statistics::instance().radiance.estimatedAverageRadiance.getG(), Statistics::instance().radiance.estimatedAverageRadiance.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.averageReflectivity.getR(), Statistics::instance().radiance.averageReflectivity.getG(), Statistics::instance().radiance.averageReflectivity.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB()),
+           colorSpace.spectrumGray(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB()),
            toneMapOptions.realWorldAdaptionLuminance,
            Statistics::instance().radiance.totalArea);
     //scene->print();
@@ -695,7 +688,7 @@ SceneBuilder::sceneBuilderReadFile(
     t = System::nanoTime();
     System::err.printf(
         "%g secs.\n",
-        ((float)(((double)(t - last)) / 1000000000.0)));
+        ((double)(((double)(t - last)) / 1000000000.0)));
 
     // Remove possible render hooks
     RenderHookList::removeAllRenderHooks();

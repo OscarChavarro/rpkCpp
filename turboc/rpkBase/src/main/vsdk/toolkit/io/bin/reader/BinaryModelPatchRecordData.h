@@ -2,7 +2,7 @@
 #define BNRY_MDL_RDR_PTCH_RCRD
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 class BinaryModelPatchRecordData {
@@ -12,17 +12,17 @@ class BinaryModelPatchRecordData {
     int numberOfVertices;
     int vertexIndices[MAXIMUM_VERTICES_PER_PATCH];
     bool hasBoundingBox;
-    float boundingBoxCoordinates[6];
-    Vector3Df normal;
-    float planeConstant;
-    float tolerance;
-    float area;
-    Vector3Df midPoint;
+    double boundingBoxCoordinates[6];
+    Vector3Dd normal;
+    double planeConstant;
+    double tolerance;
+    double area;
+    Vector3Dd midPoint;
     bool hasJacobian;
-    float jacobianA;
-    float jacobianB;
-    float jacobianC;
-    float directPotential;
+    double jacobianA;
+    double jacobianB;
+    double jacobianC;
+    double directPotential;
     int dominantIndex;
     bool omit;
     unsigned char flags;

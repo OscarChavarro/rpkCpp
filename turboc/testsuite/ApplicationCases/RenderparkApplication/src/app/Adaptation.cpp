@@ -6,11 +6,10 @@ Estimate static adaptation for tone mapping
 
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/numericalAnalysis/PatchVisitor.h"
@@ -21,8 +20,8 @@ int Adaptation::numEntries = 0;
 double Adaptation::logAreaLum = 0.0;
 LuminanceArea *Adaptation::lumArea = NULL;
 int Adaptation::lumAreaIndex = 0;
-float Adaptation::lumMin = Float::MAX_VALUE; // Note Float::MAX_VALUE; will cause an issue here
-float Adaptation::lumMax = 0.0;
+double Adaptation::lumMin = Double::MAX_VALUE; // Note Double::MAX_VALUE; will cause an issue here
+double Adaptation::lumMax = 0.0;
 Adaptation::PatchRadianceEstimateFn Adaptation::patchRadianceEstimate = NULL;
 
 /**
@@ -34,15 +33,15 @@ Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb reflectance = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb avgRad = Statistics::instance().radiance.estimatedAverageRadiance;
     return ColorRgb(
-        reflectance.getR() * avgRad.getR() + (1.0f / ((float)(M_PI))) * emittance.getR(),
-        reflectance.getG() * avgRad.getG() + (1.0f / ((float)(M_PI))) * emittance.getG(),
-        reflectance.getB() * avgRad.getB() + (1.0f / ((float)(M_PI))) * emittance.getB());
+        reflectance.getR() * avgRad.getR() + (1.0 / ((double)(M_PI))) * emittance.getR(),
+        reflectance.getG() * avgRad.getG() + (1.0 / ((double)(M_PI))) * emittance.getG(),
+        reflectance.getB() * avgRad.getB() + (1.0 / ((double)(M_PI))) * emittance.getB());
 }
 
 int
 Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
-    float l1 = ((const LuminanceArea *)(la1))->luminance;
-    float l2 = ((const LuminanceArea *)(la2))->luminance;
+    double l1 = ((const LuminanceArea *)(la1))->luminance;
+    double l2 = ((const LuminanceArea *)(la2))->luminance;
 
     if ( l1 > l2 ) {
         return 1;
@@ -51,26 +50,26 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
     return l1 == l2 ? 0 : -1;
 }
 
-float
-Adaptation::patchBrightnessEstimate(Patch *patch) {
+double
+Adaptation::patchBrightnessEstimate(Patch *patch, const Cie &colorSpace) {
     ColorRgb radiance = patchRadianceEstimate(patch);
-    float brightness = Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
-    if ( brightness < Numeric::EPSILON_FLOAT ) {
-        brightness = Numeric::EPSILON_FLOAT;
+    double brightness = colorSpace.spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB());
+    if ( brightness < Numeric::EPSILON ) {
+        brightness = Numeric::EPSILON;
     }
     return brightness;
 }
 
 void
-Adaptation::patchComputeLogAreaLum(Patch *patch) {
-    float brightness = Adaptation::patchBrightnessEstimate(patch);
+Adaptation::patchComputeLogAreaLum(Patch *patch, const Cie &colorSpace) {
+    double brightness = Adaptation::patchBrightnessEstimate(patch, colorSpace);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     logAreaLum += patch->area * Math::log(brightness);
 }
 
 void
-Adaptation::patchFillLumArea(Patch *patch) {
-    float brightness = Adaptation::patchBrightnessEstimate(patch);
+Adaptation::patchFillLumArea(Patch *patch, const Cie &colorSpace) {
+    double brightness = Adaptation::patchBrightnessEstimate(patch, colorSpace);
 
     LuminanceArea &entry = lumArea[lumAreaIndex];
     entry.luminance = brightness;
@@ -88,14 +87,14 @@ Computes the static adaptation luminance value choosing the median value
 of area-weighted luminance values. Needs a correct
 Statistics::instance().radiance.totalArea.
 */
-float
+double
 Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     if ( numPairs <= 0 ) {
-        return 0.0f;
+        return 0.0;
     }
 
-    float areaMax = Statistics::instance().radiance.totalArea / 2.0f;
-    float areaCnt = 0.0;
+    double areaMax = Statistics::instance().radiance.totalArea / 2.0;
+    double areaCnt = 0.0;
     int pairIndex = 0;
 
     qsort(pairs, numPairs, sizeof(LuminanceArea), Adaptation::adaptationLumAreaComp);
@@ -132,10 +131,10 @@ Adaptation::estimateSceneAdaptation(
             // Gibson's static adaptation after [TUMB1999b]
             logAreaLum = 0.0;
             for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
-                Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
+                Adaptation::patchComputeLogAreaLum(scenePatches->get(i), toneMapOptions.getColorSpace());
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            toneMapOptions.realWorldAdaptionLuminance = Math::exp(((float)(logAreaLum)) / Statistics::instance().radiance.totalArea + 0.84f);
+            toneMapOptions.realWorldAdaptionLuminance = Math::exp(((double)(logAreaLum)) / Statistics::instance().radiance.totalArea + 0.84);
             break;
         }
         case TMA_MEDIAN: {
@@ -146,7 +145,7 @@ Adaptation::estimateSceneAdaptation(
             lumAreaIndex = 0;
             numEntries = 0;
             for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
-                Adaptation::patchFillLumArea(scenePatches->get(i));
+                Adaptation::patchFillLumArea(scenePatches->get(i), toneMapOptions.getColorSpace());
             }
             toneMapOptions.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().reader.numberOfPatches);
 

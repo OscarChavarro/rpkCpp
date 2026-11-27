@@ -118,20 +118,20 @@ RayCaster::getRadianceAtPixel(
     const RenderOptions *renderOptions) const
 {
     ColorRgb radiance = ColorRgb();
-    radiance = ColorRgb(0.0f, 0.0f, 0.0f);
+    radiance = ColorRgb(0.0, 0.0, 0.0);
 
     if ( radianceMethod != NULL ) {
         // Ray pointing from the eye through the center of the pixel.
-        RpkRay ray;
-        ray.position = camera->eyePosition;
-        ray.direction = screenBuffer->getPixelVector(x, y);
-        ray.direction = ray.direction.normalized(Numeric::EPSILON_FLOAT);
+        Ray ray;
+        ray.setOrigin(camera->eyePosition);
+        ray.setDirection(screenBuffer->getPixelVector(x, y));
+        ray.setDirection(ray.getDirection().normalized(Numeric::EPSILON));
 
         // Find intersection point of ray with patch
-        Vector3Df point;
-        float dist = patch->normal.dotProduct(ray.direction);
-        dist = -(patch->normal.dotProduct(ray.position) + patch->planeConstant) / dist;
-        point = ray.position.add(ray.direction.multiply(((float)(dist))));
+        Vector3Dd point;
+        double dist = patch->normal.dotProduct(ray.getDirection());
+        dist = -(patch->normal.dotProduct(ray.getOrigin()) + patch->planeConstant) / dist;
+        point = ray.getOrigin().add(ray.getDirection().multiply(((double)(dist))));
 
         // Find surface coordinates of hit point on patch
         double u;
@@ -144,7 +144,7 @@ RayCaster::getRadianceAtPixel(
         clipUv(patch->numberOfVertices, &u, &v);
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
-        Vector3Df dir(-ray.direction.x(), -ray.direction.y(), -ray.direction.z());
+        Vector3Dd dir(-ray.getDirection().x(), -ray.getDirection().y(), -ray.getDirection().z());
         radiance = ColorRgb(radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions));
     }
     return radiance;

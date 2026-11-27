@@ -2,7 +2,7 @@
 Hierarchical refinement
 */
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -14,7 +14,7 @@ Hierarchical refinement
 #include "vsdk/toolkit/galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
-static MemoryPool<float> gHierarchicalCoefficientsPool;
+static MemoryPool<double> gHierarchicalCoefficientsPool;
 static bool gHierarchicalCoefficientsPoolInitialized = false;
 
 static void ensureHierarchicalCoefficientsPool() {
@@ -47,7 +47,7 @@ later (using hierarchicRefinementUnCull())
 void
 HierarchicalRefinementStrategy::hierarchicRefinementCull(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     const GalerkinState *galerkinState)
@@ -63,8 +63,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         // stores references used later in cullGeometry/doCulling.
         Polygon rcvPolygon;
         Polygon srcPolygon;
-        BoundingBox srcBounds;
-        BoundingBox rcvBounds;
+        RpkAxisAlignedBoundingBox srcBounds;
+        RpkAxisAlignedBoundingBox rcvBounds;
 
         if ( galerkinState->exactVisibility
           && !interaction->receiverElement->isCluster()
@@ -91,11 +91,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         }
 
         if ( isClusteredGeometry ) {
-            ArrayList<Geometry*> *arr = new ArrayList<Geometry*>();
+            ArrayList<RpkGeometry*> *arr = new ArrayList<RpkGeometry*>();
             shaft.cullGeometry(scene->clusteredRootGeometry, arr, galerkinState->shaftCullStrategy);
             *candidatesList = arr;
         } else {
-            ArrayList<Geometry*> *arr = new ArrayList<Geometry*>();
+            ArrayList<RpkGeometry*> *arr = new ArrayList<RpkGeometry*>();
             shaft.doCulling(*candidatesList, arr, galerkinState->shaftCullStrategy);
             *candidatesList = arr;
         }
@@ -108,7 +108,7 @@ an argument)
 */
 void
 HierarchicalRefinementStrategy::hierarchicRefinementUnCull(
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     const GalerkinState *galerkinState)
 {
     if ( galerkinState->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
@@ -265,15 +265,15 @@ HierarchicalRefinementStrategy::srcClustRadnVrtnErrr(
         return 0.0;
     }
 
-    Vector3Df rcVertices[8];
+    Vector3Dd rcVertices[8];
     int numberOfRcVertices = interaction->receiverElement->vertices(rcVertices);
 
     ColorRgbMutable minimumSrcRad;
     ColorRgbMutable maximumSrcRad;
     ColorRgbMutable error;
 
-    minimumSrcRad = ColorRgbMutable(Float::MAX_VALUE, Float::MAX_VALUE, Float::MAX_VALUE);
-    maximumSrcRad = ColorRgbMutable(-Float::MAX_VALUE, -Float::MAX_VALUE, -Float::MAX_VALUE);
+    minimumSrcRad = ColorRgbMutable(Double::MAX_VALUE, Double::MAX_VALUE, Double::MAX_VALUE);
+    maximumSrcRad = ColorRgbMutable(-Double::MAX_VALUE, -Double::MAX_VALUE, -Double::MAX_VALUE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgbMutable rad;
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(
@@ -283,7 +283,7 @@ HierarchicalRefinementStrategy::srcClustRadnVrtnErrr(
     }
     error.subtract(maximumSrcRad, minimumSrcRad);
 
-    error.scalarProductScaled(rcvRho, ((float)(K / receiverArea)), error);
+    error.scalarProductScaled(rcvRho, ((double)(K / receiverArea)), error);
     error.abs();
     return hierRefClrTErrr(error);
 }
@@ -318,7 +318,7 @@ HierarchicalRefinementStrategy::hierRefEvalInter(
 
     // Determine source reflectivity
     if ( interaction->sourceElement->isCluster() ) {
-        srcRho = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+        srcRho = ColorRgbMutable(1.0, 1.0, 1.0);
     } else {
         srcRho = interaction->sourceElement->patch->radianceData->Rd;
     }
@@ -428,15 +428,15 @@ HierarchicalRefinementStrategy::receiverLightTransport(
     }
 
     if ( galerkinState->importanceDriven && galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-        float K = interaction->K[0];
+        double K = interaction->K[0];
         ColorRgbMutable srcRho;
         if ( interaction->sourceElement->isCluster() ) {
-            srcRho = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+            srcRho = ColorRgbMutable(1.0, 1.0, 1.0);
         } else {
             srcRho = interaction->sourceElement->patch->radianceData->Rd;
         }
         interaction->receiverElement->receivedPotential +=
-            ((float)(K * hierRefClrTErrr(srcRho) * interaction->sourceElement->unShotPotential));
+            ((double)(K * hierRefClrTErrr(srcRho) * interaction->sourceElement->unShotPotential));
     }
 }
 
@@ -458,15 +458,15 @@ HierarchicalRefinementStrategy::sourceLightTransport(
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
              galerkinState->isJacobi() ) {
-            float K = interaction->K[0];
+            double K = interaction->K[0];
             ColorRgbMutable rcvRho;
             if ( interaction->receiverElement->isCluster() ) {
-                rcvRho = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+                rcvRho = ColorRgbMutable(1.0, 1.0, 1.0);
             } else {
                 rcvRho = interaction->receiverElement->patch->radianceData->Rd;
             }
             interaction->sourceElement->receivedPotential +=
-                ((float)(K * hierRefClrTErrr(rcvRho) * interaction->receiverElement->potential));
+                ((double)(K * hierRefClrTErrr(rcvRho) * interaction->receiverElement->potential));
         } else if ( galerkinState->galerkinIterationMethod != SOUTH_WELL ) {
             Logger::reportMessage("HierarchicalRefinementStrategy", Logger::FATAL_ERROR, "hierRefCompLightTransp", "Did you introduce a new iteration method or so??");
         }
@@ -485,7 +485,7 @@ and true is returned. If the elements don't interact, false is returned
 int
 HierarchicalRefinementStrategy::hierRefCreateSubdivLink(
     const Scene *scene,
-    const ArrayList<Geometry *> *candidatesList,
+    const ArrayList<RpkGeometry *> *candidatesList,
     GalerkinElement *receiverElement,
     GalerkinElement *sourceElement,
     Interaction *interaction,
@@ -549,7 +549,7 @@ stores it
 void
 HierarchicalRefinementStrategy::refineSubInteraction(
     const Scene *scene,
-    ArrayList<Geometry *> *candidatesList,
+    ArrayList<RpkGeometry *> *candidatesList,
     GalerkinElement *receiverElement,
     GalerkinElement *sourceElement,
     GalerkinState *galerkinState,
@@ -557,7 +557,7 @@ HierarchicalRefinementStrategy::refineSubInteraction(
 {
     Interaction subInteraction = Interaction();
     const int KSize = GALERKIN_MAX_BASIS_SIZE * GALERKIN_MAX_BASIS_SIZE;
-    MemoryPool<float> *coefficientsPool = workspace->getCoefficientsPool();
+    MemoryPool<double> *coefficientsPool = workspace->getCoefficientsPool();
     bool usingPool = true;
     subInteraction.K = coefficientsPool->allocate(KSize);
     if ( subInteraction.K == NULL ) {
@@ -566,12 +566,12 @@ HierarchicalRefinementStrategy::refineSubInteraction(
         }
         if ( subInteraction.K == NULL ) {
             usingPool = false;
-            subInteraction.K = new float[KSize];
+            subInteraction.K = new double[KSize];
         }
     }
     subInteraction.ownsK = !usingPool;
 
-    ArrayList<Geometry *> *candidates = candidatesList;
+    ArrayList<RpkGeometry *> *candidates = candidatesList;
     if ( hierRefCreateSubdivLink(
             scene,
             candidates,
@@ -605,13 +605,13 @@ lower level sub-interactions
 void
 HierarchicalRefinementStrategy::hierRefRegSbdvdSrc(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
 {
-    ArrayList<Geometry *> *backup = *candidatesList;
+    ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -632,13 +632,13 @@ Same, but subdivides the receiver element
 void
 HierarchicalRefinementStrategy::hierRefRegSbdvdRecv(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
 {
-    ArrayList<Geometry *> *backup = *candidatesList;
+    ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -660,13 +660,13 @@ which is a cluster
 void
 HierarchicalRefinementStrategy::hierRefSbdvdSrcClust(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
 {
-    ArrayList<Geometry *> *backup = *candidatesList;
+    ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     const GalerkinElement *sourceElement = interaction->sourceElement;
     GalerkinElement *receiverElement = interaction->receiverElement;
@@ -697,13 +697,13 @@ which is a cluster
 void
 HierarchicalRefinementStrategy::hierRefSbdvdRecvClust(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
 {
-    ArrayList<Geometry *> *backup = *candidatesList;
+    ArrayList<RpkGeometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = interaction->sourceElement;
     const GalerkinElement *receiverElement = interaction->receiverElement;
@@ -736,7 +736,7 @@ does not need to be refined, light transport over the interaction is computed
 bool
 HierarchicalRefinementStrategy::refineRecursive(
     const Scene *scene,
-    ArrayList<Geometry *> **candidatesList,
+    ArrayList<RpkGeometry *> **candidatesList,
     Interaction *interaction,
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
@@ -786,7 +786,7 @@ HierarchicalRefinementStrategy::refineInteraction(
     GalerkinState *galerkinState,
     RefinementWorkspace *workspace)
 {
-    ArrayList<Geometry *> *candidateOccluderList = scene->clusteredGeometryList;
+    ArrayList<RpkGeometry *> *candidateOccluderList = scene->clusteredGeometryList;
 
     if ( galerkinState->exactVisibility && interaction->visibility == 255 ) {
         candidateOccluderList = NULL;
@@ -833,11 +833,18 @@ HierarchicalRefinementStrategy::refineInteractionsRecursive(
 
     // Iterate over the interactions. Refined interactions are removed with
     // order-preserving in-place compaction to avoid one temporary list per element.
+    // Only the interactions present when the loop starts are refined: the links
+    // that their refinement stores in this same list (the receiver kept, the
+    // source subdivided) already had their light transport when created. The
+    // original RenderPark prepends them (InteractionListAdd), out of the
+    // iteration's way; this list appends them, so they are kept but not
+    // visited, or their light would be transported twice in the iteration
     ArrayList<Interaction *> *interactions = parentElement->interactions;
+    const long int numberOfInteractions = interactions != NULL ? interactions->size() : 0;
     long int writeIndex = 0;
     for ( long int readIndex = 0; interactions != NULL && readIndex < interactions->size(); readIndex++ ) {
         Interaction *interaction = interactions->get(readIndex);
-        if ( refineInteraction(scene, interaction, galerkinState, workspace) ) {
+        if ( readIndex < numberOfInteractions && refineInteraction(scene, interaction, galerkinState, workspace) ) {
             Interaction::interactionDestroy(interaction);
         } else {
             if ( writeIndex != readIndex ) {

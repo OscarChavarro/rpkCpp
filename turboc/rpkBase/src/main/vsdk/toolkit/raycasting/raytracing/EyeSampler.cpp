@@ -32,7 +32,7 @@ EyeSampler::sample(
     // Choose point on eye : N/A
 
     // Fake a hit record
-    RayHit *hit = &newNode->m_hit;
+    RpkRayHit *hit = &newNode->m_hit;
 
     hit->init(NULL, &camera->eyePosition, &camera->Z, NULL);
     hit->setNormal(&camera->Z);

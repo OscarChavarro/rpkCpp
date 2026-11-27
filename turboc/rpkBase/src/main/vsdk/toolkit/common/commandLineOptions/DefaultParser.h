@@ -1,5 +1,5 @@
-#ifndef __OPTION_CORE_DEFAULT_PARSER__
-#define __OPTION_CORE_DEFAULT_PARSER__
+#ifndef __DEFAULT_PARSER__
+#define __DEFAULT_PARSER__
 
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Integer.h"
@@ -50,13 +50,13 @@ struct DefaultParser<long> {
 };
 
 template<>
-struct DefaultParser<float> {
-    static bool parse(const char *input, float &out) {
+struct DefaultParser<double> {
+    static bool parse(const char *input, double &out) {
         if ( input == NULL ) {
             return false;
         }
         char *endPointer = NULL;
-        const float parsedValue = strtof(input, &endPointer);
+        const double parsedValue = strtod(input, &endPointer);
         if ( endPointer == input || *endPointer != '\0' ) {
             return false;
         }

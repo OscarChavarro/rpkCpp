@@ -33,9 +33,9 @@ evaluation, no pdf involved
 */
 ColorRgb
 BiPath::evalRadiance() const {
-    float r = 1.0f;
-    float g = 1.0f;
-    float b = 1.0f;
+    double r = 1.0;
+    double g = 1.0;
+    double b = 1.0;
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;
@@ -63,9 +63,9 @@ BiPath::evalRadiance() const {
     factor *= m_geomConnect; // Next event ray geometry factor
 
     return ColorRgb(
-        r * ((float)(factor)),
-        g * ((float)(factor)),
-        b * ((float)(factor)));
+        r * ((double)(factor)),
+        g * ((double)(factor)),
+        b * ((double)(factor)));
 }
 
 /**
@@ -96,11 +96,11 @@ BiPath::evalPdfAcc() const {
 
 // Evaluate weight/pdf for a bipath, taking into account other pdf's
 // depending on the config (baseConfig).
-float
+double
 BiPath::evalPdfAndWeight(
     const BidirPathRaytrcCnfg *baseConfig,
-    float *pPdf,
-    float *pWeight) const
+    double *pPdf,
+    double *pWeight) const
 {
     int currentConnect;
     double pdfAcc;
@@ -220,12 +220,12 @@ BiPath::evalPdfAndWeight(
     weight = weight / pdfSum;
 
     if ( pWeight ) {
-        *pWeight = ((float)(weight));
+        *pWeight = ((double)(weight));
     }
 
     if ( pPdf ) {
-        *pPdf = ((float)(realPdf));
+        *pPdf = ((double)(realPdf));
     }
 
-    return ((float)(weight / realPdf));
+    return ((double)(weight / realPdf));
 }

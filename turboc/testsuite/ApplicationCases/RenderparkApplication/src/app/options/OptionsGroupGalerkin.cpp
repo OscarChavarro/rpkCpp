@@ -81,8 +81,8 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     TypedOption<int> grNoImportanceOpt("-gr-no-importance", &falseValue, 0, OptionsGroupGalerkin::importanceOption, NULL);
     TypedOption<int> grAmbientOpt("-gr-ambient", &trueValue, 0, OptionsGroupGalerkin::ambientOption, NULL);
     TypedOption<int> grNoAmbientOpt("-gr-no-ambient", &falseValue, 0, OptionsGroupGalerkin::ambientOption, NULL);
-    TypedOption<float> grLinkErrorOpt("-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, NULL, NULL);
-    TypedOption<float> grMinElemAreaOpt("-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, NULL, NULL);
+    TypedOption<double> grLinkErrorOpt("-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, NULL, NULL);
+    TypedOption<double> grMinElemAreaOpt("-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, NULL, NULL);
     OptionBase galerkinOptions[] = {
         REGISTER_OPTION(char *, iterationMethodOpt, 6),
         REGISTER_OPTION(char *, shaftCullingOpt, 6),
@@ -96,8 +96,8 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(int, grNoImportanceOpt, 10),
         REGISTER_OPTION(int, grAmbientOpt, 6),
         REGISTER_OPTION(int, grNoAmbientOpt, 10),
-        REGISTER_OPTION(float, grLinkErrorOpt, 6),
-        REGISTER_OPTION(float, grMinElemAreaOpt, 6)
+        REGISTER_OPTION(double, grLinkErrorOpt, 6),
+        REGISTER_OPTION(double, grMinElemAreaOpt, 6)
     };
     OptionGroup galerkinGroups[] = {
         OptionGroup("galerkin", galerkinOptions, 14)

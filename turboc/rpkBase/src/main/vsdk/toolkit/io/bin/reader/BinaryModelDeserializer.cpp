@@ -3,23 +3,23 @@
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/material/Material.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/Texture.h"
 #include "vsdk/toolkit/skin/Compound.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/material/MaterialColorFlags.h"
 #include "vsdk/toolkit/skin/MeshSurface.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"
@@ -47,11 +47,11 @@ BinaryModelDeserializer::read(const char *fileName) {
     FileInputStream fileInput(fileName);
     BufferedInputStream input(&fileInput);
 
-    ArrayList<Vector3Df *> vectors;
-    ArrayList<Vertex *> vertices;
+    ArrayList<Vector3Dd *> vectors;
+    ArrayList<RpkVertex *> vertices;
     ArrayList<Patch *> patches;
-    ArrayList<Material *> materials;
-    ArrayList<Geometry *> geometries;
+    ArrayList<RpkMaterial *> materials;
+    ArrayList<RpkGeometry *> geometries;
     ArrayList<ColorContext *> colorContexts;
     ArrayList<ReaderContext *> readerContexts;
     ArrayList<TransformSequenceContext *> transformArrays;
@@ -92,11 +92,11 @@ BinaryModelDeserializer::read(const char *fileName) {
         if ( !BinaryModelReadPrimitives::readNonNegativeCount(input, "transform arrays", &transformArrayCount) ) goto fail;
         if ( !BinaryModelReadPrimitives::readNonNegativeCount(input, "transform contexts", &transformContextCount) ) goto fail;
 
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&vectors, vectorCount, ((Vector3Df *)(NULL)), "vectors") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&vertices, vertexCount, ((Vertex *)(NULL)), "vertices") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&vectors, vectorCount, ((Vector3Dd *)(NULL)), "vectors") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&vertices, vertexCount, ((RpkVertex *)(NULL)), "vertices") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&patches, patchCount, ((Patch *)(NULL)), "patches") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&materials, materialCount, ((Material *)(NULL)), "materials") ) goto fail;
-        if ( !BinaryModelReadPrimitives::initializeArrayList(&geometries, geometryCount, ((Geometry *)(NULL)), "geometries") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&materials, materialCount, ((RpkMaterial *)(NULL)), "materials") ) goto fail;
+        if ( !BinaryModelReadPrimitives::initializeArrayList(&geometries, geometryCount, ((RpkGeometry *)(NULL)), "geometries") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&colorContexts, colorContextCount, ((ColorContext *)(NULL)), "color contexts") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&readerContexts, readerContextCount, ((ReaderContext *)(NULL)), "reader contexts") ) goto fail;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&transformArrays, transformArrayCount, ((TransformSequenceContext *)(NULL)), "transform arrays") ) goto fail;
@@ -107,7 +107,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "VEC3") ) goto fail;
         for ( int i = 0; i < vectorCount; i++ ) {
-            Vector3Df *vector = new Vector3Df();
+            Vector3Dd *vector = new Vector3Dd();
             if ( !BinaryModelReadPrimitives::readVector(input, vector) ) {
                 delete vector;
                 goto fail;
@@ -131,7 +131,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                 ColorRgb ks;
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                const float ns = BinaryModelReadPrimitives::readFloatLE(input);
+                const double ns = BinaryModelReadPrimitives::readFloatLE(input);
                 edf = new PhongEmitDistFunc(&kd, &ks, ns);
             }
 
@@ -148,7 +148,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                     ColorRgb ks;
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                    const float ns = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ns = BinaryModelReadPrimitives::readFloatLE(input);
                     brdf = new PhongBidirReflDistFunc(&kd, &ks, ns);
                 }
 
@@ -158,9 +158,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                     ColorRgb ks;
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
-                    const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                    const float nr = BinaryModelReadPrimitives::readFloatLE(input);
-                    const float ni = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ns = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double nr = BinaryModelReadPrimitives::readFloatLE(input);
+                    const double ni = BinaryModelReadPrimitives::readFloatLE(input);
                     btdf = new PhongBidirTransDistFunc(&kd, &ks, ns, nr, ni);
                 }
 
@@ -204,7 +204,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
 
             const char *materialNameCstr = hasMaterialName ? materialNameGuard.get() : "";
-            materials.set(((long int)(i)), new Material(materialNameCstr, edf, bsdf, sided));
+            materials.set(((long int)(i)), new RpkMaterial(materialNameCstr, edf, bsdf, sided));
         }
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "COLR") ) goto fail;
@@ -335,14 +335,14 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
             if ( !BinaryModelReadPrimitives::readIndexList(input, "vertex.patches", &record.patchIndices) ) goto fail;
 
-            Vector3Df *point = NULL;
-            Vector3Df *normal = NULL;
-            Vector3Df *texCoords = NULL;
+            Vector3Dd *point = NULL;
+            Vector3Dd *normal = NULL;
+            Vector3Dd *texCoords = NULL;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.pointIndex, "vertex.point", &point) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.normalIndex, "vertex.normal", &normal) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vectors, record.textureCoordinateIndex, "vertex.textureCoordinates", &texCoords) ) goto fail;
 
-            Vertex *vertex = new Vertex(point, normal, texCoords, new ArrayList<Patch *>());
+            RpkVertex *vertex = new RpkVertex(point, normal, texCoords, new ArrayList<Patch *>());
             vertex->id = record.id;
             vertex->color = record.color;
             vertex->tmp = record.tmp;
@@ -351,9 +351,9 @@ BinaryModelDeserializer::read(const char *fileName) {
         }
 
         for ( int i = 0; i < vertexCount; i++ ) {
-            Vertex *vertex = vertices.get(((long int)(i)));
+            RpkVertex *vertex = vertices.get(((long int)(i)));
             const BinaryModelVertexRecordData &record = vertexRecords[((long int)(i))];
-            Vertex *back = NULL;
+            RpkVertex *back = NULL;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.backIndex, "vertex.back", &back) ) goto fail;
             vertex->back = back;
         }
@@ -384,9 +384,9 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( !BinaryModelReadPrimitives::readVector(input, &record.midPoint) ) goto fail;
 
             record.hasJacobian = BinaryModelReadPrimitives::readBool(input);
-            record.jacobianA = 0.0f;
-            record.jacobianB = 0.0f;
-            record.jacobianC = 0.0f;
+            record.jacobianA = 0.0;
+            record.jacobianB = 0.0;
+            record.jacobianC = 0.0;
             if ( record.hasJacobian ) {
                 record.jacobianA = BinaryModelReadPrimitives::readFloatLE(input);
                 record.jacobianB = BinaryModelReadPrimitives::readFloatLE(input);
@@ -405,10 +405,10 @@ BinaryModelDeserializer::read(const char *fileName) {
                 goto fail;
             }
 
-            Vertex *v1 = NULL;
-            Vertex *v2 = NULL;
-            Vertex *v3 = NULL;
-            Vertex *v4 = NULL;
+            RpkVertex *v1 = NULL;
+            RpkVertex *v2 = NULL;
+            RpkVertex *v3 = NULL;
+            RpkVertex *v4 = NULL;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[0], "patch.vertex[0]", &v1) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[1], "patch.vertex[1]", &v2) ) goto fail;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(vertices, record.vertexIndices[2], "patch.vertex[2]", &v3) ) goto fail;
@@ -428,7 +428,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             patch->omit = ((char)(record.omit ? 1 : 0));
             patch->setFlags(record.flags);
             patch->color = record.color;
-            Material *material = NULL;
+            RpkMaterial *material = NULL;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
             patch->material = material;
             patch->radianceData = NULL;
@@ -446,7 +446,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                 patch->boundingBox = NULL;
             }
             if ( record.hasBoundingBox ) {
-                patch->boundingBox = new BoundingBox();
+                patch->boundingBox = new RpkAxisAlignedBoundingBox();
                 if ( !BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(patch->boundingBox, record.boundingBoxCoordinates) ) goto fail;
             }
 
@@ -462,7 +462,7 @@ BinaryModelDeserializer::read(const char *fileName) {
         }
 
         for ( int i = 0; i < vertexCount; i++ ) {
-            Vertex *vertex = vertices.get(((long int)(i)));
+            RpkVertex *vertex = vertices.get(((long int)(i)));
             delete vertex->patches;
             ArrayList<Patch *> *patchList = NULL;
             if ( !BinaryModelReadPrimitives::arrayListFromIndices(
@@ -523,17 +523,17 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         for ( int i = 0; i < geometryCount; i++ ) {
             const BinaryModelGeometryRecordData &record = geometryRecords[((long int)(i))];
-            Geometry *geometry = NULL;
+            RpkGeometry *geometry = NULL;
 
             if ( record.classId == ((int)(SURFACE_MESH)) ) {
                 char *objectName = NULL;
                 if ( !BinaryModelReadPrimitives::duplicateNullableString(record.hasObjectName, record.objectName, &objectName) ) goto fail;
 
-                ArrayList<Vector3Df *> *positions = NULL;
-                ArrayList<Vector3Df *> *normals = NULL;
-                ArrayList<Vertex *> *surfaceVertices = NULL;
+                ArrayList<Vector3Dd *> *positions = NULL;
+                ArrayList<Vector3Dd *> *normals = NULL;
+                ArrayList<RpkVertex *> *surfaceVertices = NULL;
                 ArrayList<Patch *> *faces = NULL;
-                Material *material = NULL;
+                RpkMaterial *material = NULL;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.positions, vectors, "surface.positions", &positions) ) goto fail;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.normals, vectors, "surface.normals", &normals) ) goto fail;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.vertices, vertices, "surface.vertices", &surfaceVertices) ) goto fail;
@@ -552,7 +552,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                 surface->meshId = record.meshId;
                 geometry = surface;
             } else if ( record.classId == ((int)(COMPOUND)) ) {
-                geometry = new Compound(new ArrayList<Geometry *>());
+                geometry = new Compound(new ArrayList<RpkGeometry *>());
             } else if ( record.classId == ((int)(PATCH_SET)) ) {
                 ArrayList<Patch *> *patchList = NULL;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.patchSetPatches, patches, "patchSet.patchList", &patchList) ) goto fail;
@@ -584,7 +584,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( record.classId == ((int)(COMPOUND)) ) {
                 Compound *compound = ((Compound *)(geometries.get(((long int)(i)))));
                 delete compound->children;
-                ArrayList<Geometry *> *children = NULL;
+                ArrayList<RpkGeometry *> *children = NULL;
                 if ( !BinaryModelReadPrimitives::arrayListFromIndices(record.children, geometries, "compound.children", &children) ) goto fail;
                 compound->children = children;
             }
@@ -646,12 +646,12 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         maxGeometryId = -1;
         for ( long int i = 0; i < geometries.size(); i++ ) {
-            Geometry *geometry = geometries.get(i);
+            RpkGeometry *geometry = geometries.get(i);
             if ( geometry != NULL && geometry->id > maxGeometryId ) {
                 maxGeometryId = geometry->id;
             }
         }
-        Geometry::nextGeometryId = maxGeometryId + 1;
+        RpkGeometry::nextGeometryId = maxGeometryId + 1;
 
     ok = true;
 

@@ -13,7 +13,7 @@
 char OptionsGroupToneMapping::toneMappingMethodsString[TONE_MAP_MTHS_STR_LEN];
 char *OptionsGroupToneMapping::toneMapName = NULL;
 ToneMappingContext *OptionsGroupToneMapping::toneMapOptions = NULL;
-float OptionsGroupToneMapping::gammaValue = 0.0f;
+double OptionsGroupToneMapping::gammaValue = 0.0;
 
 void
 OptionsGroupToneMapping::makeToneMappingMethodsString() {
@@ -32,67 +32,63 @@ OptionsGroupToneMapping::toneMappingMethodOption(char *&name) {
 }
 
 void
-OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
+OptionsGroupToneMapping::brightnessAdjustOption(double & /*value*/) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::brightnessAdjustOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).pow_bright_adjust = Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
+    (*toneMapOptions).pow_bright_adjust = Math::pow(2.0, (*toneMapOptions).brightness_adjust);
 }
 
 void
-OptionsGroupToneMapping::redChromaOption(Vector3Df &value) {
+OptionsGroupToneMapping::redChromaOption(Vector3Dd &value) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::redChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xr = value.x();
-    (*toneMapOptions).yr = value.y();
-    Cie::cmptClrConvXforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        value.x(), value.y(),
+        c.getGreenX(), c.getGreenY(),
+        c.getBlueX(), c.getBlueY(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
-OptionsGroupToneMapping::greenChromaOption(Vector3Df &value) {
+OptionsGroupToneMapping::greenChromaOption(Vector3Dd &value) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::greenChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xg = value.x();
-    (*toneMapOptions).yg = value.y();
-    Cie::cmptClrConvXforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        value.x(), value.y(),
+        c.getBlueX(), c.getBlueY(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
-OptionsGroupToneMapping::blueChromaOption(Vector3Df &value) {
+OptionsGroupToneMapping::blueChromaOption(Vector3Dd &value) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::blueChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xb = value.x();
-    (*toneMapOptions).yb = value.y();
-    Cie::cmptClrConvXforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        c.getGreenX(), c.getGreenY(),
+        value.x(), value.y(),
+        c.getWhiteX(), c.getWhiteY()));
 }
 
 void
-OptionsGroupToneMapping::whiteChromaOption(Vector3Df &value) {
+OptionsGroupToneMapping::whiteChromaOption(Vector3Dd &value) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::whiteChromaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).xw = value.x();
-    (*toneMapOptions).yw = value.y();
-    Cie::cmptClrConvXforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
+    const Cie &c = (*toneMapOptions).getColorSpace();
+    (*toneMapOptions).setColorSpace(Cie(
+        c.getRedX(), c.getRedY(),
+        c.getGreenX(), c.getGreenY(),
+        c.getBlueX(), c.getBlueY(),
+        value.x(), value.y()));
 }
 
 void
@@ -110,7 +106,7 @@ OptionsGroupToneMapping::tonMppCmdLinOptDesAdaMetOpt(char *&name) {
 }
 
 void
-OptionsGroupToneMapping::gammaOption(float &gam) {
+OptionsGroupToneMapping::gammaOption(double &gam) {
     if ( toneMapOptions == NULL ) {
         Logger::reportMessage("OptionsGroupToneMapping", Logger::FATAL_ERROR, "CmdLineToneMppngOptsGrp::gammaOption", "ToneMappingContext not set");
     }
@@ -126,36 +122,36 @@ OptionsGroupToneMapping::toneMapParseOptions(
 {
     char *toneMapMethodName = NULL;
     char *adaptMethodName = NULL;
-    Vector3Df redChromaticityValue(0.0, 0.0, 0.0);
-    Vector3Df greenChromaticityValue(0.0, 0.0, 0.0);
-    Vector3Df blueChromaticityValue(0.0, 0.0, 0.0);
-    Vector3Df whiteChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Dd redChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Dd greenChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Dd blueChromaticityValue(0.0, 0.0, 0.0);
+    Vector3Dd whiteChromaticityValue(0.0, 0.0, 0.0);
     TypedOption<char *> toneMappingOpt("-tonemapping", &toneMapMethodName, 1, OptionsGroupToneMapping::toneMappingMethodOption, NULL);
-    TypedOption<float> brightnessAdjustOpt("-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, OptionsGroupToneMapping::brightnessAdjustOption, NULL);
+    TypedOption<double> brightnessAdjustOpt("-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, OptionsGroupToneMapping::brightnessAdjustOption, NULL);
     TypedOption<char *> adaptOpt("-adapt", &adaptMethodName, 1, OptionsGroupToneMapping::tonMppCmdLinOptDesAdaMetOpt, NULL);
-    TypedOption<float> lwaOpt("-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, NULL, NULL);
-    TypedOption<float> ldmaxOpt("-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, NULL, NULL);
-    TypedOption<float> cmaxOpt("-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, NULL, NULL);
+    TypedOption<double> lwaOpt("-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, NULL, NULL);
+    TypedOption<double> ldmaxOpt("-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, NULL, NULL);
+    TypedOption<double> cmaxOpt("-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, NULL, NULL);
     gammaValue = toneMapOptionsContext.gamma.getR();
-    TypedOption<float> gammaOpt("-gamma", &gammaValue, 1, OptionsGroupToneMapping::gammaOption, NULL);
+    TypedOption<double> gammaOpt("-gamma", &gammaValue, 1, OptionsGroupToneMapping::gammaOption, NULL);
     TypedOption<ColorRgb> rgbGammaOpt("-rgbgamma", &toneMapOptionsContext.gamma, 3, NULL, OptionsGroupToneMapping::parseColor3);
-    TypedOption<Vector3Df> redOpt("-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy);
-    TypedOption<Vector3Df> greenOpt("-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy);
-    TypedOption<Vector3Df> blueOpt("-blue", &blueChromaticityValue, 2, OptionsGroupToneMapping::blueChromaOption, OptionsGroupToneMapping::parseCieXy);
-    TypedOption<Vector3Df> whiteOpt("-white", &whiteChromaticityValue, 2, OptionsGroupToneMapping::whiteChromaOption, OptionsGroupToneMapping::parseCieXy);
+    TypedOption<Vector3Dd> redOpt("-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy);
+    TypedOption<Vector3Dd> greenOpt("-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy);
+    TypedOption<Vector3Dd> blueOpt("-blue", &blueChromaticityValue, 2, OptionsGroupToneMapping::blueChromaOption, OptionsGroupToneMapping::parseCieXy);
+    TypedOption<Vector3Dd> whiteOpt("-white", &whiteChromaticityValue, 2, OptionsGroupToneMapping::whiteChromaOption, OptionsGroupToneMapping::parseCieXy);
     OptionBase toneMappingOptions[] = {
         REGISTER_OPTION(char *, toneMappingOpt, 4),
-        REGISTER_OPTION(float, brightnessAdjustOpt, 4),
+        REGISTER_OPTION(double, brightnessAdjustOpt, 4),
         REGISTER_OPTION(char *, adaptOpt, 5),
-        REGISTER_OPTION(float, lwaOpt, 3),
-        REGISTER_OPTION(float, ldmaxOpt, 5),
-        REGISTER_OPTION(float, cmaxOpt, 4),
-        REGISTER_OPTION(float, gammaOpt, 4),
+        REGISTER_OPTION(double, lwaOpt, 3),
+        REGISTER_OPTION(double, ldmaxOpt, 5),
+        REGISTER_OPTION(double, cmaxOpt, 4),
+        REGISTER_OPTION(double, gammaOpt, 4),
         REGISTER_OPTION(ColorRgb, rgbGammaOpt, 4),
-        REGISTER_OPTION(Vector3Df, redOpt, 4),
-        REGISTER_OPTION(Vector3Df, greenOpt, 4),
-        REGISTER_OPTION(Vector3Df, blueOpt, 4),
-        REGISTER_OPTION(Vector3Df, whiteOpt, 4)
+        REGISTER_OPTION(Vector3Dd, redOpt, 4),
+        REGISTER_OPTION(Vector3Dd, greenOpt, 4),
+        REGISTER_OPTION(Vector3Dd, blueOpt, 4),
+        REGISTER_OPTION(Vector3Dd, whiteOpt, 4)
     };
 
     OptionsGroupToneMapping::toneMapName = toneMapNameOut;
@@ -176,15 +172,15 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = NULL;
-    float r = strtof(argv[0], &endPointer);
+    double r = strtod(argv[0], &endPointer);
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    float g = strtof(argv[1], &endPointer);
+    double g = strtod(argv[1], &endPointer);
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    float b = strtof(argv[2], &endPointer);
+    double b = strtod(argv[2], &endPointer);
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }
@@ -193,16 +189,16 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
 }
 
 bool
-OptionsGroupToneMapping::parseCieXy(int argc, char **argv, Vector3Df &value) {
+OptionsGroupToneMapping::parseCieXy(int argc, char **argv, Vector3Dd &value) {
     if ( argc < 2 || argv == NULL || argv[0] == NULL || argv[1] == NULL ) {
         return false;
     }
     char *endPointer = NULL;
-    value = value.withX(strtof(argv[0], &endPointer));
+    value = value.withX(strtod(argv[0], &endPointer));
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value = value.withY(strtof(argv[1], &endPointer));
+    value = value.withY(strtod(argv[1], &endPointer));
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }

@@ -1,5 +1,5 @@
-#ifndef __RENDER_HOOK_PRIVATE__
-#define __RENDER_HOOK_PRIVATE__
+#ifndef __RENDER_HOOK__
+#define __RENDER_HOOK__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

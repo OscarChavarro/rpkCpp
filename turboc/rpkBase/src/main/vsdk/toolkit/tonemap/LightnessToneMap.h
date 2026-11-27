@@ -1,16 +1,18 @@
-#ifndef __TONE_MAP_LIGHTNESS__
-#define __TONE_MAP_LIGHTNESS__
+#ifndef __LIGHTNESS_TONE_MAP__
+#define __LIGHTNESS_TONE_MAP__
 
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 
 class LightnessToneMap: public ToneMap{ private:
-    static float lightness(float luminance);
+    static double lightness(double luminance);
+
+  protected:
+    void initParameters(const ToneMappingContext &toneMapOptions);
 
   public:
     LightnessToneMap();
     ~LightnessToneMap();
 
-    void init(const ToneMappingContext &toneMapOptions);
     ColorRgb scaleForComputations(ColorRgb radiance) const;
     ColorRgb scaleForDisplay(ColorRgb radiance) const;
 };

@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_TYPE__
-#define __MGF_HANDLER_TYPE__
+#ifndef __HANDLER_ROLE_CONTEXT__
+#define __HANDLER_ROLE_CONTEXT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

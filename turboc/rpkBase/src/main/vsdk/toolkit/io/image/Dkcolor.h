@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __DK_COLOR__
-#define __DK_COLOR__
+#ifndef __DKCOLOR__
+#define __DKCOLOR__
 
 /**
 Routines using pixel color values / color calculations.
@@ -19,7 +19,7 @@ three single byte mantissas and a common exponent.
 
 typedef unsigned char BYTE; // 8-bit unsigned integer
 typedef BYTE BYTE_COLOR[4]; // Red, green, blue (or X,Y,Z), exponent
-typedef float DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
+typedef double DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
 
 class DkColor {
   public:

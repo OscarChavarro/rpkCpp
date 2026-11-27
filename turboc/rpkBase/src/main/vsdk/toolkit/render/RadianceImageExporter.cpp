@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -17,29 +17,29 @@ updateCameraNearFarForSoftIds(const Scene *scene) {
 
     Camera *camera = scene->camera;
     if ( scene->geometryList == NULL || scene->geometryList->size() == 0 ) {
-        camera->far = 10.0f;
-        camera->near = 0.1f;
+        camera->far = 10.0;
+        camera->near = 0.1;
         return;
     }
 
-    BoundingBox bounds;
-    Vector3Df minimum;
-    Vector3Df maximum;
-    Vector3Df d;
+    RpkAxisAlignedBoundingBox bounds;
+    Vector3Dd minimum;
+    Vector3Dd maximum;
+    Vector3Dd d;
 
-    Geometry::listBounds(scene->geometryList, &bounds);
-    minimum = Vector3Df(bounds.minX(), bounds.minY(), bounds.minZ());
-    maximum = Vector3Df(bounds.maxX(), bounds.maxY(), bounds.maxZ());
+    RpkGeometry::listBounds(scene->geometryList, &bounds);
+    minimum = Vector3Dd(bounds.minX(), bounds.minY(), bounds.minZ());
+    maximum = Vector3Dd(bounds.maxX(), bounds.maxY(), bounds.maxZ());
 
-    camera->far = -Float::MAX_VALUE;
-    camera->near = Float::MAX_VALUE;
+    camera->far = -Double::MAX_VALUE;
+    camera->near = Double::MAX_VALUE;
     for ( int i = 0; i <= 1; i++ ) {
         for ( int j = 0; j <= 1; j++ ) {
             for ( int k = 0; k <= 1; k++ ) {
-                d = Vector3Df(i ? maximum.x() : minimum.x(), j ? maximum.y() : minimum.y(), k ? maximum.z() : minimum.z());
+                d = Vector3Dd(i ? maximum.x() : minimum.x(), j ? maximum.y() : minimum.y(), k ? maximum.z() : minimum.z());
 
                 d = d.subtract(camera->eyePosition);
-                float z = d.dotProduct(camera->Z);
+                double z = d.dotProduct(camera->Z);
 
                 if ( z > camera->far ) {
                     camera->far = z;
@@ -51,13 +51,13 @@ updateCameraNearFarForSoftIds(const Scene *scene) {
         }
     }
 
-    camera->far += 0.02f * camera->far;
-    camera->near -= 0.02f * camera->near;
+    camera->far += 0.02 * camera->far;
+    camera->near -= 0.02 * camera->near;
     if ( camera->far < VSDK::EPSILON ) {
         camera->far = camera->viewDistance;
     }
     if ( camera->near < VSDK::EPSILON ) {
-        camera->near = camera->viewDistance / 100.0f;
+        camera->near = camera->viewDistance / 100.0;
     }
 }
 
@@ -159,30 +159,30 @@ RadianceImageExporter::getRadianceAtPixel(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
-    ColorRgb radiance = ColorRgb(0.0f, 0.0f, 0.0f);
+    ColorRgb radiance = ColorRgb(0.0, 0.0, 0.0);
 
     if ( screenBuffer == NULL || camera == NULL || patch == NULL || radianceMethod == NULL || renderOptions == NULL ) {
         return radiance;
     }
 
-    Vector3Df rayDirection = screenBuffer->getPixelVector(x, y);
-    rayDirection = rayDirection.normalized(Numeric::EPSILON_FLOAT);
+    Vector3Dd rayDirection = screenBuffer->getPixelVector(x, y);
+    rayDirection = rayDirection.normalized(Numeric::EPSILON);
 
-    const float denominator = patch->normal.dotProduct(rayDirection);
-    if ( denominator <= Numeric::EPSILON_FLOAT && denominator >= -Numeric::EPSILON_FLOAT ) {
+    const double denominator = patch->normal.dotProduct(rayDirection);
+    if ( denominator <= Numeric::EPSILON && denominator >= -Numeric::EPSILON ) {
         return radiance;
     }
 
-    const float distance =
+    const double distance =
         -(patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant) / denominator;
-    Vector3Df hitPoint;
-    hitPoint = camera->eyePosition.add(rayDirection.multiply(((float)(distance))));
+    Vector3Dd hitPoint;
+    hitPoint = camera->eyePosition.add(rayDirection.multiply(((double)(distance))));
 
     double u;
     double v;
     patch->uv(&hitPoint, &u, &v);
     RadianceImageExporter::clipUv(patch->numberOfVertices, &u, &v);
 
-    const Vector3Df eyeDirection(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
+    const Vector3Dd eyeDirection(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
     return ColorRgb(radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions));
 }

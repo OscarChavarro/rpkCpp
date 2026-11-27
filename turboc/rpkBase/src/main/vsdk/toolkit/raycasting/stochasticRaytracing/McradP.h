@@ -1,5 +1,5 @@
-#ifndef __MONTE_CARLO_RADIOSITY__
-#define __MONTE_CARLO_RADIOSITY__
+#ifndef __MCRAD_P__
+#define __MCRAD_P__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/scene/Scene.h"

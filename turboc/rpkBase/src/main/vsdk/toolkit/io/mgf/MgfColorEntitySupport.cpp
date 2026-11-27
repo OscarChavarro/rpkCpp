@@ -84,8 +84,8 @@ MgfColorEntitySupport::handleColorEntity(int ac, const char **av, ParseRuntimeCo
             if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            context->currentColor->cx = strtof(av[1], NULL);
-            context->currentColor->cy = strtof(av[2], NULL);
+            context->currentColor->cx = strtod(av[1], NULL);
+            context->currentColor->cy = strtod(av[2], NULL);
             context->currentColor->flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
             if ( context->currentColor->cx < 0.0 || context->currentColor->cy < 0.0 ||
                  context->currentColor->cx + context->currentColor->cy > 1.0 ) {

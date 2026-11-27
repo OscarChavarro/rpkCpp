@@ -106,8 +106,8 @@ OptsGrpStochRelaxRad::parse(
     TypedOption<EnumBinding<StochRaytrApprx> > srrApproximationOpt("-srr-approximation", &approximationBinding, 1, NULL, parseApproximationBinding);
     TypedOption<int> srrHierarchicalOpt("-srr-hierarchical", &elementHierarchyState.do_h_meshing, 1, NULL, parseBoolInt);
     TypedOption<EnumBinding<HierarchyClusteringMode> > srrClusteringOpt("-srr-clustering", &clusteringBinding, 1, NULL, parseClusteringBinding);
-    TypedOption<float> srrEpsilonOpt("-srr-epsilon", &elementHierarchyState.epsilon, 1, NULL, NULL);
-    TypedOption<float> srrMinAreaOpt("-srr-minarea", &elementHierarchyState.minimumArea, 1, NULL, NULL);
+    TypedOption<double> srrEpsilonOpt("-srr-epsilon", &elementHierarchyState.epsilon, 1, NULL, NULL);
+    TypedOption<double> srrMinAreaOpt("-srr-minarea", &elementHierarchyState.minimumArea, 1, NULL, NULL);
     TypedOption<EnumBinding<WhatToShow> > srrDisplayOpt("-srr-display", &showBinding, 1, NULL, parseShowBinding);
     TypedOption<int> srrDiscardIncrementalOpt("-srr-discard-incremental", &stochasticRelaxationState.discardIncremental, 1, NULL, parseBoolInt);
     TypedOption<int> srrIncrementalImportanceOpt("-srr-incremental-uses-importance", &stochasticRelaxationState.incrementalUsesImportance, 1, NULL, parseBoolInt);
@@ -124,8 +124,8 @@ OptsGrpStochRelaxRad::parse(
         REGISTER_OPTION(EnumBinding<StochRaytrApprx>, srrApproximationOpt, 7),
         REGISTER_OPTION(int, srrHierarchicalOpt, 7),
         REGISTER_OPTION(EnumBinding<HierarchyClusteringMode>, srrClusteringOpt, 7),
-        REGISTER_OPTION(float, srrEpsilonOpt, 7),
-        REGISTER_OPTION(float, srrMinAreaOpt, 7),
+        REGISTER_OPTION(double, srrEpsilonOpt, 7),
+        REGISTER_OPTION(double, srrMinAreaOpt, 7),
         REGISTER_OPTION(EnumBinding<WhatToShow>, srrDisplayOpt, 7),
         REGISTER_OPTION(int, srrDiscardIncrementalOpt, 7),
         REGISTER_OPTION(int, srrIncrementalImportanceOpt, 7),

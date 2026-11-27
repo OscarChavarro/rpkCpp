@@ -1,12 +1,12 @@
-#ifndef __OPENGL_OCTREE_CHILD__
-#define __OPENGL_OCTREE_CHILD__
+#ifndef __OCTREE_CHILD__
+#define __OCTREE_CHILD__
 
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
 class OctreeChild {
   public:
-    Geometry *geometry;
-    float distance;
+    RpkGeometry *geometry;
+    double distance;
 };
 
 #endif

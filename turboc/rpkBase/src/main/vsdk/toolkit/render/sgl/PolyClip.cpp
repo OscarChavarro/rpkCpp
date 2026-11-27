@@ -108,7 +108,7 @@ Poly::clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) 
             q->n++;
         }
         if ( tv <= 0.0 ) {
-            // Vertex v is in, copy it to q
+            // RpkVertex v is in, copy it to q
             q->vertices[q->n++] = v;
         }
         previousVertexIndex = currentVertexIndex;

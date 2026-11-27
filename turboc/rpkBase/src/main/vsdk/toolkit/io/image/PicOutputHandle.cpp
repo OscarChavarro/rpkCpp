@@ -94,7 +94,7 @@ PicOutputHandle::writeRadianceRGB(const ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != NULL ) {
-        float *scanline = new float[width * 3];
+        double *scanline = new double[width * 3];
         for ( int i = 0; i < width; i++ ) {
             scanline[3 * i] = rgbRadiance[i].getR();
             scanline[3 * i + 1] = rgbRadiance[i].getG();

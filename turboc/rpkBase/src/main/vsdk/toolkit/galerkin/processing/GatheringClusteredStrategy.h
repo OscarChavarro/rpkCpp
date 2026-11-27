@@ -4,8 +4,8 @@
 #include "vsdk/toolkit/galerkin/processing/GatheringStrategy.h"
 
 class GatheringClusteredStrategy: public GatheringStrategy{ private:
-    static float updatePotential(GalerkinElement *cluster);
-    static void updateClusterDirectPotential(GalerkinElement *element, float potential_increment);
+    static double updatePotential(GalerkinElement *cluster);
+    static void updateClusterDirectPotential(GalerkinElement *element, double potential_increment);
   public:
     GatheringClusteredStrategy();
     ~GatheringClusteredStrategy();

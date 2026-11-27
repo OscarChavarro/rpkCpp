@@ -33,19 +33,19 @@ class PhongBidirScattDistFunc {
     static ColorRgb splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context);
 
 #ifdef RAYTRACING_ENABLED
-    static Vector3Df
+    static Vector3Dd
     texturedScattererSample(
-        const Vector3Df * /*in*/,
-        const Vector3Df *normal,
+        const Vector3Dd * /*in*/,
+        const Vector3Dd *normal,
         double x1,
         double x2,
         double *probabilityDensityFunction);
 
     static void
     texturedScattererEvalPdf(
-        const Vector3Df * /*in*/,
-        const Vector3Df *out,
-        const Vector3Df *normal,
+        const Vector3Dd * /*in*/,
+        const Vector3Dd *out,
+        const Vector3Dd *normal,
         double *probabilityDensityFunction);
 
     void
@@ -67,9 +67,9 @@ class PhongBidirScattDistFunc {
 
     static double
     texturedScattererEval(
-        const Vector3Df * /*in*/,
-        const Vector3Df * /*out*/,
-        const Vector3Df * /*normal*/);
+        const Vector3Dd * /*in*/,
+        const Vector3Dd * /*out*/,
+        const Vector3Dd * /*normal*/);
 #endif
 
 public:
@@ -82,9 +82,9 @@ public:
 
     static bool bsdfShadingFrame(
         const ShadingContext &context,
-        const Vector3Df *X,
-        const Vector3Df *Y,
-        const Vector3Df *Z);
+        const Vector3Dd *X,
+        const Vector3Dd *Y,
+        const Vector3Dd *Z);
 
     ColorRgb splitBsdfScatteredPower(const ShadingContext &context, char flags) const;
     bool splitBsdfIsTextured() const;
@@ -92,12 +92,12 @@ public:
 #ifdef RAYTRACING_ENABLED
     void indexOfRefraction(RefractionIndex *index) const;
 
-    Vector3Df
+    Vector3Dd
     sample(
         const ShadingContext &context,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
+        const Vector3Dd *in,
         int doRussianRoulette,
         char flags,
         double x1,
@@ -109,8 +109,8 @@ public:
         const ShadingContext &context,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
-        const Vector3Df *out,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
         char flags) const;
 
     void
@@ -118,8 +118,8 @@ public:
         const ShadingContext &context,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
-        const Vector3Df *out,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
@@ -129,8 +129,8 @@ public:
         const ShadingContext &context,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
-        const Vector3Df *out,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
         char flags,
         ColorRgb *colArray) const;
 

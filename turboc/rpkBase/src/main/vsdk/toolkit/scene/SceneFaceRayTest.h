@@ -2,9 +2,9 @@
 #define __SCENE_FACE_RAY_TEST__
 
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest.h"
 
 class Scene;
@@ -16,8 +16,8 @@ Patch::intersect on the original single precision ray, flags and exclusions,
 so an index answer is decided by the same arithmetic as the voxel grid's,
 the exclusions included (a face below an excluded geometry is rejected by
 its face-index range, plan decision D5).
-The interval ends arrive as doubles that hold float values, and the accepted
-hit distance leaves as the float the face test produced.
+The interval ends arrive as doubles that hold double values, and the accepted
+hit distance leaves as the double the face test produced.
 
 One object per query: it writes the accepted hit into the caller's hit
 record, so after a closest-hit query the record holds the closest face.
@@ -25,18 +25,18 @@ record, so after a closest-hit query the record holds the closest face.
 class SceneFaceRayTest : public PrimitiveRayTest {
   private:
     const Scene &scene;
-    const RpkRay *ray;
+    const Ray *ray;
     int hitFlags;
     const RayExclusionSet &exclusions;
-    RayHit *hitStore;
+    RpkRayHit *hitStore;
 
   public:
     SceneFaceRayTest(
         const Scene &inScene,
-        const RpkRay *inRay,
+        const Ray *inRay,
         int inHitFlags,
         const RayExclusionSet &inExclusions,
-        RayHit *inHitStore);
+        RpkRayHit *inHitStore);
     ~SceneFaceRayTest();
 
     BOOLEAN test(int primitive, double minimumT, double maximumT, double *hitT);

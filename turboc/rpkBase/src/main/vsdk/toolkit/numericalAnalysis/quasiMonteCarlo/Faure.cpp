@@ -39,7 +39,7 @@ Faure::setFaureC() {
     for ( int i = dimension - 1; i >= 0; i-- ) {
         for ( int j = 0; j < nDigits; j++ ) {
             for ( int k = j; k < nDigits; k++ ) {
-                generatorMatrix[i][j][k] = (generatorMatrix[0][j][k] * ((int)(Math::pow(((float)(i)), ((float)(k - j)))))) % primeBase;
+                generatorMatrix[i][j][k] = (generatorMatrix[0][j][k] * ((int)(Math::pow(((double)(i)), ((double)(k - j)))))) % primeBase;
             }
         }
     }
@@ -74,7 +74,7 @@ Faure::setGFaureC() {
                 int Q = m < n ? m : n;
                 generatorMatrix[i][m][n] = 0;
                 for ( int q = 0; q <= Q; q++ ) {
-                    generatorMatrix[i][m][n] = ((int)(generatorMatrix[i][m][n] + P[m][q] * P[n][q] * ((int)(Math::pow(((float)(i)), ((float)(m + n - 2 * q))))))) % primeBase;
+                    generatorMatrix[i][m][n] = ((int)(generatorMatrix[i][m][n] + P[m][q] * P[n][q] * ((int)(Math::pow(((double)(i)), ((double)(m + n - 2 * q))))))) % primeBase;
                 }
             }
         }
@@ -156,7 +156,7 @@ Faure::initOriginalFaureSequence(int iDim) {
         }
     }
 
-    skip = ((int)(Math::pow(((float)(primeBase)), 4.0f))) - 1;
+    skip = ((int)(Math::pow(((double)(primeBase)), 4.0))) - 1;
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();
@@ -179,7 +179,7 @@ Faure::initGeneralizedFaureSequence(int iDim) {
         }
     }
 
-    skip = ((int)(Math::pow(((float)(primeBase)), 4.0f) - 1));
+    skip = ((int)(Math::pow(((double)(primeBase)), 4.0) - 1));
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();

@@ -123,7 +123,7 @@ Raytrace::rayTraceSaveImage(
 
     System::out.printf(
         "Raytrace save image: %g secs.\n",
-        ((float)(((double)(System::nanoTime() - t)) / 1000000000.0)));
+        ((double)(((double)(System::nanoTime() - t)) / 1000000000.0)));
 }
 
 void

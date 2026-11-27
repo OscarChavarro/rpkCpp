@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/galerkin/processing/ClusterCreationStrategy.h"
@@ -23,11 +23,11 @@ ClusterCreationStrategy::addElemTHrrchDltnCch(GalerkinElement *galerkinElement) 
 }
 
 /**
-Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
+Creates a cluster hierarchy for the RpkGeometry and adds it to the sub-cluster list of the
 given parent cluster
 */
 void
-ClusterCreationStrategy::geomAddClusterChild(Geometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState) {
+ClusterCreationStrategy::geomAddClusterChild(RpkGeometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState) {
     GalerkinElement *cluster = ClusterCreationStrategy::createClusterHierarchy(geometry, galerkinState);
 
     if ( galerkinElement->irregularSubElements == NULL ) {
@@ -65,7 +65,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     // Total area of surfaces inside the galerkinElement is sum of the areas of the sub-clusters + pull radiance
     galerkinElement->area = 0.0;
     galerkinElement->numberOfPatches = 0;
-    galerkinElement->minimumArea = Float::MAX_VALUE;
+    galerkinElement->minimumArea = Double::MAX_VALUE;
     ColorRgbMutable::arrayClear(galerkinElement->radiance, galerkinElement->basisSize);
     for ( int i = 0;
           galerkinElement->irregularSubElements != NULL && i < galerkinElement->irregularSubElements->size();
@@ -80,8 +80,8 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         galerkinElement->flags |= (subCluster->flags & IS_LIGHT_SOURCE_MASK);
         galerkinElement->Ed.addScaled(galerkinElement->Ed, subCluster->area, subCluster->Ed);
     }
-    galerkinElement->radiance[0].scale(1.0f / galerkinElement->area);
-    galerkinElement->Ed.scale(1.0f / galerkinElement->area);
+    galerkinElement->radiance[0].scale(1.0 / galerkinElement->area);
+    galerkinElement->Ed.scale(1.0 / galerkinElement->area);
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
@@ -93,7 +93,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
             galerkinElement->unShotRadiance[0].addScaled(
                 galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }
-        galerkinElement->unShotRadiance[0].scale(1.0f / galerkinElement->area);
+        galerkinElement->unShotRadiance[0].scale(1.0 / galerkinElement->area);
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility
@@ -101,13 +101,13 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
 }
 
 /**
-Creates a cluster for the Geometry, recurse for the children geometries, initializes and
+Creates a cluster for the RpkGeometry, recurse for the children geometries, initializes and
 returns the created cluster.
 
 Note that geometry is always of types Compound or PatchSet.
 */
 GalerkinElement *
-ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState) {
+ClusterCreationStrategy::createClusterHierarchy(RpkGeometry *geometry, GalerkinState *galerkinState) {
     if ( geometry == NULL ) {
         return NULL;
     }
@@ -120,13 +120,13 @@ ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinStat
 
     // Recursively creates list of sub-clusters
     if ( geometry->isCompound() ) {
-        ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
             geomAddClusterChild(geometryList->get(i), newGalerkinElement, galerkinState);
         }
         delete geometryList;
     } else {
-        const ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != NULL && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), newGalerkinElement);
         }

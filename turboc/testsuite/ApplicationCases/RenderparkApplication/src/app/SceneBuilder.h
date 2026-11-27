@@ -14,12 +14,12 @@ class SceneBuilder{ public:
     static void sceneBldAddBgTLightSrcList(Scene *scene);
     static void sceBldAddPtcTLigSrcLisIfLigSrc(ArrayList<Patch *> *lights, Patch *patch);
     static void sceneBldFillLightSrcPtchList(Scene *scene);
-    static Geometry *sceneBldCreateClustHier(const ArrayList<Patch *> *patches);
-    static void sceneBuilderPatchList(const ArrayList<Geometry *> *geometryList, ArrayList<Patch *> *patchList);
-    static void sceneBldFillFcsBackPntrs(const ArrayList<Geometry *> *geometryList);
-    static void sceneBldCollectGeomsRec( const ArrayList<Geometry *> *source, ArrayList<Geometry *> *target);
+    static RpkGeometry *sceneBldCreateClustHier(const ArrayList<Patch *> *patches);
+    static void sceneBuilderPatchList(const ArrayList<RpkGeometry *> *geometryList, ArrayList<Patch *> *patchList);
+    static void sceneBldFillFcsBackPntrs(const ArrayList<RpkGeometry *> *geometryList);
+    static void sceneBldCollectGeomsRec( const ArrayList<RpkGeometry *> *source, ArrayList<RpkGeometry *> *target);
     static void sceneBldApplyMdlTMgfCtx(ParseRuntimeContext *mgfContext, ParseSnapshotContext *mgfModel);
-    static void removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, ArrayList<Geometry *> *geometryList);
+    static void removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, ArrayList<RpkGeometry *> *geometryList);
     static bool sceneBuilderHasExtension(const char *fileName, const char *extension);
     static char *sceneBldBldBnryFllbcPath(const char *mgfFileName);
     static bool sceneBldIReadRegFile(const char *fileName);

@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/galerkin/processing/LinkingSimpleStrategy.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
-static MemoryPool<float> gInteractionCoefficientsPool;
+static MemoryPool<double> gInteractionCoefficientsPool;
 static bool gInteractionCoefficientsPoolInitialized = false;
 
 static void ensureInteractionCoefficientsPool() {
@@ -20,9 +20,9 @@ LinkingSimpleStrategy::createInitialLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    ArrayList<Geometry *> **candidateList,
+    ArrayList<RpkGeometry *> **candidateList,
     GalerkinElement *topElement,
-    BoundingBox *topLevelBoundingBox,
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
     Patch *patch)
 {
     if ( !patch->facing(topElement->patch) ) {
@@ -45,7 +45,7 @@ LinkingSimpleStrategy::createInitialLink(
             Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLink", "Impossible element role");
     }
 
-    ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
 
     if ( (galerkinState->exactVisibility
        || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING)
@@ -61,14 +61,14 @@ LinkingSimpleStrategy::createInitialLink(
                 shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
             }
         } else {
-            BoundingBox boundingBox;
+            RpkAxisAlignedBoundingBox boundingBox;
             patch->computeAndGetBoundingBox(&boundingBox);
             shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         }
 
         shaft.setShaftOmit(topElement->patch);
         shaft.setShaftOmit(patch);
-        ArrayList<Geometry*> *arr = new ArrayList<Geometry*>();
+        ArrayList<RpkGeometry*> *arr = new ArrayList<RpkGeometry*>();
         shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
         *candidateList = arr;
 
@@ -91,7 +91,7 @@ LinkingSimpleStrategy::createInitialLink(
         }
         if ( link.K == NULL ) {
             usingPool = false;
-            link.K = new float[KSize];
+            link.K = new double[KSize];
         }
     }
     link.ownsK = !usingPool;
@@ -108,7 +108,7 @@ LinkingSimpleStrategy::createInitialLink(
 
     bool isSceneGeometry = (*candidateList == scene->geometryList);
     bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
-    const ArrayList<Geometry *> *geometryListReferences = *candidateList;
+    const ArrayList<RpkGeometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::cmptAreaTAreaFormFactorVis(
         scene->getSceneQuery(),
         scene->getSceneQueryWorkspace(),
@@ -153,12 +153,12 @@ LinkingSimpleStrategy::geometryLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    ArrayList<Geometry *> **candidateList,
+    ArrayList<RpkGeometry *> **candidateList,
     GalerkinElement *topElement,
-    BoundingBox *topLevelBoundingBox,
-    Geometry *geometry)
+    RpkAxisAlignedBoundingBox *topLevelBoundingBox,
+    RpkGeometry *geometry)
 {
-    // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
+    // Immediately return if the RpkGeometry is bounded and behind the plane of the patch for which interactions are created
     if ( geometry->bounded
         && geometry->getBoundingBox().behindPlane(topElement->patch->normal, topElement->patch->planeConstant) ) {
         return;
@@ -167,22 +167,22 @@ LinkingSimpleStrategy::geometryLink(
     // If the geometry is bounded, do shaft culling, reducing the candidate list
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
-    ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    ArrayList<RpkGeometry *> *oldCandidateList = *candidateList;
 
     if ( geometry->bounded && oldCandidateList ) {
         Shaft shaft;
-        BoundingBox boundingBox = geometry->getBoundingBox();
+        RpkAxisAlignedBoundingBox boundingBox = geometry->getBoundingBox();
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         shaft.setShaftOmit(topElement->patch);
-        ArrayList<Geometry*> *arr = new ArrayList<Geometry*>();
+        ArrayList<RpkGeometry*> *arr = new ArrayList<RpkGeometry*>();
         shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
         *candidateList = arr;
     }
 
-    // If the Geometry is an aggregate, test each of its children GEOMs, if it
+    // If the RpkGeometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
     if ( geometry->isCompound() ) {
-        ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        ArrayList<RpkGeometry *> *geometryList = RpkGeometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
             LinkingSimpleStrategy::geometryLink(
                 scene,
@@ -195,7 +195,7 @@ LinkingSimpleStrategy::geometryLink(
         }
         delete geometryList;
     } else {
-        const ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
+        const ArrayList<Patch *> *patchList = RpkGeometry::patchListReference(geometry);
         for ( int i = 0; patchList != NULL && i < patchList->size(); i++ ) {
             LinkingSimpleStrategy::createInitialLink(
                 scene,
@@ -231,10 +231,10 @@ LinkingSimpleStrategy::createInitialLinks(
         Logger::reportMessage("LinkingSimpleStrategy", Logger::FATAL_ERROR, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    BoundingBox topLevelBoundingBox;
+    RpkAxisAlignedBoundingBox topLevelBoundingBox;
     topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
 
-    ArrayList<Geometry *> *candidateList = scene->clusteredGeometryList;
+    ArrayList<RpkGeometry *> *candidateList = scene->clusteredGeometryList;
 
     for ( int i = 0; scene->geometryList != NULL && i < scene->geometryList->size(); i++ ) {
         LinkingSimpleStrategy::geometryLink(

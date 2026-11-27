@@ -1,5 +1,5 @@
-#ifndef CMMND_LINE_RNDR_OPTNS_GRP
-#define CMMND_LINE_RNDR_OPTNS_GRP
+#ifndef __OPTIONS_GROUP_RENDER__
+#define __OPTIONS_GROUP_RENDER__
 
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 

@@ -9,19 +9,14 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
-#include "vsdk/toolkit/io/mgf/MgfConeEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfCylinderEntityExpander.h"
+#include "vsdk/toolkit/io/mgf/MgfVitralPrimitiveTessellator.h"
 #include "vsdk/toolkit/io/mgf/MgfFaceWithHolesEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfColorEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfVertexFaceEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/mgf/MgfObjectNameSupport.h"
-#include "vsdk/toolkit/io/mgf/MgfPrismEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfRingEntityTessellator.h"
-#include "vsdk/toolkit/io/mgf/MgfSphereEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfTransformationSupport.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityHandlerAdapter.h"
-#include "vsdk/toolkit/io/mgf/MgfTorusEntityExpander.h"
 #include "vsdk/toolkit/io/mgf/MgfParserLoader.h"
 
 /**
@@ -400,12 +395,12 @@ MgfParserLoader::ensureSessionHandlerRegistry(ParseRuntimeContext *context) {
 
     handlers[((int)(DISCARD_UNNEEDED))] = new MgfEntityHandlerAdapter(DISCARD_UNNEEDED, MgfParserLoader::mgfDiscardUnNeededEntity);
     handlers[((int)(INCLUDE_FILE))] = new MgfEntityHandlerAdapter(INCLUDE_FILE, MgfParserLoader::handleIncludedFile);
-    handlers[((int)(ENTITY_SPHERE))] = new MgfEntityHandlerAdapter(ENTITY_SPHERE, MgfSphereEntityExpander::handleEntity);
-    handlers[((int)(ENTITY_TORUS))] = new MgfEntityHandlerAdapter(ENTITY_TORUS, MgfTorusEntityExpander::handleEntity);
-    handlers[((int)(ENTITY_CYLINDER))] = new MgfEntityHandlerAdapter(ENTITY_CYLINDER, MgfCylinderEntityExpander::handleEntity);
-    handlers[((int)(ENTITY_RING))] = new MgfEntityHandlerAdapter(ENTITY_RING, MgfRingEntityTessellator::handleEntity);
-    handlers[((int)(ENTITY_CONE))] = new MgfEntityHandlerAdapter(ENTITY_CONE, MgfConeEntityTessellator::handleEntity);
-    handlers[((int)(ENTITY_PRISM))] = new MgfEntityHandlerAdapter(ENTITY_PRISM, MgfPrismEntityTessellator::handleEntity);
+    handlers[((int)(ENTITY_SPHERE))] = new MgfEntityHandlerAdapter(ENTITY_SPHERE, MgfVitralPrimitiveTessellator::handleSphere);
+    handlers[((int)(ENTITY_TORUS))] = new MgfEntityHandlerAdapter(ENTITY_TORUS, MgfVitralPrimitiveTessellator::handleTorus);
+    handlers[((int)(ENTITY_CYLINDER))] = new MgfEntityHandlerAdapter(ENTITY_CYLINDER, MgfVitralPrimitiveTessellator::handleCylinder);
+    handlers[((int)(ENTITY_RING))] = new MgfEntityHandlerAdapter(ENTITY_RING, MgfVitralPrimitiveTessellator::handleRing);
+    handlers[((int)(ENTITY_CONE))] = new MgfEntityHandlerAdapter(ENTITY_CONE, MgfVitralPrimitiveTessellator::handleCone);
+    handlers[((int)(ENTITY_PRISM))] = new MgfEntityHandlerAdapter(ENTITY_PRISM, MgfVitralPrimitiveTessellator::handlePrism);
     handlers[((int)(ENTITY_FACE_WITH_HOLES))] = new MgfEntityHandlerAdapter(ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesEntityExpander::handleEntity);
     handlers[((int)(COLOR_SPEC_HELPER))] = new MgfEntityHandlerAdapter(COLOR_SPEC_HELPER, MgfParserLoader::mgfECSpec);
     handlers[((int)(COLOR_MIX_HELPER))] = new MgfEntityHandlerAdapter(COLOR_MIX_HELPER, MgfParserLoader::mgfECMix);
@@ -659,10 +654,10 @@ MgfParserLoader::readMgf(const char *filename, ParseRuntimeContext *context) {
 
     initMgf(context);
 
-    context->currentGeometryList = new ArrayList<Geometry *>();
+    context->currentGeometryList = new ArrayList<RpkGeometry *>();
 
     if ( context->materials == NULL ) {
-        context->materials = new ArrayList<Material *>();
+        context->materials = new ArrayList<RpkMaterial *>();
     }
 
     context->geometryStackHeadIndex = 0;
@@ -711,7 +706,7 @@ MgfParserLoader::mgfFreeMemory(ParseRuntimeContext *context) {
         long innerCompoundChildren = 0;
         long unknowns = 0;
         for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-            const Geometry *geometry = context->currentGeometryList->get(i);
+            const RpkGeometry *geometry = context->currentGeometryList->get(i);
             if ( geometry->className == SURFACE_MESH ) {
                 surfaces++;
             } else if ( geometry->className == PATCH_SET ) {

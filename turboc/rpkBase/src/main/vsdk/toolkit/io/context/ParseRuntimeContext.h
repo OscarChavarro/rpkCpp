@@ -1,8 +1,8 @@
-#ifndef __MGF_PARSE_SESSION__
-#define __MGF_PARSE_SESSION__
+#ifndef __PARSE_RUNTIME_CONTEXT__
+#define __PARSE_RUNTIME_CONTEXT__
 
 #include "vsdk/toolkit/scene/RadianceMethod.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/TransformStackContext.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseContext.h"
@@ -20,10 +20,10 @@
 #include "vsdk/toolkit/io/context/VertexRegistryContext.h"
 #include "vsdk/toolkit/io/context/ObjectScopeContext.h"
 #include "vsdk/toolkit/io/context/TransformScopeContext.h"
-#include "vsdk/toolkit/material/Material.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/material/RpkMaterial.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
-#include "vsdk/toolkit/environment/geometry/elements/Vertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
 
 class ParseRuntimeContext: public ParseContext{ public:
     ParseOptionsContext parserConfig;
@@ -40,14 +40,14 @@ class ParseRuntimeContext: public ParseContext{ public:
 
     typedef char EntityNamesArray[TOTAL_NUMBER_OF_ENTITIES][EntityNamingContext::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     typedef const char *ErrorMessagesArray[MGF_NUMBER_OF_ERRORS];
-    typedef ArrayList<Geometry *> *GeometryStackArray[GeometryAssemblyContext::MAXIMUM_GEOMETRY_STACK_DEPTH];
+    typedef ArrayList<RpkGeometry *> *GeometryStackArray[GeometryAssemblyContext::MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     RadianceMethod *&radianceMethod;
     bool &singleSided;
     char *&currentVertexName;
     int &numberOfQuarterCircleDivisions;
     bool &monochrome;
-    Material *&currentMaterial;
+    RpkMaterial *&currentMaterial;
     EntityNamesArray &entityNames;
     ErrorMessagesArray &errorCodeMessages;
     LookUpTable<char *> &entityLookUpTable;
@@ -56,22 +56,21 @@ class ParseRuntimeContext: public ParseContext{ public:
     char *&currentMaterialName;
     int &geometryStackHeadIndex;
     GeometryStackArray &geometryStack;
-    ArrayList<Vector3Df *> *&currentPointList;
-    ArrayList<Vector3Df *> *&currentNormalList;
-    ArrayList<Vertex *> *&currentVertexList;
+    ArrayList<Vector3Dd *> *&currentPointList;
+    ArrayList<Vector3Dd *> *&currentNormalList;
+    ArrayList<RpkVertex *> *&currentVertexList;
     ArrayList<Patch *> *&currentFaceList;
-    ArrayList<Geometry *> *&currentGeometryList;
+    ArrayList<RpkGeometry *> *&currentGeometryList;
     char *&currentObjectName;
     TransformStackContext *&transformContext;
     ColorContext *&unNamedColorContext;
     ColorContext *&currentColor;
     bool &inSurface;
     bool &inComplex;
-    bool &warpConeEnds;
     LookUpTable<char *> *&vertexLookUpTable;
-    ArrayList<Geometry *> *&allGeometries;
-    ArrayList<Geometry *> *&geometries;
-    ArrayList<Material *> *&materials;
+    ArrayList<RpkGeometry *> *&allGeometries;
+    ArrayList<RpkGeometry *> *&geometries;
+    ArrayList<RpkMaterial *> *&materials;
 
     ParseRuntimeContext();
     ~ParseRuntimeContext();

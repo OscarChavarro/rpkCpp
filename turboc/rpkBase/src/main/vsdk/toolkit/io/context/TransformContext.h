@@ -1,5 +1,5 @@
-#ifndef __TRANSFORM_CONTEXT_DATA__
-#define __TRANSFORM_CONTEXT_DATA__
+#ifndef __TRANSFORM_CONTEXT__
+#define __TRANSFORM_CONTEXT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h"
 

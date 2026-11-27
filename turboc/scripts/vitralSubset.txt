@@ -5,14 +5,22 @@
 # scripts/vitralSubset.sh --check compares each with a VITRAL checkout byte for
 # byte and fails on any file of base/src/main missing from this list;
 # --refresh copies them from it.
-# Pin: VITRAL 1cce0bcb (turboc/base/src/main), which carries the spatial index
-# contract (environment/geometry/spatialIndex, with BinnedSahHierarchy::traverse)
-# that this port used to translate from the cpp port, the single precision
-# lineal algebra (Vector2Df, Vector3Df, Vector4Df and a Matrix4x4f that stores
-# floats and computes in float), the immutable float affine Matrix2x2 with
-# io/wrapper/Matrix2x2Printer, io/wrapper/Vector3DPrinter for Vector3Df, and
-# io/wrapper/FileUncompressWrapper.cpp with Logger::reportMessage calls.
-# RenderPark's Vector2D, Vector3D, Vector4D and Matrix4x4 were removed.
+# Pin: VITRAL 20e67173 (turboc/base/src/main) plus the uncommitted turboc
+# counterpart of that cpp commit: the double precision Vector3Dd operations
+# (lengthSquared, manhattanLength, distance, distanceSquared, multiplyByInverse,
+# normalized, dominantAxis, component), Vector2Dd subtract and lengthSquared,
+# Matrix2x2 on double / Vector2Dd, Vector3DPrinter for Vector3Dd, and KDTree,
+# KDQuery, PlanarFace and the environment/material classes in double. This
+# port is in double precision now: the single precision lineal algebra
+# (Vector2Df, Vector3Df, Vector4Df, Matrix4x4f, Quaternionf) is still taken
+# only because AlgebraPrimitives.cpp, which the primitives need, refers to it;
+# no RenderPark class uses it.
+# Added with the MGF reader on VITRAL primitives (cpp 27ad8ed8): the closure of
+# environment/geometry/volume (Sphere, Cone, Tube, Torus, Prism and the
+# PolyhedralBoundedSolid they are exported through, with its validation
+# strategies and node printers), environment/geometry/element/Ray (which
+# replaced RenderPark's RpkRay) and common/color/Cie (the immutable CIE color
+# space that replaced RenderPark's static Cie).
 # Files of the cpp port's subset left out of this port, although VITRAL's
 # turboc port carries them: PlanarFace (plan step 3 part 2), the
 # environment/material files of step 2a (Material.h, PhongLobe, PhongMaterial,
@@ -39,12 +47,15 @@ java/lang/Boolean.h
 java/lang/Byte.h
 java/lang/Character.cpp
 java/lang/Character.h
+java/lang/Class.h
 java/lang/Double.cpp
 java/lang/Double.h
 java/lang/Exception.h
 java/lang/Float.cpp
 java/lang/Float.h
 java/lang/IllegalArgumentException.h
+java/lang/IllegalStateException.h
+java/lang/IndexOutOfBoundsException.h
 java/lang/Integer.h
 java/lang/IntegralConstants.cpp
 java/lang/Long.h
@@ -65,8 +76,12 @@ java/lang/StringBuilder.h
 java/lang/System.cpp
 java/lang/System.h
 java/lang/Throwable.h
+java/util/ArrayDeque.h
+java/util/ArrayDeque.txx
 java/util/ArrayList.h
 java/util/ArrayList.txx
+java/util/Collections.h
+java/util/Collections.txx
 java/util/Comparator.h
 java/util/Formatter.cpp
 java/util/Formatter.h
@@ -79,16 +94,29 @@ java/util/StringTokenizer.h
 java/util/TreeMap.h
 java/util/TreeMap.txx
 java/util/TreeMapEntry.h
+java/util/TreeSet.h
+java/util/TreeSet.txx
 java/util/concurrent/atomic/AtomicLong.h
 java/util/concurrent/locks/ReentrantLock.h
 vsdk/toolkit/common/Cpp98Support.cpp
 vsdk/toolkit/common/Cpp98Support.h
+vsdk/toolkit/common/Entity.cpp
+vsdk/toolkit/common/Entity.h
+vsdk/toolkit/common/EntityControlAccessor.cpp
+vsdk/toolkit/common/EntityControlAccessor.h
+vsdk/toolkit/common/EntityEvent.h
+vsdk/toolkit/common/EntityListener.h
 vsdk/toolkit/common/VSDK.cpp
 vsdk/toolkit/common/VSDK.h
 vsdk/toolkit/common/VSDKFatalException.h
+vsdk/toolkit/common/color/Cie.cpp
+vsdk/toolkit/common/color/Cie.h
 vsdk/toolkit/common/color/ColorRgb.cpp
 vsdk/toolkit/common/color/ColorRgb.h
+vsdk/toolkit/common/dataStructures/ArrayLinkable.h
 vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.h
+vsdk/toolkit/common/dataStructures/BinaryTreeNode.h
+vsdk/toolkit/common/dataStructures/CircularArrayList.h
 vsdk/toolkit/common/dataStructures/KDQuery.h
 vsdk/toolkit/common/dataStructures/KDTree.h
 vsdk/toolkit/common/dataStructures/KDTree.txx
@@ -111,12 +139,58 @@ vsdk/toolkit/common/logging/Logger.cpp
 vsdk/toolkit/common/logging/Logger.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.h
 vsdk/toolkit/common/memoryManagement/MemoryPool.txx
+vsdk/toolkit/common/numerics/FloatingInterval.cpp
+vsdk/toolkit/common/numerics/FloatingInterval.h
+vsdk/toolkit/common/statistics/PolyhedralBoundedSolidStatistics.cpp
+vsdk/toolkit/common/statistics/PolyhedralBoundedSolidStatistics.h
 vsdk/toolkit/common/statistics/RaytraceStatistics.cpp
 vsdk/toolkit/common/statistics/RaytraceStatistics.h
+vsdk/toolkit/environment/geometry/Geometry.cpp
+vsdk/toolkit/environment/geometry/Geometry.h
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.cpp
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.h
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahTriangleHierarchy.cpp
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahTriangleHierarchy.h
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/GridTriangleHierarchy.cpp
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/GridTriangleHierarchy.h
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleAccelerationStructure.cpp
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleAccelerationStructure.h
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleMeshAccelerationMethod.h
+vsdk/toolkit/environment/geometry/element/GeometryBounds.cpp
+vsdk/toolkit/environment/geometry/element/GeometryBounds.h
+vsdk/toolkit/environment/geometry/element/GeometryContainment.h
+vsdk/toolkit/environment/geometry/element/Intersection.h
 vsdk/toolkit/environment/geometry/element/Ray.cpp
 vsdk/toolkit/environment/geometry/element/Ray.h
+vsdk/toolkit/environment/geometry/element/RayBoundary.cpp
+vsdk/toolkit/environment/geometry/element/RayBoundary.h
+vsdk/toolkit/environment/geometry/element/RayCrossing.cpp
+vsdk/toolkit/environment/geometry/element/RayCrossing.h
+vsdk/toolkit/environment/geometry/element/RayCrossingKind.h
+vsdk/toolkit/environment/geometry/element/RayCrossingQuery.cpp
+vsdk/toolkit/environment/geometry/element/RayCrossingQuery.h
+vsdk/toolkit/environment/geometry/element/RayCrossingSink.cpp
+vsdk/toolkit/environment/geometry/element/RayCrossingSink.h
+vsdk/toolkit/environment/geometry/element/RayCrossingSupport.h
+vsdk/toolkit/environment/geometry/element/RayFirstHitStatus.h
+vsdk/toolkit/environment/geometry/element/RayHit.cpp
+vsdk/toolkit/environment/geometry/element/RayHit.h
+vsdk/toolkit/environment/geometry/element/RayInstancePath.cpp
+vsdk/toolkit/environment/geometry/element/RayInstancePath.h
+vsdk/toolkit/environment/geometry/element/RayInstanceStep.cpp
+vsdk/toolkit/environment/geometry/element/RayInstanceStep.h
+vsdk/toolkit/environment/geometry/element/RaySolidBoundary.cpp
+vsdk/toolkit/environment/geometry/element/RaySolidBoundary.h
+vsdk/toolkit/environment/geometry/element/RaySolidClassification.cpp
+vsdk/toolkit/environment/geometry/element/RaySolidClassification.h
+vsdk/toolkit/environment/geometry/element/RaySolidQueryStatus.h
+vsdk/toolkit/environment/geometry/element/SurfaceDetail.h
+vsdk/toolkit/environment/geometry/element/Triangle.cpp
+vsdk/toolkit/environment/geometry/element/Triangle.h
+vsdk/toolkit/environment/geometry/element/Vertex.cpp
+vsdk/toolkit/environment/geometry/element/Vertex.h
+vsdk/toolkit/environment/geometry/element/Vertex2D.cpp
+vsdk/toolkit/environment/geometry/element/Vertex2D.h
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
@@ -133,6 +207,85 @@ vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.h
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.h
+vsdk/toolkit/environment/geometry/surface/HalfSpace.cpp
+vsdk/toolkit/environment/geometry/surface/HalfSpace.h
+vsdk/toolkit/environment/geometry/surface/InfinitePlane.cpp
+vsdk/toolkit/environment/geometry/surface/InfinitePlane.h
+vsdk/toolkit/environment/geometry/surface/QuadMesh.cpp
+vsdk/toolkit/environment/geometry/surface/QuadMesh.h
+vsdk/toolkit/environment/geometry/surface/Surface.cpp
+vsdk/toolkit/environment/geometry/surface/Surface.h
+vsdk/toolkit/environment/geometry/surface/TriangleMesh.cpp
+vsdk/toolkit/environment/geometry/surface/TriangleMesh.h
+vsdk/toolkit/environment/geometry/surface/TriangleMeshGroup.cpp
+vsdk/toolkit/environment/geometry/surface/TriangleMeshGroup.h
+vsdk/toolkit/environment/geometry/surface/TriangleMeshIntersectionIndex.cpp
+vsdk/toolkit/environment/geometry/surface/TriangleMeshIntersectionIndex.h
+vsdk/toolkit/environment/geometry/surface/polygon/Polygon2D.cpp
+vsdk/toolkit/environment/geometry/surface/polygon/Polygon2D.h
+vsdk/toolkit/environment/geometry/surface/polygon/_Polygon2DContour.cpp
+vsdk/toolkit/environment/geometry/surface/polygon/_Polygon2DContour.h
+vsdk/toolkit/environment/geometry/volume/Cone.cpp
+vsdk/toolkit/environment/geometry/volume/Cone.h
+vsdk/toolkit/environment/geometry/volume/Prism.cpp
+vsdk/toolkit/environment/geometry/volume/Prism.h
+vsdk/toolkit/environment/geometry/volume/Solid.cpp
+vsdk/toolkit/environment/geometry/volume/Solid.h
+vsdk/toolkit/environment/geometry/volume/Sphere.cpp
+vsdk/toolkit/environment/geometry/volume/Sphere.h
+vsdk/toolkit/environment/geometry/volume/Torus.cpp
+vsdk/toolkit/environment/geometry/volume/Torus.h
+vsdk/toolkit/environment/geometry/volume/Tube.cpp
+vsdk/toolkit/environment/geometry/volume/Tube.h
+vsdk/toolkit/environment/geometry/volume/Volume.cpp
+vsdk/toolkit/environment/geometry/volume/Volume.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolid.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolid.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerConstructions.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerConstructions.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerOperators.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerOperators.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidFaceGeometry.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidFaceGeometry.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidGeometricValidator.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidGeometricValidator.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidNumericPolicy.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidNumericPolicy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidPredicates.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidPredicates.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidRepair.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidRepair.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologyEditing.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologyEditing.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologySummary.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologySummary.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidValidationEngine.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidValidationEngine.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricCollapsedLaminaStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricFaceOrientationStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricPlanarityStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictFaceIntersectionsStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictLoopsStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidBooleanTopologyPredicates.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidBooleanTopologyPredicates.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidTopologicalValidator.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidTopologicalValidator.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidValidationStrategies.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidValidationStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_TopologicalIntegrityStrategy.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidEdge.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidEdge.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidFace.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidFace.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidHalfEdge.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidHalfEdge.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidLoop.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidLoop.h
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidNodesToString.cpp
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidVertex.h
+vsdk/toolkit/environment/material/Material.h
+vsdk/toolkit/environment/material/SimpleMaterial.cpp
+vsdk/toolkit/environment/material/SimpleMaterial.h
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.h
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.cpp
@@ -144,3 +297,12 @@ vsdk/toolkit/io/wrapper/PipeOutputStream.h
 vsdk/toolkit/io/wrapper/StreamOpenMode.h
 vsdk/toolkit/io/wrapper/Vector3DPrinter.cpp
 vsdk/toolkit/io/wrapper/Vector3DPrinter.h
+vsdk/toolkit/media/Image.cpp
+vsdk/toolkit/media/Image.h
+vsdk/toolkit/media/MediaEntity.cpp
+vsdk/toolkit/media/MediaEntity.h
+vsdk/toolkit/media/RGBPixel.cpp
+vsdk/toolkit/media/RGBPixel.h
+vsdk/toolkit/processing/ComputationalGeometry.cpp
+vsdk/toolkit/processing/ComputationalGeometry.h
+vsdk/toolkit/processing/Containment.h

@@ -1,5 +1,5 @@
-#ifndef RAY_HIT_FLAG__
-#define RAY_HIT_FLAG__
+#ifndef __RAY_HIT_FLAG__
+#define __RAY_HIT_FLAG__
 
 /**
 The flags below have a double function: if passed as an argument
@@ -11,11 +11,11 @@ a ray intersection routine is a front or back hit
 enum RayHitFlag {
     // The following flags indicate what fields are available in a hit record
     // These flags are set by ray intersection routines
-    GEOMETRY = 0x01, // Intersected Geometry
+    GEOMETRY = 0x01, // Intersected RpkGeometry
     PATCH = 0x02, // Intersected Patch (returned by discretizationHit routines)
     POINT = 0x04, // Intersection point
     GEOMETRIC_NORMAL = 0x08, // Geometric normal
-    MATERIAL = 0x10, // Material properties at intersection point
+    MATERIAL = 0x10, // RpkMaterial properties at intersection point
     DISTANCE = 0x20, // Distance to hit along the ray
 
     // These flags are only set by the routines HitUV() etc.

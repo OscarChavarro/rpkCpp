@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __RENDER_OPTIONS__
-#define __RENDER_OPTIONS__
+#ifndef __RENDERER_CONFIGURATION__
+#define __RENDERER_CONFIGURATION__
 
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 
@@ -20,7 +20,7 @@ class RenderOptions {
     ColorRgb outlineColor; // Color in which to draw outlines
     ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
     ColorRgb clusterColor; // Color in which to show cluster bounding boxes
-    float lineWidth;
+    double lineWidth;
     bool drawOutlines; // True for drawing facet outlines
     bool drawSurfaces;
     char noShading; // False for using any kind of shading
@@ -46,7 +46,7 @@ class RenderOptions {
     RenderOptions();
     virtual ~RenderOptions();
 
-    float getLineWidth() const;
+    double getLineWidth() const;
     bool isDrawOutlines() const;
     bool isDrawSurfaces() const;
     char isNoShading() const;
@@ -58,7 +58,7 @@ class RenderOptions {
     char isRenderRayTracedImage() const;
     char isTrace() const;
 
-    void setLineWidth(float width);
+    void setLineWidth(double width);
     void setDrawOutlines(bool enabled);
     void setDrawSurfaces(bool enabled);
     void setNoShading(char enabled);
@@ -84,7 +84,7 @@ inline const ColorRgb &
 RenderOptions::getBoundingBoxColor() const { return boundingBoxColor; }
 inline const ColorRgb &
 RenderOptions::getClusterColor() const { return clusterColor; }
-inline float
+inline double
 RenderOptions::getLineWidth() const { return lineWidth; }
 inline bool
 RenderOptions::isDrawOutlines() const { return drawOutlines; }

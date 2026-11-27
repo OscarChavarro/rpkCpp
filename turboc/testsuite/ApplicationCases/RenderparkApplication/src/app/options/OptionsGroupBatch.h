@@ -1,5 +1,5 @@
-#ifndef CMMND_LINE_BTCH_OPTNS_GRP
-#define CMMND_LINE_BTCH_OPTNS_GRP
+#ifndef __OPTIONS_GROUP_BATCH__
+#define __OPTIONS_GROUP_BATCH__
 
 #include "app/options/BatchOptions.h"
 

@@ -6,8 +6,8 @@
 Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4096)
 */
 
-#ifndef __NIED_31__
-#define __NIED_31__
+#ifndef __NIEDERREITER_31__
+#define __NIEDERREITER_31__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

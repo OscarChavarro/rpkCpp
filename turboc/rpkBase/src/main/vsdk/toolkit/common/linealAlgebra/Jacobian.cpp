@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
 
-Jacobian::Jacobian(const float inA, const float inB, const float inC) {
+Jacobian::Jacobian(const double inA, const double inB, const double inC) {
     A = inA;
     B = inB;
     C = inC;

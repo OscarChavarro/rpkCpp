@@ -7,11 +7,7 @@ RM ?= rm -f
 MKDIR_P ?= mkdir -p
 
 # Build options for old gmake/gcc environments
-CPPFLAGS := -DRAYTRACING_ENABLED -DMGF_ENABLED -D_FILE_OFFSET_BITS=64
-# RAY_CAPTURE=1 builds the ray capture configuration (CMake WITH_RAY_CAPTURE)
-ifeq ($(RAY_CAPTURE),1)
-CPPFLAGS += -DRPK_RAY_CAPTURE
-endif
+CPPFLAGS := -DRAYTRACING_ENABLED -DMGF_ENABLED
 CXXFLAGS ?= -O0 -g -Wall -fno-exceptions -fno-rtti
 LDFLAGS ?=
 LDLIBS ?= -lm

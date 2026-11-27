@@ -37,7 +37,6 @@ ParseRuntimeContext::ParseRuntimeContext():
     currentColor(colorRepository.currentColor),
     inSurface(geometryBuildState.inSurface),
     inComplex(geometryBuildState.inComplex),
-    warpConeEnds(geometryBuildState.warpConeEnds),
     vertexLookUpTable(vertexRepository.vertexLookUpTable),
     allGeometries(geometryBuildState.allGeometries),
     geometries(geometryBuildState.geometries),

@@ -3,16 +3,16 @@
 
 #include "vsdk/toolkit/common/VSDK.h"
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 
 class Numeric {
   public:
     static const double HUGE_DOUBLE_VALUE;
-    static const float EPSILON_FLOAT;
+    static const double EPSILON;
 
     static bool doubleEqual(double a, double b, double tolerance);
-    static bool vectorsEqual(const Vector3Df &a, const Vector3Df &b, double tolerance);
-    static bool floatCompare(float x, float y);
+    static bool vectorsEqual(const Vector3Dd &a, const Vector3Dd &b, double tolerance);
+    static bool floatCompare(double x, double y);
     static void roundDeltaToZero(double &x, double epsilon);
 };
 
@@ -29,7 +29,7 @@ Two vectors are equal if their components are equal within the given
 tolerance, compared in double precision as doubleEqual does
 */
 inline bool
-Numeric::vectorsEqual(const Vector3Df &a, const Vector3Df &b, const double tolerance) {
+Numeric::vectorsEqual(const Vector3Dd &a, const Vector3Dd &b, const double tolerance) {
     return doubleEqual(a.x(), b.x(), tolerance) &&
         doubleEqual(a.y(), b.y(), tolerance) &&
         doubleEqual(a.z(), b.z(), tolerance);

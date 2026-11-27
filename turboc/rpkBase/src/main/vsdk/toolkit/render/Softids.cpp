@@ -22,13 +22,13 @@ SoftIds::setupSoftFrameBuffer(const Camera *camera) {
     sgl->sglClipping(true);
     sgl->sglClear(0, SglConstants::SGL_MAXIMUM_Z);
 
-    const Matrix4x4f p = Camera::perspectiveMatrix(
-        camera->fieldOfVision * 2.0f * ((float)(M_PI)) / 180.0f,
-        ((float)(camera->xSize)) / ((float)(camera->ySize)),
+    const Matrix4x4d p = Camera::perspectiveMatrix(
+        camera->fieldOfVision * 2.0 * ((double)(M_PI)) / 180.0,
+        ((double)(camera->xSize)) / ((double)(camera->ySize)),
         camera->near,
         camera->far);
     sgl->sglLoadMatrix(&p);
-    const Matrix4x4f l = Camera::lookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
+    const Matrix4x4d l = Camera::lookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
     sgl->sglMultiplyMatrix(&l);
 
     return sgl;
@@ -45,7 +45,7 @@ SoftIds::softRenderPatch(
         return;
     }
 
-    Vector3Df vertices[4];
+    Vector3Dd vertices[4];
 
     if ( renderOptions->isBackfaceCulling() &&
          patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < VSDK::EPSILON ) {

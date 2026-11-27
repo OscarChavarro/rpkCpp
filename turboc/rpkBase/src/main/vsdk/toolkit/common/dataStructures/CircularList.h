@@ -2,8 +2,8 @@
 Implementation is based on Stroustrup 'The C++ Programming Language' Section 8.3
 */
 
-#ifndef __CIRCULAR_LISTS__
-#define __CIRCULAR_LISTS__
+#ifndef __CIRCULAR_LIST__
+#define __CIRCULAR_LIST__
 
 #include "vsdk/toolkit/common/dataStructures/CircularListBaseIterator.h"
 #include "vsdk/toolkit/common/dataStructures/CircularListNode.h"

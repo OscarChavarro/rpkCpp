@@ -1,9 +1,9 @@
 #ifndef __SCENE_QUERY__
 #define __SCENE_QUERY__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayExclusionSet.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.h"
 #include "vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.h"
 #include "vsdk/toolkit/scene/SceneAccelerationMethod.h"
@@ -12,7 +12,6 @@
 
 class Scene;
 class SceneQueryWorkspace;
-class VisibilityQueryRecorder;
 
 /**
 The scene's visibility query: the nearest (or, with RayHitFlag::ANY, some)
@@ -68,20 +67,19 @@ class SceneQuery {
     and leaves both unchanged when no face is hit in
     [minimumDistance, *maximumDistance]
     */
-    RayHit *intersect(
-        RpkRay *ray,
-        float minimumDistance,
-        float *maximumDistance,
+    RpkRayHit *intersect(
+        Ray *ray,
+        double minimumDistance,
+        double *maximumDistance,
         int hitFlags,
-        RayHit *hitStore,
+        RpkRayHit *hitStore,
         const RayExclusionSet &exclusions,
         SceneQueryWorkspace *workspace) const;
 };
 
 /**
 Per-query scratch of a SceneQuery: the workspace of its index (or of the
-legacy grid) and, in builds configured WITH_RAY_CAPTURE, the recorder the
-callers report each query to (null otherwise).
+legacy grid).
 
 Workspace: mutable, owned by one caller and passed explicitly on every
 SceneQuery::intersect call.
@@ -90,19 +88,17 @@ class SceneQueryWorkspace {
   private:
     VoxelGridWorkspace *legacyWorkspace; // Owned; legacy grid only
     SpatialIndexWorkspace *indexWorkspace; // Owned; the other methods
-    VisibilityQueryRecorder *recorder; // Not owned
 
     // Not copyable
     SceneQueryWorkspace(const SceneQueryWorkspace &);
     SceneQueryWorkspace &operator=(const SceneQueryWorkspace &);
 
   public:
-    explicit SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder = NULL);
+    explicit SceneQueryWorkspace(const SceneQuery &query);
     ~SceneQueryWorkspace();
 
     inline VoxelGridWorkspace *getLegacyWorkspace() const;
     inline SpatialIndexWorkspace *getIndexWorkspace() const;
-    inline VisibilityQueryRecorder *getRecorder() const;
 };
 
 inline SceneAccelerationMethod
@@ -128,11 +124,6 @@ SceneQueryWorkspace::getLegacyWorkspace() const {
 inline SpatialIndexWorkspace *
 SceneQueryWorkspace::getIndexWorkspace() const {
     return indexWorkspace;
-}
-
-inline VisibilityQueryRecorder *
-SceneQueryWorkspace::getRecorder() const {
-    return recorder;
 }
 
 #endif

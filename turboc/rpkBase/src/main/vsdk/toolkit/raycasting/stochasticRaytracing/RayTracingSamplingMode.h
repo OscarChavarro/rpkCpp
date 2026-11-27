@@ -1,5 +1,5 @@
-#ifndef __RAYTRACING_SAMPLING_MODE__
-#define __RAYTRACING_SAMPLING_MODE__
+#ifndef __RAY_TRACING_SAMPLING_MODE__
+#define __RAY_TRACING_SAMPLING_MODE__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

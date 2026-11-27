@@ -1,7 +1,7 @@
 #ifndef STCHS_RYTRC_PATH_NODE
 #define STCHS_RYTRC_PATH_NODE
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 /**
@@ -11,8 +11,8 @@ class StochasticRaytracingPathNode {
   public:
     Patch *patch;
     double probability;
-    Vector3Df inPoint;
-    Vector3Df outpoint;
+    Vector3Dd inPoint;
+    Vector3Dd outpoint;
 
     StochasticRaytracingPathNode();
 };

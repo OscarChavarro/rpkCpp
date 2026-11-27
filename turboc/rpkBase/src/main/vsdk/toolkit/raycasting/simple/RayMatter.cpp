@@ -131,18 +131,19 @@ RayMatter::createFilter() {
 void
 RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace) {
     const long long t = System::nanoTime();
+    unsigned short rayMatterRngState[3] = {0x1234, 0x5678, 0x9ABC};
 
     createFilter();
 
     // Main loop for ray matter
     for ( int y = 0; y < camera->ySize; y++ ) {
         for ( int x = 0; x < camera->xSize; x++ ) {
-            float hits = 0;
+            double hits = 0;
 
             for ( int i = 0; i < rayMatterState.samplesPerPixel; i++ ) {
                 // Uniform random var
-                double dx = drand48();
-                double dy = drand48();
+                double dx = erand48(rayMatterRngState);
+                double dy = erand48(rayMatterRngState);
 
                 // Insert non-uniform sampling here
                 if ( pixelFilter != NULL ) {
@@ -150,10 +151,10 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
                 }
 
                 // Generate ray
-                RpkRay ray;
-                ray.position = camera->eyePosition;
-                ray.direction = screenBuffer->getPixelVector(x, y, ((float)(dx)), ((float)(dy)));
-                ray.direction = ray.direction.normalized(Numeric::EPSILON_FLOAT);
+                Ray ray;
+                ray.setOrigin(camera->eyePosition);
+                ray.setDirection(screenBuffer->getPixelVector(x, y, ((double)(dx)), ((double)(dy))));
+                ray.setDirection(ray.getDirection().normalized(Numeric::EPSILON));
 
                 // Check if hit
                 if ( RayTools::findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, &ray, NULL, NULL, NULL) != NULL ) {
@@ -162,7 +163,7 @@ RayMatter::doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQu
             }
 
             // Add matte value to screen buffer
-            float value = (hits / ((float)(rayMatterState.samplesPerPixel)));
+            double value = (hits / ((double)(rayMatterState.samplesPerPixel)));
             if ( value > 1.0 ) {
                 value = 1.0;
             }

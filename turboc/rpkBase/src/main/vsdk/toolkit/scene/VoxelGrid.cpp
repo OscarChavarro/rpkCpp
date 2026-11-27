@@ -5,7 +5,7 @@ Ray-grid intersection: [SNYD1987] Snyder & Barr, SIGGRAPH '87, p123, with severa
 optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 */
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
@@ -27,14 +27,14 @@ VoxelGrid::clampVoxel(const short v, const short max) {
 }
 
 bool
-VoxelGrid::shouldSubdivide(const Geometry *geometry) {
+VoxelGrid::shouldSubdivide(const RpkGeometry *geometry) {
     return geometry->itemCount >= MINIMUM_ELEMENT_COUNT_PER_CELL;
 }
 
 /**
 Constructs a recursive grid structure containing the whole geometry
 */
-VoxelGrid::VoxelGrid(Geometry *geometry):
+VoxelGrid::VoxelGrid(RpkGeometry *geometry):
     subGrids(NULL),
     items(NULL),
     root(this),
@@ -53,7 +53,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
     build(geometry, 0);
 }
 
-VoxelGrid::VoxelGrid(Geometry *geometry, VoxelGrid *inRoot, const int level):
+VoxelGrid::VoxelGrid(RpkGeometry *geometry, VoxelGrid *inRoot, const int level):
     subGrids(NULL),
     items(NULL),
     root(inRoot),
@@ -70,7 +70,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry, VoxelGrid *inRoot, const int level):
 }
 
 void
-VoxelGrid::build(Geometry *geometry, const int level) {
+VoxelGrid::build(RpkGeometry *geometry, const int level) {
     const double p = Math::pow(geometry->itemCount, 0.33333) + 1;
     const short gridSize = ((short)(Math::floor(p)));
     System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
@@ -155,15 +155,15 @@ of the hierarchy (RenderPark's GeomCountItems, called when the top level grid
 is created): it sizes each grid and decides which geometries get a sub grid
 */
 int
-VoxelGrid::countItems(Geometry *geometry) {
+VoxelGrid::countItems(RpkGeometry *geometry) {
     int count = 0;
     if ( geometry->isCompound() ) {
-        const ArrayList<Geometry *> *children = ((const Compound *)(geometry))->children;
+        const ArrayList<RpkGeometry *> *children = ((const Compound *)(geometry))->children;
         for ( int i = 0; children != NULL && i < children->size(); i++ ) {
             count += countItems(children->get(i));
         }
     } else {
-        const ArrayList<Patch *> *patches = Geometry::patchListReference(geometry);
+        const ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
         count = patches != NULL ? ((int)(patches->size())) : 0;
     }
     geometry->itemCount = count;
@@ -171,21 +171,21 @@ VoxelGrid::countItems(Geometry *geometry) {
 }
 
 bool
-VoxelGrid::isSmall(const BoundingBox *bb) const {
+VoxelGrid::isSmall(const RpkAxisAlignedBoundingBox *bb) const {
     return bb->dx() <= voxelSize.x() &&
            bb->dy() <= voxelSize.y() &&
            bb->dz() <= voxelSize.z();
 }
 
 void
-VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const {
+VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const RpkAxisAlignedBoundingBox *itemBounds) const {
 
-    BoundingBox boundaries;
+    RpkAxisAlignedBoundingBox boundaries;
     boundaries.copyFrom(itemBounds);
     boundaries.enlargeByFactor(DELTA_BOUND_FACTOR);
 
-    Vector3Df minVoxel = toVoxelClamped(boundaries.minPoint());
-    Vector3Df maxVoxel = toVoxelClamped(boundaries.maxPoint());
+    Vector3Dd minVoxel = toVoxelClamped(boundaries.minPoint());
+    Vector3Dd maxVoxel = toVoxelClamped(boundaries.maxPoint());
 
     short minA = ((short)(minVoxel.x()));
     short minB = ((short)(minVoxel.y()));
@@ -217,7 +217,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
-    BoundingBox localBounds;
+    RpkAxisAlignedBoundingBox localBounds;
     if ( patch->boundingBox != NULL ) {
         localBounds = *patch->boundingBox;
     } else {
@@ -229,9 +229,9 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     addItem(voxelData);
 }
 
-Vector3Df
-VoxelGrid::toVoxelClamped(const Vector3Df &p) const {
-    return Vector3Df(
+Vector3Dd
+VoxelGrid::toVoxelClamped(const Vector3Dd &p) const {
+    return Vector3Dd(
             clampVoxel(x2voxel(p.x()), xSize),
             clampVoxel(y2voxel(p.y()), ySize),
             clampVoxel(z2voxel(p.z()), zSize)
@@ -239,14 +239,14 @@ VoxelGrid::toVoxelClamped(const Vector3Df &p) const {
 }
 
 void
-VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) {
+VoxelGrid::insertGeometryAsVoxelData(RpkGeometry *geometry) {
     VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK, nextItemIndex());
     putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
     addItem(voxelData);
 }
 
 void
-VoxelGrid::insertSubGrid(Geometry *geometry, const int level) {
+VoxelGrid::insertSubGrid(RpkGeometry *geometry, const int level) {
     VoxelGrid *subGrid = new VoxelGrid(geometry, root, level);
     VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK, nextItemIndex());
 
@@ -257,8 +257,8 @@ VoxelGrid::insertSubGrid(Geometry *geometry, const int level) {
 }
 
 void
-VoxelGrid::processCompoundGeometry(Geometry *geometry, const int level) {
-    const ArrayList<Geometry *> *geometryList = ((const Compound *)(geometry))->children;
+VoxelGrid::processCompoundGeometry(RpkGeometry *geometry, const int level) {
+    const ArrayList<RpkGeometry *> *geometryList = ((const Compound *)(geometry))->children;
 
     for ( int i = 0; geometryList != NULL && i < geometryList->size(); i++ ) {
         putSubGeometryInsideVoxelGrid(geometryList->get(i), level);
@@ -266,9 +266,9 @@ VoxelGrid::processCompoundGeometry(Geometry *geometry, const int level) {
 }
 
 void
-VoxelGrid::processPatches(Geometry *geometry) {
+VoxelGrid::processPatches(RpkGeometry *geometry) {
     const ArrayList<Patch *> *patches =
-            Geometry::patchListReference(geometry);
+            RpkGeometry::patchListReference(geometry);
 
     for ( int i = 0; patches != NULL && i < patches->size(); i++) {
         putPatchInsideVoxelGrid(patches->get(i));
@@ -276,7 +276,7 @@ VoxelGrid::processPatches(Geometry *geometry) {
 }
 
 void
-VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry, const int level) {
+VoxelGrid::putSubGeometryInsideVoxelGrid(RpkGeometry *geometry, const int level) {
     if ( isSmall(&geometry->boundingBox) ) {
         if ( shouldSubdivide(geometry) ) {
             insertSubGrid(geometry, level);
@@ -294,7 +294,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry, const int level) {
 }
 
 void
-VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc, const int level) {
+VoxelGrid::putGeometryInsideVoxelGrid(RpkGeometry *geometry, const short na, const short nb, const short nc, const int level) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
         Logger::reportMessage("VoxelGrid", Logger::ERROR, "VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         System::exit(1);
@@ -329,20 +329,20 @@ intersected and false if the ray passes along the voxel grid
 */
 bool
 VoxelGrid::gridBoundsIntersect(
-    const RpkRay *ray,
-    float minimumDistance,
-    float maximumDistance,
-    /*OUT*/ float *t0,
-    Vector3Df *position) const
+    const Ray *ray,
+    double minimumDistance,
+    double maximumDistance,
+    /*OUT*/ double *t0,
+    Vector3Dd *position) const
 {
     *t0 = minimumDistance;
-    *position = ray->position.add(ray->direction.multiply(((float)(*t0))));
+    *position = ray->getOrigin().add(ray->getDirection().multiply(((double)(*t0))));
     if ( boundingBox.outOfBounds(position) ) {
         *t0 = maximumDistance;
         if ( !rayIntersectionBox->intersect(ray, minimumDistance, t0) ) {
             return false;
         }
-        *position = ray->position.add(ray->direction.multiply(((float)(*t0))));
+        *position = ray->getOrigin().add(ray->getDirection().multiply(((double)(*t0))));
     }
 
     return true;
@@ -353,12 +353,12 @@ Initializes grid tracing
 */
 void
 VoxelGrid::gridTraceSetup(
-    const RpkRay *ray,
-    const float t0,
-    const Vector3Df *P,
+    const Ray *ray,
+    const double t0,
+    const Vector3Dd *P,
     int *g,
-    Vector3Df *tDelta,
-    Vector3Df *tNext,
+    Vector3Dd *tDelta,
+    Vector3Dd *tNext,
     int *step,
     int *out) const
 {
@@ -386,54 +386,54 @@ VoxelGrid::gridTraceSetup(
     out[0] is -1 or xSize: the first x grid cell index outside the
     grid.
     */
-    if ( Math::abs(ray->direction.x()) > VSDK::EPSILON ) {
-        if ( ray->direction.x() > 0.0 ) {
-            *tDelta = tDelta->withX(voxelSize.x() / ray->direction.x());
-            *tNext = tNext->withX(t0 + (voxel2x(((float)(g[0])) + 1) - P->x()) / ray->direction.x());
+    if ( Math::abs(ray->getDirection().x()) > VSDK::EPSILON ) {
+        if ( ray->getDirection().x() > 0.0 ) {
+            *tDelta = tDelta->withX(voxelSize.x() / ray->getDirection().x());
+            *tNext = tNext->withX(t0 + (voxel2x(((double)(g[0])) + 1) - P->x()) / ray->getDirection().x());
             step[0] = 1;
             out[0] = xSize;
         } else {
-            *tDelta = tDelta->withX(voxelSize.x() / -ray->direction.x());
-            *tNext = tNext->withX(t0 + (voxel2x(((float)(g[0]))) - P->x()) / ray->direction.x());
+            *tDelta = tDelta->withX(voxelSize.x() / -ray->getDirection().x());
+            *tNext = tNext->withX(t0 + (voxel2x(((double)(g[0]))) - P->x()) / ray->getDirection().x());
             step[0] = out[0] = -1;
         }
     } else {
         *tDelta = tDelta->withX(0.0);
-        *tNext = tNext->withX(Float::MAX_VALUE);
+        *tNext = tNext->withX(Double::MAX_VALUE);
     }
 
     // Setup Y:
-    if ( Math::abs(ray->direction.y()) > VSDK::EPSILON ) {
-        if ( ray->direction.y() > 0.0 ) {
-            *tDelta = tDelta->withY(voxelSize.y() / ray->direction.y());
-            *tNext = tNext->withY(t0 + (voxel2y(((float)(g[1])) + 1) - P->y()) / ray->direction.y());
+    if ( Math::abs(ray->getDirection().y()) > VSDK::EPSILON ) {
+        if ( ray->getDirection().y() > 0.0 ) {
+            *tDelta = tDelta->withY(voxelSize.y() / ray->getDirection().y());
+            *tNext = tNext->withY(t0 + (voxel2y(((double)(g[1])) + 1) - P->y()) / ray->getDirection().y());
             step[1] = 1;
             out[1] = ySize;
         } else {
-            *tDelta = tDelta->withY(voxelSize.y() / -ray->direction.y());
-            *tNext = tNext->withY(t0 + (voxel2y(((float)(g[1]))) - P->y()) / ray->direction.y());
+            *tDelta = tDelta->withY(voxelSize.y() / -ray->getDirection().y());
+            *tNext = tNext->withY(t0 + (voxel2y(((double)(g[1]))) - P->y()) / ray->getDirection().y());
             step[1] = out[1] = -1;
         }
     } else {
         *tDelta = tDelta->withY(0.0);
-        *tNext = tNext->withY(Float::MAX_VALUE);
+        *tNext = tNext->withY(Double::MAX_VALUE);
     }
 
     // Setup Z:
-    if ( Math::abs(ray->direction.z()) > VSDK::EPSILON ) {
-        if ( ray->direction.z() > 0.0 ) {
-            *tDelta = tDelta->withZ(voxelSize.z() / ray->direction.z());
-            *tNext = tNext->withZ(t0 + (voxel2z(((float)(g[2])) + 1) - P->z()) / ray->direction.z());
+    if ( Math::abs(ray->getDirection().z()) > VSDK::EPSILON ) {
+        if ( ray->getDirection().z() > 0.0 ) {
+            *tDelta = tDelta->withZ(voxelSize.z() / ray->getDirection().z());
+            *tNext = tNext->withZ(t0 + (voxel2z(((double)(g[2])) + 1) - P->z()) / ray->getDirection().z());
             step[2] = 1;
             out[2] = zSize;
         } else {
-            *tDelta = tDelta->withZ(voxelSize.z() / -ray->direction.z());
-            *tNext = tNext->withZ(t0 + (voxel2z(((float)(g[2]))) - P->z()) / ray->direction.z());
+            *tDelta = tDelta->withZ(voxelSize.z() / -ray->getDirection().z());
+            *tNext = tNext->withZ(t0 + (voxel2z(((double)(g[2]))) - P->z()) / ray->getDirection().z());
             step[2] = out[2] = -1;
         }
     } else {
         *tDelta = tDelta->withZ(0.0);
-        *tNext = tNext->withZ(Float::MAX_VALUE);
+        *tNext = tNext->withZ(Double::MAX_VALUE);
     }
 }
 
@@ -442,7 +442,7 @@ Advances to the next grid cell. Pre-condition: gridTraceSetup was called.
 Returns false if the current voxel was the last voxel in the grid intersected by the ray
 */
 bool
-VoxelGrid::nextVoxel(float *t0, int *g, Vector3Df *tNext, const Vector3Df *tDelta, const int *step, const int *out) {
+VoxelGrid::nextVoxel(double *t0, int *g, Vector3Dd *tNext, const Vector3Dd *tDelta, const int *step, const int *out) {
     int inGrid;
 
     if ( tNext->x() <= tNext->y() && tNext->x() <= tNext->z() ) {
@@ -468,31 +468,31 @@ VoxelGrid::nextVoxel(float *t0, int *g, Vector3Df *tNext, const Vector3Df *tDelt
 }
 
 /**
-Finds the nearest intersection of the ray with an item (Geometry or Patch) in
+Finds the nearest intersection of the ray with an item (RpkGeometry or Patch) in
 a voxel's item list. If there is an intersection, maximumDistance will contain
 the distance to the intersection point measured from the ray origin
 as usual. If there is no intersection, maximumDistance remains unmodified
 */
-RayHit *
+RpkRayHit *
 VoxelGrid::voxelIntersect(
     const ArrayList<VoxelData *> *items,
-    RpkRay *ray,
+    Ray *ray,
     const unsigned int counter,
-    const float minimumDistance,
-    float *maximumDistance,
+    const double minimumDistance,
+    double *maximumDistance,
     const int hitFlags,
-    RayHit *hitStore,
+    RpkRayHit *hitStore,
     const RayExclusionSet &exclusions,
     VoxelGridWorkspace *workspace)
 {
-    RayHit *hit = NULL;
+    RpkRayHit *hit = NULL;
 
     for ( long i = 0; items != NULL && i < items->size(); i++ ) {
         const VoxelData *item = items->get(i);
         const int itemIndex = item->getIndex();
         if ( workspace->lastRayId(itemIndex) != counter ) {
             // Avoid testing objects multiple times
-            RayHit *h = NULL;
+            RpkRayHit *h = NULL;
             if ( item->isPatch() ) {
                 h = item->getPatch()->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore, exclusions);
             } else if ( item->isGeom() ) {
@@ -514,24 +514,24 @@ VoxelGrid::voxelIntersect(
 /**
 Traces a ray through a voxel grid. Returns nearest intersection or NULL
 */
-RayHit *
+RpkRayHit *
 VoxelGrid::gridIntersect(
-    RpkRay *ray,
-    float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    double minimumDistance,
+    double *maximumDistance,
     int hitFlags,
-    RayHit *hitStore,
+    RpkRayHit *hitStore,
     const RayExclusionSet &exclusions,
     VoxelGridWorkspace *workspace) const
 {
-    Vector3Df tNext;
-    Vector3Df tDelta;
-    Vector3Df P;
+    Vector3Dd tNext;
+    Vector3Dd tDelta;
+    Vector3Dd P;
     int step[3] = {0, 0, 0};
     int out[3] = {0};
     int g[3] = {0, 0, 0};
-    RayHit *hit = NULL;
-    float t0;
+    RpkRayHit *hit = NULL;
+    double t0;
 
     if ( !gridBoundsIntersect(ray, minimumDistance, *maximumDistance, &t0, &P) ) {
         return NULL;
@@ -545,7 +545,7 @@ VoxelGrid::gridIntersect(
     do {
         const ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
         if ( list != NULL ) {
-            RayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore, exclusions, workspace);
+            RpkRayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore, exclusions, workspace);
             if ( h != NULL ) {
                 hit = h;
             }

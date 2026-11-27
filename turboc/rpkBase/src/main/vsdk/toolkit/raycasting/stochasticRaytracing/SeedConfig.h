@@ -1,5 +1,5 @@
-#ifndef STCHS_RYTRC_CSD_CNFG
-#define STCHS_RYTRC_CSD_CNFG
+#ifndef __SEED_CONFIG__
+#define __SEED_CONFIG__
 
 #include <stdlib.h>
 

@@ -8,7 +8,6 @@
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/scene/FaceBoundsTable.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
-#include "vsdk/toolkit/scene/VisibilityQueryRecorder.h"
 
 class Scene {
   private:
@@ -25,7 +24,7 @@ class Scene {
     void printClusteredGeometries() const;
     void printPatches() const;
     void printSceneQuery() const;
-    static void printClusterHierarchy(const Geometry *node, int level, int *elementCount);
+    static void printClusterHierarchy(const RpkGeometry *node, int level, int *elementCount);
 
     // Face table: every patch of the scene, in depth-first order of
     // clusteredRootGeometry, indexed by Patch::getFaceIndex()
@@ -35,15 +34,14 @@ class Scene {
     SceneAccelerationMethod accelerationMethod; // Index of sceneQuery; WALD2007 unless an option says otherwise
     SceneQuery *sceneQuery; // Owned; built by buildSceneQuery
     SceneQueryWorkspace *sceneQueryWorkspace; // Owned; query scratch of the single-threaded callers
-    static void collectFaces(Geometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
+    static void collectFaces(RpkGeometry *geometry, Patch **table, int capacity, int *count, int *conflicts);
 
 public:
     Background *background;
     Camera *camera;
-    ArrayList<Geometry *> *geometryList;
-    ArrayList<Geometry *> *clusteredGeometryList;
-    Geometry *clusteredRootGeometry;
-    VisibilityQueryRecorder *visibilityQueryRecorder; // Ray capture builds only, otherwise null
+    ArrayList<RpkGeometry *> *geometryList;
+    ArrayList<RpkGeometry *> *clusteredGeometryList;
+    RpkGeometry *clusteredRootGeometry;
 
     // The list of all patches in the current scene
     ArrayList<Patch *> *patchList;
@@ -73,8 +71,7 @@ public:
 
     /**
     Builds the scene query over the face table with the acceleration method,
-    and the scene's workspace for it (reporting to visibilityQueryRecorder in
-    ray capture builds). Called once, after buildFaceTable.
+    and the scene's workspace for it. Called once, after buildFaceTable.
     */
     void buildSceneQuery();
     const SceneQuery *getSceneQuery() const;

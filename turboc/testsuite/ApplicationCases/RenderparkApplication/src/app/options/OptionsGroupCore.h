@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef CMMND_LINE_CORE_OPTNS_GRP
-#define CMMND_LINE_CORE_OPTNS_GRP
+#ifndef __OPTIONS_GROUP_CORE__
+#define __OPTIONS_GROUP_CORE__
 
 #include "app/options/EnumBackgroundMode.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
@@ -35,7 +35,7 @@ class OptionsGroupCore{ public:
     static ColorRgb backgroundColor;
     static SceneAccelerationMethod sceneAccelerationMethod;
 
-    static bool commandLineParseFloat(const char *text, float *value);
+    static bool commandLineParseFloat(const char *text, double *value);
     static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
     static void cmmndLineParseBgOpt(int *argc, char **argv);
     static void mainForceOneSidedOption(int &value);

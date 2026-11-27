@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __SGL_POLYGON_CONSTANTS__
-#define __SGL_POLYGON_CONSTANTS__
+#ifndef __POLYGON_CLIP_RESULT__
+#define __POLYGON_CLIP_RESULT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

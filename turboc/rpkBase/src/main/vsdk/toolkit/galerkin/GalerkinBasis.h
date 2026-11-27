@@ -6,10 +6,10 @@
 Higher order approximations for Galerkin radiosity
 */
 
-#ifndef __BASIS__
-#define __BASIS__
+#ifndef __GALERKIN_BASIS__
+#define __GALERKIN_BASIS__
 
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
 

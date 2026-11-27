@@ -1,7 +1,7 @@
 #ifndef __BACKGROUND__
 #define __BACKGROUND__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
@@ -17,7 +17,7 @@ class Background {
     in the probability of sampling this direction with sample()
     */
     virtual ColorRgbMutable
-    radiance(Vector3Df *position, Vector3Df *direction, float *probabilityDensityFunction) const;
+    radiance(Vector3Dd *position, Vector3Dd *direction, double *probabilityDensityFunction) const;
 
     /*
     Samples a direction to the background, taking into account the
@@ -29,32 +29,32 @@ class Background {
     in from the sampled direction or the probability of sampling the
     direction are computed on the fly.
     */
-    virtual Vector3Df
+    virtual Vector3Dd
     sample(
-        Vector3Df *position,
-        float xi1,
-        float xi2,
+        Vector3Dd *position,
+        double xi1,
+        double xi2,
         ColorRgbMutable *radiance,
-        float *probabilityDensityFunction) const;
+        double *probabilityDensityFunction) const;
 
     /*
     Computes total power emitted by the background (= integral over
     the full sphere of the background radiance.
     */
     virtual ColorRgbMutable
-    power(Vector3Df *position) const;
+    power(Vector3Dd *position) const;
 
 #ifdef RAYTRACING_ENABLED
     static ColorRgbMutable
     backgroundRadiance(
         Background *bkg,
-        Vector3Df *position,
-        Vector3Df *direction,
-        float *probabilityDensityFunction);
+        Vector3Dd *position,
+        Vector3Dd *direction,
+        double *probabilityDensityFunction);
 #endif
 
     static ColorRgbMutable
-    backgroundPower(Background *bkg, Vector3Df *position);
+    backgroundPower(Background *bkg, Vector3Dd *position);
 
     Patch *bkgPatch; // Virtual patch for background
 };

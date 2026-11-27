@@ -7,25 +7,25 @@
 class Importon : public IrrPhoton {
   public:
     inline void
-    SetAll(float imp, float /*pot*/, float /*foot*/) {
+    SetAll(double imp, double /*pot*/, double /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power = ColorRgb(imp, 0.0f, 0.0f);
+        m_power = ColorRgb(imp, 0.0, 0.0);
     }
 
     inline void
-    PSetAll(float imp, float /*pot*/, float /*foot*/) {
+    PSetAll(double imp, double /*pot*/, double /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance = ColorRgb(imp, 0.0f, 0.0f);
+        m_irradiance = ColorRgb(imp, 0.0, 0.0);
     }
 
     Importon(
-        Vector3Df pos,
-        float importance,
-        float potential,
-        float footprint,
-        const Vector3Df &dir)
+        Vector3Dd pos,
+        double importance,
+        double potential,
+        double footprint,
+        const Vector3Dd &dir)
     {
         m_pos = pos;
         m_dir = dir;
@@ -33,12 +33,12 @@ class Importon : public IrrPhoton {
         SetAll(importance, potential, footprint);
     }
 
-    inline float
+    inline double
     Importance() const {
         return m_power.getR();
     }
 
-    inline float
+    inline double
     PImportance() const {
         return m_irradiance.getR();
     }

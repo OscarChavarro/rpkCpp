@@ -1,13 +1,9 @@
 #include <string.h>
 
-#include "vsdk/toolkit/common/memoryManagement/CppReAlloc.h"
+#include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/io/context/ObjectScopeContext.h"
 
-ObjectScopeContext::ObjectScopeContext():
-    objectNamesList(NULL),
-    objectMaxName(0),
-    objectNames(0)
-{
+ObjectScopeContext::ObjectScopeContext(): objectNamesList() {
 }
 
 ObjectScopeContext::~ObjectScopeContext() {
@@ -19,51 +15,31 @@ ObjectScopeContext::pushName(const char *name) {
     if ( name == NULL ) {
         return MGF_ERRR_ILLGL_ARGMN_VAL;
     }
-    if ( objectNames >= objectMaxName - 1 ) {
-        if ( objectMaxName == 0 ) {
-            objectMaxName = OBJECT_NAMES_ALLOC_INCREMENT;
-            objectNamesList = new char *[objectMaxName];
-        } else {
-            const int previousMaxName = objectMaxName;
-            objectMaxName += OBJECT_NAMES_ALLOC_INCREMENT;
-            objectNamesList = CppReAlloc::reAlloc(
-                objectNamesList,
-                previousMaxName,
-                objectMaxName);
-        }
-        if ( objectNamesList == NULL ) {
-            objectMaxName = 0;
-            objectNames = 0;
-            return MGF_ERROR_OUT_OF_MEMORY;
-        }
-    }
 
-    objectNamesList[objectNames] = new char[strlen(name) + 1];
-    if ( objectNamesList[objectNames] == NULL ) {
+    char *nameCopy = new char[strlen(name) + 1];
+    strcpy(nameCopy, name);
+    if ( !objectNamesList.add(nameCopy) ) {
+        delete[] nameCopy;
         return MGF_ERROR_OUT_OF_MEMORY;
     }
-    strcpy(objectNamesList[objectNames++], name);
-    objectNamesList[objectNames] = NULL;
     return MGF_OK;
 }
 
 int
 ObjectScopeContext::popName() {
-    if ( objectNames < 1 ) {
+    const long int count = objectNamesList.size();
+    if ( count < 1 ) {
         return MGF_ERRR_UNMTC_CNTXT_CLS;
     }
-    delete[] objectNamesList[--objectNames];
-    objectNamesList[objectNames] = NULL;
+    delete[] objectNamesList.get(count - 1);
+    objectNamesList.remove(count - 1);
     return MGF_OK;
 }
 
 void
 ObjectScopeContext::clear() {
-    for ( int i = 0; i < objectNames; i++ ) {
-        delete[] objectNamesList[i];
+    for ( long int i = 0; i < objectNamesList.size(); i++ ) {
+        delete[] objectNamesList.get(i);
     }
-    delete[] objectNamesList;
-    objectNamesList = NULL;
-    objectMaxName = 0;
-    objectNames = 0;
+    objectNamesList.clear();
 }

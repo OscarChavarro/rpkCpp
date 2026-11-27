@@ -12,9 +12,9 @@ of patches needs to be ID rendered very often
 #include "vsdk/toolkit/render/sgl/Poly.h"
 #include "vsdk/toolkit/render/sgl/SglContext.h"
 
-const Matrix4x4f &
+const Matrix4x4d &
 SglContext::identityMatrix() {
-    static const Matrix4x4f identity;
+    static const Matrix4x4d identity;
     return identity;
 }
 
@@ -139,12 +139,12 @@ SglContext::sglClipping(bool on) {
 }
 
 void
-SglContext::sglLoadMatrix(const Matrix4x4f *xf) const {
+SglContext::sglLoadMatrix(const Matrix4x4d *xf) const {
     *currentTransform = *xf;
 }
 
 void
-SglContext::sglMultiplyMatrix(const Matrix4x4f *xf) const {
+SglContext::sglMultiplyMatrix(const Matrix4x4d *xf) const {
     *currentTransform = currentTransform->multiply(*xf);
 }
 
@@ -169,7 +169,7 @@ SglContext::sglViewport(int x, int y, int viewPortWidth, int viewPortHeight) {
 }
 
 void
-SglContext::sglPolygon(const int numberOfVertices, const Vector3Df *vertices) {
+SglContext::sglPolygon(const int numberOfVertices, const Vector3Dd *vertices) {
     Polygon pol = Polygon();
     Window win = Window();
     PolygonBox clip_box = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
@@ -182,8 +182,8 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3Df *vertices) {
     // Transform the vertices and fill in a Poly
     for ( int i = 0; i < numberOfVertices; i++ ) {
         PolygonVertex &vertex = pol.vertices[i];
-        const Vector4Df v = currentTransform->multiply(
-            Vector4Df(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0f));
+        const Vector4Dd v = currentTransform->multiply(
+            Vector4Dd(vertices[i].x(), vertices[i].y(), vertices[i].z(), 1.0));
         if ( v.w() > -VSDK::EPSILON && v.w() < VSDK::EPSILON ) {
             return;
         }

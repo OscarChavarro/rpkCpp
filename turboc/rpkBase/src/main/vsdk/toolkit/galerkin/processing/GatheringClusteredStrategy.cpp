@@ -17,7 +17,7 @@ Updates the potential of the element after a change of the camera, and as such
 a potential change in directly received potential
 */
 void
-GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, float potential_increment) {
+GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, double potential_increment) {
     if ( element->regularSubElements != NULL ) {
         for ( int i = 0; i < 4; i++ ) {
             GatheringClusteredStrategy::updateClusterDirectPotential(((GalerkinElement *)(element->regularSubElements[i])), potential_increment);
@@ -31,7 +31,7 @@ GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *elemen
 Recomputes the potential of the cluster and its sub-clusters based on the
 potential of the contained patches
 */
-float
+double
 GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER_MASK ) {
         cluster->potential = 0.0;
@@ -55,7 +55,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
             GalerkinElement *top = ((GalerkinElement *)(patch->radianceData));
-            float potentialIncrement = patch->directPotential - top->directPotential;
+            double potentialIncrement = patch->directPotential - top->directPotential;
             GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
         GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
@@ -76,7 +76,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     HierarchicalRefinementStrategy::refineInteractions(scene, galerkinState->topCluster, galerkinState);
 
     // TODO: This makes galerkinState non const. Check if this can be changed
-    galerkinState->relLinkErrorThreshold = ((float)(userErrorThreshold));
+    galerkinState->relLinkErrorThreshold = ((double)(userErrorThreshold));
 
     // Push received radiance down the hierarchy to the leaf elements, where
     // it is multiplied with the reflectivity and the self-emitted radiance added,
@@ -89,7 +89,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    galerkinState->ambientRadiance = ColorRgbMutable(0.0f, 0.0f, 0.0f);
+    galerkinState->ambientRadiance = ColorRgbMutable(0.0, 0.0, 0.0);
 
     // Update the display colors of the patches
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {

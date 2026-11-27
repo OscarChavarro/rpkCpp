@@ -3,9 +3,9 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/material/Texture.h"
 
-static float
+static double
 textureChannelValue(const unsigned char *textureData, int pixelIndex, int channel) {
-    return ((float)(textureData[pixelIndex + channel])) / 255.0f;
+    return ((double)(textureData[pixelIndex + channel])) / 255.0;
 }
 
 Texture::Texture():
@@ -42,7 +42,7 @@ Texture::~Texture() {
 }
 
 ColorRgb
-Texture::evaluateColor(float u, float v) const {
+Texture::evaluateColor(double u, double v) const {
     double u1 = u - Math::floor(u);
     double u0 = 1.0 - u1;
     double v1 = v - Math::floor(v);
@@ -71,7 +71,7 @@ Texture::evaluateColor(float u, float v) const {
     }
 
     if ( !data ) {
-        return ColorRgb(0.0f, 0.0f, 0.0f);
+        return ColorRgb(0.0, 0.0, 0.0);
     }
 
     const int pixelIndex00 = (j * width + i) * channels;
@@ -79,18 +79,18 @@ Texture::evaluateColor(float u, float v) const {
     const int pixelIndex10 = (j * width + i1) * channels;
     const int pixelIndex11 = (j1 * width + i1) * channels;
 
-    float r00 = 0.0f;
-    float g00 = 0.0f;
-    float b00 = 0.0f;
-    float r10 = 0.0f;
-    float g10 = 0.0f;
-    float b10 = 0.0f;
-    float r01 = 0.0f;
-    float g01 = 0.0f;
-    float b01 = 0.0f;
-    float r11 = 0.0f;
-    float g11 = 0.0f;
-    float b11 = 0.0f;
+    double r00 = 0.0;
+    double g00 = 0.0;
+    double b00 = 0.0;
+    double r10 = 0.0;
+    double g10 = 0.0;
+    double b10 = 0.0;
+    double r01 = 0.0;
+    double g01 = 0.0;
+    double b01 = 0.0;
+    double r11 = 0.0;
+    double g11 = 0.0;
+    double b11 = 0.0;
 
     switch ( channels ) {
         case 1:
@@ -119,8 +119,8 @@ Texture::evaluateColor(float u, float v) const {
             break;
     }
 
-    const float r = 0.25f * ((float)(u0 * v0 * r00 + u1 * v0 * r10 + u0 * v1 * r01 + u1 * v1 * r11));
-    const float g = 0.25f * ((float)(u0 * v0 * g00 + u1 * v0 * g10 + u0 * v1 * g01 + u1 * v1 * g11));
-    const float b = 0.25f * ((float)(u0 * v0 * b00 + u1 * v0 * b10 + u0 * v1 * b01 + u1 * v1 * b11));
+    const double r = 0.25 * ((double)(u0 * v0 * r00 + u1 * v0 * r10 + u0 * v1 * r01 + u1 * v1 * r11));
+    const double g = 0.25 * ((double)(u0 * v0 * g00 + u1 * v0 * g10 + u0 * v1 * g01 + u1 * v1 * g11));
+    const double b = 0.25 * ((double)(u0 * v0 * b00 + u1 * v0 * b10 + u0 * v1 * b01 + u1 * v1 * b11));
     return ColorRgb(r, g, b);
 }

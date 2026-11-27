@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
@@ -15,38 +15,38 @@
 #include "vsdk/toolkit/raycasting/photonMap/Photon.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMap.h"
 bool
-PhotonMap::zeroAlbedo(const PhongBidirScattDistFunc *bsdf, RayHit *hit, char flags) {
+PhotonMap::zeroAlbedo(const PhongBidirScattDistFunc *bsdf, RpkRayHit *hit, char flags) {
     ColorRgb color;
     if ( bsdf == NULL ) {
-        color = ColorRgb(0.0f, 0.0f, 0.0f);
+        color = ColorRgb(0.0, 0.0, 0.0);
     } else {
         color = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), flags);
     }
     return (ColorRgbMutable(color).average() < VSDK::EPSILON);
 }
 
-float
-PhotonMap::getFalseMonochrome(float val, const PhotonMapState &photonMapState) {
-    float max = photonMapState.falseColMax;
+double
+PhotonMap::getFalseMonochrome(double val, const PhotonMapState &photonMapState) {
+    double max = photonMapState.falseColMax;
 
     if ( photonMapState.falseColLog ) {
-        max = ((float)(Math::log(1.0 + max)));
-        val = ((float)(Math::log(1.0 + val)));
+        max = ((double)(Math::log(1.0 + max)));
+        val = ((double)(Math::log(1.0 + val)));
     }
 
-    float tmp = Math::min(val, max);
+    double tmp = Math::min(val, max);
     tmp = (tmp / max);
 
     return tmp;
 }
 
 ColorRgb
-PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
+PhotonMap::getFalseColor(double val, const PhotonMapState &photonMapState) {
     ColorRgb col;
-    float tmp;
-    float r = 0;
-    float g = 0;
-    float b = 0;
+    double tmp;
+    double r = 0;
+    double g = 0;
+    double b = 0;
 
     if ( photonMapState.falseColMono ) {
         tmp = PhotonMap::getFalseMonochrome(val, photonMapState);
@@ -54,27 +54,27 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
         return col;
     }
 
-    float max = photonMapState.falseColMax;
+    double max = photonMapState.falseColMax;
 
     if ( photonMapState.falseColLog ) {
-        max = ((float)(Math::log(1.0 + max)));
-        val = ((float)(Math::log(1.0 + val)));
+        max = ((double)(Math::log(1.0 + max)));
+        val = ((double)(Math::log(1.0 + val)));
     }
 
     tmp = Math::min(val, max);
 
     // Does some log scale ?
 
-    tmp = 3.0f * (tmp / max);
+    tmp = 3.0 * (tmp / max);
 
     if ( tmp <= 1.0 ) {
         b = tmp;
     } else if ( tmp < 2.0 ) {
-        g = tmp - 1.0f;
-        b = 1.0f - g;
+        g = tmp - 1.0;
+        b = 1.0 - g;
     } else {
-        r = tmp - 2.0f;
-        g = 1.0f - r;
+        r = tmp - 2.0;
+        g = 1.0 - r;
     }
 
     col = ColorRgb(r, g, b);
@@ -103,11 +103,11 @@ PhotonMap::PhotonMap(
     m_totalPhotons = 0;
 
     m_grid = new SampleGrid2D(2, 4);
-    m_sampleLastPos = Vector3Df(Float::MAX_VALUE, Float::MAX_VALUE, Float::MAX_VALUE);
+    m_sampleLastPos = Vector3Dd(Double::MAX_VALUE, Double::MAX_VALUE, Double::MAX_VALUE);
 
     m_photons = new Photon *[PHOTON_MAP_MAXIMUM_RECON_PHOTONS];
-    m_distances = new float[PHOTON_MAP_MAXIMUM_RECON_PHOTONS];
-    m_cosines = new float[PHOTON_MAP_MAXIMUM_RECON_PHOTONS];
+    m_distances = new double[PHOTON_MAP_MAXIMUM_RECON_PHOTONS];
+    m_cosines = new double[PHOTON_MAP_MAXIMUM_RECON_PHOTONS];
 
     m_nrpFound = 0;  // No valid photons in array
     m_cosinesOk = true;
@@ -135,12 +135,12 @@ PhotonMap::getStats(char *p, int n) const {
 }
 
 void
-PhotonMap::computeCosines(const Vector3Df normal) {
+PhotonMap::computeCosines(const Vector3Dd normal) {
     if ( !m_cosinesOk ) {
         m_nrpCosinePos = 0;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            Vector3Df dir = m_photons[i]->dir();
+            Vector3Dd dir = m_photons[i]->dir();
             m_cosines[i] = dir.dotProduct(normal);
             if ( m_cosines[i] > 0 ) {
                 m_nrpCosinePos++;
@@ -155,7 +155,7 @@ PhotonMap::computeCosines(const Vector3Df normal) {
 void
 PhotonMap::doAddPhoton(
     Photon &photon,
-    Vector3Df normal,
+    Vector3Dd normal,
     short flags)
 {
     if ( m_precomputeIrradiance ) {
@@ -172,7 +172,7 @@ PhotonMap::doAddPhoton(
 Adding photons, returns if photon was added
 */
 bool
-PhotonMap::addPhoton(Photon &photon, Vector3Df normal, short flags) {
+PhotonMap::addPhoton(Photon &photon, Vector3Dd normal, short flags) {
     drand48(); // Just to keep in sync with density controlled storage
 
     doAddPhoton(photon, normal, flags);
@@ -186,8 +186,8 @@ PhotonMap::addPhoton(Photon &photon, Vector3Df normal, short flags) {
 
 double
 PhotonMap::computeAcceptProb(
-    float currentD,
-    float requiredD,
+    double currentD,
+    double requiredD,
     const PhotonMapState &photonMapState) {
     // Step function
     if ( photonMapState.acceptPdfType == STEP ) {
@@ -217,7 +217,7 @@ PhotonMap::redistribute(const Photon &photon) const {
     // -- normal weighted average?
 
     ColorRgb deltaPower;
-    float factor = 1.0f / ((float)(m_nrpCosinePos));
+    double factor = 1.0 / ((double)(m_nrpCosinePos));
 
     ColorRgb pow = photon.power();
     deltaPower = ColorRgb(factor * pow.getR(), factor * pow.getG(), factor * pow.getB());
@@ -232,15 +232,15 @@ PhotonMap::redistribute(const Photon &photon) const {
 bool
 PhotonMap::DC_AddPhoton(
     Photon &photon,
-    RayHit &hit,
-    float requiredD,
+    RpkRayHit &hit,
+    double requiredD,
     short flags)
 {
     // Get current density
-    // Vector3Df pos = photon.Pos();
+    // Vector3Dd pos = photon.Pos();
     bool stored;
 
-    float currentD = getCurrentDensity(hit, photonMapState.distribPhotons);
+    double currentD = getCurrentDensity(hit, photonMapState.distribPhotons);
     // m_photons and m_distances is valid now !!
 
     // Compute acceptance probability
@@ -295,15 +295,15 @@ PhotonMap::GetMaxR2() {
 void
 PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
     ColorRgb irradiance;
-    irradiance = ColorRgb(0.0f, 0.0f, 0.0f);
+    irradiance = ColorRgb(0.0, 0.0, 0.0);
 
     // Locate the nearest photons using a max radius limit
-    Vector3Df pos = photon->pos();
+    Vector3Dd pos = photon->pos();
     m_nrpFound = doQuery(&pos);
 
     if ( m_nrpFound > 3 ) {
         // Construct irradiance estimate
-        float maxDistance = m_distances[0];
+        double maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
@@ -318,7 +318,7 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
         // Now we have incoming radiance integrated over area estimate,
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-        float factor = (1.0f / (((float)(M_PI)) * ((float)(M_PI)) * maxDistance * ((float)(m_totalPaths))));
+        double factor = (1.0 / (((double)(M_PI)) * ((double)(M_PI)) * maxDistance * ((double)(m_totalPaths))));
         irradiance = ColorRgb(
             factor * irradiance.getR(),
             factor * irradiance.getG(),
@@ -348,8 +348,8 @@ PhotonMap::precomputeIrradiance() {
 
 bool
 PhotonMap::irradianceReconstruct(
-    RayHit *hit,
-    const Vector3Df &/*outDir*/,
+    RpkRayHit *hit,
+    const Vector3Dd &/*outDir*/,
     const ColorRgb &diffuseAlbedo,
     ColorRgb *result)
 {
@@ -357,8 +357,8 @@ PhotonMap::irradianceReconstruct(
         precomputeIrradiance();
     }
 
-    Vector3Df normal = hit->getNormal();
-    Vector3Df position = hit->getPoint();
+    Vector3Dd normal = hit->getNormal();
+    Vector3Dd position = hit->getPoint();
     const IrrPhoton *photon = DoIrradianceQuery(&position, &normal);
     hit->setNormal(&normal);
 
@@ -376,8 +376,8 @@ PhotonMap::irradianceReconstruct(
 
 ColorRgb
 PhotonMap::reconstruct(
-    RayHit *hit,
-    Vector3Df &outDir,
+    RpkRayHit *hit,
+    Vector3Dd &outDir,
     PhongBidirScattDistFunc *bsdf,
     PhongBidirScattDistFunc *inBsdf,
     PhongBidirScattDistFunc *outBsdf)
@@ -387,13 +387,13 @@ PhotonMap::reconstruct(
     ColorRgb eval;
     ColorRgb col;
 
-    result = ColorRgb(0.0f, 0.0f, 0.0f);
+    result = ColorRgb(0.0, 0.0, 0.0);
 
     ColorRgb diffuseAlbedo;
     ColorRgb glossyAlbedo;
 
-    diffuseAlbedo = ColorRgb(0.0f, 0.0f, 0.0f);
-    glossyAlbedo = ColorRgb(0.0f, 0.0f, 0.0f);
+    diffuseAlbedo = ColorRgb(0.0, 0.0, 0.0);
+    glossyAlbedo = ColorRgb(0.0, 0.0, 0.0);
 
     if ( bsdf != NULL ) {
         diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit->shadingContext(NULL), BRDF_DIFFUSE_COMPONENT);
@@ -420,7 +420,7 @@ PhotonMap::reconstruct(
     // Normal reconstruct...
 
     // Locate nearest photons using a max radius limit
-    Vector3Df position = hit->getPoint();
+    Vector3Dd position = hit->getPoint();
     m_nrpFound = doQuery(&position);
 
     if ( m_nrpFound < 3 ) {
@@ -428,14 +428,14 @@ PhotonMap::reconstruct(
     }
 
     // Construct radiance estimate
-    float maxDistance = m_distances[0];
+    double maxDistance = m_distances[0];
     ShadingContext context = hit->shadingContext(NULL);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
-        Vector3Df dir = m_photons[i]->dir();
+        Vector3Dd dir = m_photons[i]->dir();
 
         if ( bsdf == NULL ) {
-            eval = ColorRgb(0.0f, 0.0f, 0.0f);
+            eval = ColorRgb(0.0, 0.0, 0.0);
         } else {
             eval = bsdf->evaluate(
                 context, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
@@ -455,7 +455,7 @@ PhotonMap::reconstruct(
     // Now we have a radiance integrated over area estimate,
     // so we convert it to radiance, maxDistance is already squared
 
-    float factor = 1.0f / (((float)(M_PI)) * maxDistance * ((float)(m_totalPaths)));
+    double factor = 1.0 / (((double)(M_PI)) * maxDistance * ((double)(m_totalPaths)));
 
     result = ColorRgb(
         factor * result.getR(),
@@ -465,8 +465,8 @@ PhotonMap::reconstruct(
     return result;
 }
 
-float
-PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
+double
+PhotonMap::getCurrentDensity(RpkRayHit &hit, int nrPhotons) {
     // Find the nearest photons
     if ( nrPhotons == 0 ) {
         nrPhotons = *m_estimate_nrp;
@@ -476,15 +476,15 @@ PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
         return 0.0;
     }
 
-    Vector3Df position = hit.getPoint();
-    m_nrpFound = doQuery(&position, nrPhotons, ((float)(GetMaxR2())));
+    Vector3Dd position = hit.getPoint();
+    m_nrpFound = doQuery(&position, nrPhotons, ((double)(GetMaxR2())));
 
     if ( m_nrpFound < 3 ) {
         return 0.0;
     }
 
     // Construct density estimate
-    float maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
+    double maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
 
     computeCosines(hit.getGeometricNormal()); // Shading normal?
 
@@ -492,15 +492,15 @@ PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
         return 0.0;
     }
 
-    return ((float)(m_nrpCosinePos / (M_PI * maxDistance)));
+    return ((double)(m_nrpCosinePos / (M_PI * maxDistance)));
 }
 
 /**
 Return a color coded density of the photon map
 */
 ColorRgb
-PhotonMap::getDensityColor(RayHit &hit) {
-    float density = getCurrentDensity(hit, 0);
+PhotonMap::getDensityColor(RpkRayHit &hit) {
+    double density = getCurrentDensity(hit, 0);
 
     ColorRgb result = PhotonMap::getFalseColor(density, photonMapState);
 
@@ -509,15 +509,15 @@ PhotonMap::getDensityColor(RayHit &hit) {
 
 double
 PhotonMap::sample(
-    Vector3Df position,
+    Vector3Dd position,
     double *r,
     double *s,
     const CoordinateSystem *coord,
     char flag,
-    float n)
+    double n)
 {
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !Numeric::vectorsEqual(m_sampleLastPos, position, 0.0001f) ) {
+    if ( !Numeric::vectorsEqual(m_sampleLastPos, position, 0.0001) ) {
         // Need a new grid
 
         m_grid->init();
@@ -535,7 +535,7 @@ PhotonMap::sample(
 
             ColorRgb color = m_photons[i]->power();
 
-            m_grid->add(pr, ps, ColorRgbMutable(color).average() / ((float)(m_nrPhotons)));
+            m_grid->add(pr, ps, ColorRgbMutable(color).average() / ((double)(m_nrPhotons)));
         }
 
         m_grid->EnsureNonZeroEntries();

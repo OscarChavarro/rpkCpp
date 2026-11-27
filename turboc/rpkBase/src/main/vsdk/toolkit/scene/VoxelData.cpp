@@ -9,7 +9,7 @@ VoxelData::VoxelData(Patch *data, const unsigned flags, const int inIndex):
 {
 }
 
-VoxelData::VoxelData(Geometry *data, const unsigned flags, const int inIndex):
+VoxelData::VoxelData(RpkGeometry *data, const unsigned flags, const int inIndex):
     patch(NULL),
     geometry(data),
     voxelGrid(NULL),

@@ -1,7 +1,6 @@
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/tonemap/LightnessToneMap.h"
 
@@ -12,7 +11,7 @@ LightnessToneMap::~LightnessToneMap() {
 }
 
 void
-LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
+LightnessToneMap::initParameters(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
 ColorRgb
@@ -23,14 +22,14 @@ LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float max = Math::max(Math::max(radiance.getR(), radiance.getG()), radiance.getB());
+    double max = Math::max(Math::max(radiance.getR(), radiance.getG()), radiance.getB());
     if ( max < 1e-32 ) {
         return radiance;
     }
 
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
-    float scaleFactor = lightness(Cie::WHITE_EFFICACY * max);
+    double scaleFactor = lightness(getColorSpace().getLuminousEfficacy() * max);
     if ( scaleFactor == 0.0 ) {
         return radiance;
     }
@@ -42,16 +41,16 @@ LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
     return radiance;
 }
 
-float
-LightnessToneMap::lightness(float luminance) {
+double
+LightnessToneMap::lightness(double luminance) {
     if ( Statistics::instance().radiance.referenceLuminance == 0.0 ) {
-        return 0.0f;
+        return 0.0;
     }
 
-    float relativeLuminance = luminance / ((float)(Statistics::instance().radiance.referenceLuminance));
+    double relativeLuminance = luminance / ((double)(Statistics::instance().radiance.referenceLuminance));
     if ( relativeLuminance > 0.008856 ) {
-        return 1.16f * Math::pow(relativeLuminance, 0.33f) - 0.16f;
+        return 1.16 * Math::pow(relativeLuminance, 0.33) - 0.16;
     } else {
-        return 9.033f * relativeLuminance;
+        return 9.033 * relativeLuminance;
     }
 }

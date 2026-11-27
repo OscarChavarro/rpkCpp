@@ -2,35 +2,35 @@
 #define __MATRIX_2_X_2__
 
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Vector2Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector2Dd.h"
 
 /**
-Single precision affine transform of the plane: a 2x2 block M and a
+Double precision affine transform of the plane: a 2x2 block M and a
 translation t, so that p' = M p + t:
 
 |x'|   |m00  m01|   | x |   |t0|
 |  | = |        | * |   | + |  |
 |y'|   |m10  m11|   | y |   |t1|
 
-Immutable; every operation computes in float
+Immutable; every operation computes in double
 */
 class Matrix2x2 {
-    float m_[2][2];
-    float t_[2];
+    double m_[2][2];
+    double t_[2];
 
   public:
     /**
     The identity: M = I, t = 0
     */
     Matrix2x2() {
-        m_[0][0] = 1.0f;
-        m_[0][1] = 0.0f;
-        m_[1][0] = 0.0f;
-        m_[1][1] = 1.0f;
-        t_[0] = 0.0f;
-        t_[1] = 0.0f;
+        m_[0][0] = 1.0;
+        m_[0][1] = 0.0;
+        m_[1][0] = 0.0;
+        m_[1][1] = 1.0;
+        t_[0] = 0.0;
+        t_[1] = 0.0;
     }
-    Matrix2x2(float m00, float m01, float m10, float m11, float t0, float t1) {
+    Matrix2x2(double m00, double m01, double m10, double m11, double t0, double t1) {
         m_[0][0] = m00;
         m_[0][1] = m01;
         m_[1][0] = m10;
@@ -56,16 +56,16 @@ class Matrix2x2 {
         return *this;
     }
 
-    float get(int row, int col) const { return m_[row][col]; }
-    float getTranslation(int row) const { return t_[row]; }
+    double get(int row, int col) const { return m_[row][col]; }
+    double getTranslation(int row) const { return t_[row]; }
 
     /**
     M p + t
     */
-    Vector2Df transformPoint(const Vector2Df& p) const {
-        return Vector2Df(
-            m_[0][0] * p.x() + m_[0][1] * p.y() + t_[0],
-            m_[1][0] * p.x() + m_[1][1] * p.y() + t_[1]);
+    Vector2Dd transformPoint(const Vector2Dd& p) const {
+        return Vector2Dd(
+            m_[0][0] * p.x + m_[0][1] * p.y + t_[0],
+            m_[1][0] * p.x + m_[1][1] * p.y + t_[1]);
     }
 
     /**

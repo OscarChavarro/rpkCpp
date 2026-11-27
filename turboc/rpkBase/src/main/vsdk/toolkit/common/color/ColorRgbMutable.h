@@ -6,14 +6,14 @@
 
 class ColorRgbMutable {
   private:
-    float r;
-    float g;
-    float b;
+    double r;
+    double g;
+    double b;
 
   public:
     ColorRgbMutable();
-    ColorRgbMutable(float inR, float inG, float inB);
-    ColorRgbMutable(const ColorRgb &c): r((float)c.getR()), g((float)c.getG()), b((float)c.getB()) {}
+    ColorRgbMutable(double inR, double inG, double inB);
+    ColorRgbMutable(const ColorRgb &c): r((double)c.getR()), g((double)c.getG()), b((double)c.getB()) {}
 
     // C++98 has no explicit conversion operators; the cpp port's
     // `explicit operator ColorRgb()` is implicit here
@@ -21,31 +21,31 @@ class ColorRgbMutable {
         return ColorRgb(r, g, b);
     }
 
-    inline float getR() const { return r; }
-    inline float getG() const { return g; }
-    inline float getB() const { return b; }
+    inline double getR() const { return r; }
+    inline double getG() const { return g; }
+    inline double getB() const { return b; }
 
     void clear();
     bool isBlack() const;
-    void scaledCopy(float a, ColorRgbMutable c);
-    void scale(float a);
+    void scaledCopy(double a, ColorRgbMutable c);
+    void scale(double a);
     void scalarProduct(ColorRgbMutable s, ColorRgbMutable t);
     void selfScalarProduct(ColorRgbMutable s);
-    void scalarProductScaled(ColorRgbMutable s, float a, ColorRgbMutable t);
+    void scalarProductScaled(ColorRgbMutable s, double a, ColorRgbMutable t);
     void add(ColorRgbMutable s, ColorRgbMutable t);
-    void addScaled(ColorRgbMutable s, float a, ColorRgbMutable t);
-    void addConstant(ColorRgbMutable s, float a);
+    void addScaled(ColorRgbMutable s, double a, ColorRgbMutable t);
+    void addConstant(ColorRgbMutable s, double a);
     void subtract(ColorRgbMutable s, ColorRgbMutable t);
     void divide(ColorRgbMutable s, ColorRgbMutable t);
-    void scaleInverse(float scale, ColorRgbMutable s);
-    float maximumComponent() const;
-    float sumAbsComponents() const;
+    void scaleInverse(double scale, ColorRgbMutable s);
+    double maximumComponent() const;
+    double sumAbsComponents() const;
     void abs();
     void maximum(ColorRgbMutable s, ColorRgbMutable t);
     void minimum(ColorRgbMutable s, ColorRgbMutable t);
-    float average() const;
-    void interpolateBarycentric(ColorRgbMutable c0, ColorRgbMutable c1, ColorRgbMutable c2, float u, float v);
-    void interpolateBiLinear(ColorRgbMutable c0, ColorRgbMutable c1, ColorRgbMutable c2, ColorRgbMutable c3, float u, float v);
+    double average() const;
+    void interpolateBarycentric(ColorRgbMutable c0, ColorRgbMutable c1, ColorRgbMutable c2, double u, double v);
+    void interpolateBiLinear(ColorRgbMutable c0, ColorRgbMutable c1, ColorRgbMutable c2, ColorRgbMutable c3, double u, double v);
     void clip();
     void print(PrintStream *stream) const;
 
@@ -61,7 +61,7 @@ inline ColorRgbMutable::ColorRgbMutable() {
 }
 
 inline void
-ColorRgbMutable::addScaled(const ColorRgbMutable s, const float a, const ColorRgbMutable t) {
+ColorRgbMutable::addScaled(const ColorRgbMutable s, const double a, const ColorRgbMutable t) {
     r = s.r + a * t.r;
     g = s.g + a * t.g;
     b = s.b + a * t.b;
@@ -75,13 +75,13 @@ ColorRgbMutable::clear() {
 }
 
 inline void
-ColorRgbMutable::scale(const float a) {
+ColorRgbMutable::scale(const double a) {
     r *= a;
     g *= a;
     b *= a;
 }
 
-inline float
+inline double
 ColorRgbMutable::maximumComponent() const {
     if ( r > g ) {
         return r > b ? r : b;
@@ -91,7 +91,7 @@ ColorRgbMutable::maximumComponent() const {
 }
 
 inline void
-ColorRgbMutable::scaledCopy(const float a, const ColorRgbMutable c) {
+ColorRgbMutable::scaledCopy(const double a, const ColorRgbMutable c) {
     r = a * c.r;
     g = a * c.g;
     b = a * c.b;
@@ -99,13 +99,13 @@ ColorRgbMutable::scaledCopy(const float a, const ColorRgbMutable c) {
 
 inline void
 ColorRgbMutable::divide(const ColorRgbMutable s, const ColorRgbMutable t) {
-    r = (t.r != 0.0f) ? s.r / t.r : s.r;
-    g = (t.g != 0.0f) ? s.g / t.g : s.g;
-    b = (t.b != 0.0f) ? s.b / t.b : s.b;
+    r = (t.r != 0.0) ? s.r / t.r : s.r;
+    g = (t.g != 0.0) ? s.g / t.g : s.g;
+    b = (t.b != 0.0) ? s.b / t.b : s.b;
 }
 
 inline void
-ColorRgbMutable::scalarProductScaled(const ColorRgbMutable s, const float a, const ColorRgbMutable t) {
+ColorRgbMutable::scalarProductScaled(const ColorRgbMutable s, const double a, const ColorRgbMutable t) {
     r = s.r * a * t.r;
     g = s.g * a * t.g;
     b = s.b * a * t.b;

@@ -6,11 +6,11 @@
 #include "vsdk/toolkit/render/sgl/SglContext.h"
 
 class ScratchRendererVisitor: public ClusterLeafVisitor{ private:
-    Vector3Df eyePoint;
+    Vector3Dd eyePoint;
     SglContext *sglContext;
 
   public:
-    ScratchRendererVisitor(Vector3Df inEyePoint, SglContext *inSglContext);
+    ScratchRendererVisitor(Vector3Dd inEyePoint, SglContext *inSglContext);
     ~ScratchRendererVisitor();
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState);
 };

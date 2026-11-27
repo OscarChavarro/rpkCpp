@@ -16,7 +16,7 @@ class Element {
     ColorRgbMutable *radiance; // Total radiance on the element as computed so far
     ColorRgbMutable *receivedRadiance; // Radiance received during iteration
     ColorRgbMutable *unShotRadiance; // For progressive refinement radiosity
-    float area; // Area of all surfaces contained in the element
+    double area; // Area of all surfaces contained in the element
     ElementTypes className;
     unsigned char flags;
 

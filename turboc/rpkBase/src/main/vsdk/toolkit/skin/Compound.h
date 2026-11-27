@@ -2,16 +2,16 @@
 #define __COMPOUND__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 
-class Compound: public Geometry{ public:
-    ArrayList<Geometry *> *children;
+class Compound: public RpkGeometry{ public:
+    ArrayList<RpkGeometry *> *children;
 
-    explicit Compound(ArrayList<Geometry *> *geometryList);
+    explicit Compound(ArrayList<RpkGeometry *> *geometryList);
     ~Compound();
 
-    RayHit *
-    discretizationIntersect( RpkRay *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore, const RayExclusionSet &exclusions) const;
+    RpkRayHit *
+    discretizationIntersect( Ray *ray, double minimumDistance, double *maximumDistance, int hitFlags, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
 };
 
 #endif

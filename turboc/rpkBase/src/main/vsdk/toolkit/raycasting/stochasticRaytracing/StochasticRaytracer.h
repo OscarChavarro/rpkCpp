@@ -16,7 +16,7 @@
 class StochasticRaytracerCallbackData;
 
 class StochasticRaytracer: public RayTracer{ private:
-    #define PHOTON_MAP_MIN_DIST ((float)0.02)
+    #define PHOTON_MAP_MIN_DIST ((double)0.02)
     #define PHOTON_MAP_MIN_DIST2 PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST
     static char name[];
     LightList *&lightList;

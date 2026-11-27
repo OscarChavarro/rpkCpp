@@ -20,8 +20,8 @@ class BiPath {
 
     double m_pdfLNE; // pdf for sampling the light point separately
 
-    Vector3Df m_dirEL;
-    Vector3Df m_dirLE;  // connection dir's
+    Vector3Dd m_dirEL;
+    Vector3Dd m_dirLE;  // connection dir's
 
     double m_geomConnect;
 
@@ -39,11 +39,11 @@ class BiPath {
 
     // Evaluate weight/pdf for a bipath, taking into account other pdf's
     // depending on the config (baseConfig).
-    float
+    double
     evalPdfAndWeight(
         const BidirPathRaytrcCnfg *baseConfig,
-        float *pPdf = NULL,
-        float *pWeight = NULL) const;
+        double *pPdf = NULL,
+        double *pWeight = NULL) const;
 };
 
 #endif

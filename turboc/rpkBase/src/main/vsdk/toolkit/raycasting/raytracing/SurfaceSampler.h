@@ -1,5 +1,5 @@
-#ifndef __C_SURFACE_SAMPLER__
-#define __C_SURFACE_SAMPLER__
+#ifndef __SURFACE_SAMPLER__
+#define __SURFACE_SAMPLER__
 
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"
 
@@ -14,7 +14,7 @@ class SurfaceSampler : public Sampler {
     bool m_computeFromNextPdf;
     bool m_computeBsdfComponents;
 
-    static void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, const Vector3Df *dir);
+    static void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, const Vector3Dd *dir);
 
   public:
     SurfaceSampler() {
@@ -30,24 +30,24 @@ class SurfaceSampler : public Sampler {
     inline ColorRgb
     DoBsdfEval(
         const PhongBidirScattDistFunc *bsdf,
-        RayHit *hit,
+        RpkRayHit *hit,
         const PhongBidirScattDistFunc *inBsdf,
         const PhongBidirScattDistFunc *outBsdf,
-        const Vector3Df *in,
-        const Vector3Df *out,
+        const Vector3Dd *in,
+        const Vector3Dd *out,
         char flags,
         BsdfComp *bsdfComp) const
     {
         if ( m_computeBsdfComponents ) {
             if ( bsdf == NULL ) {
-                return ColorRgb(0.0f, 0.0f, 0.0f);
+                return ColorRgb(0.0, 0.0, 0.0);
             } else {
                 return bsdf->bsdfEvalComponents(hit->shadingContext(NULL), inBsdf, outBsdf, in, out, flags, *bsdfComp);
             }
         } else {
             bsdfComp->Clear();
             if ( bsdf == NULL ) {
-                return ColorRgb(0.0f, 0.0f, 0.0f);
+                return ColorRgb(0.0, 0.0, 0.0);
             } else {
                 return bsdf->evaluate(hit->shadingContext(NULL), inBsdf, outBsdf, in, out, flags);
             }

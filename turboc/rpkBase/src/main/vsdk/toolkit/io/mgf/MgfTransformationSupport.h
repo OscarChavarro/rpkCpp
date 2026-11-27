@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_TRANSFORM__
-#define __MGF_HANDLER_TRANSFORM__
+#ifndef __MGF_TRANSFORMATION_SUPPORT__
+#define __MGF_TRANSFORMATION_SUPPORT__
 
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"

@@ -13,22 +13,22 @@ class ConstantColorBackground : public Background {
     explicit ConstantColorBackground(const ColorRgbMutable &backgroundColor);
 
     ColorRgbMutable
-    radiance(Vector3Df *position, Vector3Df *direction, float *probabilityDensityFunction) const;
+    radiance(Vector3Dd *position, Vector3Dd *direction, double *probabilityDensityFunction) const;
 
-    Vector3Df
+    Vector3Dd
     sample(
-        Vector3Df *position,
-        float xi1,
-        float xi2,
+        Vector3Dd *position,
+        double xi1,
+        double xi2,
         ColorRgbMutable *radiance,
-        float *probabilityDensityFunction) const;
+        double *probabilityDensityFunction) const;
 
     ColorRgbMutable
-    power(Vector3Df *position) const;
+    power(Vector3Dd *position) const;
 
   private:
-    static const float FOUR_PI;
-    static const float INV_FOUR_PI;
+    static const double FOUR_PI;
+    static const double INV_FOUR_PI;
 
     ColorRgbMutable color;
 };

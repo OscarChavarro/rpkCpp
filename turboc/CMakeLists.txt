@@ -11,7 +11,6 @@ endif()
 option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
 option(MGF_ENABLED "Enable MGF reader modules" ON)
 option(FORCE_32BIT_UNIX_APPLE "Build 32-bit binaries on Linux/macOS (-m32)" ON)
-option(WITH_RAY_CAPTURE "Count visibility queries by path and write the ray corpus (step 1 capture build)" OFF)
 
 get_filename_component(RPK_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR} REALPATH)
 set(RPK_VITRAL_BINARY_DIR "${RPK_ROOT_DIR}/base/build" CACHE PATH "Binary directory for the vitral-turboc library build (base/, the VITRAL copy)")

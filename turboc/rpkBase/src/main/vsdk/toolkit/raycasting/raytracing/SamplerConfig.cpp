@@ -175,7 +175,7 @@ SamplerConfig::pathNodeConnect(
     CONNECT_FLAGS flags,
     char bsdfFlagsE,
     char bsdfFlagsL,
-    Vector3Df *pDirEl)
+    Vector3Dd *pDirEl)
 {
     SimpleRaytracingPathNode *nodeEP; // previous nodes
     SimpleRaytracingPathNode *nodeLP;
@@ -184,13 +184,13 @@ SamplerConfig::pathNodeConnect(
     double dist2;
     double dist;
     double geom;
-    Vector3Df dirLE;
-    Vector3Df dirEL;
+    Vector3Dd dirLE;
+    Vector3Dd dirEL;
 
     dirEL = (nodeY->m_hit.getPoint()).subtract(nodeX->m_hit.getPoint());
     dist2 = dirEL.lengthSquared();
     dist = Math::sqrt(dist2);
-    dirEL = dirEL.multiplyByInverse(((float)(dist)), Numeric::EPSILON_FLOAT);
+    dirEL = dirEL.multiplyByInverse(((double)(dist)), Numeric::EPSILON);
     dirLE = dirEL.multiply(-1);
 
     if ( pDirEl ) {
@@ -282,7 +282,7 @@ SamplerConfig::pathNodeConnect(
     // bsdf(EP->E->L)
     if ( nodeEP == NULL ) {
         // Eye
-        nodeX->m_bsdfEval = ColorRgb(1.0f, 1.0f, 1.0f);
+        nodeX->m_bsdfEval = ColorRgb(1.0, 1.0, 1.0);
         nodeX->m_bsdfComp.Clear();
         nodeX->m_bsdfComp.Fill(nodeX->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
@@ -301,7 +301,7 @@ SamplerConfig::pathNodeConnect(
     if ( nodeLP == NULL ) {
         // nodeL is  light source
         if ( nodeY->m_hit.getMaterial()->getEdf() == NULL ) {
-            nodeY->m_bsdfEval = ColorRgb(0.0f, 0.0f, 0.0f);
+            nodeY->m_bsdfEval = ColorRgb(0.0, 0.0, 0.0);
         } else {
             ShadingContext context = nodeY->m_hit.shadingContext(NULL);
             nodeY->m_bsdfEval = nodeY->m_hit.getMaterial()->getEdf()->phongEdfEval(

@@ -101,13 +101,13 @@ OptionsGroupCore::commandLineCreateBackground() {
 }
 
 bool
-OptionsGroupCore::commandLineParseFloat(const char *text, float *value) {
+OptionsGroupCore::commandLineParseFloat(const char *text, double *value) {
     if ( text == NULL || value == NULL ) {
         return false;
     }
 
     char *endPointer = NULL;
-    const float parsedValue = strtof(text, &endPointer);
+    const double parsedValue = strtod(text, &endPointer);
     if ( endPointer == text || *endPointer != '\0' ) {
         return false;
     }
@@ -118,16 +118,16 @@ OptionsGroupCore::commandLineParseFloat(const char *text, float *value) {
 
 bool
 OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
-    float red = 0.0f;
-    float green = 0.0f;
-    float blue = 0.0f;
+    double red = 0.0;
+    double green = 0.0;
+    double blue = 0.0;
     if ( !OptionsGroupCore::commandLineParseFloat(rArg, &red)
          || !OptionsGroupCore::commandLineParseFloat(gArg, &green)
          || !OptionsGroupCore::commandLineParseFloat(bArg, &blue) ) {
         return false;
     }
 
-    if ( red < 0.0f || red > 1.0f || green < 0.0f || green > 1.0f || blue < 0.0f || blue > 1.0f ) {
+    if ( red < 0.0 || red > 1.0 || green < 0.0 || green > 1.0 || blue < 0.0 || blue > 1.0 ) {
         return false;
     }
 

@@ -1,35 +1,35 @@
 #ifndef __MIN_MAX_BOX__
 #define __MIN_MAX_BOX__
 
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
-#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
+#include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 
 class MinMaxBox {
   private:
-    BoundingBox boundingBox;
+    RpkAxisAlignedBoundingBox boundingBox;
     static inline bool
     clipAxisSlab(
-        float minimumBound,
-        float maximumBound,
-        float origin,
-        float direction,
-        float toleranceScale,
-        float *nearDistance,
-        float *farDistance);
+        double minimumBound,
+        double maximumBound,
+        double origin,
+        double direction,
+        double toleranceScale,
+        double *nearDistance,
+        double *farDistance);
 
   public:
-    inline explicit MinMaxBox(const BoundingBox *sourceBoundingBox);
+    inline explicit MinMaxBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox);
     inline ~MinMaxBox();
 
     inline MinMaxBox(const MinMaxBox &);
     inline MinMaxBox &operator=(const MinMaxBox &);
 
-    void updateFromBoundingBox(const BoundingBox *sourceBoundingBox);
-    inline bool intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const;
-    inline bool intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const;
+    void updateFromBoundingBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox);
+    inline bool intersect(const Ray *ray, double minimumDistance, double *maximumDistance) const;
+    inline bool intersectingSegment(const Ray *ray, double *tMin, double *tMax) const;
 };
 
-MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
+MinMaxBox::MinMaxBox(const RpkAxisAlignedBoundingBox *sourceBoundingBox):
         boundingBox()
 {
     if ( sourceBoundingBox != NULL ) {
@@ -42,22 +42,22 @@ MinMaxBox::~MinMaxBox() {
 
 inline bool
 MinMaxBox::clipAxisSlab(
-    float minimumBound,
-    float maximumBound,
-    float origin,
-    float direction,
-    float toleranceScale,
-    float *nearDistance,
-    float *farDistance) {
-    if ( direction == 0.0f ) {
+    double minimumBound,
+    double maximumBound,
+    double origin,
+    double direction,
+    double toleranceScale,
+    double *nearDistance,
+    double *farDistance) {
+    if ( direction == 0.0 ) {
         return !(origin < minimumBound || origin > maximumBound);
     }
 
-    const float invDirection = 1.0f / direction;
-    float entryDistance = (minimumBound - origin) * invDirection;
-    float exitDistance = (maximumBound - origin) * invDirection;
+    const double invDirection = 1.0 / direction;
+    double entryDistance = (minimumBound - origin) * invDirection;
+    double exitDistance = (maximumBound - origin) * invDirection;
     if ( entryDistance > exitDistance ) {
-        const float swapValue = entryDistance;
+        const double swapValue = entryDistance;
         entryDistance = exitDistance;
         exitDistance = swapValue;
     }
@@ -75,35 +75,35 @@ MinMaxBox::clipAxisSlab(
 }
 
 inline bool
-MinMaxBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) const {
+MinMaxBox::intersectingSegment(const Ray *ray, double *tMin, double *tMax) const {
     if ( ray == NULL || tMin == NULL || tMax == NULL ) {
         return false;
     }
 
-    const float minimumDistance = *tMin;
-    const float maximumDistance = *tMax;
-    const float *box = boundingBox.rawCoordinates();
-    float nearDistance = minimumDistance;
-    float farDistance = maximumDistance;
-    const float toleranceScale = 1.0f + Numeric::EPSILON_FLOAT;
+    const double minimumDistance = *tMin;
+    const double maximumDistance = *tMax;
+    const double *box = boundingBox.rawCoordinates();
+    double nearDistance = minimumDistance;
+    double farDistance = maximumDistance;
+    const double toleranceScale = 1.0 + Numeric::EPSILON;
 
     if ( !clipAxisSlab(
             box[MIN_X], box[MAX_X],
-            ray->position.x(), ray->direction.x(),
+            ray->getOrigin().x(), ray->getDirection().x(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
     }
     if ( !clipAxisSlab(
             box[MIN_Y], box[MAX_Y],
-            ray->position.y(), ray->direction.y(),
+            ray->getOrigin().y(), ray->getDirection().y(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
     }
     if ( !clipAxisSlab(
             box[MIN_Z], box[MAX_Z],
-            ray->position.z(), ray->direction.z(),
+            ray->getOrigin().z(), ray->getDirection().z(),
             toleranceScale,
             &nearDistance, &farDistance) ) {
         return false;
@@ -125,13 +125,13 @@ MinMaxBox::intersectingSegment(const RpkRay *ray, float *tMin, float *tMax) cons
 }
 
 inline bool
-MinMaxBox::intersect(const RpkRay *ray, float minimumDistance, float *maximumDistance) const {
+MinMaxBox::intersect(const Ray *ray, double minimumDistance, double *maximumDistance) const {
     if ( maximumDistance == NULL ) {
         return false;
     }
 
-    float tMin = minimumDistance;
-    float tMax = *maximumDistance;
+    double tMin = minimumDistance;
+    double tMax = *maximumDistance;
     const bool hit = intersectingSegment(ray, &tMin, &tMax);
     if ( hit ) {
         if ( tMin == minimumDistance ) {

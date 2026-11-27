@@ -51,7 +51,7 @@ PhongBidirReflDistFunc::PhongBidirReflDistFunc(
     avgKd = ColorRgbMutable(Kd).average();
     Ks = *inKs;
     avgKs = ColorRgbMutable(Ks).average();
-    Ns = ((float)(inNs));
+    Ns = ((double)(inNs));
 }
 
 PhongBidirReflDistFunc::~PhongBidirReflDistFunc() {
@@ -62,9 +62,9 @@ Returns the diffuse reflectance of the BRDF according to the flags
 */
 ColorRgb
 PhongBidirReflDistFunc::reflectance(const char flags) const {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( flags & DIFFUSE_COMPONENT ) {
         r += Kd.getR();
@@ -94,22 +94,22 @@ Brdf evaluations
 */
 ColorRgb
 PhongBidirReflDistFunc::evaluate(
-    const Vector3Df *in,
-    const Vector3Df *out,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
+    const Vector3Dd *normal,
     char flags) const
 {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
     char nonDiffuseFlag;
-    Vector3Df inRev;
+    Vector3Dd inRev;
     inRev = (*in).multiply(-1.0);
 
     // kd + ks (idealReflected * out)^n
     if ( out->dotProduct(*normal) < 0 ) {
         // Refracted ray
-        return ColorRgb(0.0f, 0.0f, 0.0f);
+        return ColorRgb(0.0, 0.0, 0.0);
     }
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0.0) ) {
@@ -125,12 +125,12 @@ PhongBidirReflDistFunc::evaluate(
     }
 
     if ( (flags & nonDiffuseFlag) && (avgKs > 0.0) ) {
-        Vector3Df idealReflected = Xxdf::idealReflectedDirection(&inRev, normal);
-        float localDotProduct = idealReflected.dotProduct(*out);
+        Vector3Dd idealReflected = Xxdf::idealReflectedDirection(&inRev, normal);
+        double localDotProduct = idealReflected.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
-            float tmpFloat = Math::pow(localDotProduct, Ns); // cos(a) ^ n
-            tmpFloat *= (Ns + 2.0f) / (2.0f * ((float)(M_PI))); // Ks -> ks
+            double tmpFloat = Math::pow(localDotProduct, Ns); // cos(a) ^ n
+            tmpFloat *= (Ns + 2.0) / (2.0 * ((double)(M_PI))); // Ks -> ks
             r += tmpFloat * Ks.getR();
             g += tmpFloat * Ks.getG();
             b += tmpFloat * Ks.getB();
@@ -143,17 +143,17 @@ PhongBidirReflDistFunc::evaluate(
 /**
 Brdf sampling
 */
-Vector3Df
+Vector3Dd
 PhongBidirReflDistFunc::sample(
-    const Vector3Df *in,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *normal,
     const int doRussianRoulette,
     const char flags,
     double x1,
     const double x2,
     double *probabilityDensityFunction) const
 {
-    Vector3Df inRev;
+    Vector3Dd inRev;
     inRev = (*in).multiply(-1.0);
 
     *probabilityDensityFunction = 0;
@@ -183,7 +183,7 @@ PhongBidirReflDistFunc::sample(
     }
 
     double scatteredPower = localAverageKd + localAverageKs;
-    Vector3Df newDir(0.0, 0.0, 0.0);
+    Vector3Dd newDir(0.0, 0.0, 0.0);
 
     if ( scatteredPower < VSDK::EPSILON ) {
         return newDir;
@@ -200,7 +200,7 @@ PhongBidirReflDistFunc::sample(
         x1 /= scatteredPower;
     }
 
-    Vector3Df idealDir = Xxdf::idealReflectedDirection(&inRev, normal);
+    Vector3Dd idealDir = Xxdf::idealReflectedDirection(&inRev, normal);
     CoordinateSystem coord;
     double diffPdf;
     double nonDiffPdf;
@@ -213,7 +213,7 @@ PhongBidirReflDistFunc::sample(
         coord.setFromZAxis(normal);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
-        float tmpFloat = idealDir.dotProduct(newDir);
+        double tmpFloat = idealDir.dotProduct(newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (Ns + 1.0) * Math::pow(tmpFloat, Ns) / (2.0 * M_PI);
@@ -248,9 +248,9 @@ PhongBidirReflDistFunc::sample(
 
 void
 PhongBidirReflDistFunc::evalProbDensFunc(
-    const Vector3Df *in,
-    const Vector3Df *out,
-    const Vector3Df *normal,
+    const Vector3Dd *in,
+    const Vector3Dd *out,
+    const Vector3Dd *normal,
     char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
@@ -258,8 +258,8 @@ PhongBidirReflDistFunc::evalProbDensFunc(
     double localAverageKs;
     double localAverageKd;
     char nonDiffuseFlag;
-    Vector3Df inRev;
-    Vector3Df goodNormal;
+    Vector3Dd inRev;
+    Vector3Dd goodNormal;
 
     inRev = (*in).multiply(-1.0);
 
@@ -314,7 +314,7 @@ PhongBidirReflDistFunc::evalProbDensFunc(
     // Glossy or specular
     double nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
-        const Vector3Df idealDir = Xxdf::idealReflectedDirection(&inRev, &goodNormal);
+        const Vector3Dd idealDir = Xxdf::idealReflectedDirection(&inRev, &goodNormal);
 
         const double cosAlpha = idealDir.dotProduct(*out);
 

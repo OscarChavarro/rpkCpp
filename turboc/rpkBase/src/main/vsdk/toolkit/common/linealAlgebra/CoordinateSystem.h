@@ -14,55 +14,55 @@ triangle area inversion and are not directly implemented here.
 #ifndef __COORDINATE_SYSTEM__
 #define __COORDINATE_SYSTEM__
 
-#include "vsdk/toolkit/common/linealAlgebra/Vector3Df.h"
+#include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 
 class CoordinateSystem {
   private:
-    Vector3Df X;
-    Vector3Df Y;
-    Vector3Df Z;
+    Vector3Dd X;
+    Vector3Dd Y;
+    Vector3Dd Z;
 
   public:
-    const Vector3Df &getX() const;
-    const Vector3Df &getY() const;
-    const Vector3Df &getZ() const;
-    void setX(const Vector3Df &inX);
-    void setY(const Vector3Df &inY);
-    void setZ(const Vector3Df &inZ);
+    const Vector3Dd &getX() const;
+    const Vector3Dd &getY() const;
+    const Vector3Dd &getZ() const;
+    void setX(const Vector3Dd &inX);
+    void setY(const Vector3Dd &inY);
+    void setZ(const Vector3Dd &inZ);
 
-    void setFromZAxis(const Vector3Df *inZ);
-    void rectangularToSphericalCoord(const Vector3Df *C, double *phi, double *theta) const;
-    Vector3Df sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const;
-    Vector3Df sampleHemisphereCosNTheta(double n, double xi1, double xi2, double *probabilityDensityFunction) const;
+    void setFromZAxis(const Vector3Dd *inZ);
+    void rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta) const;
+    Vector3Dd sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const;
+    Vector3Dd sampleHemisphereCosNTheta(double n, double xi1, double xi2, double *probabilityDensityFunction) const;
 };
 
-inline const Vector3Df &
+inline const Vector3Dd &
 CoordinateSystem::getX() const {
     return X;
 }
 
-inline const Vector3Df &
+inline const Vector3Dd &
 CoordinateSystem::getY() const {
     return Y;
 }
 
-inline const Vector3Df &
+inline const Vector3Dd &
 CoordinateSystem::getZ() const {
     return Z;
 }
 
 inline void
-CoordinateSystem::setX(const Vector3Df &inX) {
+CoordinateSystem::setX(const Vector3Dd &inX) {
     X = inX;
 }
 
 inline void
-CoordinateSystem::setY(const Vector3Df &inY) {
+CoordinateSystem::setY(const Vector3Dd &inY) {
     Y = inY;
 }
 
 inline void
-CoordinateSystem::setZ(const Vector3Df &inZ) {
+CoordinateSystem::setZ(const Vector3Dd &inZ) {
     Z = inZ;
 }
 

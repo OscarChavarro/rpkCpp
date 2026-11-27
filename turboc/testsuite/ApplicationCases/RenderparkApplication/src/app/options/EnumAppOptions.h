@@ -1,5 +1,5 @@
-#ifndef __APP_OPTIONS_CONTEXT__
-#define __APP_OPTIONS_CONTEXT__
+#ifndef __ENUM_APP_OPTIONS__
+#define __ENUM_APP_OPTIONS__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

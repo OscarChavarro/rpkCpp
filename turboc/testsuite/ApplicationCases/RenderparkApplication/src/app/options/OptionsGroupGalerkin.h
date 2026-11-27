@@ -1,7 +1,7 @@
 
 #include "vsdk/toolkit/common/VSDK.h"
-#ifndef CMMND_LINE_GLRKN_OPTNS_GRP
-#define CMMND_LINE_GLRKN_OPTNS_GRP
+#ifndef __OPTIONS_GROUP_GALERKIN__
+#define __OPTIONS_GROUP_GALERKIN__
 
 class OptionsGroupGalerkin{ public:
     static void galerkinParseOptions(int *argc, char **argv);

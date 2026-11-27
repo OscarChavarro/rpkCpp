@@ -1,4 +1,4 @@
-#include "java/lang/Float.h"
+#include "java/lang/Double.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
@@ -96,10 +96,10 @@ GalerkinElement::initializeCommon(GalerkinState *inGalerkinState) {
     radiance = NULL;
     receivedRadiance = NULL;
     unShotRadiance = NULL;
-    potential = 0.0f;
-    receivedPotential = 0.0f;
-    unShotPotential = 0.0f;
-    directPotential = 0.0f;
+    potential = 0.0;
+    receivedPotential = 0.0;
+    unShotPotential = 0.0;
+    directPotential = 0.0;
     patch = NULL;
     geometry = NULL;
     parent = NULL;
@@ -111,7 +111,7 @@ GalerkinElement::initializeCommon(GalerkinState *inGalerkinState) {
     basisSize = 0;
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    minimumArea = Float::MAX_VALUE;
+    minimumArea = Double::MAX_VALUE;
     scratchVisibilityUsageCounter = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
@@ -132,7 +132,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 
     patch = parameterPatch;
     minimumArea = area = patch->area;
-    blockerSize = 2.0f * ((float)(Math::sqrt(area / M_PI)));
+    blockerSize = 2.0 * ((double)(Math::sqrt(area / M_PI)));
     directPotential = patch->directPotential;
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
@@ -150,7 +150,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState):Element()
+GalerkinElement::GalerkinElement(RpkGeometry *inGeometry, GalerkinState *inGalerkinState):Element()
 {
     initializeCommon(inGalerkinState);
 
@@ -159,7 +159,7 @@ GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkin
     flags |= IS_CLUSTER_MASK;
     reAllocCoefficients();
 
-    Rd = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+    Rd = ColorRgbMutable(1.0, 1.0, 1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     numberOfClusters++;
@@ -343,8 +343,8 @@ GalerkinElement::regularSubDivide() {
             patch->numberOfVertices == 3 ?
             &triangleToParentTransformMatrix[i] :
             &quadToParentTransformMatrix[i];
-        child->area = 0.25f * area;  // Uniform mapping is always used
-        child->blockerSize = 2.0f * ((float)(Math::sqrt(child->area / M_PI)));
+        child->area = 0.25 * area;  // Uniform mapping is always used
+        child->blockerSize = 2.0 * ((double)(Math::sqrt(child->area / M_PI)));
         child->childNumber = ((GalerkinElementRenderMode)(i));
         child->reAllocCoefficients();
 
@@ -452,9 +452,9 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-GalerkinElement::vertices(Vector3Df *p) const {
+GalerkinElement::vertices(Vector3Dd *p) const {
     if ( isCluster() ) {
-        BoundingBox boundingBox;
+        RpkAxisAlignedBoundingBox boundingBox;
         bounds(&boundingBox);
 
         boundingBox.corners(p);
@@ -462,43 +462,43 @@ GalerkinElement::vertices(Vector3Df *p) const {
         return 8;
     } else {
         Matrix2x2 topTrans = Matrix2x2();
-        Vector2Df uv;
+        Vector2Dd uv;
 
         if ( transformToParent != NULL ) {
             topTransform(&topTrans);
         }
 
-        uv = Vector2Df(0.0f, 0.0f);
+        uv = Vector2Dd(0.0, 0.0);
         if ( transformToParent != NULL ) {
             uv = topTrans.transformPoint(uv);
         }
-        patch->uniformPoint(uv.x(), uv.y(), &p[0]);
+        patch->uniformPoint(uv.x, uv.y, &p[0]);
 
-        uv = Vector2Df(1.0f, 0.0f);
+        uv = Vector2Dd(1.0, 0.0);
         if ( transformToParent != NULL ) {
             uv = topTrans.transformPoint(uv);
         }
-        patch->uniformPoint(uv.x(), uv.y(), &p[1]);
+        patch->uniformPoint(uv.x, uv.y, &p[1]);
 
         if ( patch->numberOfVertices == 4 ) {
-            uv = Vector2Df(1.0f, 1.0f);
+            uv = Vector2Dd(1.0, 1.0);
             if ( transformToParent != NULL ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[2]);
+            patch->uniformPoint(uv.x, uv.y, &p[2]);
 
-            uv = Vector2Df(0.0f, 1.0f);
+            uv = Vector2Dd(0.0, 1.0);
             if ( transformToParent != NULL ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[3]);
+            patch->uniformPoint(uv.x, uv.y, &p[3]);
         } else {
-            uv = Vector2Df(0.0f, 1.0f);
+            uv = Vector2Dd(0.0, 1.0);
             if ( transformToParent != NULL ) {
                 uv = topTrans.transformPoint(uv);
             }
-            patch->uniformPoint(uv.x(), uv.y(), &p[2]);
-            p[3] = Vector3Df(0.0f, 0.0f, 0.0f);
+            patch->uniformPoint(uv.x, uv.y, &p[2]);
+            p[3] = Vector3Dd(0.0, 0.0, 0.0);
         }
 
         return patch->numberOfVertices;
@@ -508,21 +508,21 @@ GalerkinElement::vertices(Vector3Df *p) const {
 /**
 Computes the midpoint of the element
 */
-Vector3Df
+Vector3Dd
 GalerkinElement::midPoint() const {
     if ( isCluster() ) {
         return geometry->getBoundingBox().center();
     } else {
-        Vector3Df p[8];
+        Vector3Dd p[8];
         int numberOfVertices = vertices(p);
 
-        Vector3Df c(0.0f, 0.0f, 0.0f);
+        Vector3Dd c(0.0, 0.0, 0.0);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c = c.add(p[i]);
         }
 
-        c = c.multiply(1.0f / ((float)(numberOfVertices)));
+        c = c.multiply(1.0 / ((double)(numberOfVertices)));
         return c;
     }
 }
@@ -530,13 +530,13 @@ GalerkinElement::midPoint() const {
 /**
 Computes a bounding box for the element
 */
-BoundingBox *
-GalerkinElement::bounds(BoundingBox *boundingBox) const {
+RpkAxisAlignedBoundingBox *
+GalerkinElement::bounds(RpkAxisAlignedBoundingBox *boundingBox) const {
     if ( isCluster() ) {
-        BoundingBox copy = geometry->getBoundingBox();
+        RpkAxisAlignedBoundingBox copy = geometry->getBoundingBox();
         boundingBox->copyFrom(&copy);
     } else {
-        Vector3Df p[4];
+        Vector3Dd p[4];
 
         const int numberOfVertices = vertices(p);
 

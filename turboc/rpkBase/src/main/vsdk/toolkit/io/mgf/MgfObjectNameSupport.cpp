@@ -74,9 +74,9 @@ void
 MgfObjectNameSupport::mgfObjectNewSurface(ParseRuntimeContext *context) {
     // Note: lists created here will be transferred to new MeshSurface,
     // should not be deleted from MgfParseSession
-    context->currentPointList = new ArrayList<Vector3Df *>();
-    context->currentNormalList = new ArrayList<Vector3Df *>();
-    context->currentVertexList = new ArrayList<Vertex *>();
+    context->currentPointList = new ArrayList<Vector3Dd *>();
+    context->currentNormalList = new ArrayList<Vector3Dd *>();
+    context->currentVertexList = new ArrayList<RpkVertex *>();
     context->currentFaceList = new ArrayList<Patch *>();
     context->inSurface = true;
 }
@@ -102,7 +102,7 @@ MgfObjectNameSupport::handleObject2Entity(int ac, const char **av, ParseRuntimeC
 void
 MgfObjectNameSupport::mgfObjectSurfaceDone(ParseRuntimeContext *context) {
     if ( context->currentGeometryList == NULL ) {
-        context->currentGeometryList = new ArrayList<Geometry *>();
+        context->currentGeometryList = new ArrayList<RpkGeometry *>();
     }
 
     if ( context->readerContext != NULL ) {
@@ -122,7 +122,7 @@ MgfObjectNameSupport::mgfObjectSurfaceDone(ParseRuntimeContext *context) {
     }
 
     if ( context->currentFaceList != NULL && context->currentFaceList->size() > 0 ) {
-        Geometry *newGeometry = new MeshSurface(
+        RpkGeometry *newGeometry = new MeshSurface(
             context->currentObjectName,
             context->currentMaterial,
             context->currentPointList,
@@ -158,7 +158,7 @@ MgfObjectNameSupport::handleObjectEntity(int argc, const char **argv, ParseRunti
         MgfObjectNameSupport::mgfObjectNewSurface(context);
     } else {
         // End of object definition
-        Geometry *newGeometry = NULL;
+        RpkGeometry *newGeometry = NULL;
 
         if ( context->inSurface ) {
             MgfObjectNameSupport::mgfObjectSurfaceDone(context);

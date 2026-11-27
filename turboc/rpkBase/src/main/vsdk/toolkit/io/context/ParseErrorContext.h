@@ -1,5 +1,5 @@
-#ifndef __ERROR_CODE_CONTEXT__
-#define __ERROR_CODE_CONTEXT__
+#ifndef __PARSE_ERROR_CONTEXT__
+#define __PARSE_ERROR_CONTEXT__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

@@ -16,7 +16,7 @@
 #include "vsdk/toolkit/scene/SceneQuery.h"
 
 static void
-boxValues(const BoundingBox &box, double *values) {
+boxValues(const RpkAxisAlignedBoundingBox &box, double *values) {
     values[0] = box.minX();
     values[1] = box.minY();
     values[2] = box.minZ();
@@ -31,18 +31,18 @@ order the legacy grid visits them: the children of a compound, the patches
 (as their face indices) of any other geometry
 */
 static void
-addMembers(SpatialGroupTree *tree, const int group, const Geometry *geometry) {
+addMembers(SpatialGroupTree *tree, const int group, const RpkGeometry *geometry) {
     if ( geometry->isCompound() ) {
-        const ArrayList<Geometry *> *children = ((const Compound *)(geometry))->children;
+        const ArrayList<RpkGeometry *> *children = ((const Compound *)(geometry))->children;
         for ( int i = 0; children != NULL && i < children->size(); i++ ) {
-            const Geometry *child = children->get(i);
+            const RpkGeometry *child = children->get(i);
             double box[6];
             boxValues(child->boundingBox, box);
             addMembers(tree, tree->addGroup(group, child->bounded ? box : NULL), child);
         }
         return;
     }
-    const ArrayList<Patch *> *patches = Geometry::patchListReference(geometry);
+    const ArrayList<Patch *> *patches = RpkGeometry::patchListReference(geometry);
     for ( int i = 0; patches != NULL && i < patches->size(); i++ ) {
         tree->addPrimitive(group, patches->get(i)->getFaceIndex());
     }
@@ -80,7 +80,7 @@ SceneQuery::buildIndex(const Scene &scene, const SceneAccelerationMethod method)
     if ( method == WALD2007_ACCELERATION ) {
         ArrayList<double> boxes(6L * numberOfFaces);
         for ( int i = 0; i < numberOfFaces; i++ ) {
-            const BoundingBox &box = faceBounds->get(i);
+            const RpkAxisAlignedBoundingBox &box = faceBounds->get(i);
             const double extent = box.maxExtent();
             double low[3];
             double high[3];
@@ -115,7 +115,7 @@ SceneQuery::buildIndex(const Scene &scene, const SceneAccelerationMethod method)
                 rawBoxes.add(box[k]);
             }
         }
-        const Geometry *root = scene.clusteredRootGeometry;
+        const RpkGeometry *root = scene.clusteredRootGeometry;
         double rootBox[6];
         boxValues(root->boundingBox, rootBox);
         SpatialGroupTree tree(rawBoxes, rootBox);
@@ -161,13 +161,13 @@ SceneQuery::methodFromName(const char *name, SceneAccelerationMethod *method) {
     return false;
 }
 
-RayHit *
+RpkRayHit *
 SceneQuery::intersect(
-    RpkRay *ray,
-    const float minimumDistance,
-    float *maximumDistance,
+    Ray *ray,
+    const double minimumDistance,
+    double *maximumDistance,
     const int hitFlags,
-    RayHit *hitStore,
+    RpkRayHit *hitStore,
     const RayExclusionSet &exclusions,
     SceneQueryWorkspace *workspace) const
 {
@@ -178,8 +178,8 @@ SceneQuery::intersect(
 
     SceneFaceRayTest test(*scene, ray, hitFlags, exclusions, hitStore);
     const Ray indexRay = Ray::fromAffine(
-        Vector3Dd(ray->position.x(), ray->position.y(), ray->position.z()),
-        Vector3Dd(ray->direction.x(), ray->direction.y(), ray->direction.z()));
+        Vector3Dd(ray->getOrigin().x(), ray->getOrigin().y(), ray->getOrigin().z()),
+        Vector3Dd(ray->getDirection().x(), ray->getDirection().y(), ray->getDirection().z()));
     const SpatialQueryMode::Value mode = (hitFlags & ANY) != 0
         ? SpatialQueryMode::ANY_HIT : SpatialQueryMode::CLOSEST_HIT;
     const SpatialQueryResult result = index->query(
@@ -187,17 +187,16 @@ SceneQuery::intersect(
     if ( !result.hasHit() ) {
         return NULL;
     }
-    *maximumDistance = ((float)(result.getParameter()));
+    *maximumDistance = ((double)(result.getParameter()));
     return hitStore;
 }
 
-SceneQueryWorkspace::SceneQueryWorkspace(const SceneQuery &query, VisibilityQueryRecorder *inRecorder):
+SceneQueryWorkspace::SceneQueryWorkspace(const SceneQuery &query):
     legacyWorkspace(NULL),
-    indexWorkspace(NULL),
-    recorder(inRecorder)
+    indexWorkspace(NULL)
 {
     if ( query.getLegacyGrid() != NULL ) {
-        legacyWorkspace = new VoxelGridWorkspace(query.getLegacyGrid()->getNumberOfItems(), inRecorder);
+        legacyWorkspace = new VoxelGridWorkspace(query.getLegacyGrid()->getNumberOfItems());
     } else {
         indexWorkspace = new SpatialIndexWorkspace(query.getIndex()->getWorkspaceSize());
     }

@@ -91,7 +91,7 @@ class SamplerConfig {
         CONNECT_FLAGS flags,
         char bsdfFlagsE = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
         char bsdfFlagsL = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
-        Vector3Df *pDirEl = NULL);
+        Vector3Dd *pDirEl = NULL);
 
 };
 

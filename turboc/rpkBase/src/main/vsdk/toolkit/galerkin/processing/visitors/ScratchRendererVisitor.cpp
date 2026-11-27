@@ -2,7 +2,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/ScratchRendererVisitor.h"
 
-ScratchRendererVisitor::ScratchRendererVisitor(Vector3Df inEyePoint, SglContext *inSglContext) {
+ScratchRendererVisitor::ScratchRendererVisitor(Vector3Dd inEyePoint, SglContext *inSglContext) {
     eyePoint = inEyePoint;
     sglContext = inSglContext;
 }
@@ -16,7 +16,7 @@ ScratchRendererVisitor::visit(
     const GalerkinState * /*galerkinState*/)
 {
     const Patch *patch = galerkinElement->patch;
-    Vector3Df v[4];
+    Vector3Dd v[4];
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point

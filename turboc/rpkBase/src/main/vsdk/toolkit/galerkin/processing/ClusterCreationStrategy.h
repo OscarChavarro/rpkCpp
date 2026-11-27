@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_CLUSTER_CREATION__
-#define __GALERKIN_CLUSTER_CREATION__
+#ifndef __CLUSTER_CREATION_STRATEGY__
+#define __CLUSTER_CREATION_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 
@@ -21,10 +21,10 @@ class ClusterCreationStrategy {
     addElemTHrrchDltnCch(GalerkinElement *galerkinElement);
 
     static void
-    geomAddClusterChild(Geometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState);
+    geomAddClusterChild(RpkGeometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState);
 
   public:
-    static GalerkinElement *createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState);
+    static GalerkinElement *createClusterHierarchy(RpkGeometry *geometry, GalerkinState *galerkinState);
     static void freeClusterElements();
 };
 

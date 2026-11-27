@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RAYTRACING_CSEED__
-#define __STOCHASTIC_RAYTRACING_CSEED__
+#ifndef __SEED__
+#define __SEED__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

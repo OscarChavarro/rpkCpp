@@ -3,13 +3,13 @@ Class definition of path nodes. These node are building blocks of paths.
 and contain necessary information for raytracing-like algorithms
 */
 
-#ifndef __PATH_NODE__
-#define __PATH_NODE__
+#ifndef __SIMPLE_RAYTRACING_PATH_NODE__
+#define __SIMPLE_RAYTRACING_PATH_NODE__
 
 #include "java/io/PrintStream.h"
-#include "vsdk/toolkit/common/linealAlgebra/RpkRay.h"
+#include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
-#include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
+#include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/raycasting/common/BsdfComp.h"
 #include "vsdk/toolkit/raycasting/common/PathRayType.h"
@@ -30,10 +30,10 @@ class SimpleRaytracingPathNode {
         return a * a;
     }
 
-    RayHit m_hit;
-    Vector3Df m_inDirT; // towards the patch
-    Vector3Df m_inDirF; // from the patch
-    Vector3Df m_normal;
+    RpkRayHit m_hit;
+    Vector3Dd m_inDirT; // towards the patch
+    Vector3Dd m_inDirF; // from the patch
+    Vector3Dd m_normal;
 
     double m_G; // Geometric factor x(i-1) -> x(i)
     double m_pdfFromPrev;

@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_JACOBI__
-#define __STOCHASTIC_JACOBI__
+#ifndef __STOCHJACOBI__
+#define __STOCHJACOBI__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
@@ -34,7 +34,7 @@ propagation of importance and radiance does not work yet.
 */
 class StochasticJacobi{ public:
     typedef ColorRgbMutable *(*GetRadianceCallback)(const StochasticRadiosityElement *);
-    typedef float (*GetImportanceCallback)(const StochasticRadiosityElement *);
+    typedef double (*GetImportanceCallback)(const StochasticRadiosityElement *);
     typedef void (*UpdateCallback)(StochasticRadiosityElement *elem, double w);
 
     static void doStochasticJacobiIteration( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, long numberOfRays, GetRadianceCallback getRadianceCallBack, GetImportanceCallback getImportanceCallBack, UpdateCallback updateCallBack, const ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions);
@@ -56,17 +56,17 @@ class StochasticJacobi{ public:
     static ColorRgbMutable stchsJacGetSrcRadn(const StochasticRadiosityElement *src, double us, double vs);
     static void stchsJacPropRadnTSurf( StochasticRadiosityElement *rcv, double ur, double vr, ColorRgbMutable rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
     static void stchsJacPropRadnTClustIstrp( StochasticRadiosityElement *cluster, ColorRgbMutable rayPower, const StochasticRadiosityElement *src, double fraction, double weight);
-    static void stchsJacPropRadnClustRec( StochasticRadiosityElement *currentElement, ColorRgbMutable rayPower, RpkRay *ray, float dir, double projectedArea, double fraction);
-    static void stchsJacPropRadnTClustOrntd( StochasticRadiosityElement *cluster, ColorRgbMutable rayPower, RpkRay *ray, float dir, const StochasticRadiosityElement *src, double projectedArea, double fraction, double weight);
-    static void stchsJacPropRadn( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, RpkRay *ray, float dir);
-    static void stchsJacPropImp( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, const RpkRay *ray, float dir);
-    static double stchsJacRecvPrjctArea( const StochasticRadiosityElement *cluster, RpkRay *ray, float dir);
-    static void stchsJacRecvPrjctAreaRec( const StochasticRadiosityElement *currentElement, RpkRay *ray, float dir, double *area);
-    static void stchsJacRfnAPropRadn( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, double src_prob, double rcv_prob, RpkRay *ray, float dir, const RenderOptions *renderOptions);
-    static void stchsJacRfnAPropImp( const StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, double src_prob, double rcv_prob, const RpkRay *ray, float dir);
-    static void stchsJacRfnAProp( StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, RpkRay *ray, const RenderOptions *renderOptions);
+    static void stchsJacPropRadnClustRec( StochasticRadiosityElement *currentElement, ColorRgbMutable rayPower, Ray *ray, double dir, double projectedArea, double fraction);
+    static void stchsJacPropRadnTClustOrntd( StochasticRadiosityElement *cluster, ColorRgbMutable rayPower, Ray *ray, double dir, const StochasticRadiosityElement *src, double projectedArea, double fraction, double weight);
+    static void stchsJacPropRadn( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, Ray *ray, double dir);
+    static void stchsJacPropImp( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *rcv, double ur, double vr, double src_prob, double rcv_prob, const Ray *ray, double dir);
+    static double stchsJacRecvPrjctArea( const StochasticRadiosityElement *cluster, Ray *ray, double dir);
+    static void stchsJacRecvPrjctAreaRec( const StochasticRadiosityElement *currentElement, Ray *ray, double dir, double *area);
+    static void stchsJacRfnAPropRadn( const StochasticRadiosityElement *src, double us, double vs, StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, double src_prob, double rcv_prob, Ray *ray, double dir, const RenderOptions *renderOptions);
+    static void stchsJacRfnAPropImp( const StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, double src_prob, double rcv_prob, const Ray *ray, double dir);
+    static void stchsJacRfnAProp( StochasticRadiosityElement *P, double up, double vp, StochasticRadiosityElement *Q, double uq, double vq, Ray *ray, const RenderOptions *renderOptions);
     static double *stochasticJacobiNextSample( StochasticRadiosityElement *elem, int nMostSignificantBit, NiederreiterIndex mostSignificantBit1, NiederreiterIndex rMostSignificantBit2, double *zeta);
-    static void stchsJacUnfrmHitCrdnt(const RayHit *hit, double *uHit, double *vHit);
+    static void stchsJacUnfrmHitCrdnt(const RpkRayHit *hit, double *uHit, double *vHit);
     static void stochasticJacobiElementShootRay( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, StochasticRadiosityElement *src, int nMostSignificantBit, NiederreiterIndex mostSignificantBit1, NiederreiterIndex rMostSignificantBit2, const RenderOptions *renderOptions);
     static void stchsJacElemShtRays( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, StochasticRadiosityElement *element, int raysThisElem, const RenderOptions *renderOptions);
     static void stchsJacShtRaysRec( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, StochasticRadiosityElement *element, double rnd, long *rayCount, double *cumulative, RenderOptions *renderOptions);

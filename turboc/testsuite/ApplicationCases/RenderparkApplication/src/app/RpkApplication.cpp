@@ -40,7 +40,7 @@
     #include "app/Raytrace.h"
 #endif
 
-Material RpkApplication::defaultMaterial("(default)", NULL, NULL, false);
+RpkMaterial RpkApplication::defaultMaterial("(default)", NULL, NULL, false);
 
 RpkApplication::RpkApplication():
     imageOutputWidth(),
@@ -79,7 +79,7 @@ RpkApplication::mainInitApplication() {
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
     // different
-    Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
+    RpkVertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 }
 
 void
@@ -247,6 +247,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->radianceMethod = selectedRadianceMethod;
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
+    mgfContext->parserConfig.setColorSpace(toneMapOptions.getColorSpace());
     selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
     SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene, toneMapOptions);
     selectToneMapByName(renderToneMapName);

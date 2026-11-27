@@ -2,8 +2,8 @@
 #define CONSTEXPR const
 #endif
 
-#ifndef __SHAFT_CULLING__
-#define __SHAFT_CULLING__
+#ifndef __SHAFT__
+#define __SHAFT__
 
 /**
 References:
@@ -13,7 +13,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/scene/Polygon.h"
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
 #include "vsdk/toolkit/galerkin/ShaftPlane.h"
@@ -35,9 +35,9 @@ class Shaft {
     #define MIN_MAX_DIMENSIONS 6
     #define NONE -1
 
-    BoundingBox *referenceItem1; // Bounding boxes of the reference items
-    BoundingBox *referenceItem2;
-    BoundingBox extentBoundingBox;
+    RpkAxisAlignedBoundingBox *referenceItem1; // Bounding boxes of the reference items
+    RpkAxisAlignedBoundingBox *referenceItem2;
+    RpkAxisAlignedBoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
     long numberOfPlanesInSet;  // Number of planes in plane-set
 
@@ -46,9 +46,9 @@ class Shaft {
     int geometryIdsToAvoidOpening[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToAvoidOpen;
 
-    Vector3Df center1; // The line segment from center1 to center2 is guaranteed
+    Vector3Dd center1; // The line segment from center1 to center2 is guaranteed
     // to lay within the shaft
-    Vector3Df center2;
+    Vector3Dd center2;
     bool cut; // A boolean initialized to FALSE when the shaft is created and set
     // to TRUE during shaft culling if there are patches that cut the shaft. If
     // after shaft culling, this flag is TRUE, there is full occlusion due to
@@ -57,50 +57,50 @@ class Shaft {
     // occluder in question is the first patch in the returned candidate list.
     // The candidate list does not contain all occluder!
 
-    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Df *normal, double d);
-    static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3Dd *normal, double d);
+    static void fillInPlane(ShaftPlane *plane, double nx, double ny, double nz, double d);
 
     static bool
     verifyPolygonWithRespectToPlane(
         const Polygon *polygon,
-        const Vector3Df *normal,
+        const Vector3Dd *normal,
         double d,
         ShaftPlanePosition side);
 
-    static ShaftPlanePosition testPointWithRespectToPlane(const Vector3Df *p, const Vector3Df *normal, double d);
+    static ShaftPlanePosition testPointWithRespectToPlane(const Vector3Dd *p, const Vector3Dd *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
-    static void keep(Geometry *geometry, ArrayList<Geometry *> *candidateList);
+    static void keep(RpkGeometry *geometry, ArrayList<RpkGeometry *> *candidateList);
 
     void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
     ShaftPlanePosition shaftPatchTest(Patch *patch);
-    bool closedGeometry(const Geometry *geometry) const;
+    bool closedGeometry(const RpkGeometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
-    ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
+    ShaftPlanePosition boundingBoxTest(const RpkAxisAlignedBoundingBox *parameterBoundingBox) const;
     void cullPatches(const ArrayList<Patch *> *patchList, ArrayList<Patch *> *culledPatchList);
     bool patchIsOnOmitSet(unsigned id) const;
-    void shaftCullOpen(Geometry *geometry, ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
+    void shaftCullOpen(RpkGeometry *geometry, ArrayList<RpkGeometry *> *candidateList, ShaftCullStrategy strategy);
 
 public:
     Shaft();
 
-    static void freeCandidateList(ArrayList<Geometry *> *candidateList);
+    static void freeCandidateList(ArrayList<RpkGeometry *> *candidateList);
 
     bool isCut() const;
-    void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+    void constructFromBoundingBoxes(RpkAxisAlignedBoundingBox *boundingBox1, RpkAxisAlignedBoundingBox *boundingBox2);
     void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
     void setShaftOmit(Patch *patch);
-    void setShaftDontOpen(Geometry *geometry);
+    void setShaftDontOpen(RpkGeometry *geometry);
 
     void
     doCulling(
-        const ArrayList<Geometry *> *world,
-        ArrayList<Geometry *> *candidateList,
+        const ArrayList<RpkGeometry *> *world,
+        ArrayList<RpkGeometry *> *candidateList,
         ShaftCullStrategy strategy);
 
     void
     cullGeometry(
-        Geometry *geometry,
-        ArrayList<Geometry *> *candidateList,
+        RpkGeometry *geometry,
+        ArrayList<RpkGeometry *> *candidateList,
         ShaftCullStrategy strategy);
 };
 

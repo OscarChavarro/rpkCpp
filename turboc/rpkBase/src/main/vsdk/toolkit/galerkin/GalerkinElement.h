@@ -19,7 +19,7 @@ The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
 surface elements. There are only a few differences between surface and cluster
 elements: cluster elements always have a constant basis on them, they contain
-a pointer to the Geometry to which they are associated, while a surface element has
+a pointer to the RpkGeometry to which they are associated, while a surface element has
 a pointer to the Patch to which is belongs, they have only irregular sub-elements, and no up trans
 */
 class GalerkinElement: public Element{ private:
@@ -44,16 +44,16 @@ class GalerkinElement: public Element{ private:
 
   public:
     Patch *patch;
-    Geometry *geometry;
-    float potential; // Total potential of the element
-    float receivedPotential; // Potential received during the last iteration
-    float unShotPotential; // Un-shot potential (progressive refinement radiosity)
-    float directPotential;
+    RpkGeometry *geometry;
+    double potential; // Total potential of the element
+    double receivedPotential; // Potential received during the last iteration
+    double unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    double directPotential;
     ArrayList<Interaction *> *interactions; // Links with other patches: when using
 			 // a shooting algorithm, the links are kept with the source element. When doing gathering, // the links are kept with the receiver element
-    float minimumArea; // Equal to area for a surface element or the area
+    double minimumArea; // Equal to area for a surface element or the area
                        // of the smallest surface element in a cluster
-    float blockerSize; // Equivalent blocker size for multi-resolution visibility
+    double blockerSize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int scratchVisibilityUsageCounter; // Used only on Z-depth visibility clustering strategy
     GalerkinElementRenderMode childNumber; // Rang nr of regular sub-element in parent
@@ -62,7 +62,7 @@ class GalerkinElement: public Element{ private:
     GalerkinState *galerkinState;
 
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
-    explicit GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState);
+    explicit GalerkinElement(RpkGeometry *inGeometry, GalerkinState *inGalerkinState);
     ~GalerkinElement();
 
     static int getNumberOfElements();
@@ -74,9 +74,9 @@ class GalerkinElement: public Element{ private:
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
-    int vertices(Vector3Df *p) const;
-    BoundingBox *bounds(BoundingBox *boundingBox) const;
-    Vector3Df midPoint() const;
+    int vertices(Vector3Dd *p) const;
+    RpkAxisAlignedBoundingBox *bounds(RpkAxisAlignedBoundingBox *boundingBox) const;
+    Vector3Dd midPoint() const;
     void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();
 

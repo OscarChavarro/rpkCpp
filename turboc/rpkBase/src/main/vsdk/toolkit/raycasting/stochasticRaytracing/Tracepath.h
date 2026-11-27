@@ -2,8 +2,8 @@
 Random walk generation
 */
 
-#ifndef __TRACE_PATH__
-#define __TRACE_PATH__
+#ifndef __TRACEPATH__
+#define __TRACEPATH__
 
 #include "java/util/ArrayList.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracingPathNode.h"
@@ -20,7 +20,7 @@ class Tracepath{ public:
 
     static void initPath(Path *path);
     static void clearPath(Path *path);
-    static void pathAddNode(Path *path, Patch *patch, double probability, Vector3Df inPoint, Vector3Df outpoint);
+    static void pathAddNode(Path *path, Patch *patch, double probability, Vector3Dd inPoint, Vector3Dd outpoint);
     static void freePathNodes(Path *path);
     static Path *tracePath( const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Patch *origin, double birthProb, PatchProbabilityCallback survivalProbabilityCallBack, Path *path);
     static double patchNormalisedBirthProbability(const Patch *patch);

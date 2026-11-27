@@ -4,7 +4,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
@@ -74,7 +73,7 @@ RandomWalkRadianceMethod::getRadiance(
     Patch *patch,
     double u,
     double v,
-    Vector3Df dir,
+    Vector3Dd dir,
     const RenderOptions *renderOptions) const
 {
     StochasticRelaxation::setActiveState(((StochasticRelaxation &)(stochasticRelaxationState)));
@@ -149,7 +148,7 @@ RandomWalkRadianceMethod::rndmWalkRadSclrSrcPwr(const Patch *P) {
 }
 
 /**
-Returns a double instead of a float in order to make it useful as
+Returns a double instead of a double in order to make it useful as
 a survival stochasticJacobiProbability function
 */
  double
@@ -175,7 +174,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const ArrayList<Patch 
         ColorRgbMutable newSourceRadiance;
         ColorRgbMutable rho;
 
-        newSourceRadiance = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+        newSourceRadiance = ColorRgbMutable(1.0, 1.0, 1.0);
         rho = McradP::topLvlStochRadElem(patch)->Rd; // Reflectance
         newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
         newSourceRadiance.selfScalarProduct(StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
@@ -236,7 +235,7 @@ RandomWalkRadianceMethod::rndmWalkRadShootScr(const Path *path, long nr_paths, d
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
-    accumPow.scaledCopy(((float)(firstNode.patch->area / firstNode.probability)), McradP::topLvlStochRadElem(firstNode.patch)->sourceRad);
+    accumPow.scaledCopy(((double)(firstNode.patch->area / firstNode.probability)), McradP::topLvlStochRadElem(firstNode.patch)->sourceRad);
     for ( int n = 1; n < path->numberOfNodes; n++ ) {
         const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
@@ -264,7 +263,7 @@ RandomWalkRadianceMethod::rndmWalkRadShootScr(const Path *path, long nr_paths, d
             double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
             McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(
                 McradP::getTopLevelPatchReceivedRad(P)[i],
-                ((float)(w * dual / ((double)(nr_paths)))),
+                ((double)(w * dual / ((double)(nr_paths)))),
                 accumPow);
 
             if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
@@ -273,7 +272,7 @@ RandomWalkRadianceMethod::rndmWalkRadShootScr(const Path *path, long nr_paths, d
             }
         }
 
-        accumPow.scale(((float)(r / node.probability)));
+        accumPow.scale(((double)(r / node.probability)));
     }
 }
 
@@ -282,7 +281,7 @@ RandomWalkRadianceMethod::rndmWalkRadShootUpd(const Patch *P, double w) {
     double k;
     double oldQuality;
     oldQuality = McradP::topLvlStochRadElem(P)->quality;
-    McradP::topLvlStochRadElem(P)->quality += ((float)(w));
+    McradP::topLvlStochRadElem(P)->quality += ((double)(w));
     if ( McradP::topLvlStochRadElem(P)->quality < VSDK::EPSILON ) {
         return;
     }
@@ -292,8 +291,8 @@ RandomWalkRadianceMethod::rndmWalkRadShootUpd(const Patch *P, double w) {
     McradP::getTopLevelPatchRad(P)[0].subtract(McradP::getTopLevelPatchRad(P)[0], McradP::topLvlStochRadElem(P)->sourceRad);
 
     // Weight with previous results
-    Coefficientsmcrad::stchsRadScaleCoeff(((float)(k)), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
-    Coefficientsmcrad::stchsRadScaleCoeff((1.0f - ((float)(k))), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stchsRadScaleCoeff(((double)(k)), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stchsRadScaleCoeff((1.0 - ((double)(k))), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
     Coefficientsmcrad::stchsRadAddCoeff(McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Re-add self-emitted rad
@@ -359,7 +358,7 @@ RandomWalkRadianceMethod::rndmWalkRadDetGthrnCtrlRad(const ArrayList<Patch *> *s
         ColorRgbMutable denominator;
         const Patch *patch = scenePatches->get(i);
 
-        absorb = ColorRgbMutable(1.0f, 1.0f, 1.0f);
+        absorb = ColorRgbMutable(1.0, 1.0, 1.0);
         rho = McradP::topLvlStochRadElem(patch)->Rd;
         absorb.subtract(absorb, rho); // 1-rho
 
@@ -374,7 +373,7 @@ RandomWalkRadianceMethod::rndmWalkRadDetGthrnCtrlRad(const ArrayList<Patch *> *s
     cr.divide(c1, c2);
     System::err.printf("Control radiosity value = ");
     cr.print(&System::err);
-    System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
+    System::err.printf(", luminosity = %g\n", StochasticRelaxation::activeState().toneMapOptions->getColorSpace().spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
 
     return ColorRgb(cr);
 }
@@ -406,7 +405,7 @@ RandomWalkRadianceMethod::rndmWalkRadCllsnGthrnScr(const Path *path, long /*nr_p
 
         for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
-            McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], ((float)(dual)), accumRad);
+            McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], ((double)(dual)), accumRad);
 
             if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uin, vin);
@@ -415,7 +414,7 @@ RandomWalkRadianceMethod::rndmWalkRadCllsnGthrnScr(const Path *path, long /*nr_p
         }
         McradP::topLvlStochRadElem(P)->ng++;
 
-        accumRad.scale(((float)(r / node.probability)));
+        accumRad.scale(((double)(r / node.probability)));
         accumRad.add(accumRad, McradP::topLvlStochRadElem(P)->sourceRad);
     }
 }
@@ -429,7 +428,7 @@ RandomWalkRadianceMethod::rndmWalkRadGthrnUpd(const Patch *P, double /*w*/) {
 
     // Divide by nr of samples
     if ( McradP::topLvlStochRadElem(P)->ng > 0 )
-        Coefficientsmcrad::stchsRadScaleCoeff((1.0f / McradP::topLvlStochRadElem(P)->ng), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
+        Coefficientsmcrad::stchsRadScaleCoeff((1.0 / McradP::topLvlStochRadElem(P)->ng), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Add source radiance (source term estimation suppression!)
     McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], McradP::topLvlStochRadElem(P)->sourceRad);

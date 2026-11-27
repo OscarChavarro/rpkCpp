@@ -25,8 +25,8 @@ Interaction::Interaction():
 Interaction::Interaction(
     GalerkinElement *inReceiverElement,
     GalerkinElement *inSourceElement,
-    const float *inK,
-    float inDeltaK,
+    const double *inK,
+    double inDeltaK,
     unsigned char iNumOBasisFnctnORecv,
     unsigned char iNumOBasisFnctnOSrc,
     unsigned char iNumORecvCbtrPstns,
@@ -44,7 +44,7 @@ Interaction::Interaction(
         this->K = &this->k0;
         this->ownsK = false;
     } else {
-        this->K = new float[iNumOBasisFnctnORecv * iNumOBasisFnctnOSrc];
+        this->K = new double[iNumOBasisFnctnORecv * iNumOBasisFnctnOSrc];
         for ( int i = 0; i < iNumOBasisFnctnORecv * iNumOBasisFnctnOSrc; i++ ) {
             K[i] = inK[i];
         }

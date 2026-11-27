@@ -2,7 +2,7 @@
 #define __LINKING_SIMPLE_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "vsdk/toolkit/skin/Geometry.h"
+#include "vsdk/toolkit/skin/RpkGeometry.h"
 #include "vsdk/toolkit/scene/Scene.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
@@ -16,9 +16,9 @@ class LinkingSimpleStrategy {
         const Scene *scene,
         const GalerkinState *galerkinState,
         GalerkinRole role,
-        ArrayList<Geometry *> **candidateList,
+        ArrayList<RpkGeometry *> **candidateList,
         GalerkinElement *topElement,
-        BoundingBox *topLevelBoundingBox,
+        RpkAxisAlignedBoundingBox *topLevelBoundingBox,
         Patch *patch);
 
     static void
@@ -26,10 +26,10 @@ class LinkingSimpleStrategy {
         const Scene *scene,
         const GalerkinState *galerkinState,
         GalerkinRole role,
-        ArrayList<Geometry *> **candidateList,
+        ArrayList<RpkGeometry *> **candidateList,
         GalerkinElement *topElement,
-        BoundingBox *topLevelBoundingBox,
-        Geometry *geometry);
+        RpkAxisAlignedBoundingBox *topLevelBoundingBox,
+        RpkGeometry *geometry);
   public:
     static void
     createInitialLinks(

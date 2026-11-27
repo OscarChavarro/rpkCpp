@@ -26,12 +26,12 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case SHOW_IMPORTANCE: {
-            float gray;
+            double gray;
 
             if ( element->importance > 1.0 ) {
-                gray = 1.0f;
+                gray = 1.0;
             } else {
-                gray = element->importance < 0.0 ? 0.0f : element->importance;
+                gray = element->importance < 0.0 ? 0.0 : element->importance;
             }
 
             color = ColorRgb(gray, gray, gray);
@@ -45,11 +45,11 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
 }
 
 ColorRgb
-StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
+StochasticRadiosityElement::vertexRadiance(const RpkVertex *v) {
     int count = 0;
     ColorRgb radiance;
 
-    radiance = ColorRgb(0.0f, 0.0f, 0.0f);
+    radiance = ColorRgb(0.0, 0.0, 0.0);
     for ( int i = 0; v->radianceData != NULL && i < v->radianceData->size(); i++ ) {
         Element *element = v->radianceData->get(i);
         if ( element->className != ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -67,7 +67,7 @@ StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
     }
 
     if ( count > 0 ) {
-        float inv = 1.0f / ((float)(count));
+        double inv = 1.0 / ((double)(count));
         radiance = ColorRgb(inv * radiance.getR(), inv * radiance.getG(), inv * radiance.getB());
     }
 
@@ -77,10 +77,10 @@ StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
 /**
 Same as above but for importance
 */
-float
-StochasticRadiosityElement::vertexImportance(const Vertex *v) {
+double
+StochasticRadiosityElement::vertexImportance(const RpkVertex *v) {
     int count = 0;
-    float imp = 0.0;
+    double imp = 0.0;
 
     for ( int i = 0; v->radianceData != NULL && i < v->radianceData->size(); i++ ) {
         Element *genericElement = v->radianceData->get(i);
@@ -95,14 +95,14 @@ StochasticRadiosityElement::vertexImportance(const Vertex *v) {
     }
 
     if ( count > 0 ) {
-        imp /= ((float)(count));
+        imp /= ((double)(count));
     }
 
     return imp;
 }
 
 ColorRgb
-StochasticRadiosityElement::vertexColor(Vertex *v) {
+StochasticRadiosityElement::vertexColor(RpkVertex *v) {
     switch ( StochasticRelaxation::activeState().show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
@@ -112,7 +112,7 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
                 *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case SHOW_IMPORTANCE: {
-            float gray = vertexImportance(v);
+            double gray = vertexImportance(v);
             if ( gray > 1.0 ) {
                 gray = 1.0;
             }
@@ -146,7 +146,7 @@ StochasticRadiosityElement::stchsRadElemCompNewVtxClrs(Element *element) {
 void
 StochasticRadiosityElement::stchsRadElemAdjTVtxClrs(Element *element) {
     const StochasticRadiosityElement *stochasticRadiosityElement = ((StochasticRadiosityElement *)(element));
-    Vertex *m[4];
+    RpkVertex *m[4];
     int i;
     int n;
     for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
@@ -161,9 +161,9 @@ StochasticRadiosityElement::stchsRadElemAdjTVtxClrs(Element *element) {
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
                 m[i]->color = ColorRgb(
-                    (m[i]->color.getR() + color.getR()) * 0.5f,
-                    (m[i]->color.getG() + color.getG()) * 0.5f,
-                    (m[i]->color.getB() + color.getB()) * 0.5f);
+                    (m[i]->color.getR() + color.getR()) * 0.5,
+                    (m[i]->color.getG() + color.getG()) * 0.5,
+                    (m[i]->color.getB() + color.getB()) * 0.5);
             }
         }
     }
@@ -207,15 +207,15 @@ StochasticRadiosityElement::stchsRadElemDispRadnAPnt(const StochasticRadiosityEl
             switch ( elem->numberOfVertices ) {
                 case 3:
                     radiance = ColorRgb(
-                        (1.0f - ((float)(u)) - ((float)(v))) * rad[0].getR() + ((float)(u)) * rad[1].getR() + ((float)(v)) * rad[2].getR(),
-                        (1.0f - ((float)(u)) - ((float)(v))) * rad[0].getG() + ((float)(u)) * rad[1].getG() + ((float)(v)) * rad[2].getG(),
-                        (1.0f - ((float)(u)) - ((float)(v))) * rad[0].getB() + ((float)(u)) * rad[1].getB() + ((float)(v)) * rad[2].getB());
+                        (1.0 - ((double)(u)) - ((double)(v))) * rad[0].getR() + ((double)(u)) * rad[1].getR() + ((double)(v)) * rad[2].getR(),
+                        (1.0 - ((double)(u)) - ((double)(v))) * rad[0].getG() + ((double)(u)) * rad[1].getG() + ((double)(v)) * rad[2].getG(),
+                        (1.0 - ((double)(u)) - ((double)(v))) * rad[0].getB() + ((double)(u)) * rad[1].getB() + ((double)(v)) * rad[2].getB());
                     break;
                 case 4:
                     radiance = ColorRgb(
-                        (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * rad[0].getR() + ((float)(u)) * (1.0f - ((float)(v))) * rad[1].getR() + ((float)(u)) * ((float)(v)) * rad[2].getR() + (1.0f - ((float)(u))) * ((float)(v)) * rad[3].getR(),
-                        (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * rad[0].getG() + ((float)(u)) * (1.0f - ((float)(v))) * rad[1].getG() + ((float)(u)) * ((float)(v)) * rad[2].getG() + (1.0f - ((float)(u))) * ((float)(v)) * rad[3].getG(),
-                        (1.0f - ((float)(u))) * (1.0f - ((float)(v))) * rad[0].getB() + ((float)(u)) * (1.0f - ((float)(v))) * rad[1].getB() + ((float)(u)) * ((float)(v)) * rad[2].getB() + (1.0f - ((float)(u))) * ((float)(v)) * rad[3].getB());
+                        (1.0 - ((double)(u))) * (1.0 - ((double)(v))) * rad[0].getR() + ((double)(u)) * (1.0 - ((double)(v))) * rad[1].getR() + ((double)(u)) * ((double)(v)) * rad[2].getR() + (1.0 - ((double)(u))) * ((double)(v)) * rad[3].getR(),
+                        (1.0 - ((double)(u))) * (1.0 - ((double)(v))) * rad[0].getG() + ((double)(u)) * (1.0 - ((double)(v))) * rad[1].getG() + ((double)(u)) * ((double)(v)) * rad[2].getG() + (1.0 - ((double)(u))) * ((double)(v)) * rad[3].getG(),
+                        (1.0 - ((double)(u))) * (1.0 - ((double)(v))) * rad[0].getB() + ((double)(u)) * (1.0 - ((double)(v))) * rad[1].getB() + ((double)(u)) * ((double)(v)) * rad[2].getB() + (1.0 - ((double)(u))) * ((double)(v)) * rad[3].getB());
                     break;
                 default:
                     Logger::reportMessage("StochasticRadiosityElementRender", Logger::FATAL_ERROR, "stchsRadElemDispRadnAPnt", "can only handle triangular or quadrilateral elements");

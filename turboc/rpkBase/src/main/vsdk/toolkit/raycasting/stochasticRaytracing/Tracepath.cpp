@@ -43,7 +43,7 @@ Tracepath::clearPath(Path *path) {
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 void
-Tracepath::pathAddNode(Path *path, Patch *patch, double prob, Vector3Df inPoint, Vector3Df outpoint) {
+Tracepath::pathAddNode(Path *path, Patch *patch, double prob, Vector3Dd inPoint, Vector3Dd outpoint) {
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
@@ -101,13 +101,13 @@ Tracepath::tracePath(
     PatchProbabilityCallback survivalProbabilityCallBack,
     Path *path)
 {
-    Vector3Df inPoint(0.0, 0.0, 0.0);
-    Vector3Df outpoint(0.0, 0.0, 0.0);
+    Vector3Dd inPoint(0.0, 0.0, 0.0);
+    Vector3Dd outpoint(0.0, 0.0, 0.0);
     Patch *P = origin;
     double survivalProb;
-    RpkRay ray;
-    const RayHit *hit;
-    RayHit hitStore;
+    Ray ray;
+    const RpkRayHit *hit;
+    RpkRayHit hitStore;
 
     StochasticRelaxation::activeState().tracedPaths++;
     clearPath(path);
@@ -118,9 +118,9 @@ Tracepath::tracePath(
         McradP::topLvlStochRadElem(P)->rayIndex++;
         if ( path->numberOfNodes > 1 && StochasticRelaxation::activeState().continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
-            ray.position = path->nodes[path->numberOfNodes - 1].inPoint;
+            ray.setOrigin(path->nodes[path->numberOfNodes - 1].inPoint);
         }
-        path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
+        path->nodes[path->numberOfNodes - 1].outpoint = ray.getOrigin();
 
         hit = Localline::mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, &ray, &hitStore);
         if ( !hit ) {
@@ -196,15 +196,15 @@ Tracepath::tracePaths(
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux
-    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
-    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0f, 0.0f, 0.0f);
+    StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, ((double)(numberOfPaths)) / sumProbabilities);
-        const float k = ((float)(M_PI)) * patch->area;
+        const double k = ((double)(M_PI)) * patch->area;
         StochasticRelaxation::activeState().unShotFlux = ColorRgb(
             StochasticRelaxation::activeState().unShotFlux.getR() + k * McradP::getTopLevelPatchUnShotRad(patch)[0].getR(),
             StochasticRelaxation::activeState().unShotFlux.getG() + k * McradP::getTopLevelPatchUnShotRad(patch)[0].getG(),

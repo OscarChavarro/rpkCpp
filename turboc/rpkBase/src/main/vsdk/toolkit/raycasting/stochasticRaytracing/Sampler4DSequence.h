@@ -1,5 +1,5 @@
-#ifndef __SAMPLER_4D_SEQUENCE__
-#define __SAMPLER_4D_SEQUENCE__
+#ifndef __SAMPLER_4_D_SEQUENCE__
+#define __SAMPLER_4_D_SEQUENCE__
 
 #include "vsdk/toolkit/common/VSDK.h"
 

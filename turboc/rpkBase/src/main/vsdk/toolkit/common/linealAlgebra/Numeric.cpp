@@ -1,12 +1,12 @@
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 
 const double Numeric::HUGE_DOUBLE_VALUE = 1e30;
-const float Numeric::EPSILON_FLOAT = 1e-6f;
+const double Numeric::EPSILON = 1e-6;
 
 /**
 Returns whether the first floating point value is greater than the second one.
 */
 bool
-Numeric::floatCompare(const float x, const float y) {
+Numeric::floatCompare(const double x, const double y) {
     return x > y;
 }
