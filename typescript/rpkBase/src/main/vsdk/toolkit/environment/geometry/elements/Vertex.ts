@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import type { FaceColorTable } from "../../../scene/FaceColorTable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { VertexCompareFlags } from "./VertexCompareFlags";
 import type { Element } from "./Element";
@@ -12,9 +12,9 @@ export class Vertex {
     | VertexCompareFlags.VERTEX_COMPARE_TEXTURE_COORDINATE;
 
   public id: number;
-  public point: Vector3Df;
-  public normal: Vector3Df | null;
-  public textureCoordinates: Vector3Df | null;
+  public point: Vector3Dd;
+  public normal: Vector3Dd | null;
+  public textureCoordinates: Vector3Dd | null;
   public color: ColorRgbMutable;
   public radianceData: Element[] | null;
   public back: Vertex | null;
@@ -22,9 +22,9 @@ export class Vertex {
   public tmp: number;
 
   public constructor(
-    inPoint: Vector3Df,
-    inNormal: Vector3Df | null,
-    inTextureCoordinates: Vector3Df | null,
+    inPoint: Vector3Dd,
+    inNormal: Vector3Dd | null,
+    inTextureCoordinates: Vector3Dd | null,
     inPatches: Patch[] | null
   ) {
     this.id = Statistics.instance().reader.numberOfVertices++;

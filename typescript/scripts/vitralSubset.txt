@@ -4,15 +4,20 @@
 # rpkBase/. scripts/vitralSubset.sh --check compares each with a VITRAL checkout
 # (its typescript/base/src/main) byte for byte and fails on any file of
 # base/src/main missing from this list; --refresh copies them from it.
-# Pin: VITRAL 789030e1 plus the TypeScript changes made for this split (the
-# GeometryRay contract in its own module, so that Ray does not bring in
-# Geometry; the scalar parameter code and the RayHit accessors of PlanarFace;
-# the packed traversal arrays of BinnedSahHierarchy).
+# Pin: VITRAL f1b9d0a3 plus the TypeScript changes of this synchronization with
+# VITRAL cpp 20e67173: double precision PlanarFace, PhongLobe, PhongMaterial,
+# ScatteringFrame, SurfaceShadingPoint, Texture, KDTree/KDQuery, Matrix2x2 and
+# the io/wrapper printers (no Math.fround); the new Vector3Dd (lengthSquared,
+# manhattanLength, distance, distanceSquared, multiplyByInverse,
+# normalized(epsilon), dominantAxis, component) and Vector2Dd (subtract,
+# lengthSquared) methods; Ray setters (setOrigin, setDirection, setT,
+# setOriginAndDirection), as in C++.
 # The list is the Java-like layer (java/) and the closure, by imports, of the
-# VITRAL classes RenderPark uses: the single precision lineal algebra
-# (Vector2Df, Vector3Df, Vector4Df, Matrix4x4f, Matrix2x2), ColorRgb, Logger,
-# PersistenceElement, RaytraceStatistics, PlanarFace, Ray, the spatial indexes
-# with BinnedSahHierarchy, and the io/wrapper printers.
+# VITRAL classes RenderPark uses: the double precision lineal algebra, ColorRgb,
+# Cie, Logger, PersistenceElement, RaytraceStatistics, PlanarFace, Ray, the
+# spatial indexes with BinnedSahHierarchy, the volume primitives the MGF reader
+# builds patches from (Sphere, Cone, Torus, Tube, Prism) with the
+# PolyhedralBoundedSolid kernel, and the io/wrapper printers.
 # Not here, although C++ takes them from VITRAL: java/io/File,
 # FileInputStream and FileOutputStream (VITRAL keeps its Node file classes in
 # the separate @vitral/fs package, with another API), java/lang/System (it
@@ -59,8 +64,13 @@ vsdk/toolkit/common/ModelElement.ts
 vsdk/toolkit/common/VSDK.ts
 vsdk/toolkit/common/VSDKFatalException.ts
 vsdk/toolkit/common/VSDKRuntimeSettings.ts
+vsdk/toolkit/common/color/Cie.ts
 vsdk/toolkit/common/color/ColorRgb.ts
+vsdk/toolkit/common/dataStructures/ArrayLinkable.ts
+vsdk/toolkit/common/dataStructures/ArrayListOfDoubles.ts
 vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.ts
+vsdk/toolkit/common/dataStructures/BinaryTreeNode.ts
+vsdk/toolkit/common/dataStructures/CircularArrayList.ts
 vsdk/toolkit/common/dataStructures/KDQuery.ts
 vsdk/toolkit/common/dataStructures/KDTree.ts
 vsdk/toolkit/common/dataStructures/KDTreeAdapter.ts
@@ -79,17 +89,45 @@ vsdk/toolkit/common/linealAlgebra/Vector4Dd.ts
 vsdk/toolkit/common/linealAlgebra/Vector4Df.ts
 vsdk/toolkit/common/linealAlgebra/package-info.ts
 vsdk/toolkit/common/logging/Logger.ts
+vsdk/toolkit/common/numerics/FloatingInterval.ts
 vsdk/toolkit/common/package-info.ts
+vsdk/toolkit/common/statistics/PolyhedralBoundedSolidStatistics.ts
 vsdk/toolkit/common/statistics/RaytraceStatistics.ts
+vsdk/toolkit/environment/geometry/Geometry.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchy.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahHierarchyNode.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahLeafVisitor.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahStoppingLeafVisitor.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/BinnedSahTriangleHierarchy.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/GridTriangleHierarchy.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleAccelerationStructure.ts
+vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/TriangleMeshAccelerationMethod.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBox.ts
 vsdk/toolkit/environment/geometry/boundingVolumeHierarchy/_BinnedSahBuildTask.ts
+vsdk/toolkit/environment/geometry/element/GeometryBounds.ts
+vsdk/toolkit/environment/geometry/element/GeometryContainment.ts
+vsdk/toolkit/environment/geometry/element/GeometryDistanceStatus.ts
 vsdk/toolkit/environment/geometry/element/GeometryRay.ts
+vsdk/toolkit/environment/geometry/element/Intersection.ts
 vsdk/toolkit/environment/geometry/element/PlanarFace.ts
 vsdk/toolkit/environment/geometry/element/Ray.ts
+vsdk/toolkit/environment/geometry/element/RayBoundary.ts
+vsdk/toolkit/environment/geometry/element/RayCrossing.ts
+vsdk/toolkit/environment/geometry/element/RayCrossingKind.ts
+vsdk/toolkit/environment/geometry/element/RayCrossingQuery.ts
+vsdk/toolkit/environment/geometry/element/RayCrossingSink.ts
+vsdk/toolkit/environment/geometry/element/RayCrossingSupport.ts
+vsdk/toolkit/environment/geometry/element/RayFirstHitStatus.ts
+vsdk/toolkit/environment/geometry/element/RayHit.ts
+vsdk/toolkit/environment/geometry/element/RayInstancePath.ts
+vsdk/toolkit/environment/geometry/element/RayInstanceStep.ts
+vsdk/toolkit/environment/geometry/element/RaySolidBoundary.ts
+vsdk/toolkit/environment/geometry/element/RaySolidClassification.ts
+vsdk/toolkit/environment/geometry/element/RaySolidQueryStatus.ts
+vsdk/toolkit/environment/geometry/element/SurfaceDetail.ts
+vsdk/toolkit/environment/geometry/element/Triangle.ts
+vsdk/toolkit/environment/geometry/element/Vertex.ts
+vsdk/toolkit/environment/geometry/element/Vertex2D.ts
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.ts
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.ts
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.ts
@@ -99,6 +137,71 @@ vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndex.ts
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialIndexWorkspace.ts
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryMode.ts
 vsdk/toolkit/environment/geometry/spatialIndex/SpatialQueryResult.ts
+vsdk/toolkit/environment/geometry/surface/HalfSpace.ts
+vsdk/toolkit/environment/geometry/surface/InfinitePlane.ts
+vsdk/toolkit/environment/geometry/surface/QuadMesh.ts
+vsdk/toolkit/environment/geometry/surface/Surface.ts
+vsdk/toolkit/environment/geometry/surface/TriangleMesh.ts
+vsdk/toolkit/environment/geometry/surface/TriangleMeshGroup.ts
+vsdk/toolkit/environment/geometry/surface/TriangleMeshIntersectionIndex.ts
+vsdk/toolkit/environment/geometry/surface/_TriangleMeshGroupClosestHit.ts
+vsdk/toolkit/environment/geometry/surface/polygon/Polygon2D.ts
+vsdk/toolkit/environment/geometry/surface/polygon/_Polygon2DContour.ts
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDistance.ts
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDistanceBounds.ts
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidDualBound.ts
+vsdk/toolkit/environment/geometry/volume/AffineEllipsoidMinimumDistance.ts
+vsdk/toolkit/environment/geometry/volume/Cone.ts
+vsdk/toolkit/environment/geometry/volume/OrthogonalEllipsoidDistance.ts
+vsdk/toolkit/environment/geometry/volume/Prism.ts
+vsdk/toolkit/environment/geometry/volume/QuadraticInteriorBound.ts
+vsdk/toolkit/environment/geometry/volume/Solid.ts
+vsdk/toolkit/environment/geometry/volume/Sphere.ts
+vsdk/toolkit/environment/geometry/volume/Torus.ts
+vsdk/toolkit/environment/geometry/volume/Tube.ts
+vsdk/toolkit/environment/geometry/volume/Volume.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolid.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerConstructions.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidEulerOperators.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidFaceGeometry.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidGeometricValidator.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidNumericPolicy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidPredicates.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidRepair.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologyEditing.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidTopologySummary.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/PolyhedralBoundedSolidValidationEngine.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricCollapsedLaminaStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricPlanarityStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictFaceIntersectionsStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_GeometricStrictLoopsStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidTopologicalValidator.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_PolyhedralBoundedSolidValidationStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/_TopologicalIntegrityStrategy.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidEdge.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidFace.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidHalfEdge.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidLoop.ts
+vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_PolyhedralBoundedSolidVertex.ts
+vsdk/toolkit/environment/material/Material.ts
+vsdk/toolkit/environment/material/SimpleMaterial.ts
+vsdk/toolkit/environment/scene/AffinePlacementStatus.ts
+vsdk/toolkit/environment/scene/AffineToleranceMap.ts
+vsdk/toolkit/environment/scene/InstanceRayCrossingBuffer.ts
+vsdk/toolkit/environment/scene/SceneSolid.ts
 vsdk/toolkit/io/PersistenceElement.ts
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.ts
 vsdk/toolkit/io/wrapper/Vector3DPrinter.ts
+vsdk/toolkit/media/Image.ts
+vsdk/toolkit/media/IndexedColorImageUncompressed.ts
+vsdk/toolkit/media/MediaEntity.ts
+vsdk/toolkit/media/NormalMap.ts
+vsdk/toolkit/media/RGBAImageUncompressed.ts
+vsdk/toolkit/media/RGBAPixel.ts
+vsdk/toolkit/media/RGBColorPalette.ts
+vsdk/toolkit/media/RGBImageUncompressed.ts
+vsdk/toolkit/media/RGBPixel.ts
+vsdk/toolkit/media/_pixel.ts
+vsdk/toolkit/processing/ComputationalGeometry.ts
+vsdk/toolkit/processing/Containment.ts
+vsdk/toolkit/processing/ProcessingElement.ts

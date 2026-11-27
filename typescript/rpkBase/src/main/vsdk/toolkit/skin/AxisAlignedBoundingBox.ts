@@ -1,9 +1,9 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BoundingBoxCoordinateIndex } from "./BoundingBoxCoordinateIndex";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 type BoundingCoords = [number, number, number, number, number, number];
 type CoordIndex = 0 | 1 | 2 | 3 | 4 | 5;
@@ -21,12 +21,12 @@ export class BoundingBox {
 
   public constructor() {
     this.coordinates = [0, 0, 0, 0, 0, 0];
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_X] = Float.MAX_VALUE;
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] = Float.MAX_VALUE;
-    this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] = Float.MAX_VALUE;
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_X] = -Float.MAX_VALUE;
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] = -Float.MAX_VALUE;
-    this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] = -Float.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_X] = Double.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] = Double.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] = Double.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_X] = -Double.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] = -Double.MAX_VALUE;
+    this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] = -Double.MAX_VALUE;
   }
 
   public maxExtent(): number {
@@ -36,14 +36,14 @@ export class BoundingBox {
     return dx > dy ? (dx > dz ? dx : dz) : (dy > dz ? dy : dz);
   }
 
-  public outOfBounds(p: Vector3Df): boolean {
+  public outOfBounds(p: Vector3Dd): boolean {
     return p.x() < this.coordinates[BoundingBoxCoordinateIndex.MIN_X] || p.x() > this.coordinates[BoundingBoxCoordinateIndex.MAX_X]
       || p.y() < this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] || p.y() > this.coordinates[BoundingBoxCoordinateIndex.MAX_Y]
       || p.z() < this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] || p.z() > this.coordinates[BoundingBoxCoordinateIndex.MAX_Z];
   }
 
-  public center(): Vector3Df {
-    return new Vector3Df(
+  public center(): Vector3Dd {
+    return new Vector3Dd(
       0.5 * (this.coordinates[BoundingBoxCoordinateIndex.MIN_X] + this.coordinates[BoundingBoxCoordinateIndex.MAX_X]),
       0.5 * (this.coordinates[BoundingBoxCoordinateIndex.MIN_Y] + this.coordinates[BoundingBoxCoordinateIndex.MAX_Y]),
       0.5 * (this.coordinates[BoundingBoxCoordinateIndex.MIN_Z] + this.coordinates[BoundingBoxCoordinateIndex.MAX_Z])
@@ -74,8 +74,8 @@ export class BoundingBox {
       || (otherCoords[BoundingBoxCoordinateIndex.MIN_Z] > this.coordinates[BoundingBoxCoordinateIndex.MAX_Z]);
   }
 
-  public behindPlane(normal: Vector3Df, distance: number): boolean {
-    let p = new Vector3Df();
+  public behindPlane(normal: Vector3Dd, distance: number): boolean {
+    let p = new Vector3Dd();
 
     p = p.withX(normal.x() > 0.0 ? this.coordinates[BoundingBoxCoordinateIndex.MAX_X] : this.coordinates[BoundingBoxCoordinateIndex.MIN_X]);
     p = p.withY(normal.y() > 0.0 ? this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] : this.coordinates[BoundingBoxCoordinateIndex.MIN_Y]);
@@ -104,7 +104,7 @@ export class BoundingBox {
     BoundingBox.setIfGreater(this.coordinates, BoundingBoxCoordinateIndex.MAX_Z, otherCoords[BoundingBoxCoordinateIndex.MAX_Z]);
   }
 
-  public enlargeToIncludePoint(point: Vector3Df): void {
+  public enlargeToIncludePoint(point: Vector3Dd): void {
     BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_X, point.x());
     BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Y, point.y());
     BoundingBox.setIfLess(this.coordinates, BoundingBoxCoordinateIndex.MIN_Z, point.z());
@@ -118,14 +118,14 @@ export class BoundingBox {
     let dy = (this.coordinates[BoundingBoxCoordinateIndex.MAX_Y] - this.coordinates[BoundingBoxCoordinateIndex.MIN_Y]) * 1e-4;
     let dz = (this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] - this.coordinates[BoundingBoxCoordinateIndex.MIN_Z]) * 1e-4;
 
-    if (dx < Numeric.EPSILON_FLOAT) {
-      dx = Numeric.EPSILON_FLOAT;
+    if (dx < Numeric.EPSILON) {
+      dx = Numeric.EPSILON;
     }
-    if (dy < Numeric.EPSILON_FLOAT) {
-      dy = Numeric.EPSILON_FLOAT;
+    if (dy < Numeric.EPSILON) {
+      dy = Numeric.EPSILON;
     }
-    if (dz < Numeric.EPSILON_FLOAT) {
-      dz = Numeric.EPSILON_FLOAT;
+    if (dz < Numeric.EPSILON) {
+      dz = Numeric.EPSILON;
     }
 
     this.coordinates[BoundingBoxCoordinateIndex.MIN_X] -= dx;
@@ -171,8 +171,8 @@ export class BoundingBox {
     return this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] - this.coordinates[BoundingBoxCoordinateIndex.MIN_Z];
   }
 
-  public voxelSize(nx: number, ny: number, nz: number): Vector3Df {
-    return new Vector3Df(
+  public voxelSize(nx: number, ny: number, nz: number): Vector3Dd {
+    return new Vector3Dd(
       this.dx() / nx,
       this.dy() / ny,
       this.dz() / nz
@@ -184,14 +184,14 @@ export class BoundingBox {
     let fdy = this.dy() * factor;
     let fdz = this.dz() * factor;
 
-    if (fdx < Numeric.EPSILON_FLOAT) {
-      fdx = Numeric.EPSILON_FLOAT;
+    if (fdx < Numeric.EPSILON) {
+      fdx = Numeric.EPSILON;
     }
-    if (fdy < Numeric.EPSILON_FLOAT) {
-      fdy = Numeric.EPSILON_FLOAT;
+    if (fdy < Numeric.EPSILON) {
+      fdy = Numeric.EPSILON;
     }
-    if (fdz < Numeric.EPSILON_FLOAT) {
-      fdz = Numeric.EPSILON_FLOAT;
+    if (fdz < Numeric.EPSILON) {
+      fdz = Numeric.EPSILON;
     }
 
     this.coordinates[BoundingBoxCoordinateIndex.MIN_X] -= fdx;
@@ -202,16 +202,16 @@ export class BoundingBox {
     this.coordinates[BoundingBoxCoordinateIndex.MAX_Z] += fdz;
   }
 
-  public minPoint(): Vector3Df {
-    return new Vector3Df(
+  public minPoint(): Vector3Dd {
+    return new Vector3Dd(
       this.coordinates[BoundingBoxCoordinateIndex.MIN_X],
       this.coordinates[BoundingBoxCoordinateIndex.MIN_Y],
       this.coordinates[BoundingBoxCoordinateIndex.MIN_Z]
     );
   }
 
-  public maxPoint(): Vector3Df {
-    return new Vector3Df(
+  public maxPoint(): Vector3Dd {
+    return new Vector3Dd(
       this.coordinates[BoundingBoxCoordinateIndex.MAX_X],
       this.coordinates[BoundingBoxCoordinateIndex.MAX_Y],
       this.coordinates[BoundingBoxCoordinateIndex.MAX_Z]
@@ -258,7 +258,7 @@ export class BoundingBox {
     }
   }
 
-  public corners(out: Vector3Df[]): void {
+  public corners(out: Vector3Dd[]): void {
     const minX = this.coordinates[BoundingBoxCoordinateIndex.MIN_X];
     const minY = this.coordinates[BoundingBoxCoordinateIndex.MIN_Y];
     const minZ = this.coordinates[BoundingBoxCoordinateIndex.MIN_Z];
@@ -266,14 +266,14 @@ export class BoundingBox {
     const maxY = this.coordinates[BoundingBoxCoordinateIndex.MAX_Y];
     const maxZ = this.coordinates[BoundingBoxCoordinateIndex.MAX_Z];
 
-    out[0] = new Vector3Df(minX, minY, minZ);
-    out[1] = new Vector3Df(maxX, minY, minZ);
-    out[2] = new Vector3Df(minX, maxY, minZ);
-    out[3] = new Vector3Df(maxX, maxY, minZ);
-    out[4] = new Vector3Df(minX, minY, maxZ);
-    out[5] = new Vector3Df(maxX, minY, maxZ);
-    out[6] = new Vector3Df(minX, maxY, maxZ);
-    out[7] = new Vector3Df(maxX, maxY, maxZ);
+    out[0] = new Vector3Dd(minX, minY, minZ);
+    out[1] = new Vector3Dd(maxX, minY, minZ);
+    out[2] = new Vector3Dd(minX, maxY, minZ);
+    out[3] = new Vector3Dd(maxX, maxY, minZ);
+    out[4] = new Vector3Dd(minX, minY, maxZ);
+    out[5] = new Vector3Dd(maxX, minY, maxZ);
+    out[6] = new Vector3Dd(minX, maxY, maxZ);
+    out[7] = new Vector3Dd(maxX, maxY, maxZ);
   }
 
   private static clipAxisSlab(
@@ -333,11 +333,11 @@ export class BoundingBox {
     const farDistance = BoundingBox.intersectingSegmentScratchFar;
     nearDistance[0] = minimumDistance;
     farDistance[0] = maximumDistance;
-    const toleranceScale = 1.0 + Numeric.EPSILON_FLOAT;
+    const toleranceScale = 1.0 + Numeric.EPSILON;
 
     if (!BoundingBox.clipAxisSlab(
       this.coordinates[BoundingBoxCoordinateIndex.MIN_X], this.coordinates[BoundingBoxCoordinateIndex.MAX_X],
-      ray.position.x(), ray.direction.x(),
+      ray.getOrigin().x(), ray.getDirection().x(),
       toleranceScale,
       nearDistance, farDistance
     )) {
@@ -345,7 +345,7 @@ export class BoundingBox {
     }
     if (!BoundingBox.clipAxisSlab(
       this.coordinates[BoundingBoxCoordinateIndex.MIN_Y], this.coordinates[BoundingBoxCoordinateIndex.MAX_Y],
-      ray.position.y(), ray.direction.y(),
+      ray.getOrigin().y(), ray.getDirection().y(),
       toleranceScale,
       nearDistance, farDistance
     )) {
@@ -353,7 +353,7 @@ export class BoundingBox {
     }
     if (!BoundingBox.clipAxisSlab(
       this.coordinates[BoundingBoxCoordinateIndex.MIN_Z], this.coordinates[BoundingBoxCoordinateIndex.MAX_Z],
-      ray.position.z(), ray.direction.z(),
+      ray.getOrigin().z(), ray.getDirection().z(),
       toleranceScale,
       nearDistance, farDistance
     )) {

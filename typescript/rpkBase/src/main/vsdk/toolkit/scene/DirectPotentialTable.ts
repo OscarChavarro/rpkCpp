@@ -3,17 +3,14 @@ Direct potential (importance received straight from the eye) of every face of
 a scene, indexed by the dense face index (Patch.getFaceIndex()). All values
 start at zero; Potential.updateDirectPotential rewrites them whenever the view
 changes, and the importance-driven solvers read them. Owned by the scene.
-
-The values are single precision, as in the source: set rounds with
-Math.fround (the Float32Array store).
 */
 export class DirectPotentialTable {
-  private readonly potentials: Float32Array;
+  private readonly potentials: Float64Array;
   private readonly numberOfFaces: number;
 
   public constructor(inNumberOfFaces: number) {
     this.numberOfFaces = inNumberOfFaces;
-    this.potentials = new Float32Array(inNumberOfFaces > 0 ? inNumberOfFaces : 1);
+    this.potentials = new Float64Array(inNumberOfFaces > 0 ? inNumberOfFaces : 1);
   }
 
   public getNumberOfFaces(): number {

@@ -4,7 +4,7 @@ import { BufferedInputStream } from "vitral/dist/java/io/BufferedInputStream";
 import { FileInputStream } from "../../../../../java/io/FileInputStream";
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { ReaderContext } from "../../context/ReaderContext";
@@ -91,7 +91,7 @@ export class BinaryModelDeserializer {
       return null;
     }
 
-    const vectors: Array<Vector3Df | null> = [];
+    const vectors: Array<Vector3Dd | null> = [];
     const vertices: Array<Vertex | null> = [];
     const patches: Array<Patch | null> = [];
     const materials: Array<Material | null> = [];
@@ -160,7 +160,7 @@ export class BinaryModelDeserializer {
 
       BinaryModelDeserializer.require(BinaryModelReadPrimitives.expectTag(input, "VEC3"));
       for (let i = 0; i < vectorCount; i++) {
-        const vector = [new Vector3Df()];
+        const vector = [new Vector3Dd()];
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readVector(input, vector));
         vectors[i] = vector[0]!;
       }
@@ -393,15 +393,15 @@ export class BinaryModelDeserializer {
         }
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "vertex.patches", record.patchIndices));
 
-        const pointOut = new BinaryModelReadPrimitives.Out<Vector3Df | null>();
-        const normalOut = new BinaryModelReadPrimitives.Out<Vector3Df | null>();
-        const texCoordsOut = new BinaryModelReadPrimitives.Out<Vector3Df | null>();
+        const pointOut = new BinaryModelReadPrimitives.Out<Vector3Dd | null>();
+        const normalOut = new BinaryModelReadPrimitives.Out<Vector3Dd | null>();
+        const texCoordsOut = new BinaryModelReadPrimitives.Out<Vector3Dd | null>();
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.pointIndex, "vertex.point", pointOut));
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.normalIndex, "vertex.normal", normalOut));
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.pointerFromIndex(vectors, record.textureCoordinateIndex, "vertex.textureCoordinates", texCoordsOut));
 
         const vertex = new Vertex(
-          pointOut.value as Vector3Df,
+          pointOut.value as Vector3Dd,
           normalOut.value,
           texCoordsOut.value,
           []
@@ -615,8 +615,8 @@ export class BinaryModelDeserializer {
         let geometry: Geometry | null = null;
 
         if (record.classId === GeometryClassId.SURFACE_MESH) {
-          const positionsOut = new BinaryModelReadPrimitives.Out<Array<Vector3Df | null> | null>();
-          const normalsOut = new BinaryModelReadPrimitives.Out<Array<Vector3Df | null> | null>();
+          const positionsOut = new BinaryModelReadPrimitives.Out<Array<Vector3Dd | null> | null>();
+          const normalsOut = new BinaryModelReadPrimitives.Out<Array<Vector3Dd | null> | null>();
           const verticesOut = new BinaryModelReadPrimitives.Out<Array<Vertex | null> | null>();
           const facesOut = new BinaryModelReadPrimitives.Out<Array<Patch | null> | null>();
           const materialOut = new BinaryModelReadPrimitives.Out<Material | null>();
@@ -631,8 +631,8 @@ export class BinaryModelDeserializer {
           const surface = new MeshSurface(
             objectName as unknown as string,
             materialOut.value as unknown as Material,
-            positionsOut.value as unknown as Array<Vector3Df>,
-            normalsOut.value as unknown as Array<Vector3Df>,
+            positionsOut.value as unknown as Array<Vector3Dd>,
+            normalsOut.value as unknown as Array<Vector3Dd>,
             null,
             verticesOut.value as unknown as Array<Vertex>,
             facesOut.value as unknown as Array<Patch>,
@@ -695,7 +695,6 @@ export class BinaryModelDeserializer {
       modelRecord.inSurface = BinaryModelReadPrimitives.readBool(input);
       modelRecord.monochrome = BinaryModelReadPrimitives.readBool(input);
       modelRecord.singleSided = BinaryModelReadPrimitives.readBool(input);
-      modelRecord.warpConeEnds = BinaryModelReadPrimitives.readBool(input);
       modelRecord.numberOfQuarterCircleDivisions = BinaryModelReadPrimitives.readInt32LE(input);
       modelRecord.readerContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
       modelRecord.transformContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
@@ -722,7 +721,6 @@ export class BinaryModelDeserializer {
       model.inSurface = modelRecord.inSurface;
       model.monochrome = modelRecord.monochrome;
       model.singleSided = modelRecord.singleSided;
-      model.warpConeEnds = modelRecord.warpConeEnds;
       model.numberOfQuarterCircleDivisions = modelRecord.numberOfQuarterCircleDivisions;
       model.readerContext = readerContextOut.value;
       model.transformContext = transformContextOut.value;
@@ -731,8 +729,8 @@ export class BinaryModelDeserializer {
 
       const modelFaceListOut = new BinaryModelReadPrimitives.Out<Array<Patch | null> | null>();
       const modelGeometryListOut = new BinaryModelReadPrimitives.Out<Array<Geometry | null> | null>();
-      const modelNormalListOut = new BinaryModelReadPrimitives.Out<Array<Vector3Df | null> | null>();
-      const modelPointListOut = new BinaryModelReadPrimitives.Out<Array<Vector3Df | null> | null>();
+      const modelNormalListOut = new BinaryModelReadPrimitives.Out<Array<Vector3Dd | null> | null>();
+      const modelPointListOut = new BinaryModelReadPrimitives.Out<Array<Vector3Dd | null> | null>();
       const modelVertexListOut = new BinaryModelReadPrimitives.Out<Array<Vertex | null> | null>();
       const modelGeometriesOut = new BinaryModelReadPrimitives.Out<Array<Geometry | null> | null>();
       const modelMaterialsOut = new BinaryModelReadPrimitives.Out<Array<Material | null> | null>();
@@ -747,8 +745,8 @@ export class BinaryModelDeserializer {
 
       model.currentFaceList = modelFaceListOut.value as unknown as Array<Patch> | null;
       model.currentGeometryList = modelGeometryListOut.value as unknown as Array<Geometry> | null;
-      model.currentNormalList = modelNormalListOut.value as unknown as Array<Vector3Df> | null;
-      model.currentPointList = modelPointListOut.value as unknown as Array<Vector3Df> | null;
+      model.currentNormalList = modelNormalListOut.value as unknown as Array<Vector3Dd> | null;
+      model.currentPointList = modelPointListOut.value as unknown as Array<Vector3Dd> | null;
       model.currentVertexList = modelVertexListOut.value as unknown as Array<Vertex> | null;
       model.geometries = modelGeometriesOut.value as unknown as Array<Geometry> | null;
       model.materials = modelMaterialsOut.value as unknown as Array<Material> | null;
@@ -794,7 +792,7 @@ export class BinaryModelDeserializer {
 
     if (!ok) {
       BinaryModelReadCleanup.cleanupPartialModel(
-        vectors as unknown as Array<Vector3Df>,
+        vectors as unknown as Array<Vector3Dd>,
         vertices as unknown as Array<Vertex>,
         patches as unknown as Array<Patch>,
         materials as unknown as Array<Material>,

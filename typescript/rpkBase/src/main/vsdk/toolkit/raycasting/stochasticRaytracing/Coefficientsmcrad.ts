@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { GalerkinBasis } from "./GalerkinBasis";
+import { StochasticRadiosityBasis } from "./StochasticRadiosityBasis";
 import { McradP } from "./McradP";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
 import { StochasticRadiosityElementType } from "./StochasticRadiosityElementType";
@@ -9,7 +9,7 @@ export class Coefficientsmcrad {
   private constructor() {
   }
 
-  public static stochasticRadiosityClearCoefficients(c: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityClearCoefficients(c: ColorRgbMutable[] | null, galerkinBasis: StochasticRadiosityBasis | null): void {
     if (c === null || galerkinBasis === null) {
       return;
     }
@@ -21,7 +21,7 @@ export class Coefficientsmcrad {
     }
   }
 
-  public static stochasticRadiosityCopyCoefficients(dst: ColorRgbMutable[] | null, src: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityCopyCoefficients(dst: ColorRgbMutable[] | null, src: ColorRgbMutable[] | null, galerkinBasis: StochasticRadiosityBasis | null): void {
     if (dst === null || src === null || galerkinBasis === null) {
       return;
     }
@@ -36,7 +36,7 @@ export class Coefficientsmcrad {
     }
   }
 
-  public static stochasticRadiosityAddCoefficients(dst: ColorRgbMutable[] | null, extra: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityAddCoefficients(dst: ColorRgbMutable[] | null, extra: ColorRgbMutable[] | null, galerkinBasis: StochasticRadiosityBasis | null): void {
     if (dst === null || extra === null || galerkinBasis === null) {
       return;
     }
@@ -51,7 +51,7 @@ export class Coefficientsmcrad {
     }
   }
 
-  public static stochasticRadiosityScaleCoefficients(scale: number, color: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityScaleCoefficients(scale: number, color: ColorRgbMutable[] | null, galerkinBasis: StochasticRadiosityBasis | null): void {
     if (color === null || galerkinBasis === null) {
       return;
     }
@@ -63,7 +63,7 @@ export class Coefficientsmcrad {
     }
   }
 
-  public static stochasticRadiosityMultiplyCoefficients(color: ColorRgbMutable | null, coefficients: ColorRgbMutable[] | null, galerkinBasis: GalerkinBasis | null): void {
+  public static stochasticRadiosityMultiplyCoefficients(color: ColorRgbMutable | null, coefficients: ColorRgbMutable[] | null, galerkinBasis: StochasticRadiosityBasis | null): void {
     if (coefficients === null || galerkinBasis === null || color === null) {
       return;
     }
@@ -96,7 +96,7 @@ Disposes previously allocated coefficients
   /**
 Determines basis based on element type and currently desired approximation
 */
-  private static actualBasis(elem: any): GalerkinBasis {
+  private static actualBasis(elem: any): StochasticRadiosityBasis {
     if (elem.isCluster()) {
       return StochasticRadiosityBasisState.activeState().clusterBasis;
     }

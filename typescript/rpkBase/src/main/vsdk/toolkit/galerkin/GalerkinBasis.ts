@@ -1,7 +1,7 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
 import { BasisQuadGalerkin } from "./BasisQuadGalerkin";
 import { BasisTriGalerkin } from "./BasisTriGalerkin";
@@ -270,10 +270,10 @@ export class GalerkinBasis {
       for (let beta = 0; beta < childSize; beta++) {
         let x = 0.0;
         for (let k = 0; k < cubatureRule.numberOfNodes; k++) {
-          let up = new Vector2Df(cubatureRule.u[k]!, cubatureRule.v[k]!);
+          let up = new Vector2Dd(cubatureRule.u[k]!, cubatureRule.v[k]!);
           up = upTransform.transformPoint(up);
           x += cubatureRule.w[k]!
-            * parentBasis.function[alpha]!(up.x(), up.y())
+            * parentBasis.function[alpha]!(up.x, up.y)
             * childBasis.function[beta]!(cubatureRule.u[k]!, cubatureRule.v[k]!);
         }
         filter[alpha]![beta] = x;

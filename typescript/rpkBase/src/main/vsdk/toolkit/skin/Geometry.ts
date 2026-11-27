@@ -1,5 +1,5 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Ray } from "../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Statistics } from "../common/statistics/Statistics";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { BoundingBox } from "./AxisAlignedBoundingBox";
@@ -159,7 +159,7 @@ export class Geometry {
     }
 
     if (this.bounded) {
-      const vTmp = ray.position.add(ray.direction.multiply(minimumDistance));
+      const vTmp = ray.getOrigin().add(ray.getDirection().multiply(minimumDistance));
       if (this.boundingBox.outOfBounds(vTmp)) {
         const nMaximumDistance = Geometry.preTestScratchDistance;
         nMaximumDistance[0] = maximumDistance[0]!;

@@ -1,5 +1,5 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Polygon } from "./Polygon";
+import { ScreenPolygon } from "./ScreenPolygon";
 import { PolygonBox } from "./PolygonBox";
 import { PolygonClipResult } from "./PolygonClipResult";
 import { PolygonClipResultInfo } from "./PolygonClipResultInfo";
@@ -27,7 +27,7 @@ export class Poly {
     dst.b = src.b;
   }
 
-  private static polygonSwap(a: Polygon, b: Polygon): void {
+  private static polygonSwap(a: ScreenPolygon, b: ScreenPolygon): void {
     const temporaryN = a.n;
     const temporaryMask = a.mask;
     const temporaryVertices = a.vertices;
@@ -84,7 +84,7 @@ export class Poly {
     }
   }
 
-  private static clipToHalfSpace(p: Polygon, q: Polygon, index: number, sign: number, k: number): void {
+  private static clipToHalfSpace(p: ScreenPolygon, q: ScreenPolygon, index: number, sign: number, k: number): void {
     q.n = 0;
     q.mask = p.mask;
 
@@ -124,7 +124,7 @@ export class Poly {
     }
   }
 
-  private static clipAndSwap(elementIndex: number, sign: number, k: number, p: Polygon, q: Polygon, p1: Polygon): void {
+  private static clipAndSwap(elementIndex: number, sign: number, k: number, p: ScreenPolygon, q: ScreenPolygon, p1: ScreenPolygon): void {
     Poly.clipToHalfSpace(p, q, elementIndex, sign, sign * k);
     if (q.n === 0) {
       p1.n = 0;
@@ -136,14 +136,14 @@ export class Poly {
     return 1 << (elementOffset / Float64Array.BYTES_PER_ELEMENT);
   }
 
-  public static clipToBox(p1: Polygon, box: PolygonBox): number {
+  public static clipToBox(p1: ScreenPolygon, box: PolygonBox): number {
     let x0out = 0;
     let x1out = 0;
     let y0out = 0;
     let y1out = 0;
     let z0out = 0;
     let z1out = 0;
-    const p2 = new Polygon();
+    const p2 = new ScreenPolygon();
 
     if (p1.n + 6 > PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON) {
       process.stderr.write(
@@ -265,7 +265,7 @@ export class Poly {
     }
   }
 
-  public static scanFlat(sglContext: SglContext, p: Polygon, win: Window): void {
+  public static scanFlat(sglContext: SglContext, p: ScreenPolygon, win: Window): void {
     let yMin = Numeric.HUGE_DOUBLE_VALUE;
     let top = -1;
     for (let i = 0; i < p.n; i++) {
@@ -401,7 +401,7 @@ export class Poly {
     }
   }
 
-  public static scanZ(sglContext: SglContext, p: Polygon, window: Window): void {
+  public static scanZ(sglContext: SglContext, p: ScreenPolygon, window: Window): void {
     let yMin = Numeric.HUGE_DOUBLE_VALUE;
     let top = -1;
     for (let i = 0; i < p.n; i++) {

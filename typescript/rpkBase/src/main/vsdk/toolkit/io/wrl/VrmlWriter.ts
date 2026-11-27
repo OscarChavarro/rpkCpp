@@ -1,9 +1,9 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Matrix4x4f } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4f";
+import { Matrix4x4d } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4d";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Camera } from "../../scene/Camera";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
@@ -73,43 +73,42 @@ export class VrmlWriter {
   }
 
   /**
-  @param modelRotationAxis one-element holder (C++ `Vector3Df *`)
-  @param modelRotationAngle one-element holder (C++ `float *`)
+  @param modelRotationAxis one-element holder (C++ `Vector3Dd *`)
+  @param modelRotationAngle one-element holder (C++ `double *`)
   */
-  private static transformModel(camera: Camera, modelRotationAxis: Vector3Df[], modelRotationAngle: number[]): Matrix4x4f {
-    let upAxis = new Vector3Df();
-    upAxis = new Vector3Df(0.0, 1.0, 0.0);
+  private static transformModel(camera: Camera, modelRotationAxis: Vector3Dd[], modelRotationAngle: number[]): Matrix4x4d {
+    let upAxis = new Vector3Dd();
+    upAxis = new Vector3Dd(0.0, 1.0, 0.0);
     const cosA = camera.upDirection.dotProduct(upAxis);
     if (cosA < 1.0 - VSDK.EPSILON) {
-      modelRotationAngle[0] = Math.fround(globalThis.Math.acos(cosA));
+      modelRotationAngle[0] = globalThis.Math.acos(cosA);
       modelRotationAxis[0] = camera.upDirection.crossProduct(upAxis);
-      modelRotationAxis[0] = modelRotationAxis[0].normalized(Numeric.EPSILON_FLOAT);
-      return new Matrix4x4f().axisRotation(modelRotationAngle[0], modelRotationAxis[0]);
+      modelRotationAxis[0] = modelRotationAxis[0].normalized(Numeric.EPSILON);
+      return new Matrix4x4d().axisRotation(modelRotationAngle[0], modelRotationAxis[0]);
     }
 
-    modelRotationAxis[0] = new Vector3Df(0.0, 1.0, 0.0);
+    modelRotationAxis[0] = new Vector3Dd(0.0, 1.0, 0.0);
     modelRotationAngle[0] = 0.0;
-    return new Matrix4x4f();
+    return new Matrix4x4d();
   }
 
   /**
   Recovers the rotation axis and angle from the given rotation matrix.
   There is no check whether the transform really is a rotation.
-  @param angle one-element holder (C++ `float *`)
-  @param axis one-element holder (C++ `Vector3Df *`)
+  @param angle one-element holder (C++ `double *`)
+  @param axis one-element holder (C++ `Vector3Dd *`)
   */
-  private static recoverRotationParameters(rotation: Matrix4x4f, angle: number[], axis: Vector3Df[]): void {
-    const fr = Math.fround;
-    const c = fr(fr(fr(fr(rotation.get(0, 0) + rotation.get(1, 1)) + rotation.get(2, 2)) - 1.0) * 0.5);
+  private static recoverRotationParameters(rotation: Matrix4x4d, angle: number[], axis: Vector3Dd[]): void {
+    const c = (((rotation.get(0, 0) + rotation.get(1, 1)) + rotation.get(2, 2)) - 1.0) * 0.5;
     if (c > 1.0 - VSDK.EPSILON) {
       angle[0] = 0.0;
-      axis[0] = new Vector3Df(0.0, 0.0, 1.0);
+      axis[0] = new Vector3Dd(0.0, 0.0, 1.0);
     }
     else if (c < -1.0 + VSDK.EPSILON) {
-      angle[0] = fr(globalThis.Math.PI);
-      const x = fr(globalThis.Math.sqrt(fr(fr(rotation.get(0, 0) + 1.0) * 0.5)));
-      let y = fr(globalThis.Math.sqrt(fr(fr(rotation.get(1, 1) + 1.0) * 0.5)));
-      let z = fr(globalThis.Math.sqrt(fr(fr(rotation.get(2, 2) + 1.0) * 0.5)));
+      angle[0] = globalThis.Math.PI;
+      const x = globalThis.Math.sqrt((rotation.get(0, 0) + 1.0) * 0.5);
+      let y = globalThis.Math.sqrt((rotation.get(1, 1) + 1.0) * 0.5);
+      let z = globalThis.Math.sqrt((rotation.get(2, 2) + 1.0) * 0.5);
 
       // Assume x positive, determine sign of y and z
       if (rotation.get(1, 0) < 0.0) {
@@ -118,29 +117,29 @@ export class VrmlWriter {
       if (rotation.get(2, 0) < 0.0) {
         z = -z;
       }
-      axis[0] = new Vector3Df(x, y, z);
+      axis[0] = new Vector3Dd(x, y, z);
     }
     else {
-      angle[0] = fr(globalThis.Math.acos(c));
-      const s = fr(globalThis.Math.sqrt(fr(1.0 - fr(c * c))));
-      const r = fr(1.0 / fr(2.0 * s));
-      axis[0] = new Vector3Df(
-        fr(fr(rotation.get(2, 1) - rotation.get(1, 2)) * r),
-        fr(fr(rotation.get(0, 2) - rotation.get(2, 0)) * r),
-        fr(fr(rotation.get(1, 0) - rotation.get(0, 1)) * r));
+      angle[0] = globalThis.Math.acos(c);
+      const s = globalThis.Math.sqrt(1.0 - (c * c));
+      const r = 1.0 / (2.0 * s);
+      axis[0] = new Vector3Dd(
+        (rotation.get(2, 1) - rotation.get(1, 2)) * r,
+        (rotation.get(0, 2) - rotation.get(2, 0)) * r,
+        (rotation.get(1, 0) - rotation.get(0, 1)) * r);
     }
   }
 
   private static writeViewPoint(
     outputStream: OutputStream | null,
-    modelTransform: Matrix4x4f,
+    modelTransform: Matrix4x4d,
     camera: Camera,
     viewPointName: string
   ): void {
-    let X = new Vector3Df();
-    let Y = new Vector3Df();
-    let Z = new Vector3Df();
-    const viewRotationAxisHolder = [new Vector3Df()];
+    let X = new Vector3Dd();
+    let Y = new Vector3Dd();
+    let Z = new Vector3Dd();
+    const viewRotationAxisHolder = [new Vector3Dd()];
     const viewRotationAngle = [0.0];
 
     X = camera.X.multiply(1.0);
@@ -159,7 +158,7 @@ export class VrmlWriter {
       [X.z(), Y.z(), Z.z(), 0.0],
       [0.0, 0.0, 0.0, 1.0]
     ];
-    VrmlWriter.recoverRotationParameters(new Matrix4x4f(orientation), viewRotationAngle, viewRotationAxisHolder);
+    VrmlWriter.recoverRotationParameters(new Matrix4x4d(orientation), viewRotationAngle, viewRotationAxisHolder);
     const viewRotationAxis = viewRotationAxisHolder[0]!;
 
     const eyePosition = modelRotation.multiply(camera.eyePosition);
@@ -179,7 +178,7 @@ export class VrmlWriter {
     );
   }
 
-  private static writeViewPoints(camera: Camera, outputStream: OutputStream | null, modelTransform: Matrix4x4f): void {
+  private static writeViewPoints(camera: Camera, outputStream: OutputStream | null, modelTransform: Matrix4x4d): void {
     let localCamera: Camera | null = null;
     let count = 1;
     VrmlWriter.writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
@@ -191,7 +190,7 @@ export class VrmlWriter {
   }
 
   public static writeHeader(camera: Camera, outputStream: OutputStream | null, renderOptions: RendererConfiguration): void {
-    const modelRotationAxisHolder = [new Vector3Df()];
+    const modelRotationAxisHolder = [new Vector3Dd()];
     const modelRotationAngle = [0.0];
 
     VrmlWriter.writeFormatted(outputStream, "#VRML V2.0 utf8\n\n");

@@ -324,7 +324,7 @@ export class ShootingStrategy {
           if (topLevelElement === null) {
             continue;
           }
-          const potentialIncrement = Math.fround(scene.getDirectPotentials()!.get(patch.getFaceIndex()) - topLevelElement.directPotential);
+          const potentialIncrement = scene.getDirectPotentials()!.get(patch.getFaceIndex()) - topLevelElement.directPotential;
           ShootingStrategy.shootingUpdateDirectPotential(topLevelElement, potentialIncrement);
         }
         (scene.camera as NonNullable<Scene["camera"]>).changed = 0;

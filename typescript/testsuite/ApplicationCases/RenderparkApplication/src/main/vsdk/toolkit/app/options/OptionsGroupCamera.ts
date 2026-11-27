@@ -3,29 +3,29 @@ import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions
 import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
 import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
 import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Camera } from "rpk-base/dist/vsdk/toolkit/scene/Camera";
 
 export class OptionsGroupCamera {
   private static readonly DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5;
-  private static readonly DEFAULT_CAMERA_EYE_POSITION = new Vector3Df(10.0, 0.0, 0.0);
-  private static readonly DEFAULT_CAMERA_LOOK_POSITION = new Vector3Df(0.0, 0.0, 0.0);
-  private static readonly DEFAULT_CAMERA_UP_DIRECTION = new Vector3Df(0.0, 0.0, 1.0);
+  private static readonly DEFAULT_CAMERA_EYE_POSITION = new Vector3Dd(10.0, 0.0, 0.0);
+  private static readonly DEFAULT_CAMERA_LOOK_POSITION = new Vector3Dd(0.0, 0.0, 0.0);
+  private static readonly DEFAULT_CAMERA_UP_DIRECTION = new Vector3Dd(0.0, 0.0, 1.0);
   private static readonly DEFAULT_BACKGROUND_COLOR = new ColorRgbMutable(0.0, 0.0, 0.0);
   private static cameraState = new Camera();
 
   private constructor() {
   }
 
-  private static cameraSetEyePositionOption(val: TypedOption.MutableValue<Vector3Df>): void {
+  private static cameraSetEyePositionOption(val: TypedOption.MutableValue<Vector3Dd>): void {
     OptionsGroupCamera.cameraState.setEyePosition(val.value.x(), val.value.y(), val.value.z());
   }
 
-  private static cameraSetLookPositionOption(val: TypedOption.MutableValue<Vector3Df>): void {
+  private static cameraSetLookPositionOption(val: TypedOption.MutableValue<Vector3Dd>): void {
     OptionsGroupCamera.cameraState.setLookPosition(val.value.x(), val.value.y(), val.value.z());
   }
 
-  private static cameraSetUpDirectionOption(val: TypedOption.MutableValue<Vector3Df>): void {
+  private static cameraSetUpDirectionOption(val: TypedOption.MutableValue<Vector3Dd>): void {
     OptionsGroupCamera.cameraState.setUpDirection(val.value.x(), val.value.y(), val.value.z());
   }
 
@@ -34,17 +34,17 @@ export class OptionsGroupCamera {
   }
 
   private static cameraDefaults(camera: Camera, imageWidth: number, imageHeight: number): void {
-    const eyePosition = new Vector3Df(
+    const eyePosition = new Vector3Dd(
       OptionsGroupCamera.DEFAULT_CAMERA_EYE_POSITION.x(),
       OptionsGroupCamera.DEFAULT_CAMERA_EYE_POSITION.y(),
       OptionsGroupCamera.DEFAULT_CAMERA_EYE_POSITION.z()
     );
-    const lookPosition = new Vector3Df(
+    const lookPosition = new Vector3Dd(
       OptionsGroupCamera.DEFAULT_CAMERA_LOOK_POSITION.x(),
       OptionsGroupCamera.DEFAULT_CAMERA_LOOK_POSITION.y(),
       OptionsGroupCamera.DEFAULT_CAMERA_LOOK_POSITION.z()
     );
-    const upDirection = new Vector3Df(
+    const upDirection = new Vector3Dd(
       OptionsGroupCamera.DEFAULT_CAMERA_UP_DIRECTION.x(),
       OptionsGroupCamera.DEFAULT_CAMERA_UP_DIRECTION.y(),
       OptionsGroupCamera.DEFAULT_CAMERA_UP_DIRECTION.z()
@@ -69,7 +69,7 @@ export class OptionsGroupCamera {
   private static parseVector3(
     argc: number,
     argv: string[] | null,
-    value: TypedOption.MutableValue<Vector3Df>
+    value: TypedOption.MutableValue<Vector3Dd>
   ): boolean {
     if (argc < 3 || argv === null || argv[0] === null || argv[1] === null || argv[2] === null) {
       return false;
@@ -93,7 +93,7 @@ export class OptionsGroupCamera {
     imageWidth: number,
     imageHeight: number
   ): void {
-    const eyePointOpt = new TypedOption<Vector3Df>(
+    const eyePointOpt = new TypedOption<Vector3Dd>(
       "-eyepoint",
       TypedOption.reference(
         () => OptionsGroupCamera.cameraState.eyePosition,
@@ -105,7 +105,7 @@ export class OptionsGroupCamera {
       OptionsGroupCamera.cameraSetEyePositionOption,
       OptionsGroupCamera.parseVector3
     );
-    const centerOpt = new TypedOption<Vector3Df>(
+    const centerOpt = new TypedOption<Vector3Dd>(
       "-center",
       TypedOption.reference(
         () => OptionsGroupCamera.cameraState.lookPosition,
@@ -117,7 +117,7 @@ export class OptionsGroupCamera {
       OptionsGroupCamera.cameraSetLookPositionOption,
       OptionsGroupCamera.parseVector3
     );
-    const upDirOpt = new TypedOption<Vector3Df>(
+    const upDirOpt = new TypedOption<Vector3Dd>(
       "-updir",
       TypedOption.reference(
         () => OptionsGroupCamera.cameraState.upDirection,

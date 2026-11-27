@@ -5,8 +5,8 @@ Random walk generation
 import { Random48 } from "../../common/Random48";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { SceneQuery } from "../../scene/SceneQuery";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -46,7 +46,7 @@ Sets numberOfNodes to zero (forgets old path, but does not free the memory for t
   /**
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
-  private static pathAddNode(path: Path, patch: Patch, prob: number, inPoint: Vector3Df, outpoint: Vector3Df): void {
+  private static pathAddNode(path: Path, patch: Patch, prob: number, inPoint: Vector3Dd, outpoint: Vector3Dd): void {
     if (path.numberOfNodes >= path.nodesAllocated) {
       const newNodes = new Array<StochasticRaytracingPathNode>(path.nodesAllocated + 20);
       for (let i = 0; i < newNodes.length; i++) {
@@ -103,8 +103,8 @@ when no longer needed
     survivalProbabilityCallBack: (patch: Patch) => number,
     path: Path
   ): Path {
-    const inPoint = new Vector3Df(0.0, 0.0, 0.0);
-    const outpoint = new Vector3Df(0.0, 0.0, 0.0);
+    const inPoint = new Vector3Dd(0.0, 0.0, 0.0);
+    const outpoint = new Vector3Dd(0.0, 0.0, 0.0);
     let P = origin;
     let survivalProb: number;
     let ray: Ray;
@@ -119,9 +119,9 @@ when no longer needed
       ray = Localline.mcrGenerateLocalLine(P, Sample4d.sample4D((McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex));
       (McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex++;
       if (path.numberOfNodes > 1 && StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-        ray.position = path.nodes![path.numberOfNodes - 1]!.inPoint;
+        ray.setOrigin(path.nodes![path.numberOfNodes - 1]!.inPoint);
       }
-      path.nodes![path.numberOfNodes - 1]!.outpoint = ray.position;
+      path.nodes![path.numberOfNodes - 1]!.outpoint = ray.getOrigin();
 
       hit = Localline.mcrShootRay(sceneQuery, sceneWorldSceneQueryWorkspace, P, ray, hitStore);
       if (hit === null) {

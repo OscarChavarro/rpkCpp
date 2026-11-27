@@ -1,7 +1,7 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../common/statistics/Statistics";
 import { SglContext } from "../render/sgl/SglContext";
 import type { FaceVisibilityTable } from "../scene/FaceVisibilityTable";
@@ -9,9 +9,6 @@ import { Scene } from "../scene/Scene";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { Canvas } from "./Canvas";
 import { SoftIds } from "./SoftIds";
-
-// Single precision rounding of the source's float stores and operations
-const f = Math.fround;
 
 /**
 Routines dealing with view potential. In analogy with [SMIT1992] Smits,
@@ -50,31 +47,31 @@ export class Potential {
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
-    const newDirectImportance = new Float32Array(maximumPatchId + 1);
+    const newDirectImportance = new Float64Array(maximumPatchId + 1);
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    const PI = f(globalThis.Math.PI);
-    const h = f(2.0 * globalThis.Math.tan(f(f(camera.horizontalFov * PI) / 180.0)) / f(x[0]!));
-    const v = f(2.0 * globalThis.Math.tan(f(f(camera.verticalFov * PI) / 180.0)) / f(y[0]!));
-    const pixelArea = f(h * v);
+    const PI = globalThis.Math.PI;
+    const h = 2.0 * globalThis.Math.tan((camera.horizontalFov * PI) / 180.0) / x[0]!;
+    const v = 2.0 * globalThis.Math.tan((camera.verticalFov * PI) / 180.0) / y[0]!;
+    const pixelArea = h * v;
 
-    for (let j = y[0]! - 1, ySample = f(f(-v * f(y[0]! - 1)) / 2.0); j >= 0; j--, ySample = f(ySample + v)) {
+    for (let j = y[0]! - 1, ySample = (-v * (y[0]! - 1)) / 2.0; j >= 0; j--, ySample = ySample + v) {
       const rowStart = j * x[0]!;
-      let xSample = f(f(-h * f(x[0]! - 1)) / 2.0);
-      for (let i = 0; i < x[0]!; i++, xSample = f(xSample + h)) {
+      let xSample = (-h * (x[0]! - 1)) / 2.0;
+      for (let i = 0; i < x[0]!; i++, xSample = xSample + h) {
         const visible = target.patchBuffer[rowStart + i];
         const theId = visible == null ? 0 : visible.id & 0x00ffffff;
 
         if (theId > 0 && theId <= maximumPatchId) {
-          let pixDir = new Vector3Df();
+          let pixDir = new Vector3Dd();
           pixDir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
 
           // Delta_importance = (cosine of the angle between the direction to
           // the pixel and the viewing direction, over the distance from the
           // eye point to the pixel) squared, times area of the pixel
-          let deltaImportance = f(camera.Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir));
-          deltaImportance = f(deltaImportance * f(deltaImportance * pixelArea));
+          let deltaImportance = camera.Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
+          deltaImportance = deltaImportance * (deltaImportance * pixelArea);
           newDirectImportance[theId] = newDirectImportance[theId]! + deltaImportance;
         }
         else if (theId > maximumPatchId) {
@@ -98,7 +95,7 @@ export class Potential {
       if (patch !== null) {
         const directPotentials = scene.getDirectPotentials()!;
         const faceIndex = patch.getFaceIndex();
-        directPotentials.set(faceIndex, f(newDirectImportance[i]! / patch.getArea()));
+        directPotentials.set(faceIndex, newDirectImportance[i]! / patch.getArea());
 
         if (directPotentials.get(faceIndex) > statistics.potential.maxDirectPotential) {
           statistics.potential.maxDirectPotential = directPotentials.get(faceIndex);

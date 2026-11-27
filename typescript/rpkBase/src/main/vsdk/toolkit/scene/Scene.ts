@@ -13,7 +13,6 @@ import { FaceBoundsTable } from "./FaceBoundsTable";
 import { FaceColorTable } from "./FaceColorTable";
 import { FaceVisibilityTable } from "./FaceVisibilityTable";
 import { RadianceElementTable } from "./RadianceElementTable";
-import type { VisibilityQueryRecorder } from "./VisibilityQueryRecorder";
 import { SceneAccelerationMethod } from "./SceneAccelerationMethod";
 import { SceneQuery, SceneQueryWorkspace } from "./SceneQuery";
 
@@ -42,7 +41,6 @@ export class Scene {
   public geometryList: Geometry[] | null;
   public clusteredGeometryList: Geometry[] | null;
   public clusteredRootGeometry: Geometry | null;
-  public visibilityQueryRecorder: VisibilityQueryRecorder | null; // Ray capture runs only, otherwise null
   public patchList: Patch[] | null;
   public lightSourcePatchList: Patch[] | null;
 
@@ -62,7 +60,6 @@ export class Scene {
     this.geometryList = null;
     this.clusteredGeometryList = [];
     this.clusteredRootGeometry = null;
-    this.visibilityQueryRecorder = null;
     this.patchList = null;
     this.lightSourcePatchList = null;
   }
@@ -103,10 +100,6 @@ export class Scene {
       this.patchList = null;
     }
     this.sceneQueryWorkspace = null;
-    if (this.visibilityQueryRecorder !== null) {
-      this.visibilityQueryRecorder.destroy();
-      this.visibilityQueryRecorder = null;
-    }
     if (this.sceneQuery !== null) {
       this.sceneQuery.destroy();
       this.sceneQuery = null;
@@ -295,15 +288,14 @@ export class Scene {
 
   /**
   Builds the scene query over the face table with the acceleration method,
-  and the scene's workspace for it (reporting to visibilityQueryRecorder in
-  ray capture runs). Called once, after buildFaceTable.
+  and the scene's workspace for it. Called once, after buildFaceTable.
   */
   public buildSceneQuery(): void {
     if (this.sceneQuery !== null) {
       this.sceneQuery.destroy();
     }
     this.sceneQuery = new SceneQuery(this, this.accelerationMethod);
-    this.sceneQueryWorkspace = new SceneQueryWorkspace(this.sceneQuery, this.visibilityQueryRecorder);
+    this.sceneQueryWorkspace = new SceneQueryWorkspace(this.sceneQuery);
   }
 
   public getSceneQuery(): SceneQuery | null {

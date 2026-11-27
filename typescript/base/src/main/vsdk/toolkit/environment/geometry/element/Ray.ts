@@ -5,9 +5,9 @@ import type { GeometryRay } from "./GeometryRay.js";
 import { Double } from "../../../../../java/lang/Double.js";
 export class Ray extends FundamentalEntity implements GeometryRay {
     private static readonly UNIT_DIRECTION_TOLERANCE = 1e-12;
-    private readonly origin: Vector3Dd;
-    private readonly direction: Vector3Dd;
-    private readonly t: number;
+    private origin: Vector3Dd;
+    private direction: Vector3Dd;
+    private t: number;
     public constructor();
     public constructor(origin: Vector3Dd, direction: Vector3Dd, t?: number);
     public constructor(ray: Ray);
@@ -31,12 +31,12 @@ export class Ray extends FundamentalEntity implements GeometryRay {
     /** Builds a ray from components without normalizing, like the C++ member copies. */
     private static withComponents(origin: Vector3Dd, direction: Vector3Dd, t: number): Ray {
         const result = new Ray(origin, new Vector3Dd(1, 0, 0), t);
-        (result as unknown as { direction: Vector3Dd }).direction = direction;
+        result.direction = direction;
         return result;
     }
     public static copyOf(x: Ray) {
         if (x === null) throw new TypeError("Ray to copy cannot be null");
-        return x;
+        return new Ray(x);
     }
     // Copies replace only the named component; they never renormalize.
     public withOrigin(x: Vector3Dd) {
@@ -56,6 +56,20 @@ export class Ray extends FundamentalEntity implements GeometryRay {
     }
     public getT() {
         return this.t;
+    }
+    // Setters replace only the named component; they never renormalize.
+    public setOrigin(newOrigin: Vector3Dd): void {
+        this.origin = newOrigin;
+    }
+    public setDirection(newDirection: Vector3Dd): void {
+        this.direction = newDirection;
+    }
+    public setT(newT: number): void {
+        this.t = newT;
+    }
+    public setOriginAndDirection(newOrigin: Vector3Dd, newDirection: Vector3Dd): void {
+        this.origin = newOrigin;
+        this.direction = newDirection;
     }
     public equals(x: unknown) {
         return (

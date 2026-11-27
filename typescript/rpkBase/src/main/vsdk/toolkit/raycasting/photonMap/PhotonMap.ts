@@ -6,7 +6,7 @@ import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Lo
 import { KDTree } from "vitral/dist/vsdk/toolkit/common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -20,7 +20,7 @@ import { PhotonMapDCAcceptPDFType } from "./PhotonMapDCAcceptPDFType";
 import { PhotonMapState } from "./PhotonMapState";
 import { SampleGrid2D } from "./SampleGrid2D";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class PhotonMap {
   protected photonMapState: PhotonMapState;
@@ -39,7 +39,7 @@ export class PhotonMap {
   protected m_kdtree: PhotonKDTree;
 
   protected m_grid: SampleGrid2D;
-  protected m_sampleLastPos: Vector3Df;
+  protected m_sampleLastPos: Vector3Dd;
 
   protected m_nrpFound: number;
   protected m_nrpCosinePos: number;
@@ -50,14 +50,14 @@ export class PhotonMap {
   protected m_cosinesOk: boolean;
 
   protected doQuery(
-    position: Vector3Df,
+    position: Vector3Dd,
     numberOfPhotons: number,
     maximumRadius: number,
     excludeFlags: number
   ): number;
-  protected doQuery(pos: Vector3Df): number;
+  protected doQuery(pos: Vector3Dd): number;
   protected doQuery(
-    positionOrPos: Vector3Df,
+    positionOrPos: Vector3Dd,
     numberOfPhotons?: number,
     maximumRadius?: number,
     excludeFlags?: number
@@ -85,13 +85,13 @@ export class PhotonMap {
     );
   }
 
-  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df, maxR2: number): IrrPhoton | null;
-  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df): IrrPhoton | null;
-  protected DoIrradianceQuery(position: Vector3Df, normal: Vector3Df, maxR2 = Float.MAX_VALUE): IrrPhoton | null {
+  protected DoIrradianceQuery(position: Vector3Dd, normal: Vector3Dd, maxR2: number): IrrPhoton | null;
+  protected DoIrradianceQuery(position: Vector3Dd, normal: Vector3Dd): IrrPhoton | null;
+  protected DoIrradianceQuery(position: Vector3Dd, normal: Vector3Dd, maxR2 = Double.MAX_VALUE): IrrPhoton | null {
     return this.m_kdtree.normalPhotonQuery(position, normal, 0.8, maxR2);
   }
 
-  protected computeCosines(normal: Vector3Df): void {
+  protected computeCosines(normal: Vector3Dd): void {
     if (!this.m_cosinesOk) {
       this.m_nrpCosinePos = 0;
 
@@ -107,7 +107,7 @@ export class PhotonMap {
     }
   }
 
-  protected doAddPhoton(photon: Photon, normal: Vector3Df, flags: number): void {
+  protected doAddPhoton(photon: Photon, normal: Vector3Dd, flags: number): void {
     if (this.m_precomputeIrradiance) {
       const irrPhoton = new IrrPhoton();
       irrPhoton.copy(photon);
@@ -220,7 +220,7 @@ export class PhotonMap {
     this.m_totalPhotons = 0;
 
     this.m_grid = new SampleGrid2D(2, 4);
-    this.m_sampleLastPos = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+    this.m_sampleLastPos = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
 
     this.m_photons = new Array<Photon>(PhotonMapState.MAXIMUM_RECON_PHOTONS);
     for (let i = 0; i < this.m_photons.length; i++) {
@@ -271,7 +271,7 @@ export class PhotonMap {
   /**
 Adding photons, returns if photon was added
 */
-  public addPhoton(photon: Photon, normal: Vector3Df, flags: number): boolean {
+  public addPhoton(photon: Photon, normal: Vector3Dd, flags: number): boolean {
     Random48.drand48();
 
     this.doAddPhoton(photon, normal, flags);
@@ -393,7 +393,7 @@ Get a maximum radius^2 to be used when locating photons
 
   public irradianceReconstruct(
     hit: RayHit,
-    outDir: Vector3Df,
+    outDir: Vector3Dd,
     diffuseAlbedo: ColorRgbMutable,
     result: ColorRgbMutable
   ): boolean {
@@ -417,7 +417,7 @@ Get a maximum radius^2 to be used when locating photons
 
   public reconstruct(
     hit: RayHit,
-    outDir: Vector3Df,
+    outDir: Vector3Dd,
     bsdf: PhongBidirectionalScatteringDistributionFunction | null,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null
@@ -538,7 +538,7 @@ Return a color coded density of the photon map
     return PhotonMap.getFalseColor(density, this.photonMapState);
   }
 
-  public sample(position: Vector3Df, r: number[], s: number[], coord: CoordinateSystem, flag: number, n: number): number {
+  public sample(position: Vector3Dd, r: number[], s: number[], coord: CoordinateSystem, flag: number, n: number): number {
     if (!Numeric.vectorsEqual(this.m_sampleLastPos, position, 0.0001)) {
       this.m_grid.init();
 

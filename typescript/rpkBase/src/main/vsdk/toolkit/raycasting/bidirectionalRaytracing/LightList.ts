@@ -4,7 +4,7 @@ import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Lo
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -17,8 +17,8 @@ export class LightList extends CircularList<LightInfo> {
   private includeVirtual: boolean;
   private lightCount: number;
 
-  private lastPoint: Vector3Df;
-  private lastNormal: Vector3Df;
+  private lastPoint: Vector3Dd;
+  private lastNormal: Vector3Dd;
 
   public constructor(list: ArrayList<Patch>, includeVirtualPatches = false) {
     super();
@@ -28,8 +28,8 @@ export class LightList extends CircularList<LightInfo> {
     this.includeVirtual = includeVirtualPatches;
     this.totalImp = 0.0;
 
-    this.lastPoint = new Vector3Df();
-    this.lastNormal = new Vector3Df();
+    this.lastPoint = new Vector3Dd();
+    this.lastNormal = new Vector3Dd();
 
     for (let i = 0; list !== null && i < list.size(); i++) {
       const light = list.get(i)!;
@@ -110,7 +110,7 @@ export class LightList extends CircularList<LightInfo> {
     return null;
   }
 
-  private evalPdfVirtual(light: Patch, point: Vector3Df): number {
+  private evalPdfVirtual(light: Patch, point: Vector3Dd): number {
     void point;
     let probabilityDensityFunction: number;
 
@@ -130,14 +130,14 @@ export class LightList extends CircularList<LightInfo> {
     return probabilityDensityFunction;
   }
 
-  private evalPdfReal(light: Patch, point: Vector3Df): number {
+  private evalPdfReal(light: Patch, point: Vector3Dd): number {
     void point;
     const color = PatchVisitor.averageEmittance(light, XxdfComponentFlag.DIFFUSE_COMPONENT);
 
     return color.average() * light.getArea() / this.totalFlux;
   }
 
-  public evalPdf(light: Patch, point: Vector3Df): number {
+  public evalPdf(light: Patch, point: Vector3Dd): number {
     if (this.totalFlux < VSDK.EPSILON) {
       return 0.0;
     }
@@ -149,8 +149,8 @@ export class LightList extends CircularList<LightInfo> {
 
   public static computeOneLightImportanceVirtual(
     light: Patch,
-    point: Vector3Df,
-    normal: Vector3Df,
+    point: Vector3Dd,
+    normal: Vector3Dd,
     emittedFlux: number
   ): number {
     void point;
@@ -172,16 +172,16 @@ export class LightList extends CircularList<LightInfo> {
 
   public static computeOneLightImportanceReal(
     light: Patch,
-    point: Vector3Df,
-    normal: Vector3Df,
+    point: Vector3Dd,
+    normal: Vector3Dd,
     emittedFlux: number
   ): number {
     let tried = 0;
     let done = false;
     let contribution = 0.0;
-    let lightPoint = new Vector3Df();
-    let lightNormal = new Vector3Df();
-    let dir = new Vector3Df();
+    let lightPoint = new Vector3Dd();
+    let lightNormal = new Vector3Dd();
+    let dir = new Vector3Dd();
 
     while (!done && tried <= light.numberOfVertices) {
       if (tried === 0) {
@@ -191,14 +191,14 @@ export class LightList extends CircularList<LightInfo> {
       else {
         lightPoint = light.vertex[tried - 1]!.point;
         if (light.vertex[tried - 1]!.normal !== null) {
-          lightNormal = light.vertex[tried - 1]!.normal as Vector3Df;
+          lightNormal = light.vertex[tried - 1]!.normal as Vector3Dd;
         }
         else {
           lightNormal = light.getNormal();
         }
       }
 
-      const copy = new Vector3Df(point.x(), point.y(), point.z());
+      const copy = new Vector3Dd(point.x(), point.y(), point.z());
 
       dir = lightPoint.subtract(copy);
       const dist2 = dir.lengthSquared();
@@ -219,8 +219,8 @@ export class LightList extends CircularList<LightInfo> {
 
   public static computeOneLightImportance(
     light: Patch,
-    point: Vector3Df,
-    normal: Vector3Df,
+    point: Vector3Dd,
+    normal: Vector3Dd,
     emittedFlux: number
   ): number {
     if (light.hasZeroVertices()) {
@@ -229,9 +229,9 @@ export class LightList extends CircularList<LightInfo> {
     return LightList.computeOneLightImportanceReal(light, point, normal, emittedFlux);
   }
 
-  public computeLightImportance(point: Vector3Df, normal: Vector3Df): void {
-    if (Numeric.vectorsEqual(point, this.lastPoint, Numeric.EPSILON_FLOAT)
-      && Numeric.vectorsEqual(normal, this.lastNormal, Numeric.EPSILON_FLOAT)) {
+  public computeLightImportance(point: Vector3Dd, normal: Vector3Dd): void {
+    if (Numeric.vectorsEqual(point, this.lastPoint, Numeric.EPSILON)
+      && Numeric.vectorsEqual(normal, this.lastNormal, Numeric.EPSILON)) {
       return;
     }
 
@@ -259,7 +259,7 @@ export class LightList extends CircularList<LightInfo> {
     this.lastNormal = normal;
   }
 
-  public sampleImportant(point: Vector3Df, normal: Vector3Df, x1: number[], pdf: number[] | null): Patch | null {
+  public sampleImportant(point: Vector3Dd, normal: Vector3Dd, x1: number[], pdf: number[] | null): Patch | null {
     let lastInfo: LightInfo | null = null;
     const iterator = new CircularListIterator<LightInfo>(this);
 
@@ -314,9 +314,9 @@ export class LightList extends CircularList<LightInfo> {
 
   public evalPdfImportant(
     light: Patch,
-    lightPoint: Vector3Df,
-    litPoint: Vector3Df,
-    normal: Vector3Df
+    lightPoint: Vector3Dd,
+    litPoint: Vector3Dd,
+    normal: Vector3Dd
   ): number {
     void lightPoint;
     this.computeLightImportance(litPoint, normal);

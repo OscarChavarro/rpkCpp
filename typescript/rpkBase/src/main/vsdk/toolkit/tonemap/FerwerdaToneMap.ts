@@ -1,4 +1,3 @@
-import { Cie } from "../common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -63,7 +62,7 @@ export class FerwerdaToneMap extends ToneMap {
     this.lda = 0.0;
   }
 
-  public override init(toneMapOptions: ToneMappingContext): void {
+  protected override initParameters(toneMapOptions: ToneMappingContext): void {
     const realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     this.lda = maximumDisplayLuminance / 2.0;
@@ -81,7 +80,7 @@ export class FerwerdaToneMap extends ToneMap {
     const p = new ColorRgbMutable();
     let sl: number;
 
-    const eff = Cie.getLuminousEfficacy();
+    const eff = this.getColorSpace().getLuminousEfficacy();
     radiance.scale(eff);
 
     p.set(radiance.r, radiance.g, radiance.b);
@@ -100,7 +99,7 @@ export class FerwerdaToneMap extends ToneMap {
     const p = new ColorRgbMutable();
     let sl: number;
 
-    const eff = Cie.getLuminousEfficacy();
+    const eff = this.getColorSpace().getLuminousEfficacy();
     radiance.scale(eff);
 
     radiance.set(p.r, p.g, p.b);

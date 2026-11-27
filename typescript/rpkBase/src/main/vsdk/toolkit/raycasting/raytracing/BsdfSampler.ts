@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { SceneQuery } from "../../scene/SceneQuery";
@@ -28,7 +28,7 @@ export class BsdfSampler extends SurfaceSampler {
     void camera;
     const pdfDir = [0.0];
 
-    let dir = new Vector3Df(0.0, 0.0, 0.0);
+    let dir = new Vector3Dd(0.0, 0.0, 0.0);
 
     if (thisNode.m_useBsdf !== null) {
       const thisContext = thisNode.m_hit.shadingContext();
@@ -120,12 +120,12 @@ export class BsdfSampler extends SurfaceSampler {
     const outPdf = pdf ?? pdfH;
     const outPdfRR = pdfRR ?? pdfRRH;
 
-    let outDir = new Vector3Df();
+    let outDir = new Vector3Dd();
 
     outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
     const dist2 = outDir.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON);
 
     const pdfDir = [0.0];
     outPdfRR[0] = 0.0;
@@ -160,13 +160,13 @@ export class BsdfSampler extends SurfaceSampler {
     void newNode;
     const pdfH = [0.0];
     const pdfRRH = [0.0];
-    let outDir = new Vector3Df();
+    let outDir = new Vector3Dd();
 
     const outPdf = pdf ?? pdfH;
     const outPdfRR = pdfRR ?? pdfRRH;
 
     outDir = prevNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
-    outDir = outDir.normalized(Numeric.EPSILON_FLOAT);
+    outDir = outDir.normalized(Numeric.EPSILON);
 
     const pdfDir = [0.0];
     outPdfRR[0] = 0.0;

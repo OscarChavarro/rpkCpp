@@ -8,7 +8,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RefractionIndex } from "../../material/RefractionIndex";
@@ -191,7 +191,7 @@ The Fresnel sampler works as follows:
     thisNode: SimpleRaytracingPathNode,
     flags: number,
     x2: number,
-    dir: Vector3Df[], // One-element holder (C++ `Vector3Df *`)
+    dir: Vector3Dd[], // One-element holder (C++ `Vector3Dd *`)
     pdfDir: number[],
     scatteringColor: ColorRgbMutable,
     doCosInverse: boolean[]
@@ -230,8 +230,8 @@ The Fresnel sampler works as follows:
     let cost: number;
     let F: number;
     const tir = [false];
-    let reflectedDir = new Vector3Df();
-    let refractedDir = new Vector3Df();
+    let reflectedDir = new Vector3Dd();
+    let refractedDir = new Vector3Dd();
 
     if (reflective) {
       if ((flags & BsdfComponent.BRDF_SPECULAR_COMPONENT) !== 0) {
@@ -347,7 +347,7 @@ The Fresnel sampler works as follows:
     x2: number,
     flags: number
   ): boolean {
-    const dirHolder = [new Vector3Df()];
+    const dirHolder = [new Vector3Dd()];
     const pdfDir = [0.0];
     const doCosInverse = [false];
     const scatteringColor = new ColorRgbMutable();

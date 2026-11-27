@@ -1,26 +1,19 @@
 import { FundamentalEntity } from "../../../common/FundamentalEntity.js";
 import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd.js";
-import { Vector3Df } from "../../../common/linealAlgebra/Vector3Df.js";
+import { Vector3Dd } from "../../../common/linealAlgebra/Vector3Dd.js";
 import { Logger } from "../../../common/logging/Logger.js";
 import { String as JavaString } from "../../../../../java/lang/String.js";
 
-// Single precision rounding: every float operation of the source is rounded
-// with it, so that results are the IEEE single precision ones bit for bit
-const f = Math.fround;
-
 /**
-A planar triangle or quadrilateral in single precision, as used by the
+A planar triangle or quadrilateral in double precision, as used by the
 radiosity solvers: the face of a polygonal mesh with its plane, area,
 parametrization and uniform (area preserving) sampling.
 
 The face copies its three or four vertex positions when it is built and
 never changes afterwards, so a face can be shared by concurrent readers.
 
-Every quantity is computed in single precision, in source operation order and
-with IEEE semantics; do not rewrite it with vector helpers or in double
-precision. In this port each single precision operation is rounded with
-Math.fround, and values promoted to double precision in the source are left
-unrounded.
+Every quantity is computed in double precision, in source operation order and
+with IEEE semantics; do not rewrite it with vector helpers.
 
 Parametrizations:
 - triangle: barycentric, point = p0 + u (p1 - p0) + v (p2 - p0)
@@ -33,13 +26,12 @@ face reports that it has no Jacobian.
 export class PlanarFace extends FundamentalEntity {
     public static readonly MAXIMUM_VERTICES = 4;
     public static readonly EPSILON = 1e-6;
-    public static readonly EPSILON_FLOAT = f(1e-6);
     private static readonly TOLERANCE = 1e-5;
 
-    // Coordinates kept as plain floats
-    private readonly positionX = new Float32Array(PlanarFace.MAXIMUM_VERTICES);
-    private readonly positionY = new Float32Array(PlanarFace.MAXIMUM_VERTICES);
-    private readonly positionZ = new Float32Array(PlanarFace.MAXIMUM_VERTICES);
+    // Coordinates kept as plain doubles
+    private readonly positionX = new Float64Array(PlanarFace.MAXIMUM_VERTICES);
+    private readonly positionY = new Float64Array(PlanarFace.MAXIMUM_VERTICES);
+    private readonly positionZ = new Float64Array(PlanarFace.MAXIMUM_VERTICES);
     private normalX = 0;
     private normalY = 0;
     private normalZ = 0;
@@ -57,62 +49,62 @@ export class PlanarFace extends FundamentalEntity {
     private jacobianPresent = false;
     private status: PlanarFace.BuildStatus = PlanarFace.BuildStatus.UNSUPPORTED_VERTEX_COUNT;
 
-    // Single precision helpers, written out so that the operation order is the
-    // one documented by PlanarFace and does not depend on Vector3Df's methods
+    // Double precision helpers, written out so that the operation order is the
+    // one documented by PlanarFace and does not depend on Vector3Dd's methods
 
-    private static difference(a: Vector3Df, b: Vector3Df): Vector3Df {
-        return new Vector3Df(f(a.x() - b.x()), f(a.y() - b.y()), f(a.z() - b.z()));
+    private static difference(a: Vector3Dd, b: Vector3Dd): Vector3Dd {
+        return new Vector3Dd(a.x() - b.x(), a.y() - b.y(), a.z() - b.z());
     }
 
-    private static cross(a: Vector3Df, b: Vector3Df): Vector3Df {
-        return new Vector3Df(
-            f(f(a.y() * b.z()) - f(a.z() * b.y())),
-            f(f(a.z() * b.x()) - f(a.x() * b.z())),
-            f(f(a.x() * b.y()) - f(a.y() * b.x())),
+    private static cross(a: Vector3Dd, b: Vector3Dd): Vector3Dd {
+        return new Vector3Dd(
+            a.y() * b.z() - a.z() * b.y(),
+            a.z() * b.x() - a.x() * b.z(),
+            a.x() * b.y() - a.y() * b.x(),
         );
     }
 
-    private static dot(a: Vector3Df, b: Vector3Df): number {
-        return f(f(f(a.x() * b.x()) + f(a.y() * b.y())) + f(a.z() * b.z()));
+    private static dot(a: Vector3Dd, b: Vector3Dd): number {
+        return a.x() * b.x() + a.y() * b.y() + a.z() * b.z();
     }
 
-    private static norm(a: Vector3Df): number {
-        return f(Math.sqrt(f(f(f(a.x() * a.x()) + f(a.y() * a.y())) + f(a.z() * a.z()))));
+    private static norm(a: Vector3Dd): number {
+        return Math.sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     }
 
     // (1 / s) v, or v when s is within epsilon of zero
-    private static inverseScaled(s: number, v: Vector3Df, epsilon: number): Vector3Df {
-        const factor = s < -epsilon || s > epsilon ? f(1.0 / s) : 1.0;
-        return new Vector3Df(f(factor * v.x()), f(factor * v.y()), f(factor * v.z()));
+    private static inverseScaled(s: number, v: Vector3Dd, epsilon: number): Vector3Dd {
+        const factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+        return new Vector3Dd(factor * v.x(), factor * v.y(), factor * v.z());
     }
 
-    private static positionTolerance(p: Vector3Df, epsilon: number): number {
-        return f(epsilon * f(f(Math.abs(p.x()) + Math.abs(p.y())) + Math.abs(p.z())));
+    private static positionTolerance(p: Vector3Dd, epsilon: number): number {
+        return epsilon * (Math.abs(p.x()) + Math.abs(p.y()) + Math.abs(p.z()));
     }
 
-    private static pointInTriangle(v0: Vector3Df, v1: Vector3Df, v2: Vector3Df, u: number, v: number): Vector3Df {
-        return new Vector3Df(
-            f(f(v0.x() + f(u * f(v1.x() - v0.x()))) + f(v * f(v2.x() - v0.x()))),
-            f(f(v0.y() + f(u * f(v1.y() - v0.y()))) + f(v * f(v2.y() - v0.y()))),
-            f(f(v0.z() + f(u * f(v1.z() - v0.z()))) + f(v * f(v2.z() - v0.z()))),
+    private static pointInTriangle(v0: Vector3Dd, v1: Vector3Dd, v2: Vector3Dd, u: number, v: number): Vector3Dd {
+        return new Vector3Dd(
+            v0.x() + u * (v1.x() - v0.x()) + v * (v2.x() - v0.x()),
+            v0.y() + u * (v1.y() - v0.y()) + v * (v2.y() - v0.y()),
+            v0.z() + u * (v1.z() - v0.z()) + v * (v2.z() - v0.z()),
         );
     }
 
     private static pointInQuadrilateral(
-        v0: Vector3Df,
-        v1: Vector3Df,
-        v2: Vector3Df,
-        v3: Vector3Df,
+        v0: Vector3Dd,
+        v1: Vector3Dd,
+        v2: Vector3Dd,
+        v3: Vector3Dd,
         u: number,
         v: number,
-    ): Vector3Df {
-        const c = f(u * v);
-        const b = f(u - c);
-        const d = f(v - c);
-        return new Vector3Df(
-            f(f(f(v0.x() + f(b * f(v1.x() - v0.x()))) + f(c * f(v2.x() - v0.x()))) + f(d * f(v3.x() - v0.x()))),
-            f(f(f(v0.y() + f(b * f(v1.y() - v0.y()))) + f(c * f(v2.y() - v0.y()))) + f(d * f(v3.y() - v0.y()))),
-            f(f(f(v0.z() + f(b * f(v1.z() - v0.z()))) + f(c * f(v2.z() - v0.z()))) + f(d * f(v3.z() - v0.z()))),
+    ): Vector3Dd {
+        const c = u * v;
+        const b = u - c;
+        const d = v - c;
+        return new Vector3Dd(
+            v0.x() + b * (v1.x() - v0.x()) + c * (v2.x() - v0.x()) + d * (v3.x() - v0.x()),
+            v0.y() + b * (v1.y() - v0.y()) + c * (v2.y() - v0.y()) + d * (v3.y() - v0.y()),
+            v0.z() + b * (v1.z() - v0.z()) + c * (v2.z() - v0.z()) + d * (v3.z() - v0.z()),
         );
     }
 
@@ -122,8 +114,8 @@ export class PlanarFace extends FundamentalEntity {
     invalid (see getStatus) for any other vertex count or when the polygon is
     degenerate (its normal cannot be computed)
     */
-    public constructor(inNumberOfVertices: number, inPositions: Vector3Df[]);
-    public constructor(inNumberOfVertices?: number, inPositions?: Vector3Df[]) {
+    public constructor(inNumberOfVertices: number, inPositions: Vector3Dd[]);
+    public constructor(inNumberOfVertices?: number, inPositions?: Vector3Dd[]) {
         super();
         if (inNumberOfVertices === undefined || inPositions === undefined) {
             return;
@@ -163,16 +155,16 @@ export class PlanarFace extends FundamentalEntity {
         return this.numberOfVertices;
     }
 
-    public getPosition(i: number): Vector3Df {
-        return new Vector3Df(this.positionX[i]!, this.positionY[i]!, this.positionZ[i]!);
+    public getPosition(i: number): Vector3Dd {
+        return new Vector3Dd(this.positionX[i]!, this.positionY[i]!, this.positionZ[i]!);
     }
 
-    public getNormal(): Vector3Df {
-        return new Vector3Df(this.normalX, this.normalY, this.normalZ);
+    public getNormal(): Vector3Dd {
+        return new Vector3Dd(this.normalX, this.normalY, this.normalZ);
     }
 
-    public getMidPoint(): Vector3Df {
-        return new Vector3Df(this.midPointX, this.midPointY, this.midPointZ);
+    public getMidPoint(): Vector3Dd {
+        return new Vector3Dd(this.midPointX, this.midPointY, this.midPointZ);
     }
 
     public getPlaneConstant(): number {
@@ -215,27 +207,27 @@ export class PlanarFace extends FundamentalEntity {
         let ny = 0.0;
         let nz = 0.0;
         const last = this.numberOfVertices - 1;
-        let currentX = f(this.positionX[last]! - this.positionX[0]!);
-        let currentY = f(this.positionY[last]! - this.positionY[0]!);
-        let currentZ = f(this.positionZ[last]! - this.positionZ[0]!);
+        let currentX = this.positionX[last]! - this.positionX[0]!;
+        let currentY = this.positionY[last]! - this.positionY[0]!;
+        let currentZ = this.positionZ[last]! - this.positionZ[0]!;
         for (let i = 0; i < this.numberOfVertices; i++) {
             const previousX = currentX;
             const previousY = currentY;
             const previousZ = currentZ;
-            currentX = f(this.positionX[i]! - this.positionX[0]!);
-            currentY = f(this.positionY[i]! - this.positionY[0]!);
-            currentZ = f(this.positionZ[i]! - this.positionZ[0]!);
-            nx = f(nx + f(f(previousY - currentY) * f(previousZ + currentZ)));
-            ny = f(ny + f(f(previousZ - currentZ) * f(previousX + currentX)));
-            nz = f(nz + f(f(previousX - currentX) * f(previousY + currentY)));
+            currentX = this.positionX[i]! - this.positionX[0]!;
+            currentY = this.positionY[i]! - this.positionY[0]!;
+            currentZ = this.positionZ[i]! - this.positionZ[0]!;
+            nx = nx + (previousY - currentY) * (previousZ + currentZ);
+            ny = ny + (previousZ - currentZ) * (previousX + currentX);
+            nz = nz + (previousX - currentX) * (previousY + currentY);
         }
 
-        const sum = new Vector3Df(nx, ny, nz);
+        const sum = new Vector3Dd(nx, ny, nz);
         const localNorm = PlanarFace.norm(sum);
         if (localNorm < PlanarFace.EPSILON) {
             return false;
         }
-        const unit = PlanarFace.inverseScaled(localNorm, sum, PlanarFace.EPSILON_FLOAT);
+        const unit = PlanarFace.inverseScaled(localNorm, sum, PlanarFace.EPSILON);
         this.normalX = unit.x();
         this.normalY = unit.y();
         this.normalZ = unit.z();
@@ -253,7 +245,7 @@ export class PlanarFace extends FundamentalEntity {
         if (this.numberOfVertices === 3) {
             const d1 = PlanarFace.difference(this.getPosition(1), this.getPosition(0));
             const d2 = PlanarFace.difference(this.getPosition(2), this.getPosition(1));
-            this.area = f(0.5 * PlanarFace.norm(PlanarFace.cross(d1, d2)));
+            this.area = 0.5 * PlanarFace.norm(PlanarFace.cross(d1, d2));
             return;
         }
 
@@ -266,7 +258,7 @@ export class PlanarFace extends FundamentalEntity {
         let b = PlanarFace.dot(PlanarFace.cross(d1, d3), normal);
         let c = PlanarFace.dot(PlanarFace.cross(d2, d4), normal);
 
-        this.area = f(a + f(0.5 * f(b + c)));
+        this.area = a + 0.5 * (b + c);
         if (this.area < 0.0) {
             // Normal direction and vertex order are not consistent
             b = -b;
@@ -274,7 +266,7 @@ export class PlanarFace extends FundamentalEntity {
             this.area = -this.area;
         }
 
-        if (!(f(Math.abs(b) / this.area) < PlanarFace.EPSILON && f(Math.abs(c) / this.area) < PlanarFace.EPSILON)) {
+        if (!(Math.abs(b) / this.area < PlanarFace.EPSILON && Math.abs(c) / this.area < PlanarFace.EPSILON)) {
             this.jacobianPresent = true;
             this.jacobianA = a;
             this.jacobianB = b;
@@ -287,15 +279,11 @@ export class PlanarFace extends FundamentalEntity {
         let y = 0.0;
         let z = 0.0;
         for (let i = 0; i < this.numberOfVertices; i++) {
-            x = f(x + this.positionX[i]!);
-            y = f(y + this.positionY[i]!);
-            z = f(z + this.positionZ[i]!);
+            x = x + this.positionX[i]!;
+            y = y + this.positionY[i]!;
+            z = z + this.positionZ[i]!;
         }
-        const mid = PlanarFace.inverseScaled(
-            f(this.numberOfVertices),
-            new Vector3Df(x, y, z),
-            PlanarFace.EPSILON_FLOAT,
-        );
+        const mid = PlanarFace.inverseScaled(this.numberOfVertices, new Vector3Dd(x, y, z), PlanarFace.EPSILON);
         this.midPointX = mid.x();
         this.midPointY = mid.y();
         this.midPointZ = mid.z();
@@ -310,10 +298,9 @@ export class PlanarFace extends FundamentalEntity {
         let localTolerance = 0.0;
         for (let i = 0; i < this.numberOfVertices; i++) {
             const p = this.getPosition(i);
-            const e = f(
-                Math.abs(f(PlanarFace.dot(normal, p) + this.planeConstant)) +
-                    PlanarFace.positionTolerance(p, PlanarFace.EPSILON_FLOAT),
-            );
+            const e =
+                Math.abs(PlanarFace.dot(normal, p) + this.planeConstant) +
+                PlanarFace.positionTolerance(p, PlanarFace.EPSILON);
             if (e > localTolerance) {
                 localTolerance = e;
             }
@@ -325,12 +312,12 @@ export class PlanarFace extends FundamentalEntity {
     Index of the largest absolute component; ties go to x, then y. Used to turn
     point in polygon tests into 2D problems
     */
-    private static dominantCoordinate(vector: Vector3Df): number {
+    private static dominantCoordinate(vector: Vector3Dd): number {
         const ax = Math.abs(vector.x());
         const ay = Math.abs(vector.y());
         const az = Math.abs(vector.z());
         let indexValue = Math.max(ay, az);
-        indexValue = Math.max(ax, f(indexValue));
+        indexValue = Math.max(ax, indexValue);
 
         if (indexValue === ax) {
             return 0;
@@ -423,7 +410,7 @@ export class PlanarFace extends FundamentalEntity {
     Barycentric (u, v) of a point in the triangle. Didier Badouel, Graphics
     Gems I, p390
     */
-    private triangleParameters(point: Vector3Df, uv: Vector2Dd): boolean {
+    private triangleParameters(point: Vector3Dd, uv: Vector2Dd): boolean {
         const inside = this.parametersOfProjected(
             this.projectedA(point),
             this.projectedB(point),
@@ -435,11 +422,11 @@ export class PlanarFace extends FundamentalEntity {
     }
 
     // Coordinates of a point projected along the dominant axis
-    private projectedA(point: Vector3Df): number {
+    private projectedA(point: Vector3Dd): number {
         return this.dominantAxis === 0 ? point.y() : point.x();
     }
 
-    private projectedB(point: Vector3Df): number {
+    private projectedB(point: Vector3Dd): number {
         return this.dominantAxis === 2 ? point.y() : point.z();
     }
 
@@ -505,7 +492,7 @@ export class PlanarFace extends FundamentalEntity {
     Gilles Subrenat, "Ray Intersection of Tessellated Surfaces: Quadrangles versus
     Triangles", Graphics Gems V, pages 232-241
     */
-    private quadrilateralParameters(point: Vector3Df, uv: Vector2Dd): boolean {
+    private quadrilateralParameters(point: Vector3Dd, uv: Vector2Dd): boolean {
         const inside = this.quadrilateralParametersOfProjected(
             this.projectedA(point),
             this.projectedB(point),
@@ -610,7 +597,7 @@ export class PlanarFace extends FundamentalEntity {
     returns whether the point is inside. For points outside, (u, v) is not
     meaningful
     */
-    public parameters(point: Vector3Df, uv: Vector2Dd): boolean {
+    public parameters(point: Vector3Dd, uv: Vector2Dd): boolean {
         const localUv = new Vector2Dd();
         const inside =
             this.numberOfVertices === 3
@@ -625,27 +612,21 @@ export class PlanarFace extends FundamentalEntity {
     Point at the given barycentric (triangle) or bi-linear (quadrilateral)
     parameters; for a triangle with u + v > 1, (1 - u, 1 - v) is used
     */
-    public pointAt(u: number, v: number): Vector3Df {
+    public pointAt(u: number, v: number): Vector3Dd {
         if (this.numberOfVertices === 3) {
             if (u + v > 1.0) {
                 u = 1.0 - u;
                 v = 1.0 - v;
             }
-            return PlanarFace.pointInTriangle(
-                this.getPosition(0),
-                this.getPosition(1),
-                this.getPosition(2),
-                f(u),
-                f(v),
-            );
+            return PlanarFace.pointInTriangle(this.getPosition(0), this.getPosition(1), this.getPosition(2), u, v);
         }
         return PlanarFace.pointInQuadrilateral(
             this.getPosition(0),
             this.getPosition(1),
             this.getPosition(2),
             this.getPosition(3),
-            f(u),
-            f(v),
+            u,
+            v,
         );
     }
 
@@ -683,7 +664,7 @@ export class PlanarFace extends FundamentalEntity {
 
     // Area preserving mapping: uniform parameters to point, point to uniform
     // parameters
-    public uniformPointAt(u: number, v: number): Vector3Df {
+    public uniformPointAt(u: number, v: number): Vector3Dd {
         const uv = new Vector2Dd(u, v);
         if (this.jacobianPresent) {
             this.uniformToBiLinear(uv);
@@ -691,7 +672,7 @@ export class PlanarFace extends FundamentalEntity {
         return this.pointAt(uv.x, uv.y);
     }
 
-    public uniformParameters(point: Vector3Df, uv: Vector2Dd): boolean {
+    public uniformParameters(point: Vector3Dd, uv: Vector2Dd): boolean {
         const inside = this.parameters(point, uv);
         if (this.jacobianPresent) {
             this.biLinearToUniform(uv);
@@ -707,8 +688,8 @@ export class PlanarFace extends FundamentalEntity {
         const otherNormal = other.getNormal();
         for (let i = 0; i < this.numberOfVertices; i++) {
             const p = this.getPosition(i);
-            const ep = f(PlanarFace.dot(otherNormal, p) + other.planeConstant);
-            const localTolerance = f(other.tolerance + PlanarFace.positionTolerance(p, PlanarFace.EPSILON_FLOAT));
+            const ep = PlanarFace.dot(otherNormal, p) + other.planeConstant;
+            const localTolerance = other.tolerance + PlanarFace.positionTolerance(p, PlanarFace.EPSILON);
             if (ep > localTolerance) {
                 return true;
             }
@@ -722,11 +703,8 @@ export class PlanarFace extends FundamentalEntity {
     }
 
     // Signed distance of a point to the plane, in units of the normal
-    public planeDistance(point: Vector3Df): number {
-        return f(
-            f(f(f(this.normalX * point.x()) + f(this.normalY * point.y())) + f(this.normalZ * point.z())) +
-                this.planeConstant,
-        );
+    public planeDistance(point: Vector3Dd): number {
+        return this.normalX * point.x() + this.normalY * point.y() + this.normalZ * point.z() + this.planeConstant;
     }
 
     /**
@@ -734,10 +712,8 @@ export class PlanarFace extends FundamentalEntity {
     travels against the normal, PARALLEL within EPSILON. The dot product of the
     normal with the direction is written to normalDotDirection[0]
     */
-    public sideFacing(direction: Vector3Df, normalDotDirection: number[]): PlanarFace.Side {
-        const d = f(
-            f(f(this.normalX * direction.x()) + f(this.normalY * direction.y())) + f(this.normalZ * direction.z()),
-        );
+    public sideFacing(direction: Vector3Dd, normalDotDirection: number[]): PlanarFace.Side {
+        const d = this.normalX * direction.x() + this.normalY * direction.y() + this.normalZ * direction.z();
         normalDotDirection[0] = d;
         if (d > PlanarFace.EPSILON) {
             return PlanarFace.Side.BACK;
@@ -752,12 +728,10 @@ export class PlanarFace extends FundamentalEntity {
     Ray parameter of the hit with the plane, given the dot product of the
     normal with the ray direction (from sideFacing)
     */
-    public planeHitParameter(origin: Vector3Df, normalDotDirection: number): number {
-        return f(
-            -f(
-                f(f(f(this.normalX * origin.x()) + f(this.normalY * origin.y())) + f(this.normalZ * origin.z())) +
-                    this.planeConstant,
-            ) / normalDotDirection,
+    public planeHitParameter(origin: Vector3Dd, normalDotDirection: number): number {
+        return (
+            -(this.normalX * origin.x() + this.normalY * origin.y() + this.normalZ * origin.z() + this.planeConstant) /
+            normalDotDirection
         );
     }
 
@@ -769,8 +743,8 @@ export class PlanarFace extends FundamentalEntity {
     returns false otherwise (the hit is then unspecified)
     */
     public rayHit(
-        origin: Vector3Df,
-        direction: Vector3Df,
+        origin: Vector3Dd,
+        direction: Vector3Dd,
         acceptFront: boolean,
         acceptBack: boolean,
         minimumDistance: number,
@@ -793,9 +767,8 @@ export class PlanarFace extends FundamentalEntity {
     }
 
     /**
-    rayHit with the origin and direction given by their float components
-    (TypeScript only: spares the caller two Vector3Df per ray). The
-    components must already be floats (Math.fround).
+    rayHit with the origin and direction given by their components
+    (TypeScript only: spares the caller two Vector3Dd per ray).
     */
     public rayHitComponents(
         ox: number,
@@ -811,7 +784,7 @@ export class PlanarFace extends FundamentalEntity {
         hit: PlanarFace.RayHit,
     ): boolean {
         // sideFacing
-        const normalDotDirection = f(f(f(this.normalX * dx) + f(this.normalY * dy)) + f(this.normalZ * dz));
+        const normalDotDirection = this.normalX * dx + this.normalY * dy + this.normalZ * dz;
         let side: PlanarFace.Side;
         if (normalDotDirection > PlanarFace.EPSILON) {
             side = PlanarFace.Side.BACK;
@@ -828,16 +801,14 @@ export class PlanarFace extends FundamentalEntity {
             return false;
         }
         // planeHitParameter
-        const distance = f(
-            -f(f(f(f(this.normalX * ox) + f(this.normalY * oy)) + f(this.normalZ * oz)) + this.planeConstant) /
-                normalDotDirection,
-        );
+        const distance =
+            -(this.normalX * ox + this.normalY * oy + this.normalZ * oz + this.planeConstant) / normalDotDirection;
         if (distance > maximumDistance || distance < minimumDistance) {
             return false;
         }
-        const pointX = f(ox + f(distance * dx));
-        const pointY = f(oy + f(distance * dy));
-        const pointZ = f(oz + f(distance * dz));
+        const pointX = ox + distance * dx;
+        const pointY = oy + distance * dy;
+        const pointZ = oz + distance * dz;
         hit.setSide(side);
         hit.setDistance(distance);
         hit.setPoint(pointX, pointY, pointZ);

@@ -1,6 +1,6 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
@@ -36,7 +36,7 @@ export class LightDirSampler extends Sampler {
       return false;
     }
 
-    let dir = new Vector3Df(0.0, 0.0, 0.0);
+    let dir = new Vector3Dd(0.0, 0.0, 0.0);
     const lightContextOk = [false];
     const lightContext = thisNode.m_hit.shadingContext(lightContextOk);
     if (!lightContextOk[0]) {
@@ -91,12 +91,12 @@ export class LightDirSampler extends Sampler {
       return 0.0;
     }
 
-    let outDir = new Vector3Df();
+    let outDir = new Vector3Dd();
 
     outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
     const dist2 = outDir.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON);
 
     const outPdf = [0.0];
     thisNode.m_hit.getMaterial()!.getEdf()!.phongEdfEval(

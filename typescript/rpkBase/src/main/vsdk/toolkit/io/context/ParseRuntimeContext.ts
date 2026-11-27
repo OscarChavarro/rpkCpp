@@ -1,5 +1,5 @@
 import { LookUpTable } from "../../common/dataStructures/LookUpTable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Material } from "../../material/Material";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Geometry } from "../../skin/Geometry";
@@ -48,8 +48,8 @@ export class ParseRuntimeContext extends ParseContext {
   public currentMaterialName: string | null;
   public geometryStackHeadIndex: number;
   public geometryStack: Array<Geometry[] | null>;
-  public currentPointList: Vector3Df[] | null;
-  public currentNormalList: Vector3Df[] | null;
+  public currentPointList: Vector3Dd[] | null;
+  public currentNormalList: Vector3Dd[] | null;
   public currentVertexList: Vertex[] | null;
   public currentFaceList: Patch[] | null;
   public currentGeometryList: Geometry[] | null;
@@ -59,7 +59,6 @@ export class ParseRuntimeContext extends ParseContext {
   public currentColor: ColorContext | null;
   public inSurface: boolean;
   public inComplex: boolean;
-  public warpConeEnds: boolean;
   public vertexLookUpTable: LookUpTable<VertexContext> | null;
   public allGeometries: Geometry[] | null;
   public geometries: Geometry[] | null;
@@ -103,7 +102,6 @@ export class ParseRuntimeContext extends ParseContext {
     this.currentColor = this.colorRepository.currentColor;
     this.inSurface = this.geometryBuildState.inSurface;
     this.inComplex = this.geometryBuildState.inComplex;
-    this.warpConeEnds = this.geometryBuildState.warpConeEnds;
     this.vertexLookUpTable = this.vertexRepository.vertexLookUpTable;
     this.allGeometries = this.geometryBuildState.allGeometries;
     this.geometries = this.geometryBuildState.geometries;

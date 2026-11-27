@@ -1,5 +1,4 @@
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
-import type { Ray as RpkRay } from "../common/linealAlgebra/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
@@ -18,7 +17,6 @@ import { Geometry } from "../skin/Geometry";
 import { SceneAccelerationMethod } from "./SceneAccelerationMethod";
 import { SceneFaceRayTest } from "./SceneFaceRayTest";
 import type { Scene } from "./Scene";
-import type { VisibilityQueryRecorder } from "./VisibilityQueryRecorder";
 
 function boxValues(box: BoundingBox, values: number[]): void {
   values[0] = box.minX();
@@ -192,7 +190,7 @@ export class SceneQuery {
   [minimumDistance, maximumDistance[0]]
   */
   public intersect(
-    ray: RpkRay,
+    ray: Ray,
     minimumDistance: number,
     maximumDistance: number[],
     hitFlags: number,
@@ -201,9 +199,7 @@ export class SceneQuery {
     workspace: SceneQueryWorkspace
   ): RayHit | null {
     const test = new SceneFaceRayTest(this.scene, ray, hitFlags, exclusions, hitStore);
-    const indexRay = Ray.fromAffine(
-      new Vector3Dd(ray.position.x(), ray.position.y(), ray.position.z()),
-      new Vector3Dd(ray.direction.x(), ray.direction.y(), ray.direction.z()));
+    const indexRay = Ray.fromAffine(ray.getOrigin(), ray.getDirection());
     const mode = (hitFlags & RayHitFlag.ANY) !== 0
       ? SpatialQueryMode.ANY_HIT : SpatialQueryMode.CLOSEST_HIT;
     const result = this.index!.query(
@@ -211,32 +207,25 @@ export class SceneQuery {
     if (!result.hasHit()) {
       return null;
     }
-    maximumDistance[0] = Math.fround(result.getParameter());
+    maximumDistance[0] = result.getParameter();
     return hitStore;
   }
 }
 
 /**
-Per-query scratch of a SceneQuery: the workspace of its index and, when ray capture is enabled (RPK_RAY_CAPTURE), the recorder
-the callers report each query to (null otherwise).
+Per-query scratch of a SceneQuery: the workspace of its index.
 
 Workspace: mutable, owned by one caller and passed explicitly on every
 SceneQuery.intersect call.
 */
 export class SceneQueryWorkspace {
   private readonly indexWorkspace: SpatialIndexWorkspace | null;
-  private readonly recorder: VisibilityQueryRecorder | null; // Not owned
 
-  public constructor(query: SceneQuery, inRecorder: VisibilityQueryRecorder | null = null) {
-    this.recorder = inRecorder;
+  public constructor(query: SceneQuery) {
     this.indexWorkspace = new SpatialIndexWorkspace(query.getIndex()!.getWorkspaceSize());
   }
 
   public getIndexWorkspace(): SpatialIndexWorkspace | null {
     return this.indexWorkspace;
-  }
-
-  public getRecorder(): VisibilityQueryRecorder | null {
-    return this.recorder;
   }
 }

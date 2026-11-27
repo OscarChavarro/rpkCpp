@@ -3,7 +3,7 @@ import { FileOutputStream } from "../../../../../java/io/FileOutputStream";
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { ReaderContext } from "../../context/ReaderContext";
@@ -208,7 +208,7 @@ export class BinaryModelSerializer {
     BinaryModelSerializer.writeFloatLE(output, color.b);
   }
 
-  private static writeVector(output: OutputStream | null, vector: Vector3Df): void {
+  private static writeVector(output: OutputStream | null, vector: Vector3Dd): void {
     BinaryModelSerializer.writeFloatLE(output, vector.x());
     BinaryModelSerializer.writeFloatLE(output, vector.y());
     BinaryModelSerializer.writeFloatLE(output, vector.z());
@@ -628,7 +628,6 @@ export class BinaryModelSerializer {
     BinaryModelSerializer.writeBool(output, model.inSurface);
     BinaryModelSerializer.writeBool(output, model.monochrome);
     BinaryModelSerializer.writeBool(output, model.singleSided);
-    BinaryModelSerializer.writeBool(output, model.warpConeEnds);
     BinaryModelSerializer.writeInt32LE(output, model.numberOfQuarterCircleDivisions);
 
     const readerContextIndex = [0];

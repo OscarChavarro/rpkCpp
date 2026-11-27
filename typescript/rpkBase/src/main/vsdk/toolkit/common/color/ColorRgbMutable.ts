@@ -1,5 +1,4 @@
 import { PrintStream } from "vitral/dist/java/io/PrintStream";
-import { Cie } from "./Cie";
 import { ColorRgb } from "vitral/dist/vsdk/toolkit/common/color/ColorRgb";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 

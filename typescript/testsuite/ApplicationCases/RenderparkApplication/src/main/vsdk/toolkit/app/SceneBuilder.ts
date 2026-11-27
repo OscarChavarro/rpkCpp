@@ -4,7 +4,6 @@ import { FileInputStream } from "rpk-base/dist/java/io/FileInputStream";
 import { System } from "rpk-base/dist/java/lang/System";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
-import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Statistics } from "rpk-base/dist/vsdk/toolkit/common/statistics/Statistics";
@@ -22,7 +21,6 @@ import { RenderHookList } from "rpk-base/dist/vsdk/toolkit/render/RenderHookList
 import { Background } from "rpk-base/dist/vsdk/toolkit/scene/Background";
 import { PatchClusterOctreeNode } from "rpk-base/dist/vsdk/toolkit/scene/PatchClusterOctreeNode";
 import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
-import { VisibilityQueryRecorder } from "rpk-base/dist/vsdk/toolkit/scene/VisibilityQueryRecorder";
 import { SceneQuery } from "rpk-base/dist/vsdk/toolkit/scene/SceneQuery";
 import { Compound } from "rpk-base/dist/vsdk/toolkit/skin/Compound";
 import { Geometry } from "rpk-base/dist/vsdk/toolkit/skin/Geometry";
@@ -30,7 +28,7 @@ import { GeometryClassId } from "rpk-base/dist/vsdk/toolkit/skin/GeometryClassId
 import { MeshSurface } from "rpk-base/dist/vsdk/toolkit/skin/MeshSurface";
 import { Patch } from "rpk-base/dist/vsdk/toolkit/environment/geometry/elements/Patch";
 import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Adaptation } from "./Adaptation";
 import { Batch } from "./Batch";
 import { Radiance } from "./Radiance";
@@ -67,12 +65,12 @@ export class SceneBuilder {
   }
 
   private static sceneBuilderComputeStats(scene: Scene): void {
-    let zero = new Vector3Df();
+    let zero = new Vector3Dd();
     const one = new ColorRgbMutable();
     const averageAbsorption = new ColorRgbMutable();
 
     one.setMonochrome(1.0);
-    zero = new Vector3Df(0, 0, 0);
+    zero = new Vector3Dd(0, 0, 0);
 
     // Initialize
     Statistics.instance().radiance.totalEmittedPower.clear();
@@ -270,7 +268,6 @@ export class SceneBuilder {
     mgfContext.materials = mgfModel.materials;
     mgfContext.monochrome = mgfModel.monochrome;
     mgfContext.singleSided = mgfModel.singleSided;
-    mgfContext.warpConeEnds = mgfModel.warpConeEnds;
     mgfContext.numberOfQuarterCircleDivisions = mgfModel.numberOfQuarterCircleDivisions;
     mgfContext.readerContext = mgfModel.readerContext;
     mgfContext.transformContext = mgfModel.transformContext;
@@ -289,7 +286,6 @@ export class SceneBuilder {
     mgfContext.geometryBuildState.geometryStackHeadIndex = mgfContext.geometryStackHeadIndex;
     mgfContext.geometryBuildState.inComplex = mgfContext.inComplex;
     mgfContext.geometryBuildState.inSurface = mgfContext.inSurface;
-    mgfContext.geometryBuildState.warpConeEnds = mgfContext.warpConeEnds;
     mgfContext.materialState.materials = mgfContext.materials;
     mgfContext.parserConfig.monochrome = mgfContext.monochrome;
     mgfContext.parserConfig.singleSided = mgfContext.singleSided;
@@ -603,10 +599,7 @@ export class SceneBuilder {
     System.err.printf("%g secs.\n", Number(t - last) / 1_000_000_000.0);
     last = t;
 
-    // Create the scene query, over the index the -scene-acceleration option chose.
-    // Ray accounting, and the ray corpus when RPK_RAY_CAPTURE_FILE names a file,
-    // when RPK_RAY_CAPTURE is set (the C++ WITH_RAY_CAPTURE build)
-    scene.visibilityQueryRecorder = VisibilityQueryRecorder.fromEnvironment();
+    // Create the scene query, over the index the -scene-acceleration option chose
     scene.buildSceneQuery();
 
     t = process.hrtime.bigint();
@@ -621,15 +614,16 @@ export class SceneBuilder {
 
     Statistics.instance().reader.numberOfPatches = Statistics.instance().reader.numberOfElements;
     SceneBuilder.sceneBuilderComputeStats(scene);
+    const colorSpace = toneMapOptions.getColorSpace();
     Statistics.instance().radiance.referenceLuminance =
       5.42
       * (
-        (1.0 - Cie.spectrumGray(
+        (1.0 - colorSpace.spectrumGray(
           Statistics.instance().radiance.averageReflectivity.r,
           Statistics.instance().radiance.averageReflectivity.g,
           Statistics.instance().radiance.averageReflectivity.b
         ))
-        * Cie.spectrumLuminance(
+        * colorSpace.spectrumLuminance(
           Statistics.instance().radiance.estimatedAverageRadiance.r,
           Statistics.instance().radiance.estimatedAverageRadiance.g,
           Statistics.instance().radiance.estimatedAverageRadiance.b
@@ -658,11 +652,11 @@ export class SceneBuilder {
       + "         radiance.maxSelfEmittedPower ..............: %f W\n"
       + "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
       + "         totalArea ........................: %f m2\n",
-      Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b),
-      Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b),
-      Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b),
-      Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b),
-      Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b),
+      colorSpace.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b),
+      colorSpace.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b),
+      colorSpace.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b),
+      colorSpace.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b),
+      colorSpace.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b),
       toneMapOptions.realWorldAdaptionLuminance,
       Statistics.instance().radiance.totalArea
     );

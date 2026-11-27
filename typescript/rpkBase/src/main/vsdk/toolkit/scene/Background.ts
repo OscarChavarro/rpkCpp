@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Patch } from "../environment/geometry/elements/Patch";
 
 export class Background {
@@ -10,8 +10,8 @@ export class Background {
   }
 
   public radiance(
-    position: Vector3Df,
-    direction: Vector3Df,
+    position: Vector3Dd,
+    direction: Vector3Dd,
     probabilityDensityFunction: number[] | null
   ): ColorRgbMutable {
     if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
@@ -25,12 +25,12 @@ export class Background {
   }
 
   public sample(
-    position: Vector3Df,
+    position: Vector3Dd,
     xi1: number,
     xi2: number,
     radianceValue: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
-  ): Vector3Df {
+  ): Vector3Dd {
     if (radianceValue !== null) {
       radianceValue.setMonochrome(0.0);
     }
@@ -40,10 +40,10 @@ export class Background {
     void position;
     void xi1;
     void xi2;
-    return new Vector3Df();
+    return new Vector3Dd();
   }
 
-  public power(position: Vector3Df): ColorRgbMutable {
+  public power(position: Vector3Dd): ColorRgbMutable {
     const black = new ColorRgbMutable();
     black.setMonochrome(0.0);
     void position;
@@ -52,8 +52,8 @@ export class Background {
 
   public static backgroundRadiance(
     bkg: Background | null,
-    position: Vector3Df,
-    direction: Vector3Df,
+    position: Vector3Dd,
+    direction: Vector3Dd,
     probabilityDensityFunction: number[] | null
   ): ColorRgbMutable {
     if (bkg === null) {
@@ -64,7 +64,7 @@ export class Background {
     return bkg.radiance(position, direction, probabilityDensityFunction);
   }
 
-  public static backgroundPower(bkg: Background | null, position: Vector3Df): ColorRgbMutable {
+  public static backgroundPower(bkg: Background | null, position: Vector3Dd): ColorRgbMutable {
     if (bkg === null) {
       const black = new ColorRgbMutable();
       black.setMonochrome(0.0);

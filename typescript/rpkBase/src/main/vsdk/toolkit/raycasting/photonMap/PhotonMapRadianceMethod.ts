@@ -7,7 +7,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -703,7 +703,7 @@ Returns the radiance emitted in the node related direction
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3Df,
+    dir: Vector3Dd,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     void renderOptions;
@@ -713,7 +713,7 @@ Returns the radiance emitted in the node related direction
     let radiance = new ColorRgbMutable();
     let density: number;
 
-    const point = patch.pointBarycentricMapping(u, v) ?? new Vector3Df();
+    const point = patch.pointBarycentricMapping(u, v) ?? new Vector3Dd();
     hit.init(patch, point, patch.getNormal(), patch.material);
     const normalHolder = [hit.getNormal()];
     hit.shadingNormal(normalHolder);

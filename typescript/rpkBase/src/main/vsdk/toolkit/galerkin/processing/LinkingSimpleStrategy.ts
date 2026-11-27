@@ -8,7 +8,7 @@ import { GalerkinShaftCullMode } from "../GalerkinShaftCullMode";
 import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
 import { Shaft } from "../Shaft";
-import { Polygon } from "../../scene/Polygon";
+import { ConvexPolygon } from "../../scene/ConvexPolygon";
 import { Scene } from "../../scene/Scene";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
@@ -102,8 +102,8 @@ export class LinkingSimpleStrategy {
       const shaft = new Shaft(scene.getFaceBounds()!);
 
       if (galerkinState.exactVisibility !== 0) {
-        const receiverPolygon = new Polygon();
-        const sourcePolygon = new Polygon();
+        const receiverPolygon = new ConvexPolygon();
+        const sourcePolygon = new ConvexPolygon();
         receiverElement.initPolygon(receiverPolygon);
         sourceElement.initPolygon(sourcePolygon);
         shaft.constructFromPolygonToPolygon(receiverPolygon, sourcePolygon);

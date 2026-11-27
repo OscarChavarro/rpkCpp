@@ -4,7 +4,7 @@ Constant Control Radiosity
 
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
-import { Cie } from "../../common/color/Cie";
+import type { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -292,7 +292,8 @@ random walk radiosity
   public static determineControlRadiosity(
     getRadiance: ((element: StochasticRadiosityElement) => ColorRgbMutable[] | null) | null,
     getScaling: ((element: StochasticRadiosityElement) => ColorRgbMutable | null) | null,
-    scenePatches: ArrayList<Patch>
+    scenePatches: ArrayList<Patch>,
+    colorSpace: Cie
   ): ColorRgbMutable {
     const minRad = new ColorRgbMutable();
     const maxRad = new ColorRgbMutable();
@@ -325,7 +326,7 @@ random walk radiosity
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(System.err);
-    System.err.printf(" (%g lux)", globalThis.Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b));
+    System.err.printf(" (%g lux)", globalThis.Math.PI * colorSpace.spectrumLuminance(beta.r, beta.g, beta.b));
     System.err.printf("\n");
     return beta;
   }

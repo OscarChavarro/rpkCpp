@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
@@ -56,7 +56,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     return result;
   }
 
-  public evaluate(inDirection: Vector3Df, out: Vector3Df, normal: Vector3Df, flags: number): ColorRgbMutable {
+  public evaluate(inDirection: Vector3Dd, out: Vector3Dd, normal: Vector3Dd, flags: number): ColorRgbMutable {
     const result = new ColorRgbMutable();
     result.clear();
 
@@ -73,7 +73,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
       : XxdfComponentFlag.GLOSSY_COMPONENT;
 
     if (((flags & nonDiffuseFlag) !== 0) && (this.avgKs > 0.0)) {
-      let inRev = new Vector3Df();
+      let inRev = new Vector3Dd();
       inRev = inDirection.multiply(-1.0);
       const idealReflected = Xxdf.idealReflectedDirection(inRev, normal);
       const localDotProduct = idealReflected.dotProduct(out);
@@ -89,17 +89,17 @@ export class PhongBidirectionalReflectanceDistributionFunction {
   }
 
   public sample(
-    inDirection: Vector3Df,
-    normal: Vector3Df,
+    inDirection: Vector3Dd,
+    normal: Vector3Dd,
     doRussianRoulette: number,
     flags: number,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3Df {
+  ): Vector3Dd {
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
 
-    let inRev = new Vector3Df();
+    let inRev = new Vector3Dd();
     inRev = inDirection.multiply(-1.0);
 
     const localAverageKd = ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) !== 0) ? this.avgKd : 0.0;
@@ -109,7 +109,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     const localAverageKs = ((flags & nonDiffuseFlag) !== 0) ? this.avgKs : 0.0;
 
     const scatteredPower = localAverageKd + localAverageKs;
-    let newDir = new Vector3Df(0.0, 0.0, 0.0);
+    let newDir = new Vector3Dd(0.0, 0.0, 0.0);
     if (scatteredPower < VSDK.EPSILON) {
       return newDir;
     }
@@ -165,9 +165,9 @@ export class PhongBidirectionalReflectanceDistributionFunction {
   }
 
   public evaluateProbabilityDensityFunction(
-    inDirection: Vector3Df,
-    out: Vector3Df,
-    normal: Vector3Df,
+    inDirection: Vector3Dd,
+    out: Vector3Dd,
+    normal: Vector3Dd,
     flags: number,
     probabilityDensityFunction: number[] | null,
     probabilityDensityFunctionRR: number[] | null
@@ -175,10 +175,10 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     PhongBidirectionalReflectanceDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
 
-    let inRev = new Vector3Df();
+    let inRev = new Vector3Dd();
     inRev = inDirection.multiply(-1.0);
 
-    let goodNormal = new Vector3Df();
+    let goodNormal = new Vector3Dd();
     const cosIn = inDirection.dotProduct(normal);
     if (cosIn >= 0.0) {
       goodNormal = normal;

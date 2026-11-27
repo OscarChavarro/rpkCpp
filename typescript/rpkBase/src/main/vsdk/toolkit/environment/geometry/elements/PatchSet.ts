@@ -1,4 +1,4 @@
-import { Ray } from "../../../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";

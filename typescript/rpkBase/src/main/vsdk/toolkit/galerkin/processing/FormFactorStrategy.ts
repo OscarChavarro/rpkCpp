@@ -1,8 +1,8 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
@@ -23,7 +23,6 @@ import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusio
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { FormFactorClusteredStrategy } from "./FormFactorClusteredStrategy";
 import type { FormFactorWorkspace } from "./FormFactorWorkspace";
-import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class FormFactorStrategy {
@@ -59,19 +58,15 @@ export class FormFactorStrategy {
     let hit = shadowCache.cacheHit(ray, dist, hitStore, exclusions);
     if (hit !== null) {
       shadowStatistics.numberOfShadowCacheHits++;
-      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
-        sceneQueryWorkspace.getRecorder()!.countCacheResolved();
-      }
       return hit;
     }
 
-    const queryMaximumDistance = dist[0]!;
 
     if (!isClusteredGeometry && !isSceneGeometry) {
       hit = Geometry.listDiscretizationIntersect(
         geometrySceneList,
         ray,
-        Math.fround(Numeric.EPSILON_FLOAT * dist[0]!),
+        Numeric.EPSILON * dist[0]!,
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
@@ -81,25 +76,12 @@ export class FormFactorStrategy {
     else if (sceneQuery !== null) {
       hit = sceneQuery.intersect(
         ray,
-        Math.fround(Numeric.EPSILON_FLOAT * dist[0]!),
+        Numeric.EPSILON * dist[0]!,
         dist,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,
         exclusions,
         sceneQueryWorkspace!,
-      );
-    }
-    if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
-      sceneQueryWorkspace.getRecorder()!.recordQuery(
-        (!isClusteredGeometry && !isSceneGeometry)
-          ? VisibilityQueryRecorder.GALERKIN_RESTRICTED_LIST : VisibilityQueryRecorder.GALERKIN_FULL_SCENE,
-        ray,
-        Math.fround(Numeric.EPSILON_FLOAT * queryMaximumDistance),
-        queryMaximumDistance,
-        RayHitFlag.FRONT | RayHitFlag.ANY,
-        exclusions,
-        hit,
-        dist[0]!,
       );
     }
 
@@ -114,7 +96,7 @@ export class FormFactorStrategy {
     role: GalerkinRole,
     galerkinState: GalerkinState,
     cr: Array<CubatureRule | null>,
-    x: Vector3Df[],
+    x: Vector3Dd[],
   ): void {
     if (element === null || cr === null || cr.length === 0 || x === null) {
       return;
@@ -132,9 +114,9 @@ export class FormFactorStrategy {
       const minZ = bb.minZ();
       for (let k = 0; cr[0] !== null && k < (cr[0] as CubatureRule).numberOfNodes && k < x.length; k++) {
         if (x[k] === null) {
-          x[k] = new Vector3Df();
+          x[k] = new Vector3Dd();
         }
-        x[k]! = new Vector3Df(minX + (cr[0] as CubatureRule).u[k]! * dx, minY + (cr[0] as CubatureRule).v[k]! * dy, minZ + (cr[0] as CubatureRule).t[k]! * dz);
+        x[k]! = new Vector3Dd(minX + (cr[0] as CubatureRule).u[k]! * dx, minY + (cr[0] as CubatureRule).v[k]! * dy, minZ + (cr[0] as CubatureRule).t[k]! * dz);
       }
       return;
     }
@@ -159,13 +141,13 @@ export class FormFactorStrategy {
 
     for (let k = 0; cr[0] !== null && k < (cr[0] as CubatureRule).numberOfNodes && k < x.length; k++) {
       if (x[k] === null) {
-        x[k] = new Vector3Df();
+        x[k] = new Vector3Dd();
       }
-      let node = new Vector2Df((cr[0] as CubatureRule).u[k]!, (cr[0] as CubatureRule).v[k]!);
+      let node = new Vector2Dd((cr[0] as CubatureRule).u[k]!, (cr[0] as CubatureRule).v[k]!);
       if (topTransform !== null) {
         node = topTransform.transformPoint(node);
       }
-      x[k] = (element.patch as Patch).uniformPoint(node.x(), node.y()) ?? x[k]!;
+      x[k] = (element.patch as Patch).uniformPoint(node.x, node.y) ?? x[k]!;
     }
   }
 
@@ -173,8 +155,8 @@ export class FormFactorStrategy {
     shadowCache: ShadowCache,
     sceneQuery: SceneQuery | null,
     sceneQueryWorkspace: SceneQueryWorkspace | null,
-    x: Vector3Df,
-    y: Vector3Df,
+    x: Vector3Dd,
+    y: Vector3Dd,
     receiverElement: GalerkinElement,
     sourceElement: GalerkinElement,
     shadowGeometryList: Geometry[] | null,
@@ -185,20 +167,20 @@ export class FormFactorStrategy {
     workspace: FormFactorWorkspace,
   ): number {
     const ray = workspace.getKernelRay();
-    ray.position = y;
-    ray.direction = x.subtract(y);
-    const distance = ray.direction.length();
+    ray.setOrigin(y);
+    ray.setDirection(x.subtract(y));
+    const distance = ray.getDirection().length();
     if (distance < VSDK.EPSILON) {
       return 0.0;
     }
-    ray.direction = ray.direction.multiplyByInverse(distance, Numeric.EPSILON_FLOAT);
+    ray.setDirection(ray.getDirection().multiplyByInverse(distance, Numeric.EPSILON));
 
     let cosThetaY: number;
     if (sourceElement.isCluster()) {
       cosThetaY = 0.25;
     }
     else {
-      cosThetaY = ray.direction.dotProduct((sourceElement.patch as Patch).getNormal());
+      cosThetaY = ray.getDirection().dotProduct((sourceElement.patch as Patch).getNormal());
       if (cosThetaY <= 0.0) {
         return 0.0;
       }
@@ -209,7 +191,7 @@ export class FormFactorStrategy {
       cosThetaX = 0.25;
     }
     else {
-      cosThetaX = -ray.direction.dotProduct((receiverElement.patch as Patch).getNormal());
+      cosThetaX = -ray.getDirection().dotProduct((receiverElement.patch as Patch).getNormal());
       if (cosThetaX <= 0.0) {
         return 0.0;
       }
@@ -240,9 +222,6 @@ export class FormFactorStrategy {
       visibilityFactor = (h === null) ? 1.0 : 0.0;
     }
     else if (FormFactorStrategy.cachedShadowTest(shadowCache, ray, shortenedDistance, exclusions, workspace)) {
-      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null) {
-        sceneQueryWorkspace.getRecorder()!.countCacheResolved();
-      }
       visibilityFactor = 0.0;
     }
     else {
@@ -352,11 +331,6 @@ export class FormFactorStrategy {
         sourceElement.isCluster() ? sourceElement.geometry : null,
       );
 
-      if (sceneQueryWorkspace !== null && sceneQueryWorkspace.getRecorder() !== null
-        && geometryShadowList !== null && geometryShadowList.length > 0
-        && !isClusteredGeometry && !isSceneGeometry) {
-        sceneQueryWorkspace.getRecorder()!.recordGeometryList(geometryShadowList);
-      }
 
       let cachedMaximumKernelValue = 0.0;
       let cachedVisibilityCount = 0;
@@ -388,6 +362,7 @@ export class FormFactorStrategy {
 
       formFactorWorkspace.setMaximumKernelValue(cachedMaximumKernelValue);
       formFactorWorkspace.setVisibilityCount(cachedVisibilityCount);
+      FormFactorStrategy.boundPointToAreaFormFactors(receiverCubatureRule, sourceCubatureRule, sourceElement.area, cachedGxy);
     }
 
     const maximumKernelValue = formFactorWorkspace.getMaximumKernelValue();
@@ -431,6 +406,45 @@ export class FormFactorStrategy {
       link.numberOfReceiverCubaturePositions = 1;
     }
     formFactorWorkspace.setLastPair(receiverElement, sourceElement);
+  }
+
+  /**
+  Bounds the point-to-area form factor at every receiver node by 1. The form
+  factor from a point x_k to the source, G(x_k) = A_s sum_l w_l G(x_k, y_l), is
+  the fraction of the hemisphere over x_k that the source covers, so it never
+  exceeds 1: summed over all sources it is at most 1, the bound [BEKA1996]
+  section 4.1 states after its equation (11). The cubature estimate is the
+  imprecise numerical integration of [BEKA1996] section 7, and it exceeds it when
+  nodes of two elements nearly touch (elements meeting at an edge or a corner),
+  where 1 / (pi r^2) explodes. With elements already at the minimum area the
+  refinement cannot remove such a link, and a link with G > 1 and its reciprocal
+  form a feedback loop of gain above 1 that makes the solution diverge (a tiny
+  element turns into a bright emitter). The kernel values of a receiver node
+  whose estimate exceeds 1 are scaled by the same factor, so that the node's
+  estimate is 1 and its shape over the source (the higher order coefficients
+  and the error estimate) is kept. Legitimate estimates are below 1 and stay
+  untouched. With nodes on cluster bounding boxes (0.25 cosine terms) the same
+  bound holds
+  */
+  private static boundPointToAreaFormFactors(
+    receiverCubatureRule: CubatureRule | null,
+    sourceCubatureRule: CubatureRule | null,
+    sourceArea: number,
+    Gxy: number[][],
+  ): void {
+    for (let k = 0; receiverCubatureRule !== null && sourceCubatureRule !== null && k < receiverCubatureRule.numberOfNodes; k++) {
+      let g = 0.0;
+      for (let l = 0; l < sourceCubatureRule.numberOfNodes; l++) {
+        g += sourceCubatureRule.w[l]! * Gxy[k]![l]!;
+      }
+      g *= sourceArea;
+      if (g > 1.0) {
+        const scale = 1.0 / g;
+        for (let l = 0; l < sourceCubatureRule.numberOfNodes; l++) {
+          Gxy[k]![l]! *= scale;
+        }
+      }
+    }
   }
 
   private static doHigherOrderAreaToAreaFormFactor(

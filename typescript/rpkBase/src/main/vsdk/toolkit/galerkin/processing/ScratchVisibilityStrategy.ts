@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinState } from "../GalerkinState";
@@ -25,11 +25,11 @@ export class ScratchVisibilityStrategy {
     }
   }
 
-  public static scratchRenderElements(cluster: GalerkinElement, eye: Vector3Df, galerkinState: GalerkinState): BoundingBox {
+  public static scratchRenderElements(cluster: GalerkinElement, eye: Vector3Dd, galerkinState: GalerkinState): BoundingBox {
     const boundingBox = new BoundingBox();
 
     if (cluster.id === galerkinState.lastClusterId
-      && Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON_FLOAT)) {
+      && Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON)) {
       return boundingBox;
     }
 
@@ -37,13 +37,13 @@ export class ScratchVisibilityStrategy {
     galerkinState.lastEye = eye;
 
     const center = cluster.midPoint();
-    let up = new Vector3Df(0.0, 0.0, 1.0);
-    let viewDirection = new Vector3Df();
+    let up = new Vector3Dd(0.0, 0.0, 1.0);
+    let viewDirection = new Vector3Dd();
 
     viewDirection = center.subtract(eye);
-    viewDirection = viewDirection.normalized(Numeric.EPSILON_FLOAT);
+    viewDirection = viewDirection.normalized(Numeric.EPSILON);
     if (globalThis.Math.abs(up.dotProduct(viewDirection)) > 1.0 - VSDK.EPSILON) {
-      up = new Vector3Df(0.0, 1.0, 0.0);
+      up = new Vector3Dd(0.0, 1.0, 0.0);
     }
 
     const lookAt = Camera.lookAtMatrix(eye, center, up);

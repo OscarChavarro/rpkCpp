@@ -1,12 +1,12 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
+import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionBase";
 import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
 import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
 import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ToneMap } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMap";
 import { ToneMapAdaptationMethod } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMapAdaptationMethod";
 import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
@@ -54,80 +54,56 @@ export class OptionsGroupToneMapping {
     );
   }
 
-  private static redChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
+  private static redChromaOption(value: TypedOption.MutableValue<Vector3Dd>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xr = value.value.x();
-    OptionsGroupToneMapping.toneMapOptions.yr = value.value.y();
-    Cie.computeColorConversionTransforms(
-      OptionsGroupToneMapping.toneMapOptions.xr,
-      OptionsGroupToneMapping.toneMapOptions.yr,
-      OptionsGroupToneMapping.toneMapOptions.xg,
-      OptionsGroupToneMapping.toneMapOptions.yg,
-      OptionsGroupToneMapping.toneMapOptions.xb,
-      OptionsGroupToneMapping.toneMapOptions.yb,
-      OptionsGroupToneMapping.toneMapOptions.xw,
-      OptionsGroupToneMapping.toneMapOptions.yw
-    );
+    const c = OptionsGroupToneMapping.toneMapOptions.getColorSpace();
+    OptionsGroupToneMapping.toneMapOptions.setColorSpace(new Cie(
+      value.value.x(), value.value.y(),
+      c.getGreenX(), c.getGreenY(),
+      c.getBlueX(), c.getBlueY(),
+      c.getWhiteX(), c.getWhiteY()));
   }
 
-  private static greenChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
+  private static greenChromaOption(value: TypedOption.MutableValue<Vector3Dd>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xg = value.value.x();
-    OptionsGroupToneMapping.toneMapOptions.yg = value.value.y();
-    Cie.computeColorConversionTransforms(
-      OptionsGroupToneMapping.toneMapOptions.xr,
-      OptionsGroupToneMapping.toneMapOptions.yr,
-      OptionsGroupToneMapping.toneMapOptions.xg,
-      OptionsGroupToneMapping.toneMapOptions.yg,
-      OptionsGroupToneMapping.toneMapOptions.xb,
-      OptionsGroupToneMapping.toneMapOptions.yb,
-      OptionsGroupToneMapping.toneMapOptions.xw,
-      OptionsGroupToneMapping.toneMapOptions.yw
-    );
+    const c = OptionsGroupToneMapping.toneMapOptions.getColorSpace();
+    OptionsGroupToneMapping.toneMapOptions.setColorSpace(new Cie(
+      c.getRedX(), c.getRedY(),
+      value.value.x(), value.value.y(),
+      c.getBlueX(), c.getBlueY(),
+      c.getWhiteX(), c.getWhiteY()));
   }
 
-  private static blueChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
+  private static blueChromaOption(value: TypedOption.MutableValue<Vector3Dd>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xb = value.value.x();
-    OptionsGroupToneMapping.toneMapOptions.yb = value.value.y();
-    Cie.computeColorConversionTransforms(
-      OptionsGroupToneMapping.toneMapOptions.xr,
-      OptionsGroupToneMapping.toneMapOptions.yr,
-      OptionsGroupToneMapping.toneMapOptions.xg,
-      OptionsGroupToneMapping.toneMapOptions.yg,
-      OptionsGroupToneMapping.toneMapOptions.xb,
-      OptionsGroupToneMapping.toneMapOptions.yb,
-      OptionsGroupToneMapping.toneMapOptions.xw,
-      OptionsGroupToneMapping.toneMapOptions.yw
-    );
+    const c = OptionsGroupToneMapping.toneMapOptions.getColorSpace();
+    OptionsGroupToneMapping.toneMapOptions.setColorSpace(new Cie(
+      c.getRedX(), c.getRedY(),
+      c.getGreenX(), c.getGreenY(),
+      value.value.x(), value.value.y(),
+      c.getWhiteX(), c.getWhiteY()));
   }
 
-  private static whiteChromaOption(value: TypedOption.MutableValue<Vector3Df>): void {
+  private static whiteChromaOption(value: TypedOption.MutableValue<Vector3Dd>): void {
     if (OptionsGroupToneMapping.toneMapOptions === null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
       return;
     }
-    OptionsGroupToneMapping.toneMapOptions.xw = value.value.x();
-    OptionsGroupToneMapping.toneMapOptions.yw = value.value.y();
-    Cie.computeColorConversionTransforms(
-      OptionsGroupToneMapping.toneMapOptions.xr,
-      OptionsGroupToneMapping.toneMapOptions.yr,
-      OptionsGroupToneMapping.toneMapOptions.xg,
-      OptionsGroupToneMapping.toneMapOptions.yg,
-      OptionsGroupToneMapping.toneMapOptions.xb,
-      OptionsGroupToneMapping.toneMapOptions.yb,
-      OptionsGroupToneMapping.toneMapOptions.xw,
-      OptionsGroupToneMapping.toneMapOptions.yw
-    );
+    const c = OptionsGroupToneMapping.toneMapOptions.getColorSpace();
+    OptionsGroupToneMapping.toneMapOptions.setColorSpace(new Cie(
+      c.getRedX(), c.getRedY(),
+      c.getGreenX(), c.getGreenY(),
+      c.getBlueX(), c.getBlueY(),
+      value.value.x(), value.value.y()));
   }
 
   private static toneMappingCommandLineOptionDescAdaptMethodOption(name: TypedOption.MutableValue<string | null>): void {
@@ -163,10 +139,10 @@ export class OptionsGroupToneMapping {
   ): void {
     const toneMapMethodName = TypedOption.valueRef<string | null>(null);
     const adaptMethodName = TypedOption.valueRef<string | null>(null);
-    const redChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
-    const greenChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
-    const blueChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
-    const whiteChromaticityValue = new Vector3Df(0.0, 0.0, 0.0);
+    const redChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+    const greenChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+    const blueChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
+    const whiteChromaticityValue = new Vector3Dd(0.0, 0.0, 0.0);
 
     const toneMappingOpt = new TypedOption<string | null>(
       "-tonemapping",
@@ -254,28 +230,28 @@ export class OptionsGroupToneMapping {
       null,
       OptionsGroupToneMapping.parseColor3
     );
-    const redOpt = new TypedOption<Vector3Df>(
+    const redOpt = new TypedOption<Vector3Dd>(
       "-red",
       TypedOption.valueRef(redChromaticityValue),
       2,
       OptionsGroupToneMapping.redChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const greenOpt = new TypedOption<Vector3Df>(
+    const greenOpt = new TypedOption<Vector3Dd>(
       "-green",
       TypedOption.valueRef(greenChromaticityValue),
       2,
       OptionsGroupToneMapping.greenChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const blueOpt = new TypedOption<Vector3Df>(
+    const blueOpt = new TypedOption<Vector3Dd>(
       "-blue",
       TypedOption.valueRef(blueChromaticityValue),
       2,
       OptionsGroupToneMapping.blueChromaOption,
       OptionsGroupToneMapping.parseCieXy
     );
-    const whiteOpt = new TypedOption<Vector3Df>(
+    const whiteOpt = new TypedOption<Vector3Dd>(
       "-white",
       TypedOption.valueRef(whiteChromaticityValue),
       2,
@@ -332,7 +308,7 @@ export class OptionsGroupToneMapping {
   private static parseCieXy(
     argc: number,
     argv: string[] | null,
-    value: TypedOption.MutableValue<Vector3Df>
+    value: TypedOption.MutableValue<Vector3Dd>
   ): boolean {
     if (argc < 2 || argv === null || argv[0] === null || argv[1] === null) {
       return false;

@@ -7,7 +7,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
@@ -119,7 +119,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3Df,
+    dir: Vector3Dd,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);

@@ -7,7 +7,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
-import { Ray } from "../../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
@@ -23,7 +23,7 @@ import { Mcrad } from "./Mcrad";
 import { McradP } from "./McradP";
 import { Sample4d } from "./Sample4d";
 import { StochasticRelaxation } from "./StochasticRelaxation";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 
 export class Nondiff {
   private static lights: LightSourceTable[] | null = null;
@@ -89,25 +89,25 @@ export class Nondiff {
       const hit = new RayHit();
       Nondiff.nextLightSample(patch, zeta);
 
-      ray.position = patch.uniformPoint(zeta[0]!, zeta[1]!) ?? ray.position;
+      ray.setOrigin(patch.uniformPoint(zeta[0]!, zeta[1]!) ?? ray.getOrigin());
 
-      hit.init(patch, ray.position, patch.getNormal(), patch.material);
+      hit.init(patch, ray.getOrigin(), patch.getNormal(), patch.material);
       dirSelectionPdf[0] = 0.0;
-      ray.direction = new Vector3Df(0.0, 0.0, 0.0);
+      ray.setDirection(new Vector3Dd(0.0, 0.0, 0.0));
       if (patch.material !== null && patch.material.getEdf() !== null) {
         const shctxOk = [false];
         const shctx = hit.shadingContext(shctxOk);
         if (!shctxOk[0]) {
           continue;
         }
-        ray.direction = patch.material.getEdf()!.phongEdfSample(
+        ray.setDirection(patch.material.getEdf()!.phongEdfSample(
           shctx,
           0x01 | 0x02 | 0x04,
           zeta[2]!,
           zeta[3]!,
           emittedRad,
           dirSelectionPdf
-        );
+        ));
       }
     } while (dirSelectionPdf[0] === 0.0);
 
@@ -130,7 +130,7 @@ export class Nondiff {
       const topPatchRad = McradP.getTopLevelPatchRad(hitPatch)!;
       const topPatchUnShot = McradP.getTopLevelPatchUnShotRad(hitPatch)!;
       const pdf = lightSelectionPdf * pointSelectionPdf[0]! * dirSelectionPdf[0]!;
-      const outCos = ray.direction.dotProduct(lightPatch.getNormal());
+      const outCos = ray.getDirection().dotProduct(lightPatch.getNormal());
       const receivedRadiosity = new ColorRgbMutable();
       const rd = McradP.topLevelStochasticRadiosityElement(hitPatch).Rd;
       receivedRadiosity.scaledCopy(outCos / (globalThis.Math.PI * hitPatch.getArea() * pdf * Nondiff.numberOfSamples), rad);

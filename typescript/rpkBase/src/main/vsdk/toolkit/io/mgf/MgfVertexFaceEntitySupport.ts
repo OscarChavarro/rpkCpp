@@ -4,8 +4,7 @@ import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { CoordinateAxis } from "../../common/linealAlgebra/CoordinateAxis";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
@@ -16,17 +15,12 @@ import { VertexContext } from "../context/VertexContext";
 import { Material } from "../../material/Material";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { Vertex } from "../../environment/geometry/elements/Vertex";
-import { MgfConeEntityTessellator } from "./MgfConeEntityTessellator";
-import { MgfCylinderEntityExpander } from "./MgfCylinderEntityExpander";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfFaceWithHolesEntityExpander } from "./MgfFaceWithHolesEntityExpander";
 import { MgfMaterialEntitySupport } from "./MgfMaterialEntitySupport";
 import { MgfObjectNameSupport } from "./MgfObjectNameSupport";
-import { MgfPrismEntityTessellator } from "./MgfPrismEntityTessellator";
-import { MgfRingEntityTessellator } from "./MgfRingEntityTessellator";
-import { MgfSphereEntityExpander } from "./MgfSphereEntityExpander";
-import { MgfTorusEntityExpander } from "./MgfTorusEntityExpander";
 import { MgfTransformationSupport } from "./MgfTransformationSupport";
+import { MgfVitralPrimitiveTessellator } from "./MgfVitralPrimitiveTessellator";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class MgfVertexFaceEntitySupport {
@@ -40,50 +34,48 @@ export class MgfVertexFaceEntitySupport {
   }
 
   /**
-  The mgf parser already contains some good routines for discrete spheres /
-  cone / cylinder / torus into polygons. In the official release of the parser
-  library, these routines are internal. Here we expose them to avoid
-  duplicating the code.
+  Turns a surface primitive (sphere, torus, cylinder, ring, cone or prism)
+  into faces, through the VITRAL geometry of MgfVitralPrimitiveTessellator
   */
   private static doDiscreteConic(argc: number, argv: string[], context: ParseRuntimeContext): number {
     const en = MgfEntityControl.mgfEntity(argv[0]!, context);
 
     switch (en) {
       case EntityTypeContext.SPHERE:
-        return MgfSphereEntityExpander.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handleSphere(argc, argv, context);
       case EntityTypeContext.TORUS:
-        return MgfTorusEntityExpander.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handleTorus(argc, argv, context);
       case EntityTypeContext.CYLINDER:
-        return MgfCylinderEntityExpander.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handleCylinder(argc, argv, context);
       case EntityTypeContext.RING:
-        return MgfRingEntityTessellator.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handleRing(argc, argv, context);
       case EntityTypeContext.CONE:
-        return MgfConeEntityTessellator.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handleCone(argc, argv, context);
       case EntityTypeContext.PRISM:
-        return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
+        return MgfVitralPrimitiveTessellator.handlePrism(argc, argv, context);
       default:
         Logger.reportMessage(null, Logger.FATAL_ERROR, "mgf.c: doDiscreteConic", JavaString.vformat("Unsupported geometry entity number %d", [en]));
         return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
     }
   }
 
-  private static installPoint(x: number, y: number, z: number, context: ParseRuntimeContext): Vector3Df {
-    const coord = new Vector3Df(x, y, z);
+  private static installPoint(x: number, y: number, z: number, context: ParseRuntimeContext): Vector3Dd {
+    const coord = new Vector3Dd(x, y, z);
     if (context.currentPointList !== null) {
       context.currentPointList.push(coord);
     }
     return coord;
   }
 
-  private static installNormal(x: number, y: number, z: number, context: ParseRuntimeContext): Vector3Df {
-    const norm = new Vector3Df(x, y, z);
+  private static installNormal(x: number, y: number, z: number, context: ParseRuntimeContext): Vector3Dd {
+    const norm = new Vector3Dd(x, y, z);
     if (context.currentNormalList !== null) {
       context.currentNormalList.push(norm);
     }
     return norm;
   }
 
-  private static installVertex(coord: Vector3Df, norm: Vector3Df | null, context: ParseRuntimeContext): Vertex {
+  private static installVertex(coord: Vector3Dd, norm: Vector3Dd | null, context: ParseRuntimeContext): Vertex {
     const newPatchList: Patch[] = [];
     const vertex = new Vertex(coord, norm, null, newPatchList);
     if (context.currentVertexList !== null) {
@@ -106,7 +98,7 @@ export class MgfVertexFaceEntitySupport {
       || MgfTessellationMath.isNull(vp.n, VSDK.EPSILON)
     ) {
       // New vertex, updated vertex, different transform, or no normal
-      let theNormal: Vector3Df | null;
+      let theNormal: Vector3Dd | null;
 
       const vert = MgfTransformationSupport.mgfTransformPoint(vp.p, context);
       const thePoint = MgfVertexFaceEntitySupport.installPoint(vert.x(), vert.y(), vert.z(), context);
@@ -177,15 +169,15 @@ export class MgfVertexFaceEntitySupport {
   /**
   Computes the normal to the patch plane.
   */
-  private static faceNormal(numberOfVertices: number, v: Vertex[]): Vector3Df | null {
-    // The C++ `Vector3Df *normal` output is the returned vector
-    let cur = new Vector3Df();
-    let n = new Vector3Df();
+  private static faceNormal(numberOfVertices: number, v: Vertex[]): Vector3Dd | null {
+    // The C++ `Vector3Dd *normal` output is the returned vector
+    let cur = new Vector3Dd();
+    let n = new Vector3Dd();
 
-    n = new Vector3Df(0, 0, 0);
+    n = new Vector3Dd(0, 0, 0);
     cur = v[numberOfVertices - 1]!.point.subtract(v[0]!.point);
     for (let i = 0; i < numberOfVertices; i++) {
-      const prev = new Vector3Df(cur.x(), cur.y(), cur.z());
+      const prev = new Vector3Dd(cur.x(), cur.y(), cur.z());
       cur = v[i]!.point.subtract(v[0]!.point);
       n = n.withX(n.x() + ((prev.y() - cur.y()) * (prev.z() + cur.z())));
       n = n.withY(n.y() + ((prev.z() - cur.z()) * (prev.x() + cur.x())));
@@ -197,7 +189,7 @@ export class MgfVertexFaceEntitySupport {
       // Degenerate normal -> degenerate polygon
       return null;
     }
-    n = n.multiplyByInverse(localNorm, Numeric.EPSILON_FLOAT);
+    n = n.multiplyByInverse(localNorm, Numeric.EPSILON);
 
     return n;
   }
@@ -205,48 +197,48 @@ export class MgfVertexFaceEntitySupport {
   /**
   Given a vector p in 3D space and an index i (X/Y/Z), project on YZ/XZ/XY.
   */
-  private static vectorProject(p: Vector3Df, i: CoordinateAxis): Vector2Df {
-    // The C++ `Vector2Df &r` output is the returned vector
+  private static vectorProject(p: Vector3Dd, i: CoordinateAxis): Vector2Dd {
+    // The C++ `Vector2Dd &r` output is the returned vector
     switch (i) {
       case CoordinateAxis.X:
-        return new Vector2Df(p.y(), p.z());
+        return new Vector2Dd(p.y(), p.z());
       case CoordinateAxis.Y:
-        return new Vector2Df(p.x(), p.z());
+        return new Vector2Dd(p.x(), p.z());
       case CoordinateAxis.Z:
-        return new Vector2Df(p.x(), p.y());
+        return new Vector2Dd(p.x(), p.y());
       default:
-        return new Vector2Df();
+        return new Vector2Dd();
     }
   }
 
   /**
   Test whether polygon is convex by projected edge-cross sign consistency.
   */
-  private static faceIsConvex(numberOfVertices: number, v: Vertex[], normal: Vector3Df): boolean {
-    const v2d = new Array<Vector2Df>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
+  private static faceIsConvex(numberOfVertices: number, v: Vertex[], normal: Vector3Dd): boolean {
+    const v2d = new Array<Vector2Dd>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
     for (let i = 0; i < v2d.length; i++) {
-      v2d[i] = new Vector2Df();
+      v2d[i] = new Vector2Dd();
     }
-    let p = new Vector2Df();
-    let c = new Vector2Df();
+    let p = new Vector2Dd();
+    let c = new Vector2Dd();
 
     const index = (normal.dominantAxis() as CoordinateAxis);
     for (let i = 0; i < numberOfVertices; i++) {
       v2d[i] = MgfVertexFaceEntitySupport.vectorProject(v[i]!.point, index);
     }
 
-    p = p.withX(v2d[3]!.x() - v2d[2]!.x());
-    p = p.withY(v2d[3]!.y() - v2d[2]!.y());
-    c = c.withX(v2d[0]!.x() - v2d[3]!.x());
-    c = c.withY(v2d[0]!.y() - v2d[3]!.y());
-    const sign = (p.x() * c.y() > c.x() * p.y()) ? 1 : -1;
+    p = p.withX(v2d[3]!.x - v2d[2]!.x);
+    p = p.withY(v2d[3]!.y - v2d[2]!.y);
+    c = c.withX(v2d[0]!.x - v2d[3]!.x);
+    c = c.withY(v2d[0]!.y - v2d[3]!.y);
+    const sign = (p.x * c.y > c.x * p.y) ? 1 : -1;
 
     for (let i = 1; i < numberOfVertices; i++) {
-      p = p.withX(c.x());
-      p = p.withY(c.y());
-      c = c.withX(v2d[i]!.x() - v2d[i - 1]!.x());
-      c = c.withY(v2d[i]!.y() - v2d[i - 1]!.y());
-      if (((p.x() * c.y() > c.x() * p.y()) ? 1 : -1) !== sign) {
+      p = p.withX(c.x);
+      p = p.withY(c.y);
+      c = c.withX(v2d[i]!.x - v2d[i - 1]!.x);
+      c = c.withY(v2d[i]!.y - v2d[i - 1]!.y);
+      if (((p.x * c.y > c.x * p.y) ? 1 : -1) !== sign) {
         return false;
       }
     }
@@ -257,14 +249,14 @@ export class MgfVertexFaceEntitySupport {
   /**
   Returns true if 2D point p is inside triangle p1-p2-p3.
   */
-  private static pointInsideTriangle2D(p: Vector2Df, p1: Vector2Df, p2: Vector2Df, p3: Vector2Df): boolean {
+  private static pointInsideTriangle2D(p: Vector2Dd, p1: Vector2Dd, p2: Vector2Dd, p3: Vector2Dd): boolean {
     // Graphics Gems I, Didier Badouel
-    const u0 = p.x() - p1.x();
-    const v0 = p.y() - p1.y();
-    const u1 = p2.x() - p1.x();
-    const v1 = p2.y() - p1.y();
-    const u2 = p3.x() - p1.x();
-    const v2 = p3.y() - p1.y();
+    const u0 = p.x - p1.x;
+    const v0 = p.y - p1.y;
+    const u1 = p2.x - p1.x;
+    const v1 = p2.y - p1.y;
+    const u2 = p3.x - p1.x;
+    const v2 = p3.y - p1.y;
 
     let a = 10.0;
     let b = 10.0; // Large enough so result would be false
@@ -298,29 +290,29 @@ export class MgfVertexFaceEntitySupport {
   /**
   Returns true if 2D segments p1-p2 and p3-p4 intersect.
   */
-  private static segmentsIntersect2D(p1: Vector2Df, p2: Vector2Df, p3: Vector2Df, p4: Vector2Df): boolean {
+  private static segmentsIntersect2D(p1: Vector2Dd, p2: Vector2Dd, p3: Vector2Dd, p4: Vector2Dd): boolean {
     let a: number;
     let b: number;
     let c: number;
     let coLinear = false;
 
     // Graphics Gems II, Mukesh Prasad
-    let du = globalThis.Math.abs(p2.x() - p1.x());
-    let dv = globalThis.Math.abs(p2.y() - p1.y());
+    let du = globalThis.Math.abs(p2.x - p1.x);
+    let dv = globalThis.Math.abs(p2.y - p1.y);
     if (du > VSDK.EPSILON || dv > VSDK.EPSILON) {
       if (dv > du) {
         a = 1.0;
-        b = -(p2.x() - p1.x()) / (p2.y() - p1.y());
-        c = -(p1.x() + b * p1.y());
+        b = -(p2.x - p1.x) / (p2.y - p1.y);
+        c = -(p1.x + b * p1.y);
       }
       else {
-        a = -(p2.y() - p1.y()) / (p2.x() - p1.x());
+        a = -(p2.y - p1.y) / (p2.x - p1.x);
         b = 1.0;
-        c = -(a * p1.x() + p1.y());
+        c = -(a * p1.x + p1.y);
       }
 
-      const r3 = a * p3.x() + b * p3.y() + c;
-      const r4 = a * p4.x() + b * p4.y() + c;
+      const r3 = a * p3.x + b * p3.y + c;
+      const r4 = a * p4.x + b * p4.y + c;
 
       if (globalThis.Math.abs(r3) < VSDK.EPSILON && globalThis.Math.abs(r4) < VSDK.EPSILON) {
         coLinear = true;
@@ -331,22 +323,22 @@ export class MgfVertexFaceEntitySupport {
     }
 
     if (coLinear === false) {
-      du = globalThis.Math.abs(p4.x() - p3.x());
-      dv = globalThis.Math.abs(p4.y() - p3.y());
+      du = globalThis.Math.abs(p4.x - p3.x);
+      dv = globalThis.Math.abs(p4.y - p3.y);
       if (du > VSDK.EPSILON || dv > VSDK.EPSILON) {
         if (dv > du) {
           a = 1.0;
-          b = -(p4.x() - p3.x()) / (p4.y() - p3.y());
-          c = -(p3.x() + b * p3.y());
+          b = -(p4.x - p3.x) / (p4.y - p3.y);
+          c = -(p3.x + b * p3.y);
         }
         else {
-          a = -(p4.y() - p3.y()) / (p4.x() - p3.x());
+          a = -(p4.y - p3.y) / (p4.x - p3.x);
           b = 1.0;
-          c = -(a * p3.x() + p3.y());
+          c = -(a * p3.x + p3.y);
         }
 
-        const r1 = a * p1.x() + b * p1.y() + c;
-        const r2 = a * p2.x() + b * p2.y() + c;
+        const r1 = a * p1.x + b * p1.y + c;
+        const r2 = a * p2.x + b * p2.y + c;
 
         if (globalThis.Math.abs(r1) < VSDK.EPSILON && globalThis.Math.abs(r2) < VSDK.EPSILON) {
           coLinear = true;
@@ -371,16 +363,16 @@ export class MgfVertexFaceEntitySupport {
   private static doComplexFace(
     n: number,
     v: Vertex[],
-    normalHolder: Vector3Df[], // One-element holder (C++ `Vector3Df *normal`)
+    normalHolder: Vector3Dd[], // One-element holder (C++ `Vector3Dd *normal`)
     backVertex: Array<Vertex | null>,
     context: ParseRuntimeContext,
   ): void {
-    let center = new Vector3Df();
-    center = new Vector3Df(0.0, 0.0, 0.0);
+    let center = new Vector3Dd();
+    center = new Vector3Dd(0.0, 0.0, 0.0);
     for (let i = 0; i < n; i++) {
       center = center.add(v[i]!.point);
     }
-    center = center.multiplyByInverse(n, Numeric.EPSILON_FLOAT);
+    center = center.multiplyByInverse(n, Numeric.EPSILON);
 
     let maxD = center.distance(v[0]!.point);
     let max = 0;
@@ -404,18 +396,18 @@ export class MgfVertexFaceEntitySupport {
     }
     let p2 = (p1 + 1) % n;
     let normal = v[p2]!.point.subtract(v[p1]!.point).crossProduct(v[p0]!.point.subtract(v[p1]!.point));
-    normal = normal.normalized(Numeric.EPSILON_FLOAT);
+    normal = normal.normalized(Numeric.EPSILON);
     normalHolder[0] = normal;
     const index = (normal.dominantAxis() as CoordinateAxis);
 
-    const q = new Array<Vector2Df>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
+    const q = new Array<Vector2Dd>(MgfVertexFaceEntitySupport.MAXIMUM_FACE_VERTICES + 1);
     for (let i = 0; i < n; i++) {
-      q[i] = new Vector2Df();
+      q[i] = new Vector2Dd();
       q[i] = MgfVertexFaceEntitySupport.vectorProject(v[i]!.point, index);
     }
 
     let corners = n;
-    let nn = new Vector3Df();
+    let nn = new Vector3Dd();
 
     p0 = -1;
     while (corners >= 3) {
@@ -446,7 +438,7 @@ export class MgfVertexFaceEntitySupport {
 
         nn = v[p2]!.point.subtract(v[p1]!.point).crossProduct(v[p0]!.point.subtract(v[p1]!.point));
         a = nn.length();
-        nn = nn.multiplyByInverse(a, Numeric.EPSILON_FLOAT);
+        nn = nn.multiplyByInverse(a, Numeric.EPSILON);
         d = nn.distance(normal);
 
         good = true;

@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Statistics } from "../common/statistics/Statistics";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { CubatureDegree } from "../numericalAnalysis/CubatureDegree";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
 import { QuadCubatureRule } from "../numericalAnalysis/QuadCubatureRule";
@@ -62,7 +62,7 @@ export class GalerkinState {
   public scratch: SglContext | null;
   public scratchFrameBufferSize: number;
   public lastClusterId: number;
-  public lastEye: Vector3Df;
+  public lastEye: Vector3Dd;
 
   public lastClock: bigint;
   public cpuSeconds: number;
@@ -139,7 +139,7 @@ export class GalerkinState {
     this.sourceQuadCubatureRule = null;
     this.topCluster = null;
     this.lastClusterId = 0;
-    this.lastEye = new Vector3Df();
+    this.lastEye = new Vector3Dd();
     this.lastClock = 0n;
     this.cpuSeconds = 0.0;
     this.toneMapOptions = null;

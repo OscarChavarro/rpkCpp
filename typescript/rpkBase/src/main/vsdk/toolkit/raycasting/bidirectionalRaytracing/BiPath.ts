@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { BidirectionalPathRaytracerConfig } from "./BidirectionalPathRaytracerConfig";
 
@@ -14,14 +14,14 @@ export class BiPath {
 
   public m_pdfLNE = 0.0;
 
-  public m_dirEL: Vector3Df;
-  public m_dirLE: Vector3Df;
+  public m_dirEL: Vector3Dd;
+  public m_dirLE: Vector3Dd;
 
   public m_geomConnect = 0.0;
 
   public constructor() {
-    this.m_dirEL = new Vector3Df();
-    this.m_dirLE = new Vector3Df();
+    this.m_dirEL = new Vector3Dd();
+    this.m_dirLE = new Vector3Dd();
     this.init();
   }
 

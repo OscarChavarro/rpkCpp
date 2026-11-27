@@ -6,11 +6,11 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 import { QuadCubatureRule } from "../../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../../numericalAnalysis/TriangleCubatureRule";
-import { GalerkinBasis } from "./GalerkinBasis";
+import { StochasticRadiosityBasis } from "./StochasticRadiosityBasis";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";
 import { StochasticRadiosityElementType } from "./StochasticRadiosityElementType";
 import { StochasticRadiosityElementTypeInfo } from "./StochasticRadiosityElementTypeInfo";
@@ -26,7 +26,7 @@ export class Basismcrad {
     return 1;
   }
 
-  public static makeBasis(et: StochasticRadiosityElementType, at: StochasticRaytracingApproximation): GalerkinBasis {
+  public static makeBasis(et: StochasticRadiosityElementType, at: StochasticRaytracingApproximation): StochasticRadiosityBasis {
     const basisState = StochasticRadiosityBasisState.activeState();
     let basis = basisState.quadBasis;
     let elem = "";
@@ -67,9 +67,9 @@ with S the domain on which the basis functions are defined (unit square or
 standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
   public static computeFilterCoefficients(
-    parentBasis: GalerkinBasis,
+    parentBasis: StochasticRadiosityBasis,
     parentSize: number,
-    childBasis: GalerkinBasis,
+    childBasis: StochasticRadiosityBasis,
     childSize: number,
     upxfm: Matrix2x2,
     cr: CubatureRule,
@@ -79,9 +79,9 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
       for (let b = 0; b < childSize; b++) {
         let x = 0.0;
         for (let k = 0; k < cr.numberOfNodes; k++) {
-          let up = new Vector2Df(cr.u[k]!, cr.v[k]!);
+          let up = new Vector2Dd(cr.u[k]!, cr.v[k]!);
           up = upxfm.transformPoint(up);
-          x += cr.w[k]! * parentBasis.function![a]!(up.x(), up.y()) * childBasis.function![b]!(cr.u[k]!, cr.v[k]!);
+          x += cr.w[k]! * parentBasis.function![a]!(up.x, up.y) * childBasis.function![b]!(cr.u[k]!, cr.v[k]!);
         }
         filter[a]![b] = x;
       }
@@ -95,7 +95,7 @@ to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */
   public static basisGalerkinComputeRegularFilterCoefficients(
-    basis: GalerkinBasis,
+    basis: StochasticRadiosityBasis,
     upxfm: Matrix2x2[],
     cr: CubatureRule
   ): void {
@@ -143,7 +143,7 @@ Initialises table of bases
   /**
 Returns color at a given point, with parameters (u,v)
 */
-  public static colorAtUv(basis: GalerkinBasis, rad: ColorRgbMutable[], u: number, v: number): ColorRgbMutable {
+  public static colorAtUv(basis: StochasticRadiosityBasis, rad: ColorRgbMutable[], u: number, v: number): ColorRgbMutable {
     const res = new ColorRgbMutable();
     res.clear();
     for (let i = 0; i < basis.size; i++) {
@@ -174,12 +174,12 @@ the result to the destination coefficients
     }
   }
 
-  public static stochasticRadiosityCreateQuadBasis(): GalerkinBasis {
+  public static stochasticRadiosityCreateQuadBasis(): StochasticRadiosityBasis {
     return Basismcrad.Basisquadmcrad_stochasticRadiosityCreateQuadBasis();
   }
 
-  private static cloneBasis(input: GalerkinBasis): GalerkinBasis {
-    const out = new GalerkinBasis();
+  private static cloneBasis(input: StochasticRadiosityBasis): StochasticRadiosityBasis {
+    const out = new StochasticRadiosityBasis();
     out.description = input.description;
     out.size = input.size;
     out.function = input.function;
@@ -249,7 +249,7 @@ the result to the destination coefficients
     return out;
   }
 
-  private static Basisquadmcrad_stochasticRadiosityCreateQuadBasis(): GalerkinBasis {
+  private static Basisquadmcrad_stochasticRadiosityCreateQuadBasis(): StochasticRadiosityBasis {
     const f = [
       (u: number, v: number): number => Basismcrad.qm0(u, v),
       (u: number, v: number): number => Basismcrad.qm1(u, v),
@@ -262,10 +262,10 @@ the result to the destination coefficients
       (u: number, v: number): number => Basismcrad.qm8(u, v),
       (u: number, v: number): number => Basismcrad.qm9(u, v),
     ];
-    const h = Basismcrad.create3DArray(4, GalerkinBasis.MAX_BASIS_SIZE, GalerkinBasis.MAX_BASIS_SIZE);
-    const b = new GalerkinBasis();
+    const h = Basismcrad.create3DArray(4, StochasticRadiosityBasis.MAX_BASIS_SIZE, StochasticRadiosityBasis.MAX_BASIS_SIZE);
+    const b = new StochasticRadiosityBasis();
     b.description = "orthonormal basis on the unit square";
-    b.size = GalerkinBasis.MAX_BASIS_SIZE;
+    b.size = StochasticRadiosityBasis.MAX_BASIS_SIZE;
     b.function = f;
     b.dualFunction = f;
     b.regularFilter = h;

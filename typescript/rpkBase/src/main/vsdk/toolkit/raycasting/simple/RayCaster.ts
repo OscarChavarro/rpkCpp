@@ -8,8 +8,8 @@ import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { RayTracer } from "../common/RayTracer";
@@ -127,15 +127,15 @@ export class RayCaster extends RayTracer {
     if (radianceMethod !== null) {
       // Ray pointing from the eye through the center of the pixel.
       const ray = new Ray();
-      ray.position = camera.eyePosition;
-      ray.direction = this.screenBuffer.getPixelVector(x, y);
-      ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+      ray.setOrigin(camera.eyePosition);
+      ray.setDirection(this.screenBuffer.getPixelVector(x, y));
+      ray.setDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
       // Find intersection point of ray with patch
-      let point = new Vector3Df();
-      let dist = patch.getNormal().dotProduct(ray.direction);
-      dist = -(patch.getNormal().dotProduct(ray.position) + patch.getPlaneConstant()) / dist;
-      point = ray.position.add(ray.direction.multiply(dist));
+      let point = new Vector3Dd();
+      let dist = patch.getNormal().dotProduct(ray.getDirection());
+      dist = -(patch.getNormal().dotProduct(ray.getOrigin()) + patch.getPlaneConstant()) / dist;
+      point = ray.getOrigin().add(ray.getDirection().multiply(dist));
 
       // Find surface coordinates of hit point on patch
       const u = [0.0];
@@ -147,7 +147,7 @@ export class RayCaster extends RayTracer {
       RayCaster.clipUv(patch.numberOfVertices, u, v);
 
       // Reverse ray direction and get radiance emitted at hit point towards the eye
-      const dir = new Vector3Df(-ray.direction.x(), -ray.direction.y(), -ray.direction.z());
+      const dir = new Vector3Dd(-ray.getDirection().x(), -ray.getDirection().y(), -ray.getDirection().z());
       return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, dir, renderOptions);
     }
     return radiance;

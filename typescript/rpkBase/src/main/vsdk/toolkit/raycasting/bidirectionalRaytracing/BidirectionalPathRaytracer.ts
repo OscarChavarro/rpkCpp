@@ -4,7 +4,7 @@ import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
@@ -324,7 +324,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
         db.add(pixX, pixY, f);
       }
       else {
-        let center = new Vector2Df();
+        let center = new Vector2Dd();
         const g = new ColorRgbMutable();
 
         center = center.withX(pixX);
@@ -977,8 +977,8 @@ export class BidirectionalPathRaytracer extends RayTracer {
         config.eyePath.m_rayType = PathRayType.STARTS;
 
         const tmpVec2D = config.screen.getPixelCenter(globalThis.Math.trunc(x1[0]!), globalThis.Math.trunc(x2[0]!));
-        config.xSample = tmpVec2D.x();
-        config.ySample = tmpVec2D.y();
+        config.xSample = tmpVec2D.x;
+        config.ySample = tmpVec2D.y;
 
         if ((config.eyeConfig.dirSampler as Sampler).sample(
           camera,

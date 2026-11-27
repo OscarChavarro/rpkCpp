@@ -1,4 +1,4 @@
-import { Cie } from "../common/color/Cie";
+import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMapAdaptationMethod } from "./ToneMapAdaptationMethod";
@@ -15,17 +15,12 @@ export class ToneMappingContext {
   public maximumDisplayLuminance: number;
   public maximumDisplayContrast: number;
 
-  public xr: number;
-  public yr: number;
-  public xg: number;
-  public yg: number;
-  public xb: number;
-  public yb: number;
-  public xw: number;
-  public yw: number;
-
   public gamma: ColorRgbMutable;
   public gammaTab: number[][];
+
+  // Conversion from radiance (COLOR type) to display RGB: monitor primary
+  // colors and white point
+  private colorSpace: Cie;
 
   private static readonly DEFAULT_GAMMA = 1.7;
   private static readonly DEFAULT_TM_LWA = 10.0;
@@ -41,15 +36,12 @@ export class ToneMappingContext {
     this.maximumDisplayLuminance = ToneMappingContext.DEFAULT_TM_LD_MAXIMUM;
     this.maximumDisplayContrast = ToneMappingContext.DEFAULT_TM_C_MAXIMUM;
 
-    this.xr = 0.640;
-    this.yr = 0.330;
-    this.xg = 0.290;
-    this.yg = 0.600;
-    this.xb = 0.150;
-    this.yb = 0.060;
-    this.xw = 0.333333333333;
-    this.yw = 0.333333333333;
-    Cie.computeColorConversionTransforms(this.xr, this.yr, this.xg, this.yg, this.xb, this.yb, this.xw, this.yw);
+    // Monitor primaries and white point
+    this.colorSpace = new Cie(
+      0.640, 0.330,
+      0.290, 0.600,
+      0.150, 0.060,
+      0.333333333333, 0.333333333333);
 
     this.gamma = new ColorRgbMutable();
     this.gamma.set(ToneMappingContext.DEFAULT_GAMMA, ToneMappingContext.DEFAULT_GAMMA, ToneMappingContext.DEFAULT_GAMMA);
@@ -59,5 +51,13 @@ export class ToneMappingContext {
       new Array<number>(ToneMappingContext.GAMMA_TABLE_SIZE).fill(0.0)
     ];
     ToneMap.recomputeGammaTables(this, this.gamma);
+  }
+
+  public getColorSpace(): Cie {
+    return this.colorSpace;
+  }
+
+  public setColorSpace(inColorSpace: Cie): void {
+    this.colorSpace = inColorSpace;
   }
 }

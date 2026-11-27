@@ -1,8 +1,8 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
-import { Polygon } from "../scene/Polygon";
+import { ConvexPolygon } from "../scene/ConvexPolygon";
 import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { BoundingBoxCoordinateIndex } from "../skin/BoundingBoxCoordinateIndex";
 import { Compound } from "../skin/Compound";
@@ -51,8 +51,8 @@ export class Shaft {
   private readonly geometryIdsToAvoidOpening: number[];
   private numberOfGeometriesToAvoidOpen: number;
 
-  private center1: Vector3Df;
-  private center2: Vector3Df;
+  private center1: Vector3Dd;
+  private center2: Vector3Dd;
   private cut: boolean;
 
   public constructor(inFaceBounds: FaceBoundsTable) {
@@ -69,8 +69,8 @@ export class Shaft {
     this.geometryIdsToAvoidOpening = new Array<number>(Shaft.MAX_SKIP_ELEMENTS).fill(0);
     this.numberOfGeometriesToOmit = 0;
     this.numberOfGeometriesToAvoidOpen = 0;
-    this.center1 = new Vector3Df();
-    this.center2 = new Vector3Df();
+    this.center1 = new Vector3Dd();
+    this.center2 = new Vector3Dd();
     this.cut = false;
   }
 
@@ -189,7 +189,7 @@ export class Shaft {
     this.numberOfPlanesInSet = localPlaneIndex;
   }
 
-  private static testPolygonWithRespectToPlane(polygon: Polygon, normal: Vector3Df, d: number): ShaftPlanePosition {
+  private static testPolygonWithRespectToPlane(polygon: ConvexPolygon, normal: Vector3Dd, d: number): ShaftPlanePosition {
     let out = false;
     let inside = false;
 
@@ -199,7 +199,7 @@ export class Shaft {
         continue;
       }
       const e = normal.dotProduct(vtx) + d;
-      const tolerance = Math.abs(d) * VSDK.EPSILON + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * vtx.manhattanLength());
+      const tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON * vtx.manhattanLength());
       out = out || (e > tolerance);
       inside = inside || (e < -tolerance);
       if (out && inside) {
@@ -214,8 +214,8 @@ export class Shaft {
   }
 
   private static verifyPolygonWithRespectToPlane(
-    polygon: Polygon,
-    normal: Vector3Df,
+    polygon: ConvexPolygon,
+    normal: Vector3Dd,
     d: number,
     side: ShaftPlanePosition,
   ): boolean {
@@ -228,7 +228,7 @@ export class Shaft {
         continue;
       }
       const e = normal.dotProduct(vtx) + d;
-      const tolerance = Math.abs(d) * VSDK.EPSILON + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * vtx.manhattanLength());
+      const tolerance = Math.abs(d) * VSDK.EPSILON + (Numeric.EPSILON * vtx.manhattanLength());
       out = out || e > tolerance;
       if (out && side === ShaftPlanePosition.INSIDE) {
         return false;
@@ -252,8 +252,8 @@ export class Shaft {
     return false;
   }
 
-  private static testPointWithRespectToPlane(p: Vector3Df, normal: Vector3Df, d: number): ShaftPlanePosition {
-    const tolerance = Math.abs(d * VSDK.EPSILON) + Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * p.manhattanLength());
+  private static testPointWithRespectToPlane(p: Vector3Dd, normal: Vector3Dd, d: number): ShaftPlanePosition {
+    const tolerance = Math.abs(d * VSDK.EPSILON) + (Numeric.EPSILON * p.manhattanLength());
     const e = normal.dotProduct(p) + d;
     if (e < -tolerance) {
       return ShaftPlanePosition.INSIDE;
@@ -316,8 +316,8 @@ export class Shaft {
     plane.coordinateOffset[2] = plane.n[2] > 0.0 ? BoundingBoxCoordinateIndex.MIN_Z : BoundingBoxCoordinateIndex.MAX_Z;
   }
 
-  private constructPolygonToPolygonPlanes(polygon1: Polygon, polygon2: Polygon): void {
-    let normal = new Vector3Df();
+  private constructPolygonToPolygonPlanes(polygon1: ConvexPolygon, polygon2: ConvexPolygon): void {
+    let normal = new Vector3Dd();
     let localPlaneIndex = this.numberOfPlanesInSet;
     let maxPlanesPerEdge: number;
 
@@ -363,7 +363,7 @@ export class Shaft {
         if (localNorm < VSDK.EPSILON) {
           continue;
         }
-        normal = normal.multiplyByInverse(localNorm, Numeric.EPSILON_FLOAT);
+        normal = normal.multiplyByInverse(localNorm, Numeric.EPSILON);
         const dNaive = -normal.dotProduct(current);
         const dExtended = -((normal.x() * current.x()) + (normal.y() * current.y()) + (normal.z() * current.z()));
         const dFma = -Shaft.fma(normal.z(), current.z(), normal.x() * current.x() + normal.y() * current.y());
@@ -413,7 +413,7 @@ export class Shaft {
     this.numberOfPlanesInSet = localPlaneIndex;
   }
 
-  public constructFromPolygonToPolygon(polygon1: Polygon, polygon2: Polygon): void {
+  public constructFromPolygonToPolygon(polygon1: ConvexPolygon, polygon2: ConvexPolygon): void {
     this.referenceItem1 = null;
     this.referenceItem2 = null;
 
@@ -439,7 +439,7 @@ export class Shaft {
         this.center1 = this.center1.add(v);
       }
     }
-    this.center1 = this.center1.multiplyByInverse(polygon1.numberOfVertices, Numeric.EPSILON_FLOAT);
+    this.center1 = this.center1.multiplyByInverse(polygon1.numberOfVertices, Numeric.EPSILON);
 
     const poly2v0 = polygon2.vertex[0];
     if (poly2v0 === undefined) {
@@ -452,7 +452,7 @@ export class Shaft {
         this.center2 = this.center2.add(v);
       }
     }
-    this.center2 = this.center2.multiplyByInverse(polygon2.numberOfVertices, Numeric.EPSILON_FLOAT);
+    this.center2 = this.center2.multiplyByInverse(polygon2.numberOfVertices, Numeric.EPSILON);
 
     this.numberOfPlanesInSet = 0;
     this.constructPolygonToPolygonPlanes(polygon1, polygon2);
@@ -531,7 +531,7 @@ export class Shaft {
       inAll[j] = 1;
       tMin[j] = 0.0;
       tMax[j] = 1.0;
-      pTol[j] = Math.fround(Math.fround(Numeric.EPSILON_FLOAT) * patch.vertex[j]!.point.manhattanLength());
+      pTol[j] = Numeric.EPSILON * patch.vertex[j]!.point.manhattanLength();
     }
 
     for (let i = 0; i < this.numberOfPlanesInSet; i++) {
@@ -623,14 +623,14 @@ export class Shaft {
       }
     }
 
-    ray.position = this.center1;
-    ray.direction = this.center2.subtract(this.center1);
+    ray.setOrigin(this.center1);
+    ray.setDirection(this.center2.subtract(this.center1));
     const dist = Shaft.shaftPatchTestScratchDistance;
-    dist[0] = 1.0 - Numeric.EPSILON_FLOAT;
+    dist[0] = 1.0 - Numeric.EPSILON;
     if (
       patch.intersect(
         ray,
-        Numeric.EPSILON_FLOAT,
+        Numeric.EPSILON,
         dist,
         RayHitFlag.FRONT | RayHitFlag.BACK,
         hitStore,

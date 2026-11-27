@@ -1,4 +1,4 @@
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { ReaderContext } from "../../context/ReaderContext";
@@ -16,7 +16,7 @@ import { BinaryModelVertexRecordData } from "./BinaryModelVertexRecordData";
 
 export class BinaryModelReadCleanup {
   public static cleanupPartialModel(
-    vectors: Vector3Df[] | null,
+    vectors: Vector3Dd[] | null,
     vertices: Vertex[] | null,
     patches: Patch[] | null,
     materials: Material[] | null,

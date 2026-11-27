@@ -2,14 +2,14 @@ import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2x2";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../material/BsdfComponent";
 import { XxdfComponentFlag } from "../material/XxdfComponentFlag";
 import { PatchVisitor } from "../numericalAnalysis/PatchVisitor";
 import { QuadCubatureRule } from "../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../numericalAnalysis/TriangleCubatureRule";
-import { Polygon } from "../scene/Polygon";
+import { ConvexPolygon } from "../scene/ConvexPolygon";
 import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { Element } from "../environment/geometry/elements/Element";
 import { ElementFlags } from "../environment/geometry/elements/ElementFlags";
@@ -23,8 +23,8 @@ import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 
 type Matrix2x2Quad = [Matrix2x2, Matrix2x2, Matrix2x2, Matrix2x2];
-type QuadPoints = [Vector3Df, Vector3Df, Vector3Df, Vector3Df];
-type OctPoints = [Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df, Vector3Df];
+type QuadPoints = [Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd];
+type OctPoints = [Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd, Vector3Dd];
 
 export class GalerkinElement extends Element {
   private static numberOfElements = 0;
@@ -295,7 +295,7 @@ export class GalerkinElement extends Element {
     return leaf;
   }
 
-  public vertices(p: Vector3Df[] | null): number {
+  public vertices(p: Vector3Dd[] | null): number {
     if (p === null) {
       return 0;
     }
@@ -312,51 +312,51 @@ export class GalerkinElement extends Element {
     }
 
     const topTrans = this.topTransform();
-    let uv = new Vector2Df();
+    let uv = new Vector2Dd();
 
-    uv = new Vector2Df(0.0, 0.0);
+    uv = new Vector2Dd(0.0, 0.0);
     if (topTrans !== null) {
       uv = topTrans.transformPoint(uv);
     }
     if (p[0] !== undefined) {
-      p[0] = this.patch.uniformPoint(uv.x(), uv.y())!;
+      p[0] = this.patch.uniformPoint(uv.x, uv.y)!;
     }
 
-    uv = new Vector2Df(1.0, 0.0);
+    uv = new Vector2Dd(1.0, 0.0);
     if (topTrans !== null) {
       uv = topTrans.transformPoint(uv);
     }
     if (p[1] !== undefined) {
-      p[1] = this.patch.uniformPoint(uv.x(), uv.y())!;
+      p[1] = this.patch.uniformPoint(uv.x, uv.y)!;
     }
 
     if (this.patch.numberOfVertices === 4) {
-      uv = new Vector2Df(1.0, 1.0);
+      uv = new Vector2Dd(1.0, 1.0);
       if (topTrans !== null) {
         uv = topTrans.transformPoint(uv);
       }
       if (p[2] !== undefined) {
-        p[2] = this.patch.uniformPoint(uv.x(), uv.y())!;
+        p[2] = this.patch.uniformPoint(uv.x, uv.y)!;
       }
 
-      uv = new Vector2Df(0.0, 1.0);
+      uv = new Vector2Dd(0.0, 1.0);
       if (topTrans !== null) {
         uv = topTrans.transformPoint(uv);
       }
       if (p[3] !== undefined) {
-        p[3] = this.patch.uniformPoint(uv.x(), uv.y())!;
+        p[3] = this.patch.uniformPoint(uv.x, uv.y)!;
       }
     }
     else {
-      uv = new Vector2Df(0.0, 1.0);
+      uv = new Vector2Dd(0.0, 1.0);
       if (topTrans !== null) {
         uv = topTrans.transformPoint(uv);
       }
       if (p[2] !== undefined) {
-        p[2] = this.patch.uniformPoint(uv.x(), uv.y())!;
+        p[2] = this.patch.uniformPoint(uv.x, uv.y)!;
       }
       if (p.length > 3 && p[3] !== undefined && p[3] !== null) {
-        p[3] = new Vector3Df(0.0, 0.0, 0.0);
+        p[3] = new Vector3Dd(0.0, 0.0, 0.0);
       }
     }
 
@@ -373,7 +373,7 @@ export class GalerkinElement extends Element {
       return boundingBox;
     }
 
-    const p: QuadPoints = [new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()];
+    const p: QuadPoints = [new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()];
     const numberOfVertices = this.vertices(p);
     for (let i = 0; i < numberOfVertices; i++) {
       const point = p[i];
@@ -384,14 +384,14 @@ export class GalerkinElement extends Element {
     return boundingBox;
   }
 
-  public midPoint(): Vector3Df {
+  public midPoint(): Vector3Dd {
     if (this.isCluster()) {
-      return this.geometry !== null ? this.geometry.boundingBox.center() : new Vector3Df();
+      return this.geometry !== null ? this.geometry.boundingBox.center() : new Vector3Dd();
     }
 
-    const p: OctPoints = [new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df()];
+    const p: OctPoints = [new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd()];
     const numberOfVertices = this.vertices(p);
-    let c = new Vector3Df();
+    let c = new Vector3Dd();
     for (let i = 0; i < numberOfVertices; i++) {
       const point = p[i];
       if (point !== undefined) {
@@ -404,7 +404,7 @@ export class GalerkinElement extends Element {
     return c;
   }
 
-  public initPolygon(polygon: Polygon | null): void {
+  public initPolygon(polygon: ConvexPolygon | null): void {
     if (polygon === null) {
       return;
     }
@@ -416,7 +416,7 @@ export class GalerkinElement extends Element {
       return;
     }
 
-    polygon.normal = new Vector3Df(this.patch.getNormal().x(), this.patch.getNormal().y(), this.patch.getNormal().z());
+    polygon.normal = new Vector3Dd(this.patch.getNormal().x(), this.patch.getNormal().y(), this.patch.getNormal().z());
     polygon.planeConstant = this.patch.getPlaneConstant();
     polygon.numberOfVertices = this.vertices(polygon.vertex);
     polygon.bounds = new BoundingBox();

@@ -1,4 +1,3 @@
-import { Cie } from "../common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -15,7 +14,7 @@ export class WardToneMap extends ToneMap {
     this.lda = 0.0;
   }
 
-  public override init(toneMapOptions: ToneMappingContext): void {
+  protected override initParameters(toneMapOptions: ToneMappingContext): void {
     const realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     this.lda = maximumDisplayLuminance / 2.0;
@@ -33,7 +32,7 @@ export class WardToneMap extends ToneMap {
   }
 
   public override scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
-    const eff = Cie.getLuminousEfficacy();
+    const eff = this.getColorSpace().getLuminousEfficacy();
     radiance.scale(eff * this.display);
     return radiance;
   }

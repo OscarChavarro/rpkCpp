@@ -1,5 +1,4 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Cie } from "../common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Statistics } from "../common/statistics/Statistics";
@@ -23,7 +22,7 @@ export class LightnessToneMap extends ToneMap {
     super();
   }
 
-  public override init(toneMapOptions: ToneMappingContext): void {
+  protected override initParameters(toneMapOptions: ToneMappingContext): void {
     void toneMapOptions;
   }
 
@@ -38,7 +37,7 @@ export class LightnessToneMap extends ToneMap {
       return radiance;
     }
 
-    const scaleFactor = LightnessToneMap.lightness(Cie.WHITE_EFFICACY * max);
+    const scaleFactor = LightnessToneMap.lightness(this.getColorSpace().getLuminousEfficacy() * max);
     if (scaleFactor === 0.0) {
       return radiance;
     }

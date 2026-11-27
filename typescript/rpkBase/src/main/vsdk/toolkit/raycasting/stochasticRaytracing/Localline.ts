@@ -3,18 +3,17 @@ Generate and trace a local line
 */
 
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
-import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { SceneQuery } from "../../scene/SceneQuery";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { StochasticRelaxation } from "./StochasticRelaxation";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class Localline {
   private constructor() {
@@ -25,10 +24,10 @@ Creates a coordinate system on the patch P with Z direction along the normal
 */
   private static patchCoordSys(patch: Patch, coord: CoordinateSystem): void {
     const z = patch.getNormal();
-    let x = new Vector3Df();
+    let x = new Vector3Dd();
     x = patch.vertex[1]!.point.subtract(patch.vertex[0]!.point);
-    x = x.normalized(Numeric.EPSILON_FLOAT);
-    let y = new Vector3Df();
+    x = x.normalized(Numeric.EPSILON);
+    let y = new Vector3Dd();
     y = z.crossProduct(x);
 
     coord.setX(x);
@@ -50,8 +49,8 @@ by the 4-dimensional sample vector xi
       Localline.previousPatch = patch;
     }
 
-    ray.position = patch.uniformPoint(xi[0]!, xi[1]!) ?? ray.position;
-    ray.direction = Localline.coordSys.sampleHemisphereCosTheta(xi[2]!, xi[3]!, pdf);
+    ray.setOrigin(patch.uniformPoint(xi[0]!, xi[1]!) ?? ray.getOrigin());
+    ray.setDirection(Localline.coordSys.sampleHemisphereCosTheta(xi[2]!, xi[3]!, pdf));
 
     return ray;
   }
@@ -69,25 +68,18 @@ In order to let the user have the impression that the computations are proceedin
 Determines nearest intersection point and patch
 */
   public static mcrShootRay(sceneQuery: SceneQuery, sceneWorldSceneQueryWorkspace: SceneQueryWorkspace, P: Patch, ray: Ray, hitStore: RayHit): RayHit | null {
-    const distance = [Float.MAX_VALUE];
+    const distance = [Double.MAX_VALUE];
 
     const exclusions = new RayExclusionSet(P, P.twin);
     const hit = sceneQuery.intersect(
       ray,
-      Numeric.EPSILON_FLOAT < P.getTolerance() ? Numeric.EPSILON_FLOAT : P.getTolerance(),
+      Numeric.EPSILON < P.getTolerance() ? Numeric.EPSILON : P.getTolerance(),
       distance,
       RayHitFlag.FRONT | RayHitFlag.POINT,
       hitStore,
       exclusions,
       sceneWorldSceneQueryWorkspace
     );
-    const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
-    if (recorder !== null) {
-      recorder.recordQuery(
-        VisibilityQueryRecorder.STOCHASTIC_SHOOTING, ray,
-        Numeric.EPSILON_FLOAT < P.getTolerance() ? Numeric.EPSILON_FLOAT : P.getTolerance(),
-        Float.MAX_VALUE, RayHitFlag.FRONT | RayHitFlag.POINT, exclusions, hit, distance[0]!);
-    }
     Localline.someFeedback();
 
     return hit;

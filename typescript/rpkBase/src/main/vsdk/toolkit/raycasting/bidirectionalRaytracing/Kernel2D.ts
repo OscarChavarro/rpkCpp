@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
@@ -31,7 +31,7 @@ export class Kernel2D {
     this.Init(newH, this.m_weight);
   }
 
-  public Evaluate(point: Vector2Df, center: Vector2Df): number {
+  public Evaluate(point: Vector2Dd, center: Vector2Dd): number {
     let tp = point.subtract(center).lengthSquared();
 
     if (tp < this.m_h2) {
@@ -42,15 +42,15 @@ export class Kernel2D {
     return 0.0;
   }
 
-  public cover(point: Vector2Df, scale: number, col: ColorRgbMutable, screen: ScreenBuffer): void {
+  public cover(point: Vector2Dd, scale: number, col: ColorRgbMutable, screen: ScreenBuffer): void {
     const nxMinV = [0];
     const nxMaxV = [0];
     const nyMinV = [0];
     const nyMaxV = [0];
     const addCol = new ColorRgbMutable();
 
-    screen.getPixel(point.x() - this.m_h, point.y() - this.m_h, nxMinV, nyMinV);
-    screen.getPixel(point.x() + this.m_h, point.y() + this.m_h, nxMaxV, nyMaxV);
+    screen.getPixel(point.x - this.m_h, point.y - this.m_h, nxMinV, nyMinV);
+    screen.getPixel(point.x + this.m_h, point.y + this.m_h, nxMaxV, nyMaxV);
 
     const nxMin = nxMinV[0]!;
     const nxMax = nxMaxV[0]!;
@@ -70,7 +70,7 @@ export class Kernel2D {
   }
 
   public varCover(
-    center: Vector2Df,
+    center: Vector2Dd,
     color: ColorRgbMutable,
     ref: ScreenBuffer,
     dest: ScreenBuffer,
@@ -85,7 +85,7 @@ export class Kernel2D {
 
     let h: number;
 
-    const fe = ref.getBiLinear(center.x(), center.y());
+    const fe = ref.getBiLinear(center.x, center.y);
 
     const avgFe = fe.average();
     const avgG = color.average();

@@ -1,4 +1,4 @@
-import type { Ray as RpkRay } from "../common/linealAlgebra/Ray";
+import type { Ray as RpkRay } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
 import type { RayHit } from "../environment/geometry/elements/RayHit";
 import { PrimitiveRayTest } from "vitral/dist/vsdk/toolkit/environment/geometry/spatialIndex/PrimitiveRayTest";
@@ -39,9 +39,9 @@ export class SceneFaceRayTest implements PrimitiveRayTest {
   }
 
   public test(primitive: number, minimumT: number, maximumT: number, hitT: number[]): boolean {
-    this.distance[0] = Math.fround(maximumT);
+    this.distance[0] = maximumT;
     const hit = this.scene.getFace(primitive).intersect(
-      this.ray, Math.fround(minimumT), this.distance, this.hitFlags, this.hitStore, this.exclusions);
+      this.ray, minimumT, this.distance, this.hitFlags, this.hitStore, this.exclusions);
     if (hit === null) {
       return false;
     }

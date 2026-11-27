@@ -1,4 +1,4 @@
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Material } from "../../material/Material";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -12,9 +12,9 @@ export class ParseSnapshotContext {
   public currentFaceList: Patch[] | null;
   public currentGeometryList: Geometry[] | null;
   public currentMaterialName: string | null;
-  public currentNormalList: Vector3Df[] | null;
+  public currentNormalList: Vector3Dd[] | null;
   public currentObjectName: string | null;
-  public currentPointList: Vector3Df[] | null;
+  public currentPointList: Vector3Dd[] | null;
   public currentVertexList: Vertex[] | null;
   public currentVertexName: string | null;
   public geometries: Geometry[] | null;
@@ -24,7 +24,6 @@ export class ParseSnapshotContext {
   public materials: Material[] | null;
   public monochrome: boolean;
   public singleSided: boolean;
-  public warpConeEnds: boolean;
   public numberOfQuarterCircleDivisions: number;
   public readerContext: ReaderContext | null;
   public transformContext: TransformStackContext | null;
@@ -46,7 +45,6 @@ export class ParseSnapshotContext {
     this.materials = null;
     this.monochrome = false;
     this.singleSided = false;
-    this.warpConeEnds = false;
     this.numberOfQuarterCircleDivisions = 0;
     this.readerContext = null;
     this.transformContext = null;

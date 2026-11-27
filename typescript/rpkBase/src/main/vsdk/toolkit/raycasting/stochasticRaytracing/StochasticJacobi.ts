@@ -14,8 +14,8 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";
 import { SceneQuery } from "../../scene/SceneQuery";
@@ -182,7 +182,8 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
         Ccr.determineControlRadiosity(
           (elem) => StochasticJacobi.getRadianceCallback!(elem),
           null,
-          scenePatches
+          scenePatches,
+          StochasticRelaxation.activeState().toneMapOptions!.getColorSpace()
         );
     }
 
@@ -249,7 +250,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
     fraction: number
   ): void {
     if (currentElement !== null && !currentElement.isCluster()) {
-      const c = -dir * currentElement.patch!.getNormal().dotProduct(ray.direction);
+      const c = -dir * currentElement.patch!.getNormal().dotProduct(ray.getDirection());
       if (c > 0.0) {
         const aFraction = fraction * (c * currentElement.area / projectedArea);
         const w = aFraction / currentElement.area / StochasticJacobi.numberOfRaysToShoot;
@@ -300,7 +301,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
     area: number[]
   ): void {
     if (currentElement !== null && !currentElement.isCluster()) {
-      const c = -dir * currentElement.patch!.getNormal().dotProduct(ray.direction);
+      const c = -dir * currentElement.patch!.getNormal().dotProduct(ray.getDirection());
       if (c > 0.0) {
         area[0]! += c * currentElement.area;
       }
@@ -577,7 +578,7 @@ Determines uniform (u,v) parameters of hit point on hit patch
       }
     }
     else {
-      const position: Vector3Df = hit.getPoint();
+      const position: Vector3Dd = hit.getPoint();
       hit.getPatch()!.uniformUv(position, uHit, vHit);
     }
 

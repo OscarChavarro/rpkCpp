@@ -15,19 +15,14 @@ import { Compound } from "../../skin/Compound";
 import { Geometry } from "../../skin/Geometry";
 import { GeometryClassId } from "../../skin/GeometryClassId";
 import { MgfColorEntitySupport } from "./MgfColorEntitySupport";
-import { MgfConeEntityTessellator } from "./MgfConeEntityTessellator";
-import { MgfCylinderEntityExpander } from "./MgfCylinderEntityExpander";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { MgfEntityHandlerAdapter } from "./MgfEntityHandlerAdapter";
 import { MgfFaceWithHolesEntityExpander } from "./MgfFaceWithHolesEntityExpander";
 import { MgfMaterialEntitySupport } from "./MgfMaterialEntitySupport";
 import { MgfObjectNameSupport } from "./MgfObjectNameSupport";
-import { MgfPrismEntityTessellator } from "./MgfPrismEntityTessellator";
-import { MgfRingEntityTessellator } from "./MgfRingEntityTessellator";
-import { MgfSphereEntityExpander } from "./MgfSphereEntityExpander";
-import { MgfTorusEntityExpander } from "./MgfTorusEntityExpander";
 import { MgfTransformationSupport } from "./MgfTransformationSupport";
 import { MgfVertexFaceEntitySupport } from "./MgfVertexFaceEntitySupport";
+import { MgfVitralPrimitiveTessellator } from "./MgfVitralPrimitiveTessellator";
 
 export class MgfParserLoader {
   private constructor() {
@@ -357,17 +352,17 @@ export class MgfParserLoader {
     handlers[HandlerRoleContext.INCLUDE_FILE] =
       new MgfEntityHandlerAdapter(HandlerRoleContext.INCLUDE_FILE, MgfParserLoader.handleIncludedFile);
     handlers[HandlerRoleContext.ENTITY_SPHERE] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_SPHERE, MgfSphereEntityExpander.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_SPHERE, MgfVitralPrimitiveTessellator.handleSphere);
     handlers[HandlerRoleContext.ENTITY_TORUS] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_TORUS, MgfTorusEntityExpander.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_TORUS, MgfVitralPrimitiveTessellator.handleTorus);
     handlers[HandlerRoleContext.ENTITY_CYLINDER] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CYLINDER, MgfCylinderEntityExpander.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CYLINDER, MgfVitralPrimitiveTessellator.handleCylinder);
     handlers[HandlerRoleContext.ENTITY_RING] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_RING, MgfRingEntityTessellator.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_RING, MgfVitralPrimitiveTessellator.handleRing);
     handlers[HandlerRoleContext.ENTITY_CONE] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CONE, MgfConeEntityTessellator.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_CONE, MgfVitralPrimitiveTessellator.handleCone);
     handlers[HandlerRoleContext.ENTITY_PRISM] =
-      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_PRISM, MgfPrismEntityTessellator.handleEntity);
+      new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_PRISM, MgfVitralPrimitiveTessellator.handlePrism);
     handlers[HandlerRoleContext.ENTITY_FACE_WITH_HOLES] =
       new MgfEntityHandlerAdapter(HandlerRoleContext.ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesEntityExpander.handleEntity);
     handlers[HandlerRoleContext.COLOR_SPEC_HELPER] =
@@ -628,7 +623,6 @@ export class MgfParserLoader {
     model.materials = context.materials;
     model.monochrome = context.monochrome;
     model.singleSided = context.singleSided;
-    model.warpConeEnds = context.warpConeEnds;
     model.numberOfQuarterCircleDivisions = context.numberOfQuarterCircleDivisions;
     model.readerContext = context.readerContext;
     model.transformContext = context.transformContext;

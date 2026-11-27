@@ -248,6 +248,7 @@ export class RpkApplication {
     this.mgfContext.parserConfig.monochrome = RpkApplication.DEFAULT_MONOCHROME;
     this.mgfContext.currentMaterial = RpkApplication.defaultMaterial;
     this.mgfContext.materialState.currentMaterial = RpkApplication.defaultMaterial;
+    this.mgfContext.parserConfig.setColorSpace(this.toneMapOptions.getColorSpace());
     this.selectToneMapByName(initializationToneMapName[0]!); // Note this is used for basic Galerkin model initialization
     SceneBuilder.sceneBuilderCreateModel(argcRef, argv, this.mgfContext, this.scene, this.toneMapOptions);
     this.selectToneMapByName(renderToneMapName[0]!);

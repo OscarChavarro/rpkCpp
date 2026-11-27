@@ -1,4 +1,4 @@
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
@@ -43,7 +43,7 @@ export class ImportantLightSampler extends NextEventSampler {
     let pdfLight: number;
     let pdfPoint: number;
     let light: Patch | null;
-    let point = new Vector3Df();
+    let point = new Vector3Dd();
 
     newNode.m_depth = 0;
     newNode.m_rayType = PathRayType.STOPS;
@@ -60,7 +60,7 @@ export class ImportantLightSampler extends NextEventSampler {
     const outPdfLight = [0.0];
     if ((thisNode.m_hit.getFlags() & RayHitFlag.BACK) !== 0) {
       if (thisNode.m_outBsdf === null) {
-        let invNormal = new Vector3Df();
+        let invNormal = new Vector3Dd();
 
         invNormal = thisNode.m_normal.multiply(-1.0);
 
@@ -88,7 +88,7 @@ export class ImportantLightSampler extends NextEventSampler {
 
     if (light.hasZeroVertices()) {
       const pdf = [0.0];
-      let dir = new Vector3Df(0.0, 0.0, 0.0);
+      let dir = new Vector3Dd(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null) {
         dir = light.material.getEdf()!.phongEdfSample(null, flags, x1, x2, null, pdf);
@@ -110,7 +110,7 @@ export class ImportantLightSampler extends NextEventSampler {
       pdfPoint = 1.0 / light.getArea();
 
       newNode.m_hit.init(light, point, light.getNormal(), light.material);
-      const normal = [new Vector3Df()];
+      const normal = [new Vector3Dd()];
       newNode.m_hit.shadingNormal(normal);
       newNode.m_hit.setNormal(normal[0]!);
       newNode.m_normal = newNode.m_hit.getNormal();

@@ -3,11 +3,10 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import { StringBuilder } from "vitral/dist/java/lang/StringBuilder";
 import { System } from "../../../../java/lang/System";
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
-import { Cie } from "../../common/color/Cie";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
@@ -20,7 +19,7 @@ import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { ElementHierarchyState } from "./ElementHierarchyState";
-import { GalerkinBasis } from "./GalerkinBasis";
+import { StochasticRadiosityBasis } from "./StochasticRadiosityBasis";
 import { Mcrad } from "./Mcrad";
 import { McradP } from "./McradP";
 import { Path } from "./Path";
@@ -41,7 +40,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
   private readonly stochasticRelaxationState: StochasticRelaxation;
   private readonly elementHierarchyState: ElementHierarchyState;
   private readonly stochasticRadiosityBasisState: StochasticRadiosityBasisState;
-  private static readonly selfEmittedRadiance = new Array<ColorRgbMutable>(GalerkinBasis.MAX_BASIS_SIZE);
+  private static readonly selfEmittedRadiance = new Array<ColorRgbMutable>(StochasticRadiosityBasis.MAX_BASIS_SIZE);
 
   static {
     for (let i = 0; i < RandomWalkRadianceMethod.selfEmittedRadiance.length; i++) {
@@ -113,7 +112,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3Df,
+    dir: Vector3Dd,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
@@ -312,7 +311,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
       }
 
       const w = RandomWalkRadianceMethod.randomWalkRadiosityScoreWeight(path, n);
-      const basis = McradP.getTopLevelPatchBasis(patch) as GalerkinBasis;
+      const basis = McradP.getTopLevelPatchBasis(patch) as StochasticRadiosityBasis;
       for (let i = 0; i < basis.size; i++) {
           const dual = basis.dualFunction![i]!(uin[0]!, vin[0]!) / patch.getArea();
           McradP.getTopLevelPatchReceivedRad(patch)![i]!.addScaled(
@@ -434,7 +433,7 @@ Determines control radiosity value for collision gathering estimator
     cr.divide(c1, c2);
     System.err.printf("Control radiosity value = ");
     cr.print(System.err);
-    System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b));
+    System.err.printf(", luminosity = %g\n", StochasticRelaxation.activeState().toneMapOptions!.getColorSpace().spectrumLuminance(cr.r, cr.g, cr.b));
 
     return cr;
   }
@@ -472,7 +471,7 @@ Determines control radiosity value for collision gathering estimator
         }
       }
 
-      const basis = McradP.getTopLevelPatchBasis(patch) as GalerkinBasis;
+      const basis = McradP.getTopLevelPatchBasis(patch) as StochasticRadiosityBasis;
       for (let i = 0; i < basis.size; i++) {
         const dual = basis.dualFunction![i]!(uOut[0]!, vOut[0]!);
         McradP.getTopLevelPatchReceivedRad(patch)![i]!.addScaled(

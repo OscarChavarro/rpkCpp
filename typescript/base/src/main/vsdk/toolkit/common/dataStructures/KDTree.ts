@@ -1,12 +1,10 @@
 import { Logger } from "../logging/Logger.js";
-import type { Vector3Df } from "../linealAlgebra/Vector3Df.js";
+import type { Vector3Dd } from "../linealAlgebra/Vector3Dd.js";
 import { BalancedKDTreeNode } from "./BalancedKDTreeNode.js";
 import { KDTreeNode } from "./KDTreeNode.js";
 import { KDQuery } from "./KDQuery.js";
 import type { KDTreeAdapter } from "./KDTreeAdapter.js";
 import type { KDTreeVisitor } from "./KDTreeVisitor.js";
-
-const f = Math.fround;
 
 /** Three-dimensional tree. Radius and distances are squared distances. */
 export class KDTree<T> {
@@ -18,7 +16,10 @@ export class KDTree<T> {
     private balancedCount = 0;
     private firstLeaf = 0;
 
-    public constructor(private readonly adapter: KDTreeAdapter<T>, private readonly copyData = true) {}
+    public constructor(
+        private readonly adapter: KDTreeAdapter<T>,
+        private readonly copyData = true,
+    ) {}
 
     public addPoint(value: T, flags: number): void {
         const stored = this.copyData ? this.adapter.copy(value) : value;
@@ -29,45 +30,64 @@ export class KDTree<T> {
         while (current !== null) {
             parent = current;
             const axis = current.discriminator();
-            current = point.component(axis) <= this.adapter.getKDPosition(current.data).component(axis)
-                ? current.loson : current.hison;
+            current =
+                point.component(axis) <= this.adapter.getKDPosition(current.data).component(axis)
+                    ? current.loson
+                    : current.hison;
         }
         if (parent === null) {
             this.root = node;
         } else {
             const parentPoint = this.adapter.getKDPosition(parent.data);
             if (parent.loson === null && parent.hison === null) {
-                const dx = Math.abs(f(point.x() - parentPoint.x()));
-                const dy = Math.abs(f(point.y() - parentPoint.y()));
-                const dz = Math.abs(f(point.z() - parentPoint.z()));
-                const axis = dx > dy ? (dx > dz ? 0 : 2) : (dy > dz ? 1 : 2);
+                const dx = Math.abs(point.x() - parentPoint.x());
+                const dy = Math.abs(point.y() - parentPoint.y());
+                const dz = Math.abs(point.z() - parentPoint.z());
+                const axis = dx > dy ? (dx > dz ? 0 : 2) : dy > dz ? 1 : 2;
                 parent.setDiscriminator(axis);
             }
-            if (point.component(parent.discriminator()) <= parentPoint.component(parent.discriminator())) parent.loson = node;
+            if (point.component(parent.discriminator()) <= parentPoint.component(parent.discriminator()))
+                parent.loson = node;
             else parent.hison = node;
         }
         ++this.numberOfNodes;
         ++this.unbalancedCount;
     }
 
-    public query(point: Vector3Df, count: number, results: T[], distances: number[] | null,
-                 radius = KDTree.KD_MAX_RADIUS, excluded = 0): number {
+    public query(
+        point: Vector3Dd,
+        count: number,
+        results: T[],
+        distances: number[] | null,
+        radius = KDTree.KD_MAX_RADIUS,
+        excluded = 0,
+    ): number {
         if (count <= 0) return 0;
         if (distances === null && count > 1000) {
             Logger.reportMessage(this, Logger.ERROR, "KDTree::query", "Too many nodes requested");
             return 0;
         }
-        const q = new KDQuery(point, count, results, distances ?? new Array<number>(1000).fill(0), radius, radius, excluded);
+        const q = new KDQuery(
+            point,
+            count,
+            results,
+            distances ?? new Array<number>(1000).fill(0),
+            radius,
+            radius,
+            excluded,
+        );
         if (this.balanced !== null) this.balancedQueryRec(0, q);
         if (this.root !== null) this.queryRec(this.root, q);
         return q.found;
     }
-    private distance(value: T, point: Vector3Df): number {
+    private distance(value: T, point: Vector3Dd): number {
         const position = this.adapter.getKDPosition(value);
-        let d = f(position.x() - point.x());
-        let result = f(d * d);
-        d = f(position.y() - point.y()); result = f(result + f(d * d));
-        d = f(position.z() - point.z()); return f(result + f(d * d));
+        let d = position.x() - point.x();
+        let result = d * d;
+        d = position.y() - point.y();
+        result = result + d * d;
+        d = position.z() - point.z();
+        return result + d * d;
     }
     private consider(data: T, flags: number, q: KDQuery<T>): void {
         const dist = this.distance(data, q.point);
@@ -102,29 +122,41 @@ export class KDTree<T> {
         }
     }
     private swapResults(q: KDQuery<T>, a: number, b: number): void {
-        const value = q.results[a]!; q.results[a] = q.results[b]!; q.results[b] = value;
-        const dist = q.distances[a]!; q.distances[a] = q.distances[b]!; q.distances[b] = dist;
+        const value = q.results[a]!;
+        q.results[a] = q.results[b]!;
+        q.results[b] = value;
+        const dist = q.distances[a]!;
+        q.distances[a] = q.distances[b]!;
+        q.distances[b] = dist;
     }
     private queryRec(node: KDTreeNode<T>, q: KDQuery<T>): void {
         this.consider(node.data, node.flags, q);
-        let d = f(this.adapter.getKDPosition(node.data).component(node.discriminator()) - q.point.component(node.discriminator()));
+        let d =
+            this.adapter.getKDPosition(node.data).component(node.discriminator()) -
+            q.point.component(node.discriminator());
         const near = d >= 0 ? node.loson : node.hison;
         const far = d >= 0 ? node.hison : node.loson;
         if (near !== null) this.queryRec(near, q);
-        d = f(d * d);
-        if (far !== null && ((q.found < q.wanted && d < q.squaredRadius) || d < q.maximumDistance)) this.queryRec(far, q);
+        d = d * d;
+        if (far !== null && ((q.found < q.wanted && d < q.squaredRadius) || d < q.maximumDistance))
+            this.queryRec(far, q);
     }
     private balancedQueryRec(index: number, q: KDQuery<T>): void {
         const node = this.balanced![index]!;
         if (index < this.firstLeaf) {
             const axis = node.discriminator();
-            let d = f(this.adapter.getKDPosition(node.data).component(axis) - q.point.component(axis));
+            let d = this.adapter.getKDPosition(node.data).component(axis) - q.point.component(axis);
             let near = (index << 1) + 1;
             let far = near + 1;
-            if (d < 0) { const temp = near; near = far; far = temp; }
+            if (d < 0) {
+                const temp = near;
+                near = far;
+                far = temp;
+            }
             if (near < this.balancedCount) this.balancedQueryRec(near, q);
-            d = f(d * d);
-            if (far < this.balancedCount && ((q.found < q.wanted && d < q.squaredRadius) || d < q.maximumDistance)) this.balancedQueryRec(far, q);
+            d = d * d;
+            if (far < this.balancedCount && ((q.found < q.wanted && d < q.squaredRadius) || d < q.maximumDistance))
+                this.balancedQueryRec(far, q);
         }
         this.consider(node.data, node.flags(), q);
     }
@@ -147,8 +179,18 @@ export class KDTree<T> {
         this.copyNodes(node.loson, dest);
         this.copyNodes(node.hison, dest);
     }
-    private balanceRec(source: BalancedKDTreeNode<T>[], dest: BalancedKDTreeNode<T>[], index: number, low: number, high: number): void {
-        if (low === high) { dest[index] = source[low]!; dest[index]!.setDiscriminator(0); return; }
+    private balanceRec(
+        source: BalancedKDTreeNode<T>[],
+        dest: BalancedKDTreeNode<T>[],
+        index: number,
+        low: number,
+        high: number,
+    ): void {
+        if (low === high) {
+            dest[index] = source[low]!;
+            dest[index]!.setDiscriminator(0);
+            return;
+        }
         const axis = this.bestAxis(source, low, high);
         const median = this.select(source, low, high, axis);
         dest[index] = source[median]!;
@@ -168,16 +210,21 @@ export class KDTree<T> {
             }
         }
         let axis = 0;
-        let spread = f(max[0]! - min[0]!);
-        if (f(max[1]! - min[1]!) > spread) { axis = 1; spread = f(max[1]! - min[1]!); }
-        if (f(max[2]! - min[2]!) > spread) axis = 2;
+        let spread = max[0]! - min[0]!;
+        if (max[1]! - min[1]! > spread) {
+            axis = 1;
+            spread = max[1]! - min[1]!;
+        }
+        if (max[2]! - min[2]! > spread) axis = 2;
         return axis;
     }
     private value(nodes: BalancedKDTreeNode<T>[], index: number, axis: number): number {
         return this.adapter.getKDPosition(nodes[index]!.data).component(axis);
     }
     private swap(nodes: BalancedKDTreeNode<T>[], a: number, b: number): void {
-        const temp = nodes[a]!; nodes[a] = nodes[b]!; nodes[b] = temp;
+        const temp = nodes[a]!;
+        nodes[a] = nodes[b]!;
+        nodes[b] = temp;
     }
     private select(nodes: BalancedKDTreeNode<T>[], low: number, high: number, axis: number): number {
         const n = high - low + 1;
@@ -196,10 +243,15 @@ export class KDTree<T> {
             if (this.value(nodes, low, axis) > this.value(nodes, high, axis)) this.swap(nodes, low, high);
             if (this.value(nodes, middle, axis) > this.value(nodes, low, axis)) this.swap(nodes, middle, low);
             this.swap(nodes, middle, low + 1);
-            let ll = low + 1, hh = high;
+            let ll = low + 1,
+                hh = high;
             while (true) {
-                do { ++ll; } while (this.value(nodes, low, axis) > this.value(nodes, ll, axis));
-                do { --hh; } while (this.value(nodes, hh, axis) > this.value(nodes, low, axis));
+                do {
+                    ++ll;
+                } while (this.value(nodes, low, axis) > this.value(nodes, ll, axis));
+                do {
+                    --hh;
+                } while (this.value(nodes, hh, axis) > this.value(nodes, low, axis));
                 if (hh < ll) break;
                 this.swap(nodes, ll, hh);
             }
@@ -208,12 +260,23 @@ export class KDTree<T> {
             if (hh >= median) high = hh - 1;
         }
     }
-    public getBalancedCount(): number { return this.balancedCount; }
-    public getUnbalancedCount(): number { return this.unbalancedCount; }
-    public getFirstLeaf(): number { return this.firstLeaf; }
-    public getBalancedNode(index: number): BalancedKDTreeNode<T> { return this.balanced![index]!; }
+    public getBalancedCount(): number {
+        return this.balancedCount;
+    }
+    public getUnbalancedCount(): number {
+        return this.unbalancedCount;
+    }
+    public getFirstLeaf(): number {
+        return this.firstLeaf;
+    }
+    public getBalancedNode(index: number): BalancedKDTreeNode<T> {
+        return this.balanced![index]!;
+    }
     public iterateNodes(visitor: KDTreeVisitor<T>): void {
-        if (this.unbalancedCount > 0) { Logger.reportMessage(this, Logger.ERROR, "KDTree::iterateNodes", "Cannot iterate unbalanced trees"); return; }
+        if (this.unbalancedCount > 0) {
+            Logger.reportMessage(this, Logger.ERROR, "KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+            return;
+        }
         for (let i = 0; i < this.balancedCount; ++i) visitor.visit(this.balanced![i]!.data);
     }
 }

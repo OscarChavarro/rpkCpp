@@ -1,5 +1,5 @@
-import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../common/statistics/Statistics";
 import { Material } from "../material/Material";
 import { Geometry } from "./Geometry";
@@ -17,17 +17,17 @@ export class MeshSurface extends Geometry {
   public meshId: number;
   public objectName: string | null;
   public vertices: Vertex[] | null;
-  public positions: Vector3Df[] | null;
-  public normals: Vector3Df[] | null;
+  public positions: Vector3Dd[] | null;
+  public normals: Vector3Dd[] | null;
   public faces: Patch[] | null;
   public material: Material;
 
   public constructor(
     inObjectName: string,
     inMaterial: Material,
-    inPoints: Vector3Df[] | null,
-    inNormals: Vector3Df[] | null,
-    texCoords: Vector3Df[] | null,
+    inPoints: Vector3Dd[] | null,
+    inNormals: Vector3Dd[] | null,
+    texCoords: Vector3Dd[] | null,
     inVertices: Vertex[] | null,
     inFaces: Patch[] | null,
     inFlags: number

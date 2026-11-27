@@ -33,6 +33,15 @@ export class Vector2Dd extends FundamentalEntity {
     public add(o: Vector2Dd): Vector2Dd {
         return new Vector2Dd(this.x + o.x, this.y + o.y);
     }
+    public subtract(o: Vector2Dd): Vector2Dd {
+        return new Vector2Dd(this.x - o.x, this.y - o.y);
+    }
+    /**
+    Square of the length (the dot product with itself)
+    */
+    public lengthSquared(): number {
+        return this.x * this.x + this.y * this.y;
+    }
     public set(a: Vector2Dd): void;
     public set(x: number, y: number): void;
     public set(a: number | Vector2Dd, b?: number): void {

@@ -1,3 +1,4 @@
+import { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -37,10 +38,29 @@ export abstract class ToneMap {
     return out;
   }
 
+  private colorSpace: Cie;
+
   public constructor() {
+    this.colorSpace = new Cie();
   }
 
-  public abstract init(toneMapOptions: ToneMappingContext): void;
+  protected getColorSpace(): Cie {
+    return this.colorSpace;
+  }
+
+  /**
+  Computes the parameters of the concrete operator from the context
+  */
+  protected abstract initParameters(toneMapOptions: ToneMappingContext): void;
+
+  /**
+  Takes the display color space of the context, then lets the concrete
+  operator compute its parameters
+  */
+  public init(toneMapOptions: ToneMappingContext): void {
+    this.colorSpace = toneMapOptions.getColorSpace();
+    this.initParameters(toneMapOptions);
+  }
 
   protected static tmoCandelaLambert(a: number): number {
     return a * globalThis.Math.PI * 1e-4;

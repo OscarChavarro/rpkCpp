@@ -1,6 +1,6 @@
-import type { Vector3Df } from "../linealAlgebra/Vector3Df.js";
+import type { Vector3Dd } from "../linealAlgebra/Vector3Dd.js";
 
 export interface KDTreeAdapter<T> {
-    getKDPosition(value: T): Vector3Df;
+    getKDPosition(value: T): Vector3Dd;
     copy(value: T): T;
 }

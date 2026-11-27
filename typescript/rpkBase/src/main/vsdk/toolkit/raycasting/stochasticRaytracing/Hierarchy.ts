@@ -6,7 +6,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
@@ -42,9 +42,9 @@ export class Hierarchy {
   }
 
   public static elementHierarchyInit(clusteredWorldGeometry: Geometry): void {
-    ElementHierarchyState.activeState().coords = new ArrayList<Vector3Df>();
-    ElementHierarchyState.activeState().normals = new ArrayList<Vector3Df>();
-    ElementHierarchyState.activeState().texCoords = new ArrayList<Vector3Df>();
+    ElementHierarchyState.activeState().coords = new ArrayList<Vector3Dd>();
+    ElementHierarchyState.activeState().normals = new ArrayList<Vector3Dd>();
+    ElementHierarchyState.activeState().texCoords = new ArrayList<Vector3Dd>();
     ElementHierarchyState.activeState().vertices = new ArrayList<Vertex>();
     ElementHierarchyState.activeState().topCluster =
       StochasticRadiosityElement.stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
@@ -171,7 +171,7 @@ export class Hierarchy {
   }
 
   public static formFactorEstimate(rcv: StochasticRadiosityElement, src: StochasticRadiosityElement): number {
-    let D = new Vector3Df();
+    let D = new Vector3Dd();
     D = src.midPoint.subtract(rcv.midPoint);
 
     const d = D.length();

@@ -1,7 +1,7 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "./BsdfComponent";
 import { BsdfComponentFlag } from "./BsdfComponentFlag";
 import { BsdfComponentInfo } from "./BsdfComponent";
@@ -43,7 +43,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return this.texture;
   }
 
-  public static bsdfShadingFrame(context: ShadingContext, X: Vector3Df[] | null, Y: Vector3Df[] | null, Z: Vector3Df[] | null): boolean {
+  public static bsdfShadingFrame(context: ShadingContext, X: Vector3Dd[] | null, Y: Vector3Dd[] | null, Z: Vector3Dd[] | null): boolean {
     void context;
     void X;
     void Y;
@@ -98,12 +98,12 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   private static texturedScattererSample(
-    inDirection: Vector3Df,
-    normal: Vector3Df,
+    inDirection: Vector3Dd,
+    normal: Vector3Dd,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3Df {
+  ): Vector3Dd {
     void inDirection;
     const coord = new CoordinateSystem();
     coord.setFromZAxis(normal);
@@ -111,9 +111,9 @@ export class PhongBidirectionalScatteringDistributionFunction {
   }
 
   private static texturedScattererEvalPdf(
-    inDirection: Vector3Df,
-    out: Vector3Df,
-    normal: Vector3Df,
+    inDirection: Vector3Dd,
+    out: Vector3Dd,
+    normal: Vector3Dd,
     probabilityDensityFunction: number[] | null
   ): void {
     void inDirection;
@@ -190,20 +190,20 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3Df,
+    inDirection: Vector3Dd,
     doRussianRoulette: number,
     flags: number,
     x1: number,
     x2: number,
     probabilityDensityFunction: number[] | null
-  ): Vector3Df {
-    let normal = new Vector3Df();
-    let out = new Vector3Df();
+  ): Vector3Dd {
+    let normal = new Vector3Dd();
+    let out = new Vector3Dd();
 
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "sample", "Couldn't determine shading normal");
-      out = new Vector3Df(0.0, 0.0, 1.0);
+      out = new Vector3Dd(0.0, 0.0, 1.0);
       return out;
     }
     normal = context.getShadingNormal();
@@ -337,7 +337,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     return out;
   }
 
-  private static texturedScattererEval(inDirection: Vector3Df, out: Vector3Df, normal: Vector3Df): number {
+  private static texturedScattererEval(inDirection: Vector3Dd, out: Vector3Dd, normal: Vector3Dd): number {
     void inDirection;
     void out;
     void normal;
@@ -348,12 +348,12 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3Df,
-    out: Vector3Df,
+    inDirection: Vector3Dd,
+    out: Vector3Dd,
     flags: number
   ): ColorRgbMutable {
     const result = new ColorRgbMutable();
-    let normal = new Vector3Df();
+    let normal = new Vector3Dd();
 
     result.clear();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
@@ -404,8 +404,8 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3Df,
-    out: Vector3Df,
+    inDirection: Vector3Dd,
+    out: Vector3Dd,
     flags: number,
     probabilityDensityFunction: number[] | null,
     probabilityDensityFunctionRR: number[] | null
@@ -413,7 +413,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunction, 0.0);
     PhongBidirectionalScatteringDistributionFunction.setOut(probabilityDensityFunctionRR, 0.0);
 
-    let normal = new Vector3Df();
+    let normal = new Vector3Dd();
     if (!context.hasFlag(ShadingContextFlag.SHCTX_NORMAL)) {
       VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
       return;
@@ -489,8 +489,8 @@ export class PhongBidirectionalScatteringDistributionFunction {
     context: ShadingContext,
     inBsdf: PhongBidirectionalScatteringDistributionFunction | null,
     outBsdf: PhongBidirectionalScatteringDistributionFunction | null,
-    inDirection: Vector3Df,
-    out: Vector3Df,
+    inDirection: Vector3Dd,
+    out: Vector3Dd,
     flags: number,
     colArray: ColorRgbMutable[]
   ): ColorRgbMutable {

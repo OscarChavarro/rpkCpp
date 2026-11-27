@@ -1,5 +1,5 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -73,7 +73,7 @@ export class UniformLightSampler extends NextEventSampler {
     let pdfLight: number;
     let pdfPoint: number;
     let light: Patch | null;
-    let point = new Vector3Df();
+    let point = new Vector3Dd();
 
     newNode.m_depth = 0;
     newNode.m_rayType = PathRayType.STOPS;
@@ -112,7 +112,7 @@ export class UniformLightSampler extends NextEventSampler {
 
     if (light.hasZeroVertices()) {
       const pdf = [0.0];
-      let dir = new Vector3Df(0.0, 0.0, 0.0);
+      let dir = new Vector3Dd(0.0, 0.0, 0.0);
 
       if (light.material !== null && light.material.getEdf() !== null && thisNode !== null) {
         const thisContextOk = [false];
@@ -138,7 +138,7 @@ export class UniformLightSampler extends NextEventSampler {
       pdfPoint = 1.0 / light.getArea();
 
       newNode.m_hit.init(light, point, light.getNormal(), light.material);
-      const normal = [new Vector3Df()];
+      const normal = [new Vector3Dd()];
       newNode.m_hit.shadingNormal(normal);
       newNode.m_hit.setNormal(normal[0]!);
       newNode.m_normal = newNode.m_hit.getNormal();

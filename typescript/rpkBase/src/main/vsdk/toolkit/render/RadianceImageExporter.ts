@@ -3,7 +3,7 @@ import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { Camera } from "../scene/Camera";
 import { RadianceMethod } from "../scene/RadianceMethod";
@@ -120,15 +120,15 @@ export class RadianceImageExporter {
     }
 
     let rayDirection = screenBuffer.getPixelVector(x, y);
-    rayDirection = rayDirection.normalized(Numeric.EPSILON_FLOAT);
+    rayDirection = rayDirection.normalized(Numeric.EPSILON);
 
     const denominator = patch.getNormal().dotProduct(rayDirection);
-    if (denominator <= Numeric.EPSILON_FLOAT && denominator >= -Numeric.EPSILON_FLOAT) {
+    if (denominator <= Numeric.EPSILON && denominator >= -Numeric.EPSILON) {
       return radiance;
     }
 
     const distance = -(patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant()) / denominator;
-    let hitPoint = new Vector3Df();
+    let hitPoint = new Vector3Dd();
     hitPoint = camera.eyePosition.add(rayDirection.multiply(distance));
 
     const u = [0.0];
@@ -136,7 +136,7 @@ export class RadianceImageExporter {
     patch.uv(hitPoint, u, v);
     RadianceImageExporter.clipUv(patch.numberOfVertices, u, v);
 
-    const eyeDirection = new Vector3Df(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
+    const eyeDirection = new Vector3Dd(-rayDirection.x(), -rayDirection.y(), -rayDirection.z());
     return radianceMethod.getRadiance(camera, patch, u[0]!, v[0]!, eyeDirection, renderOptions);
   }
 }

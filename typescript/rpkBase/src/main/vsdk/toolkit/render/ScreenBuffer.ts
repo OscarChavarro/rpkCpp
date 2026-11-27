@@ -2,8 +2,8 @@ import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { FileUncompressWrapper } from "../io/wrapper/FileUncompressWrapper";
 import { Camera } from "../scene/Camera";
@@ -329,16 +329,16 @@ export class ScreenBuffer {
     return this.camera.pixelHeight;
   }
 
-  public getPixelPoint(nx: number, ny: number, xOffset: number, yOffset: number): Vector2Df;
-  public getPixelPoint(nx: number, ny: number): Vector2Df;
-  public getPixelPoint(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector2Df {
-    return new Vector2Df(
+  public getPixelPoint(nx: number, ny: number, xOffset: number, yOffset: number): Vector2Dd;
+  public getPixelPoint(nx: number, ny: number): Vector2Dd;
+  public getPixelPoint(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector2Dd {
+    return new Vector2Dd(
       this.getScreenXMin() + (nx + xOffset) * this.getPixXSize(),
       this.getScreenYMin() + (ny + yOffset) * this.getPixYSize()
     );
   }
 
-  public getPixelCenter(nx: number, ny: number): Vector2Df {
+  public getPixelCenter(nx: number, ny: number): Vector2Dd {
     return this.getPixelPoint(nx, ny, 0.5, 0.5);
   }
 
@@ -359,12 +359,12 @@ export class ScreenBuffer {
     }
   }
 
-  public getPixelVector(nx: number, ny: number, xOffset: number, yOffset: number): Vector3Df;
-  public getPixelVector(nx: number, ny: number): Vector3Df;
-  public getPixelVector(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector3Df {
+  public getPixelVector(nx: number, ny: number, xOffset: number, yOffset: number): Vector3Dd;
+  public getPixelVector(nx: number, ny: number): Vector3Dd;
+  public getPixelVector(nx: number, ny: number, xOffset = 0.5, yOffset = 0.5): Vector3Dd {
     const pix = this.getPixelPoint(nx, ny, xOffset, yOffset);
-    let dir = new Vector3Df();
-    dir = this.camera.Z.add(this.camera.X.multiply(pix.x())).add(this.camera.Y.multiply(pix.y()));
+    let dir = new Vector3Dd();
+    dir = this.camera.Z.add(this.camera.X.multiply(pix.x)).add(this.camera.Y.multiply(pix.y));
     return dir;
   }
 
@@ -377,7 +377,7 @@ export class ScreenBuffer {
   }
 
   public static computeFluxToRadFactor(camera: Camera, pixX: number, pixY: number): number {
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
     const h = camera.pixelWidth;
     const v = camera.pixelHeight;
 
@@ -390,7 +390,7 @@ export class ScreenBuffer {
     dir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
     const distPixel2 = dir.lengthSquared();
     const distPixel = globalThis.Math.sqrt(distPixel2);
-    dir = dir.multiplyByInverse(distPixel, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(distPixel, Numeric.EPSILON);
 
     let factor = 1.0 / (h * v);
     factor *= distPixel2;
@@ -412,7 +412,7 @@ export class ScreenBuffer {
     const ny0v = [0];
     let nx1: number;
     let ny1: number;
-    let center: Vector2Df;
+    let center: Vector2Dd;
     const color = new ColorRgbMutable();
 
     this.getPixel(x, y, nx0v, ny0v);
@@ -420,8 +420,8 @@ export class ScreenBuffer {
     const ny0 = ny0v[0]!;
     center = this.getPixelCenter(nx0, ny0);
 
-    x = (x - center.x()) / this.getPixXSize();
-    y = (y - center.y()) / this.getPixYSize();
+    x = (x - center.x) / this.getPixXSize();
+    y = (y - center.y) / this.getPixYSize();
 
     if (x < 0) {
       x = -x;

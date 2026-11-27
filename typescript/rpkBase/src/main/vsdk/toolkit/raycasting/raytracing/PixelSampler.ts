@@ -1,5 +1,5 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -36,7 +36,7 @@ export class PixelSampler extends Sampler {
     void doRR;
     void flags;
 
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
 
     const xSample = this.m_px + camera.pixelWidth * x1;
     const ySample = this.m_py + camera.pixelHeight * x2;
@@ -44,7 +44,7 @@ export class PixelSampler extends Sampler {
     dir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
     const distPixel2 = dir.lengthSquared();
     const distPixel = globalThis.Math.sqrt(distPixel2);
-    dir = dir.multiplyByInverse(distPixel, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(distPixel, Numeric.EPSILON);
 
     const cosPixel = globalThis.Math.abs(camera.Z.dotProduct(dir));
 
@@ -93,12 +93,12 @@ export class PixelSampler extends Sampler {
     let cosA: number;
     let cosB: number;
     let localPdf: number;
-    let outDir = new Vector3Df();
+    let outDir = new Vector3Dd();
 
     outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
     dist2 = outDir.lengthSquared();
     dist = globalThis.Math.sqrt(dist2);
-    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON);
 
     cosA = thisNode.m_normal.dotProduct(outDir);
 

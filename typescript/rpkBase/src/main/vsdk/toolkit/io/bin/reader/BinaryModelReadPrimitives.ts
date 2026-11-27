@@ -2,7 +2,7 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import { InputStream } from "vitral/dist/java/io/InputStream";
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { BoundingBoxCoordinateIndex } from "../../../skin/BoundingBoxCoordinateIndex";
@@ -300,9 +300,9 @@ export class BinaryModelReadPrimitives {
   }
 
   /**
-  @param vector one-element holder (C++ `Vector3Df *`)
+  @param vector one-element holder (C++ `Vector3Dd *`)
   */
-  public static readVector(input: InputStream | null, vector: Vector3Df[] | null): boolean {
+  public static readVector(input: InputStream | null, vector: Vector3Dd[] | null): boolean {
     if (vector === null) {
       return BinaryModelReadPrimitives.reportReadError(
         "BinaryModelReadPrimitives::readVector",
@@ -313,7 +313,7 @@ export class BinaryModelReadPrimitives {
     const x = BinaryModelReadPrimitives.readFloatLE(input);
     const y = BinaryModelReadPrimitives.readFloatLE(input);
     const z = BinaryModelReadPrimitives.readFloatLE(input);
-    vector[0] = new Vector3Df(x, y, z);
+    vector[0] = new Vector3Dd(x, y, z);
     return true;
   }
 
@@ -341,11 +341,11 @@ export class BinaryModelReadPrimitives {
     }
 
     const parsed = new BoundingBox();
-    let minPoint = new Vector3Df();
-    let maxPoint = new Vector3Df();
+    let minPoint = new Vector3Dd();
+    let maxPoint = new Vector3Dd();
 
-    minPoint = new Vector3Df(coordinates[BoundingBoxCoordinateIndex.MIN_X]!, coordinates[BoundingBoxCoordinateIndex.MIN_Y]!, coordinates[BoundingBoxCoordinateIndex.MIN_Z]!);
-    maxPoint = new Vector3Df(coordinates[BoundingBoxCoordinateIndex.MAX_X]!, coordinates[BoundingBoxCoordinateIndex.MAX_Y]!, coordinates[BoundingBoxCoordinateIndex.MAX_Z]!);
+    minPoint = new Vector3Dd(coordinates[BoundingBoxCoordinateIndex.MIN_X]!, coordinates[BoundingBoxCoordinateIndex.MIN_Y]!, coordinates[BoundingBoxCoordinateIndex.MIN_Z]!);
+    maxPoint = new Vector3Dd(coordinates[BoundingBoxCoordinateIndex.MAX_X]!, coordinates[BoundingBoxCoordinateIndex.MAX_Y]!, coordinates[BoundingBoxCoordinateIndex.MAX_Z]!);
 
     parsed.enlargeToIncludePoint(minPoint);
     parsed.enlargeToIncludePoint(maxPoint);

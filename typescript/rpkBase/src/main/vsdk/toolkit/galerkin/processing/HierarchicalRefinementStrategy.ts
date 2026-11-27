@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -13,7 +13,7 @@ import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
 import { Shaft } from "../Shaft";
 import { Scene } from "../../scene/Scene";
-import { Polygon } from "../../scene/Polygon";
+import { ConvexPolygon } from "../../scene/ConvexPolygon";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../skin/Geometry";
@@ -32,7 +32,7 @@ import {
   RefinementWorkspace,
 } from "./RefinementWorkspace";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class HierarchicalRefinementStrategy {
   private static readonly hierarchicalKPool: number[][] = [];
@@ -81,8 +81,8 @@ export class HierarchicalRefinementStrategy {
     if (galerkinState.shaftCullMode === GalerkinShaftCullMode.DO_SHAFT_CULLING_FOR_REFINEMENT
       || galerkinState.shaftCullMode === GalerkinShaftCullMode.ALWAYS_DO_SHAFT_CULLING) {
       const shaft = new Shaft(scene.getFaceBounds()!);
-      const rcvPolygon = new Polygon();
-      const srcPolygon = new Polygon();
+      const rcvPolygon = new ConvexPolygon();
+      const srcPolygon = new ConvexPolygon();
       const srcBounds = new BoundingBox();
       const rcvBounds = new BoundingBox();
 
@@ -213,17 +213,17 @@ export class HierarchicalRefinementStrategy {
       return 0.0;
     }
 
-    const rcVertices: Vector3Df[] = [
-      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
+    const rcVertices: Vector3Dd[] = [
+      new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+      new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
     ];
     const numberOfReceiverVertices = interaction.receiverElement.vertices(rcVertices);
 
     const minimumSourceRadiance = new ColorRgbMutable();
     const maximumSourceRadiance = new ColorRgbMutable();
     const error = new ColorRgbMutable();
-    minimumSourceRadiance.setMonochrome(Float.MAX_VALUE);
-    maximumSourceRadiance.setMonochrome(-Float.MAX_VALUE);
+    minimumSourceRadiance.setMonochrome(Double.MAX_VALUE);
+    maximumSourceRadiance.setMonochrome(-Double.MAX_VALUE);
 
     for (let i = 0; i < numberOfReceiverVertices; i++) {
       const radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
@@ -875,9 +875,16 @@ export class HierarchicalRefinementStrategy {
       }
 
       // Refined interactions are removed with order-preserving in-place compaction
-      // to avoid one temporary list plus O(n) indexOf/splice scans per element
+      // to avoid one temporary list plus O(n) indexOf/splice scans per element.
+      // Only the interactions present when the loop starts are refined: the links
+      // that their refinement stores in this same list (the receiver kept, the
+      // source subdivided) already had their light transport when created. The
+      // original RenderPark prepends them (InteractionListAdd), out of the
+      // iteration's way; this list appends them, so they are kept but not
+      // visited, or their light would be transported twice in the iteration
       const interactions = parentElement.interactions;
       if (interactions !== null) {
+        const numberOfInteractions = interactions.length;
         let writeIndex = 0;
         for (let readIndex = 0; readIndex < interactions.length; readIndex++) {
           const o = interactions[readIndex];
@@ -889,7 +896,8 @@ export class HierarchicalRefinementStrategy {
             continue;
           }
           const interaction = o;
-          if (HierarchicalRefinementStrategy.refineInteraction(scene, interaction, galerkinState, workspace)) {
+          if (readIndex < numberOfInteractions
+            && HierarchicalRefinementStrategy.refineInteraction(scene, interaction, galerkinState, workspace)) {
             Interaction.interactionDestroy(interaction);
           }
           else {
@@ -922,18 +930,16 @@ export class HierarchicalRefinementStrategy {
   of the serial refinement (refineInteractionsInternal), so that every floating
   point sum and every list is the serial one.
   Interactions are those of the element lists when the iteration starts, in the
-  serial post-order. The serial refinement of an element also visits the links
-  that the element's own refinement appends to its list (receiver kept, source
-  subdivided); the commit visits them serially, as the serial loop does.
+  serial post-order. Neither the serial refinement nor the commit visits the links
+  that an element's own refinement appends to its list (receiver kept, source
+  subdivided): their light transport was done when they were created.
   TypeScript: the workers are replicas of the program (see RefinementReplicas),
   and every replica commits all the records, in its own heap.
   */
-  private static parallelRefinementSupported(scene: Scene, galerkinState: GalerkinState): boolean {
-    const sceneQueryWorkspace = scene.getSceneQueryWorkspace();
+  private static parallelRefinementSupported(galerkinState: GalerkinState): boolean {
     return galerkinState.clusteringStrategy === GalerkinClusteringStrategy.ISOTROPIC
       && galerkinState.shaftCullMode === GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING
-      && galerkinState.multiResolutionVisibility === 0
-      && (sceneQueryWorkspace === null || sceneQueryWorkspace.getRecorder() === null);
+      && galerkinState.multiResolutionVisibility === 0;
   }
 
   private static numberOfRefinementThreads(galerkinState: GalerkinState): number {
@@ -1078,19 +1084,19 @@ export class HierarchicalRefinementStrategy {
   GalerkinState.numberOfThreads workers, and what they change (light
   transport, new interactions, element ids) is then committed in the serial
   order. Configurations whose refinement reads or writes shared scratch (non
-  isotropic clustering, shaft culling, multi-resolution visibility, ray capture)
-  are refined serially
+  isotropic clustering, shaft culling, multi-resolution visibility) are refined
+  serially
   */
   public static refineInteractionsInParallel(
     scene: Scene,
     parentElement: GalerkinElement,
     galerkinState: GalerkinState,
   ): void {
-    if (!HierarchicalRefinementStrategy.parallelRefinementSupported(scene, galerkinState)) {
+    if (!HierarchicalRefinementStrategy.parallelRefinementSupported(galerkinState)) {
       if (galerkinState.iterationNumber <= 1) {
         VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "refineInteractionsInParallel",
-          "Parallel Jacobi needs isotropic clustering, no shaft culling, no multi-resolution visibility "
-          + "and no ray capture: refining serially");
+          "Parallel Jacobi needs isotropic clustering, no shaft culling "
+          + "and no multi-resolution visibility: refining serially");
       }
       HierarchicalRefinementStrategy.refineInteractions(scene, parentElement, galerkinState);
       return;
@@ -1163,13 +1169,6 @@ export class HierarchicalRefinementStrategy {
 
     // Phase 2: commit in the serial order; light transport is collected, in
     // that order, and done at the end
-    const serialWorkspace = new RefinementWorkspace(
-      scene.getSceneQueryWorkspace(),
-      galerkinState.formFactorWorkspace,
-      HierarchicalRefinementStrategy.hierarchicalKPool,
-      null,
-      null,
-    );
     const transports: Interaction[] = [];
     const nextElementId = [firstNewElementId];
     for (let g = 0; g < groups.length; g++) {
@@ -1178,7 +1177,9 @@ export class HierarchicalRefinementStrategy {
       let writeIndex = 0;
       for (let readIndex = 0; readIndex < interactions.length; readIndex++) {
         const o = interactions[readIndex];
-        let refined: boolean;
+        // A link appended by this element's refinement (readIndex beyond the
+        // items) is kept: its light transport was collected when committed
+        let refined = false;
         if (readIndex < group.getNumberOfItems()) {
           refined = HierarchicalRefinementStrategy.commitRefinementTask(
             scheduler,
@@ -1188,22 +1189,6 @@ export class HierarchicalRefinementStrategy {
             transports,
             nextElementId,
           );
-        }
-        else if (!(o instanceof Interaction)) {
-          refined = false;
-        }
-        else if (HierarchicalRefinementStrategy.hierarchicRefinementEvaluateInteraction(o, galerkinState)
-          === InteractionEvaluationCode.ACCURATE_ENOUGH) {
-          // A link appended by this element's refinement, visited as the serial loop does
-          transports.push(o);
-          refined = false;
-        }
-        else {
-          // Not expected (the link was accurate enough when stored): refine it
-          // serially, after the light transport collected so far
-          HierarchicalRefinementStrategy.applyLightTransports(transports, galerkinState, 1);
-          transports.length = 0;
-          refined = HierarchicalRefinementStrategy.refineInteraction(scene, o, galerkinState, serialWorkspace);
         }
         if (refined && o instanceof Interaction) {
           Interaction.interactionDestroy(o);

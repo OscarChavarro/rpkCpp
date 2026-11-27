@@ -13,7 +13,6 @@ export class BinaryModelSnapshotRecordData {
   public inSurface: boolean;
   public monochrome: boolean;
   public singleSided: boolean;
-  public warpConeEnds: boolean;
   public numberOfQuarterCircleDivisions: number;
   public readerContextIndex: number;
   public transformContextIndex: number;
@@ -39,7 +38,6 @@ export class BinaryModelSnapshotRecordData {
     this.inSurface = false;
     this.monochrome = false;
     this.singleSided = false;
-    this.warpConeEnds = false;
     this.numberOfQuarterCircleDivisions = 0;
     this.readerContextIndex = 0;
     this.transformContextIndex = 0;

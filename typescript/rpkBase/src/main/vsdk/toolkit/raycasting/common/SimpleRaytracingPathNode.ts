@@ -1,7 +1,7 @@
 import { PrintStream } from "vitral/dist/java/io/PrintStream";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Vector3DPrinter } from "vitral/dist/vsdk/toolkit/io/wrapper/Vector3DPrinter";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -15,9 +15,9 @@ export class SimpleRaytracingPathNode {
   }
 
   public m_hit: RayHit;
-  public m_inDirT: Vector3Df;
-  public m_inDirF: Vector3Df;
-  public m_normal: Vector3Df;
+  public m_inDirT: Vector3Dd;
+  public m_inDirF: Vector3Dd;
+  public m_normal: Vector3Dd;
 
   public m_G: number;
   public m_pdfFromPrev: number;
@@ -42,9 +42,9 @@ export class SimpleRaytracingPathNode {
 
   public constructor() {
     this.m_hit = new RayHit();
-    this.m_inDirT = new Vector3Df();
-    this.m_inDirF = new Vector3Df();
-    this.m_normal = new Vector3Df();
+    this.m_inDirT = new Vector3Dd();
+    this.m_inDirF = new Vector3Dd();
+    this.m_normal = new Vector3Dd();
 
     this.m_G = 0.0;
     this.m_pdfFromPrev = 0.0;

@@ -55,7 +55,7 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
       for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
         const patch = scene.patchList[i]!;
         const top = galerkinState.topLevelElement(patch);
-        const potentialIncrement = Math.fround(scene.getDirectPotentials()!.get(patch.getFaceIndex()) - top.directPotential);
+        const potentialIncrement = scene.getDirectPotentials()!.get(patch.getFaceIndex()) - top.directPotential;
         GatheringClusteredStrategy.updateClusterDirectPotential(top, potentialIncrement);
       }
       GatheringClusteredStrategy.updatePotential(galerkinState.topCluster as GalerkinElement);

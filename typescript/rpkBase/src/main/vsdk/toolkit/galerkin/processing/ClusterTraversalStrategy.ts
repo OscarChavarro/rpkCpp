@@ -1,7 +1,7 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
@@ -43,7 +43,7 @@ export class ClusterTraversalStrategy {
 
   public static clusterRadianceToSamplePoint(
     sourceElement: GalerkinElement,
-    samplePoint: Vector3Df,
+    samplePoint: Vector3Dd,
     galerkinState: GalerkinState,
   ): ColorRgbMutable {
     if (sourceElement === null || galerkinState === null) {
@@ -83,8 +83,8 @@ export class ClusterTraversalStrategy {
       return 0.0;
     }
     let rcvCos: number;
-    let dir = new Vector3Df();
-    const samplePoint = new Vector3Df();
+    let dir = new Vector3Dd();
+    const samplePoint = new Vector3Dd();
 
     dir = samplePoint.subtract(receiverElement.patch.midPoint());
     const distance = dir.length();

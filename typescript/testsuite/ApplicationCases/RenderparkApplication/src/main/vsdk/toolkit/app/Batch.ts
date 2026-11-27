@@ -42,7 +42,7 @@ export class Batch {
     }
     if (scene.geometryList === null || scene.geometryList.length === 0) {
       scene.camera.far = 10.0;
-      scene.camera.near = Math.fround(0.1);
+      scene.camera.near = 0.1;
       return;
     }
     const bounds = new BoundingBox();

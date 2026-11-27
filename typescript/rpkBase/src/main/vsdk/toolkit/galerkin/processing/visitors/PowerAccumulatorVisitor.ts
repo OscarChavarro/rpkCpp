@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinIterationMethod } from "../../GalerkinIterationMethod";
 import { GalerkinState } from "../../GalerkinState";
@@ -8,10 +8,10 @@ import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class PowerAccumulatorVisitor implements ClusterLeafVisitor {
   private readonly sourceRadiance: ColorRgbMutable;
-  private readonly samplePoint: Vector3Df;
+  private readonly samplePoint: Vector3Dd;
   private readonly accumulatedRadiance: ColorRgbMutable;
 
-  public constructor(inSourceRadiance: ColorRgbMutable, inSamplePoint: Vector3Df) {
+  public constructor(inSourceRadiance: ColorRgbMutable, inSamplePoint: Vector3Dd) {
     this.sourceRadiance = inSourceRadiance;
     this.samplePoint = inSamplePoint;
     this.accumulatedRadiance = new ColorRgbMutable();
@@ -26,7 +26,7 @@ export class PowerAccumulatorVisitor implements ClusterLeafVisitor {
     galerkinElement: GalerkinElement,
     galerkinState: GalerkinState,
   ): void {
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
     dir = this.samplePoint.subtract((galerkinElement.patch as NonNullable<GalerkinElement["patch"]>).midPoint());
     const dist = dir.length();
     let srcOs: number;

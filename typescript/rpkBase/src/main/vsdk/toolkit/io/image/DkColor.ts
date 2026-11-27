@@ -1,6 +1,5 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { CppReAlloc } from "../../common/memoryManagement/CppReAlloc";
 
 export class DkColor {
   private static readonly RED = 0;
@@ -73,17 +72,9 @@ export class DkColor {
 
   private static tempBuffer(length: number): Uint8Array | null {
     if (length > DkColor.temporaryBufferLength) {
-      if (DkColor.temporaryBufferLength > 0) {
-        DkColor.temporaryBuffer = CppReAlloc.reAlloc(
-          DkColor.temporaryBuffer,
-          DkColor.temporaryBufferLength,
-          length
-        ) as Uint8Array | null;
-      }
-      else {
-        DkColor.temporaryBuffer = new Uint8Array(length);
-      }
-      DkColor.temporaryBufferLength = DkColor.temporaryBuffer === null ? 0 : length;
+      // Contents are scratch data, so the old buffer need not be preserved
+      DkColor.temporaryBuffer = new Uint8Array(length);
+      DkColor.temporaryBufferLength = length;
     }
     return DkColor.temporaryBuffer;
   }

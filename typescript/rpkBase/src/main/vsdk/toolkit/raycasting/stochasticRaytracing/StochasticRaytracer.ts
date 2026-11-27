@@ -4,7 +4,7 @@ import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
@@ -305,7 +305,7 @@ Raytrace the current scene as seen with the current camera.
     const result = new ColorRgbMutable();
     const radiance = new ColorRgbMutable();
     result.clear();
-    const dirEL = new Vector3Df();
+    const dirEL = new Vector3Dd();
 
     if (readout === StorageReadout.READ_NOW && config.radMode === RayTracingRadMode.STORED_PHOTON_MAP) {
       return result;

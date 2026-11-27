@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Background } from "./Background";
 
 export class ConstantColorBackground extends Background {
@@ -22,8 +22,8 @@ export class ConstantColorBackground extends Background {
   }
 
   public override radiance(
-    position: Vector3Df,
-    direction: Vector3Df,
+    position: Vector3Dd,
+    direction: Vector3Dd,
     probabilityDensityFunction: number[] | null
   ): ColorRgbMutable {
     if (probabilityDensityFunction !== null && probabilityDensityFunction.length > 0) {
@@ -35,12 +35,12 @@ export class ConstantColorBackground extends Background {
   }
 
   public override sample(
-    position: Vector3Df,
+    position: Vector3Dd,
     xi1: number,
     xi2: number,
     radianceValue: ColorRgbMutable | null,
     probabilityDensityFunction: number[] | null
-  ): Vector3Df {
+  ): Vector3Dd {
     const phi = 2.0 * globalThis.Math.PI * xi1;
     const z = 1.0 - 2.0 * xi2;
     const radialSquared = globalThis.Math.max(0.0, 1.0 - z * z);
@@ -53,13 +53,13 @@ export class ConstantColorBackground extends Background {
       probabilityDensityFunction[0] = ConstantColorBackground.INV_FOUR_PI;
     }
 
-    let direction = new Vector3Df();
-    direction = new Vector3Df(radius * globalThis.Math.cos(phi), radius * globalThis.Math.sin(phi), z);
+    let direction = new Vector3Dd();
+    direction = new Vector3Dd(radius * globalThis.Math.cos(phi), radius * globalThis.Math.sin(phi), z);
     void position;
     return direction;
   }
 
-  public override power(position: Vector3Df): ColorRgbMutable {
+  public override power(position: Vector3Dd): ColorRgbMutable {
     const emittedPower = new ColorRgbMutable();
     emittedPower.scaledCopy(ConstantColorBackground.FOUR_PI, this.color);
     void position;

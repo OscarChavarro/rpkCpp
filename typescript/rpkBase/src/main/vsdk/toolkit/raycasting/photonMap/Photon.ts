@@ -2,24 +2,24 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 
 // Non-compact photon representation
 export class Photon {
-  protected m_pos: Vector3Df;
+  protected m_pos: Vector3Dd;
   protected m_power: ColorRgbMutable;
-  protected m_dir: Vector3Df;
+  protected m_dir: Vector3Dd;
 
   public constructor();
-  public constructor(pos: Vector3Df, power: ColorRgbMutable, dir: Vector3Df);
-  public constructor(pos?: Vector3Df, power?: ColorRgbMutable, dir?: Vector3Df) {
-    this.m_pos = pos === undefined ? new Vector3Df() : new Vector3Df(pos.x(), pos.y(), pos.z());
+  public constructor(pos: Vector3Dd, power: ColorRgbMutable, dir: Vector3Dd);
+  public constructor(pos?: Vector3Dd, power?: ColorRgbMutable, dir?: Vector3Dd) {
+    this.m_pos = pos === undefined ? new Vector3Dd() : new Vector3Dd(pos.x(), pos.y(), pos.z());
     this.m_power = power === undefined ? new ColorRgbMutable() : new ColorRgbMutable(power.r, power.g, power.b);
-    this.m_dir = dir === undefined ? new Vector3Df() : new Vector3Df(dir.x(), dir.y(), dir.z());
+    this.m_dir = dir === undefined ? new Vector3Dd() : new Vector3Dd(dir.x(), dir.y(), dir.z());
   }
 
-  public pos(): Vector3Df {
+  public pos(): Vector3Dd {
     return this.m_pos;
   }
 
@@ -31,7 +31,7 @@ export class Photon {
     this.m_power.add(this.m_power, col);
   }
 
-  public dir(): Vector3Df {
+  public dir(): Vector3Dd {
     return this.m_dir;
   }
 

@@ -1,9 +1,8 @@
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
-import { VisibilityQueryRecorder } from "../../scene/VisibilityQueryRecorder";
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -14,7 +13,7 @@ import { Patch } from "../../environment/geometry/elements/Patch";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { SimpleRaytracingPathNode } from "./SimpleRaytracingPathNode";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class RayTools {
   private static pathFrontHitFlags(): number {
@@ -31,17 +30,11 @@ export class RayTools {
     hitStore: RayHit | null
   ): RayHit | null {
     const myHitStore = new RayHit();
-    const dist = [Float.MAX_VALUE];
+    const dist = [Double.MAX_VALUE];
     const localHitStore = hitStore === null ? myHitStore : hitStore;
 
     const exclusions = new RayExclusionSet(patch, patch !== null ? patch.twin : null, extraPatch);
     const result = sceneQuery.intersect(ray, 0.0, dist, flags, localHitStore, exclusions, sceneWorldSceneQueryWorkspace);
-    const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
-    if (recorder !== null) {
-      recorder.recordQuery(
-        VisibilityQueryRecorder.RAYTRACER_CLOSEST_HIT, ray, 0.0, Float.MAX_VALUE,
-        flags, exclusions, result, dist[0]!);
-    }
 
     if (result !== null) {
       const frame = result.getShadingFrame();
@@ -95,7 +88,7 @@ export class RayTools {
       return false;
     }
 
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
     const ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
@@ -104,12 +97,12 @@ export class RayTools {
 
     const dist2 = dir.lengthSquared();
     let dist = globalThis.Math.sqrt(dist2);
-    dir = dir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(dist, Numeric.EPSILON);
 
     dist = dist * (1.0 - VSDK.EPSILON);
 
-    ray.position = node1.m_hit.getPoint();
-    ray.direction = dir;
+    ray.setOrigin(node1.m_hit.getPoint());
+    ray.setDirection(dir);
 
     const cosRay1 = dir.dotProduct(node1.m_normal);
     const cosRay2 = -dir.dotProduct(node2.m_normal);
@@ -136,13 +129,12 @@ export class RayTools {
     let visible: boolean;
     if (doTest) {
       if (patch2 !== null && patch2.hasZeroVertices()) {
-        fDistance[0] = Float.MAX_VALUE;
+        fDistance[0] = Double.MAX_VALUE;
       }
       else {
-        fDistance[0] = Math.fround(dist);
+        fDistance[0] = dist;
       }
 
-      const queryMaximumDistance = fDistance[0]!;
       const exclusions = new RayExclusionSet(
         patch2,
         patch1,
@@ -157,12 +149,6 @@ export class RayTools {
         exclusions,
         sceneWorldSceneQueryWorkspace
       );
-      const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
-      if (recorder !== null) {
-        recorder.recordQuery(
-          VisibilityQueryRecorder.RAYTRACER_VISIBILITY, ray, 0.0, queryMaximumDistance,
-          RayHitFlag.FRONT | RayHitFlag.BACK | RayHitFlag.ANY, exclusions, hit, fDistance[0]!);
-      }
       visible = hit === null;
 
       Statistics.instance().rayTracer.rayCount++;
@@ -183,7 +169,7 @@ export class RayTools {
     pixX: number[] | null,
     pixY: number[] | null
   ): boolean {
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
     const ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
@@ -193,7 +179,7 @@ export class RayTools {
     const dist2 = dir.lengthSquared();
     let dist = globalThis.Math.sqrt(dist2);
 
-    dir = dir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(dist, Numeric.EPSILON);
 
     const z = dir.dotProduct(camera.Z);
 
@@ -209,15 +195,14 @@ export class RayTools {
         if (globalThis.Math.abs(yz) < camera.pixelHeightTangent) {
           dist = dist * (1.0 - VSDK.EPSILON);
 
-          ray.position = eyeNode.m_hit.getPoint();
-          ray.direction = dir;
+          ray.setOrigin(eyeNode.m_hit.getPoint());
+          ray.setDirection(dir);
 
           const cosRayEye = dir.dotProduct(eyeNode.m_normal);
           const cosRayLight = -dir.dotProduct(node.m_normal);
 
           if (cosRayLight > 0.0 && cosRayEye > 0.0) {
-            fDistance[0] = Math.fround(dist);
-            const queryMaximumDistance = fDistance[0]!;
+            fDistance[0] = dist;
             const nodePatch = node.m_hit.getPatch();
             const eyePatch = eyeNode.m_hit.getPatch();
             const exclusions = new RayExclusionSet(
@@ -234,12 +219,6 @@ export class RayTools {
               exclusions,
               sceneWorldSceneQueryWorkspace
             );
-            const recorder = sceneWorldSceneQueryWorkspace.getRecorder();
-            if (recorder !== null) {
-              recorder.recordQuery(
-                VisibilityQueryRecorder.RAYTRACER_VISIBILITY, ray, 0.0, queryMaximumDistance,
-                RayHitFlag.FRONT | RayHitFlag.ANY, exclusions, hit, fDistance[0]!);
-            }
             visible = hit === null;
 
             if (visible) {

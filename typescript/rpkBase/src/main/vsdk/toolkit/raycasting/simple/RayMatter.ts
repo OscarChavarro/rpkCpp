@@ -6,7 +6,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Statistics } from "../../common/statistics/Statistics";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BoxFilter } from "../common/BoxFilter";
@@ -155,9 +155,9 @@ export class RayMatter extends RayTracer {
 
           // Generate ray
           const ray = new Ray();
-          ray.position = camera.eyePosition;
-          ray.direction = this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0);
-          ray.direction = ray.direction.normalized(Numeric.EPSILON_FLOAT);
+          ray.setOrigin(camera.eyePosition);
+          ray.setDirection(this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0));
+          ray.setDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
           // Check if hit
           if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) !== null) {

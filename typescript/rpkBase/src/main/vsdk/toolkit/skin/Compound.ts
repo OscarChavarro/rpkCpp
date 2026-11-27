@@ -1,4 +1,4 @@
-import { Ray } from "../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Statistics } from "../common/statistics/Statistics";
 import { Geometry } from "./Geometry";
 import { GeometryClassId } from "./GeometryClassId";

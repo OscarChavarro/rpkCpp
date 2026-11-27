@@ -1,5 +1,5 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
-import { Cie } from "rpk-base/dist/vsdk/toolkit/common/color/Cie";
+import type { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { Numeric } from "rpk-base/dist/vsdk/toolkit/common/linealAlgebra/Numeric";
@@ -20,7 +20,7 @@ export class Adaptation {
   private static logAreaLum = 0.0;
   private static lumArea: LuminanceArea[] | null = null;
   private static lumAreaIndex = 0;
-  private static lumMin = Number.MAX_VALUE; // Note Float.MAX_VALUE; will cause an issue here
+  private static lumMin = Number.MAX_VALUE; // Note Double.MAX_VALUE; will cause an issue here
   private static lumMax = 0.0;
   private static patchRadianceEstimate: ((patch: Patch) => ColorRgbMutable) | null = null;
 
@@ -50,23 +50,23 @@ export class Adaptation {
     return radiance;
   }
 
-  private static patchBrightnessEstimate(patch: Patch): number {
+  private static patchBrightnessEstimate(patch: Patch, colorSpace: Cie): number {
     const radiance = (Adaptation.patchRadianceEstimate as (patch: Patch) => ColorRgbMutable)(patch);
-    let brightness = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
-    if (brightness < Numeric.EPSILON_FLOAT) {
-      brightness = Numeric.EPSILON_FLOAT;
+    let brightness = colorSpace.spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    if (brightness < Numeric.EPSILON) {
+      brightness = Numeric.EPSILON;
     }
     return brightness;
   }
 
-  private static patchComputeLogAreaLum(patch: Patch): void {
-    const brightness = Adaptation.patchBrightnessEstimate(patch);
+  private static patchComputeLogAreaLum(patch: Patch, colorSpace: Cie): void {
+    const brightness = Adaptation.patchBrightnessEstimate(patch, colorSpace);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     Adaptation.logAreaLum += patch.getArea() * globalThis.Math.log(brightness);
   }
 
-  private static patchFillLumArea(patch: Patch): void {
-    const brightness = Adaptation.patchBrightnessEstimate(patch);
+  private static patchFillLumArea(patch: Patch, colorSpace: Cie): void {
+    const brightness = Adaptation.patchBrightnessEstimate(patch, colorSpace);
 
     const entry = (Adaptation.lumArea as LuminanceArea[])[Adaptation.lumAreaIndex]!;
     entry.luminance = brightness;
@@ -131,7 +131,7 @@ export class Adaptation {
         // Gibson's static adaptation after [TUMB1999b]
         Adaptation.logAreaLum = 0.0;
         for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-          Adaptation.patchComputeLogAreaLum(scenePatches[i]!);
+          Adaptation.patchComputeLogAreaLum(scenePatches[i]!, toneMapOptions.getColorSpace());
         }
         // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
         toneMapOptions.realWorldAdaptionLuminance =
@@ -157,7 +157,7 @@ export class Adaptation {
           scenePatches !== null && i < scenePatches.length && Adaptation.lumAreaIndex < pairCount;
           i++
         ) {
-          Adaptation.patchFillLumArea(scenePatches[i]!);
+          Adaptation.patchFillLumArea(scenePatches[i]!, toneMapOptions.getColorSpace());
         }
         toneMapOptions.realWorldAdaptionLuminance = Adaptation.meanAreaWeightedLuminance(la, Adaptation.numEntries);
         break;

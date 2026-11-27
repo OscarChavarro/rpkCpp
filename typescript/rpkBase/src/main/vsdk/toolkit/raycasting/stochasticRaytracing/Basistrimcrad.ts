@@ -2,7 +2,7 @@
 Orthonormal basis for the standard triangle (0, 0), (1, 0), (0, 1)
 */
 
-import { GalerkinBasis } from "./GalerkinBasis";
+import { StochasticRadiosityBasis } from "./StochasticRadiosityBasis";
 
 export class Basistrimcrad {
   private constructor() {
@@ -73,7 +73,7 @@ export class Basistrimcrad {
     (u: number, v: number): number => Basistrimcrad.tm9(u, v),
   ];
 
-  private static readonly h = Basistrimcrad.create3DArray(4, GalerkinBasis.MAX_BASIS_SIZE, GalerkinBasis.MAX_BASIS_SIZE);
+  private static readonly h = Basistrimcrad.create3DArray(4, StochasticRadiosityBasis.MAX_BASIS_SIZE, StochasticRadiosityBasis.MAX_BASIS_SIZE);
 
   private static create3DArray(a: number, b: number, c: number): number[][][] {
     const out = new Array<number[][]>(a);
@@ -86,14 +86,14 @@ export class Basistrimcrad {
     return out;
   }
 
-  public static createBasis(): GalerkinBasis {
+  public static createBasis(): StochasticRadiosityBasis {
     return Basistrimcrad.stochasticRadiosityCreateTriBasis();
   }
 
-  private static stochasticRadiosityCreateTriBasis(): GalerkinBasis {
-    const b = new GalerkinBasis();
+  private static stochasticRadiosityCreateTriBasis(): StochasticRadiosityBasis {
+    const b = new StochasticRadiosityBasis();
     b.description = "orthonormal basis on the standard triangle";
-    b.size = GalerkinBasis.MAX_BASIS_SIZE;
+    b.size = StochasticRadiosityBasis.MAX_BASIS_SIZE;
     b.function = Basistrimcrad.f;
     b.dualFunction = Basistrimcrad.f;
     b.regularFilter = Basistrimcrad.h;

@@ -1,5 +1,5 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Ray } from "../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { Patch } from "../environment/geometry/elements/Patch";
 import type { RayExclusionSet } from "../environment/geometry/elements/RayExclusionSet";
@@ -22,7 +22,7 @@ export class ShadowCache {
       }
       const hit = (this.patchCache[i] as Patch).intersect(
         ray,
-        Numeric.EPSILON_FLOAT * (distance[0] ?? 0.0),
+        Numeric.EPSILON * (distance[0] ?? 0.0),
         distance,
         RayHitFlag.FRONT | RayHitFlag.ANY,
         hitStore,

@@ -3,7 +3,7 @@ Samples a random point on the view screen and traces the viewing ray.
 */
 
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -35,7 +35,7 @@ export class ScreenSampler extends Sampler {
       return false;
     }
 
-    let dir = new Vector3Df();
+    let dir = new Vector3Dd();
 
     const xSample = camera.pixelWidth * camera.xSize * (-0.5 + x1);
     const ySample = camera.pixelHeight * camera.ySize * (-0.5 + x2);
@@ -43,7 +43,7 @@ export class ScreenSampler extends Sampler {
     dir = camera.Z.add(camera.X.multiply(xSample)).add(camera.Y.multiply(ySample));
     const distScreen2 = dir.lengthSquared();
     const distScreen = globalThis.Math.sqrt(distScreen2);
-    dir = dir.multiplyByInverse(distScreen, Numeric.EPSILON_FLOAT);
+    dir = dir.multiplyByInverse(distScreen, Numeric.EPSILON);
 
     const cosScreen = globalThis.Math.abs(camera.Z.dotProduct(dir));
 
@@ -78,12 +78,12 @@ export class ScreenSampler extends Sampler {
   ): number {
     void flags;
 
-    let outDir = new Vector3Df();
+    let outDir = new Vector3Dd();
 
     outDir = newNode.m_hit.getPoint().subtract(thisNode.m_hit.getPoint());
     const dist2 = outDir.lengthSquared();
     const dist = globalThis.Math.sqrt(dist2);
-    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON_FLOAT);
+    outDir = outDir.multiplyByInverse(dist, Numeric.EPSILON);
 
     const cosA = thisNode.m_normal.dotProduct(outDir);
     let pdf = 1.0 /

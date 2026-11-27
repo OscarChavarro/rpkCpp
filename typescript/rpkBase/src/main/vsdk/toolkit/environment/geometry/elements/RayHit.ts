@@ -1,7 +1,7 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { CoordinateSystem } from "../../../common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Material } from "../../../material/Material";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../../material/PhongBidirectionalScatteringDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
@@ -13,23 +13,23 @@ import type { Patch } from "./Patch";
 export class RayHit {
   // Immutable constants shared by every hit (TypeScript only: they spare an
   // allocation per initialised hit)
-  private static readonly ZERO_VECTOR = new Vector3Df(0.0, 0.0, 0.0);
-  private static readonly UNIT_Z_VECTOR = new Vector3Df(0.0, 0.0, 1.0);
+  private static readonly ZERO_VECTOR = new Vector3Dd(0.0, 0.0, 0.0);
+  private static readonly UNIT_Z_VECTOR = new Vector3Dd(0.0, 0.0, 1.0);
 
-  private point: Vector3Df;
+  private point: Vector3Dd;
   private patch: Patch | null;
-  private texCoord: Vector3Df;
-  private geometricNormal: Vector3Df;
+  private texCoord: Vector3Dd;
+  private geometricNormal: Vector3Dd;
   private material: Material | null;
   private shadingFrame: CoordinateSystem;
   private uv: Vector2Dd;
   private flags: number;
 
   public constructor() {
-    this.point = new Vector3Df();
+    this.point = new Vector3Dd();
     this.patch = null;
-    this.texCoord = new Vector3Df();
-    this.geometricNormal = new Vector3Df();
+    this.texCoord = new Vector3Dd();
+    this.geometricNormal = new Vector3Dd();
     this.material = null;
     this.shadingFrame = new CoordinateSystem();
     this.uv = new Vector2Dd();
@@ -67,9 +67,9 @@ export class RayHit {
   }
 
   /**
-  @param inX, inY, inZ one-element holders (C++ `Vector3Df *`), or null
+  @param inX, inY, inZ one-element holders (C++ `Vector3Dd *`), or null
   */
-  private pointShadingFrame(inX: Vector3Df[] | null, inY: Vector3Df[] | null, inZ: Vector3Df[] | null): boolean {
+  private pointShadingFrame(inX: Vector3Dd[] | null, inY: Vector3Dd[] | null, inZ: Vector3Dd[] | null): boolean {
     let success = false;
 
     if (!this.hitInitialised()) {
@@ -106,9 +106,9 @@ export class RayHit {
     }
 
     if (!success && this.computeUv(this.uv) && this.patch !== null) {
-      const x = inX !== null ? inX : [new Vector3Df()];
-      const y = inY !== null ? inY : [new Vector3Df()];
-      const z = inZ !== null ? inZ : [new Vector3Df()];
+      const x = inX !== null ? inX : [new Vector3Dd()];
+      const y = inY !== null ? inY : [new Vector3Dd()];
+      const z = inZ !== null ? inZ : [new Vector3Dd()];
       this.patch.interpolatedFrameAtUv(this.uv.x, this.uv.y, x, y, z);
       success = true;
     }
@@ -118,8 +118,8 @@ export class RayHit {
 
   public init(
     inPatch: Patch | null,
-    inPoint: Vector3Df | null,
-    inGeometryNormal: Vector3Df | null,
+    inPoint: Vector3Dd | null,
+    inGeometryNormal: Vector3Dd | null,
     inMaterial: Material | null
   ): boolean {
     this.flags = 0;
@@ -154,9 +154,9 @@ export class RayHit {
   }
 
   /**
-  @param outTexCoord one-element holder (C++ `Vector3Df *`)
+  @param outTexCoord one-element holder (C++ `Vector3Dd *`)
   */
-  public getTexCoord(outTexCoord: Vector3Df[]): boolean {
+  public getTexCoord(outTexCoord: Vector3Dd[]): boolean {
     if ((this.flags & RayHitFlag.TEXTURE_COORDINATE) !== 0) {
       outTexCoord[0] = this.texCoord;
       return true;
@@ -177,9 +177,9 @@ export class RayHit {
   }
 
   /**
-  @param inNormal one-element holder (C++ `Vector3Df *`)
+  @param inNormal one-element holder (C++ `Vector3Dd *`)
   */
-  public shadingNormal(inNormal: Vector3Df[]): boolean {
+  public shadingNormal(inNormal: Vector3Dd[]): boolean {
     if (((this.flags & RayHitFlag.SHADING_FRAME) !== 0) || ((this.flags & RayHitFlag.NORMAL) !== 0)) {
       inNormal[0] = this.shadingFrame.getZ();
       return true;
@@ -236,11 +236,11 @@ export class RayHit {
   }
 
   public setShadingFrame(frame: CoordinateSystem): boolean;
-  public setShadingFrame(inX: Vector3Df, inY: Vector3Df, inZ: Vector3Df): void;
+  public setShadingFrame(inX: Vector3Dd, inY: Vector3Dd, inZ: Vector3Dd): void;
   public setShadingFrame(
-    frameOrX: CoordinateSystem | Vector3Df,
-    inY?: Vector3Df,
-    inZ?: Vector3Df
+    frameOrX: CoordinateSystem | Vector3Dd,
+    inY?: Vector3Dd,
+    inZ?: Vector3Dd
   ): boolean | void {
     if (frameOrX instanceof CoordinateSystem) {
       const frame = frameOrX;
@@ -271,8 +271,8 @@ export class RayHit {
     }
 
     this.shadingFrame.setX(frameOrX);
-    this.shadingFrame.setY(inY as Vector3Df);
-    this.shadingFrame.setZ(inZ as Vector3Df);
+    this.shadingFrame.setY(inY as Vector3Dd);
+    this.shadingFrame.setZ(inZ as Vector3Dd);
     return;
   }
 
@@ -284,15 +284,15 @@ export class RayHit {
     this.patch = inPatch;
   }
 
-  public getPoint(): Vector3Df {
+  public getPoint(): Vector3Dd {
     return this.point;
   }
 
-  public setPoint(position: Vector3Df): void {
+  public setPoint(position: Vector3Dd): void {
     this.point = position;
   }
 
-  public setGeometricNormal(inNormal: Vector3Df): void {
+  public setGeometricNormal(inNormal: Vector3Dd): void {
     this.geometricNormal = inNormal;
   }
 
@@ -333,11 +333,11 @@ export class RayHit {
     this.flags = inFlags;
   }
 
-  public getNormal(): Vector3Df {
+  public getNormal(): Vector3Dd {
     return this.shadingFrame.getZ();
   }
 
-  public setNormal(n: Vector3Df): void {
+  public setNormal(n: Vector3Dd): void {
     this.shadingFrame.setZ(n);
   }
 
@@ -349,7 +349,7 @@ export class RayHit {
     return this.material;
   }
 
-  public getGeometricNormal(): Vector3Df {
+  public getGeometricNormal(): Vector3Dd {
     return this.geometricNormal;
   }
 

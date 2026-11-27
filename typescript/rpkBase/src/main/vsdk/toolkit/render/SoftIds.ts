@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { SglConstants } from "../render/sgl/SglConstants";
 import { SglContext } from "../render/sgl/SglContext";
 import { Camera } from "../scene/Camera";
@@ -19,11 +19,9 @@ export class SoftIds {
     sgl.sglDepthTesting(true);
     sgl.sglClipping(true);
     sgl.sglClear(0, SglConstants.SGL_MAXIMUM_Z);
-
-    const fr = Math.fround;
     const p = Camera.perspectiveMatrix(
-      fr(fr(fr(fr(camera.fieldOfVision) * 2.0) * fr(globalThis.Math.PI)) / 180.0),
-      fr(camera.xSize / camera.ySize),
+      ((camera.fieldOfVision * 2.0) * globalThis.Math.PI) / 180.0,
+      camera.xSize / camera.ySize,
       camera.near,
       camera.far
     );
@@ -44,7 +42,7 @@ export class SoftIds {
       return;
     }
 
-    const vertices = new Array<Vector3Df>(4);
+    const vertices = new Array<Vector3Dd>(4);
 
     if (renderOptions.backfaceCulling &&
       patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < VSDK.EPSILON) {

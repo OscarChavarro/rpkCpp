@@ -1,15 +1,14 @@
 import { FundamentalEntity } from "../FundamentalEntity.js";
-import { Vector2Df } from "./Vector2Df.js";
-const f = Math.fround;
+import { Vector2Dd } from "./Vector2Dd.js";
 /**
-Single precision affine transform of the plane: a 2x2 block M and a
+Double precision affine transform of the plane: a 2x2 block M and a
 translation t, so that p' = M p + t:
 
 |x'|   |m00  m01|   | x |   |t0|
 |  | = |        | * |   | + |  |
 |y'|   |m10  m11|   | y |   |t1|
 
-Immutable; every operation computes in float
+Immutable; every operation computes in double
 */
 export class Matrix2x2 extends FundamentalEntity {
     private readonly m: number[][];
@@ -22,10 +21,10 @@ export class Matrix2x2 extends FundamentalEntity {
     public constructor(m00 = 1, m01 = 0, m10 = 0, m11 = 1, t0 = 0, t1 = 0) {
         super();
         this.m = [
-            [f(m00), f(m01)],
-            [f(m10), f(m11)],
+            [m00, m01],
+            [m10, m11],
         ];
-        this.t = [f(t0), f(t1)];
+        this.t = [t0, t1];
     }
     public get(row: number, col: number): number {
         return this.m[row]![col]!;
@@ -36,10 +35,10 @@ export class Matrix2x2 extends FundamentalEntity {
     /**
     M p + t
     */
-    public transformPoint(p: Vector2Df): Vector2Df {
-        return new Vector2Df(
-            f(f(f(this.get(0, 0) * p.x()) + f(this.get(0, 1) * p.y())) + this.getTranslation(0)),
-            f(f(f(this.get(1, 0) * p.x()) + f(this.get(1, 1) * p.y())) + this.getTranslation(1)),
+    public transformPoint(p: Vector2Dd): Vector2Dd {
+        return new Vector2Dd(
+            this.get(0, 0) * p.x + this.get(0, 1) * p.y + this.getTranslation(0),
+            this.get(1, 0) * p.x + this.get(1, 1) * p.y + this.getTranslation(1),
         );
     }
     /**
@@ -52,12 +51,12 @@ export class Matrix2x2 extends FundamentalEntity {
         const m10 = this.get(1, 0);
         const m11 = this.get(1, 1);
         return new Matrix2x2(
-            f(f(m00 * other.get(0, 0)) + f(m01 * other.get(1, 0))),
-            f(f(m00 * other.get(0, 1)) + f(m01 * other.get(1, 1))),
-            f(f(m10 * other.get(0, 0)) + f(m11 * other.get(1, 0))),
-            f(f(m10 * other.get(0, 1)) + f(m11 * other.get(1, 1))),
-            f(f(f(m00 * other.getTranslation(0)) + f(m01 * other.getTranslation(1))) + this.getTranslation(0)),
-            f(f(f(m10 * other.getTranslation(0)) + f(m11 * other.getTranslation(1))) + this.getTranslation(1)),
+            m00 * other.get(0, 0) + m01 * other.get(1, 0),
+            m00 * other.get(0, 1) + m01 * other.get(1, 1),
+            m10 * other.get(0, 0) + m11 * other.get(1, 0),
+            m10 * other.get(0, 1) + m11 * other.get(1, 1),
+            m00 * other.getTranslation(0) + m01 * other.getTranslation(1) + this.getTranslation(0),
+            m10 * other.getTranslation(0) + m11 * other.getTranslation(1) + this.getTranslation(1),
         );
     }
     public equals(other: unknown): boolean {

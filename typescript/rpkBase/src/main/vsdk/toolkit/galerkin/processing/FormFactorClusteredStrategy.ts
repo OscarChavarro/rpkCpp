@@ -1,5 +1,5 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
-import { Ray } from "../../common/linealAlgebra/Ray";
+import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { GalerkinElement } from "../GalerkinElement";
 import { Interaction } from "../Interaction";
 import { ShadowCache } from "../ShadowCache";

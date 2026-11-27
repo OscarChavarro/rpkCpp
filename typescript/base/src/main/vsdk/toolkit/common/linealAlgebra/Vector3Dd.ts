@@ -45,7 +45,15 @@ export class Vector3Dd extends FundamentalEntity {
     public dotProduct(o: Vector3Dd): number {
         return this.xv * o.xv + this.yv * o.yv + this.zv * o.zv;
     }
-    public normalized(): Vector3Dd {
+    public normalized(): Vector3Dd;
+    /**
+    Scales by the inverse of the length, or returns this vector unchanged
+    when the length is within [-epsilon, epsilon]. Unlike normalized(), the
+    threshold applies to the length, and a unit vector is also rescaled
+    */
+    public normalized(epsilon: number): Vector3Dd;
+    public normalized(epsilon?: number): Vector3Dd {
+        if (epsilon !== undefined) return this.multiplyByInverse(this.length(), epsilon);
         let t = this.dotProduct(this);
         if (t <= VSDK.EPSILON * VSDK.EPSILON) return this;
         if (t !== 1) t = 1 / Math.sqrt(t);
@@ -66,6 +74,60 @@ export class Vector3Dd extends FundamentalEntity {
     }
     public subtract(o: Vector3Dd): Vector3Dd {
         return new Vector3Dd(this.xv - o.xv, this.yv - o.yv, this.zv - o.zv);
+    }
+    /**
+    Square of the length (the dot product with itself)
+    */
+    public lengthSquared(): number {
+        return this.xv * this.xv + this.yv * this.yv + this.zv * this.zv;
+    }
+    /**
+    Sum of the absolute values of the components (the L1 norm)
+    */
+    public manhattanLength(): number {
+        return Vector3Dd.absolute(this.xv) + Vector3Dd.absolute(this.yv) + Vector3Dd.absolute(this.zv);
+    }
+    /**
+    Distance to the given point: the length of (other - this)
+    */
+    public distance(other: Vector3Dd): number {
+        return other.subtract(this).length();
+    }
+    /**
+    Square of the distance to the given point
+    */
+    public distanceSquared(other: Vector3Dd): number {
+        return other.subtract(this).lengthSquared();
+    }
+    /**
+    Scales by 1 / s, or returns this vector unchanged when s is within
+    [-epsilon, epsilon]. The factor 1 / s is computed once and multiplies
+    each component
+    */
+    public multiplyByInverse(s: number, epsilon: number): Vector3Dd {
+        const factor = s < -epsilon || s > epsilon ? 1.0 / s : 1.0;
+        return new Vector3Dd(factor * this.xv, factor * this.yv, factor * this.zv);
+    }
+    /**
+    Index of the component of largest absolute value: 0 for x, 1 for y,
+    2 for z; ties go to x before y and y before z
+    */
+    public dominantAxis(): number {
+        const ax = Vector3Dd.absolute(this.xv);
+        const ay = Vector3Dd.absolute(this.yv);
+        const az = Vector3Dd.absolute(this.zv);
+        let m = ay > az ? ay : az;
+        m = ax > m ? ax : m;
+        if (m === ax) {
+            return 0;
+        }
+        return m === ay ? 1 : 2;
+    }
+    /**
+    The component of the given axis: 0 for x, 1 for y, 2 for z
+    */
+    public component(axis: number): number {
+        return axis === 0 ? this.xv : axis === 1 ? this.yv : this.zv;
     }
     public exportToFloatArrayVector(): Float32Array {
         return new Float32Array([this.xv, this.yv, this.zv, 1]);
@@ -121,6 +183,9 @@ export class Vector3Dd extends FundamentalEntity {
         let result = Double.hashCode(this.xv);
         result = (Math.imul(31, result) + Double.hashCode(this.yv)) | 0;
         return (Math.imul(31, result) + Double.hashCode(this.zv)) | 0;
+    }
+    private static absolute(a: number): number {
+        return a < 0.0 ? -a : a;
     }
     public override toString(): string {
         return `<${VSDK.formatDouble(this.xv)}, ${VSDK.formatDouble(this.yv)}, ${VSDK.formatDouble(this.zv)}>`;

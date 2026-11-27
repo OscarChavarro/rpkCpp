@@ -1,8 +1,8 @@
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 
 export class Numeric {
     public static readonly HUGE_DOUBLE_VALUE = 1e30;
-    public static readonly EPSILON_FLOAT = Math.fround(1e-6);
+    public static readonly EPSILON = 1e-6;
 
     private constructor() {}
 
@@ -14,7 +14,7 @@ export class Numeric {
     Two vectors are equal if their components are equal within the given
     tolerance, compared in double precision as doubleEqual does
     */
-    public static vectorsEqual(a: Vector3Df, b: Vector3Df, tolerance: number): boolean {
+    public static vectorsEqual(a: Vector3Dd, b: Vector3Dd, tolerance: number): boolean {
         return (
             Numeric.doubleEqual(a.x(), b.x(), tolerance) &&
             Numeric.doubleEqual(a.y(), b.y(), tolerance) &&

@@ -1,4 +1,3 @@
-import { Cie } from "../../common/color/Cie";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -15,7 +14,7 @@ import { PhongBidirectionalTransmittanceDistributionFunction } from "../../mater
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
 import { MgfEntityControl } from "./MgfEntityControl";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class MgfMaterialEntitySupport {
   private static readonly NUMBER_OF_SAMPLES = 3;
@@ -39,6 +38,22 @@ export class MgfMaterialEntitySupport {
   /**
   Translates mgf color into output color representation.
   */
+  /**
+  Returns true if the color was desaturated during clipping against the
+  monitor gamut
+  */
+  private static clipGamut(rgb: number[]): boolean {
+    // Really SHOULD desaturate instead of just clipping!
+    let desaturated = false;
+    for (let i = 0; i < 3; i++) {
+      if (rgb[i]! < 0.0) {
+        rgb[i] = 0.0;
+        desaturated = true;
+      }
+    }
+    return desaturated;
+  }
+
   private static mgfGetColor(cin: ColorContext, intensity: number, colorOut: ColorRgbMutable, context: ParseRuntimeContext): void {
     const xyz = [0.0, 0.0, 0.0];
     const rgb = [0.0, 0.0, 0.0];
@@ -61,16 +76,16 @@ export class MgfMaterialEntitySupport {
       if (xyz[0] < 0.0) {
         xyz[0] = 0.0;
       }
-      if (xyz[1] < 1.0) {
+      if (xyz[1] < 0.0) {
         xyz[1] = 0.0;
       }
-      if (xyz[2] < 2.0) {
+      if (xyz[2] < 0.0) {
         xyz[2] = 0.0;
       }
     }
 
-    Cie.transformColorFromXYZ2RGB(xyz, rgb);
-    if (Cie.clipGamut(rgb)) {
+    context.parserConfig.getColorSpace().transformColorFromXYZ2RGB(xyz, rgb);
+    if (MgfMaterialEntitySupport.clipGamut(rgb)) {
       MgfEntityControl.doWarning("color desaturated during gamut clipping", context);
     }
     colorOut.set(rgb[0]!, rgb[1]!, rgb[2]!);
@@ -87,7 +102,7 @@ export class MgfMaterialEntitySupport {
     const samples = [0.0, 0.0, 0.0];
     MgfMaterialEntitySupport.specSamples(col, samples);
 
-    let mx = -Float.MAX_VALUE;
+    let mx = -Double.MAX_VALUE;
     for (let i = 0; i < MgfMaterialEntitySupport.NUMBER_OF_SAMPLES; i++) {
       if (samples[i]! > mx) {
         mx = samples[i]!;
@@ -135,24 +150,24 @@ export class MgfMaterialEntitySupport {
     // Check/correct reflectances/transmittances.
     A.add(Rd, Rs);
     let a = MgfMaterialEntitySupport.colorMax(A);
-    if (a > 1.0 - Numeric.EPSILON_FLOAT) {
+    if (a > 1.0 - Numeric.EPSILON) {
       MgfEntityControl.doWarning("invalid material specification: total reflectance shall be < 1", context);
-      a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+      a = (1.0 - Numeric.EPSILON) / a;
       Rd.scale(a);
       Rs.scale(a);
     }
 
     A.add(Td, Ts);
     a = MgfMaterialEntitySupport.colorMax(A);
-    if (a > 1.0 - Numeric.EPSILON_FLOAT) {
+    if (a > 1.0 - Numeric.EPSILON) {
       MgfEntityControl.doWarning("invalid material specification: total transmittance shall be < 1", context);
-      a = (1.0 - Numeric.EPSILON_FLOAT) / a;
+      a = (1.0 - Numeric.EPSILON) / a;
       Td.scale(a);
       Ts.scale(a);
     }
 
     // Convert lumen/m^2 to W/m^2.
-    Ed.scale(1.0 / Cie.WHITE_EFFICACY);
+    Ed.scale(1.0 / context.parserConfig.getColorSpace().getLuminousEfficacy());
     Es.clear();
 
     let Nr: number;
@@ -176,12 +191,13 @@ export class MgfMaterialEntitySupport {
     }
 
     if (context.monochrome) {
-      Ed.setMonochrome(Cie.spectrumGray(Ed.r, Ed.g, Ed.b));
-      Es.setMonochrome(Cie.spectrumGray(Es.r, Es.g, Es.b));
-      Rd.setMonochrome(Cie.spectrumGray(Rd.r, Rd.g, Rd.b));
-      Rs.setMonochrome(Cie.spectrumGray(Rs.r, Rs.g, Rs.b));
-      Td.setMonochrome(Cie.spectrumGray(Td.r, Td.g, Td.b));
-      Ts.setMonochrome(Cie.spectrumGray(Ts.r, Ts.g, Ts.b));
+      const colorSpace = context.parserConfig.getColorSpace();
+      Ed.setMonochrome(colorSpace.spectrumGray(Ed.r, Ed.g, Ed.b));
+      Es.setMonochrome(colorSpace.spectrumGray(Es.r, Es.g, Es.b));
+      Rd.setMonochrome(colorSpace.spectrumGray(Rd.r, Rd.g, Rd.b));
+      Rs.setMonochrome(colorSpace.spectrumGray(Rs.r, Rs.g, Rs.b));
+      Td.setMonochrome(colorSpace.spectrumGray(Td.r, Td.g, Td.b));
+      Ts.setMonochrome(colorSpace.spectrumGray(Ts.r, Ts.g, Ts.b));
     }
 
     let edf: PhongEmittanceDistributionFunction | null = null;

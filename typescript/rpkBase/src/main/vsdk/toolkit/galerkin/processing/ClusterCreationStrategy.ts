@@ -6,7 +6,7 @@ import { GalerkinState } from "../GalerkinState";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class ClusterCreationStrategy {
   private static irregularElementsToDelete: GalerkinElement[] | null = null;
@@ -55,7 +55,7 @@ export class ClusterCreationStrategy {
   private static clusterInit(galerkinElement: GalerkinElement, galerkinState: GalerkinState): void {
     galerkinElement.area = 0.0;
     galerkinElement.numberOfPatches = 0;
-    galerkinElement.minimumArea = Float.MAX_VALUE;
+    galerkinElement.minimumArea = Double.MAX_VALUE;
     ColorRgbMutable.arrayClear(galerkinElement.radiance as ColorRgbMutable[], galerkinElement.basisSize);
 
     for (let i = 0;
@@ -75,7 +75,7 @@ export class ClusterCreationStrategy {
       galerkinElement.Ed.addScaled(galerkinElement.Ed, subCluster.area, subCluster.Ed);
     }
 
-    if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
+    if (galerkinElement.area > Numeric.EPSILON) {
       (galerkinElement.radiance as ColorRgbMutable[])[0]!.scale(1.0 / galerkinElement.area);
       galerkinElement.Ed.scale(1.0 / galerkinElement.area);
     }
@@ -95,7 +95,7 @@ export class ClusterCreationStrategy {
           (subCluster.unShotRadiance as ColorRgbMutable[])[0]!,
         );
       }
-      if (galerkinElement.area > Numeric.EPSILON_FLOAT) {
+      if (galerkinElement.area > Numeric.EPSILON) {
         (galerkinElement.unShotRadiance as ColorRgbMutable[])[0]!.scale(1.0 / galerkinElement.area);
       }
     }

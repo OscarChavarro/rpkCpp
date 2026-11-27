@@ -1,7 +1,7 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Element } from "../environment/geometry/elements/Element";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
@@ -30,7 +30,7 @@ export abstract class RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3Df,
+    dir: Vector3Dd,
     renderOptions: RendererConfiguration
   ): ColorRgbMutable;
 

@@ -3,18 +3,18 @@ import { Matrix2x2 } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix2
 import { ApproximationTypeDescription } from "./ApproximationTypeDescription";
 import { Basismcrad } from "./Basismcrad";
 import { Basistrimcrad } from "./Basistrimcrad";
-import { GalerkinBasis } from "./GalerkinBasis";
+import { StochasticRadiosityBasis } from "./StochasticRadiosityBasis";
 import { StochasticRadiosityElementTypeInfo } from "./StochasticRadiosityElementTypeInfo";
 
 export class StochasticRadiosityBasisState {
   public static readonly NUMBER_OF_APPROXIMATION_TYPES = 5;
 
   public approxDesc: ApproximationTypeDescription[];
-  public basis: GalerkinBasis[][];
-  public triBasis: GalerkinBasis;
-  public quadBasis: GalerkinBasis;
-  public dummyBasis: GalerkinBasis;
-  public clusterBasis: GalerkinBasis;
+  public basis: StochasticRadiosityBasis[][];
+  public triBasis: StochasticRadiosityBasis;
+  public quadBasis: StochasticRadiosityBasis;
+  public dummyBasis: StochasticRadiosityBasis;
+  public clusterBasis: StochasticRadiosityBasis;
   public quadUpTransform: Matrix2x2[];
   public triangleUpTransform: Matrix2x2[];
   public inited: boolean;
@@ -29,22 +29,22 @@ export class StochasticRadiosityBasisState {
       this.approxDesc[i] = new ApproximationTypeDescription();
     }
 
-    this.basis = new Array<GalerkinBasis[]>(StochasticRadiosityElementTypeInfo.NUMBER_OF_ELEMENT_TYPES);
+    this.basis = new Array<StochasticRadiosityBasis[]>(StochasticRadiosityElementTypeInfo.NUMBER_OF_ELEMENT_TYPES);
     for (let i = 0; i < this.basis.length; i++) {
-      this.basis[i] = new Array<GalerkinBasis>(StochasticRadiosityBasisState.NUMBER_OF_APPROXIMATION_TYPES);
+      this.basis[i] = new Array<StochasticRadiosityBasis>(StochasticRadiosityBasisState.NUMBER_OF_APPROXIMATION_TYPES);
     }
 
     this.triBasis = Basistrimcrad.createBasis();
     this.quadBasis = Basismcrad.stochasticRadiosityCreateQuadBasis();
 
-    this.dummyBasis = new GalerkinBasis();
+    this.dummyBasis = new StochasticRadiosityBasis();
     this.dummyBasis.description = "dummy basis";
     this.dummyBasis.size = 0;
     this.dummyBasis.function = null;
     this.dummyBasis.dualFunction = null;
     this.dummyBasis.regularFilter = null;
 
-    this.clusterBasis = new GalerkinBasis();
+    this.clusterBasis = new StochasticRadiosityBasis();
     this.clusterBasis.description = "cluster basis";
     this.clusterBasis.size = 1;
     this.clusterBasis.function = StochasticRadiosityBasisState.oneBasisTable;

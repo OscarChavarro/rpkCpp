@@ -1,4 +1,3 @@
-import { Cie } from "../common/color/Cie";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -19,7 +18,7 @@ export class TumblinRushmeierToneMap extends ToneMap {
     this.lda = 0.0;
   }
 
-  public override init(toneMapOptions: ToneMappingContext): void {
+  protected override initParameters(toneMapOptions: ToneMappingContext): void {
     const lwa = toneMapOptions.realWorldAdaptionLuminance;
     const maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     const maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
@@ -40,7 +39,7 @@ export class TumblinRushmeierToneMap extends ToneMap {
   }
 
   public override scaleForComputations(radiance: ColorRgbMutable): ColorRgbMutable {
-    const rwl = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    const rwl = this.getColorSpace().spectrumLuminance(radiance.r, radiance.g, radiance.b);
 
     let scale: number;
     if (rwl > 0.0) {
@@ -56,8 +55,8 @@ export class TumblinRushmeierToneMap extends ToneMap {
   }
 
   public override scaleForDisplay(radiance: ColorRgbMutable): ColorRgbMutable {
-    const rwl = globalThis.Math.PI * Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
-    const eff = Cie.getLuminousEfficacy();
+    const rwl = globalThis.Math.PI * this.getColorSpace().spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    const eff = this.getColorSpace().getLuminousEfficacy();
     radiance.scale(eff * globalThis.Math.PI);
 
     let scale: number;

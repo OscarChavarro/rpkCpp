@@ -1,7 +1,7 @@
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { HierarchyClusteringMode } from "./HierarchyClusteringMode";
 import { Link } from "./Link";
@@ -33,9 +33,9 @@ export class ElementHierarchyState {
   public clustering: HierarchyClusteringMode | null;
   public oracle: ORACLE | null;
   public topCluster: any;
-  public coords: ArrayList<Vector3Df> | null;
-  public normals: ArrayList<Vector3Df> | null;
-  public texCoords: ArrayList<Vector3Df> | null;
+  public coords: ArrayList<Vector3Dd> | null;
+  public normals: ArrayList<Vector3Dd> | null;
+  public texCoords: ArrayList<Vector3Dd> | null;
   public vertices: ArrayList<Vertex> | null;
   // The scene's table of top-level elements, bound when the method is initialized;
   // null while the method has not been initialized (nothing to terminate then)

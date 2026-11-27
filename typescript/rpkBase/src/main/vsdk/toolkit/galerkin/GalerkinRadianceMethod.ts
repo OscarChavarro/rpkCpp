@@ -5,7 +5,7 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Vector3Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Df";
+import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../common/statistics/Statistics";
 import { VrmlWriter } from "../io/wrl/VrmlWriter";
 import { BsdfComponent } from "../material/BsdfComponent";
@@ -31,7 +31,7 @@ import { GalerkinElement } from "./GalerkinElement";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 import { Interaction } from "./Interaction";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class GalerkinRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 2000;
@@ -210,7 +210,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
 
     GalerkinRadianceMethod.galerkinState.lastClusterId = -1;
-    GalerkinRadianceMethod.galerkinState.lastEye = new Vector3Df(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+    GalerkinRadianceMethod.galerkinState.lastEye = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
   }
 
   public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
@@ -352,7 +352,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     patch: Patch,
     u: number,
     v: number,
-    dir: Vector3Df,
+    dir: Vector3Dd,
     renderOptions: RendererConfiguration,
   ): ColorRgbMutable {
     if (camera !== null || dir !== null || renderOptions !== null) {
@@ -445,7 +445,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     }
   }
 
-  private static writeVertexCoord(p: Vector3Df): void {
+  private static writeVertexCoord(p: Vector3Dd): void {
     if (p === null) {
       return;
     }
@@ -465,9 +465,9 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return;
     }
     const galerkinElement = element as GalerkinElement;
-    const v: Vector3Df[] = [
-      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
-      new Vector3Df(), new Vector3Df(), new Vector3Df(), new Vector3Df(),
+    const v: Vector3Dd[] = [
+      new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
+      new Vector3Dd(), new Vector3Dd(), new Vector3Dd(), new Vector3Dd(),
     ];
     const numberOfVertices = galerkinElement.vertices(v);
     for (let i = 0; i < numberOfVertices; i++) {

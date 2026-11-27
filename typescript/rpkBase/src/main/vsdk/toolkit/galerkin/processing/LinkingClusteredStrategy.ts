@@ -5,7 +5,7 @@ import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
-import { Float } from "vitral/dist/java/lang/Float";
+import { Double } from "vitral/dist/java/lang/Double";
 
 export class LinkingClusteredStrategy {
   private static readonly linkingClusteredPool = new MemoryPool.Generic<number[]>(
@@ -85,7 +85,7 @@ export class LinkingClusteredStrategy {
       receiverElement,
       sourceElement,
       K,
-      Float.MAX_VALUE, // Huge value error on the form factor
+      Double.MAX_VALUE, // Huge value error on the form factor
       receiverElement.basisSize,
       sourceElement.basisSize,
       1,

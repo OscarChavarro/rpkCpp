@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Vector2Df } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Df";
+import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { BidirectionalPathRaytracerConfig } from "./BidirectionalPathRaytracerConfig";
 import { DensityHit } from "./DensityHit";
@@ -77,7 +77,7 @@ export class DensityBuffer {
     this.screenBuffer.scaleRadiance(0.0);
 
     const kernel = new Kernel2D();
-    let center = new Vector2Df();
+    let center = new Vector2Dd();
 
     kernel.SetH(h);
 
@@ -103,7 +103,7 @@ export class DensityBuffer {
     dest.scaleRadiance(0.0);
 
     const kernel = new Kernel2D();
-    let center = new Vector2Df();
+    let center = new Vector2Dd();
 
     for (let i = 0; i < DensityBuffer.DHA_X_RES; i++) {
       for (let j = 0; j < DensityBuffer.DHA_Y_RES; j++) {

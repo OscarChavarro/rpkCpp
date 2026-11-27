@@ -1,0 +1,27 @@
+//= References:                                                             =
+//= [MANT1988] Mantyla Martti. "An Introduction To Solid Modeling",         =
+//=     Computer Science Press, 1988.                                       =
+
+import type { StringBuilder } from "../../../../../../java/lang/StringBuilder.js";
+import type { PolyhedralBoundedSolid } from "./PolyhedralBoundedSolid.js";
+import { PolyhedralBoundedSolidGeometricValidator } from "./PolyhedralBoundedSolidGeometricValidator.js";
+import type { ToleranceContext } from "./PolyhedralBoundedSolidNumericPolicy.js";
+import type { _PolyhedralBoundedSolidValidationStrategy } from "./_PolyhedralBoundedSolidValidationStrategy.js";
+
+/**
+Rejects collapsed laminae: two-face shells whose area is below
+{@link PolyhedralBoundedSolidGeometricValidator#collapsedFaceAreaThreshold}.
+
+<p>A lamina (two faces of opposite orientation sharing all their edges,
+zero volume) is a valid result: it is topologically sound and easy to
+display, and the kernel returns one, for instance, for the intersection of
+two blocks that share part of a face. A <em>collapsed</em> lamina is not: its
+surface is below the numeric resolution of the kernel, so it is noise from
+a degenerate contact, not a shape. Small faces of shells that enclose
+volume are not judged here.</p>
+*/
+export class _GeometricCollapsedLaminaStrategy implements _PolyhedralBoundedSolidValidationStrategy {
+    public validate(solid: PolyhedralBoundedSolid, numericContext: ToleranceContext, msg: StringBuilder): boolean {
+        return PolyhedralBoundedSolidGeometricValidator.validateNoCollapsedLaminae(solid, numericContext, msg);
+    }
+}
