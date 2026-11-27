@@ -87,13 +87,12 @@ PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
 }
 
 Element *
-PhotonMapRadianceMethod::createPatchData(Patch *patch) {
-    return patch->radianceData = NULL;
+PhotonMapRadianceMethod::createPatchData(Patch * /*patch*/) {
+    return NULL;
 }
 
 void
-PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
-    patch->radianceData = NULL;
+PhotonMapRadianceMethod::destroyPatchData(Patch * /*patch*/) {
 }
 
 void
@@ -707,7 +706,7 @@ PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const 
 ColorRgbMutable
 PhotonMapRadianceMethod::getRadiance(
     Camera *camera,
-    Patch *patch,
+    const Patch *patch,
     double u,
     double v,
     Vector3Dd dir,

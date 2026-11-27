@@ -38,7 +38,7 @@ than hit positions returned by ray intersection routines
 */
 bool
 RpkRayHit::init(
-    Patch *inPatch,
+    const Patch *inPatch,
     const Vector3Dd *inPoint,
     const Vector3Dd *inGeometryNormal,
     const RpkMaterial *inMaterial)

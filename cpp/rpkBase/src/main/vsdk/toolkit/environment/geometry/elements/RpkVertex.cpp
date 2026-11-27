@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
-#include "vsdk/toolkit/scene/FaceColorTable.h"
+#include "vsdk/toolkit/environment/geometry/elements/FaceColorTable.h"
 
 unsigned int RpkVertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 

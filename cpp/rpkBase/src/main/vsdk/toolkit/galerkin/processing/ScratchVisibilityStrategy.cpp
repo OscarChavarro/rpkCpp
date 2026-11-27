@@ -16,8 +16,7 @@ Create a scratch software renderer for various operations on clusters
 */
 void
 ScratchVisibilityStrategy::scratchInit(GalerkinState *galerkinState) {
-    galerkinState->scratch = new GalerkinElementVisibilityBuffer(
-        galerkinState->scratchFrameBufferSize, galerkinState->scratchFrameBufferSize, nullptr);
+    galerkinState->scratchVisibilityWorkspace = new ScratchVisibilityWorkspace(galerkinState->scratchFrameBufferSize);
 }
 
 /**
@@ -25,32 +24,35 @@ Terminates scratch rendering
 */
 void
 ScratchVisibilityStrategy::scratchTerminate(GalerkinState *galerkinState) {
-    if ( galerkinState->scratch != nullptr ) {
-        delete galerkinState->scratch;
-        galerkinState->scratch = nullptr;
+    if ( galerkinState->scratchVisibilityWorkspace != nullptr ) {
+        delete galerkinState->scratchVisibilityWorkspace;
+        galerkinState->scratchVisibilityWorkspace = nullptr;
     }
 }
 
 /**
 Sets up an orthographic projection of the cluster as
 seen from the eye. Renders the element pointers to the elements
-in cluster in the scratch frame buffer and returns pointer to a bounding box
-containing the size of the virtual screen. The cluster nicely fits
+in cluster in the scratch frame buffer of the workspace and returns the bounding
+box containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
-const RpkAxisAlignedBoundingBox *
-ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3Dd eye, GalerkinState *galerkinState) {
-    RpkAxisAlignedBoundingBox &boundingBox = galerkinState->getScratchBounds();
+RpkAxisAlignedBoundingBox
+ScratchVisibilityStrategy::scratchRenderElements(
+    GalerkinElement *cluster,
+    Vector3Dd eye,
+    ScratchVisibilityWorkspace *scratchWorkspace,
+    GalerkinState *galerkinState)
+{
+    RpkAxisAlignedBoundingBox &boundingBox = scratchWorkspace->getBounds();
 
-    if ( cluster->id == galerkinState->lastClusterId &&
-         Numeric::vectorsEqual(eye, galerkinState->lastEye, Numeric::EPSILON) ) {
-        return &boundingBox;
+    if ( scratchWorkspace->holdsRendering(cluster, eye) ) {
+        return boundingBox;
     }
 
     // Cache previously rendered cluster and eye point in order to
     // avoid re-rendering the same situation next time
-    galerkinState->lastClusterId = cluster->id;
-    galerkinState->lastEye = eye;
+    scratchWorkspace->setRendering(cluster, eye);
 
     const Vector3Dd center = cluster->midPoint();
     Vector3Dd up = {0.0, 0.0, 1.0};
@@ -66,7 +68,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     Camera::transformBoundingBox(cluster->geometry->getBoundingBox(), lookAt, &boundingBox);
 
-    GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
+    ScratchVisibilityBuffer &scratch = scratchWorkspace->getBuffer();
     const Matrix4x4d projection = Camera::projectionMatrixFromBoundingBox(boundingBox);
     scratch.setTransform(projection.multiply(lookAt));
 
@@ -84,7 +86,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     ScratchRendererVisitor leafVisitor(eye, scratch);
     ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
 
-    return &boundingBox;
+    return boundingBox;
 }
 
 /**
@@ -92,15 +94,15 @@ After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
 ColorRgb
-ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchRadiance(const ScratchVisibilityWorkspace *scratchWorkspace, const GalerkinState *galerkinState) {
     double rad[3] = {0.0, 0.0, 0.0};
 
-    const GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
-    const Window &viewport = scratch.getViewport();
+    const ScratchVisibilityBuffer &scratch = scratchWorkspace->getBuffer();
+    const RasterRectangle2D &viewport = scratch.getViewport();
 
     int nonBackground = 0;
-    for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
-        for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+    for ( int y = viewport.getMinY(); y <= viewport.getMaxY(); y++ ) {
+        for ( int x = viewport.getMinX(); x <= viewport.getMaxX(); x++ ) {
             const GalerkinElement *element = scratch.getSample(x, y);
             if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
@@ -128,13 +130,13 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
 
 /** Computes the number of covered samples in the scratch viewport. */
 int
-ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galerkinState) {
-    const GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
-    const Window &viewport = scratch.getViewport();
+ScratchVisibilityStrategy::scratchNonBackgroundPixels(const ScratchVisibilityWorkspace *scratchWorkspace) {
+    const ScratchVisibilityBuffer &scratch = scratchWorkspace->getBuffer();
+    const RasterRectangle2D &viewport = scratch.getViewport();
     int nonBackground = 0;
 
-    for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
-        for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+    for ( int y = viewport.getMinY(); y <= viewport.getMaxY(); y++ ) {
+        for ( int x = viewport.getMinX(); x <= viewport.getMaxX(); x++ ) {
             if ( scratch.getSample(x, y) != nullptr ) {
                 nonBackground++;
             }
@@ -143,19 +145,55 @@ ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galer
     return nonBackground;
 }
 
-/** Accumulates coverage on the solver's top-level surface elements. */
+/**
+Counts, in the workspace, the samples covered by each of the solver's
+top-level surface elements in the last rendering
+*/
 void
-ScratchVisibilityStrategy::scratchPixelsPerElement(GalerkinState *galerkinState) {
-    const GalerkinElementVisibilityBuffer &scratch = *galerkinState->scratch;
-    const Window &viewport = scratch.getViewport();
+ScratchVisibilityStrategy::scratchPixelsPerElement(ScratchVisibilityWorkspace *scratchWorkspace, const GalerkinState *galerkinState) {
+    const ScratchVisibilityBuffer &scratch = scratchWorkspace->getBuffer();
+    const RasterRectangle2D &viewport = scratch.getViewport();
 
-    for ( int y = viewport.y0; y <= viewport.y1; y++ ) {
-        for ( int x = viewport.x0; x <= viewport.x1; x++ ) {
+    scratchWorkspace->startCounting();
+    // Neighbouring samples mostly show the same element: count runs of equal
+    // samples and add each run to its element at once
+    const GalerkinElement *runElement = nullptr;
+    int runLength = 0;
+    for ( int y = viewport.getMinY(); y <= viewport.getMaxY(); y++ ) {
+        for ( int x = viewport.getMinX(); x <= viewport.getMaxX(); x++ ) {
             const GalerkinElement *element = scratch.getSample(x, y);
-            if ( element != nullptr ) {
-                // Cluster leaves are the same top-level elements bound to the scene faces.
-                galerkinState->topLevelElement(element->patch)->scratchVisibilityUsageCounter++;
+            if ( element == runElement ) {
+                runLength++;
+            } else {
+                addSamples(scratchWorkspace, runElement, runLength, galerkinState);
+                runElement = element;
+                runLength = 1;
             }
         }
     }
+    addSamples(scratchWorkspace, runElement, runLength, galerkinState);
+}
+
+/** Adds the samples of a run showing the element (none for the background) */
+void
+ScratchVisibilityStrategy::addSamples(
+    ScratchVisibilityWorkspace *scratchWorkspace,
+    const GalerkinElement *element,
+    int samples,
+    const GalerkinState *galerkinState)
+{
+    if ( element == nullptr || samples == 0 ) {
+        return;
+    }
+    // Cluster leaves are the same top-level elements bound to the scene faces.
+    GalerkinElement *topLevel = galerkinState->topLevelElement(element->patch);
+    scratchWorkspace->addSamples(topLevel, topLevel->id, samples);
+}
+
+/** Area of the virtual screen that one sample of the last rendering covers */
+double
+ScratchVisibilityStrategy::scratchPixelArea(const RpkAxisAlignedBoundingBox &boundingBox, const ScratchVisibilityWorkspace *scratchWorkspace) {
+    const ScratchVisibilityBuffer &scratch = scratchWorkspace->getBuffer();
+    return boundingBox.dx() * boundingBox.dy() /
+        static_cast<double>(scratch.getViewportWidth() * scratch.getViewportHeight());
 }

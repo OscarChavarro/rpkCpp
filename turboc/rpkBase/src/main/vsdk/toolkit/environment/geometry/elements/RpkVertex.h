@@ -9,6 +9,8 @@
 class Element;
 class Patch;
 
+class FaceColorTable;
+
 class RpkVertex {
   private:
     static unsigned int currentComparisonFlags;
@@ -32,7 +34,7 @@ class RpkVertex {
         ArrayList<Patch *> *inPatches);
     virtual ~RpkVertex();
 
-    void computeColor();
+    void computeColor(const FaceColorTable *faceColors);
     static unsigned setCompareFlags(unsigned flags);
 };
 

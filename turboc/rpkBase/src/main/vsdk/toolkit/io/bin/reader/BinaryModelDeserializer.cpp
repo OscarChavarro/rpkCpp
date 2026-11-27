@@ -423,15 +423,17 @@ BinaryModelDeserializer::read(const char *fileName) {
             patch->tolerance = record.tolerance;
             patch->area = record.area;
             patch->midPoint = record.midPoint;
-            patch->directPotential = record.directPotential;
+            // The direct potential is read and discarded: it is per-face solver data,
+            // held by the scene's DirectPotentialTable, and starts at zero
             patch->index = ((char)(record.dominantIndex));
             patch->omit = ((char)(record.omit ? 1 : 0));
-            patch->setFlags(record.flags);
-            patch->color = record.color;
+            // The flags byte (direct visibility) is read and discarded: it is per-face
+            // solver data, held by the scene's FaceVisibilityTable, and starts cleared
+            // The display color is read and discarded: it is per-face display data,
+            // held by the scene's FaceColorTable, and starts black
             RpkMaterial *material = NULL;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
             patch->material = material;
-            patch->radianceData = NULL;
 
             if ( patch->jacobian != NULL ) {
                 delete patch->jacobian;

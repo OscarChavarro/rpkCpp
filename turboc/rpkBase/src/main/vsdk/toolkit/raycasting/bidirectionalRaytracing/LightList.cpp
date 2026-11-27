@@ -146,7 +146,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3Dd */*point*/) const 
 }
 
 double
-LightList::evalPdfReal(Patch *light, const Vector3Dd */*point*/) const {
+LightList::evalPdfReal(const Patch *light, const Vector3Dd */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
     ColorRgb color;
     double pdf;
@@ -160,7 +160,7 @@ LightList::evalPdfReal(Patch *light, const Vector3Dd */*point*/) const {
 }
 
 double
-LightList::evalPdf(Patch *light, const Vector3Dd *point) const {
+LightList::evalPdf(const Patch *light, const Vector3Dd *point) const {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation

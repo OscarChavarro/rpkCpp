@@ -174,7 +174,7 @@ StochasticRadiosityElement::mntCarloRadCreateClust(RpkGeometry *geometry) {
 
 void
 StochasticRadiosityElement::mntCarloRadCreateSurfElemChld(Patch *patch, StochasticRadiosityElement *parent) {
-    StochasticRadiosityElement *elem = ((StochasticRadiosityElement *)(patch->radianceData)); // Created before
+    StochasticRadiosityElement *elem = McradP::topLvlStochRadElem(patch); // Created before
     elem->parent = parent;
 
     elem->className = ELEMENT_STOCHASTIC_RADIOSITY;

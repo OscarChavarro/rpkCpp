@@ -46,7 +46,7 @@ sub-elements of the galerkinElement
 */
 void
 ClusterCreationStrategy::patchAddClusterChild(Patch *patch, GalerkinElement *galerkinElement) {
-    GalerkinElement *surfaceElement = ((GalerkinElement *)(patch->radianceData));
+    GalerkinElement *surfaceElement = galerkinElement->galerkinState->topLevelElement(patch);
 
     if ( galerkinElement->irregularSubElements == NULL ) {
         galerkinElement->irregularSubElements = new ArrayList<Element *>();

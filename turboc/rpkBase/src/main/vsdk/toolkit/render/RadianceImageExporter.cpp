@@ -97,7 +97,7 @@ RadianceImageExporter::exportImage(
 
     for ( int y = 0; y < height; y++ ) {
         for ( int x = 0; x < width; x++ ) {
-            Patch *patch = idRenderer.getPatchAtPixel(x, y);
+            const Patch *patch = idRenderer.getPatchAtPixel(x, y);
             if ( patch != NULL ) {
                 ColorRgb radiance = RadianceImageExporter::getRadianceAtPixel(
                     &screenBuffer,
@@ -155,7 +155,7 @@ RadianceImageExporter::getRadianceAtPixel(
     Camera *camera,
     int x,
     int y,
-    Patch *patch,
+    const Patch *patch,
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {

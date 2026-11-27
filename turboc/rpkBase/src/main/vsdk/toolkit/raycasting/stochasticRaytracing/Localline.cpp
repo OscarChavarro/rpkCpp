@@ -74,7 +74,7 @@ Localline::someFeedback() {
 Determines nearest intersection point and patch
 */
 RpkRayHit *
-Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Patch *P, Ray *ray, RpkRayHit *hitStore) {
+Localline::mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const Patch *P, Ray *ray, RpkRayHit *hitStore) {
     double distance = Double::MAX_VALUE;
     RpkRayHit *hit;
 

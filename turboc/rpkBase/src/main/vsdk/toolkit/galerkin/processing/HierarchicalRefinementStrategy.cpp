@@ -12,6 +12,7 @@ Hierarchical refinement
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/HierarchicalRefinementStrategy.h"
+#include "vsdk/toolkit/galerkin/processing/ScratchVisibilityWorkspace.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
 static MemoryPool<double> gHierarchicalCoefficientsPool;
@@ -177,6 +178,7 @@ HierarchicalRefinementStrategy::hierRefApprxErrr(
     Interaction *interaction,
     ColorRgbMutable srcRho,
     ColorRgbMutable rcvRho,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     ColorRgbMutable error;
@@ -203,7 +205,7 @@ HierarchicalRefinementStrategy::hierRefApprxErrr(
             if ( interaction->sourceElement->isCluster()
               && interaction->sourceElement != interaction->receiverElement ) {
                 // Returns un-shot radiance for shooting
-                srcRad = ClusterTraversalStrategy::sourceClusterRadiance(interaction, galerkinState);
+                srcRad = ClusterTraversalStrategy::sourceClusterRadiance(interaction, scratch, galerkinState);
             } else {
                 srcRad = interaction->sourceElement->unShotRadiance[0];
             }
@@ -257,6 +259,7 @@ HierarchicalRefinementStrategy::srcClustRadnVrtnErrr(
     Interaction *interaction,
     ColorRgbMutable rcvRho,
     double receiverArea,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     double K = interaction->K[0];
@@ -277,7 +280,7 @@ HierarchicalRefinementStrategy::srcClustRadnVrtnErrr(
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgbMutable rad;
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(
-                interaction->sourceElement, rcVertices[i], galerkinState);
+                interaction->sourceElement, rcVertices[i], scratch, galerkinState);
         minimumSrcRad.minimum(minimumSrcRad, rad);
         maximumSrcRad.maximum(maximumSrcRad, rad);
     }
@@ -291,6 +294,7 @@ HierarchicalRefinementStrategy::srcClustRadnVrtnErrr(
 InteractionEvaluationCode
 HierarchicalRefinementStrategy::hierRefEvalInter(
     Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     ColorRgbMutable srcRho;
@@ -310,9 +314,9 @@ HierarchicalRefinementStrategy::hierRefEvalInter(
     // and reflectivity
     if ( interaction->receiverElement->isCluster() ) {
         rcvRho = ColorRgbMutable(1.0, 1.0, 1.0);
-        receiveArea = ClusterTraversalStrategy::receiverArea(interaction, galerkinState);
+        receiveArea = ClusterTraversalStrategy::receiverArea(interaction, scratch, galerkinState);
     } else {
-        rcvRho = interaction->receiverElement->patch->radianceData->Rd;
+        rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
         receiveArea = interaction->receiverElement->area;
     }
 
@@ -320,17 +324,17 @@ HierarchicalRefinementStrategy::hierRefEvalInter(
     if ( interaction->sourceElement->isCluster() ) {
         srcRho = ColorRgbMutable(1.0, 1.0, 1.0);
     } else {
-        srcRho = interaction->sourceElement->patch->radianceData->Rd;
+        srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
     }
 
     // Determine error estimate and error threshold
     threshold = hierRefLinkErrrThrsh(interaction, receiveArea, galerkinState);
-    error = hierRefApprxErrr(interaction, srcRho, rcvRho, galerkinState);
+    error = hierRefApprxErrr(interaction, srcRho, rcvRho, scratch, galerkinState);
 
     if ( interaction->sourceElement->isCluster()
          && error < threshold
          && galerkinState->clusteringStrategy != ISOTROPIC ) {
-        error += srcClustRadnVrtnErrr(interaction, rcvRho, receiveArea, galerkinState);
+        error += srcClustRadnVrtnErrr(interaction, rcvRho, receiveArea, scratch, galerkinState);
     }
 
     // Minimal element area for which subdivision is allowed
@@ -371,20 +375,26 @@ once for all accumulated received radiance during push-pull
 void
 HierarchicalRefinementStrategy::hierRefCompLightTransp(
     Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
-    receiverLightTransport(interaction, galerkinState);
+    receiverLightTransport(interaction, scratch, galerkinState);
     sourceLightTransport(interaction, galerkinState);
 }
 
 /**
 The part of light transport that writes the receiver: the number of
 effectively used radiance coefficients and the received radiance. It reads
-only the source radiance (frozen during gathering)
+only the source radiance (frozen during gathering).
+Serial Turbo C++ port: the cpp port also takes a ClusterTransportPlan (and its
+sample pools), what a parallel Jacobi worker computed ahead with the scratch
+visibility renderer; this port computes it here, as the cpp port does with no
+plan
 */
 void
 HierarchicalRefinementStrategy::receiverLightTransport(
     const Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     // Update the number of effectively used radiance coefficients on the
@@ -405,12 +415,12 @@ HierarchicalRefinementStrategy::receiverLightTransport(
 
     ColorRgbMutable linkClusterRad;
     if ( interaction->sourceElement->isCluster() && interaction->sourceElement != interaction->receiverElement ) {
-        linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(((Interaction *)(interaction)), galerkinState);
+        linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(((Interaction *)(interaction)), scratch, galerkinState);
         srcRad = &linkClusterRad;
     }
 
     if ( interaction->receiverElement->isCluster() && interaction->sourceElement != interaction->receiverElement ) {
-        ClusterTraversalStrategy::gatherRadiance(((Interaction *)(interaction)), srcRad, galerkinState);
+        ClusterTraversalStrategy::gatherRadiance(((Interaction *)(interaction)), srcRad, scratch, galerkinState);
     } else {
         rcvRad = interaction->receiverElement->receivedRadiance;
         if ( interaction->nmbrOBasisFnctnORecv == 1 && interaction->numberOfBasisFunctionsOnSource == 1 ) {
@@ -433,7 +443,7 @@ HierarchicalRefinementStrategy::receiverLightTransport(
         if ( interaction->sourceElement->isCluster() ) {
             srcRho = ColorRgbMutable(1.0, 1.0, 1.0);
         } else {
-            srcRho = interaction->sourceElement->patch->radianceData->Rd;
+            srcRho = interaction->sourceElement->galerkinState->topLevelElement(interaction->sourceElement->patch)->Rd;
         }
         interaction->receiverElement->receivedPotential +=
             ((double)(K * hierRefClrTErrr(srcRho) * interaction->sourceElement->unShotPotential));
@@ -463,7 +473,7 @@ HierarchicalRefinementStrategy::sourceLightTransport(
             if ( interaction->receiverElement->isCluster() ) {
                 rcvRho = ColorRgbMutable(1.0, 1.0, 1.0);
             } else {
-                rcvRho = interaction->receiverElement->patch->radianceData->Rd;
+                rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
             }
             interaction->sourceElement->receivedPotential +=
                 ((double)(K * hierRefClrTErrr(rcvRho) * interaction->receiverElement->potential));
@@ -744,9 +754,9 @@ HierarchicalRefinementStrategy::refineRecursive(
     bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == scene->clusteredGeometryList);
-    switch ( hierRefEvalInter(interaction, galerkinState) ) {
+    switch ( hierRefEvalInter(interaction, workspace->getScratchVisibilityWorkspace(), galerkinState) ) {
         case ACCURATE_ENOUGH:
-            hierRefCompLightTransp(interaction, galerkinState);
+            hierRefCompLightTransp(interaction, workspace->getScratchVisibilityWorkspace(), galerkinState);
             refined = false;
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
@@ -871,6 +881,7 @@ HierarchicalRefinementStrategy::refineInteractions(
     RefinementWorkspace workspace(
         scene->getSceneQueryWorkspace(),
         galerkinState->formFactorWorkspace,
+        galerkinState->scratchVisibilityWorkspace,
         &gHierarchicalCoefficientsPool);
     refineInteractionsRecursive(scene, parentElement, galerkinState, &workspace);
 }

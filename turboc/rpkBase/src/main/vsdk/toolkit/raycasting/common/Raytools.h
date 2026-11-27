@@ -19,7 +19,7 @@ class RayTools {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         Ray *ray,
-        Patch *patch,
+        const Patch *patch,
         const PhongBidirScattDistFunc *currentBsdf,
         RpkRayHit *hitStore);
 
@@ -48,9 +48,9 @@ class RayTools {
         const SceneQuery *sceneQuery,
         SceneQueryWorkspace *sceneWorldSceneQueryWorkspace,
         Ray *ray,
-        Patch *patch,
+        const Patch *patch,
         unsigned int flags,
-        Patch *extraPatch,
+        const Patch *extraPatch,
         RpkRayHit *hitStore);
 };
 

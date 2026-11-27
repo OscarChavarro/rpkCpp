@@ -1,5 +1,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/environment/geometry/elements/Element.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/scene/Scene.h"
@@ -13,6 +14,10 @@ Scene::Scene():
     faceTable(NULL),
     numberOfFaces(0),
     faceBounds(NULL),
+    directPotentials(NULL),
+    faceVisibility(NULL),
+    faceColors(NULL),
+    radianceElements(NULL),
     accelerationMethod(WALD2007_ACCELERATION),
     sceneQuery(NULL),
     sceneQueryWorkspace(NULL),
@@ -29,6 +34,18 @@ Scene::Scene():
 }
 
 Scene::~Scene() {
+    delete faceBounds;
+    faceBounds = NULL;
+    delete directPotentials;
+    directPotentials = NULL;
+    delete faceVisibility;
+    faceVisibility = NULL;
+    delete faceColors;
+    faceColors = NULL;
+    deleteRadianceElements();
+    delete[] faceTable;
+    faceTable = NULL;
+    numberOfFaces = 0;
     if ( lightSourcePatchList != NULL ) {
         delete lightSourcePatchList;
         lightSourcePatchList = NULL;
@@ -49,10 +66,6 @@ Scene::~Scene() {
     sceneQueryWorkspace = NULL;
     delete sceneQuery;
     sceneQuery = NULL;
-    delete faceBounds;
-    faceBounds = NULL;
-    delete[] faceTable;
-    faceTable = NULL;
     if ( background != NULL ) {
         delete background;
         background = NULL;
@@ -291,10 +304,35 @@ Scene::collectFaces(RpkGeometry *geometry, Patch **table, const int capacity, in
     geometry->setFaceIndexRange(first, *count - 1);
 }
 
+/**
+Deletes the top-level radiance elements still bound to faces and the table.
+Radiance methods unbind (and destroy) their elements when they are replaced;
+the elements of the method in use at teardown are deleted here, as the
+faces' destructors did when they held them
+*/
+void
+Scene::deleteRadianceElements() {
+    if ( radianceElements != NULL ) {
+        for ( int i = 0; i < radianceElements->getNumberOfFaces(); i++ ) {
+            delete radianceElements->get(i);
+            radianceElements->set(i, NULL);
+        }
+    }
+    delete radianceElements;
+    radianceElements = NULL;
+}
+
 void
 Scene::buildFaceTable() {
     delete faceBounds;
     faceBounds = NULL;
+    delete directPotentials;
+    directPotentials = NULL;
+    delete faceVisibility;
+    faceVisibility = NULL;
+    delete faceColors;
+    faceColors = NULL;
+    deleteRadianceElements();
     delete[] faceTable;
     faceTable = NULL;
     numberOfFaces = 0;
@@ -319,4 +357,8 @@ Scene::buildFaceTable() {
             capacity, numberOfFaces, conflicts, unreached));
     }
     faceBounds = new FaceBoundsTable(faceTable, numberOfFaces);
+    directPotentials = new DirectPotentialTable(numberOfFaces);
+    faceVisibility = new FaceVisibilityTable(numberOfFaces);
+    faceColors = new FaceColorTable(numberOfFaces);
+    radianceElements = new RadianceElementTable(numberOfFaces);
 }

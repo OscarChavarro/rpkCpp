@@ -5,7 +5,6 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
-#include "vsdk/toolkit/galerkin/GalerkinElementVisibilityBuffer.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasisType.h"
 #include "vsdk/toolkit/galerkin/GalerkinClusteringStrategy.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
@@ -16,6 +15,8 @@
 #include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/scene/RadianceElementTable.h"
+
+class ScratchVisibilityWorkspace;
 
 class GalerkinState {
   public:
@@ -63,11 +64,10 @@ class GalerkinState {
     // Clustering strategy
     GalerkinClusteringStrategy clusteringStrategy;
 
-    // Scratch offscreen renderer for various clustering operations
-    GalerkinElementVisibilityBuffer *scratch;
+    // Scratch offscreen renderer of the serial solver for the Z-visibility
+    // clustering strategy (parallel Jacobi workers have their own)
+    ScratchVisibilityWorkspace *scratchVisibilityWorkspace;
     int scratchFrameBufferSize;
-    int lastClusterId; // Used for caching cluster and eye point
-    Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     long long lastClock; // For CPU timing (nanoseconds)
     double cpuSeconds;
@@ -86,15 +86,12 @@ class GalerkinState {
     /** Jacobi iterations, serial or parallel: both gather with the radiance of the previous iteration */
     bool isJacobi() const;
 
-    RpkAxisAlignedBoundingBox &getScratchBounds() { return scratchBounds; }
     const RadianceElementTable *getRadianceElements() const;
     GalerkinElement *topLevelElement(const Patch *patch) const;
     const Element *boundElement(const Patch *patch) const;
     void setRadianceElements(const RadianceElementTable *inRadianceElements);
 
   private:
-    RpkAxisAlignedBoundingBox scratchBounds;
-
     // The scene's table of top-level elements, bound when the method is initialized
     const RadianceElementTable *radianceElements;
     static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;

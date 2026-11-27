@@ -43,6 +43,7 @@ class HierarchicalRefinementStrategy {
         Interaction *interaction,
         ColorRgbMutable srcRho,
         ColorRgbMutable rcvRho,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static double
@@ -50,16 +51,19 @@ class HierarchicalRefinementStrategy {
         Interaction *interaction,
         ColorRgbMutable rcvRho,
         double receiverArea,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static InteractionEvaluationCode
     hierRefEvalInter(
         Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static void
     hierRefCompLightTransp(
         Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static int
@@ -142,7 +146,10 @@ class HierarchicalRefinementStrategy {
         GalerkinState *galerkinState,
         RefinementWorkspace *workspace);
 
-    static void receiverLightTransport(const Interaction *interaction, GalerkinState *galerkinState);
+    static void receiverLightTransport(
+        const Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
+        GalerkinState *galerkinState);
     static void sourceLightTransport(const Interaction *interaction, const GalerkinState *galerkinState);
 
   public:

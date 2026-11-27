@@ -39,7 +39,7 @@ int main() {
     root.irregularSubElements->add(&element);
     element.flags &= static_cast<unsigned char>(~IS_CLUSTER_MASK);
     state.clusteringStrategy = GalerkinClusteringStrategy::ORIENTED;
-    check(ClusterTraversalStrategy::clusterRadianceToSamplePoint(&root, patch.midPoint().add(patch.getNormal()), &state), -12, 20, 4);
+    check(ClusterTraversalStrategy::clusterRadianceToSamplePoint(&root, patch.midPoint().add(patch.getNormal()), nullptr, &state), -12, 20, 4);
     delete root.irregularSubElements;
     root.irregularSubElements = nullptr;
     return 0;

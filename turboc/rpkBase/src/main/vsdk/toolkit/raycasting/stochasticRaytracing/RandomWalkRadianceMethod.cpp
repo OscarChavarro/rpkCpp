@@ -70,7 +70,7 @@ RandomWalkRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 ColorRgbMutable
 RandomWalkRadianceMethod::getRadiance(
     Camera */*camera*/,
-    Patch *patch,
+    const Patch *patch,
     double u,
     double v,
     Vector3Dd dir,
@@ -105,7 +105,7 @@ RandomWalkRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOp
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
-    (void) scene;
+    ElementHierarchyState::activeState().setRadianceElements(scene->getRadianceElements());
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == NULL ) {
         Logger::reportMessage("RandomWalkRadianceMethod", Logger::FATAL_ERROR, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
@@ -541,7 +541,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     }
 
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
-        Mcrad::mntCarloRadPtchCompNewClr(scene->patchList->get(i));
+        Mcrad::mntCarloRadPtchCompNewClr(scene->patchList->get(i), scene->getFaceColors());
     }
 
     return false; // Never converged

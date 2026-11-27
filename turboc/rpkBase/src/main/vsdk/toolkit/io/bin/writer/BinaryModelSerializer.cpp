@@ -435,11 +435,17 @@ BinaryModelSerializer::writePatchRecord(OutputStream &output, const Patch *patch
         PersistenceElement::writeFloatLE(output, patch->jacobian->C);
     }
 
-    PersistenceElement::writeFloatLE(output, patch->directPotential);
+    // Direct potential: per-face solver data, not part of the model; written as
+    // zero, the value every face starts with, so the file format is unchanged
+    PersistenceElement::writeFloatLE(output, 0.0);
     PersistenceElement::writeInt32LE(output, ((int)(patch->index)));
     PersistenceElement::writeBool(output, patch->omit != 0);
-    PersistenceElement::writeByte(output, patch->getFlags());
-    writeColor(output, patch->color);
+    // Flags byte (direct visibility): per-face solver data, written cleared, the
+    // value every face starts with, so the file format is unchanged
+    PersistenceElement::writeByte(output, 0);
+    // Display color: per-face display data, written black, the color every face
+    // starts with, so the file format is unchanged
+    writeColor(output, ColorRgb(0.0, 0.0, 0.0));
 
     int materialIndex = -1;
     if ( !indexOfPointer(patch->material, context.materialIndices, "patch.material", materialIndex) ) {
@@ -447,7 +453,9 @@ BinaryModelSerializer::writePatchRecord(OutputStream &output, const Patch *patch
     }
     PersistenceElement::writeInt32LE(output, materialIndex);
 
-    PersistenceElement::writeBool(output, patch->radianceData != NULL);
+    // Radiance elements are per-face solver state held by the scene's
+    // RadianceElementTable, never serialized
+    PersistenceElement::writeBool(output, false);
     return true;
 }
 

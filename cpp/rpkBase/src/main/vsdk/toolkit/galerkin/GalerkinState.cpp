@@ -11,8 +11,6 @@ GalerkinState::GalerkinState():
     sourceTriangleCubatureRule(),
     sourceQuadCubatureRule(),
     topCluster(),
-    lastClusterId(),
-    lastEye(),
     lastClock(),
     cpuSeconds(),
     toneMapOptions(),
@@ -44,7 +42,7 @@ GalerkinState::GalerkinState():
     exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY;
     multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
     scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS;
-    scratch = nullptr;
+    scratchVisibilityWorkspace = nullptr;
     iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
     shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
     toneMapOptions = nullptr;

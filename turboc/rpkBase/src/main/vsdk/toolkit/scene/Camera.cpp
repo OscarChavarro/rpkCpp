@@ -181,8 +181,9 @@ Camera::transformBoundingBox(
 
     *transformedBoundingBox = RpkAxisAlignedBoundingBox();
     for ( int i = 0; i < 8; i++ ) {
-        // Rotation part only (the 3x3 block), as RenderPark always did
-        corners[i] = transform.withoutTranslation().multiply(corners[i]);
+        // The corners are points: the translation applies too, as in the
+        // TRANSFORM_POINT_3D of RenderPark's BoundsTransform
+        corners[i] = transform.multiply(corners[i]);
         transformedBoundingBox->enlargeToIncludePoint(&corners[i]);
     }
 

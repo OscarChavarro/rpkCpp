@@ -24,7 +24,7 @@ SoftIdsWrapper::getSize(long *width, long *height) const {
 
 inline const Patch *
 SoftIdsWrapper::getPatchAtPixel(int x, int y) const {
-    const SglFaceIndex face = target.getSample(x, target.getHeight() - 1 - y);
+    const FaceIndexSample face = target.getSample(x, target.getHeight() - 1 - y);
     return face.isBackground() ? nullptr : scene.getFace(face.getIndex());
 }
 

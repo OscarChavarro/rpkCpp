@@ -9,7 +9,7 @@
 #include "vsdk/toolkit/scene/FaceBoundsTable.h"
 #include "vsdk/toolkit/scene/DirectPotentialTable.h"
 #include "vsdk/toolkit/scene/FaceVisibilityTable.h"
-#include "vsdk/toolkit/scene/FaceColorTable.h"
+#include "vsdk/toolkit/environment/geometry/elements/FaceColorTable.h"
 #include "vsdk/toolkit/scene/RadianceElementTable.h"
 #include "vsdk/toolkit/scene/SceneQuery.h"
 

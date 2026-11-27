@@ -24,35 +24,10 @@ Fills in the MeshSurface back pointer of the face belonging to the given surface
 */
 void
 MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
-    int i;
-
     face->material = mesh->material;
-
-    // Also fill in a nicer default color for the patch
-    switch ( mesh->colorFlags ) {
-        case FACE_COLORS:
-            break;
-        case VERTEX_COLORS:
-            // Average color of the vertices
-            {
-            double r = 0.0;
-            double g = 0.0;
-            double b = 0.0;
-            for ( i = 0; i < face->numberOfVertices; i++ ) {
-                r += face->vertex[i]->color.getR();
-                g += face->vertex[i]->color.getG();
-                b += face->vertex[i]->color.getB();
-            }
-            const double inv = 1.0 / ((double)(i));
-            face->color = ColorRgb(r * inv, g * inv, b * inv);
-            }
-            break;
-        default: {
-            ColorRgb rho;
-            rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            face->color = rho;
-        }
-    }
+    // Face display colors start black in the scene's FaceColorTable. The color
+    // defaults that used to be derived here never applied: MeshSurface::colorFlags
+    // is reset to NO_COLORS before the faces are connected.
 }
 
 /**

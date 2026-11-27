@@ -3,99 +3,73 @@ Software ID rendering: because hardware ID rendering is tricky due to frame buff
 formats, etc.
 */
 
-#include <string.h>
-
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/render/Softids.h"
 
-/**
-Sets up a software rendering context and initialises transforms and
-viewport for the current view.
-*/
-SglContext *
-SoftIds::setupSoftFrameBuffer(const Camera *camera) {
-    SglContext *sgl = new SglContext(camera->xSize, camera->ySize);
-    sgl->sglDepthTesting(true);
-    sgl->sglClipping(true);
-    sgl->sglClear(0, SglConstants::SGL_MAXIMUM_Z);
-
-    const Matrix4x4d p = Camera::perspectiveMatrix(
-        camera->fieldOfVision * 2.0 * ((double)(M_PI)) / 180.0,
-        ((double)(camera->xSize)) / ((double)(camera->ySize)),
-        camera->near,
-        camera->far);
-    sgl->sglLoadMatrix(&p);
-    const Matrix4x4d l = Camera::lookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
-    sgl->sglMultiplyMatrix(&l);
-
-    return sgl;
-}
-
 void
-SoftIds::softRenderPatch(
-    const Patch *patch,
-    const Camera *camera,
-    const RenderOptions *renderOptions,
-    SglContext *sglContext)
+SoftIds::drawPatch(
+    const Patch &patch,
+    const Camera &camera,
+    const RenderOptions &renderOptions,
+    FaceVisibilityBuffer &target)
 {
-    if ( patch == NULL || camera == NULL || renderOptions == NULL || sglContext == NULL ) {
+    if ( renderOptions.isBackfaceCulling() &&
+         patch.normal.dotProduct(camera.eyePosition) + patch.planeConstant < VSDK::EPSILON ) {
         return;
     }
 
     Vector3Dd vertices[4];
-
-    if ( renderOptions->isBackfaceCulling() &&
-         patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < VSDK::EPSILON ) {
-        return;
+    const int count = patch.numberOfVertices;
+    for ( int i = 0; i < count; i++ ) {
+        vertices[i] = *patch.vertex[i]->point;
     }
-
-    vertices[0] = *patch->vertex[0]->point;
-    vertices[1] = *patch->vertex[1]->point;
-    vertices[2] = *patch->vertex[2]->point;
-    if ( patch->numberOfVertices > 3 ) {
-        vertices[3] = *patch->vertex[3]->point;
-    }
-
-    sglContext->sglSetPatch(patch);
-    sglContext->sglPolygon(patch->numberOfVertices, vertices);
+    target.drawPolygon(count, vertices, FaceIndexSample(patch.getFaceIndex()));
 }
 
 void
-SoftIds::softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext) {
-    if ( scene == NULL || renderOptions == NULL || sglContext == NULL ) {
+SoftIds::renderVisibleFaces(const Scene &scene, const RenderOptions *renderOptions, FaceVisibilityBuffer &target) {
+    if ( renderOptions == NULL ) {
         return;
     }
 
-    for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
-        SoftIds::softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
+    const Camera &camera = *scene.camera;
+    const Matrix4x4d projection = Camera::perspectiveMatrix(
+        camera.fieldOfVision * 2.0 * ((double)(M_PI)) / 180.0,
+        ((double)(camera.xSize)) / ((double)(camera.ySize)),
+        camera.near,
+        camera.far);
+    const Matrix4x4d view = Camera::lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
+    target.setTransform(projection.multiply(view));
+
+    for ( int i = 0; scene.patchList != NULL && i < scene.patchList->size(); i++ ) {
+        const Patch *patch = scene.patchList->get(i);
+        if ( patch != NULL ) {
+            drawPatch(*patch, camera, *renderOptions, target);
+        }
     }
 }
 
 /**
-Software ID rendering
-
-Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
-the patches visible through each pixel or 0 if the background is visible through
-the pixel. x is normally the width and y the height of the canvas window
+Legacy patch ID export. Zero represents the background.
 */
 unsigned long *
-SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
-    SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
+SoftIds::softRenderIds(long *width, long *height, const Scene *scene, const RenderOptions *renderOptions) {
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
+    renderVisibleFaces(*scene, renderOptions, target);
 
-    *x = currentSglContext->width;
-    *y = currentSglContext->height;
-    unsigned long *ids = new unsigned long[currentSglContext->width * currentSglContext->height];
-    for ( long i = 0; i < ((long)currentSglContext->width) * currentSglContext->height; ++i ) {
-        const Patch *patch = currentSglContext->patchBuffer[i];
-        ids[i] = patch == NULL ? 0 : patch->id;
+    *width = target.getWidth();
+    *height = target.getHeight();
+    unsigned long *const ids = new unsigned long[*width * *height];
+    for ( int y = 0; y < *height; y++ ) {
+        const long rowStart = y * *width;
+        for ( int x = 0; x < *width; x++ ) {
+            const FaceIndexSample face = target.getSample(x, y);
+            ids[rowStart + x] = face.isBackground() ? 0 : scene->getFace(face.getIndex())->id;
+        }
     }
-
-    delete currentSglContext;
-
     return ids;
 }
 

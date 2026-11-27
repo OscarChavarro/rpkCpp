@@ -1,6 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
+#include "vsdk/toolkit/environment/geometry/elements/FaceColorTable.h"
 
 unsigned int RpkVertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VRTX_CMPR_TXTR_CRDNT;
 
@@ -41,29 +42,32 @@ Averages the color of each patch sharing the vertex and assign the
 resulting color to the vertex
 */
 void
-RpkVertex::computeColor() {
+RpkVertex::computeColor(const FaceColorTable *faceColors) {
     long numberOfPatches;
 
-    double r = 0.0;
-    double g = 0.0;
-    double b = 0.0;
+    color = ColorRgb(0.0, 0.0, 0.0);
     numberOfPatches = 0;
 
     if ( patches != NULL ) {
+        double r = 0.0;
+        double g = 0.0;
+        double b = 0.0;
         for ( int i = 0; i < patches->size(); i++) {
-            const Patch *patch = patches->get(i);
-            r += patch->color.getR();
-            g += patch->color.getG();
-            b += patch->color.getB();
+            // Before the scene's face table exists (loading) every face is black
+            if ( faceColors != NULL ) {
+                const ColorRgb &patchColor = faceColors->get(patches->get(i)->getFaceIndex());
+                r += patchColor.getR();
+                g += patchColor.getG();
+                b += patchColor.getB();
+            }
         }
+        color = ColorRgb(r, g, b);
         numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
-        const double inv = 1.0 / ((double)(numberOfPatches));
-        color = ColorRgb(r * inv, g * inv, b * inv);
-    } else {
-        color = ColorRgb(0.0, 0.0, 0.0);
+        const double invPatchCount = 1.0 / ((double)(numberOfPatches));
+        color = ColorRgb(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
     }
 }
 

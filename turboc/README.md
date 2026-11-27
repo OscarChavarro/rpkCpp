@@ -82,7 +82,8 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      `FormFactorWorkspace` telling where shadow rays are counted,
      `FormFactorStrategy::reportNodesTooClose`, `Interaction::countCreated` and
      `GalerkinState::isJacobi` (true for `JACOBI` only)
-   - `RefinementWorkspace` keeps only the query, form factor and coefficient scratch.
+   - `RefinementWorkspace` keeps only the query, form factor, scratch visibility and
+     coefficient scratch.
      The parts used only by parallel Jacobi workers are left out, being null for the
      cpp serial solver: the record of events committed later in the serial order
      (`RefinementRecord`, `RefinementEvent`), the subdivision lock and the task
@@ -114,6 +115,44 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
 18. `Cie` is VITRAL's immutable color space (`common/color/Cie`), owned by
     `ToneMappingContext` and copied into `ToneMap` (`init` takes it, then calls
     `initParameters`) and into the MGF `ParseOptionsContext`, as in the cpp port
+19. RenderPark's software rasterizer (`render/sgl`) was removed, as in the cpp port
+    (c2e31d2a): the convex polygon clipper of [SUTH1974b] and the polygon scan
+    converter and visibility buffer of [HECK1990] and [BEKA1997] are VITRAL's
+    turboc port's (`environment/geometry/geometricProcessing/convexPolygonClipper`,
+    `render/raster/polygonScanConverter`)
+   - ID rendering draws face indices into a `FaceVisibilityBuffer`
+     (`PolygonVisibilityBuffer<FaceIndexSample>`), and the Z-visibility clustering
+     strategy draws elements into the `ScratchVisibilityBuffer` of a
+     `ScratchVisibilityWorkspace` passed down the refinement, as in the cpp port;
+     each is instantiated once, in its own `.cpp` (C++98 has no `extern template`)
+   - `PolygonScanConverter` is a class template on the sample payload, and its
+     `MAXIMUM_DEPTH` is `PolygonScanConverterDepth::MAXIMUM_DEPTH` (VITRAL's turboc
+     port: no member templates)
+   - The cpp port's `ClusterTransportPlan`, with which parallel Jacobi workers
+     render ahead what Z-visibility light transport needs, is left out (item 15)
+   - `-gr-clustering-strategy isotropic|oriented|z-visibility` selects the clustering
+     strategy, and `scripts/runZVisibility.sh` runs the Galerkin scenes with
+     Z-visibility (serially: no `--serial` or `--threads`)
+20. Per-face solver and display data live in tables the scene owns, as in the cpp
+    port (93cdd50e, a952f719): `DirectPotentialTable`, `FaceVisibilityTable`,
+    `RadianceElementTable` (`scene/`) and `FaceColorTable`
+    (`environment/geometry/elements/`), indexed by `Patch::getFaceIndex()` and
+    built by `Scene::buildFaceTable`
+   - `Patch` no longer holds `radianceData`, `directPotential`, `color` or the
+     visibility flag; `Radiance::setRadianceMethod` binds the elements that
+     `RadianceMethod::createPatchData` returns, and the Galerkin and stochastic
+     solvers read them through `GalerkinState::topLevelElement`/`boundElement`
+     and `ElementHierarchyState::getRadianceElements`
+   - The binary model format is unchanged: the direct potential, flags byte and
+     display color of a patch are written as zero and discarded when read
+   - `RadianceMethod::getRadiance`, `SoftIdsWrapper::getPatchAtPixel`, `RpkRayHit`
+     and the ray tracing helpers take `const Patch *`, as in the cpp port
+   - Still unlike the cpp port, because this port has not taken the cpp
+     alignment line that brought them (f14cfb91 and after): `Patch` keeps public
+     fields (`normal`, `area`, `vertex`, `material`, `omit`, ...) instead of a
+     VITRAL `PlanarFace`, shafts take their bounds from `Patch::computeAndGetBoundingBox`
+     rather than the scene's `FaceBoundsTable`, and radiance arithmetic keeps
+     `ColorRgbMutable` where the cpp port has the immutable `ColorRgb` (item 11)
 
 ## Library layout
 

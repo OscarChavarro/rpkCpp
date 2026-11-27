@@ -232,10 +232,7 @@ GalerkinRadianceMethod::writeCoordIndicesTopCluster() {
 
 void
 GalerkinRadianceMethod::freeMemory() {
-    if ( GalerkinRadianceMethod::galerkinState.scratch != nullptr ) {
-        delete GalerkinRadianceMethod::galerkinState.scratch;
-        GalerkinRadianceMethod::galerkinState.scratch = nullptr;
-    }
+    ScratchVisibilityStrategy::scratchTerminate(&GalerkinRadianceMethod::galerkinState);
 }
 
 GalerkinRadianceMethod::GalerkinRadianceMethod() {
@@ -366,10 +363,6 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
     if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
         ScratchVisibilityStrategy::scratchInit(&galerkinState);
     }
-
-    // Global variables for scratch rendering
-    galerkinState.lastClusterId = -1;
-    galerkinState.lastEye = Vector3Dd(java::Double::MAX_VALUE, java::Double::MAX_VALUE, java::Double::MAX_VALUE);
 }
 
 bool

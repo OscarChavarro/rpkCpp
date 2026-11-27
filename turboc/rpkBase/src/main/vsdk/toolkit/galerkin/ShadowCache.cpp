@@ -41,7 +41,7 @@ ShadowCache::cacheHit(const Ray *ray, double *distance, RpkRayHit *hitStore, con
 Replace least recently added patch
 */
 void
-ShadowCache::addToShadowCache(Patch *patch) {
+ShadowCache::addToShadowCache(const Patch *patch) {
     patchCache[numberOfCachedPatches % MAX_CACHE] = patch;
     if ( numberOfCachedPatches < MAX_CACHE ) {
         numberOfCachedPatches++;

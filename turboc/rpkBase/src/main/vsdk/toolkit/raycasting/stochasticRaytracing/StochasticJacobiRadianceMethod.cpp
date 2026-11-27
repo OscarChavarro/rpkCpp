@@ -80,7 +80,7 @@ StochasticJacobiRadianceMethod::terminate(ArrayList<Patch *> *scenePatches) {
 }
 
 ColorRgbMutable
-StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *renderOptions) const {
+StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, const Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *renderOptions) const {
     StochasticRelaxation::setActiveState(((StochasticRelaxation &)(stochasticRelaxationState)));
     ElementHierarchyState::setActiveState(((ElementHierarchyState &)(elementHierarchyState)));
     StochasticRadiosityBasisState::setActiveState(((StochasticRadiosityBasisState &)(stochasticRadiosityBasisState)));
@@ -110,7 +110,7 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene, ToneMappingContext *ton
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
-    (void) scene;
+    ElementHierarchyState::activeState().setRadianceElements(scene->getRadianceElements());
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == NULL ) {
         Logger::reportMessage("StochasticJacobiRadianceMethod", Logger::FATAL_ERROR, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
@@ -152,14 +152,14 @@ StochasticJacobiRadianceMethod::stchsRelaxRadRndRnd(double x) {
 }
 
 void
-StochasticJacobiRadianceMethod::stchsRelaxRadRecompDispClrs(const ArrayList<Patch *> *scenePatches) {
+StochasticJacobiRadianceMethod::stchsRelaxRadRecompDispClrs(const ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors) {
     StochasticRadiosityElement *topElement = ElementHierarchyState::activeState().topCluster;
     if ( topElement != NULL ) {
         topElement->traverseClusterLeafElements(StochasticRadiosityElement::stchsRadElemCompNewVtxClrs);
         topElement->traverseClusterLeafElements(StochasticRadiosityElement::stchsRadElemAdjTVtxClrs);
     } else {
         for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
-            Mcrad::mntCarloRadPtchCompNewClr(scenePatches->get(i));
+            Mcrad::mntCarloRadPtchCompNewClr(scenePatches->get(i), faceColors);
         }
     }
 }
@@ -300,7 +300,7 @@ StochasticJacobiRadianceMethod::stchsRelaxRadDIncrmRadnItrtn(
         Mcrad::mntCarloRadUpdCpuSecs();
         stchRelaRadPrinIncrRadnStat();
         if ( unShotFraction > 0.3 ) {
-            stchsRelaxRadRecompDispClrs(scene->patchList);
+            stchsRelaxRadRecompDispClrs(scene->patchList, scene->getFaceColors());
         }
     }
 
@@ -595,7 +595,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
         stchsRelaxRadDRegRadnItrtn(scene->getSceneQuery(), scene->getSceneQueryWorkspace(), scene->patchList, renderOptions);
     }
 
-    stchsRelaxRadRecompDispClrs(scene->patchList);
+    stchsRelaxRadRecompDispClrs(scene->patchList, scene->getFaceColors());
 
     System::err.printf("%s\n", getStats());
 

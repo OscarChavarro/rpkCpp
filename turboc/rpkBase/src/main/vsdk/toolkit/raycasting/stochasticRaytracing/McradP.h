@@ -7,12 +7,14 @@
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Nondiff.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Coefficientsmcrad.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+#include "vsdk/toolkit/raycasting/stochasticRaytracing/ElementHierarchyState.h"
 
 class McradP{ public:
     static inline int numberOfVertices(const StochasticRadiosityElement *elem){ return elem->patch->numberOfVertices;
     }
 
-    static inline StochasticRadiosityElement *topLvlStochRadElem(const Patch *patch){ return ((StochasticRadiosityElement *)(patch->radianceData));
+    static inline StochasticRadiosityElement *topLvlStochRadElem(const Patch *patch){ return ((StochasticRadiosityElement *)(
+            ElementHierarchyState::activeState().getRadianceElements()->get(patch->getFaceIndex())));
     }
 
     static inline ColorRgbMutable *getTopLevelPatchRad(const Patch *patch){ return topLvlStochRadElem(patch)->radiance;

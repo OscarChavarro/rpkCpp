@@ -178,7 +178,7 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
     }
 
     if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
-        ColorRgbMutable reflectivity = galerkinElement->patch->radianceData->Rd;
+        ColorRgbMutable reflectivity = galerkinElement->galerkinState->topLevelElement(galerkinElement->patch)->Rd;
         ColorRgbMutable ambient;
 
         ambient.scalarProduct(reflectivity, GalerkinRadianceMethod::galerkinState.ambientRadiance);
@@ -242,10 +242,7 @@ GalerkinRadianceMethod::writeCoordIndicesTopCluster() {
 
 void
 GalerkinRadianceMethod::freeMemory() {
-    if ( GalerkinRadianceMethod::galerkinState.scratch != NULL ) {
-        delete GalerkinRadianceMethod::galerkinState.scratch;
-        GalerkinRadianceMethod::galerkinState.scratch = NULL;
-    }
+    ScratchVisibilityStrategy::scratchTerminate(&GalerkinRadianceMethod::galerkinState);
 }
 
 GalerkinRadianceMethod::GalerkinRadianceMethod() {
@@ -274,22 +271,17 @@ GalerkinRadianceMethod::updateCpuSecs() {
 }
 
 void
-GalerkinRadianceMethod::patchInit(Patch *patch) {
-    ColorRgbMutable reflectivity = patch->radianceData->Rd;
-    ColorRgbMutable selfEmittanceRadiance = patch->radianceData->Ed;
-
+GalerkinRadianceMethod::patchInit(Patch *patch, const DirectPotentialTable *directPotentials, FaceColorTable *faceColors) {
     if ( galerkinState.useConstantRadiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
         // '95, Dublin, Ireland, June 1995, p 336-344
-        galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
-        galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
         if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
-            patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
+            galerkinState.topLevelElement(patch)->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
         }
     } else {
-        galerkinSetRadiance(patch, selfEmittanceRadiance);
+        galerkinSetRadiance(patch, galerkinState.topLevelElement(patch)->Ed);
         if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
-            patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
+            galerkinState.topLevelElement(patch)->unShotRadiance[0] = galerkinGetRadiance(patch);
         }
     }
 
@@ -297,37 +289,41 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         switch ( galerkinState.galerkinIterationMethod ) {
             case GAUSS_SEIDEL:
             case JACOBI:
-                galerkinSetPotential(patch, patch->directPotential);
+                galerkinSetPotential(patch, directPotentials->get(patch->getFaceIndex()));
                 break;
             case SOUTH_WELL:
-                galerkinSetPotential(patch, patch->directPotential);
-                galerkinSetUnShotPotential(patch, patch->directPotential);
+                galerkinSetPotential(patch, directPotentials->get(patch->getFaceIndex()));
+                galerkinSetUnShotPotential(patch, directPotentials->get(patch->getFaceIndex()));
                 break;
             default:
                 Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "patchInit", "Invalid iteration method");
         }
     }
 
-    recomputePatchColor(patch);
+    recomputePatchColor(patch, faceColors);
 }
 
 /**
 Recomputes the color of a patch using ambient radiance term, ... if requested for
 */
 void
-GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
-    ColorRgbMutable reflectivity = patch->radianceData->Rd;
+GalerkinRadianceMethod::recomputePatchColor(Patch *patch, FaceColorTable *faceColors) {
+    ColorRgbMutable reflectivity = galerkinState.topLevelElement(patch)->Rd;
     ColorRgbMutable radVis;
 
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( galerkinState.useAmbientRadiance ) {
         radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
-        ToneMap::radianceToRgb(ColorRgb(radVis), &patch->color, *galerkinState.toneMapOptions);
+        ColorRgb patchColor;
+        ToneMap::radianceToRgb(ColorRgb(radVis), &patchColor, *galerkinState.toneMapOptions);
+        faceColors->set(patch->getFaceIndex(), patchColor);
     } else {
-        ToneMap::radianceToRgb(ColorRgb(galerkinGetRadiance(patch)), &patch->color, *galerkinState.toneMapOptions);
+        ColorRgb patchColor;
+        ToneMap::radianceToRgb(ColorRgb(galerkinGetRadiance(patch)), &patchColor, *galerkinState.toneMapOptions);
+        faceColors->set(patch->getFaceIndex(), patchColor);
     }
-    patch->computeVertexColors();
+    patch->computeVertexColors(faceColors);
 }
 
 const char *
@@ -350,6 +346,7 @@ GalerkinRadianceMethod::parseOptions(int * /*argc*/, char ** /*argv*/) {
 
 void
 GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOptions) {
+    galerkinState.setRadianceElements(scene->getRadianceElements());
     galerkinState.toneMapOptions = toneMapOptions;
     if ( galerkinState.toneMapOptions == NULL ) {
         Logger::reportMessage("GalerkinRadianceMethod", Logger::FATAL_ERROR, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
@@ -368,7 +365,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
     }
 
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
-        patchInit(scene->patchList->get(i));
+        patchInit(scene->patchList->get(i), scene->getDirectPotentials(), scene->getFaceColors());
     }
 
     galerkinState.topCluster = ClusterCreationStrategy::createClusterHierarchy(
@@ -378,10 +375,6 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
     if ( galerkinState.clusteringStrategy == Z_VISIBILITY ) {
         ScratchVisibilityStrategy::scratchInit(&galerkinState);
     }
-
-    // Global variables for scratch rendering
-    galerkinState.lastClusterId = -1;
-    galerkinState.lastEye = Vector3Dd(Double::MAX_VALUE, Double::MAX_VALUE, Double::MAX_VALUE);
 }
 
 bool
@@ -442,7 +435,7 @@ GalerkinRadianceMethod::terminate(ArrayList<Patch *> */*scenePatches*/) {
 }
 
 ColorRgbMutable
-GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) const
+GalerkinRadianceMethod::computePatchRadiance(const Patch *patch, double u, double v) const
 {
     const GalerkinElement *leaf;
     ColorRgbMutable rad;
@@ -451,14 +444,14 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
         patch->biLinearToUniform(&u, &v);
     }
 
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(&galerkinState, patch);
     leaf = topLevelElement->regularLeafAtPoint(&u, &v);
 
     rad = GalerkinBasis::radianceAtPoint(leaf, leaf->radiance, u, v);
 
     if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
-        ColorRgbMutable reflectivity = patch->radianceData->Rd;
+        ColorRgbMutable reflectivity = galerkinState.topLevelElement(patch)->Rd;
         ColorRgbMutable ambientRadiance;
         ambientRadiance.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         rad.add(rad, ambientRadiance);
@@ -470,7 +463,7 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
 ColorRgbMutable
 GalerkinRadianceMethod::getRadiance(
     Camera * /*camera*/,
-    Patch *patch,
+    const Patch *patch,
     double u,
     double v,
     Vector3Dd /*dir*/,
@@ -484,7 +477,7 @@ Radiance data for a Patch is a surface element
 */
 Element *
 GalerkinRadianceMethod::createPatchData(Patch *patch) {
-    return patch->radianceData = new GalerkinElement(patch, &galerkinState);
+    return new GalerkinElement(patch, &galerkinState);
 }
 
 void
@@ -492,9 +485,9 @@ GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
     if ( patch == NULL ) {
         return;
     }
-    if ( patch->radianceData != NULL ) {
-        delete ((GalerkinElement *)(patch->radianceData));
-        patch->radianceData = NULL;
+    // Elements are bound once the method has been initialized
+    if ( galerkinState.getRadianceElements() != NULL ) {
+        delete galerkinState.getRadianceElements()->get(patch->getFaceIndex());
     }
 }
 

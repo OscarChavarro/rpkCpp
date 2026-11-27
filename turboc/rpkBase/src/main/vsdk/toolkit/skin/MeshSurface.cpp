@@ -51,7 +51,7 @@ MeshSurface::MeshSurface(
     // Compute vertex colors
     if ( colorFlags != VERTEX_COLORS ) {
         for ( int i = 0; vertices != NULL && i < vertices->size(); i++ ) {
-            vertices->get(i)->computeColor();
+            vertices->get(i)->computeColor(NULL); // No face colors exist while loading
         }
     }
 

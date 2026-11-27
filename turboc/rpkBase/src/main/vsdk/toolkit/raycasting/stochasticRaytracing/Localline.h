@@ -13,7 +13,7 @@ Generate and trace a local line
 
 class Localline{ public:
     static Ray mcrGenerateLocalLine(const Patch *patch, const double *xi);
-    static RpkRayHit *mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, Patch *patch, Ray *ray, RpkRayHit *hitStore);
+    static RpkRayHit *mcrShootRay(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, const Patch *patch, Ray *ray, RpkRayHit *hitStore);
 
   private:
     static void patchCoordSys(const Patch *patch, CoordinateSystem *coord);

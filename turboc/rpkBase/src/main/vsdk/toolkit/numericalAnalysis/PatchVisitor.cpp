@@ -3,7 +3,7 @@
 #include "vsdk/toolkit/environment/geometry/elements/RpkRayHit.h"
 
 int
-PatchVisitor::getNumberOfSamples(Patch *patch) {
+PatchVisitor::getNumberOfSamples(const Patch *patch) {
     int numberOfSamples = 1;
     if ( patch->material->getBsdf() != NULL && patch->material->getBsdf()->splitBsdfIsTextured() ) {
         if ( patch->vertex[0]->textureCoordinates == patch->vertex[1]->textureCoordinates &&
@@ -24,7 +24,7 @@ Use next function (with PatchListIterate) to close any open files of the patch u
 Computes average scattered power and emittance of the Patch
 */
 ColorRgb
-PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
+PatchVisitor::averageNormalAlbedo(const Patch *patch, char components) {
     double r = 0.0;
     double g = 0.0;
     double b = 0.0;
@@ -51,7 +51,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
 }
 
 ColorRgb
-PatchVisitor::averageEmittance(Patch *patch, char components) {
+PatchVisitor::averageEmittance(const Patch *patch, char components) {
     double r = 0.0;
     double g = 0.0;
     double b = 0.0;

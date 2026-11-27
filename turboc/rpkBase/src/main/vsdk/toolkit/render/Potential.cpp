@@ -24,10 +24,10 @@ void
 Potential::updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     Canvas::canvasPushMode();
 
-    SglContext *target = SoftIds::setupSoftFrameBuffer(scene->camera);
-    SoftIds::softRenderPatches(scene, renderOptions, target);
-    const long x = target->width;
-    const long y = target->height;
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
+    SoftIds::renderVisibleFaces(*scene, renderOptions, target);
+    const long x = target.getWidth();
+    const long y = target.getHeight();
 
     Canvas::canvasPullMode();
 
@@ -36,7 +36,6 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     // Build a table to convert a patch ID to the corresponding Patch
     const int nextPatchId = Patch::getNextId();
     if ( nextPatchId <= 0 ) {
-        delete target;
         return;
     }
     unsigned long maximumPatchId = ((unsigned long)(nextPatchId - 1));
@@ -66,11 +65,11 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     for ( j = y - 1, ySample = -v * ((double)(y - 1)) / 2.0;
           j >= 0;
           j--, ySample += v ) {
-        const long rowStart = j * x;
         double xSample = -h * ((double)(x - 1)) / 2.0;
         for ( long i = 0; i < x; i++, xSample += h ) {
-            const Patch *visible = target->patchBuffer[rowStart + i];
-            const unsigned long the_id = visible == NULL ? 0 : visible->id & 0xffffffUL;
+            const FaceIndexSample face = target.getSample((int)i, (int)j);
+            const unsigned long the_id = face.isBackground() ? 0 :
+                scene->getFace(face.getIndex())->id & 0xffffffUL;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 Vector3Dd pixDir;
@@ -100,10 +99,12 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
         Patch *patch = id2patch[i];
 
         if ( patch != NULL ) {
-            patch->directPotential = newDirectImportance[i] / patch->area;
+            DirectPotentialTable * const directPotentials = scene->getDirectPotentials();
+            const int faceIndex = patch->getFaceIndex();
+            directPotentials->set(faceIndex, ((double)(newDirectImportance[i] / patch->area)));
 
-            if ( patch->directPotential > Statistics::instance().potential.maxDirectPotential ) {
-                Statistics::instance().potential.maxDirectPotential = patch->directPotential;
+            if ( directPotentials->get(faceIndex) > Statistics::instance().potential.maxDirectPotential ) {
+                Statistics::instance().potential.maxDirectPotential = directPotentials->get(faceIndex);
             }
             Statistics::instance().potential.totalDirectPotential += newDirectImportance[i];
             Statistics::instance().potential.averageDirectPotential += newDirectImportance[i];
@@ -117,34 +118,27 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
 
     delete[] newDirectImportance;
     delete[] id2patch;
-    delete target;
-}
-
-void
-Potential::softGetPatchPointers(const SglContext *sgl, const ArrayList<Patch *> *scenePatches) {
-    int i;
-
-    for ( i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
-        scenePatches->get(i)->setInvisible();
-    }
-
-    const int pixelCount = sgl->width * sgl->height;
-    for ( i = 0; i < pixelCount; i++ ) {
-        Patch *P = sgl->patchBuffer[i];
-        if ( P ) {
-            P->setVisible();
-        }
-    }
 }
 
 void
 Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
     const long long t = System::nanoTime();
-    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
-    SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
-    Potential::softGetPatchPointers(currentSglContext, scene->patchList);
-    delete currentSglContext;
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
+    SoftIds::renderVisibleFaces(*scene, renderOptions, target);
+
+    FaceVisibilityTable *const faceVisibility = scene->getFaceVisibility();
+    for ( int i = 0; i < faceVisibility->getNumberOfFaces(); i++ ) {
+        faceVisibility->setVisible(i, false);
+    }
+    for ( int y = 0; y < target.getHeight(); y++ ) {
+        for ( int x = 0; x < target.getWidth(); x++ ) {
+            const FaceIndexSample face = target.getSample(x, y);
+            if ( !face.isBackground() ) {
+                faceVisibility->setVisible(face.getIndex(), true);
+            }
+        }
+    }
 
     System::err.printf("Determining visible patches in software took %g sec\n",
         ((double)(((double)(System::nanoTime() - t)) / 1000000000.0)));

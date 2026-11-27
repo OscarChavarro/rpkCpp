@@ -12,6 +12,7 @@ class OptionsGroupGalerkin{ public:
 
     static void iterationMethodOption(char *&value);
     static void shaftCullingOption(char *&value);
+    static void clusteringStrategyOption(char *&value);
     static void hierarchicalOption(int &value);
     static void lazyOption(int &value);
     static void clusteringOption(int &value);

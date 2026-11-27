@@ -10,14 +10,14 @@
 class ShadowCache {
   private:
     #define MAX_CACHE 5
-    Patch *patchCache[MAX_CACHE];
+    const Patch *patchCache[MAX_CACHE];
     int numberOfCachedPatches;
   public:
     ShadowCache();
     virtual ~ShadowCache();
 
     RpkRayHit *cacheHit(const Ray *ray, double *distance, RpkRayHit *hitStore, const RayExclusionSet &exclusions) const;
-    void addToShadowCache(Patch *patch);
+    void addToShadowCache(const Patch *patch);
 };
 
 #endif

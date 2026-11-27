@@ -31,7 +31,7 @@ LinkingSimpleStrategy::createInitialLink(
 
     GalerkinElement *rcv = NULL;
     GalerkinElement *src = NULL;
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
     switch ( role ) {
         case SOURCE:
             rcv = topLevelElement;

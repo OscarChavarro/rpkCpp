@@ -173,7 +173,7 @@ legacy ID semantics and statistics summation order separately.
 ### Proposed first change
 
 Give the two active passes concrete APIs, for example
-`FaceVisibilityBuffer` and `GalerkinElementVisibilityBuffer`, using
+`FaceVisibilityBuffer` and `ScratchVisibilityBuffer`, using
 one rasterizer and a common depth component. Submit the polygon and its
 typed value together. Each pass selects, allocates and clears its own target.
 The target dimensions and viewport are fixed or validated at the draw

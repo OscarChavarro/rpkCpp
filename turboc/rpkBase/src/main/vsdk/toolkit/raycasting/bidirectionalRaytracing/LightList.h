@@ -34,7 +34,7 @@ class LightList: private CircularList<LightInfo>{ private:
     Patch *sample(double *x1, double *pdf);
 
     // Normal PDF evaluation: uniform over emitted power
-    double evalPdf(Patch *light, const Vector3Dd *point) const;
+    double evalPdf(const Patch *light, const Vector3Dd *point) const;
 
     // Importance sampling routines
     Patch *sampleImportant(const Vector3Dd *point, const Vector3Dd *normal, double *x1, double *pdf);
@@ -60,7 +60,7 @@ class LightList: private CircularList<LightInfo>{ private:
     // specialisations by patch type (normal or virtual) of EvalPDF
     double evalPdfVirtual(const Patch *light, const Vector3Dd *) const;
 
-    double evalPdfReal(Patch *light, const Vector3Dd *) const;
+    double evalPdfReal(const Patch *light, const Vector3Dd *) const;
 };
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightListIterator.h"

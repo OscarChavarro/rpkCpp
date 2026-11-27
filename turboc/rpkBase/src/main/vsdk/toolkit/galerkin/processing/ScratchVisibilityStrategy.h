@@ -7,15 +7,29 @@ with a Z-buffer visibility algorithm in software
 #define __SCRATCH_VISIBILITY_STRATEGY__
 
 #include "vsdk/toolkit/galerkin/GalerkinState.h"
+#include "vsdk/toolkit/galerkin/processing/ScratchVisibilityWorkspace.h"
 
+/**
+Every operation works on the scratch workspace it is given and reads the
+solver state only
+*/
 class ScratchVisibilityStrategy {
+  private:
+    static void addSamples(
+        ScratchVisibilityWorkspace *scratchWorkspace,
+        const GalerkinElement *element,
+        int samples,
+        const GalerkinState *galerkinState);
+
   public:
     static void scratchInit(GalerkinState *galerkinState);
     static void scratchTerminate(GalerkinState *galerkinState);
-    static RpkAxisAlignedBoundingBox *scratchRenderElements(GalerkinElement *cluster, Vector3Dd eye, GalerkinState *galerkinState);
-    static ColorRgbMutable scratchRadiance(const GalerkinState *galerkinState);
-    static int scratchNonBackgroundPixels(const GalerkinState *galerkinState);
-    static void scratchPixelsPerElement(const GalerkinState *galerkinState);
+    static RpkAxisAlignedBoundingBox scratchRenderElements(
+        GalerkinElement *cluster, Vector3Dd eye, ScratchVisibilityWorkspace *scratch, GalerkinState *galerkinState);
+    static ColorRgbMutable scratchRadiance(const ScratchVisibilityWorkspace *scratch, const GalerkinState *galerkinState);
+    static int scratchNonBackgroundPixels(const ScratchVisibilityWorkspace *scratch);
+    static void scratchPixelsPerElement(ScratchVisibilityWorkspace *scratch, const GalerkinState *galerkinState);
+    static double scratchPixelArea(const RpkAxisAlignedBoundingBox &boundingBox, const ScratchVisibilityWorkspace *scratch);
 };
 
 #endif

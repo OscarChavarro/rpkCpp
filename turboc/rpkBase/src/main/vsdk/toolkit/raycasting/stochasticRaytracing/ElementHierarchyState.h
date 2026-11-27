@@ -8,6 +8,7 @@
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Link.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+#include "vsdk/toolkit/scene/RadianceElementTable.h"
 
 typedef Link *(*REFINE_ACTION)(
     Link *link,
@@ -44,8 +45,24 @@ class ElementHierarchyState {
     static void setActiveState(ElementHierarchyState &state);
     static ElementHierarchyState &activeState();
 
+    RadianceElementTable *getRadianceElements() const;
+    void setRadianceElements(RadianceElementTable *inRadianceElements);
+
   private:
     static ElementHierarchyState *&activeStatePtr();
+    // The scene's table of top-level elements, bound when the method is initialized;
+    // null while the method has not been initialized (nothing to terminate then)
+    RadianceElementTable *radianceElements;
 };
+
+inline RadianceElementTable *
+ElementHierarchyState::getRadianceElements() const {
+    return radianceElements;
+}
+
+inline void
+ElementHierarchyState::setRadianceElements(RadianceElementTable *inRadianceElements) {
+    radianceElements = inRadianceElements;
+}
 
 #endif

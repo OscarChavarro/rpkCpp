@@ -3,7 +3,7 @@
 
 SoftIdsWrapper::SoftIdsWrapper(const Scene *inScene, const RendererConfiguration *renderOptions):
     scene(*inScene),
-    target(scene.camera->xSize, scene.camera->ySize, SglFaceIndex())
+    target(scene.camera->xSize, scene.camera->ySize, FaceIndexSample())
 {
     SoftIds::renderVisibleFaces(scene, renderOptions, target);
 }

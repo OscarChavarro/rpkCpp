@@ -15,7 +15,8 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/ScratchVisibilityStrategy.h"
-#include "vsdk/toolkit/galerkin/processing/visitors/DepthVisibilityGathererVisitor.h"
+#include "vsdk/toolkit/galerkin/processing/ElementSamples.h"
+#include "vsdk/toolkit/galerkin/processing/ScratchVisibilityWorkspace.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/MaximumRadianceVisitor.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/OrientedGathererVisitor.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/PowerAccumulatorVisitor.h"
@@ -52,6 +53,7 @@ ColorRgb
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(
     GalerkinElement *sourceElement,
     Vector3Dd samplePoint,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     switch ( galerkinState->clusteringStrategy ) {
@@ -81,15 +83,15 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the samplePoint point
-                const RpkAxisAlignedBoundingBox *boundingBox =
-                    ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
+                const RpkAxisAlignedBoundingBox boundingBox =
+                    ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, scratch, galerkinState);
 
                 // Compute average radiance on the virtual screen
-                const ColorRgb sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
+                const ColorRgb sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(scratch, galerkinState);
 
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
-                areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
+                areaFactor = (boundingBox.dx() * boundingBox.dy()) / (0.25 * sourceElement->area);
                 return sourceRadiance.multiply(static_cast<double>(areaFactor));
             }
 
@@ -105,7 +107,7 @@ the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
 ColorRgb
-ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, ScratchVisibilityWorkspace *scratch, GalerkinState *galerkinState) {
     GalerkinElement *sourceElement = link->sourceElement;
     const GalerkinElement *receiverElement = link->receiverElement;
 
@@ -115,7 +117,7 @@ ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState
 
     // Take a sample point on the receiver
     return ClusterTraversalStrategy::clusterRadianceToSamplePoint(
-        sourceElement, receiverElement->midPoint(), galerkinState);
+        sourceElement, receiverElement->midPoint(), scratch, galerkinState);
 }
 
 /**
@@ -149,7 +151,7 @@ Computes projected area of receiver cluster as seen from the midpoint of the sou
 ignoring intra-receiver visibility
 */
 double
-ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::receiverArea(Interaction *link, ScratchVisibilityWorkspace *scratch, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
     Vector3Dd samplePoint;
@@ -179,15 +181,15 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 return receiverElement->area;
             } else {
-                const RpkAxisAlignedBoundingBox *boundingBox =
-                    ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
+                const RpkAxisAlignedBoundingBox boundingBox =
+                    ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, scratch, galerkinState);
 
                 // Projected area is the number of non-background pixels over
                 // the total number of pixels * area of the virtual screen
                 projectedArea =
-                    static_cast<double>(ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState)) *
-                    boundingBox->dx() * boundingBox->dy() /
-                    static_cast<double>(galerkinState->scratch->getViewportWidth() * galerkinState->scratch->getViewportHeight());
+                    static_cast<double>(ScratchVisibilityStrategy::scratchNonBackgroundPixels(scratch)) *
+                    boundingBox.dx() * boundingBox.dy() /
+                    static_cast<double>(scratch->getBuffer().getViewportWidth() * scratch->getBuffer().getViewportHeight());
                 return projectedArea;
             }
 
@@ -231,7 +233,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, ScratchVisibilityWorkspace *scratch, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
@@ -252,37 +254,76 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
             break;
         }
         case GalerkinClusteringStrategy::Z_VISIBILITY: {
-            Vector3Dd samplePoint = sourceElement->midPoint();
-            if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
+            double pixelArea;
+            if ( ClusterTraversalStrategy::receiverSamples(link, scratch, galerkinState, &pixelArea) ) {
+                const java::ArrayList<ElementSamples> &visible = scratch->getVisibleElements();
+                ClusterTraversalStrategy::gatherRadianceFromSamples(
+                    link, srcRad, pixelArea, visible.data(), visible.size());
+            } else {
                 OrientedGathererVisitor leafVisitor(link, srcRad);
                 ClusterTraversalStrategy::traverseAllLeafElements(
                         &leafVisitor,
                         receiverElement,
                         galerkinState);
-            } else {
-                const RpkAxisAlignedBoundingBox *boundingBox =
-                    ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
-
-                // Count how many pixels each element occupies in the scratch frame buffer
-                ScratchVisibilityStrategy::scratchPixelsPerElement(galerkinState);
-
-                // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
-                double pixelArea = boundingBox->dx() * boundingBox->dy() /
-                    static_cast<double>(galerkinState->scratch->getViewportWidth() * galerkinState->scratch->getViewportHeight());
-
-                // Gathers the radiance to each element that occupies at least one
-                // pixel in the scratch frame buffer and sets elem->tmp back to zero
-                // for those elements
-                DepthVisibilityGathererVisitor depthVisibilityLeafVisitor(link, srcRad, pixelArea);
-                ClusterTraversalStrategy::traverseAllLeafElements(
-                    &depthVisibilityLeafVisitor,
-                    receiverElement,
-                    galerkinState);
             }
             break;
         }
         default:
             Logger::reportMessage("ClusterTraversalStrategy", Logger::FATAL_ERROR, "gatherRadiance", java::String::format("Invalid clustering strategy %d", galerkinState->clusteringStrategy));
+    }
+}
+
+/**
+Z-visibility clustering: when the receiver cluster of the link is seen from
+outside (the midpoint of the source lies outside its bounding box), renders
+its elements seen from that point and counts, in the workspace, how many
+samples each one covers. Returns false, rendering nothing, otherwise.
+@param pixelArea the area of the virtual screen a sample covers
+*/
+bool
+ClusterTraversalStrategy::receiverSamples(
+    Interaction *link,
+    ScratchVisibilityWorkspace *scratch,
+    GalerkinState *galerkinState,
+    double *pixelArea)
+{
+    GalerkinElement *receiverElement = link->receiverElement;
+    Vector3Dd samplePoint = link->sourceElement->midPoint();
+    if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
+        return false;
+    }
+
+    const RpkAxisAlignedBoundingBox boundingBox =
+        ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, scratch, galerkinState);
+
+    // Count how many pixels each element occupies in the scratch frame buffer
+    ScratchVisibilityStrategy::scratchPixelsPerElement(scratch, galerkinState);
+
+    // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
+    *pixelArea = ScratchVisibilityStrategy::scratchPixelArea(boundingBox, scratch);
+    return true;
+}
+
+/**
+Gathers the radiance to each element of the receiver cluster that occupies at
+least one sample of its rendering, as counted by receiverSamples. The visible
+fraction of an element is estimated from its samples times pixelArea,
+normalized by one quarter of the receiver area. Each element receives one
+sum, so the order of the elements does not change the result: only the
+visible ones are visited, not every leaf of the cluster
+*/
+void
+ClusterTraversalStrategy::gatherRadianceFromSamples(
+    Interaction *link,
+    ColorRgb *srcRad,
+    double pixelArea,
+    const ElementSamples *visibleElements,
+    long int numberOfVisibleElements)
+{
+    for ( long int i = 0; i < numberOfVisibleElements; i++ ) {
+        const ElementSamples &visible = visibleElements[i];
+        double areaFactor = pixelArea * static_cast<double>(visible.getSamples()) / (0.25 * link->receiverElement->area);
+        ClusterTraversalStrategy::isotropicGatherRadiance(visible.getElement(), areaFactor, link, srcRad);
     }
 }
 

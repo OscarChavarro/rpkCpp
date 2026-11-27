@@ -20,9 +20,9 @@
 class GalerkinRadianceMethod: public RadianceMethod{ private:
     #define STRING_LENGTH 2000
     GatheringStrategy *gatheringStrategy;
-    ColorRgbMutable computePatchRadiance(Patch *patch, double u, double v) const;
+    ColorRgbMutable computePatchRadiance(const Patch *patch, double u, double v) const;
 
-    static void patchInit(Patch *patch);
+    static void patchInit(Patch *patch, const DirectPotentialTable *directPotentials, FaceColorTable *faceColors);
     static void updateCpuSecs();
     static String formatToString(const char *format, va_list arguments);
     static void writeFormatted(const char *format, ...);
@@ -42,19 +42,19 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     static int vertexId;
 
     static inline ColorRgbMutable
-    galerkinGetRadiance(Patch *patch){ return ((GalerkinElement *)(patch->radianceData))->radiance[0];
+    galerkinGetRadiance(Patch *patch){ return galerkinState.topLevelElement(patch)->radiance[0];
     }
 
     static inline void
-    galerkinSetRadiance(Patch *patch, ColorRgbMutable value){ ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
+    galerkinSetRadiance(Patch *patch, ColorRgbMutable value){ galerkinState.topLevelElement(patch)->radiance[0] = value;
     }
 
     static inline void
-    galerkinSetPotential(Patch *patch, double value){ ((GalerkinElement *)(patch->radianceData))->potential = value;
+    galerkinSetPotential(Patch *patch, double value){ galerkinState.topLevelElement(patch)->potential = value;
     }
 
     static inline void
-    galerkinSetUnShotPotential(Patch *patch, double value){ ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
+    galerkinSetUnShotPotential(Patch *patch, double value){ galerkinState.topLevelElement(patch)->unShotPotential = value;
     }
 
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
@@ -63,7 +63,7 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     static GalerkinState galerkinState;
     static void freeMemory();
 
-    static void recomputePatchColor(Patch *patch);
+    static void recomputePatchColor(Patch *patch, FaceColorTable *faceColors);
 
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
@@ -72,7 +72,7 @@ class GalerkinRadianceMethod: public RadianceMethod{ private:
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(ArrayList<Patch *> *scenePatches);
-    ColorRgbMutable getRadiance(Camera *, Patch *patch, double u, double v, Vector3Dd, const RenderOptions *) const;
+    ColorRgbMutable getRadiance(Camera *camera, const Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *rendererConfiguration) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats() const;

@@ -2,5 +2,4 @@
 # line. Each is debt to remove, not a precedent; a new entry needs an owner
 # decision (plan, stop-and-ask triggers).
 GalerkinBasis   # galerkin/GalerkinBasis.h and raycasting/stochasticRaytracing/GalerkinBasis.h
-Polygon         # render/sgl/Polygon.h and scene/Polygon.h
 __BASIS__       # include guard of galerkin/GalerkinBasis.h and raycasting/stochasticRaytracing/Basismcrad.h

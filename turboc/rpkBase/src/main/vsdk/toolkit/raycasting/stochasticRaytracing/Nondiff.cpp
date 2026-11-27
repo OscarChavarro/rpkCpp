@@ -155,7 +155,7 @@ Nondiff::sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *s
 }
 
 void
-Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
+Nondiff::summarize(const ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors) {
     StochasticRelaxation::activeState().unShotFlux = ColorRgb(0.0, 0.0, 0.0);
     StochasticRelaxation::activeState().unShotYmp = 0.0;
     StochasticRelaxation::activeState().totalFlux = ColorRgb(0.0, 0.0, 0.0);
@@ -183,7 +183,7 @@ Nondiff::summarize(const ArrayList<Patch *> *scenePatches) {
                 McradP::topLvlStochRadElem(patch)->unShotImportance);
         StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLvlStochRadElem(patch)->importance;
         StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLvlStochRadElem(patch)->sourceImportance;
-        Mcrad::mntCarloRadPtchCompNewClr(patch);
+        Mcrad::mntCarloRadPtchCompNewClr(patch, faceColors);
     }
 }
 
@@ -197,7 +197,7 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
         scene->getSceneQuery(),
         scene->getSceneQueryWorkspace(),
         StochasticRelaxation::activeState().initialLightSourceSamples * numberOfLights);
-    summarize(scene->patchList);
+    summarize(scene->patchList, scene->getFaceColors());
     delete[] lights;
     lights = NULL;
 }

@@ -23,7 +23,7 @@ routines
 class RpkRayHit {
   private:
     Vector3Dd point; // Intersection point
-    Patch *patch; // Patch that was hit
+    const Patch *patch; // Patch that was hit
     Vector3Dd texCoord; // Texture coordinate
     Vector3Dd geometricNormal;
     const RpkMaterial *material; // RpkMaterial of hit surface
@@ -40,7 +40,7 @@ public:
 
     bool
     init(
-        Patch *inPatch,
+        const Patch *inPatch,
         const Vector3Dd *inPoint,
         const Vector3Dd *inGeometryNormal,
         const RpkMaterial *inMaterial);
@@ -49,8 +49,8 @@ public:
     bool shadingNormal(Vector3Dd *inNormal);
     ShadingContext shadingContext(bool *ok) const;
 
-    Patch *getPatch() const;
-    void setPatch(Patch *inPatch);
+    const Patch *getPatch() const;
+    void setPatch(const Patch *inPatch);
     Vector3Dd getPoint() const;
     void setPoint(const Vector3Dd *position);
     void setGeometricNormal(const Vector3Dd *inNormal);
@@ -70,13 +70,13 @@ public:
 
 };
 
-inline Patch*
+inline const Patch *
 RpkRayHit::getPatch() const {
     return patch;
 }
 
 inline void
-RpkRayHit::setPatch(Patch *inPatch) {
+RpkRayHit::setPatch(const Patch *inPatch) {
     patch = inPatch;
 }
 

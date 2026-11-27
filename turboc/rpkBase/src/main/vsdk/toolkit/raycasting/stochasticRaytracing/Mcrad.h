@@ -24,23 +24,27 @@ class Mcrad{ public:
     static void mntCarloRadUpdCpuSecs();
     static Element *mntCarloRadCreatePtchData(Patch *patch);
     static void mntCarloRadDestroyPtchData(Patch *patch);
-    static void mntCarloRadPtchCompNewClr(Patch *patch);
+    static void mntCarloRadPtchCompNewClr(const Patch *patch, FaceColorTable *faceColors);
     static void monteCarloRadiosityInit();
     static void mntCarloRadUpdViewImp(Scene *scene, const RenderOptions *renderOptions);
     static void monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions);
     static void monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions);
     static void monteCarloRadiosityTerminate(const ArrayList<Patch *> *scenePatches);
-    static ColorRgb monteCarloRadiosityGetRadiance( Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *renderOptions);
+    static ColorRgb monteCarloRadiosityGetRadiance( const Patch *patch, double u, double v, Vector3Dd dir, const RenderOptions *renderOptions);
 
   private:
     static void monteCarloRadiosityInitPatch(const Patch *patch);
     static void mntCarloRadPullImps(Element *element);
     static void mntCarloRadAccumImps(const StochasticRadiosityElement *elem);
-    static void mntCarloRadUpdImp(Element *element);
-    static void mntCarloRadReInitImp(Element *element);
+    static bool mntCarloRadVisitChildren(
+        const Element *element,
+        void (*visit)(Element *, const FaceVisibilityTable *),
+        const FaceVisibilityTable *faceVisibility);
+    static void mntCarloRadUpdImp(Element *element, const FaceVisibilityTable *faceVisibility);
+    static void mntCarloRadReInitImp(Element *element, const FaceVisibilityTable *faceVisibility);
     static double mntCarloRadDetAreaFrac( const ArrayList<Patch *> *scenePatches, const ArrayList<RpkGeometry *> *sceneGeometries);
     static void mntCarloRadDetInitNrRays( const ArrayList<Patch *> *scenePatches, const ArrayList<RpkGeometry *> *sceneGeometries);
-    static ColorRgb mntCarloRadDffsReflAPnt(Patch *patch, double u, double v);
+    static ColorRgb mntCarloRadDffsReflAPnt(const Patch *patch, double u, double v);
     static ColorRgb vertexReflectance(const RpkVertex *vertex);
     static ColorRgb mntCarloRadInterpReflAPnt( const StochasticRadiosityElement *leaf, double u, double v);
 };

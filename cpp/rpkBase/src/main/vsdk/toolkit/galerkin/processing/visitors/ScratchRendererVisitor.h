@@ -3,15 +3,15 @@
 
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/ClusterLeafVisitor.h"
-#include "vsdk/toolkit/galerkin/GalerkinElementVisibilityBuffer.h"
+#include "vsdk/toolkit/galerkin/processing/ScratchVisibilityWorkspace.h"
 
 class ScratchRendererVisitor final: public ClusterLeafVisitor {
   private:
     Vector3Dd eyePoint;
-    GalerkinElementVisibilityBuffer &target;
+    ScratchVisibilityBuffer &target;
 
   public:
-    ScratchRendererVisitor(Vector3Dd inEyePoint, GalerkinElementVisibilityBuffer &inTarget);
+    ScratchRendererVisitor(Vector3Dd inEyePoint, ScratchVisibilityBuffer &inTarget);
     ~ScratchRendererVisitor() final;
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
 };

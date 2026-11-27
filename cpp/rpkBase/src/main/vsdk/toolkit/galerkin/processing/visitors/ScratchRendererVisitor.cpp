@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/galerkin/processing/visitors/ScratchRendererVisitor.h"
 
-ScratchRendererVisitor::ScratchRendererVisitor(Vector3Dd inEyePoint, GalerkinElementVisibilityBuffer &inTarget):
+ScratchRendererVisitor::ScratchRendererVisitor(Vector3Dd inEyePoint, ScratchVisibilityBuffer &inTarget):
     eyePoint(inEyePoint),
     target(inTarget)
 {

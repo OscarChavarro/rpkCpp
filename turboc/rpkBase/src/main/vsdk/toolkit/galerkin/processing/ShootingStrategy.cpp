@@ -19,7 +19,7 @@ importance if importance-driven (see Bekaert & Willems, "Importance-driven
 Progressive refinement radiosity", EGRW'95, Dublin).
 */
 Patch *
-ShootingStrategy::chooseRadianceShootingPatch(const ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState) {
+ShootingStrategy::chooseRadianceShootingPatch(const ArrayList<Patch *> *scenePatches, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState) {
     Patch *shooting_patch;
     Patch *pot_shooting_patch;
     double power;
@@ -32,7 +32,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const ArrayList<Patch *> *scenePat
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = ((double)(M_PI)) * patch->area * patch->radianceData->unShotRadiance[0].sumAbsComponents();
+        power = ((double)(M_PI)) * patch->area * galerkinState->topLevelElement(patch)->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -41,7 +41,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const ArrayList<Patch *> *scenePat
         if ( galerkinState->importanceDriven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
-            powerImportance = (galerkinGetPotential(patch) - patch->directPotential) * power;
+            powerImportance = (galerkinGetPotential(galerkinState, patch) - directPotentials->get(patch->getFaceIndex())) * power;
             if ( powerImportance > maximumPowerImportance ) {
                 pot_shooting_patch = patch;
                 maximumPowerImportance = powerImportance;
@@ -82,7 +82,7 @@ ShootingStrategy::ptchPropUnShotRadnAPot(
     const Patch *patch,
     GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
@@ -147,7 +147,7 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, double dow
 
 void
 ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState) {
-    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
     if ( galerkinState->importanceDriven ) {
         shootingPushPullPotential(topLevelElement, 0.0);
     }
@@ -156,7 +156,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
     galerkinState->ambientRadiance.addScaled(
         galerkinState->ambientRadiance,
         patch->area,
-        patch->radianceData->unShotRadiance[0]);
+        galerkinState->topLevelElement(patch)->unShotRadiance[0]);
 }
 
 void
@@ -181,7 +181,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
     }
 
     for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
-        GalerkinRadianceMethod::recomputePatchColor(scene->patchList->get(i));
+        GalerkinRadianceMethod::recomputePatchColor(scene->patchList->get(i), scene->getFaceColors());
     }
 }
 
@@ -192,7 +192,7 @@ ShootingStrategy::propagateRadiance(
 {
     // Choose a shooting patch. also accumulates the total un-shot power into
     // galerkinState->ambientRadiance
-    const Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
+    const Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, scene->getDirectPotentials(), galerkinState);
     if ( !shootingPatch ) {
         return true;
     }
@@ -230,13 +230,13 @@ Chooses the patch with highest un-shot importance (potential times
 area), see Bekaert & Willems, EGRW'95 (Dublin)
 */
 Patch *
-ShootingStrategy::choosePotentialShootingPatch(const ArrayList<Patch *> *scenePatches) {
+ShootingStrategy::choosePotentialShootingPatch(const ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState) {
     double maximumImportance = 0.0;
     Patch *shootingPatch = NULL;
 
     for ( int i = 0; scenePatches != NULL && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        double imp = patch->area * Math::abs(galerkinGetUnShotPotential(patch));
+        double imp = patch->area * Math::abs(galerkinGetUnShotPotential(galerkinState, patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;
@@ -254,7 +254,7 @@ ShootingStrategy::propagatePotential(
 {
     const Patch *shootingPatch;
 
-    shootingPatch = choosePotentialShootingPatch(scene->patchList);
+    shootingPatch = choosePotentialShootingPatch(scene->patchList, galerkinState);
     if ( shootingPatch ) {
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
@@ -290,8 +290,8 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
             Potential::updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != NULL && i < scene->patchList->size(); i++ ) {
                 const Patch *patch = scene->patchList->get(i);
-                GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
-                double potential_increment = patch->directPotential - topLevelElement->directPotential;
+                GalerkinElement *topLevelElement = GalerkinElement::fromPatch(galerkinState, patch);
+                double potential_increment = scene->getDirectPotentials()->get(patch->getFaceIndex()) - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             scene->camera->changed = false;

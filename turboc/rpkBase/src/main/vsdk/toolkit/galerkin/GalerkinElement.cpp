@@ -112,7 +112,6 @@ GalerkinElement::initializeCommon(GalerkinState *inGalerkinState) {
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
     minimumArea = Double::MAX_VALUE;
-    scratchVisibilityUsageCounter = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
     numberOfElements++;
@@ -133,7 +132,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     patch = parameterPatch;
     minimumArea = area = patch->area;
     blockerSize = 2.0 * ((double)(Math::sqrt(area / M_PI)));
-    directPotential = patch->directPotential;
+    directPotential = 0.0; // Every face starts without direct potential (DirectPotentialTable)
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->material != NULL && patch->material->getEdf() != NULL ) {
@@ -142,7 +141,6 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
         Ed.scaleInverse(M_PI, Ed);
     }
 
-    patch->radianceData = this;
     reAllocCoefficients();
 }
 
@@ -212,20 +210,21 @@ GalerkinElement::getNumberOfSurfaceElements() {
 }
 
 GalerkinElement *
-GalerkinElement::fromPatch(const Patch *patch) {
+GalerkinElement::fromPatch(const GalerkinState *galerkinState, const Patch *patch) {
     if ( patch == NULL ) {
         System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
         System::exit(1);
     }
-    if ( patch->radianceData == NULL ) {
+    const Element *element = galerkinState->getRadianceElements()->get(patch->getFaceIndex());
+    if ( element == NULL ) {
         System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
         System::exit(1);
     }
-    if ( patch->radianceData->className != ELEMENT_GALERKIN ) {
+    if ( element->className != ELEMENT_GALERKIN ) {
         System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
         System::exit(1);
     }
-    return ((GalerkinElement *)(patch->radianceData));
+    return galerkinState->topLevelElement(patch);
 }
 
 int
@@ -301,7 +300,10 @@ GalerkinElement::reAllocCoefficients() {
                 ColorRgbMutable::arrayCopy(defaultUnShotRadiance, unShotRadiance, Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->material != NULL ) {
-                defaultUnShotRadiance[0] = patch->radianceData->Ed;
+                // While a top-level element is being constructed it is not in the
+                // scene's element table yet, and it is its face's top-level element
+                const GalerkinElement *topLevelElement = parent == NULL ? this : galerkinState->topLevelElement(patch);
+                defaultUnShotRadiance[0] = topLevelElement->Ed;
             }
         }
         unShotRadiance = defaultUnShotRadiance;

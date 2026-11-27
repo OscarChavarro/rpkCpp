@@ -38,6 +38,19 @@ OptionsGroupGalerkin::shaftCullingOption(char *&name) {
 }
 
 void
+OptionsGroupGalerkin::clusteringStrategyOption(char *&name) {
+    if ( strcasecmp(name, "isotropic") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.clusteringStrategy = GalerkinClusteringStrategy::ISOTROPIC;
+    } else if ( strcasecmp(name, "oriented") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.clusteringStrategy = GalerkinClusteringStrategy::ORIENTED;
+    } else if ( strcasecmp(name, "z-visibility") == 0 ) {
+        GalerkinRadianceMethod::galerkinState.clusteringStrategy = GalerkinClusteringStrategy::Z_VISIBILITY;
+    } else {
+        Logger::reportMessage("OptionsGroupGalerkin", Logger::ERROR, "", java::String::format("Invalid clustering strategy '%s' (isotropic, oriented or z-visibility)", name));
+    }
+}
+
+void
 OptionsGroupGalerkin::hierarchicalOption(int &yesno) {
     if ( yesno != 0 ) {
         GalerkinRadianceMethod::galerkinState.hierarchical = true;
@@ -72,6 +85,8 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     TypedOption<char *> iterationMethodOpt = {"-gr-iteration-method", &iterationMethodName, 1, OptionsGroupGalerkin::iterationMethodOption, nullptr};
     char *shaftCullingName = nullptr;
     TypedOption<char *> shaftCullingOpt = {"-gr-shaft-culling", &shaftCullingName, 1, OptionsGroupGalerkin::shaftCullingOption, nullptr};
+    char *clusteringStrategyName = nullptr;
+    TypedOption<char *> clusteringStrategyOpt = {"-gr-clustering-strategy", &clusteringStrategyName, 1, OptionsGroupGalerkin::clusteringStrategyOption, nullptr};
     TypedOption<int> grHierarchicalOpt = {"-gr-hierarchical", &trueValue, 0, OptionsGroupGalerkin::hierarchicalOption, nullptr};
     TypedOption<int> grNotHierarchicalOpt = {"-gr-not-hierarchical", &falseValue, 0, OptionsGroupGalerkin::hierarchicalOption, nullptr};
     TypedOption<int> grLazyOpt = {"-gr-lazy-linking", &trueValue, 0, OptionsGroupGalerkin::lazyOption, nullptr};
@@ -88,6 +103,7 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
     OptionBase galerkinOptions[] = {
         REGISTER_OPTION(char *, iterationMethodOpt, 6),
         REGISTER_OPTION(char *, shaftCullingOpt, 6),
+        REGISTER_OPTION(char *, clusteringStrategyOpt, 6),
         REGISTER_OPTION(int, grHierarchicalOpt, 6),
         REGISTER_OPTION(int, grNotHierarchicalOpt, 10),
         REGISTER_OPTION(int, grLazyOpt, 6),
@@ -103,7 +119,7 @@ OptionsGroupGalerkin::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(int, grThreadsOpt, 6)
     };
     OptionGroup galerkinGroups[] = {
-        OptionGroup("galerkin", galerkinOptions, 15)
+        OptionGroup("galerkin", galerkinOptions, 16)
     };
     OptionParser<OptionBase>::parse(argc, argv, galerkinGroups, 1);
 }

@@ -43,7 +43,7 @@ Tracepath::clearPath(Path *path) {
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 void
-Tracepath::pathAddNode(Path *path, Patch *patch, double prob, Vector3Dd inPoint, Vector3Dd outpoint) {
+Tracepath::pathAddNode(Path *path, const Patch *patch, double prob, Vector3Dd inPoint, Vector3Dd outpoint) {
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
@@ -103,7 +103,7 @@ Tracepath::tracePath(
 {
     Vector3Dd inPoint(0.0, 0.0, 0.0);
     Vector3Dd outpoint(0.0, 0.0, 0.0);
-    Patch *P = origin;
+    const Patch *P = origin;
     double survivalProb;
     Ray ray;
     const RpkRayHit *hit;

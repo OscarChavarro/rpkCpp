@@ -23,7 +23,7 @@ void
 Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration *renderOptions) {
     Canvas::canvasPushMode();
 
-    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, SglFaceIndex());
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
     SoftIds::renderVisibleFaces(*scene, renderOptions, target);
     const long x = target.getWidth();
     const long y = target.getHeight();
@@ -62,7 +62,7 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
           j--, ySample += v ) {
         double xSample = -h * static_cast<double>(x - 1) / 2.0;
         for ( long i = 0; i < x; i++, xSample += h ) {
-            const SglFaceIndex face = target.getSample(static_cast<int>(i), static_cast<int>(j));
+            const FaceIndexSample face = target.getSample(static_cast<int>(i), static_cast<int>(j));
             const unsigned long the_id = face.isBackground() ? 0 :
                 scene->getFace(face.getIndex())->getId() & 0xffffff;
 
@@ -119,7 +119,7 @@ void
 Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfiguration *renderOptions) {
     const long long t = java::System::nanoTime();
 
-    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, SglFaceIndex());
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
     SoftIds::renderVisibleFaces(*scene, renderOptions, target);
 
     FaceVisibilityTable *const faceVisibility = scene->getFaceVisibility();
@@ -128,7 +128,7 @@ Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfigur
     }
     for ( int y = 0; y < target.getHeight(); y++ ) {
         for ( int x = 0; x < target.getWidth(); x++ ) {
-            const SglFaceIndex face = target.getSample(x, y);
+            const FaceIndexSample face = target.getSample(x, y);
             if ( !face.isBackground() ) {
                 faceVisibility->setVisible(face.getIndex(), true);
             }

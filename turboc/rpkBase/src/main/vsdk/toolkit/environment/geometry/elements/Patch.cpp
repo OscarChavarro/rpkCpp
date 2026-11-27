@@ -590,7 +590,6 @@ Patch::Patch(
     RpkVertex *v2,
     RpkVertex *v3,
     RpkVertex *v4):
-    flags(),
     faceIndex(-1),
     id(),
     twin(),
@@ -603,11 +602,8 @@ Patch::Patch(
     area(),
     midPoint(),
     jacobian(),
-    directPotential(),
     index(),
     omit(),
-    color(),
-    radianceData(),
     material()
 {
     if ( v1 == NULL || v2 == NULL || v3 == NULL || (inNumberOfVertices == 4 && v4 == NULL) ) {
@@ -666,23 +662,13 @@ Patch::Patch(
     // Tell the vertices that there's a new Patch using them
     connectVertices();
 
-    directPotential = 0.0;
-    color = ColorRgb(0.0, 0.0, 0.0);
-
     omit = false;
-    flags = 0; // Other flags
-
-    radianceData = NULL;
 }
 
 Patch::~Patch() {
 
     if ( boundingBox != NULL ) {
         delete boundingBox;
-    }
-
-    if ( radianceData != NULL ) {
-        delete radianceData;
     }
 }
 
@@ -796,7 +782,7 @@ Patch::intersect(
     double *maximumDistance,
     int hitFlags,
     RpkRayHit *hitStore,
-    const RayExclusionSet &exclusions)
+    const RayExclusionSet &exclusions) const
 {
     RpkRayHit hit;
 
@@ -991,9 +977,9 @@ Patch::uv(const Vector3Dd *point, double *u, double *v) const {
 Computes a vertex color for the vertices of the patch
 */
 void
-Patch::computeVertexColors() const {
+Patch::computeVertexColors(const FaceColorTable *faceColors) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        vertex[i]->computeColor();
+        vertex[i]->computeColor(faceColors);
     }
 }
 

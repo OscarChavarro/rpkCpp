@@ -9,7 +9,6 @@
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/skin/RpkGeometry.h"
-#include "vsdk/toolkit/render/sgl/SglContext.h"
 #include "vsdk/toolkit/galerkin/GalerkinBasisType.h"
 #include "vsdk/toolkit/galerkin/GalerkinClusteringStrategy.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
@@ -19,6 +18,9 @@
 #include "vsdk/toolkit/galerkin/ShaftCullStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorWorkspace.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
+#include "vsdk/toolkit/scene/RadianceElementTable.h"
+
+class ScratchVisibilityWorkspace;
 
 class GalerkinState {
   public:
@@ -65,11 +67,10 @@ class GalerkinState {
     // Clustering strategy
     GalerkinClusteringStrategy clusteringStrategy;
 
-    // Scratch offscreen renderer for various clustering operations
-    SglContext *scratch;
+    // Scratch offscreen renderer of the solver for the Z-visibility
+    // clustering strategy
+    ScratchVisibilityWorkspace *scratchVisibilityWorkspace;
     int scratchFrameBufferSize;
-    int lastClusterId; // Used for caching cluster and eye point
-    Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     long long lastClock; // For CPU timing (nanoseconds)
     double cpuSeconds;
@@ -86,10 +87,18 @@ class GalerkinState {
     /** Jacobi iterations: gathering with the radiance of the previous iteration */
     inline bool isJacobi() const;
 
+    const RadianceElementTable *getRadianceElements() const;
+    GalerkinElement *topLevelElement(const Patch *patch) const;
+    const Element *boundElement(const Patch *patch) const;
+    void setRadianceElements(const RadianceElementTable *inRadianceElements);
+
   private:
     // Not copyable
     GalerkinState(const GalerkinState &);
     GalerkinState &operator=(const GalerkinState &);
+
+    // The scene's table of top-level elements, bound when the method is initialized
+    const RadianceElementTable *radianceElements;
 
     #define DEFAULT_GAL_HIERARCHICAL true
     #define DEFAULT_GAL_ITERATION_METHOD JACOBI
@@ -112,6 +121,37 @@ class GalerkinState {
     #define DEFAULT_GAL_SHAFT_CULL_STRATEGY OVERLAP_OPEN
     #define DF_GAL_ITRTN_NOT_INTLZ -1
 };
+
+inline const RadianceElementTable *
+GalerkinState::getRadianceElements() const {
+    return radianceElements;
+}
+
+inline void
+GalerkinState::setRadianceElements(const RadianceElementTable *inRadianceElements) {
+    radianceElements = inRadianceElements;
+}
+
+/**
+Top-level element of a face, without checks (hot path); see
+GalerkinElement::fromPatch for the checked lookup
+*/
+inline GalerkinElement *
+GalerkinState::topLevelElement(const Patch *patch) const {
+    return ((GalerkinElement *)(radianceElements->get(patch->getFaceIndex())));
+}
+
+/**
+Element bound to a face, of any radiance method, or NULL when no method is
+bound or the face has no element (checked lookup for tools)
+*/
+inline const Element *
+GalerkinState::boundElement(const Patch *patch) const {
+    if ( radianceElements == NULL || patch == NULL ) {
+        return NULL;
+    }
+    return radianceElements->get(patch->getFaceIndex());
+}
 
 /**
 The cpp port's PARALLEL_JACOBI is Jacobi too; the serial Turbo C++ port has

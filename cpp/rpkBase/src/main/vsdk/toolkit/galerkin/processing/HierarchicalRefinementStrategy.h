@@ -9,6 +9,9 @@
 #include "vsdk/toolkit/galerkin/processing/InteractionEvaluationCode.h"
 #include "vsdk/toolkit/galerkin/processing/RefinementWorkspace.h"
 
+class ClusterTransportPlan;
+class ElementSamples;
+
 /**
 Shaft culling stuff for hierarchical refinement
 */
@@ -48,6 +51,7 @@ class HierarchicalRefinementStrategy {
         Interaction *interaction,
         ColorRgb srcRho,
         ColorRgb rcvRho,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static double
@@ -55,16 +59,19 @@ class HierarchicalRefinementStrategy {
         Interaction *interaction,
         ColorRgb rcvRho,
         double receiverArea,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static InteractionEvaluationCode
     hierarchicRefinementEvaluateInteraction(
         Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementComputeLightTransport(
         Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
         GalerkinState *galerkinState);
 
     static int
@@ -188,7 +195,23 @@ class HierarchicalRefinementStrategy {
     static void runWorkers(int numberOfThreads, const F &body);
     static int ownerOf(const GalerkinElement *element, int numberOfThreads);
 
-    static void receiverLightTransport(const Interaction *interaction, GalerkinState *galerkinState);
+    static void receiverLightTransport(
+        const Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
+        const ClusterTransportPlan *plan,
+        const java::ArrayList<ElementSamples> *samplePools,
+        GalerkinState *galerkinState);
+    static void planClusterTransport(
+        const Interaction *interaction,
+        ScratchVisibilityWorkspace *scratch,
+        GalerkinState *galerkinState,
+        int pool,
+        java::ArrayList<ElementSamples> *samplePool,
+        ClusterTransportPlan *plan);
+    static void applyClusterLightTransports(
+        const java::ArrayList<Interaction *> *transports,
+        GalerkinState *galerkinState,
+        int numberOfThreads);
     static void sourceLightTransport(const Interaction *interaction, const GalerkinState *galerkinState);
 
   public:

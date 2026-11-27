@@ -29,6 +29,9 @@
 # list with their exports to PolyhedralBoundedSolid and everything they
 # include: the Geometry / Solid / Volume hierarchy, the ray query elements
 # and the boundary representation kernel (Euler operators and validation).
+# The convex polygon clipper of [SUTH1974b] (geometricProcessing/convexPolygonClipper)
+# and the polygon scan converter and visibility buffer of [HECK1990] and
+# [BEKA1997] (render/raster/polygonScanConverter) moved from rpkBase into VITRAL.
 java/io/BufferedInputStream.cpp
 java/io/BufferedInputStream.h
 java/io/File.cpp
@@ -190,6 +193,11 @@ vsdk/toolkit/environment/geometry/element/Vertex.cpp
 vsdk/toolkit/environment/geometry/element/Vertex.h
 vsdk/toolkit/environment/geometry/element/Vertex2D.cpp
 vsdk/toolkit/environment/geometry/element/Vertex2D.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.cpp
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/HomogeneousHalfSpace.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/PolygonVertex.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ScreenPolygon.h
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
@@ -315,3 +323,16 @@ vsdk/toolkit/media/RGBPixel.h
 vsdk/toolkit/processing/ComputationalGeometry.cpp
 vsdk/toolkit/processing/ComputationalGeometry.h
 vsdk/toolkit/processing/Containment.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBox.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.cpp
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipOutcome.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipResult.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.cpp
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanConverter.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanFlat.txx
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanZ.txx
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.txx
+vsdk/toolkit/render/raster/polygonScanConverter/RasterRectangle2D.h

@@ -16,7 +16,7 @@ class RayCaster: public RayTracer{ private:
     static void clipUv(int numberOfVertices, double *u, double *v);
 
     inline ColorRgb
-    getRadianceAtPixel( Camera *camera, int x, int y, Patch *patch, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) const;
+    getRadianceAtPixel( Camera *camera, int x, int y, const Patch *patch, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) const;
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = NULL);

@@ -19,6 +19,9 @@ Hierarchical refinement
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/FormFactorStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/HierarchicalRefinementStrategy.h"
+#include "vsdk/toolkit/galerkin/processing/ClusterTransportPlan.h"
+#include "vsdk/toolkit/galerkin/processing/ElementSamples.h"
+#include "vsdk/toolkit/galerkin/processing/ScratchVisibilityWorkspace.h"
 #include "vsdk/toolkit/galerkin/Shaft.h"
 
 MemoryPool<double> HierarchicalRefinementStrategy::hierarchicalCoefficientsPool;
@@ -185,6 +188,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
     Interaction *interaction,
     ColorRgb srcRho,
     ColorRgb rcvRho,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     ColorRgb error(0.0, 0.0, 0.0);
@@ -212,7 +216,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
             if ( interaction->sourceElement->isCluster()
               && interaction->sourceElement != interaction->receiverElement ) {
                 // Returns un-shot radiance for shooting
-                srcRad = ClusterTraversalStrategy::sourceClusterRadiance(interaction, galerkinState);
+                srcRad = ClusterTraversalStrategy::sourceClusterRadiance(interaction, scratch, galerkinState);
             } else {
                 srcRad = interaction->sourceElement->unShotRadiance[0];
             }
@@ -266,6 +270,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     Interaction *interaction,
     ColorRgb rcvRho,
     double receiverArea,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     double K = interaction->K[0];
@@ -286,7 +291,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad(0.0, 0.0, 0.0);
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(
-                interaction->sourceElement, rcVertices[i], galerkinState);
+                interaction->sourceElement, rcVertices[i], scratch, galerkinState);
         minimumSrcRad = minimumSrcRad.minimum(rad);
         maximumSrcRad = maximumSrcRad.maximum(rad);
     }
@@ -300,6 +305,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
 InteractionEvaluationCode
 HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
     ColorRgb srcRho(0.0, 0.0, 0.0);
@@ -319,7 +325,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     // and reflectivity
     if ( interaction->receiverElement->isCluster() ) {
         rcvRho = ColorRgb(1.0, 1.0, 1.0);
-        receiveArea = ClusterTraversalStrategy::receiverArea(interaction, galerkinState);
+        receiveArea = ClusterTraversalStrategy::receiverArea(interaction, scratch, galerkinState);
     } else {
         rcvRho = interaction->receiverElement->galerkinState->topLevelElement(interaction->receiverElement->patch)->Rd;
         receiveArea = interaction->receiverElement->area;
@@ -334,12 +340,12 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
 
     // Determine error estimate and error threshold
     threshold = hierarchicRefinementLinkErrorThreshold(interaction, receiveArea, galerkinState);
-    error = hierarchicRefinementApproximationError(interaction, srcRho, rcvRho, galerkinState);
+    error = hierarchicRefinementApproximationError(interaction, srcRho, rcvRho, scratch, galerkinState);
 
     if ( interaction->sourceElement->isCluster()
          && error < threshold
          && galerkinState->clusteringStrategy != GalerkinClusteringStrategy::ISOTROPIC ) {
-        error += sourceClusterRadianceVariationError(interaction, rcvRho, receiveArea, galerkinState);
+        error += sourceClusterRadianceVariationError(interaction, rcvRho, receiveArea, scratch, galerkinState);
     }
 
     // Minimal element area for which subdivision is allowed
@@ -380,20 +386,25 @@ once for all accumulated received radiance during push-pull
 void
 HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
     Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
     GalerkinState *galerkinState)
 {
-    receiverLightTransport(interaction, galerkinState);
+    receiverLightTransport(interaction, scratch, nullptr, nullptr, galerkinState);
     sourceLightTransport(interaction, galerkinState);
 }
 
 /**
 The part of light transport that writes the receiver: the number of
 effectively used radiance coefficients and the received radiance. It reads
-only the source radiance (frozen during gathering)
+only the source radiance (frozen during gathering). What the plan, when given,
+holds is used instead of computing it (see planClusterTransport)
 */
 void
 HierarchicalRefinementStrategy::receiverLightTransport(
     const Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
+    const ClusterTransportPlan *plan,
+    const java::ArrayList<ElementSamples> *samplePools,
     GalerkinState *galerkinState)
 {
     // Update the number of effectively used radiance coefficients on the
@@ -414,12 +425,22 @@ HierarchicalRefinementStrategy::receiverLightTransport(
 
     ColorRgb linkClusterRad(0.0, 0.0, 0.0);
     if ( interaction->sourceElement->isCluster() && interaction->sourceElement != interaction->receiverElement ) {
-        linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(const_cast<Interaction *>(interaction), galerkinState);
+        if ( plan != nullptr && plan->hasSourceRadiance() ) {
+            linkClusterRad = plan->getSourceRadiance();
+        } else {
+            linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(const_cast<Interaction *>(interaction), scratch, galerkinState);
+        }
         srcRad = &linkClusterRad;
     }
 
     if ( interaction->receiverElement->isCluster() && interaction->sourceElement != interaction->receiverElement ) {
-        ClusterTraversalStrategy::gatherRadiance(const_cast<Interaction *>(interaction), srcRad, galerkinState);
+        if ( plan != nullptr && plan->hasReceiverSamples() ) {
+            ClusterTraversalStrategy::gatherRadianceFromSamples(
+                const_cast<Interaction *>(interaction), srcRad, plan->getPixelArea(),
+                samplePools[plan->getPool()].data() + plan->getFirstSample(), plan->getNumberOfSamples());
+        } else {
+            ClusterTraversalStrategy::gatherRadiance(const_cast<Interaction *>(interaction), srcRad, scratch, galerkinState);
+        }
     } else {
         rcvRad = interaction->receiverElement->receivedRadiance;
         if ( interaction->numberOfBasisFunctionsOnReceiver == 1 && interaction->numberOfBasisFunctionsOnSource == 1 ) {
@@ -812,11 +833,11 @@ HierarchicalRefinementStrategy::refineRecursive(
     bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == scene->clusteredGeometryList);
-    switch ( hierarchicRefinementEvaluateInteraction(interaction, galerkinState) ) {
+    switch ( hierarchicRefinementEvaluateInteraction(interaction, workspace->getScratchVisibilityWorkspace(), galerkinState) ) {
         case InteractionEvaluationCode::ACCURATE_ENOUGH:
             // A parallel Jacobi worker leaves light transport to the commit
             if ( workspace->getRecord() == nullptr ) {
-                hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+                hierarchicRefinementComputeLightTransport(interaction, workspace->getScratchVisibilityWorkspace(), galerkinState);
             }
             refined = false;
             break;
@@ -942,6 +963,7 @@ HierarchicalRefinementStrategy::refineInteractions(
     RefinementWorkspace workspace(
         scene->getSceneQueryWorkspace(),
         galerkinState->formFactorWorkspace,
+        galerkinState->scratchVisibilityWorkspace,
         &hierarchicalCoefficientsPool,
         nullptr,
         nullptr,
@@ -968,7 +990,8 @@ subdivided): their light transport was done when they were created.
 
 bool
 HierarchicalRefinementStrategy::parallelRefinementSupported(const GalerkinState *galerkinState) {
-    return galerkinState->clusteringStrategy == GalerkinClusteringStrategy::ISOTROPIC
+    return (galerkinState->clusteringStrategy == GalerkinClusteringStrategy::ISOTROPIC
+            || galerkinState->clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY)
         && galerkinState->shaftCullMode == GalerkinShaftCullMode::NEVER_DO_SHAFT_CULLING
         && !galerkinState->multiResolutionVisibility;
 }
@@ -1052,7 +1075,12 @@ HierarchicalRefinementStrategy::ownerOf(const GalerkinElement *element, int numb
 Light transport over the interactions, as if done one after the other in
 their order. Each element gets its sums in that order: the interactions are
 partitioned by the element written (receiver, then in a second pass source),
-keeping their order inside each part, and each part goes to one worker
+keeping their order inside each part, and each part goes to one worker.
+With a clustering strategy other than isotropic, light transport to a receiver
+cluster writes the surface elements in it, which other receivers (the clusters
+containing it, or contained in it) write too, so it is done serially, with the
+solver's scratch visibility workspace; with Z-visibility, its renderings are
+made ahead in parallel (applyClusterLightTransports).
 */
 void
 HierarchicalRefinementStrategy::applyLightTransports(
@@ -1061,9 +1089,13 @@ HierarchicalRefinementStrategy::applyLightTransports(
     int numberOfThreads)
 {
     const long int n = transports->size();
-    if ( numberOfThreads <= 1 || n < 4096 ) {
+    if ( numberOfThreads > 1 && galerkinState->clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
+        applyClusterLightTransports(transports, galerkinState, numberOfThreads);
+        return;
+    }
+    if ( numberOfThreads <= 1 || n < 4096 || galerkinState->clusteringStrategy != GalerkinClusteringStrategy::ISOTROPIC ) {
         for ( long int i = 0; i < n; i++ ) {
-            hierarchicRefinementComputeLightTransport(transports->get(i), galerkinState);
+            hierarchicRefinementComputeLightTransport(transports->get(i), galerkinState->scratchVisibilityWorkspace, galerkinState);
         }
         return;
     }
@@ -1090,7 +1122,7 @@ HierarchicalRefinementStrategy::applyLightTransports(
         for ( int slice = 0; slice < W; slice++ ) {
             const java::ArrayList<int> *part = receiverParts.get(static_cast<long int>(slice) * W + owner);
             for ( long int k = 0; k < part->size(); k++ ) {
-                receiverLightTransport(transports->get(part->get(k)), galerkinState);
+                receiverLightTransport(transports->get(part->get(k)), nullptr, nullptr, nullptr, galerkinState);
             }
         }
     });
@@ -1106,6 +1138,85 @@ HierarchicalRefinementStrategy::applyLightTransports(
         delete receiverParts.get(i);
         delete sourceParts.get(i);
     }
+}
+
+/**
+Computes ahead, in the plan, what the light transport over the interaction
+takes from the scratch visibility renderer (Z-visibility clustering): the
+radiance of a source cluster and the samples of a receiver cluster seen from
+outside. It reads only state frozen during the iteration
+*/
+void
+HierarchicalRefinementStrategy::planClusterTransport(
+    const Interaction *interaction,
+    ScratchVisibilityWorkspace *scratch,
+    GalerkinState *galerkinState,
+    int pool,
+    java::ArrayList<ElementSamples> *samplePool,
+    ClusterTransportPlan *plan)
+{
+    Interaction *link = const_cast<Interaction *>(interaction);
+    if ( interaction->sourceElement == interaction->receiverElement ) {
+        return;
+    }
+    if ( interaction->sourceElement->isCluster() ) {
+        plan->setSourceRadiance(ClusterTraversalStrategy::sourceClusterRadiance(link, scratch, galerkinState));
+    }
+    double pixelArea;
+    if ( interaction->receiverElement->isCluster()
+      && ClusterTraversalStrategy::receiverSamples(link, scratch, galerkinState, &pixelArea) ) {
+        const java::ArrayList<ElementSamples> &visible = scratch->getVisibleElements();
+        plan->setReceiverSamples(pixelArea, pool, samplePool->size(), visible.size());
+        for ( long int i = 0; i < visible.size(); i++ ) {
+            samplePool->add(visible[i]);
+        }
+    }
+}
+
+/**
+Light transport over the interactions with Z-visibility clustering, as if
+done one after the other in their order. In batches, the workers first render
+what each interaction needs into their own scratch visibility workspaces
+(planClusterTransport); then the transport sums are done serially, in order,
+from those plans
+*/
+void
+HierarchicalRefinementStrategy::applyClusterLightTransports(
+    const java::ArrayList<Interaction *> *transports,
+    GalerkinState *galerkinState,
+    int numberOfThreads)
+{
+    const long int n = transports->size();
+    const long int batchSize = 16384;
+    ScratchVisibilityWorkspace **workspaces = new ScratchVisibilityWorkspace *[numberOfThreads];
+    // The samples the plans of each worker count; cleared, keeping their
+    // storage, from one batch to the next
+    java::ArrayList<ElementSamples> *samplePools = new java::ArrayList<ElementSamples>[numberOfThreads];
+    for ( int w = 0; w < numberOfThreads; w++ ) {
+        workspaces[w] = new ScratchVisibilityWorkspace(galerkinState->scratchFrameBufferSize);
+    }
+    for ( long int first = 0; first < n; first += batchSize ) {
+        const long int end = java::Math::min(first + batchSize, n);
+        ClusterTransportPlan *plans = new ClusterTransportPlan[end - first];
+        java::AtomicLong next(first);
+        runWorkers(numberOfThreads, [&](int w) {
+            samplePools[w].clear();
+            for ( long int i = next.getAndAdd(1); i < end; i = next.getAndAdd(1) ) {
+                planClusterTransport(transports->get(i), workspaces[w], galerkinState, w, &samplePools[w], &plans[i - first]);
+            }
+        });
+        for ( long int i = first; i < end; i++ ) {
+            receiverLightTransport(
+                transports->get(i), galerkinState->scratchVisibilityWorkspace, &plans[i - first], samplePools, galerkinState);
+            sourceLightTransport(transports->get(i), galerkinState);
+        }
+        delete[] plans;
+    }
+    for ( int w = 0; w < numberOfThreads; w++ ) {
+        delete workspaces[w];
+    }
+    delete[] workspaces;
+    delete[] samplePools;
 }
 
 /**
@@ -1170,7 +1281,7 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
     if ( !parallelRefinementSupported(galerkinState) ) {
         if ( galerkinState->iterationNumber <= 1 ) {
             Logger::reportMessage("HierarchicalRefinementStrategy", Logger::WARNING, "refineInteractionsInParallel",
-                "Parallel Jacobi needs isotropic clustering, no shaft culling "
+                "Parallel Jacobi needs isotropic or Z-visibility clustering, no shaft culling "
                 "and no multi-resolution visibility: refining serially");
         }
         refineInteractions(scene, parentElement, galerkinState);
@@ -1201,11 +1312,16 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
         SceneQueryWorkspace sceneQueryWorkspace(*scene->getSceneQuery());
         FormFactorWorkspace formFactorWorkspace(&shadowStatistics[w]);
         formFactorWorkspace.setDeferredNodesTooClose(records[w].getNodesTooClose());
+        ScratchVisibilityWorkspace *scratchVisibilityWorkspace = nullptr;
+        if ( galerkinState->clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
+            scratchVisibilityWorkspace = new ScratchVisibilityWorkspace(galerkinState->scratchFrameBufferSize);
+        }
         MemoryPool<double> coefficientsPool;
         coefficientsPool.init(16 * 1024 * 1024);
         RefinementWorkspace workspace(
             &sceneQueryWorkspace,
             &formFactorWorkspace,
+            scratchVisibilityWorkspace,
             &coefficientsPool,
             &records[w],
             &subdivisionLock,
@@ -1239,6 +1355,7 @@ HierarchicalRefinementStrategy::refineInteractionsInParallel(
         } catch ( ... ) {
             scheduler.fail();
         }
+        delete scratchVisibilityWorkspace;
     });
     for ( int w = 0; w < numberOfThreads; w++ ) {
         Statistics::instance().shadow.numberOfShadowRays += shadowStatistics[w].numberOfShadowRays;

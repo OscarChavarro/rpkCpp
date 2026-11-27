@@ -120,11 +120,6 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
         return true;
     }
 
-    if ( value->radianceData != NULL ) {
-        Logger::reportMessage("BinaryModelSerializationGraph", Logger::ERROR, "BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
-        return false;
-    }
-
     const int index = ((int)(patches.size()));
     if ( !patches.add(value) ) {
         Logger::reportMessage("BinaryModelSerializationGraph", Logger::ERROR, "BinaryModelSerializationGraph::ensurePatch", "Failed to append patch");

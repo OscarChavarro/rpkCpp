@@ -12,6 +12,7 @@
 class GalerkinElement;
 class Interaction;
 class RpkGeometry;
+class ScratchVisibilityWorkspace;
 
 /**
 What the refinement of one interaction did to shared state, recorded by a
@@ -325,9 +326,10 @@ class RefinementGroup {
 
 /**
 Mutable scratch of one thread of hierarchical refinement. The serial solver
-uses the scene's query workspace, the solver's form factor workspace and no
-record: light transport and interaction storage are done at once. A parallel
-Jacobi worker has its own query, form factor and coefficient scratch, a record
+uses the scene's query workspace, the solver's form factor and scratch
+visibility workspaces and no record: light transport and interaction storage
+are done at once. A parallel Jacobi worker has its own query, form factor,
+scratch visibility (Z-visibility clustering only) and coefficient scratch, a record
 receiving what is to be done later in the serial order, the lock shared
 by the workers for regular subdivision and the scheduler of their tasks.
 Nothing is owned.
@@ -337,12 +339,14 @@ class RefinementWorkspace {
     RefinementWorkspace(
         SceneQueryWorkspace *inSceneQueryWorkspace,
         FormFactorWorkspace *inFormFactorWorkspace,
+        ScratchVisibilityWorkspace *inScratchVisibilityWorkspace,
         MemoryPool<double> *inCoefficientsPool,
         RefinementRecord *inRecord,
         java::ReentrantLock *inSubdivisionLock,
         RefinementScheduler *inScheduler):
         sceneQueryWorkspace(inSceneQueryWorkspace),
         formFactorWorkspace(inFormFactorWorkspace),
+        scratchVisibilityWorkspace(inScratchVisibilityWorkspace),
         coefficientsPool(inCoefficientsPool),
         record(inRecord),
         subdivisionLock(inSubdivisionLock),
@@ -350,6 +354,9 @@ class RefinementWorkspace {
 
     SceneQueryWorkspace *getSceneQueryWorkspace() const { return sceneQueryWorkspace; }
     FormFactorWorkspace *getFormFactorWorkspace() const { return formFactorWorkspace; }
+
+    /** nullptr unless the clustering strategy is Z-visibility */
+    ScratchVisibilityWorkspace *getScratchVisibilityWorkspace() const { return scratchVisibilityWorkspace; }
     MemoryPool<double> *getCoefficientsPool() const { return coefficientsPool; }
 
     /** nullptr for the serial solver */
@@ -364,6 +371,7 @@ class RefinementWorkspace {
   private:
     SceneQueryWorkspace *sceneQueryWorkspace;
     FormFactorWorkspace *formFactorWorkspace;
+    ScratchVisibilityWorkspace *scratchVisibilityWorkspace;
     MemoryPool<double> *coefficientsPool;
     RefinementRecord *record;
     java::ReentrantLock *subdivisionLock;

@@ -11,12 +11,11 @@ GalerkinState::GalerkinState():
     sourceTriangleCubatureRule(),
     sourceQuadCubatureRule(),
     topCluster(),
-    lastClusterId(),
-    lastEye(),
     lastClock(),
     cpuSeconds(),
     toneMapOptions(),
-    formFactorWorkspace()
+    formFactorWorkspace(),
+    radianceElements()
 {
     formFactorWorkspace = new FormFactorWorkspace(&Statistics::instance().shadow);
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
@@ -42,7 +41,7 @@ GalerkinState::GalerkinState():
     exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY;
     multiResolutionVisibility = DF_GAL_MLT_RSLTN_VSBLT;
     scratchFrameBufferSize = DF_GAL_SCR_FRM_BUF_SID_SIZ_I_PX;
-    scratch = NULL;
+    scratchVisibilityWorkspace = NULL;
     iterationNumber = DF_GAL_ITRTN_NOT_INTLZ;
     shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
     toneMapOptions = NULL;

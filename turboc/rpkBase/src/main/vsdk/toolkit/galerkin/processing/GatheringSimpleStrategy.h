@@ -4,8 +4,8 @@
 #include "vsdk/toolkit/galerkin/processing/GatheringStrategy.h"
 
 class GatheringSimpleStrategy: public GatheringStrategy{ private:
-    static void patchUpdatePotential(const Patch *patch);
-    static void patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState);
+    static void patchUpdatePotential(const Patch *patch, const DirectPotentialTable *directPotentials, const GalerkinState *galerkinState);
+    static void patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState, FaceColorTable *faceColors);
 
     static void
     patchLazyCreateInteractions( const Scene *scene, const Patch *patch, const GalerkinState *galerkinState);

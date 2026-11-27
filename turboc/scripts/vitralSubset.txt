@@ -5,8 +5,8 @@
 # scripts/vitralSubset.sh --check compares each with a VITRAL checkout byte for
 # byte and fails on any file of base/src/main missing from this list;
 # --refresh copies them from it.
-# Pin: VITRAL 20e67173 (turboc/base/src/main) plus the uncommitted turboc
-# counterpart of that cpp commit: the double precision Vector3Dd operations
+# Pin: VITRAL b3ab7058 (turboc/base/src/main). It holds, since cfd02831, the
+# turboc counterpart of the double precision cpp commit: the Vector3Dd operations
 # (lengthSquared, manhattanLength, distance, distanceSquared, multiplyByInverse,
 # normalized, dominantAxis, component), Vector2Dd subtract and lengthSquared,
 # Matrix2x2 on double / Vector2Dd, Vector3DPrinter for Vector3Dd, and KDTree,
@@ -21,6 +21,12 @@
 # strategies and node printers), environment/geometry/element/Ray (which
 # replaced RenderPark's RpkRay) and common/color/Cie (the immutable CIE color
 # space that replaced RenderPark's static Cie).
+# Added with cpp c2e31d2a: the convex polygon clipper of [SUTH1974b]
+# (geometricProcessing/convexPolygonClipper) and the polygon scan converter and
+# visibility buffer of [HECK1990] and [BEKA1997] (render/raster/polygonScanConverter)
+# moved from rpkBase into VITRAL. PolygonScanConverter.cpp has no cpp
+# counterpart: it defines PolygonScanConverterDepth::MAXIMUM_DEPTH, a static
+# data member of the class template in the cpp port.
 # Files of the cpp port's subset left out of this port, although VITRAL's
 # turboc port carries them: PlanarFace (plan step 3 part 2), the
 # environment/material files of step 2a (Material.h, PhongLobe, PhongMaterial,
@@ -191,6 +197,11 @@ vsdk/toolkit/environment/geometry/element/Vertex.cpp
 vsdk/toolkit/environment/geometry/element/Vertex.h
 vsdk/toolkit/environment/geometry/element/Vertex2D.cpp
 vsdk/toolkit/environment/geometry/element/Vertex2D.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.cpp
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/HomogeneousHalfSpace.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/PolygonVertex.h
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ScreenPolygon.h
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.cpp
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.h
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.cpp
@@ -306,3 +317,17 @@ vsdk/toolkit/media/RGBPixel.h
 vsdk/toolkit/processing/ComputationalGeometry.cpp
 vsdk/toolkit/processing/ComputationalGeometry.h
 vsdk/toolkit/processing/Containment.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBox.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.cpp
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipOutcome.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipResult.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.cpp
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanConverter.cpp
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanConverter.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanFlat.txx
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanZ.txx
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.h
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.txx
+vsdk/toolkit/render/raster/polygonScanConverter/RasterRectangle2D.h

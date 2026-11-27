@@ -16,7 +16,7 @@ class RadianceImageExporter{ public:
 
   private:
     static void clipUv(int numberOfVertices, double *u, double *v);
-    static ColorRgb getRadianceAtPixel( const ScreenBuffer *screenBuffer, Camera *camera, int x, int y, Patch *patch, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    static ColorRgb getRadianceAtPixel( const ScreenBuffer *screenBuffer, Camera *camera, int x, int y, const Patch *patch, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
 };
 
 #endif

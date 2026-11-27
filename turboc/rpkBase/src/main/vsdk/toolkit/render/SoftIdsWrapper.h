@@ -1,33 +1,31 @@
 #ifndef __SOFT_IDS_WRAPPER__
 #define __SOFT_IDS_WRAPPER__
 
-#include "java/util/ArrayList.h"
-#include "vsdk/toolkit/render/Softids.h"
+#include "vsdk/toolkit/render/FaceVisibilityBuffer.h"
+#include "vsdk/toolkit/scene/Scene.h"
 
 class SoftIdsWrapper {
   private:
-    SglContext *sgl; // Software rendering context, includes frame buffer
-
-    void init(const Scene *scene, const RenderOptions *renderOptions); // Also performs the actual ID rendering
+    const Scene &scene;
+    FaceVisibilityBuffer target;
 
   public:
-    explicit SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions);
-    ~SoftIdsWrapper();
+    explicit SoftIdsWrapper(const Scene *inScene, const RenderOptions *renderOptions);
 
     void getSize(long *width, long *height) const;
-    Patch *getPatchAtPixel(int x, int y) const;
+    const Patch *getPatchAtPixel(int x, int y) const;
 };
 
 inline void
 SoftIdsWrapper::getSize(long *width, long *height) const {
-    *width = sgl->width;
-    *height = sgl->height;
+    *width = target.getWidth();
+    *height = target.getHeight();
 }
 
-inline Patch *
+inline const Patch *
 SoftIdsWrapper::getPatchAtPixel(int x, int y) const {
-    int index = (sgl->height - 1 - y) * sgl->width + x;
-    return sgl->patchBuffer[index];
+    const FaceIndexSample face = target.getSample(x, target.getHeight() - 1 - y);
+    return face.isBackground() ? NULL : scene.getFace(face.getIndex());
 }
 
 #endif

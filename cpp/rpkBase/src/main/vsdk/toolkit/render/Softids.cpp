@@ -26,7 +26,7 @@ SoftIds::drawPatch(
     for ( int i = 0; i < count; i++ ) {
         vertices[i] = *patch.getVertices()[i]->point;
     }
-    target.drawPolygon(count, vertices, SglFaceIndex(patch.getFaceIndex()));
+    target.drawPolygon(count, vertices, FaceIndexSample(patch.getFaceIndex()));
 }
 
 void
@@ -57,7 +57,7 @@ Legacy patch ID export. Zero represents the background.
 */
 unsigned long *
 SoftIds::softRenderIds(long *width, long *height, const Scene *scene, const RendererConfiguration *renderOptions) {
-    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, SglFaceIndex());
+    FaceVisibilityBuffer target(scene->camera->xSize, scene->camera->ySize, FaceIndexSample());
     renderVisibleFaces(*scene, renderOptions, target);
 
     *width = target.getWidth();
@@ -66,7 +66,7 @@ SoftIds::softRenderIds(long *width, long *height, const Scene *scene, const Rend
     for ( int y = 0; y < *height; y++ ) {
         const long rowStart = y * *width;
         for ( int x = 0; x < *width; x++ ) {
-            const SglFaceIndex face = target.getSample(x, y);
+            const FaceIndexSample face = target.getSample(x, y);
             ids[rowStart + x] = face.isBackground() ? 0 : scene->getFace(face.getIndex())->getId();
         }
     }

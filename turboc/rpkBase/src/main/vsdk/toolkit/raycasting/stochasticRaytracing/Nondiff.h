@@ -25,7 +25,7 @@ class Nondiff{ public:
     static Ray sampleLightRay( Patch *patch, ColorRgb *emittedRadiance, double *pointSelectionPdf, double *dirSelectionPdf);
     static void sampleLight(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, LightSourceTable *light, double lightSelectionPdf);
     static void sampleLightSources(const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace, int samplesCount);
-    static void summarize(const ArrayList<Patch *> *scenePatches);
+    static void summarize(const ArrayList<Patch *> *scenePatches, FaceColorTable *faceColors);
 };
 
 #endif
