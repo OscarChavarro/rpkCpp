@@ -1,5 +1,6 @@
 import { NodeWorkerExecutor } from "rpk-base/dist/java/concurrent/NodeWorkerExecutor";
 import { RefinementReplicas } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
+import { ReplicaMemory } from "./ReplicaMemory";
 import { RpkApplication } from "./RpkApplication";
 
 export class Main {
@@ -22,6 +23,10 @@ if ((require as any).main === module) {
   // The workers of the parallel Jacobi iterations are replicas of this
   // program, with its command line (see RefinementReplicaMain)
   const replicaModule = require("node:path").join(__dirname, "RefinementReplicaMain.js");
-  RefinementReplicas.setReplicaFactory(() => new NodeWorkerExecutor(replicaModule), process.argv.slice(2));
+  RefinementReplicas.setReplicaFactory(
+    () => new NodeWorkerExecutor(replicaModule, ReplicaMemory.workerOptions()),
+    process.argv.slice(2),
+  );
+  RefinementReplicas.setMemoryReclaimer(ReplicaMemory.fullCollection());
   Main.main(process.argv.slice(2));
 }

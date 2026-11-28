@@ -4,6 +4,9 @@ import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
+import { SampleIndex } from "../common/SampleIndex";
+import { Statistics } from "../../common/statistics/Statistics";
+import { RefinementReplicas } from "../../galerkin/processing/RefinementReplicas";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { BsdfComponent } from "../../material/BsdfComponent";
@@ -100,7 +103,28 @@ Raytrace the current scene as seen with the current camera.
       StochasticRaytracer.srand48(this.rayTracingState.baseSeed);
     }
 
-    if (this.rayTracingState.progressiveTracing === 0) {
+    const parallelRequested = radianceMethod !== null && radianceMethod.className === RadianceMethodAlgorithm.RANDOM_WALK
+      && this.rayTracingState.randomWalkFinalThreads > 1;
+    const parallelSupported = this.rayTracingState.radMode === RayTracingRadMode.STORED_NONE
+      && this.rayTracingState.reflectionSampling === RayTracingSamplingMode.BRDF_SAMPLING
+      && this.rayTracingState.doFrameCoherent === 0 && this.rayTracingState.doCorrelatedSampling === 0;
+    if (parallelRequested && !parallelSupported) {
+      VsdkLogger.reportMessage(this, VsdkLogger.WARNING, "execute",
+        "Random Walk parallel final tracing requires BRDF sampling without stored radiance, "
+        + "or coherent or correlated sampling; tracing serially");
+    }
+
+    if (parallelRequested && parallelSupported) {
+      if (!this.traceRandomWalkInParallel(scene, config, callbackData)) {
+        // A replica worker: its rows are in the shared memory, and its image
+        // is not needed
+        config.screen = null;
+        this.lightList = config.rayTracingLightList;
+        config.release();
+        return;
+      }
+    }
+    else if (this.rayTracingState.progressiveTracing === 0) {
       ScreenIterate.sequential(
         scene.camera as Camera,
         scene.getSceneQuery() as SceneQuery,
@@ -133,6 +157,90 @@ Raytrace the current scene as seen with the current camera.
     config.screen = null;
     this.lightList = config.rayTracingLightList;
     config.release();
+  }
+
+  /**
+  Parallel final tracing after Random Walk (C++ traceRandomWalkInParallel):
+  worker i traces the rows i, i + workers, ... and each pixel takes its
+  samples from its own sequence (see SampleIndex), so the image does not
+  depend on the number of workers. Only the main thread touches the screen.
+
+  TypeScript adaptation: the workers are replicas of the program (see
+  RefinementReplicas.forFinalTracing), which run the Random Walk iterations
+  again before tracing; each one writes its ray count and its pixels, in the
+  order it traced them, to its record in shared memory. Returns false in a
+  replica worker, true in the main thread once the screen holds the image
+  */
+  private traceRandomWalkInParallel(
+    scene: Scene,
+    config: StochasticRaytracingConfiguration,
+    callbackData: StochasticRaytracerCallbackData
+  ): boolean {
+    const camera = scene.camera as Camera;
+    const width = camera.xSize;
+    const height = camera.ySize;
+    const requested = this.rayTracingState.randomWalkFinalThreads < height
+      ? this.rayTracingState.randomWalkFinalThreads : height;
+    const start = process.hrtime.bigint();
+    const stats = Statistics.instance().rayTracer;
+    stats.resetCounters();
+
+    const replicas = RefinementReplicas.forFinalTracing(requested);
+    const workers = replicas.getNumberOfWorkers();
+    const worker = replicas.getWorker();
+    if (worker === 0) {
+      process.stderr.write(`Tracing Random Walk final image with ${workers} workers\n`);
+    }
+
+    // This worker's rows
+    const rows = worker < height ? Math.floor((height - 1 - worker) / workers) + 1 : 0;
+    const record = replicas.getRecordEvents(worker);
+    RefinementReplicas.ensureLength(record, 1 + 3 * rows * width);
+    const out = replicas.getRecordEvents(worker);
+    const sceneQuery = scene.getSceneQuery() as SceneQuery;
+    const workspace = scene.getSceneQueryWorkspace() as SceneQueryWorkspace;
+    const sampleIndex = new SampleIndex();
+    config.sampleIndex = sampleIndex;
+    // As a C++ worker's configuration, which has no screen: the pixels go to
+    // the screen only after all the workers end
+    const screen = config.screen;
+    config.screen = null;
+    let position = 1;
+    for (let y = worker; y < height; y += workers) {
+      for (let x = 0; x < width; x++) {
+        sampleIndex.startPixel(y * width + x, config.baseSeed);
+        const pixel = StochasticRaytracer.calcPixel(camera, sceneQuery, workspace, scene.background, x, y, callbackData);
+        out[position++] = pixel.r;
+        out[position++] = pixel.g;
+        out[position++] = pixel.b;
+      }
+    }
+    config.sampleIndex = null;
+    config.screen = screen;
+    out[0] = stats.rayCount;
+    replicas.arrive(null);
+    if (worker !== 0) {
+      return false;
+    }
+
+    let rayCount = 0;
+    for (let w = 0; w < workers; w++) {
+      rayCount += replicas.getRecordEvents(w)[0]!;
+    }
+    const color = new ColorRgbMutable();
+    for (let y = 0; y < height; y++) {
+      const values = replicas.getRecordEvents(y % workers);
+      let index = 1 + 3 * Math.floor(y / workers) * width;
+      for (let x = 0; x < width; x++) {
+        color.set(values[index]!, values[index + 1]!, values[index + 2]!);
+        index += 3;
+        config.screen!.add(x, y, color);
+      }
+    }
+    stats.rayCount = rayCount;
+    stats.pixelCount = width * height;
+    stats.totalTime = Number(process.hrtime.bigint() - start) / 1_000_000_000;
+    return true;
   }
 
   public override saveImage(imageOutputHandle: ImageOutputHandle): boolean {
@@ -216,7 +324,7 @@ Raytrace the current scene as seen with the current camera.
         const doRR = thisNode.m_depth >= config.samplerConfig.minDepth;
 
         for (let i = 0; i < numberOfSamples; i++) {
-          stratified.sample(x1, x2);
+          stratified.sample(x1, x2, config.sampleIndex);
 
           if (
             config.samplerConfig.surfaceSampler!.sample(
@@ -342,7 +450,7 @@ Raytrace the current scene as seen with the current camera.
         const stratified = new StratifiedSampling2D(config.nextEventSamples);
 
         for (let i = 0; i < config.nextEventSamples; i++) {
-          stratified.sample(x1, x2);
+          stratified.sample(x1, x2, config.sampleIndex);
 
           if (
             config.samplerConfig.neSampler!.sample(
@@ -669,7 +777,7 @@ Raytrace the current scene as seen with the current camera.
     eyeNode.attach(pixelNode);
 
     for (let i = 0; i < config.samplesPerPixel; i++) {
-      stratified.sample(x1, x2);
+      stratified.sample(x1, x2, config.sampleIndex);
 
       if (config.samplerConfig.dirSampler!.sample(
         camera,
@@ -714,7 +822,9 @@ Raytrace the current scene as seen with the current camera.
     const factor = ScreenBuffer.computeFluxToRadFactor(camera, nx, ny) / config.samplesPerPixel;
 
     result.scale(factor);
-    config.screen!.add(nx, ny, result);
+    if (config.screen !== null) {
+      config.screen.add(nx, ny, result);
+    }
 
     if (config.doFrameCoherent !== 0 || config.doCorrelatedSampling !== 0) {
       config.seedConfig.Restore(0);

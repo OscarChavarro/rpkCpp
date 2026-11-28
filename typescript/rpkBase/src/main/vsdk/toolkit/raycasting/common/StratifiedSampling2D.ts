@@ -1,4 +1,5 @@
 import { Random48 } from "../../common/Random48";
+import type { SampleIndex } from "./SampleIndex";
 
 export class StratifiedSampling2D {
   private readonly xMaxStratum: number;
@@ -16,9 +17,17 @@ export class StratifiedSampling2D {
     this.yStratum = 0;
   }
 
-  public sample(x1: number[], x2: number[]): void;
+  /**
+  A random number in [0, 1): drand48, or, while a pixel is traced in parallel,
+  the next number of the pixel's own sequence (see SampleIndex)
+  */
+  private static sampleUnitInterval(sampleIndex: SampleIndex | null): number {
+    return sampleIndex === null ? Random48.drand48() : sampleIndex.nextUnitInterval();
+  }
+
+  public sample(x1: number[], x2: number[], sampleIndex?: SampleIndex | null): void;
   public sample(): number[];
-  public sample(x1?: number[], x2?: number[]): void | number[] {
+  public sample(x1?: number[], x2?: number[], sampleIndex: SampleIndex | null = null): void | number[] {
     if (x1 === undefined || x2 === undefined) {
       const sx1 = [0.0];
       const sx2 = [0.0];
@@ -31,8 +40,8 @@ export class StratifiedSampling2D {
     }
 
     if (this.yStratum < this.yMaxStratum && this.xMaxStratum > 0 && this.yMaxStratum > 0) {
-      x1[0] = (this.xStratum + Random48.drand48()) / this.xMaxStratum;
-      x2[0] = (this.yStratum + Random48.drand48()) / this.yMaxStratum;
+      x1[0] = (this.xStratum + StratifiedSampling2D.sampleUnitInterval(sampleIndex)) / this.xMaxStratum;
+      x2[0] = (this.yStratum + StratifiedSampling2D.sampleUnitInterval(sampleIndex)) / this.yMaxStratum;
 
       this.xStratum++;
       if (this.xStratum === this.xMaxStratum) {
@@ -41,8 +50,8 @@ export class StratifiedSampling2D {
       }
     }
     else {
-      x1[0] = Random48.drand48();
-      x2[0] = Random48.drand48();
+      x1[0] = StratifiedSampling2D.sampleUnitInterval(sampleIndex);
+      x2[0] = StratifiedSampling2D.sampleUnitInterval(sampleIndex);
     }
   }
 

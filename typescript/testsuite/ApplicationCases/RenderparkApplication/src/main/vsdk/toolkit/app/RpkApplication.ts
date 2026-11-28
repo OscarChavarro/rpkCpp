@@ -176,6 +176,7 @@ export class RpkApplication {
     // Create the window in which to render (canvas window)
     this.mainCreateOffscreenCanvasWindow();
 
+    stochasticRayTracingState.randomWalkFinalThreads = GalerkinRadianceMethod.galerkinState.numberOfThreads;
     this.rayTracer = Raytrace.rayTraceCreate(
       this.scene,
       this.toneMapOptions,

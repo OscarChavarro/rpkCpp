@@ -6,6 +6,9 @@ workers on a 72-core host).
 */
 import { Worker } from "node:worker_threads";
 
+/** The options of a Node worker (resourceLimits, execArgv, ...) */
+export type NodeWorkerOptions = NonNullable<ConstructorParameters<typeof Worker>[1]>;
+
 import {
     type WorkerExecutionOptions,
     type WorkerExecutor,
@@ -45,9 +48,11 @@ export class NodeWorkerExecutor<
 
     /**
     @param moduleUrl the worker entry module, as a `file:` URL or absolute path.
+    @param options the options of the Node worker (for example its heap
+    resourceLimits), or none.
     */
-    public constructor(moduleUrl: string | URL) {
-        this.worker = new Worker(moduleUrl);
+    public constructor(moduleUrl: string | URL, options?: NodeWorkerOptions) {
+        this.worker = options === undefined ? new Worker(moduleUrl) : new Worker(moduleUrl, options);
         this.worker.on("message", this.onMessage);
         this.worker.on("error", this.onError);
         this.worker.on("messageerror", this.onMessageError);

@@ -5,8 +5,9 @@
 # Each run is blocking, but uses the machine in parallel: the Galerkin runs
 # that iterate with Jacobi (given with -gr-iteration-method jacobi, or by
 # default) run with -gr-iteration-method parallel-jacobi -gr-threads N, N being
-# $RPK_THREADS or, by default, 4. Gauss-Seidel and Southwell runs, and the
-# runs of other methods, are unchanged.
+# $RPK_THREADS or, by default, the number of online processors (nproc), as in
+# C++. Gauss-Seidel and Southwell runs, and the runs of other methods, are
+# unchanged, but for Random Walk with StochasticRaytracing (below).
 # Parallel Jacobi gives the serial result bit for bit, so the outputs, in
 # output/ as with runAll.sh, are checked against the same references
 # (scripts/testReviewResults.sh).
@@ -17,9 +18,11 @@
 # The exit status is 0 only when every run succeeded.
 #
 # TypeScript: every parallel Jacobi thread is a replica of the program, with
-# its own copy of the scene (see RefinementReplicas), so the default number of
-# threads is not the number of online processors (as in C++) but a small one,
-# whose memory a run fits in. Parallel Random Walk final tracing is not ported.
+# its own copy of the scene (see RefinementReplicas), so a run takes far more
+# memory than in C++ (tens of GB with 72 threads in the larger scenes): the
+# scenes run one at a time for that reason too. Random Walk with
+# StochasticRaytracing receives the same worker count for its final image, as
+# in C++ (its workers are replicas too, see StochasticRaytracer).
 # The scene scripts run "node scripts/runNodeProgram.mjs ... -- <rpk arguments>":
 # the program they see is a "node" first in PATH that appends the parallel
 # Jacobi options to those runs (the last option wins) and runs the real node.
@@ -28,7 +31,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$SCRIPT_DIR/.." || exit 1
 mkdir -p output
 
-threads="${RPK_THREADS:-4}"
+threads="${RPK_THREADS:-$(nproc)}"
 . "$SCRIPT_DIR/../../scripts/parallelAffinity.sh"
 rpk_parallel_options "$@" || exit $?
 set -- "${RPK_PARALLEL_ARGS[@]}"
@@ -50,10 +53,18 @@ case "\$1" in
 esac
 galerkin=0
 jacobi=1
+random_walk=0
+stochastic=0
 previous=""
 for argument in "\$@"; do
     if [ "\$previous" = "-radiance-method" ] && [ "\$argument" = "Galerkin" ]; then
         galerkin=1
+    fi
+    if [ "\$previous" = "-radiance-method" ] && [ "\$argument" = "RandomWalk" ]; then
+        random_walk=1
+    fi
+    if [ "\$previous" = "-raytracing-method" ] && [ "\$argument" = "StochasticRaytracing" ]; then
+        stochastic=1
     fi
     if [ "\$previous" = "-gr-iteration-method" ]; then
         case "\$argument" in
@@ -65,6 +76,9 @@ for argument in "\$@"; do
 done
 if [ \$galerkin -eq 1 ] && [ \$jacobi -eq 1 ]; then
     rpk_parallel_exec "$node" "\$@" -gr-iteration-method parallel-jacobi -gr-threads $threads
+fi
+if [ \$random_walk -eq 1 ] && [ \$stochastic -eq 1 ]; then
+    rpk_parallel_exec "$node" "\$@" -gr-threads $threads
 fi
 rpk_parallel_exec "$node" "\$@"
 EOF

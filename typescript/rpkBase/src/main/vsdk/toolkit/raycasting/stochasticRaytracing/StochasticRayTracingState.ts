@@ -10,6 +10,7 @@ import { RayTracingSamplingMode } from "./RayTracingSamplingMode";
 export class StochasticRayTracingState {
   public samplesPerPixel: number;
   public progressiveTracing: number;
+  public randomWalkFinalThreads = 0;
 
   public doFrameCoherent: number;
   public doCorrelatedSampling: number;

@@ -1,4 +1,5 @@
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
+import type { SampleIndex } from "../common/SampleIndex";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
@@ -44,6 +45,7 @@ export class StochasticRaytracingConfiguration {
   public baseSeed: number;
 
   public screen: ScreenBuffer | null;
+  public sampleIndex: SampleIndex | null = null; // Set while tracing a pixel in parallel
   public toneMapOptions: ToneMappingContext | null;
 
   public samplerConfig: SamplerConfig;
@@ -62,7 +64,8 @@ export class StochasticRaytracingConfiguration {
     lightList: ArrayList<Patch>,
     radianceMethod: RadianceMethod | null,
     inToneMapOptions: ToneMappingContext,
-    inRayTracingLightList: LightList | null
+    inRayTracingLightList: LightList | null,
+    createScreen = true
   ) {
     this.samplesPerPixel = 0;
     this.nextEventSamples = 0;
@@ -91,7 +94,7 @@ export class StochasticRaytracingConfiguration {
     this.initialReadout = StorageReadout.SCATTER;
     this.rayTracingLightList = inRayTracingLightList;
 
-    this.init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, inRayTracingLightList);
+    this.init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, inRayTracingLightList, createScreen);
   }
 
   public release(): void {
@@ -104,7 +107,8 @@ export class StochasticRaytracingConfiguration {
     lightList: ArrayList<Patch>,
     radianceMethod: RadianceMethod | null,
     inToneMapOptions: ToneMappingContext,
-    inRayTracingLightList: LightList | null
+    inRayTracingLightList: LightList | null,
+    createScreen: boolean
   ): void {
     this.samplesPerPixel = state.samplesPerPixel;
 
@@ -169,8 +173,10 @@ export class StochasticRaytracingConfiguration {
       return;
     }
 
-    this.screen = new ScreenBuffer(null, defaultCamera, this.toneMapOptions);
-    this.screen.setFactor(1.0);
+    if (createScreen) {
+      this.screen = new ScreenBuffer(null, defaultCamera, this.toneMapOptions);
+      this.screen.setFactor(1.0);
+    }
 
     this.initDependentVars(lightList, radianceMethod, inRayTracingLightList);
   }

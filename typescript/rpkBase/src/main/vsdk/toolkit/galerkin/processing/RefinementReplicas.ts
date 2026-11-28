@@ -11,6 +11,7 @@ export interface RefinementReplicaRequest {
   readonly argv: string[];
   readonly worker: number;
   readonly threads: number;
+  readonly finalTracing: number; // 1 when started by the Random Walk final tracing
   readonly control: Int32Array;
   readonly shadowCounts: Float64Array;
   readonly records: Float64Array[];
@@ -81,9 +82,11 @@ export class RefinementReplicas {
   private static descriptor: string[] = [];
   private static current: RefinementReplicas | null = null;
   private static missingFactoryReported = false;
+  private static memoryReclaimer: (() => void) | null = null;
 
   private numberOfThreads: number; // As asked for by the iterations
   private readonly worker: number;
+  private readonly finalTracing: boolean;
   private readonly control: Int32Array;
   private readonly shadowCounts: Float64Array;
   private readonly records: Float64Array[];
@@ -96,6 +99,7 @@ export class RefinementReplicas {
   private constructor(request: RefinementReplicaRequest) {
     this.numberOfThreads = request.threads;
     this.worker = request.worker;
+    this.finalTracing = request.finalTracing !== 0;
     this.control = request.control;
     this.shadowCounts = request.shadowCounts;
     // Views that follow the length of their growable buffers
@@ -114,6 +118,17 @@ export class RefinementReplicas {
   public static setReplicaFactory(factory: RefinementReplicaFactory | null, descriptor: string[]): void {
     RefinementReplicas.replicaFactory = factory;
     RefinementReplicas.descriptor = descriptor.slice();
+  }
+
+  /**
+  Sets what every replica (the main thread included) runs at the start of
+  each parallel Jacobi iteration to give back the memory of the previous one,
+  normally a full garbage collection, or null for nothing. Each replica has
+  its own heap, so the replicas collect at the same time, each its own
+  garbage, while they would otherwise wait for each other at the barrier
+  */
+  public static setMemoryReclaimer(reclaimer: (() => void) | null): void {
+    RefinementReplicas.memoryReclaimer = reclaimer;
   }
 
   /**
@@ -144,11 +159,35 @@ export class RefinementReplicas {
   }
 
   /**
+  True in the worker of a replica of the parallel Jacobi iterations, which is
+  not needed after the last iteration (a replica of the Random Walk final
+  tracing is needed after it)
+  */
+  public static isIterationReplica(): boolean {
+    return RefinementReplicas.isReplica() && !RefinementReplicas.current!.finalTracing;
+  }
+
+  /**
+  The replicas of the parallel final tracing after Random Walk (see
+  StochasticRaytracer): as forThreads, but the workers are started by the
+  tracing, after the Random Walk iterations, which they run again (with the
+  same command line and random numbers, so to the same solution) before
+  tracing their rows
+  */
+  public static forFinalTracing(numberOfThreads: number): RefinementReplicas {
+    return RefinementReplicas.start(numberOfThreads, 1);
+  }
+
+  /**
   The replicas of a parallel Jacobi iteration with the given number of
   threads. The first call of the main thread starts the workers (they run the
   program up to this iteration and then wait here)
   */
   public static forThreads(numberOfThreads: number): RefinementReplicas {
+    return RefinementReplicas.start(numberOfThreads, 0);
+  }
+
+  private static start(numberOfThreads: number, finalTracing: number): RefinementReplicas {
     const current = RefinementReplicas.current;
     if (current !== null) {
       if (current.numberOfThreads !== numberOfThreads) {
@@ -179,6 +218,7 @@ export class RefinementReplicas {
       argv: RefinementReplicas.descriptor,
       worker: 0,
       threads,
+      finalTracing,
       control: new Int32Array(new SharedArrayBuffer(
         4 * (RefinementReplicas.HEADER_SIZE + RefinementReplicas.WORDS_PER_WORKER * threads),
       )),
@@ -320,12 +360,16 @@ export class RefinementReplicas {
   }
 
   /**
-  Start of a parallel Jacobi iteration: waits for all the replicas, and checks
+  Start of a parallel Jacobi iteration: gives back the memory of the previous
+  one (see setMemoryReclaimer), waits for all the replicas, and checks
   that all of them are at the same point (same items, elements and
   interactions). The last one to arrive prepares the shared state for the
   given number of items
   */
   public startIteration(numberOfItems: number, numberOfElements: number, numberOfInteractions: number): void {
+    if (RefinementReplicas.memoryReclaimer !== null) {
+      RefinementReplicas.memoryReclaimer();
+    }
     const control = this.control;
     const base = RefinementReplicas.HEADER_SIZE + RefinementReplicas.WORDS_PER_WORKER * this.worker;
     control[base + RefinementReplicas.CHECK_ITEMS] = numberOfItems;

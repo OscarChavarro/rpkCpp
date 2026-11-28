@@ -6,6 +6,7 @@ import {
   type RefinementReplicaRequest,
 } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
 import { Main } from "./Main";
+import { ReplicaMemory } from "./ReplicaMemory";
 
 /*
 Worker module of a replica of the parallel Jacobi iterations (see
@@ -26,6 +27,7 @@ const handler = createWorkerMessageHandler<RefinementReplicaRequest, null>(
   (request: RefinementReplicaRequest): null => {
     try {
       RefinementReplicas.joinAsReplica(request);
+      RefinementReplicas.setMemoryReclaimer(ReplicaMemory.fullCollection());
       Main.main(request.argv);
     }
     catch (error: unknown) {

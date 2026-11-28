@@ -13,6 +13,7 @@ import { RadianceMethod } from "rpk-base/dist/vsdk/toolkit/scene/RadianceMethod"
 import { Scene } from "rpk-base/dist/vsdk/toolkit/scene/Scene";
 import { ToneMappingContext } from "rpk-base/dist/vsdk/toolkit/tonemap/ToneMappingContext";
 import { Raytrace } from "./Raytrace";
+import { RefinementReplicas } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/RefinementReplicas";
 
 type ProcessFileCallback = (
   fileName: string,
@@ -243,6 +244,16 @@ export class Batch {
         // after the last iteration (the last one asked for, or the one
         // after which the method is done)
         const lastIteration = done || iterationNumber === Batch.batchOptions.iterations - 1;
+
+        // TypeScript adaptation: a parallel Jacobi replica (see
+        // RefinementReplicas) is only needed for the iterations (unlike a
+        // replica of the Random Walk final tracing), and all it
+        // would do after the last one (the images, the model and the ray
+        // tracing, written to nowhere) would only take time and memory, as
+        // many times as there are threads; it ends there instead
+        if (lastIteration && RefinementReplicas.isIterationReplica()) {
+          return;
+        }
         const saveImage = Batch.batchOptions.saveLastOnly !== 0
           ? lastIteration
           : Batch.batchOptions.saveModulo !== 0 && (iterationNumber % Batch.batchOptions.saveModulo) === 0;
