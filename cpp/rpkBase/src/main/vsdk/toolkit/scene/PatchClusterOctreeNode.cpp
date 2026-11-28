@@ -12,7 +12,7 @@ Reference:
   Univ. of Washington, 1995, p116-117 - section 6.7 "Creation of Clusters"
 */
 
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/skin/Compound.h"

@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/io/image/Dkcolor.h"
 
 BYTE *DkColor::temporaryBuffer = nullptr;

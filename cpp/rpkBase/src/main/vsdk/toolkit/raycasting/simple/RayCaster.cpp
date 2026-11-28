@@ -3,7 +3,7 @@ Ray casting using the polygon visibility buffer for rendering Patch pointers int
 a software frame buffer directly.
 */
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"

@@ -4,9 +4,9 @@ Saves the result of a radiosity computation as a VRML file
 
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/util/Formatter.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/io/wrl/VrmlWriter.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";

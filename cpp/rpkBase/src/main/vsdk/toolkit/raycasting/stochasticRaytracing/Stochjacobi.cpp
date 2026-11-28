@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 /**
 Generic stochastic Jacobi iteration (local lines)

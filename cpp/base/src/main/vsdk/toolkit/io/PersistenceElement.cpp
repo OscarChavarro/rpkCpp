@@ -1,11 +1,11 @@
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
-
 const bool PersistenceElement::bigEndianArchitecture = false;
 unsigned char PersistenceElement::byteBuffer1byte[1] = {0};
 unsigned char PersistenceElement::byteBuffer2byte[2] = {0, 0};
@@ -50,7 +50,7 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::readBytes(java::InputStream &is, unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readBytes", java::String::format("%s", "invalid buffer"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readBytes", "invalid buffer");
         return;
     }
     int offset = 0;
@@ -65,7 +65,7 @@ PersistenceElement::readBytes(java::InputStream &is, unsigned char *bytesBuffer,
 
     if ( offset < length ) {
         std::memset(bytesBuffer + offset, 0, static_cast<size_t>(length - offset));
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readBytes", java::String::format("could not read requested length (%d/%d)", offset, length));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readBytes", "could not read requested length");
     }
 }
 
@@ -79,7 +79,7 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::writeBytes(java::OutputStream &os, const unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::writeBytes", java::String::format("%s", "invalid arguments"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "writeBytes", "invalid arguments");
         return;
     }
     if ( length == 0 ) {
@@ -569,7 +569,7 @@ PersistenceElement::readAsciiFixedSizeString(java::InputStream &is, int size) {
 
     char *msg = static_cast<char *>(std::malloc(static_cast<size_t>(size) + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiFixedSizeString", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiFixedSizeString", "allocation failure");
         return duplicateCString("");
     }
     std::memcpy(msg, bytesForString.data(), static_cast<size_t>(size));
@@ -590,7 +590,7 @@ PersistenceElement::readAsciiString(java::InputStream &is) {
         readBytes(is, character, 1);
         if ( character[0] != 0x00 ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiString", java::String::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiString", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -599,7 +599,7 @@ PersistenceElement::readAsciiString(java::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiString", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiString", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -635,7 +635,7 @@ PersistenceElement::readUtf8String(java::InputStream &is) {
 
         if ( character[0] != 0x00 && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", java::String::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
                 return duplicateCString("");
             }
         } else if ( character[0] != 0x00 ) {
@@ -647,7 +647,7 @@ PersistenceElement::readUtf8String(java::InputStream &is) {
             pair[1] = character[0];
             if ( buildUtf8Char(pair, utf8Char) ) {
                 if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", java::String::format("%s", "allocation failure"));
+                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
                     return duplicateCString("");
                 }
             } else {
@@ -659,7 +659,7 @@ PersistenceElement::readUtf8String(java::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -684,7 +684,7 @@ PersistenceElement::readUtf8Line(java::InputStream &is) {
 
         if ( character[0] != '\n' && character[0] != '\r' && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", java::String::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
                 return duplicateCString("");
             }
         } else if ( character[0] != '\n' && character[0] != '\r' ) {
@@ -696,7 +696,7 @@ PersistenceElement::readUtf8Line(java::InputStream &is) {
             pair[1] = character[0];
             if ( buildUtf8Char(pair, utf8Char) ) {
                 if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", java::String::format("%s", "allocation failure"));
+                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
                     return duplicateCString("");
                 }
             }
@@ -706,7 +706,7 @@ PersistenceElement::readUtf8Line(java::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -729,7 +729,7 @@ PersistenceElement::readAsciiLine(java::InputStream &is) {
 
         if ( character[0] != '\n' && character[0] != '\r' ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiLine", java::String::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiLine", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -742,7 +742,7 @@ PersistenceElement::readAsciiLine(java::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiLine", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiLine", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -774,7 +774,7 @@ PersistenceElement::readAsciiToken(java::InputStream &is, const unsigned char *s
         }
         if ( !isInSet(character[0], separators, separatorsLength) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiToken", java::String::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiToken", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -783,7 +783,7 @@ PersistenceElement::readAsciiToken(java::InputStream &is, const unsigned char *s
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiToken", java::String::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiToken", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -966,6 +966,67 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 }
 
 bool
+PersistenceElement::verifyLibrary(const char *libname) {
+    if ( libname == nullptr || libname[0] == '\0' ) {
+        return false;
+    }
+
+    const char *prefix = "";
+    const char *suffix = "";
+    char separator = ':';
+#if defined(_WIN32)
+    suffix = ".dll";
+    separator = ';';
+#elif defined(__APPLE__)
+    prefix = "lib";
+    suffix = ".dylib";
+#else
+    prefix = "lib";
+    suffix = ".so";
+#endif
+
+    char *nativeLibname = joinCString3(prefix, libname, suffix);
+    if ( nativeLibname == nullptr ) {
+        return false;
+    }
+
+    const char *paths = std::getenv("JAVA_LIBRARY_PATH");
+    if ( paths == nullptr || paths[0] == '\0' ) {
+        paths = std::getenv("LD_LIBRARY_PATH");
+    }
+
+    bool exists = false;
+    if ( paths != nullptr && paths[0] != '\0' ) {
+        exists = containsExistingLibrary(paths, separator, nativeLibname);
+    }
+
+#if !defined(_WIN32)
+    if ( !exists ) {
+        const char *fallbackUnixPaths[] = {
+            "/lib", "/usr/lib", "/usr/local/lib", "/usr/X11R6/lib",
+            "/usr/X11R6/lib64", "/usr/openwin/lib", "/usr/dt/lib",
+            "/lib64", "/usr/lib64", "/usr/local/lib64"
+        };
+        for ( size_t i = 0; i < sizeof(fallbackUnixPaths) / sizeof(fallbackUnixPaths[0]); i++ ) {
+            char *candidate = joinCString3(fallbackUnixPaths[i], "/", nativeLibname);
+            if ( candidate != nullptr ) {
+                java::File file(candidate);
+                if ( file.exists() && file.canRead() && file.isFile() ) {
+                    exists = true;
+                    std::free(candidate);
+                    break;
+                }
+                std::free(candidate);
+            }
+        }
+    }
+#endif
+
+    std::free(nativeLibname);
+    return exists;
+}
+
+bool
 PersistenceElement::checkDirectory(const char *dirName) {
     if ( dirName == nullptr || dirName[0] == '\0' ) {
         java::System::err.print("Directory name is empty.\n");
@@ -973,9 +1034,25 @@ PersistenceElement::checkDirectory(const char *dirName) {
     }
 
     java::File directory(dirName);
-    if ( !directory.exists() || !directory.isDirectory() || !directory.canRead() || !directory.canWrite() ) {
+    if ( directory.exists() && !directory.isDirectory() ) {
         java::System::err.printf(
-            "Directory %s is not accessible and automatic creation is disabled.\n",
+            "Directory %s can not be created, because a file with that name already exists (not overwriten).\n",
+            dirName);
+        return false;
+    }
+
+    if ( !directory.exists() ) {
+        if ( !directory.mkdirs() ) {
+            java::System::err.printf(
+                "Directory %s can not be created, check permisions and available free disk space.\n",
+                dirName);
+            return false;
+        }
+    }
+
+    if ( !directory.canRead() || !directory.canWrite() ) {
+        java::System::err.printf(
+            "Directory %s is not accessible for read/write operations.\n",
             dirName);
         return false;
     }

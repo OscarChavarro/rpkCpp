@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugTools.h"
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugState.h"

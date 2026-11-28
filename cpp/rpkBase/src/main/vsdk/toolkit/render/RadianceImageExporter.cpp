@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/io/image/ImageOutputHandle.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/render/RadianceImageExporter.h"

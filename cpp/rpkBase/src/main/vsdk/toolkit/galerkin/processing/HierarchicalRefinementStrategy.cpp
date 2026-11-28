@@ -8,7 +8,7 @@ Hierarchical refinement
 
 #include "java/lang/Double.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/lang/Runnable.h"
 #include "java/lang/Thread.h"
 #include "java/util/ArrayList.txx"

@@ -4,7 +4,6 @@
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"
-
 /**
 A `PersistenceElement` in VitralSDK is a software element with
 algorithms and data structures (i.e. a class) with the specific functionality
@@ -32,8 +31,13 @@ reverse order (from little endian to big endian or from big endian to
 little endian) the "Invert" versions are used.
 */
 class PersistenceElement {
+  protected:
+    // As the Java abstract class: not instantiable by itself, but concrete
+    // persistence classes (e.g. `FontReader` implementations) derive from it
+    PersistenceElement() {}
+
   public:
-    PersistenceElement() = delete;
+    virtual ~PersistenceElement() {}
 
     static int readByteInt(java::InputStream &is);
     static int readByteUnsignedInt(java::InputStream &is);
@@ -93,6 +97,7 @@ class PersistenceElement {
     static void writeUtf8String(java::OutputStream &writer, const char *cad);
     static void writeAsciiLine(java::OutputStream &writer, const char *cad);
     static void writeUtf8Line(java::OutputStream &writer, const char *cad);
+    static bool verifyLibrary(const char *libname);
     static bool checkDirectory(const char *dirName);
 
   protected:
@@ -140,5 +145,6 @@ class PersistenceElement {
     static bool endsWithCString(const char *text, const char *suffix);
     static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
 };
+
 
 #endif

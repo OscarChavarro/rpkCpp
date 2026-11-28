@@ -1,5 +1,5 @@
 #include "java/lang/Double.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/memoryManagement/MemoryPool.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"

@@ -122,6 +122,9 @@ vsdk/toolkit/common/dataStructures/KDTree.h
 vsdk/toolkit/common/dataStructures/KDTree.txx
 vsdk/toolkit/common/dataStructures/KDTreeNode.h
 vsdk/toolkit/common/linealAlgebra/AlgebraPrimitives.cpp
+vsdk/toolkit/common/linealAlgebra/CoordinateAxis.h
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.cpp
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.h
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.cpp
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h
@@ -304,6 +307,8 @@ vsdk/toolkit/environment/material/SimpleMaterial.h
 vsdk/toolkit/environment/material/SurfaceShadingPoint.h
 vsdk/toolkit/environment/material/Texture.cpp
 vsdk/toolkit/environment/material/Texture.h
+vsdk/toolkit/io/PersistenceElement.cpp
+vsdk/toolkit/io/PersistenceElement.h
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.h
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.cpp

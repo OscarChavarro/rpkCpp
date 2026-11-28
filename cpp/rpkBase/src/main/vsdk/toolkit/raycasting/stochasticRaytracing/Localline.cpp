@@ -1,5 +1,5 @@
 #include "java/lang/Double.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 /**
 Generate and trace a local line

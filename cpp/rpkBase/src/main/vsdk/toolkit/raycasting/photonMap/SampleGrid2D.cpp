@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/raycasting/photonMap/DiscreteSampling.h"
 #include "vsdk/toolkit/raycasting/photonMap/SampleGrid2D.h"
 

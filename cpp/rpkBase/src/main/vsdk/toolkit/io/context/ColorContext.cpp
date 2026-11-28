@@ -2,7 +2,7 @@
 
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/io/context/ParseErrorContext.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"

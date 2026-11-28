@@ -10,7 +10,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"

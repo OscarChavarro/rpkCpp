@@ -2,7 +2,7 @@
 #define __PHOTON_MAP__
 
 #include "java/lang/Double.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"

@@ -16,7 +16,7 @@
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
 #include "vsdk/toolkit/environment/geometry/elements/RpkVertex.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
 #include "vsdk/toolkit/io/context/ReaderContext.h"

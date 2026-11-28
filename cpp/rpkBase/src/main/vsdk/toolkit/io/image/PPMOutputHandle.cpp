@@ -1,5 +1,5 @@
 #include "java/util/Formatter.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/io/image/PPMOutputHandle.h"
 
 PPMOutputHandle::PPMOutputHandle(java::OutputStream *_outputStream, int w, int h) {

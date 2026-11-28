@@ -30,8 +30,8 @@ class CoordinateSystem {
     void setY(const Vector3Dd &inY);
     void setZ(const Vector3Dd &inZ);
 
-    void setFromZAxis(const Vector3Dd *inZ);
-    void rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta) const;
+    void setFromZAxis(const Vector3Dd *inZ, double epsilon);
+    void rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta, double epsilon) const;
     Vector3Dd sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const;
     Vector3Dd sampleHemisphereCosNTheta(double n, double xi1, double xi2, double *probabilityDensityFunction) const;
 };

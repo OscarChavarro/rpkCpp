@@ -2,7 +2,6 @@
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 
 ToneMap *ToneMap::activeToneMap = nullptr;

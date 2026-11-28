@@ -1,20 +1,19 @@
-#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 
 /**
-Creates a coordinate system with the given UNIT direction vector as inZ-axis
+Creates a coordinate system with the given UNIT direction vector as inZ-axis.
+When inZ is within epsilon of the world Z-axis, world X is taken as X-axis
 */
 void
-CoordinateSystem::setFromZAxis(const Vector3Dd *inZ) {
+CoordinateSystem::setFromZAxis(const Vector3Dd *inZ, double epsilon) {
     Z = *inZ;
 
     // Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
     // X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
     double zz = java::Math::sqrt(1.0 - inZ->z() * inZ->z());
 
-    if ( zz < VSDK::EPSILON ) {
+    if ( zz < epsilon ) {
         X = Vector3Dd(1.0, 0.0, 0.0);
     } else {
         X = Vector3Dd(inZ->y() / zz, -inZ->x() / zz, 0.0);
@@ -26,10 +25,12 @@ CoordinateSystem::setFromZAxis(const Vector3Dd *inZ) {
 
 /**
 Given a unit vector and a coordinate system, this routine computes the spherical
-coordinates phi and theta of the vector with respect to the coordinate system
+coordinates phi and theta of the vector with respect to the coordinate system.
+epsilon is the length tolerance used to normalize the projection of C onto the
+XY plane
 */
 void
-CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta) const {
+CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta, double epsilon) const {
     double z = C->dotProduct(Z);
     if ( z > 1.0 ) {
         z = 1.0;
@@ -45,7 +46,7 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, d
 
     // Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
     c = (*C).add(Z.multiply(static_cast<double>(-z)));
-    c = c.normalized(Numeric::EPSILON);
+    c = c.normalized(epsilon);
     double x = c.dotProduct(X);
     double y = c.dotProduct(Y);
 
