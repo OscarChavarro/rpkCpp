@@ -1,4 +1,4 @@
-import { IllegalArgumentException } from "./IllegalArgumentException.js";
+import { NumberFormatException } from "./NumberFormatException.js";
 
 /** Static Java int operations; every result is normalized to signed 32 bits. */
 export class Integer {
@@ -13,12 +13,12 @@ export class Integer {
     public static parseInt(text: string, radix = 10): number {
         const value = Integer.parse(text, radix, true);
         if (value < BigInt(Integer.MIN_VALUE) || value > BigInt(Integer.MAX_VALUE))
-            throw new IllegalArgumentException(`For input string: "${text}"`);
+            throw new NumberFormatException(`For input string: "${text}"`);
         return Number(value);
     }
     public static parseUnsignedInt(text: string, radix = 10): number {
         const value = Integer.parse(text, radix, false);
-        if (value > 0xffff_ffffn) throw new IllegalArgumentException(`For input string: "${text}"`);
+        if (value > 0xffff_ffffn) throw new NumberFormatException(`For input string: "${text}"`);
         return Number(value) | 0;
     }
     public static toString(value: number, radix = 10): string {
@@ -85,16 +85,16 @@ export class Integer {
 
     private static parse(text: string, radix: number, signed: boolean): bigint {
         Integer.requireRadix(radix);
-        if (text.length === 0) throw new IllegalArgumentException('For input string: ""');
+        if (text.length === 0) throw new NumberFormatException('For input string: ""');
         const negative = text[0] === "-";
         const signedPrefix = negative || text[0] === "+";
         const digits = signedPrefix ? text.slice(1) : text;
         if (digits.length === 0 || (!signed && signedPrefix))
-            throw new IllegalArgumentException(`For input string: "${text}"`);
+            throw new NumberFormatException(`For input string: "${text}"`);
         let result = 0n;
         for (const character of digits) {
             const digit = Integer.digit(character);
-            if (digit < 0 || digit >= radix) throw new IllegalArgumentException(`For input string: "${text}"`);
+            if (digit < 0 || digit >= radix) throw new NumberFormatException(`For input string: "${text}"`);
             result = result * BigInt(radix) + BigInt(digit);
         }
         return negative ? -result : result;
@@ -108,6 +108,6 @@ export class Integer {
     }
     private static requireRadix(radix: number): void {
         if (!Number.isInteger(radix) || radix < 2 || radix > 36)
-            throw new IllegalArgumentException(`radix ${radix} out of range`);
+            throw new NumberFormatException(`radix ${radix} out of range`);
     }
 }

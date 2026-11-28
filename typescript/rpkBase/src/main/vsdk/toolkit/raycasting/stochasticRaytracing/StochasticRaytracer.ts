@@ -8,7 +8,7 @@ import { SampleIndex } from "../common/SampleIndex";
 import { Statistics } from "../../common/statistics/Statistics";
 import { RefinementReplicas } from "../../galerkin/processing/RefinementReplicas";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
-import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "../../render/ImageOutputTarget";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
@@ -79,7 +79,7 @@ export class StochasticRaytracer extends RayTracer {
 Raytrace the current scene as seen with the current camera.
 */
   public override execute(
-    ip: ImageOutputHandle | null,
+    ip: ImageOutputTarget | null,
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
@@ -243,10 +243,10 @@ Raytrace the current scene as seen with the current camera.
     return true;
   }
 
-  public override saveImage(imageOutputHandle: ImageOutputHandle): boolean {
-    if (imageOutputHandle !== null && this.rayTracingState.lastScreen !== null) {
+  public override saveImage(imageOutputTarget: ImageOutputTarget): boolean {
+    if (imageOutputTarget !== null && this.rayTracingState.lastScreen !== null) {
       this.rayTracingState.lastScreen.sync();
-      this.rayTracingState.lastScreen.writeFile(imageOutputHandle);
+      this.rayTracingState.lastScreen.writeFile(imageOutputTarget);
       return true;
     }
     else {

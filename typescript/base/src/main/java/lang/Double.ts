@@ -1,9 +1,11 @@
-import { IllegalArgumentException } from "./IllegalArgumentException.js";
+import { NumberFormatException } from "./NumberFormatException.js";
 
 /** Java double helpers, including lossless IEEE-754 bit conversions. */
 export class Double {
     public static readonly MIN_VALUE = 4.9406564584124654e-324;
     public static readonly MIN_NORMAL = 2.2250738585072014e-308;
+    public static readonly MAX_EXPONENT = 1023;
+    public static readonly MIN_EXPONENT = -1022;
     public static readonly MAX_VALUE = 1.7976931348623157e308;
     public static readonly POSITIVE_INFINITY = Infinity;
     public static readonly NEGATIVE_INFINITY = -Infinity;
@@ -34,7 +36,7 @@ export class Double {
             const exponent = Number(hexadecimal[5]) - 4 * fraction.length;
             return sign * Double.scaleHexadecimal(significand, exponent);
         }
-        throw new IllegalArgumentException(`For input string: "${input}"`);
+        throw new NumberFormatException(`For input string: "${input}"`);
     }
 
     private static scaleHexadecimal(significand: bigint, exponent: number): number {

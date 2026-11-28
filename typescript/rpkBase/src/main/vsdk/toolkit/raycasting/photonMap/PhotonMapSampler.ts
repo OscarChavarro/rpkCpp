@@ -7,7 +7,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -431,7 +431,7 @@ The Fresnel sampler works as follows:
     let glossyExponent: number;
 
     if (dChosen[0]) {
-      coord.setFromZAxis(thisNode.m_normal);
+      coord.setFromZAxis(thisNode.m_normal, VSDK.EPSILON);
       glossyExponent = 1;
       flags = BsdfComponent.BRDF_DIFFUSE_COMPONENT;
     }

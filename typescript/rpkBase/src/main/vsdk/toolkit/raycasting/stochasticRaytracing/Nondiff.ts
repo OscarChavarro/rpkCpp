@@ -83,24 +83,24 @@ export class Nondiff {
     pointSelectionPdf: number[],
     dirSelectionPdf: number[]
   ): Ray {
-    const ray = new Ray();
+    let ray = new Ray();
     do {
       const zeta = new Array<number>(4);
       const hit = new RayHit();
       Nondiff.nextLightSample(patch, zeta);
 
-      ray.setOrigin(patch.uniformPoint(zeta[0]!, zeta[1]!) ?? ray.getOrigin());
+      ray = ray.withOrigin(patch.uniformPoint(zeta[0]!, zeta[1]!) ?? ray.getOrigin());
 
       hit.init(patch, ray.getOrigin(), patch.getNormal(), patch.material);
       dirSelectionPdf[0] = 0.0;
-      ray.setDirection(new Vector3Dd(0.0, 0.0, 0.0));
+      ray = ray.withDirection(new Vector3Dd(0.0, 0.0, 0.0));
       if (patch.material !== null && patch.material.getEdf() !== null) {
         const shctxOk = [false];
         const shctx = hit.shadingContext(shctxOk);
         if (!shctxOk[0]) {
           continue;
         }
-        ray.setDirection(patch.material.getEdf()!.phongEdfSample(
+        ray = ray.withDirection(patch.material.getEdf()!.phongEdfSample(
           shctx,
           0x01 | 0x02 | 0x04,
           zeta[2]!,

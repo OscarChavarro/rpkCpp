@@ -3,7 +3,7 @@ Scratch renderer routines. Used for handling intra-cluster visibility
 with a Z-buffer visibility algorithm in software
 */
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";

@@ -1,6 +1,7 @@
 import { Double } from "../../../../java/lang/Double.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { Vector2Dd } from "./Vector2Dd.js";
+import { checkArrayIndex } from "../../media/_pixel.js";
 /**
 Double precision affine transform of the plane: a 2x2 block M and a
 translation t, so that p' = M p + t:
@@ -19,45 +20,61 @@ export class Matrix2x2 extends FundamentalEntity {
     */
     public constructor();
     public constructor(m00: number, m01: number, m10: number, m11: number, t0: number, t1: number);
-    public constructor(m00 = 1, m01 = 0, m10 = 0, m11 = 1, t0 = 0, t1 = 0) {
+    public constructor(other: Matrix2x2);
+    public constructor(a: number | Matrix2x2 = 1.0, m01 = 0.0, m10 = 0.0, m11 = 1.0, t0 = 0.0, t1 = 0.0) {
         super();
+        if (a instanceof Matrix2x2) {
+            const other: Matrix2x2 = a;
+            this.m = [
+                [other.m[0]![0]!, other.m[0]![1]!],
+                [other.m[1]![0]!, other.m[1]![1]!],
+            ];
+            this.t = [other.t[0]!, other.t[1]!];
+            return;
+        }
         this.m = [
-            [m00, m01],
+            [a, m01],
             [m10, m11],
         ];
         this.t = [t0, t1];
     }
+
+    /** Java's `m[row][col]`, with the array index checks. */
     public get(row: number, col: number): number {
+        checkArrayIndex(row, 2);
+        checkArrayIndex(col, 2);
         return this.m[row]![col]!;
     }
+
+    /** Java's `t[row]`, with the array index check. */
     public getTranslation(row: number): number {
+        checkArrayIndex(row, 2);
         return this.t[row]!;
     }
+
     /**
     M p + t
     */
     public transformPoint(p: Vector2Dd): Vector2Dd {
-        return new Vector2Dd(
-            this.get(0, 0) * p.x + this.get(0, 1) * p.y + this.getTranslation(0),
-            this.get(1, 0) * p.x + this.get(1, 1) * p.y + this.getTranslation(1),
-        );
+        const m = this.m,
+            t = this.t;
+        return new Vector2Dd(m[0]![0]! * p.x + m[0]![1]! * p.y + t[0]!, m[1]![0]! * p.x + m[1]![1]! * p.y + t[1]!);
     }
+
     /**
     The composition this(other(p)): M = this.M * other.M and
     t = this.M * other.t + this.t
     */
     public multiply(other: Matrix2x2): Matrix2x2 {
-        const m00 = this.get(0, 0);
-        const m01 = this.get(0, 1);
-        const m10 = this.get(1, 0);
-        const m11 = this.get(1, 1);
+        const m = this.m,
+            t = this.t;
         return new Matrix2x2(
-            m00 * other.get(0, 0) + m01 * other.get(1, 0),
-            m00 * other.get(0, 1) + m01 * other.get(1, 1),
-            m10 * other.get(0, 0) + m11 * other.get(1, 0),
-            m10 * other.get(0, 1) + m11 * other.get(1, 1),
-            m00 * other.getTranslation(0) + m01 * other.getTranslation(1) + this.getTranslation(0),
-            m10 * other.getTranslation(0) + m11 * other.getTranslation(1) + this.getTranslation(1),
+            m[0]![0]! * other.m[0]![0]! + m[0]![1]! * other.m[1]![0]!,
+            m[0]![0]! * other.m[0]![1]! + m[0]![1]! * other.m[1]![1]!,
+            m[1]![0]! * other.m[0]![0]! + m[1]![1]! * other.m[1]![0]!,
+            m[1]![0]! * other.m[0]![1]! + m[1]![1]! * other.m[1]![1]!,
+            m[0]![0]! * other.t[0]! + m[0]![1]! * other.t[1]! + t[0]!,
+            m[1]![0]! * other.t[0]! + m[1]![1]! * other.t[1]! + t[1]!,
         );
     }
     public equals(other: unknown): boolean {

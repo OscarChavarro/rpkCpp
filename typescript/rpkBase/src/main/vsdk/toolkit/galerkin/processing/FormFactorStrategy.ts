@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
@@ -166,14 +166,12 @@ export class FormFactorStrategy {
     exclusions: RayExclusionSet,
     workspace: FormFactorWorkspace,
   ): number {
-    const ray = workspace.getKernelRay();
-    ray.setOrigin(y);
-    ray.setDirection(x.subtract(y));
+    let ray = Ray.fromAffine(y, x.subtract(y));
     const distance = ray.getDirection().length();
     if (distance < VSDK.EPSILON) {
       return 0.0;
     }
-    ray.setDirection(ray.getDirection().multiplyByInverse(distance, Numeric.EPSILON));
+    ray = ray.withDirection(ray.getDirection().multiplyByInverse(distance, Numeric.EPSILON));
 
     let cosThetaY: number;
     if (sourceElement.isCluster()) {

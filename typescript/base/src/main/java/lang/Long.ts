@@ -1,4 +1,4 @@
-import { IllegalArgumentException } from "./IllegalArgumentException.js";
+import { NumberFormatException } from "./NumberFormatException.js";
 
 /** Static Java long operations represented exactly by bigint. */
 export class Long {
@@ -13,12 +13,12 @@ export class Long {
     public static parseLong(text: string, radix = 10): bigint {
         const value = Long.parse(text, radix, true);
         if (value < Long.MIN_VALUE || value > Long.MAX_VALUE)
-            throw new IllegalArgumentException(`For input string: "${text}"`);
+            throw new NumberFormatException(`For input string: "${text}"`);
         return value;
     }
     public static parseUnsignedLong(text: string, radix = 10): bigint {
         const value = Long.parse(text, radix, false);
-        if (value > 0xffff_ffff_ffff_ffffn) throw new IllegalArgumentException(`For input string: "${text}"`);
+        if (value > 0xffff_ffff_ffff_ffffn) throw new NumberFormatException(`For input string: "${text}"`);
         return BigInt.asIntN(64, value);
     }
     public static toString(value: bigint, radix = 10): string {
@@ -88,12 +88,12 @@ export class Long {
 
     private static parse(text: string, radix: number, signed: boolean): bigint {
         Long.requireRadix(radix);
-        if (text.length === 0) throw new IllegalArgumentException('For input string: ""');
+        if (text.length === 0) throw new NumberFormatException('For input string: ""');
         const negative = text[0] === "-";
         const signedPrefix = negative || text[0] === "+";
         const digits = signedPrefix ? text.slice(1) : text;
         if (digits.length === 0 || (!signed && signedPrefix))
-            throw new IllegalArgumentException(`For input string: "${text}"`);
+            throw new NumberFormatException(`For input string: "${text}"`);
         let result = 0n;
         for (const character of digits) {
             const code = character.codePointAt(0) ?? -1;
@@ -105,13 +105,13 @@ export class Long {
                       : code >= 97 && code <= 122
                         ? code - 97 + 10
                         : -1;
-            if (digit < 0 || digit >= radix) throw new IllegalArgumentException(`For input string: "${text}"`);
+            if (digit < 0 || digit >= radix) throw new NumberFormatException(`For input string: "${text}"`);
             result = result * BigInt(radix) + BigInt(digit);
         }
         return negative ? -result : result;
     }
     private static requireRadix(radix: number): void {
         if (!Number.isInteger(radix) || radix < 2 || radix > 36)
-            throw new IllegalArgumentException(`radix ${radix} out of range`);
+            throw new NumberFormatException(`radix ${radix} out of range`);
     }
 }

@@ -5,7 +5,7 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { OptionsGroupRaytracing } from "./options/OptionsGroupRaytracing";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
-import { ImageOutputHandle } from "rpk-base/dist/vsdk/toolkit/io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "rpk-base/dist/vsdk/toolkit/render/ImageOutputTarget";
 import { BidirectionalPathRaytracer } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer";
 import { BidirectionalPathTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
 import { LightList } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
@@ -125,13 +125,7 @@ export class Raytrace {
 
     const t = process.hrtime.bigint();
 
-    const img = ImageOutputHandle.createRadianceImageOutputHandle(
-      fileName,
-      stream,
-      isPipe,
-      scene.camera.xSize,
-      scene.camera.ySize
-    );
+    const img = ImageOutputTarget.create(fileName, stream, isPipe);
     if (img === null) {
       return;
     }
@@ -142,8 +136,6 @@ export class Raytrace {
     else if (!rayTracer.saveImage(img)) {
       VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "", JavaString.vformat("No previous %s image available", [rayTracer.getName()]));
     }
-
-    ImageOutputHandle.deleteImageOutputHandle(img);
 
     System.out.printf(
       "Raytrace save image: %g secs.\n",

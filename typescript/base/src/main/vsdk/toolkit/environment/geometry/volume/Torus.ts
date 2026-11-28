@@ -15,6 +15,7 @@ import { PolyhedralBoundedSolidTopologyEditing } from "./polyhedralBoundedSolid/
 import { PolyhedralBoundedSolidValidationEngine } from "./polyhedralBoundedSolid/PolyhedralBoundedSolidValidationEngine.js";
 import type { RayHit } from "../element/RayHit.js";
 import { Solid } from "./Solid.js";
+import { Math as JavaMath } from "../../../../../java/lang/Math.js";
 
 /**
 Current implementation is based on [WAGN2004].
@@ -244,7 +245,7 @@ export class Torus extends Solid {
     */
     private isOnSurface(origin: Vector3Dd, direction: Vector3Dd, t: number): boolean {
         const hit = origin.add(direction.multiply(t));
-        const distanceToCircle = Math.hypot(Math.hypot(hit.x(), hit.y()) - this.majorRadius, hit.z());
+        const distanceToCircle = JavaMath.hypot(JavaMath.hypot(hit.x(), hit.y()) - this.majorRadius, hit.z());
         const tolerance = Torus.ROOT_VALIDATION_TOLERANCE * Math.max(this.majorRadius, this.minorRadius);
 
         return Math.abs(distanceToCircle - this.minorRadius) <= tolerance;

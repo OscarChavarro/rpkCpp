@@ -30,9 +30,9 @@ export abstract class Sampler {
     dir: Vector3Dd,
     pdfDir: number
   ): boolean {
-    const ray = new Ray();
-    ray.setOrigin(thisNode.m_hit.getPoint());
-    ray.setDirection(dir);
+    let ray = new Ray();
+    ray = ray.withOrigin(thisNode.m_hit.getPoint());
+    ray = ray.withDirection(dir);
 
     newNode.m_depth = thisNode.m_depth + 1;
     newNode.m_rayType = PathRayType.STOPS;

@@ -1,9 +1,14 @@
+import { CLONEABLE, type Cloneable } from "../../../java/lang/Cloneable.js";
 import { Image } from "./Image.js";
+import { IllegalArgumentException } from "../../../java/lang/IllegalArgumentException.js";
 import { RGBPixel } from "./RGBPixel.js";
-import { byte } from "./_pixel.js";
+import { byte, checkBufferIndex } from "./_pixel.js";
 import { RGBAImageUncompressed } from "./RGBAImageUncompressed.js";
 import { RGBAPixel } from "./RGBAPixel.js";
-export class RGBImageUncompressed extends Image {
+export class RGBImageUncompressed extends Image implements Cloneable {
+    // Java `implements Cloneable`, as a run-time marker
+    public static readonly [CLONEABLE] = true;
+
     private data: Uint8Array | null = null;
     private xSize = 0;
     private ySize = 0;
@@ -39,14 +44,20 @@ export class RGBImageUncompressed extends Image {
         const i = this.at(x, y),
             d = this.data!;
         if (r instanceof RGBPixel) {
+            checkBufferIndex(i, d.length);
             d[i] = r.r;
+            checkBufferIndex(i + 1, d.length);
             d[i + 1] = r.g;
+            checkBufferIndex(i + 2, d.length);
             d[i + 2] = r.b;
         } else {
             // Java only declares the `byte` overload here, which stores the
             // signed byte as given; the unsigned backing array wraps it back.
+            checkBufferIndex(i, d.length);
             d[i] = r;
+            checkBufferIndex(i + 1, d.length);
             d[i + 1] = g!;
+            checkBufferIndex(i + 2, d.length);
             d[i + 2] = b!;
         }
     }
@@ -57,8 +68,11 @@ export class RGBImageUncompressed extends Image {
         const i = this.at(x, y),
             d = this.data!,
             p = new RGBPixel();
+        checkBufferIndex(i, d.length);
         p.r = byte(d[i]!);
+        checkBufferIndex(i + 1, d.length);
         p.g = byte(d[i + 1]!);
+        checkBufferIndex(i + 2, d.length);
         p.b = byte(d[i + 2]!);
         return p;
     }
@@ -80,23 +94,50 @@ export class RGBImageUncompressed extends Image {
     public getYSize(): number {
         return this.ySize;
     }
+    /** An independent copy of the pixel bytes, as Java's `getRawImage()`. */
     public getRawImage(): Int8Array {
-        return new Int8Array(this.data!.buffer, this.data!.byteOffset, this.data!.length);
+        const copy: Int8Array = new Int8Array(this.getRawImageSizeInBytes());
+        copy.set(new Int8Array(this.data!.buffer, this.data!.byteOffset, copy.length));
+        return copy;
+    }
+    public getRawImageSizeInBytes(): number {
+        return Math.imul(Math.imul(this.xSize, this.ySize), 3);
     }
     public getRawImageDirectBuffer(): Uint8Array {
         return this.data!;
     }
     public setRawImage(w: number, h: number, data: Int8Array | Uint8Array): void {
-        this.xSize = w;
-        this.ySize = h;
-        this.rowStride = w * 3;
-        this.data = new Uint8Array(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+        if (data.length !== Math.imul(Math.imul(w, h), 3)) {
+            throw new IllegalArgumentException(
+                "Expected " +
+                    Math.imul(Math.imul(w, h), 3) +
+                    " bytes for a " +
+                    w +
+                    "x" +
+                    h +
+                    " RGB image, but got " +
+                    data.length,
+            );
+        }
+        this.initNoFill(w, h);
+        this.data!.set(data);
     }
     public override clone(): RGBImageUncompressed {
-        const c = new RGBImageUncompressed();
-        c.init(this.xSize, this.ySize);
-        c.data!.set(this.data!);
-        return c;
+        super.clone();
+        //Image parentCopy = (Image)super.clone();
+        const xxSize = this.getXSize();
+        const yySize = this.getYSize();
+        let x: number;
+        let y: number;
+
+        const copy = new RGBImageUncompressed();
+        copy.init(xxSize, yySize);
+        for (x = 0; x < xxSize; x++) {
+            for (y = 0; y < yySize; y++) {
+                copy.putPixel(x, y, this.getPixel(x, y));
+            }
+        }
+        return copy;
     }
     public cloneToRgba(): RGBAImageUncompressed {
         const copy = new RGBAImageUncompressed();

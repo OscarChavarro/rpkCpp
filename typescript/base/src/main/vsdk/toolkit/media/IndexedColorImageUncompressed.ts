@@ -4,12 +4,14 @@ import { RGBPixel } from "./RGBPixel.js";
 import { RGBAImageUncompressed } from "./RGBAImageUncompressed.js";
 import { RGBImageUncompressed } from "./RGBImageUncompressed.js";
 import { ColorRgb } from "../common/color/ColorRgb.js";
-import { byte, unsigned } from "./_pixel.js";
+import { byte, checkArrayIndex, javaIntCast, unsigned } from "./_pixel.js";
+import { VSDK } from "../common/VSDK.js";
 export class IndexedColorImageUncompressed extends Image {
     private data: Int8Array | null = null;
     private xSize = 0;
     private ySize = 0;
     private colorTable: RGBColorPalette;
+    private staticColor: ColorRgb | null = null;
     public constructor(colorTable: RGBColorPalette | null = null) {
         super();
         this.colorTable = colorTable ?? new RGBColorPalette();
@@ -42,7 +44,9 @@ export class IndexedColorImageUncompressed extends Image {
     }
     /** Java overload `putPixel(int x, int y, int val)`: clamps `val` to 0..255. */
     public putPixel(x: number, y: number, v: number): void {
-        this.data![this.xSize * y + x] = byte(v);
+        const index = this.xSize * y + x;
+        checkArrayIndex(index, this.data!.length);
+        this.data![index] = byte(v);
     }
     /**
     Java overload `putPixel(int x, int y, byte val)`: stores the signed byte
@@ -51,27 +55,35 @@ export class IndexedColorImageUncompressed extends Image {
     */
     public putPixelByte(x: number, y: number, v: number): void {
         const index = this.xSize * y + x;
+        checkArrayIndex(index, this.data!.length);
         this.data![index] = v;
     }
     public override getPixel8bitGrayScale(x: number, y: number): number {
+        checkArrayIndex(this.xSize * y + x, this.data!.length);
         return this.data![this.xSize * y + x]!;
     }
     public getPixel(x: number, y: number): number {
-        return unsigned(this.data![this.xSize * y + x]!);
+        const index = this.xSize * y + x;
+        checkArrayIndex(index, this.data!.length);
+        return unsigned(this.data![index]!);
     }
     public override getPixelRgb(x: number, y: number): RGBPixel;
     public override getPixelRgb(x: number, y: number, p: RGBPixel): void;
     public override getPixelRgb(x: number, y: number, p?: RGBPixel): RGBPixel | void {
-        const c = this.colorTable.evalLinear(this.getPixel(x, y) / 255),
-            o = new RGBPixel();
-        o.importFromColorRgb(c);
+        const index = this.xSize * y + x;
+        checkArrayIndex(index, this.data!.length);
+        let val: number;
+        val = VSDK.signedByte2unsignedInteger(this.data![index]!) / 255.0;
+
+        this.staticColor = this.colorTable.evalLinear(val);
+        const target: RGBPixel = p ?? new RGBPixel();
+        target.r = VSDK.unsigned8BitInteger2signedByte(javaIntCast(this.staticColor.r() * 255.0));
+        target.g = VSDK.unsigned8BitInteger2signedByte(javaIntCast(this.staticColor.g() * 255.0));
+        target.b = VSDK.unsigned8BitInteger2signedByte(javaIntCast(this.staticColor.b() * 255.0));
         if (p) {
-            p.r = o.r;
-            p.g = o.g;
-            p.b = o.b;
             return;
         }
-        return o;
+        return target;
     }
     public getColorTable(): RGBColorPalette {
         return this.colorTable;

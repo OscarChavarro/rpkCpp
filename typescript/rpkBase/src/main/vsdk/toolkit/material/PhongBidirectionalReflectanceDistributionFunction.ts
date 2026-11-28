@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
@@ -128,7 +128,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
 
     if (x1 < (localAverageKd / scatteredPower)) {
       x1 = x1 / (localAverageKd / scatteredPower);
-      coord.setFromZAxis(normal);
+      coord.setFromZAxis(normal, VSDK.EPSILON);
       const outDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosTheta(x1, x2, outDiffPdf);
       diffPdf = outDiffPdf[0]!;
@@ -143,7 +143,7 @@ export class PhongBidirectionalReflectanceDistributionFunction {
     }
     else {
       x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
-      coord.setFromZAxis(idealDir);
+      coord.setFromZAxis(idealDir, VSDK.EPSILON);
       const outNonDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosNTheta(this.Ns, x1, x2, outNonDiffPdf);
       nonDiffPdf = outNonDiffPdf[0]!;

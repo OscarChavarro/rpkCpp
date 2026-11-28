@@ -1,4 +1,4 @@
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "./Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BoundingBoxCoordinateIndex } from "./BoundingBoxCoordinateIndex";

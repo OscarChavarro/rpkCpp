@@ -1,5 +1,5 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../../../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Material } from "../../../material/Material";
@@ -81,7 +81,7 @@ export class RayHit {
       const context = new ShadingContext(
         this.getPoint(),
         this.getGeometricNormal(),
-        this.shadingFrame.getZ(),
+        this.shadingFrame.getZAxis(),
         this.texCoord,
         this.uv,
         this.shadingFrame,
@@ -95,7 +95,7 @@ export class RayHit {
       const context = new ShadingContext(
         this.getPoint(),
         this.getGeometricNormal(),
-        this.shadingFrame.getZ(),
+        this.shadingFrame.getZAxis(),
         this.texCoord,
         this.uv,
         this.shadingFrame,
@@ -144,9 +144,9 @@ export class RayHit {
 
     const localNormal = RayHit.ZERO_VECTOR;
     this.texCoord = localNormal;
-    this.shadingFrame.setX(localNormal);
-    this.shadingFrame.setY(localNormal);
-    this.shadingFrame.setZ(localNormal);
+    this.shadingFrame.setXAxis(localNormal);
+    this.shadingFrame.setYAxis(localNormal);
+    this.shadingFrame.setZAxis(localNormal);
     this.uv.x = 0.0;
     this.uv.y = 0.0;
 
@@ -181,18 +181,18 @@ export class RayHit {
   */
   public shadingNormal(inNormal: Vector3Dd[]): boolean {
     if (((this.flags & RayHitFlag.SHADING_FRAME) !== 0) || ((this.flags & RayHitFlag.NORMAL) !== 0)) {
-      inNormal[0] = this.shadingFrame.getZ();
+      inNormal[0] = this.shadingFrame.getZAxis();
       return true;
     }
 
-    const localNormal = [this.shadingFrame.getZ()];
+    const localNormal = [this.shadingFrame.getZAxis()];
     if (!this.pointShadingFrame(null, null, localNormal)) {
       return false;
     }
 
     this.flags |= RayHitFlag.NORMAL;
-    this.shadingFrame.setZ(localNormal[0]!);
-    inNormal[0] = this.shadingFrame.getZ();
+    this.shadingFrame.setZAxis(localNormal[0]!);
+    inNormal[0] = this.shadingFrame.getZAxis();
     return true;
   }
 
@@ -245,34 +245,34 @@ export class RayHit {
     if (frameOrX instanceof CoordinateSystem) {
       const frame = frameOrX;
       if ((this.flags & RayHitFlag.SHADING_FRAME) !== 0) {
-        frame.setX(this.shadingFrame.getX());
-        frame.setY(this.shadingFrame.getY());
-        frame.setZ(this.shadingFrame.getZ());
+        frame.setXAxis(this.shadingFrame.getXAxis());
+        frame.setYAxis(this.shadingFrame.getYAxis());
+        frame.setZAxis(this.shadingFrame.getZAxis());
         return true;
       }
 
-      const shadingX = [this.shadingFrame.getX()];
-      const shadingY = [this.shadingFrame.getY()];
-      const shadingZ = [this.shadingFrame.getZ()];
+      const shadingX = [this.shadingFrame.getXAxis()];
+      const shadingY = [this.shadingFrame.getYAxis()];
+      const shadingZ = [this.shadingFrame.getZAxis()];
 
       if (!this.pointShadingFrame(shadingX, shadingY, shadingZ)) {
         return false;
       }
 
-      this.shadingFrame.setX(shadingX[0]!);
-      this.shadingFrame.setY(shadingY[0]!);
-      this.shadingFrame.setZ(shadingZ[0]!);
+      this.shadingFrame.setXAxis(shadingX[0]!);
+      this.shadingFrame.setYAxis(shadingY[0]!);
+      this.shadingFrame.setZAxis(shadingZ[0]!);
       this.flags |= RayHitFlag.SHADING_FRAME | RayHitFlag.NORMAL;
 
-      frame.setX(this.shadingFrame.getX());
-      frame.setY(this.shadingFrame.getY());
-      frame.setZ(this.shadingFrame.getZ());
+      frame.setXAxis(this.shadingFrame.getXAxis());
+      frame.setYAxis(this.shadingFrame.getYAxis());
+      frame.setZAxis(this.shadingFrame.getZAxis());
       return true;
     }
 
-    this.shadingFrame.setX(frameOrX);
-    this.shadingFrame.setY(inY as Vector3Dd);
-    this.shadingFrame.setZ(inZ as Vector3Dd);
+    this.shadingFrame.setXAxis(frameOrX);
+    this.shadingFrame.setYAxis(inY as Vector3Dd);
+    this.shadingFrame.setZAxis(inZ as Vector3Dd);
     return;
   }
 
@@ -334,11 +334,11 @@ export class RayHit {
   }
 
   public getNormal(): Vector3Dd {
-    return this.shadingFrame.getZ();
+    return this.shadingFrame.getZAxis();
   }
 
   public setNormal(n: Vector3Dd): void {
-    this.shadingFrame.setZ(n);
+    this.shadingFrame.setZAxis(n);
   }
 
   public getShadingFrame(): CoordinateSystem {
@@ -370,9 +370,9 @@ export class RayHit {
     this.texCoord = other.texCoord;
     this.geometricNormal = other.geometricNormal;
     this.material = other.material;
-    this.shadingFrame.setX(other.shadingFrame.getX());
-    this.shadingFrame.setY(other.shadingFrame.getY());
-    this.shadingFrame.setZ(other.shadingFrame.getZ());
+    this.shadingFrame.setXAxis(other.shadingFrame.getXAxis());
+    this.shadingFrame.setYAxis(other.shadingFrame.getYAxis());
+    this.shadingFrame.setZAxis(other.shadingFrame.getZAxis());
     this.uv.x = other.uv.x;
     this.uv.y = other.uv.y;
     this.flags = other.flags;

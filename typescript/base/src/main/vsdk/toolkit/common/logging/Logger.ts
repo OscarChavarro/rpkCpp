@@ -92,8 +92,8 @@ export class Logger {
     }
 
     private static processFatalError(method: string | null, message: string | null, cause: Error | null): void {
-        // Java's System.exit(1) stops a JVM. A shared web library reports the
-        // failure to its host as an exception when system exit is requested.
+        // As in Java, a fatal error never terminates the process: it is
+        // thrown as a VSDKFatalException for the calling application.
         if (!getWithSystemExit() && !getWithFatalExceptions()) return;
         let text = method === null || method.length === 0 ? "VSDK fatal error" : `VSDK fatal error at ${method}`;
         if (message !== null && message.length > 0) text += ": " + message;

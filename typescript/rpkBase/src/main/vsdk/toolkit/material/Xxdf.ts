@@ -1,4 +1,4 @@
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RefractionIndex } from "./RefractionIndex";
 

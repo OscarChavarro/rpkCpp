@@ -1,4 +1,4 @@
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
@@ -514,7 +514,6 @@ export class Shaft {
   private static readonly shaftPatchTestScratchE = new Array<number>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(0.0);
   private static readonly shaftPatchTestScratchSide =
     new Array<ShaftPlanePosition>(Patch.MAXIMUM_VERTICES_PER_PATCH).fill(ShaftPlanePosition.COPLANAR);
-  private static readonly shaftPatchTestScratchRay = new Ray();
   private static readonly shaftPatchTestScratchHitStore = new RayHit();
   private static readonly shaftPatchTestScratchDistance = [0.0];
 
@@ -523,7 +522,6 @@ export class Shaft {
     const tMin = Shaft.shaftPatchTestScratchTMin;
     const tMax = Shaft.shaftPatchTestScratchTMax;
     const pTol = Shaft.shaftPatchTestScratchPTol;
-    const ray = Shaft.shaftPatchTestScratchRay;
     const hitStore = Shaft.shaftPatchTestScratchHitStore;
 
     let someOut = false;
@@ -623,8 +621,7 @@ export class Shaft {
       }
     }
 
-    ray.setOrigin(this.center1);
-    ray.setDirection(this.center2.subtract(this.center1));
+    const ray = Ray.fromAffine(this.center1, this.center2.subtract(this.center1));
     const dist = Shaft.shaftPatchTestScratchDistance;
     dist[0] = 1.0 - Numeric.EPSILON;
     if (

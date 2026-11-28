@@ -1,5 +1,5 @@
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";

@@ -119,7 +119,7 @@ when no longer needed
       ray = Localline.mcrGenerateLocalLine(P, Sample4d.sample4D((McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex));
       (McradP.topLevelStochasticRadiosityElement(P) as any).rayIndex++;
       if (path.numberOfNodes > 1 && StochasticRelaxation.activeState().continuousRandomWalk !== 0) {
-        ray.setOrigin(path.nodes![path.numberOfNodes - 1]!.inPoint);
+        ray = ray.withOrigin(path.nodes![path.numberOfNodes - 1]!.inPoint);
       }
       path.nodes![path.numberOfNodes - 1]!.outpoint = ray.getOrigin();
 

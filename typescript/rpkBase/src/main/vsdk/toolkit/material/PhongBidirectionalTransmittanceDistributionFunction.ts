@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RefractionIndex } from "./RefractionIndex";
 import { Xxdf } from "./Xxdf";
@@ -155,7 +155,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
 
     if (x1 < (localAverageKd / scatteredPower)) {
       x1 = x1 / (localAverageKd / scatteredPower);
-      coord.setFromZAxis(invNormal);
+      coord.setFromZAxis(invNormal, VSDK.EPSILON);
       const outDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosTheta(x1, x2, outDiffPdf);
       diffPdf = outDiffPdf[0]!;
@@ -170,7 +170,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     }
     else {
       x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
-      coord.setFromZAxis(idealDir);
+      coord.setFromZAxis(idealDir, VSDK.EPSILON);
       const outNonDiffPdf = [0.0];
       newDir = coord.sampleHemisphereCosNTheta(this.Ns, x1, x2, outNonDiffPdf);
       nonDiffPdf = outNonDiffPdf[0]!;

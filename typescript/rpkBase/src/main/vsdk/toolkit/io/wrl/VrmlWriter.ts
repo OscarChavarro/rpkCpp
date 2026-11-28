@@ -2,7 +2,7 @@ import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Matrix4x4d } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Matrix4x4d";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Camera } from "../../scene/Camera";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";

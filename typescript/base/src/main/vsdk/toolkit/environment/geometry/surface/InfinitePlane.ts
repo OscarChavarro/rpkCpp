@@ -37,7 +37,12 @@ export class InfinitePlane extends HalfSpace<Ray, RayHit> {
             this.c = x.c;
             this.d = x.d;
         } else if (x instanceof Vector3Dd && y instanceof Vector3Dd && z instanceof Vector3Dd) {
-            const n = y.subtract(x).normalized().crossProduct(z.subtract(x).normalized()).normalized();
+            let aa = y.subtract(x);
+            aa = aa.normalized();
+            let bb = z.subtract(x);
+            bb = bb.normalized();
+            let n = aa.crossProduct(bb);
+            n = n.normalized();
             this.a = n.x();
             this.b = n.y();
             this.c = n.z();
@@ -55,8 +60,14 @@ export class InfinitePlane extends HalfSpace<Ray, RayHit> {
             this.d = w!;
         }
     }
-    public override clone(other?: InfinitePlane): InfinitePlane | void {
-        if (other === undefined) return new InfinitePlane(this);
+    /**
+    `clone(other)` is Java's `clone(InfinitePlane)`; `clone()` is the one
+    inherited from `Entity`.
+    */
+    public override clone(): unknown;
+    public override clone(other: InfinitePlane): void;
+    public override clone(other?: InfinitePlane): unknown {
+        if (other === undefined) return super.clone();
         this.a = other.a;
         this.b = other.b;
         this.c = other.c;
@@ -229,8 +240,9 @@ export class InfinitePlane extends HalfSpace<Ray, RayHit> {
     }
 
     public doIntersectionFirstHit(ray: Ray): Ray | null;
-    public doIntersectionFirstHit(ray: Ray, hit: RayHit): boolean;
-    public doIntersectionFirstHit(ray: Ray, hit?: RayHit): Ray | null | boolean {
+    public override doIntersectionFirstHit(ray: Ray, hit: RayHit): boolean;
+    public override doIntersectionFirstHit(ray: Ray, hit: RayHit | null): boolean;
+    public override doIntersectionFirstHit(ray: Ray, hit?: RayHit | null): Ray | null | boolean {
         if (hit === undefined) {
             const denominator =
                 this.a * ray.getDirection().x() + this.b * ray.getDirection().y() + this.c * ray.getDirection().z();
@@ -272,24 +284,73 @@ export class InfinitePlane extends HalfSpace<Ray, RayHit> {
 
         return ray.withT(t);
     }
-    public doContainmentTestHalfSpace(p: Vector3Dd, t: number) {
-        const q = this.pointDistance(p);
-        return q > t ? InfinitePlane.OUTSIDE : q < -t ? InfinitePlane.INSIDE : InfinitePlane.LIMIT;
+    /**
+    Por a given point `p`, calculates if it lies inside, outside or
+    on surface with respect to current plane, taking the plane as an
+    infinite halfspace, not as a surface.
+    @return 0 if point is on the plane surface, 1 if point is outside or
+    -1 if point is inside the plane - INSIDE, OUTSIDE or LIMIT constant value.
+    Note that current interpretation of the plane is done as a semispace,
+    where "outside" means the direction pointed by plane's normal.
+    */
+    public doContainmentTestHalfSpace(p: Vector3Dd, distanceTolerance: number): number {
+        const num = this.a * p.x() + this.b * p.y() + this.c * p.z() + this.d;
+        let op: number = InfinitePlane.LIMIT;
+        if (num > distanceTolerance) {
+            op = InfinitePlane.OUTSIDE;
+        } else if (num < -distanceTolerance) {
+            op = InfinitePlane.INSIDE;
+        }
+        return op;
     }
-    public override doContainmentTest(p: Vector3Dd, t: number) {
-        const q = this.pointDistance(p);
-        return q > t ? InfinitePlane.OUTSIDE : q < -t ? -InfinitePlane.INSIDE : InfinitePlane.LIMIT;
+
+    /**
+    Check the general interface contract in superclass method
+    Geometry.doContainmentTest.
+    @return INSIDE, OUTSIDE or LIMIT constant value
+    */
+    public override doContainmentTest(p: Vector3Dd, distanceTolerance: number): number {
+        const num = this.a * p.x() + this.b * p.y() + this.c * p.z() + this.d;
+        let op: number = InfinitePlane.LIMIT;
+        if (num > distanceTolerance) {
+            op = InfinitePlane.OUTSIDE;
+        } else if (num < -distanceTolerance) {
+            op = -InfinitePlane.INSIDE;
+        }
+        return op;
     }
-    public override doExtraInformation(ray: Ray, t: number, out: RayHit) {
-        if (!out) return;
-        out.beginDetailEvaluation();
-        out.point = ray.getOrigin().add(ray.getDirection().multiply(t));
-        out.normal = this.surfaceNormal();
-        if (out.needsPoint()) out.markDetailAvailable(RayHit.DETAIL_POINT);
-        if (out.needsNormal()) out.markDetailAvailable(RayHit.DETAIL_NORMAL);
+
+    /**
+    Check the general interface contract in superclass method
+    Geometry.doExtraInformation.
+    */
+    public override doExtraInformation(inRay: Ray, inT: number, outData: RayHit): void {
+        if ((outData as RayHit | null) === null) return;
+        outData.beginDetailEvaluation();
+        outData.point = new Vector3Dd(
+            inRay.getOrigin().x() + inT * inRay.getDirection().x(),
+            inRay.getOrigin().y() + inT * inRay.getDirection().y(),
+            inRay.getOrigin().z() + inT * inRay.getDirection().z(),
+        );
+        outData.normal = this.surfaceNormal();
+        if (outData.needsPoint()) outData.markDetailAvailable(RayHit.DETAIL_POINT);
+        if (outData.needsNormal()) outData.markDetailAvailable(RayHit.DETAIL_NORMAL);
     }
-    public getMinMax() {
-        return new Float64Array([-Infinity, -Infinity, -Infinity, Infinity, Infinity, Infinity]);
+
+    /**
+    TODO: Current returned values are not always valid!
+    @return a new 6 valued double array containing the coordinates of a min-max
+    bounding box for current geometry.
+    */
+    public override getMinMax(): number[] {
+        const minmax: number[] = [0, 0, 0, 0, 0, 0];
+        for (let i = 0; i < 3; i++) {
+            minmax[i] = -Double.MAX_VALUE;
+        }
+        for (let i = 3; i < 6; i++) {
+            minmax[i] = Double.MAX_VALUE;
+        }
+        return minmax;
     }
     /**
     A finite part of the plane, to present it: a square of side `size`
@@ -372,27 +433,63 @@ export class InfinitePlane extends HalfSpace<Ray, RayHit> {
     public setD(x: number) {
         this.d = x;
     }
-    public setFromPointNormal(p: Vector3Dd, n: Vector3Dd) {
+    /**
+    Given a plane normal and a point in the plane, this method updates
+    current plane to fit that spec. As in Java, `d` is computed from the
+    given (not normalized) normal.
+    */
+    public setFromPointNormal(p: Vector3Dd, n: Vector3Dd): void {
         this.setNormal(n);
-        this.d = -(this.a * p.x() + this.b * p.y() + this.c * p.z());
+        this.setD(-(n.x() * p.x() + n.y() * p.y() + n.z() * p.z()));
     }
     public pointDistance(p: Vector3Dd) {
         return this.a * p.x() + this.b * p.y() + this.c * p.z() + this.d;
     }
-    public projectPoint(p: Vector3Dd) {
-        return p.subtract(this.getNormal().multiply(this.pointDistance(p)));
+    public projectPoint(p: Vector3Dd): Vector3Dd {
+        const distance = this.pointDistance(p);
+        let n = new Vector3Dd(this.a, this.b, this.c);
+        n = n.normalized();
+        n = n.multiply(distance);
+        return p.subtract(n);
     }
-    public mirrorPoint(p: Vector3Dd) {
-        return p.subtract(this.getNormal().multiply(2 * this.pointDistance(p)));
+    public mirrorPoint(p: Vector3Dd): Vector3Dd {
+        const distance = this.pointDistance(p);
+        let n = new Vector3Dd(this.a, this.b, this.c);
+        n = n.normalized();
+        n = n.multiply(2 * distance);
+        return p.subtract(n);
     }
-    public overlapsWith(o: InfinitePlane, t: number) {
-        const l1 = Math.hypot(this.a, this.b, this.c),
-            l2 = Math.hypot(o.a, o.b, o.c);
+    /**
+    Returns `true` if `this` plane is overlaping with `other` plane.
+    Note that two planes are overlaping if they are both coplanar and
+    at the same distance from the origin.
+    */
+    public overlapsWith(other: InfinitePlane, tolerance: number): boolean {
+        let a1 = this.a;
+        let b1 = this.b;
+        let c1 = this.c;
+        let d1 = this.d;
+        let a2 = other.a;
+        let b2 = other.b;
+        let c2 = other.c;
+        let d2 = other.d;
+        const n1 = new Vector3Dd(a1, b1, c1);
+        const n2 = new Vector3Dd(a2, b2, c2);
+        const l1 = n1.length();
+        const l2 = n2.length();
+        a1 /= l1;
+        b1 /= l1;
+        c1 /= l1;
+        d1 /= l1;
+        a2 /= l2;
+        b2 /= l2;
+        c2 /= l2;
+        d2 /= l2;
         return (
-            Math.abs(o.a / l2 - this.a / l1) <= t &&
-            Math.abs(o.b / l2 - this.b / l1) <= t &&
-            Math.abs(o.c / l2 - this.c / l1) <= t &&
-            Math.abs(o.d / l2 - this.d / l1) <= t
+            Math.abs(a2 - a1) <= tolerance &&
+            Math.abs(b2 - b1) <= tolerance &&
+            Math.abs(c2 - c1) <= tolerance &&
+            Math.abs(d2 - d1) <= tolerance
         );
     }
     public getA() {

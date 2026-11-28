@@ -2,7 +2,7 @@
 Samples a random point on the view screen and traces the viewing ray.
 */
 
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { Background } from "../../scene/Background";

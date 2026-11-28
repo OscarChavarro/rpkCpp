@@ -7,11 +7,11 @@ import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
-import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "../../render/ImageOutputTarget";
 import { RayTracer } from "../common/RayTracer";
 import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { SoftIdsWrapper } from "../../render/SoftIdsWrapper";
@@ -57,7 +57,7 @@ export class RayCaster extends RayTracer {
   }
 
   public override execute(
-    ip: ImageOutputHandle | null,
+    ip: ImageOutputTarget | null,
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
@@ -73,12 +73,12 @@ export class RayCaster extends RayTracer {
     }
   }
 
-  public override saveImage(imageOutputHandle: ImageOutputHandle): boolean {
+  public override saveImage(imageOutputTarget: ImageOutputTarget): boolean {
     if (RayCaster.rayCaster === null) {
       return false;
     }
 
-    RayCaster.rayCaster.save(imageOutputHandle);
+    RayCaster.rayCaster.save(imageOutputTarget);
     return true;
   }
 
@@ -126,10 +126,10 @@ export class RayCaster extends RayTracer {
 
     if (radianceMethod !== null) {
       // Ray pointing from the eye through the center of the pixel.
-      const ray = new Ray();
-      ray.setOrigin(camera.eyePosition);
-      ray.setDirection(this.screenBuffer.getPixelVector(x, y));
-      ray.setDirection(ray.getDirection().normalized(Numeric.EPSILON));
+      let ray = new Ray();
+      ray = ray.withOrigin(camera.eyePosition);
+      ray = ray.withDirection(this.screenBuffer.getPixelVector(x, y));
+      ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
       // Find intersection point of ray with patch
       let point = new Vector3Dd();
@@ -198,7 +198,7 @@ export class RayCaster extends RayTracer {
     this.screenBuffer.render();
   }
 
-  public save(ip: ImageOutputHandle): void {
+  public save(ip: ImageOutputTarget): void {
     this.screenBuffer.writeFile(ip);
   }
 }

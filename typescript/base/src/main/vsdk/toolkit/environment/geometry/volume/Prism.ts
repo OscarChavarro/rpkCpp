@@ -210,14 +210,6 @@ export class Prism extends Solid {
         this.setBase(polygon);
     }
 
-    /**
-    C++ `Vector2Dd::length()` is `sqrt(x * x + y * y)`; it is evaluated here
-    the same way (the TypeScript `Vector2Dd.length()` uses `Math.hypot`).
-    */
-    private static vertexLength(p: Vector2Dd): number {
-        return JavaMath.sqrt(p.x * p.x + p.y * p.y);
-    }
-
     /** C++ `Vector2Dd::operator==`: exact comparison of the coordinates. */
     private static sameVertex(a: Vector2Dd, b: Vector2Dd): boolean {
         return a.x === b.x && a.y === b.y;
@@ -226,7 +218,7 @@ export class Prism extends Solid {
     public getCircumradius(): number {
         let r = 0.0;
         for (let i = 0; i < this.base.size(); i++) {
-            const d = Prism.vertexLength(this.base.get(i));
+            const d = this.base.get(i).length();
             if (d > r) {
                 r = d;
             }

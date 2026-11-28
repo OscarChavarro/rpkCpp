@@ -1,5 +1,6 @@
 import { VSDKFatalException } from "../../../../common/VSDKFatalException.js";
 import { PolygonVertex } from "./PolygonVertex.js";
+import { JavaArray } from "../../../../../../java/lang/JavaArray.js";
 
 /**
 Immutable convex polygon with homogeneous vertices, as clipped by
@@ -30,9 +31,9 @@ export class ScreenPolygon {
             this.vertices.push(new PolygonVertex());
         }
         if (inNumberOfVertices < 0 || inNumberOfVertices > ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON) {
-            // Runtime boundary: C++ prints to System.err and calls
-            // System.exit(1); the platform-neutral base package reports the
-            // message on the console and throws a VSDKFatalException.
+            // As in Java, the message goes to the error stream and a
+            // VSDKFatalException is thrown for the caller to handle (the C++
+            // port still exits).
             const message =
                 "ScreenPolygon: invalid number of vertices: " +
                 inNumberOfVertices +
@@ -60,6 +61,6 @@ export class ScreenPolygon {
     }
 
     public getVertex(index: number): PolygonVertex {
-        return this.vertices[index]!;
+        return JavaArray.get(this.vertices, index);
     }
 }

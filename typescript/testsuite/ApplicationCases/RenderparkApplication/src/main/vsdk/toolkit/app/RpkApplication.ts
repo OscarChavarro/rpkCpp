@@ -2,7 +2,6 @@ import { OptionsGroupCore } from "./options/OptionsGroupCore";
 import { GalerkinRadianceMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
 import { ClusterCreationStrategy } from "rpk-base/dist/vsdk/toolkit/galerkin/processing/ClusterCreationStrategy";
 import { ParseRuntimeContext } from "rpk-base/dist/vsdk/toolkit/io/context/ParseRuntimeContext";
-import { DkColor } from "rpk-base/dist/vsdk/toolkit/io/image/DkColor";
 import { BidirectionalPathTracingState } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
 import { LightList } from "rpk-base/dist/vsdk/toolkit/raycasting/bidirectionalRaytracing/LightList";
 import { RayTracer } from "rpk-base/dist/vsdk/toolkit/raycasting/common/RayTracer";
@@ -199,7 +198,6 @@ export class RpkApplication {
       mgfContext.radianceMethod = null;
       mgfContext.parserConfig.radianceMethod = null;
     }
-    DkColor.freeBuffer();
   }
 
   /**

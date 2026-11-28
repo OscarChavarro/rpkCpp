@@ -56,9 +56,9 @@ export class PolygonBoxClipper {
         let z1out = 0;
 
         if (n + 6 > ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON) {
-            // Runtime boundary: C++ prints to System.err and calls
-            // System.exit(1); the platform-neutral base package reports the
-            // message on the console and throws a VSDKFatalException.
+            // As in Java, the message goes to the error stream and a
+            // VSDKFatalException is thrown for the caller to handle (the C++
+            // port still exits).
             const message =
                 "polyClipToBox: too many vertices: " + n + " (max=" + ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON + "-6)";
             console.error(message);

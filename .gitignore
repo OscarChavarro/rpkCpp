@@ -84,3 +84,4 @@ turboc/etc/goldenImagesForTests/*.png
 java/etc/goldenImagesForTests/*.ppm
 java/etc/goldenImagesForTests/*.png
 typescript/etc/goldenImagesForTests/*.ppm
+typescript/etc/goldenImagesForTests/*.png

@@ -124,9 +124,25 @@ export class VSDK {
         const value = Math.min(255, Math.max(0, input));
         return value > 127 ? value - 256 : value;
     }
+    /**
+    VSDK no longer terminates the process on a fatal error (it used to call
+    System.exit, which would also bring down an application container such as
+    a servlet engine). A fatal error is raised to the caller as a
+    VSDKFatalException, and the calling application decides how to handle it.
+
+    This flag is kept for compatibility: when true (the default), fatal errors
+    raise that exception; when false, they raise it only if
+    setWithFatalExceptions(true) is set, and are only logged otherwise.
+    @param flag
+    */
     public static setWithSystemExit(flag: boolean): void {
         setWithSystemExit(flag);
     }
+    /**
+    Controls whether FATAL_ERROR reports should raise an unchecked exception
+    when setWithSystemExit(false) is set.
+    @param flag
+    */
     public static setWithFatalExceptions(flag: boolean): void {
         setWithFatalExceptions(flag);
     }

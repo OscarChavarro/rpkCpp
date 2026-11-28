@@ -1,7 +1,8 @@
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
+import { Numeric } from "../../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "../../material/BsdfComponent";
 
@@ -38,7 +39,7 @@ export class Photon {
   public findRS(r: number[], s: number[], coord: CoordinateSystem, flag: number, n: number): void {
     const phi = [0.0];
     const theta = [0.0];
-    coord.rectangularToSphericalCoord(this.m_dir, phi, theta);
+    coord.rectangularToSphericalCoord(this.m_dir, phi, theta, Numeric.EPSILON);
 
     if (flag === BsdfComponent.BRDF_DIFFUSE_COMPONENT) {
       s[0] = phi[0]! / (2.0 * globalThis.Math.PI);

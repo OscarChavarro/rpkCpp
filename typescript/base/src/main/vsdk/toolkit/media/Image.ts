@@ -1,7 +1,7 @@
 import { MediaEntity } from "./MediaEntity.js";
 import type { RGBPixel } from "./RGBPixel.js";
 import { ColorRgb } from "../common/color/ColorRgb.js";
-import { unsigned, byte } from "./_pixel.js";
+import { unsigned, byte, javaIntCast, positiveMod } from "./_pixel.js";
 export abstract class Image extends MediaEntity {
     public abstract init(w: number, h: number): boolean;
     public abstract initNoFill(w: number, h: number): boolean;
@@ -27,10 +27,10 @@ export abstract class Image extends MediaEntity {
             v = y - Math.floor(y),
             U = u * w,
             V = v * h,
-            i0 = ((Math.floor(U) % w) + w) % w,
-            j0 = ((Math.floor(V) % h) + h) % h,
-            i1 = (i0 + 1) % w,
-            j1 = (j0 + 1) % h,
+            i0 = positiveMod(javaIntCast(Math.floor(U)), w),
+            j0 = positiveMod(javaIntCast(Math.floor(V)), h),
+            i1 = positiveMod(i0 + 1, w),
+            j1 = positiveMod(j0 + 1, h),
             du = U - i0,
             dv = V - j0;
         const c = (i: number, j: number) => {

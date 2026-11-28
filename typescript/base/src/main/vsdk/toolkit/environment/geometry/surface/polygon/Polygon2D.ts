@@ -1,167 +1,361 @@
 import { Surface } from "../Surface.js";
 import { _Polygon2DContour } from "./_Polygon2DContour.js";
 import { BinaryTreeNode } from "../../../../common/dataStructures/BinaryTreeNode.js";
-import { Ray } from "../../element/Ray.js";
-import { RayHit } from "../../element/RayHit.js";
+import type { Ray } from "../../element/Ray.js";
+import type { RayHit } from "../../element/RayHit.js";
 import type { Vertex2D } from "../../element/Vertex2D.js";
+import { Double } from "../../../../../../java/lang/Double.js";
+import { Collections } from "../../../../../../java/util/Collections.js";
+
+/**
+Planar polygon made of contours. Java's `List<_Polygon2DContour> loops` (an
+`ArrayList`) is an array here.
+*/
 export class Polygon2D extends Surface<Ray, RayHit> {
-    public loops: _Polygon2DContour[] = [];
-    private currentLoop: _Polygon2DContour;
-    private headNode: BinaryTreeNode<_Polygon2DContour> | null = null;
+    public loops: _Polygon2DContour[];
+    private currentLoop!: _Polygon2DContour;
+
+    // headNode is the head node of the n-ary tree codified in a binary tree
+    // in left child-right sibling way.
+    private headNode: BinaryTreeNode<_Polygon2DContour | null> | null = null;
+
     public constructor() {
         super();
-        this.currentLoop = new _Polygon2DContour();
-        this.loops.push(this.currentLoop);
-    }
-    public addVertex(x: number, y: number, r?: number, g?: number, b?: number) {
-        this.currentLoop.addVertex(x, y, r, g, b);
-    }
-    public pushVertex(x: number, y: number) {
-        this.currentLoop.pushVertex(x, y);
-    }
-    public nextLoop() {
-        this.currentLoop = new _Polygon2DContour();
-        this.loops.push(this.currentLoop);
-    }
-    public eraseLastLoop() {
-        if (this.loops.length <= 1) return;
-        const last = this.loops[this.loops.length - 1]!;
-        this.loops = this.loops.filter((x) => x !== last && x.getExteriorContour() !== last);
-        if (this.loops.length === 0) this.nextLoop();
-        else this.currentLoop = this.loops[this.loops.length - 1]!;
-    }
-    public invert() {
-        for (const loop of this.loops) loop.vertices.reverse();
-    }
-    public getMinMax() {
-        const m = new Float64Array([Infinity, Infinity, 0, -Infinity, -Infinity, 0]);
-        for (const loop of this.loops)
-            for (const v of loop.vertices.slice(0, -1)) {
-                m[0] = Math.min(m[0]!, v.x);
-                m[1] = Math.min(m[1]!, v.y);
-                m[3] = Math.max(m[3]!, v.x);
-                m[4] = Math.max(m[4]!, v.y);
-            }
-        return m;
-    }
-    public doIntersectionFirstHit(_ray: Ray, _out: RayHit) {
-        return false;
-    }
-    public override doExtraInformation(_ray: Ray, _t: number, _out: RayHit): void {}
-    public getHeadNode() {
-        return this.headNode;
-    }
-    public setHeadNode(x: BinaryTreeNode<_Polygon2DContour> | null) {
-        this.headNode = x;
+        this.loops = [];
+        this.nextLoop();
     }
 
-    // Moved from the former PolygonProcessor, as the C++ port did
-    // (Polygon2D::classifyContourHoles / isPointInsideContour). The bodies are
-    // this port's original algorithm (n-ary contour tree, EPSILON boundary band).
+    public addVertex(x: number, y: number): void;
+    public addVertex(x: number, y: number, r: number, g: number, b: number): void;
+    public addVertex(x: number, y: number, r?: number, g?: number, b?: number): void {
+        if (r === undefined) {
+            this.currentLoop.addVertex(x, y);
+            return;
+        }
+        this.currentLoop.addVertex(x, y, r, g!, b!);
+    }
+
+    public pushVertex(x: number, y: number): void {
+        this.currentLoop.pushVertex(x, y);
+    }
+
+    public nextLoop(): void {
+        this.currentLoop = new _Polygon2DContour();
+        this.loops.push(this.currentLoop);
+    }
+
+    public eraseLastLoop(): void {
+        let i: number;
+        let loop: _Polygon2DContour;
+
+        if (this.loops.length > 1) {
+            // Remove also the holes of that loop. LRR.
+            for (i = 0; i < this.loops.length; ++i) {
+                loop = this.loops[i]!;
+                if (loop.getExteriorContour() === this.loops[this.loops.length - 1]) {
+                    this.loops.splice(i, 1);
+                    --i;
+                }
+            }
+            if (this.loops.length > 1) {
+                this.loops.splice(this.loops.length - 1, 1);
+                this.currentLoop = this.loops[this.loops.length - 1]!;
+            }
+            // Rebuild the n-ary tree codified in a binary tree.
+            this.classifyContourHoles();
+        }
+    }
+
+    public invert(): void {
+        for (const p2DContour of this.loops) {
+            Collections.reverse(p2DContour.vertices);
+        }
+    }
+
+    /**
+    @return a new 6 valued double array containing the coordinates of a min-max
+    bounding box for current geometry.
+    */
+    public override getMinMax(): number[] {
+        let v: Vertex2D;
+        let i: number;
+        let j: number;
+
+        const minMax: number[] = [0, 0, 0, 0, 0, 0];
+        let minX = Double.MAX_VALUE;
+        let minY = Double.MAX_VALUE;
+        let maxX = -Double.MAX_VALUE;
+        let maxY = -Double.MAX_VALUE;
+
+        for (i = 0; i < this.loops.length; i++) {
+            for (j = 0; j < this.loops[i]!.vertices.length - 1; j++) {
+                v = this.loops[i]!.vertices[j]!;
+                if (v.x > maxX) {
+                    maxX = v.x;
+                }
+                if (v.x < minX) {
+                    minX = v.x;
+                }
+                if (v.y > maxY) {
+                    maxY = v.y;
+                }
+                if (v.y < minY) {
+                    minY = v.y;
+                }
+            }
+        }
+        minMax[0] = minX;
+        minMax[1] = minY;
+        minMax[2] = 0;
+        minMax[3] = maxX;
+        minMax[4] = maxY;
+        minMax[5] = 0;
+        return minMax;
+    }
+
+    /** Java overload `doIntersectionFirstHit(Ray)` returns null; the other false. */
+    public doIntersectionFirstHit(inOutRay: Ray): Ray | null;
+    public override doIntersectionFirstHit(inRay: Ray, outHit: RayHit): boolean;
+    public override doIntersectionFirstHit(inRay: Ray, outHit: RayHit | null): boolean;
+    public override doIntersectionFirstHit(_inRay: Ray, outHit?: RayHit | null): Ray | null | boolean {
+        if (outHit === undefined) {
+            return null;
+        }
+        return false;
+    }
+
+    public override doExtraInformation(_inRay: Ray, _intT: number, _outData: RayHit): void {}
+
+    /**
+     * @return the headNode
+     */
+    public getHeadNode(): BinaryTreeNode<_Polygon2DContour | null> | null {
+        return this.headNode;
+    }
+
+    /**
+     * @param headNode the headNode to set
+     */
+    public setHeadNode(headNode: BinaryTreeNode<_Polygon2DContour | null> | null): void {
+        this.headNode = headNode;
+    }
+
+    // Contour classification, moved here from the removed PolygonProcessor as
+    // cpp did (Polygon2D::classifyContourHoles / isPointInsideContour). The
+    // Java bodies are the original algorithm (n-ary contour tree, EPSILON
+    // boundary band) that the cpp version simplifies; they are kept as they were.
     private static readonly EPSILON = 1e-18;
 
     public classifyContourHoles(): void {
-        const polygon = this;
-        for (const contour of polygon.loops) contour.fleetingFlag = false;
-        const head = new BinaryTreeNode<_Polygon2DContour>(null as unknown as _Polygon2DContour);
-        polygon.setHeadNode(head);
-        for (let i = 0; i < polygon.loops.length; i++) {
-            const contour = polygon.loops[i]!;
-            const contained = [contour];
-            for (let j = i + 1; j < polygon.loops.length; j++) {
-                const candidate = polygon.loops[j]!;
-                if (!candidate.fleetingFlag && Polygon2D.isContourInsideContour(contour.vertices, candidate.vertices))
-                    contained.push(candidate);
+        const polygon: Polygon2D = this;
+        let i: number;
+        let j: number;
+        let p2DContour: _Polygon2DContour;
+        let p2DContourTest: _Polygon2DContour;
+
+        // Clear temporary tree flags.
+        for (i = 0; i < polygon.loops.length; ++i) {
+            p2DContour = polygon.loops[i]!;
+            // Indicates that the contour is in the binary tree.
+            p2DContour.fleetingFlag = false;
+        }
+
+        // Head node contains no data.
+        polygon.setHeadNode(new BinaryTreeNode<_Polygon2DContour | null>(null));
+
+        const tempList: _Polygon2DContour[] = [];
+        // Fill tempList and create the binary tree.
+        for (i = 0; i < polygon.loops.length; ++i) {
+            p2DContour = polygon.loops[i]!;
+            tempList.length = 0;
+            tempList.push(p2DContour);
+            for (j = i + 1; j < polygon.loops.length; ++j) {
+                p2DContourTest = polygon.loops[j]!;
+                if (!p2DContourTest.fleetingFlag) {
+                    // If p2DContourTest is not in the binary tree:
+                    if (Polygon2D.isContourInsideContour(p2DContour.vertices, p2DContourTest.vertices)) {
+                        tempList.push(p2DContourTest);
+                    }
+                }
             }
-            contained.sort((a, b) => b.compareTo(a));
-            Polygon2D.insertListInBinaryTree(contained, head);
+            // Sorts in descending order (Collections.reverseOrder()).
+            Collections.sort(tempList, { compare: (a: _Polygon2DContour, b: _Polygon2DContour) => b.compareTo(a) });
+            Polygon2D.insertListInBinaryTree(tempList, polygon.getHeadNode()!);
         }
     }
 
-    /** Returns true when the contour lies inside the supplied polygon contour. */
-    private static isContourInsideContour(contour: readonly Vertex2D[], mainPolygon: readonly Vertex2D[]): boolean {
-        for (const point of contour) {
-            const result = Polygon2D.isPointInsideContour(point, mainPolygon);
-            if (result === 1) return true;
-            if (result === -1) return false;
-        }
-        return false;
-    }
+    private static insertListInBinaryTree(
+        list: _Polygon2DContour[],
+        headNode: BinaryTreeNode<_Polygon2DContour | null>, // Head node is in the 0 level.
+    ): void {
+        const levelOfContainingContourNode: number[] = [0];
 
-    /** Returns 1 inside, -1 outside, and 0 on the boundary. */
-    public static isPointInsideContour(point: Vertex2D, polygon: readonly Vertex2D[]): number {
-        if (polygon.length < 3) return -1;
-        let isInside = false;
-        for (let i = 0; i < polygon.length; i++) {
-            const current = polygon[i]!;
-            const next = polygon[(i + 1) % polygon.length]!;
-            let temp = current.y - next.y;
-            if (Math.abs(temp) < Polygon2D.EPSILON && Math.abs(point.y - (next.y + temp / 2)) < Polygon2D.EPSILON) {
-                if ((next.x - point.x) * (point.x - current.x) >= 0) return 0;
-            }
-            if (point.y < current.y !== point.y < next.y) {
-                temp = ((next.x - current.x) * (point.y - current.y)) / (next.y - current.y) + current.x;
-                if (Math.abs(point.x - temp) < Polygon2D.EPSILON) return 0;
-                if (point.x < temp) isInside = !isInside;
-            }
-        }
-        return isInside ? 1 : -1;
-    }
-
-    private static insertListInBinaryTree(list: _Polygon2DContour[], head: BinaryTreeNode<_Polygon2DContour>): void {
         if (list.length === 0) return;
-        const [containingNode, containingLevel] = Polygon2D.findContainingContourNode(list[0]!, head);
-        Polygon2D.insertListInBinaryTreeNode(list, containingNode, containingLevel);
+
+        const p2DContour = list[0]!;
+        const containingContourNode = Polygon2D.findContainingContourNode(
+            p2DContour,
+            headNode,
+            levelOfContainingContourNode,
+        );
+        Polygon2D.insertListInBinaryTreeNode(list, containingContourNode!, levelOfContainingContourNode[0]!);
     }
 
     private static insertListInBinaryTreeNode(
         list: _Polygon2DContour[],
-        containingNode: BinaryTreeNode<_Polygon2DContour>,
-        containingLevel: number,
+        containingListNode: BinaryTreeNode<_Polygon2DContour | null>,
+        levelOfContainingContourNode: number,
     ): void {
-        let level = containingLevel + 1;
-        if (level % 2 === 0) list[0]!.setExteriorContour(containingNode.getData());
-        let lastChild = containingNode.getChild();
-        if (lastChild === null) {
-            lastChild = new BinaryTreeNode(list[0]!);
-            containingNode.setChild(lastChild);
+        let i: number;
+        let child: BinaryTreeNode<_Polygon2DContour | null> | null;
+        let lastChild: BinaryTreeNode<_Polygon2DContour | null> | null = null;
+        let p2DContour: _Polygon2DContour;
+        let levelOfNode: number;
+
+        levelOfNode = levelOfContainingContourNode + 1;
+        if (levelOfNode % 2 === 0) list[0]!.setExteriorContour(containingListNode.getData());
+
+        // Find the last child of the node and add a new one.
+        child = containingListNode.getChild();
+        if (child === null) {
+            lastChild = new BinaryTreeNode<_Polygon2DContour | null>(list[0]!);
+            containingListNode.setChild(lastChild);
         } else {
-            while (lastChild.getSibling() !== null) lastChild = lastChild.getSibling()!;
-            const child = new BinaryTreeNode(list[0]!);
-            lastChild.setSibling(child);
+            while (child !== null) {
+                lastChild = child;
+                child = child.getSibling();
+            }
+            child = new BinaryTreeNode<_Polygon2DContour | null>(list[0]!);
+            if (lastChild !== null) {
+                lastChild.setSibling(child);
+            }
             lastChild = child;
         }
+        // Indicates that the contour is in the binary tree.
         list[0]!.fleetingFlag = true;
-        for (let i = 1; i < list.length; i++) {
-            level++;
-            const contour = list[i]!;
-            if (level % 2 === 0) contour.setExteriorContour(lastChild.getData());
-            const child = new BinaryTreeNode(contour);
+
+        // Fill the binary tree with the rest of elements of list.
+        for (i = 1; i < list.length; ++i) {
+            ++levelOfNode;
+            p2DContour = list[i]!;
+            if (levelOfNode % 2 === 0) {
+                // Is a hole.
+                p2DContour.setExteriorContour(lastChild.getData());
+            }
+            child = new BinaryTreeNode<_Polygon2DContour | null>(p2DContour);
             lastChild.setChild(child);
-            contour.fleetingFlag = true;
+            child.getData()!.fleetingFlag = true;
             lastChild = child;
         }
     }
 
+    /**
+     * Finds the contour node that contains the p2DContour in the binary tree
+     * represented by headNode.
+     * @param levelOfContainingContourNode is zero based. This array contains one element.
+     */
     private static findContainingContourNode(
-        contour: _Polygon2DContour,
-        head: BinaryTreeNode<_Polygon2DContour>,
-    ): [BinaryTreeNode<_Polygon2DContour>, number] {
-        let current = head;
-        let level = 0;
-        while (true) {
-            let child = current.getChild();
-            let found = false;
+        p2DContour: _Polygon2DContour,
+        headNode: BinaryTreeNode<_Polygon2DContour | null> | null,
+        levelOfContainingContourNode: number[],
+    ): BinaryTreeNode<_Polygon2DContour | null> | null {
+        let isTheContainingContourNode: boolean;
+        let child: BinaryTreeNode<_Polygon2DContour | null> | null;
+        levelOfContainingContourNode[0] = 0;
+
+        while (headNode !== null) {
+            child = headNode.getChild();
+            isTheContainingContourNode = true;
             while (child !== null) {
-                if (Polygon2D.isContourInsideContour(contour.vertices, child.getData().vertices)) {
-                    current = child;
-                    level++;
-                    found = true;
+                if (Polygon2D.isContourInsideContour(p2DContour.vertices, child.getData()!.vertices)) {
+                    isTheContainingContourNode = false;
+                    headNode = child;
+                    ++levelOfContainingContourNode[0]!;
                     break;
                 }
                 child = child.getSibling();
             }
-            if (!found) return [current, level];
+            if (isTheContainingContourNode) return headNode;
+        }
+        // Reaches here only if headNode == null.
+        return headNode;
+    }
+
+    /**
+     * Test if the contour is inside the polygon. This function assumes that
+     * the contour is fully inside or fully outside.
+     */
+    private static isContourInsideContour(contour: Vertex2D[], mainPolygon: Vertex2D[]): boolean {
+        let i: number;
+        let point: Vertex2D;
+        let result: number;
+
+        for (i = 0; i < contour.length; ++i) {
+            point = contour[i]!;
+            result = Polygon2D.isPointInsideContour(point, mainPolygon);
+            if (result === 1) return true;
+            if (result === -1) return false;
+            // If result equals 0 the point is in the contour of the mainPolygon,
+            // the search continues.
+        }
+        // If every point is in the contour of the mainPolygon. Note that in this
+        // case the contour can be anywhere(inside, outside, intersecting).
+        return false;
+    }
+
+    /* Function isPointInPolygon2D is based on the function developed by W. Randolph
+     Franklin:
+     http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+     visited on sep 08 2014.
+     The part that tests if the point is in de boundary is new.
+     (License: see the Java original.)
+     */
+
+    /**
+     * Test if point is inside, outside or on the boundary of the polygon.
+     * @return 1 if the point is inside, -1 if the point is outside, 0 if the
+     * point is on the boundary.
+     */
+    public static isPointInsideContour(point: Vertex2D, polygon: Vertex2D[]): number {
+        let i: number;
+        let isInside = false;
+        let temp: number;
+        let polPoint: Vertex2D;
+        let polPointNext: Vertex2D;
+
+        const polSize = polygon.length;
+        if (polSize < 3) {
+            return -1;
+        }
+        for (i = 0; i < polSize; ++i) {
+            polPoint = polygon[i]!;
+            if (i === polSize - 1) polPointNext = polygon[0]!;
+            else polPointNext = polygon[i + 1]!;
+            temp = polPoint.y - polPointNext.y;
+            if (Math.abs(temp) < Polygon2D.EPSILON) {
+                //Horizontal line.
+                if (Math.abs(point.y - (polPointNext.y + temp / 2)) < Polygon2D.EPSILON) {
+                    if ((polPointNext.x - point.x) * (point.x - polPoint.x) >= 0) {
+                        return 0;
+                    }
+                }
+            }
+            if (point.y < polPoint.y !== point.y < polPointNext.y) {
+                temp =
+                    ((polPointNext.x - polPoint.x) * (point.y - polPoint.y)) / (polPointNext.y - polPoint.y) +
+                    polPoint.x;
+                if (Math.abs(point.x - temp) < Polygon2D.EPSILON) {
+                    return 0;
+                }
+                if (point.x < temp) {
+                    isInside = !isInside;
+                }
+            }
+        }
+        if (isInside) {
+            return 1;
+        } else {
+            return -1;
         }
     }
 }

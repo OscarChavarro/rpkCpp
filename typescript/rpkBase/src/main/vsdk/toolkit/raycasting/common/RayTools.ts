@@ -1,6 +1,6 @@
-import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -89,7 +89,7 @@ export class RayTools {
     }
 
     let dir = new Vector3Dd();
-    const ray = new Ray();
+    let ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
 
@@ -101,8 +101,8 @@ export class RayTools {
 
     dist = dist * (1.0 - VSDK.EPSILON);
 
-    ray.setOrigin(node1.m_hit.getPoint());
-    ray.setDirection(dir);
+    ray = ray.withOrigin(node1.m_hit.getPoint());
+    ray = ray.withDirection(dir);
 
     const cosRay1 = dir.dotProduct(node1.m_normal);
     const cosRay2 = -dir.dotProduct(node2.m_normal);
@@ -170,7 +170,7 @@ export class RayTools {
     pixY: number[] | null
   ): boolean {
     let dir = new Vector3Dd();
-    const ray = new Ray();
+    let ray = new Ray();
     const hitStore = new RayHit();
     const fDistance = [0.0];
 
@@ -195,8 +195,8 @@ export class RayTools {
         if (globalThis.Math.abs(yz) < camera.pixelHeightTangent) {
           dist = dist * (1.0 - VSDK.EPSILON);
 
-          ray.setOrigin(eyeNode.m_hit.getPoint());
-          ray.setDirection(dir);
+          ray = ray.withOrigin(eyeNode.m_hit.getPoint());
+          ray = ray.withDirection(dir);
 
           const cosRayEye = dir.dotProduct(eyeNode.m_normal);
           const cosRayLight = -dir.dotProduct(node.m_normal);

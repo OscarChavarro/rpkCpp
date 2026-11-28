@@ -18,9 +18,9 @@
 # Outputs and logs go to output/zVisibility/ (output/zVisibilitySerial/ with
 # --serial). These images have no golden images: a scene passes when its run
 # succeeds and writes its image. With --reference DIR each image must also
-# equal DIR/<image>.ppm (compare -metric AE = 0), for example the outputs of
+# equal DIR/<image>.png (compare -metric AE = 0), for example the outputs of
 # a --serial run, or of another port. As a plain indication, the RMSE against
-# the golden image of the isotropic run, etc/goldenImagesForTests/<image>.ppm,
+# the golden image of the isotropic run, etc/goldenImagesForTests/<image>.png,
 # is printed too. The scenes outside the corpus (08 soda) run only when named.
 # The exit status is 0 only when every run succeeded and every image matched.
 #
@@ -108,10 +108,10 @@ for line in $selection; do
     case "$method" in
         ''|ja*|JA*|Ja*|parallel-jacobi) extra+=($jacobi_options) ;;
     esac
-    extra+=(-radiance-image-savefile "./$output_dir/$image.ppm")
+    extra+=(-radiance-image-savefile "./$output_dir/$image.png")
 
     # A run that crashes must not leave the previous run's results to be compared
-    rm -f "$output_dir/$image.ppm" "$output_dir/$log.log" "$output_dir/$log.err" "$output_dir/$log.time"
+    rm -f "$output_dir/$image.png" "$output_dir/$log.log" "$output_dir/$log.err" "$output_dir/$log.time"
     start=$(date +%s.%N)
     if [ -x /usr/bin/time ]; then
         /usr/bin/time -o "$output_dir/$log.time" -f 'user %U
@@ -125,26 +125,26 @@ maxRssKb %M' bash "$SCRIPT_DIR/$script.sh" "${extra[@]}" > "$output_dir/$log.log
     end=$(date +%s.%N)
     seconds=$(awk -v s="$start" -v e="$end" 'BEGIN { printf "%.2f", e - s }')
 
-    if [ $status -ne 0 ] || [ ! -f "$output_dir/$image.ppm" ]; then
+    if [ $status -ne 0 ] || [ ! -f "$output_dir/$image.png" ]; then
         printf '%-28s FAILED RUN (status %d) %8s s\n' "$image" "$status" "$seconds"
         failures=$((failures + 1))
         continue
     fi
     isotropic="-"
-    if [ -f "$golden_dir/$image.ppm" ]; then
-        isotropic=$(compare -metric RMSE "$output_dir/$image.ppm" "$golden_dir/$image.ppm" null: 2>&1 |
+    if [ -f "$golden_dir/$image.png" ]; then
+        isotropic=$(compare -metric RMSE "$output_dir/$image.png" "$golden_dir/$image.png" null: 2>&1 |
             sed -n 's/.*(\(.*\)).*/\1/p')
     fi
     if [ -z "$reference_dir" ]; then
         printf '%-28s DONE %8s s  (RMSE vs isotropic %s)\n' "$image" "$seconds" "$isotropic"
         continue
     fi
-    if [ ! -f "$reference_dir/$image.ppm" ]; then
+    if [ ! -f "$reference_dir/$image.png" ]; then
         printf '%-28s NO REFERENCE IMAGE %8s s\n' "$image" "$seconds"
         failures=$((failures + 1))
         continue
     fi
-    difference=$(compare -metric AE "$output_dir/$image.ppm" "$reference_dir/$image.ppm" null: 2>&1)
+    difference=$(compare -metric AE "$output_dir/$image.png" "$reference_dir/$image.png" null: 2>&1)
     if [ "$difference" = "0" ]; then
         printf '%-28s MATCH %8s s  (RMSE vs isotropic %s)\n' "$image" "$seconds" "$isotropic"
     else

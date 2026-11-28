@@ -152,6 +152,15 @@ export class Vector3Df extends FundamentalEntity {
             Object.is(this.zv, other.zv)
         );
     }
+    /**
+    Java's `Vector3Df` inherits `Object.toString()`:
+    `getClass().getName() + "@" + Integer.toHexString(hashCode())`. It is
+    deterministic because the class overrides `hashCode()`.
+    */
+    public override toString(): string {
+        return "vsdk.toolkit.common.linealAlgebra.Vector3Df@" + (this.hashCode() >>> 0).toString(16);
+    }
+
     public hashCode(): number {
         let result = Float.hashCode(this.xv);
         result = (Math.imul(31, result) + Float.hashCode(this.yv)) | 0;

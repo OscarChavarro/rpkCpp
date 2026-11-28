@@ -2,7 +2,7 @@ import { String as JavaString } from "vitral/dist/java/lang/String";
 import type { Cie } from "vitral/dist/vsdk/toolkit/common/color/Cie";
 import { ColorRgbMutable } from "rpk-base/dist/vsdk/toolkit/common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Numeric } from "rpk-base/dist/vsdk/toolkit/common/linealAlgebra/Numeric";
+import { Numeric } from "rpk-base/dist/vsdk/toolkit/skin/Numeric";
 import { Statistics } from "rpk-base/dist/vsdk/toolkit/common/statistics/Statistics";
 import { BsdfComponent } from "rpk-base/dist/vsdk/toolkit/material/BsdfComponent";
 import { XxdfComponentFlag } from "rpk-base/dist/vsdk/toolkit/material/XxdfComponentFlag";

@@ -34,14 +34,29 @@
 # the separate @vitral/fs package, with another API), java/lang/System (it
 # needs FileOutputStream), MemoryPool and the io/wrapper pipe classes (VITRAL's
 # TypeScript port does not have them). They are RenderPark's, in rpkBase/.
+# Then VITRAL ace00725 (TypeScript port: 1 to 1 migration from java port, with
+# the immutable Ray of the Java port: withOrigin/withDirection/fromAffine) and
+# the TypeScript side of VITRAL Java 7662979b, pending its VITRAL commit: the
+# image infrastructure RenderPark writes its images with (ImagePersistence with
+# exportRGBE over a stream, ImagePersistenceRgbe, ImagePersistencePng,
+# RGBImageFloatUncompressed, RGBImageUncompressed) and the CoordinateSystem
+# and CoordinateAxis of the Java port (xAxis/yAxis/zAxis, setFromZAxis and
+# rectangularToSphericalCoord with their epsilon), which replace RenderPark's.
 java/concurrent/WorkerProtocol.ts
 java/io/BufferedInputStream.ts
+java/io/ByteArrayOutputStream.ts
+java/io/EOFException.ts
+java/io/IOException.ts
 java/io/InputStream.ts
 java/io/OutputStream.ts
 java/io/PrintStream.ts
+java/lang/ArithmeticException.ts
+java/lang/ArrayIndexOutOfBoundsException.ts
 java/lang/Boolean.ts
 java/lang/Byte.ts
 java/lang/Character.ts
+java/lang/CloneNotSupportedException.ts
+java/lang/Cloneable.ts
 java/lang/Double.ts
 java/lang/Exception.ts
 java/lang/Float.ts
@@ -49,9 +64,12 @@ java/lang/IllegalArgumentException.ts
 java/lang/IllegalStateException.ts
 java/lang/IndexOutOfBoundsException.ts
 java/lang/Integer.ts
+java/lang/JavaArray.ts
 java/lang/Long.ts
 java/lang/Math.ts
+java/lang/NegativeArraySizeException.ts
 java/lang/NullPointerException.ts
+java/lang/NumberFormatException.ts
 java/lang/Object.ts
 java/lang/ProcessBuilder.ts
 java/lang/RuntimeException.ts
@@ -59,14 +77,19 @@ java/lang/Short.ts
 java/lang/String.ts
 java/lang/StringBuilder.ts
 java/lang/Throwable.ts
+java/lang/UnsupportedOperationException.ts
 java/util/ArrayList.ts
+java/util/Collections.ts
+java/util/Comparator.ts
 java/util/Formatter.ts
 java/util/HashMap.ts
 java/util/HashMapEntry.ts
 java/util/Iterator.ts
 java/util/NoSuchElementException.ts
+java/util/Objects.ts
 java/util/Random.ts
 java/util/StringTokenizer.ts
+java/util/TimSort.ts
 java/util/concurrent/atomic/AtomicLong.ts
 vsdk/toolkit/common/Entity.ts
 vsdk/toolkit/common/EntityEvent.ts
@@ -74,12 +97,16 @@ vsdk/toolkit/common/EntityListener.ts
 vsdk/toolkit/common/FundamentalEntity.ts
 vsdk/toolkit/common/ModelElement.ts
 vsdk/toolkit/common/VSDK.ts
+vsdk/toolkit/common/VSDKException.ts
 vsdk/toolkit/common/VSDKFatalException.ts
 vsdk/toolkit/common/VSDKRuntimeSettings.ts
+vsdk/toolkit/common/_EntityAccessors.ts
+vsdk/toolkit/common/_EntityJavaClassNames.ts
 vsdk/toolkit/common/color/Cie.ts
 vsdk/toolkit/common/color/ColorRgb.ts
 vsdk/toolkit/common/dataStructures/ArrayLinkable.ts
 vsdk/toolkit/common/dataStructures/ArrayListOfDoubles.ts
+vsdk/toolkit/common/dataStructures/ArrayListOfInts.ts
 vsdk/toolkit/common/dataStructures/BalancedKDTreeNode.ts
 vsdk/toolkit/common/dataStructures/BinaryTreeNode.ts
 vsdk/toolkit/common/dataStructures/CircularArrayList.ts
@@ -88,6 +115,8 @@ vsdk/toolkit/common/dataStructures/KDTree.ts
 vsdk/toolkit/common/dataStructures/KDTreeAdapter.ts
 vsdk/toolkit/common/dataStructures/KDTreeNode.ts
 vsdk/toolkit/common/dataStructures/KDTreeVisitor.ts
+vsdk/toolkit/common/linealAlgebra/CoordinateAxis.ts
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.ts
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.ts
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.ts
 vsdk/toolkit/common/linealAlgebra/Matrix4x4f.ts
@@ -206,17 +235,27 @@ vsdk/toolkit/environment/scene/AffineToleranceMap.ts
 vsdk/toolkit/environment/scene/InstanceRayCrossingBuffer.ts
 vsdk/toolkit/environment/scene/SceneSolid.ts
 vsdk/toolkit/io/PersistenceElement.ts
+vsdk/toolkit/io/image/ImageNotRecognizedException.ts
+vsdk/toolkit/io/image/ImagePersistence.ts
+vsdk/toolkit/io/image/ImagePersistenceHelper.ts
+vsdk/toolkit/io/image/ImagePersistencePng.ts
+vsdk/toolkit/io/image/ImagePersistenceRgbe.ts
+vsdk/toolkit/io/image/ImagePersistenceSGI.ts
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.ts
 vsdk/toolkit/io/wrapper/Vector3DPrinter.ts
+vsdk/toolkit/media/GrayScalePalette.ts
 vsdk/toolkit/media/Image.ts
 vsdk/toolkit/media/IndexedColorImageUncompressed.ts
 vsdk/toolkit/media/MediaEntity.ts
 vsdk/toolkit/media/NormalMap.ts
+vsdk/toolkit/media/RGBAImageCompressed.ts
 vsdk/toolkit/media/RGBAImageUncompressed.ts
 vsdk/toolkit/media/RGBAPixel.ts
 vsdk/toolkit/media/RGBColorPalette.ts
+vsdk/toolkit/media/RGBImageFloatUncompressed.ts
 vsdk/toolkit/media/RGBImageUncompressed.ts
 vsdk/toolkit/media/RGBPixel.ts
+vsdk/toolkit/media/RGBProceduralColorPalette.ts
 vsdk/toolkit/media/_pixel.ts
 vsdk/toolkit/processing/ComputationalGeometry.ts
 vsdk/toolkit/processing/Containment.ts

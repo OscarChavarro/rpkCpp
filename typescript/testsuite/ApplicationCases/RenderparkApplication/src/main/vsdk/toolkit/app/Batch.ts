@@ -4,7 +4,7 @@ import { BoundingBox } from "rpk-base/dist/vsdk/toolkit/skin/AxisAlignedBounding
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupBatch } from "./options/OptionsGroupBatch";
 import { RendererConfiguration } from "rpk-base/dist/vsdk/toolkit/material/RendererConfiguration";
-import { ImageOutputHandle } from "rpk-base/dist/vsdk/toolkit/io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "rpk-base/dist/vsdk/toolkit/render/ImageOutputTarget";
 import { FileUncompressWrapper } from "rpk-base/dist/vsdk/toolkit/io/wrapper/FileUncompressWrapper";
 import { RayTracer } from "rpk-base/dist/vsdk/toolkit/raycasting/common/RayTracer";
 import { Canvas } from "rpk-base/dist/vsdk/toolkit/render/Canvas";
@@ -125,7 +125,7 @@ export class Batch {
 
     Canvas.canvasPushMode();
 
-    const extension = ImageOutputHandle.imageFileExtension(fileName);
+    const extension = ImageOutputTarget.imageFileExtension(fileName);
     if (extension !== null && extension.substring(0, 6).toLowerCase() === "logluv") {
       process.stdout.write(`Saving LOGLUV image to file '${fileName}' ....... `);
     }

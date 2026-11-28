@@ -74,20 +74,22 @@ export class Sphere extends Solid {
         const nearT = [0],
             farT = [0];
         const count = Sphere.intersectionRoots(ray.getOrigin(), ray.getDirection(), this.radius, query, nearT, farT);
-        const emit = (t: number): void => {
-            const point = ray.getOrigin().add(ray.getDirection().multiply(t));
-            const orientation = point.dotProduct(ray.getDirection());
-            const kind =
-                orientation < 0
-                    ? RayCrossingKind.Entering
-                    : orientation > 0
-                      ? RayCrossingKind.Leaving
-                      : RayCrossingKind.Tangent;
-            sink.crossing(new RayCrossing(t, this, kind));
-        };
-        if (count > 0) emit(nearT[0]!);
-        if (count > 1) emit(farT[0]!);
+        if (count > 0) this.emitCrossing(ray, sink, nearT[0]!);
+        if (count > 1) this.emitCrossing(ray, sink, farT[0]!);
         return RayCrossingSupport.Supported;
+    }
+
+    // cpp lambda `emit` of emitRayCrossings.
+    private emitCrossing(ray: Ray, sink: RayCrossingSink, t: number): void {
+        const point = ray.getOrigin().add(ray.getDirection().multiply(t));
+        const orientation = point.dotProduct(ray.getDirection());
+        const kind =
+            orientation < 0
+                ? RayCrossingKind.Entering
+                : orientation > 0
+                  ? RayCrossingKind.Leaving
+                  : RayCrossingKind.Tangent;
+        sink.crossing(new RayCrossing(t, this, kind));
     }
 
     public override classifyRay(

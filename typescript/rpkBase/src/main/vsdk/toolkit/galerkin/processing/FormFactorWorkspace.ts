@@ -1,4 +1,3 @@
-import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHit } from "../../environment/geometry/elements/RayHit";
 import type { ShadowStatistics } from "../../common/statistics/ShadowStatistics";
@@ -31,7 +30,6 @@ export class FormFactorWorkspace {
   private visibilityCount = 0; // Number of rays that "pass" occluders
   private readonly shadowStatistics: ShadowStatistics; // Not owned
 
-  private readonly kernelRay = new Ray();
   private readonly kernelHitStore = new RayHit();
   private readonly kernelDistance = [0.0];
   private readonly shadowTestDistance = [0.0];
@@ -107,10 +105,6 @@ export class FormFactorWorkspace {
 
   public getShadowStatistics(): ShadowStatistics {
     return this.shadowStatistics;
-  }
-
-  public getKernelRay(): Ray {
-    return this.kernelRay;
   }
 
   public getKernelHitStore(): RayHit {

@@ -450,6 +450,38 @@ export class Cone extends Solid {
         }
     }
 
+    /**
+    Check the general interface contract in superclass method
+    Geometry.doContainmentTest. The cone (or truncated cone, or cylinder)
+    has its axis along Z, its base of radius `bottomRadius` at z = 0 and its
+    top of radius `topRadius` at z = `height`. The distance to the side is
+    measured perpendicular to the side, so the tolerance is the same for the
+    side and for the caps.
+    @param p point to classify, in the space of the cone
+    @param distanceTolerance distance to the surface of the cone under which
+    the point is classified as `LIMIT`
+    @return INSIDE, OUTSIDE or LIMIT constant value
+    */
+    public override doContainmentTest(p: Vector3Dd, distanceTolerance: number): number {
+        if (this.height <= 0) {
+            return Cone.OUTSIDE;
+        }
+        const z = p.z();
+        const radialDistance = Math.sqrt(p.x() * p.x() + p.y() * p.y());
+        const radiusAtZ = this.bottomRadius + (this.topRadius - this.bottomRadius) * (z / this.height);
+        const radiusChange = this.bottomRadius - this.topRadius;
+        const sideCosine = this.height / Math.sqrt(this.height * this.height + radiusChange * radiusChange);
+        const sideDistance = (radialDistance - radiusAtZ) * sideCosine;
+
+        if (z < -distanceTolerance || z > this.height + distanceTolerance || sideDistance > distanceTolerance) {
+            return Cone.OUTSIDE;
+        }
+        if (z > distanceTolerance && z < this.height - distanceTolerance && sideDistance < -distanceTolerance) {
+            return Cone.INSIDE;
+        }
+        return Cone.LIMIT;
+    }
+
     // Finite solid bounds: |x|,|y| <= max radius and 0 <= z <= height.
     public override getBounds(result: GeometryBounds): void {
         const r = this.bottomRadius > this.topRadius ? this.bottomRadius : this.topRadius;

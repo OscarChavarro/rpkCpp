@@ -1,4 +1,4 @@
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
 import { Patch } from "../environment/geometry/elements/Patch";

@@ -16,6 +16,7 @@ Note that original algorithm is available at
 https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
+import { JavaArray } from "../../../../../../java/lang/JavaArray.js";
 import { VSDKFatalException } from "../../../../common/VSDKFatalException.js";
 import { HomogeneousHalfSpace } from "./HomogeneousHalfSpace.js";
 import { PolygonVertex } from "./PolygonVertex.js";
@@ -52,8 +53,9 @@ export class ConvexWindowClipper {
     */
     private static checkRoomForVertex(numberOfVertices: number): void {
         if (numberOfVertices >= ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON) {
-            // The cpp port prints this message and exits; the TypeScript port
-            // prints it on the console and throws a VSDKFatalException.
+            // As in Java, the message goes to the error stream and a
+            // VSDKFatalException is thrown for the caller to handle (the C++
+            // port still exits).
             const message =
                 "ConvexWindowClipper: too many vertices: " +
                 (numberOfVertices + 1) +
@@ -143,7 +145,7 @@ export class ConvexWindowClipper {
     ): ScreenPolygon {
         let clipped = polygon;
         for (let i = 0; i < numberOfHalfSpaces; i++) {
-            clipped = ConvexWindowClipper.clipToHalfSpace(clipped, halfSpaces[i]!);
+            clipped = ConvexWindowClipper.clipToHalfSpace(clipped, JavaArray.get(halfSpaces, i));
         }
         return clipped;
     }

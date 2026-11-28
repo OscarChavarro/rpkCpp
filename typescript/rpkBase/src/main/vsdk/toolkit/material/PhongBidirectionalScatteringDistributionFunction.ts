@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { BsdfComponent } from "./BsdfComponent";
 import { BsdfComponentFlag } from "./BsdfComponentFlag";
@@ -106,7 +106,7 @@ export class PhongBidirectionalScatteringDistributionFunction {
   ): Vector3Dd {
     void inDirection;
     const coord = new CoordinateSystem();
-    coord.setFromZAxis(normal);
+    coord.setFromZAxis(normal, VSDK.EPSILON);
     return coord.sampleHemisphereCosTheta(x1, x2, probabilityDensityFunction);
   }
 

@@ -1,7 +1,7 @@
 import { FundamentalEntity } from "../../../common/FundamentalEntity.js";
 import { Vector3Dd } from "../../../common/linealAlgebra/Vector3Dd.js";
 import { VSDK } from "../../../common/VSDK.js";
-import { Containment } from "../../../processing/Containment.js";
+import { Containment, containmentValue } from "../../../processing/Containment.js";
 import { Ray } from "./Ray.js";
 import { Intersection } from "./Intersection.js";
 import type { RayCrossingQuery } from "./RayCrossingQuery.js";
@@ -9,13 +9,24 @@ import { RayFirstHitStatus } from "./RayFirstHitStatus.js";
 import { Double } from "../../../../../java/lang/Double.js";
 import { Math as JavaMath } from "../../../../../java/lang/Math.js";
 export class Triangle extends FundamentalEntity {
-    private normal = new Vector3Dd();
-    public constructor(
-        private point0 = 0,
-        private point1 = 0,
-        private point2 = 0,
-    ) {
+    private point0: number;
+    private point1: number;
+    private point2: number;
+    private normal: Vector3Dd;
+
+    public constructor();
+    /**
+    @param point0 index of the first vertex
+    @param point1 index of the second vertex
+    @param point2 index of the third vertex
+    */
+    public constructor(point0: number, point1: number, point2: number);
+    public constructor(point0: number = 0, point1: number = 0, point2: number = 0) {
         super();
+        this.point0 = point0;
+        this.point1 = point1;
+        this.point2 = point2;
+        this.normal = new Vector3Dd(0, 0, 0);
     }
     public getPoint0() {
         return this.point0;
@@ -334,16 +345,20 @@ export class Triangle extends FundamentalEntity {
         distanceTolerance: number,
     ): number {
         const q = Triangle.closestPointOnTriangle(p, p0, p1, p2);
-        return q.subtract(p).length() <= distanceTolerance ? Containment.LIMIT : Containment.OUTSIDE;
+        if (q.subtract(p).length() <= distanceTolerance) {
+            return containmentValue(Containment.LIMIT);
+        }
+        return containmentValue(Containment.OUTSIDE);
     }
-    public static minMax(a: Vector3Dd, b: Vector3Dd, c: Vector3Dd, m: Float64Array | number[]): void {
-        m[0] = Math.min(a.x(), b.x(), c.x());
-        m[1] = Math.min(a.y(), b.y(), c.y());
-        m[2] = Math.min(a.z(), b.z(), c.z());
-        m[3] = Math.max(a.x(), b.x(), c.x());
-        m[4] = Math.max(a.y(), b.y(), c.y());
-        m[5] = Math.max(a.z(), b.z(), c.z());
+    public static minMax(p0: Vector3Dd, p1: Vector3Dd, p2: Vector3Dd, mm: Float64Array | number[]): void {
+        mm[0] = JavaMath.min(p0.x(), JavaMath.min(p1.x(), p2.x()));
+        mm[1] = JavaMath.min(p0.y(), JavaMath.min(p1.y(), p2.y()));
+        mm[2] = JavaMath.min(p0.z(), JavaMath.min(p1.z(), p2.z()));
+        mm[3] = JavaMath.max(p0.x(), JavaMath.max(p1.x(), p2.x()));
+        mm[4] = JavaMath.max(p0.y(), JavaMath.max(p1.y(), p2.y()));
+        mm[5] = JavaMath.max(p0.z(), JavaMath.max(p1.z(), p2.z()));
     }
+
     public override toString() {
         return `f < ${this.point0}, ${this.point1}, ${this.point2} >`;
     }

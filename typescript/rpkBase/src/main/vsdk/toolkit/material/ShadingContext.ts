@@ -1,4 +1,4 @@
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import type { Material } from "./Material";
@@ -34,9 +34,9 @@ export class ShadingContext {
     this.uv.x = inUv.x;
     this.uv.y = inUv.y;
     this.shadingFrame = new CoordinateSystem();
-    this.shadingFrame.setX(inShadingFrame.getX());
-    this.shadingFrame.setY(inShadingFrame.getY());
-    this.shadingFrame.setZ(inShadingFrame.getZ());
+    this.shadingFrame.setXAxis(inShadingFrame.getXAxis());
+    this.shadingFrame.setYAxis(inShadingFrame.getYAxis());
+    this.shadingFrame.setZAxis(inShadingFrame.getZAxis());
     this.material = inMaterial;
     this.flags = inFlags;
   }

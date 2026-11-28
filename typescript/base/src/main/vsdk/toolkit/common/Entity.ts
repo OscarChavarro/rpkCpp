@@ -1,3 +1,7 @@
+import { CloneNotSupportedException } from "../../../java/lang/CloneNotSupportedException.js";
+import { isCloneable } from "../../../java/lang/Cloneable.js";
+import { ENTITY_ACCESSORS } from "./_EntityAccessors.js";
+import { entityJavaClassName } from "./_EntityJavaClassNames.js";
 import { EntityEvent, EntityEventType } from "./EntityEvent.js";
 import type { EntityListener } from "./EntityListener.js";
 import type { ModelElement } from "./ModelElement.js";
@@ -116,11 +120,49 @@ export class Entity implements ModelElement {
     }
 
     /**
-    Pairs Java-style getX/setX methods. TypeScript erases method signatures, so
-    control specifications provide declared types where available. Other pairs
-    use the getter's value to identify a supported runtime type.
+    Java's method, stage 3: report get/set pairs with the same name and
+    parameter type. Stages 1 and 2 (the getters with no argument and a
+    supported return type, and the setters with a single argument and no
+    return) come from `Class.getMethods()` in Java; here they come from the
+    `_EntityAccessors` table generated from the Java core. The JDK leaves the
+    order of `getMethods()` unspecified (it changes between runs), so the
+    result is compared with Java as a set.
+
+    A class without Java counterpart (a TypeScript-only subclass) falls back to
+    `inferEncapsulatedVariables`.
     */
     public getEncapsulatedVariables(): string[] {
+        const accessors = Object.prototype.hasOwnProperty.call(ENTITY_ACCESSORS, this.constructor.name)
+            ? ENTITY_ACCESSORS[this.constructor.name]
+            : undefined;
+        if (accessors === undefined) {
+            return this.inferEncapsulatedVariables();
+        }
+        let i: number;
+        let j: number;
+        const variableSpecs: string[] = [];
+        for (i = 0; i < accessors.getters.length; i++) {
+            const [gname, r] = accessors.getters[i]!.split(":") as [string, string];
+            for (j = 0; j < accessors.setters.length; j++) {
+                const [sname, t] = accessors.setters[j]!.split(":") as [string, string];
+                if (gname === sname && t === r) {
+                    const s = gname.toLowerCase();
+                    const variableName = s.substring(0, 1) + gname.substring(1);
+                    variableSpecs.push(r + ":" + variableName);
+                    break;
+                }
+            }
+        }
+        return variableSpecs;
+    }
+
+    /**
+    Pairs getX/setX methods of a class that has no Java reflection data.
+    TypeScript erases method signatures, so control specifications provide
+    declared types where available. Other pairs use the getter's value to
+    identify a supported runtime type.
+    */
+    private inferEncapsulatedVariables(): string[] {
         const getters = new Map<string, () => unknown>();
         const setters = new Set<string>();
         let prototype: object | null = Object.getPrototypeOf(this);
@@ -207,8 +249,19 @@ export class Entity implements ModelElement {
         }
     }
 
-    /** Mirrors the current Java implementation, whose clone contract returns null. */
+    /**
+    Just to do not the inheritance chain.
+    Java's `super.clone()` is `Object.clone()`: it throws a
+    `CloneNotSupportedException` naming the class when the class does not
+    implement `Cloneable` (see `java/lang/Cloneable`), and its copy is
+    discarded otherwise.
+    @return null
+    @throws CloneNotSupportedException
+    */
     public clone(): unknown {
+        if (!isCloneable(this)) {
+            throw new CloneNotSupportedException(entityJavaClassName(this));
+        }
         return null;
     }
 }

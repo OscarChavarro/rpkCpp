@@ -3,8 +3,8 @@ Generate and trace a local line
 */
 
 import { RayExclusionSet } from "../../environment/geometry/elements/RayExclusionSet";
-import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
+import { Numeric } from "../../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
@@ -30,9 +30,9 @@ Creates a coordinate system on the patch P with Z direction along the normal
     let y = new Vector3Dd();
     y = z.crossProduct(x);
 
-    coord.setX(x);
-    coord.setY(y);
-    coord.setZ(z);
+    coord.setXAxis(x);
+    coord.setYAxis(y);
+    coord.setZAxis(z);
   }
 
   /**
@@ -41,7 +41,7 @@ direction with respect to patch normal. Origin and direction are uniquely determ
 by the 4-dimensional sample vector xi
 */
   public static mcrGenerateLocalLine(patch: Patch, xi: number[]): Ray {
-    const ray = new Ray();
+    let ray = new Ray();
     const pdf = [0.0];
 
     if (patch !== Localline.previousPatch) {
@@ -49,8 +49,8 @@ by the 4-dimensional sample vector xi
       Localline.previousPatch = patch;
     }
 
-    ray.setOrigin(patch.uniformPoint(xi[0]!, xi[1]!) ?? ray.getOrigin());
-    ray.setDirection(Localline.coordSys.sampleHemisphereCosTheta(xi[2]!, xi[3]!, pdf));
+    ray = ray.withOrigin(patch.uniformPoint(xi[0]!, xi[1]!) ?? ray.getOrigin());
+    ray = ray.withDirection(Localline.coordSys.sampleHemisphereCosTheta(xi[2]!, xi[3]!, pdf));
 
     return ray;
   }

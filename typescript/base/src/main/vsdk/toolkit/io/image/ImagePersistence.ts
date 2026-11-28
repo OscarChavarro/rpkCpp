@@ -1,0 +1,317 @@
+import { OutputStream } from "../../../../java/io/OutputStream.js";
+import { ByteArrayOutputStream } from "../../../../java/io/ByteArrayOutputStream.js";
+import { VSDK } from "../../common/VSDK.js";
+import { Logger } from "../../common/logging/Logger.js";
+import { Image } from "../../media/Image.js";
+import { RGBPixel } from "../../media/RGBPixel.js";
+import { RGBAImageCompressed } from "../../media/RGBAImageCompressed.js";
+import { ImageNotRecognizedException } from "./ImageNotRecognizedException.js";
+import { ImagePersistenceHelper } from "./ImagePersistenceHelper.js";
+import { ImagePersistencePng } from "./ImagePersistencePng.js";
+import { ImagePersistenceSGI } from "./ImagePersistenceSGI.js";
+import { ImagePersistenceRgbe } from "./ImagePersistenceRgbe.js";
+import { RGBImageFloatUncompressed } from "../../media/RGBImageFloatUncompressed.js";
+import { JavaArray } from "../../../../java/lang/JavaArray.js";
+import { IndexedColorImageUncompressed } from "../../media/IndexedColorImageUncompressed.js";
+
+/**
+Platform-neutral half of `vsdk.toolkit.io.image.ImagePersistence`: the
+operations that produce or consume image bytes in memory, with no file system
+involved, so that a browser frontend can compute an image and hand the bytes to
+a remote service.
+
+Two deliberate departures from the Java original:
+
+  - Java resolves its helpers reflectively, by class name, inside
+    `initHelpers`. There is no class loader here, so the pure in-memory PNG
+    helper is registered by this package, and a runtime that brings its own
+    codec installs it through {@link registerHelper} when its package is
+    imported.
+  - The `java.io.File` flavors (`exportPNG(File, Image)`,
+    `exportPPM(File, Image)`, `exportRGBE(File, RGBImageFloatUncompressed)`,
+    `importRGBE(File)` and the importers) live in the `@vitral/fs`
+    subclass of this class, because only a runtime with a file system can
+    offer them.
+
+The PPM writer is a literal port and is implemented here by hand, with no
+third-party code, exactly as the Java and C++ ports do for that format.
+*/
+export class ImagePersistence {
+    public static nativeWarningGiven = false;
+    private static helpers: ImagePersistenceHelper[] | null = null;
+
+    public static initHelpers(): void {
+        if (ImagePersistence.helpers === null) {
+            ImagePersistence.helpers = [];
+            // Call order reflects prefered order. Runtime-specific helpers
+            // register themselves when their package is imported.
+            ImagePersistence.helpers.push(new ImagePersistencePng());
+        }
+    }
+
+    public static registerHelper(h: ImagePersistenceHelper): void {
+        ImagePersistence.initHelpers();
+        ImagePersistence.helpers!.push(h);
+    }
+
+    protected static getHelpers(): ImagePersistenceHelper[] {
+        ImagePersistence.initHelpers();
+        return ImagePersistence.helpers!;
+    }
+
+    public static exportPNG(os: OutputStream, img: Image): void {
+        const helpers = ImagePersistence.getHelpers();
+        let i: number;
+        for (i = 0; i < helpers.length; i++) {
+            if (helpers[i]!.pngExportSupported()) {
+                helpers[i]!.exportPNG_24bitRgb(os, img);
+                return;
+            }
+        }
+        Logger.reportMessage(
+            null,
+            VSDK.WARNING,
+            "ImagePersistence",
+            "Helper class not available, not saving PNG image",
+        );
+    }
+
+    public static exportPNG_24bitRgb(os: OutputStream, img: Image): void {
+        const helpers = ImagePersistence.getHelpers();
+        let i: number;
+        for (i = 0; i < helpers.length; i++) {
+            if (helpers[i]!.pngExportSupported()) {
+                helpers[i]!.exportPNG_24bitRgb(os, img);
+                return;
+            }
+        }
+        Logger.reportMessage(
+            null,
+            VSDK.WARNING,
+            "ImagePersistence",
+            "Helper class not available, not saving PNG image",
+        );
+    }
+
+    /**
+    Answers the bytes of the given image encoded as a PNG file, without
+    touching any file system. This is the entry point a web frontend uses to
+    ship a computed image to a remote service.
+    */
+    public static exportPNGToByteArray(img: Image): Uint8Array {
+        const os = new ByteArrayOutputStream();
+        ImagePersistence.exportPNG(os, img);
+        return os.toByteArray();
+    }
+
+    /**
+    This method writes the contents of the specified image in
+    binary RGB PPM format (i.e. P6 PPM sub-format). Returns true if everything
+    works fine, false if something fails, like a permission access denied
+    or if storage device runs out of space.
+    @param os
+    @param img
+    @return
+    */
+    public static exportPPM(os: OutputStream, img: Image | null): boolean {
+        if (img === null) {
+            return false;
+        }
+        try {
+            const line1 = "P6\n";
+            const line2 = "# Image generated by VitralSDK (https://github.com/OscarChavarro/vitral)\n";
+            const line3 = img.getXSize() + " " + img.getYSize() + "\n";
+            const line4 = "255\n";
+            let arr: Uint8Array;
+            const encoder = new TextEncoder();
+
+            arr = encoder.encode(line1);
+            os.writeBytes(arr, 0, arr.length);
+            arr = encoder.encode(line2);
+            os.writeBytes(arr, 0, arr.length);
+            arr = encoder.encode(line3);
+            os.writeBytes(arr, 0, arr.length);
+            arr = encoder.encode(line4);
+            os.writeBytes(arr, 0, arr.length);
+
+            // One row at a time, without allocating a pixel per sample
+            const xSize = img.getXSize();
+            const row = new Uint8Array(Math.imul(3, xSize));
+            const p = new RGBPixel();
+            let x: number;
+            let y: number;
+            for (y = 0; y < img.getYSize(); y++) {
+                for (x = 0; x < xSize; x++) {
+                    img.getPixelRgb(x, y, p);
+                    JavaArray.set(row, Math.imul(3, x), p.r & 0xff);
+                    JavaArray.set(row, Math.imul(3, x) + 1, p.g & 0xff);
+                    JavaArray.set(row, Math.imul(3, x) + 2, p.b & 0xff);
+                }
+                os.writeBytes(row, 0, row.length);
+            }
+        } catch {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+    Same as exportRGBE over a file, but writing on the given stream, which is
+    not closed. The file flavor is in the `@vitral/fs` subclass.
+    @param os
+    @param img
+    @return true if export was successful, false otherwise
+    */
+    public static exportRGBE(os: OutputStream, img: RGBImageFloatUncompressed | null): boolean {
+        try {
+            return ImagePersistenceRgbe.exportRgbe(os, img);
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+    Answers the bytes of the given image encoded as a binary RGB PPM file,
+    without touching any file system.
+    */
+    public static exportPPMToByteArray(img: Image): Uint8Array {
+        const os = new ByteArrayOutputStream();
+        ImagePersistence.exportPPM(os, img);
+        return os.toByteArray();
+    }
+
+    /**
+    Reads a DXT-compressed DDS file and keeps its blocks compressed, exactly as
+    `ImagePersistence.importDDSCompressed(File)` does in Java. The compressed
+    blocks are never decoded here: they travel to the GPU as they are.
+
+    Port note: Java receives a `java.io.File`, reads it with
+    `Files.readAllBytes`, and reports the offending file inside
+    `ImageNotRecognizedException`. Reading the bytes is the only
+    file-system-bound step, and DDS parsing itself is pure byte arithmetic, so
+    this flavor receives the already-read bytes plus the resource name used for
+    the diagnostics. `@vitral/fs` and the browser adapter each supply the
+    reading step for their own runtime.
+
+    @param fileData The complete contents of the DDS file
+    @param sourceName The name of the read resource, for diagnostics
+    @return An RGBAImageCompressed entity holding the compressed blocks
+    */
+    /**
+    Java's `importIndexedColor(File)`, over the bytes of the resource.
+
+    Java first offers the file to every registered helper that claims the
+    extension, and then handles `bw` itself through `ImagePersistenceSGI`. The
+    helper flavor it offers is the `java.io.File` one, which this
+    platform-neutral class does not declare — its helpers speak streams — so
+    the helper round belongs to the `@vitral/fs` subclass that owns a file
+    system, and what is left here is the `bw` branch itself, which is pure byte
+    arithmetic. The extension is taken from `sourceName`, which plays the part
+    of Java's `extractExtensionFromFile`.
+
+    @param fileContent The complete contents of the image file
+    @param sourceName The name of the read resource, for its extension and for
+           diagnostics
+    @return An IndexedColorImageUncompressed entity with the read image
+    */
+    public static importIndexedColor(fileContent: Uint8Array, sourceName: string): IndexedColorImageUncompressed {
+        const type: string = ImagePersistence.extractExtensionFromName(sourceName);
+        let retImage: IndexedColorImageUncompressed;
+        let img: Image | null;
+
+        if (type === "bw") {
+            img = ImagePersistenceSGI.readImageSGI(fileContent, sourceName);
+            if (img instanceof IndexedColorImageUncompressed) {
+                retImage = img;
+            } else {
+                throw new ImageNotRecognizedException("Convertion needed", sourceName);
+            }
+            return retImage;
+        }
+        throw new ImageNotRecognizedException("Image not recognized", sourceName);
+    }
+
+    /**
+    Java's `PersistenceElement.extractExtensionFromFile`, reading the name it
+    is given rather than a `java.io.File`. Java tokenizes on `.` with a
+    `StringTokenizer` and answers the last token, which is why a name carrying
+    no dot answers the whole name and why empty tokens are skipped; the case is
+    left as it was found, exactly as Java leaves it.
+    */
+    public static extractExtensionFromName(sourceName: string): string {
+        const tokens: string[] = sourceName.split(".").filter((token) => token.length > 0);
+        if (tokens.length < 1) {
+            throw new Error("No such element");
+        }
+        return tokens[tokens.length - 1]!;
+    }
+
+    public static importDDSCompressed(fileData: Uint8Array, sourceName: string | null): RGBAImageCompressed {
+        if (fileData.length < 128) {
+            throw new ImageNotRecognizedException("DDS file too short", sourceName);
+        }
+        if (
+            fileData[0] !== 0x44 /* 'D' */ ||
+            fileData[1] !== 0x44 /* 'D' */ ||
+            fileData[2] !== 0x53 /* 'S' */ ||
+            fileData[3] !== 0x20 /* ' ' */
+        ) {
+            throw new ImageNotRecognizedException("DDS signature not recognized", sourceName);
+        }
+
+        const headerSize = ImagePersistence.readIntLE(fileData, 4);
+        if (headerSize !== 124) {
+            throw new ImageNotRecognizedException("DDS header size not recognized", sourceName);
+        }
+
+        const height = ImagePersistence.readIntLE(fileData, 12);
+        const width = ImagePersistence.readIntLE(fileData, 16);
+        const pixelFormatFlags = ImagePersistence.readIntLE(fileData, 80);
+        let fourCC: string;
+        fourCC = String.fromCharCode(fileData[84]!, fileData[85]!, fileData[86]!, fileData[87]!);
+
+        if ((pixelFormatFlags & 0x04) === 0) {
+            throw new ImageNotRecognizedException("DDS file does not use a FourCC compressed format", sourceName);
+        }
+
+        const compressionFormat = ImagePersistence.ddsFourCCToCompressionFormat(fourCC);
+        if (compressionFormat === RGBAImageCompressed.COMPRESSION_UNKNOWN) {
+            throw new ImageNotRecognizedException("DDS compressed format not supported: " + fourCC, sourceName);
+        }
+
+        const dataOffset = 128;
+        const dataSize = fileData.length - dataOffset;
+        let compressedData: Uint8Array;
+        compressedData = new Uint8Array(dataSize);
+        compressedData.set(fileData.subarray(dataOffset, dataOffset + dataSize), 0);
+
+        let image: RGBAImageCompressed;
+        image = new RGBAImageCompressed();
+        if (!image.initCompressed(width, height, compressionFormat, compressedData)) {
+            throw new ImageNotRecognizedException("Could not initialize compressed DDS image", sourceName);
+        }
+        return image;
+    }
+
+    private static ddsFourCCToCompressionFormat(fourCC: string): number {
+        if (fourCC === "DXT1") {
+            return RGBAImageCompressed.COMPRESSION_DXT1;
+        }
+        if (fourCC === "DXT3") {
+            return RGBAImageCompressed.COMPRESSION_DXT3;
+        }
+        if (fourCC === "DXT5") {
+            return RGBAImageCompressed.COMPRESSION_DXT5;
+        }
+        return RGBAImageCompressed.COMPRESSION_UNKNOWN;
+    }
+
+    private static readIntLE(data: Uint8Array, offset: number): number {
+        return (
+            (data[offset]! & 0xff) |
+            ((data[offset + 1]! & 0xff) << 8) |
+            ((data[offset + 2]! & 0xff) << 16) |
+            ((data[offset + 3]! & 0xff) << 24)
+        );
+    }
+}

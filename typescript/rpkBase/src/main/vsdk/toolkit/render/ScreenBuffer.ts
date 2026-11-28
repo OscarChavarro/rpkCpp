@@ -1,10 +1,12 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "../skin/Numeric";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
-import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "./ImageOutputTarget";
+import { RGBImageFloatUncompressed } from "vitral/dist/vsdk/toolkit/media/RGBImageFloatUncompressed";
+import { RGBImageUncompressed } from "vitral/dist/vsdk/toolkit/media/RGBImageUncompressed";
 import { FileUncompressWrapper } from "../io/wrapper/FileUncompressWrapper";
 import { Camera } from "../scene/Camera";
 import { ToneMap } from "../tonemap/ToneMap";
@@ -170,17 +172,42 @@ export class ScreenBuffer {
     );
   }
 
-  public writeFile(ip: ImageOutputHandle | null): void;
+  private static javaIntCast(value: number): number {
+    if (Number.isNaN(value)) {
+      return 0;
+    }
+    if (value >= 2147483647.0) {
+      return 2147483647;
+    }
+    if (value <= -2147483648.0) {
+      return -2147483648;
+    }
+    return globalThis.Math.trunc(value);
+  }
+
+  public static gammaCorrect(rgb: ColorRgbMutable, gamma: number[]): void {
+    rgb.r = gamma[0]! === 1.0 ? rgb.r : globalThis.Math.pow(rgb.r, 1.0 / gamma[0]!);
+    rgb.g = gamma[1]! === 1.0 ? rgb.g : globalThis.Math.pow(rgb.g, 1.0 / gamma[1]!);
+    rgb.b = gamma[2]! === 1.0 ? rgb.b : globalThis.Math.pow(rgb.b, 1.0 / gamma[2]!);
+  }
+
+  /**
+  Writes the image on the target: the radiances themselves for a high dynamic
+  range format, or else display RGB values (radiances tone mapped, then gamma
+  corrected). The rows are written from the top of the image, the last row of
+  this buffer.
+  */
+  public writeFile(target: ImageOutputTarget | null): void;
   public writeFile(fileName: string, outputStream: OutputStream | null, isPipe: number): void;
   public writeFile(fileName: string): void;
   public writeFile(
-    ipOrFileName: ImageOutputHandle | string | null,
+    targetOrFileName: ImageOutputTarget | string | null,
     outputStream?: OutputStream | null,
     isPipe?: number
   ): void {
-    if (typeof ipOrFileName !== "string") {
-      const ip = ipOrFileName;
-      if (ip === null) {
+    if (typeof targetOrFileName !== "string") {
+      const target = targetOrFileName;
+      if (target === null) {
         return;
       }
 
@@ -188,34 +215,55 @@ export class ScreenBuffer {
         this.sync();
       }
 
-      process.stderr.write(`Writing ${ip.driverName} file ... `);
+      process.stderr.write(`Writing ${target.getDriverName()} file ... `);
 
-      const activeToneMapOptions = this.requireToneMappingContext();
-      ip.setToneMappingContext(activeToneMapOptions);
-      ip.gamma[0] = activeToneMapOptions.gamma.r;
-      ip.gamma[1] = activeToneMapOptions.gamma.g;
-      ip.gamma[2] = activeToneMapOptions.gamma.b;
-
-      for (let i = this.camera.ySize - 1; i >= 0; i--) {
-        if (!this.isRgbImage()) {
-          const scanline = new Array<ColorRgbMutable>(this.camera.xSize);
-          const rowStart = i * this.camera.xSize;
-          for (let j = 0; j < this.camera.xSize; j++) {
-            scanline[j] = (this.radiance as ColorRgbMutable[])[rowStart + j]!;
-          }
-          ip.writeRadianceRGB(scanline);
+      const width = this.camera.xSize;
+      const height = this.camera.ySize;
+      const radiance = this.radiance as ColorRgbMutable[];
+      if (target.getFormat() === ImageOutputTarget.Format.RADIANCE_RGBE) {
+        if (this.isRgbImage()) {
+          process.stderr.write(`${target.getDriverName()} does not support display RGB output.\n`);
         }
         else {
-          const rgbFloatArray = new Array<number>(3 * this.camera.xSize);
-          const rowStart = i * this.camera.xSize;
-          for (let j = 0; j < this.camera.xSize; j++) {
-            const color = (this.radiance as ColorRgbMutable[])[rowStart + j]!;
-            const base = 3 * j;
-            rgbFloatArray[base] = color.r;
-            rgbFloatArray[base + 1] = color.g;
-            rgbFloatArray[base + 2] = color.b;
+          const image = new RGBImageFloatUncompressed();
+          if (image.initNoFill(width, height)) {
+            for (let row = 0; row < height; row++) {
+              const i = height - 1 - row;
+              for (let x = 0; x < width; x++) {
+                const color = radiance[i * width + x]!;
+                image.putPixel(x, row, color.r, color.g, color.b);
+              }
+            }
+            target.writeRadianceImage(image);
           }
-          ip.writeDisplayRGB(rgbFloatArray);
+        }
+      }
+      else {
+        const activeToneMapOptions = this.requireToneMappingContext();
+        // For default radiance -> display RGB
+        const gamma = [activeToneMapOptions.gamma.r, activeToneMapOptions.gamma.g, activeToneMapOptions.gamma.b];
+        const image = new RGBImageUncompressed();
+        if (image.initNoFill(width, height)) {
+          for (let row = 0; row < height; row++) {
+            const i = height - 1 - row;
+            for (let x = 0; x < width; x++) {
+              const color = radiance[i * width + x]!;
+              const displayRgb = new ColorRgbMutable(color.r, color.g, color.b);
+              if (!this.isRgbImage()) {
+                // Convert RGB radiance to display RGB
+                ToneMap.radianceToRgb(color, displayRgb, activeToneMapOptions);
+              }
+              ScreenBuffer.gammaCorrect(displayRgb, gamma);
+              image.putPixel(
+                x,
+                row,
+                ScreenBuffer.javaIntCast(displayRgb.r * 255.0) & 0xFF,
+                ScreenBuffer.javaIntCast(displayRgb.g * 255.0) & 0xFF,
+                ScreenBuffer.javaIntCast(displayRgb.b * 255.0) & 0xFF
+              );
+            }
+          }
+          target.writeDisplayImage(image);
         }
       }
 
@@ -223,24 +271,14 @@ export class ScreenBuffer {
       return;
     }
 
-    const fileName = ipOrFileName;
+    const fileName = targetOrFileName;
     if (outputStream !== undefined) {
       if (outputStream === null) {
         return;
       }
 
-      const ip = ImageOutputHandle.createRadianceImageOutputHandle(
-        fileName,
-        outputStream,
-        isPipe as number,
-        this.camera.xSize,
-        this.camera.ySize
-      );
-
-      this.writeFile(ip);
-      if (ip !== null) {
-        ImageOutputHandle.deleteImageOutputHandle(ip);
-      }
+      const target = ImageOutputTarget.create(fileName, outputStream, isPipe as number);
+      this.writeFile(target);
       return;
     }
 

@@ -5,10 +5,10 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 import { ArrayList } from "vitral/dist/java/util/ArrayList";
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../../material/RendererConfiguration";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { Statistics } from "../../common/statistics/Statistics";
-import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "../../render/ImageOutputTarget";
 import { BoxFilter } from "../common/BoxFilter";
 import { NormalFilter } from "../common/NormalFilter";
 import { PixelFilter } from "../common/PixelFilter";
@@ -71,7 +71,7 @@ export class RayMatter extends RayTracer {
   }
 
   public override execute(
-    ip: ImageOutputHandle | null,
+    ip: ImageOutputTarget | null,
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
@@ -95,12 +95,12 @@ export class RayMatter extends RayTracer {
     }
   }
 
-  public override saveImage(imageOutputHandle: ImageOutputHandle): boolean {
+  public override saveImage(imageOutputTarget: ImageOutputTarget): boolean {
     if (RayMatter.rayMatter === null) {
       return false;
     }
 
-    RayMatter.rayMatter.save(imageOutputHandle);
+    RayMatter.rayMatter.save(imageOutputTarget);
     return true;
   }
 
@@ -154,10 +154,10 @@ export class RayMatter extends RayTracer {
           }
 
           // Generate ray
-          const ray = new Ray();
-          ray.setOrigin(camera.eyePosition);
-          ray.setDirection(this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0));
-          ray.setDirection(ray.getDirection().normalized(Numeric.EPSILON));
+          let ray = new Ray();
+          ray = ray.withOrigin(camera.eyePosition);
+          ray = ray.withDirection(this.screenBuffer.getPixelVector(x, y, dx[0] ?? 0.0, dy[0] ?? 0.0));
+          ray = ray.withDirection(ray.getDirection().normalized(Numeric.EPSILON));
 
           // Check if hit
           if (RayTools.findRayIntersection(sceneQuery, sceneWorldSceneQueryWorkspace, ray, null, null, null) !== null) {
@@ -188,7 +188,7 @@ export class RayMatter extends RayTracer {
     this.screenBuffer.render();
   }
 
-  public save(ip: ImageOutputHandle): void {
+  public save(ip: ImageOutputTarget): void {
     this.screenBuffer.writeFile(ip);
   }
 }

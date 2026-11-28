@@ -5,7 +5,7 @@ import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Lo
 import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
-import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "../../render/ImageOutputTarget";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
@@ -104,7 +104,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
   }
 
   public override execute(
-    ip: ImageOutputHandle | null,
+    ip: ImageOutputTarget | null,
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
@@ -257,10 +257,10 @@ export class BidirectionalPathRaytracer extends RayTracer {
     config.baseConfig = null;
   }
 
-  public override saveImage(imageOutputHandle: ImageOutputHandle): boolean {
-    if (imageOutputHandle !== null && this.bidirectionalPathState.lastScreen !== null) {
+  public override saveImage(imageOutputTarget: ImageOutputTarget): boolean {
+    if (imageOutputTarget !== null && this.bidirectionalPathState.lastScreen !== null) {
       this.bidirectionalPathState.lastScreen.sync();
-      this.bidirectionalPathState.lastScreen.writeFile(imageOutputHandle);
+      this.bidirectionalPathState.lastScreen.writeFile(imageOutputTarget);
       return true;
     }
     return false;

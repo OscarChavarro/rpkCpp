@@ -7,7 +7,7 @@ import { Prism } from "vitral/dist/vsdk/toolkit/environment/geometry/volume/Pris
 import { Sphere } from "vitral/dist/vsdk/toolkit/environment/geometry/volume/Sphere";
 import { Torus } from "vitral/dist/vsdk/toolkit/environment/geometry/volume/Torus";
 import { Tube } from "vitral/dist/vsdk/toolkit/environment/geometry/volume/Tube";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { ParseErrorContext } from "../context/ParseErrorContext";
 import type { ParseRuntimeContext } from "../context/ParseRuntimeContext";

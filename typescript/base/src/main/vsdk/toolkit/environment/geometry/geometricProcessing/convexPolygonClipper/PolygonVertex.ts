@@ -1,3 +1,4 @@
+import { JavaArray } from "../../../../../../java/lang/JavaArray.js";
 /**
 Immutable polygon vertex: homogeneous screen space position (sx, sy, sz, sw),
 world space position (x, y, z), texture position (u, v) and color (r, g, b).
@@ -56,18 +57,18 @@ export class PolygonVertex {
     /** Vertex with the NUMBER_OF_ATTRIBUTES attributes given in index order */
     public static fromAttributes(values: readonly number[]): PolygonVertex {
         return new PolygonVertex(
-            values[PolygonVertex.SX]!,
-            values[PolygonVertex.SY]!,
-            values[PolygonVertex.SZ]!,
-            values[PolygonVertex.SW]!,
-            values[PolygonVertex.X]!,
-            values[PolygonVertex.Y]!,
-            values[PolygonVertex.Z]!,
-            values[PolygonVertex.U]!,
-            values[PolygonVertex.V]!,
-            values[PolygonVertex.R]!,
-            values[PolygonVertex.G]!,
-            values[PolygonVertex.B]!,
+            JavaArray.get(values, PolygonVertex.SX),
+            JavaArray.get(values, PolygonVertex.SY),
+            JavaArray.get(values, PolygonVertex.SZ),
+            JavaArray.get(values, PolygonVertex.SW),
+            JavaArray.get(values, PolygonVertex.X),
+            JavaArray.get(values, PolygonVertex.Y),
+            JavaArray.get(values, PolygonVertex.Z),
+            JavaArray.get(values, PolygonVertex.U),
+            JavaArray.get(values, PolygonVertex.V),
+            JavaArray.get(values, PolygonVertex.R),
+            JavaArray.get(values, PolygonVertex.G),
+            JavaArray.get(values, PolygonVertex.B),
         );
     }
 

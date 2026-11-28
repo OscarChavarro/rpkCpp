@@ -2,9 +2,9 @@ import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
-import { Numeric } from "../common/linealAlgebra/Numeric";
+import { Numeric } from "../skin/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
-import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
+import { ImageOutputTarget } from "./ImageOutputTarget";
 import { Camera } from "../scene/Camera";
 import { RadianceMethod } from "../scene/RadianceMethod";
 import { Scene } from "../scene/Scene";
@@ -65,19 +65,12 @@ export class RadianceImageExporter {
       }
     }
 
-    const imageOutputHandle = ImageOutputHandle.createRadianceImageOutputHandle(
-      fileName,
-      outputStream,
-      isPipe,
-      scene.camera.xSize,
-      scene.camera.ySize
-    );
-    if (imageOutputHandle === null) {
+    const imageOutputTarget = ImageOutputTarget.create(fileName, outputStream, isPipe);
+    if (imageOutputTarget === null) {
       return;
     }
 
-    screenBuffer.writeFile(imageOutputHandle);
-    ImageOutputHandle.deleteImageOutputHandle(imageOutputHandle);
+    screenBuffer.writeFile(imageOutputTarget);
   }
 
   private static clipUv(numberOfVertices: number, u: number[], v: number[]): void {

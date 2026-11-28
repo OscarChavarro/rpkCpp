@@ -1,6 +1,7 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
+import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { CoordinateSystem } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2Dd";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { ShadingContext } from "./ShadingContext";
@@ -131,7 +132,7 @@ export class PhongEmittanceDistributionFunction {
       }
       normal = context.getShadingNormal();
 
-      coord.setFromZAxis(normal);
+      coord.setFromZAxis(normal, VSDK.EPSILON);
       const sampledPdf = [0.0];
       dir = coord.sampleHemisphereCosTheta(xi1, xi2, sampledPdf);
       PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, sampledPdf[0] ?? 0.0);

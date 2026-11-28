@@ -1,6 +1,6 @@
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
-import { Numeric } from "../../common/linealAlgebra/Numeric";
+import { Numeric } from "../../skin/Numeric";
 import { ColorContext } from "../context/ColorContext";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { MaterialContext } from "../context/MaterialContext";

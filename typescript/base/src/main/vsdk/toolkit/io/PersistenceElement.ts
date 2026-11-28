@@ -3,6 +3,9 @@ import { OutputStream } from "../../../java/io/OutputStream.js";
 import { Float } from "../../../java/lang/Float.js";
 import { Double } from "../../../java/lang/Double.js";
 import { VSDK } from "../common/VSDK.js";
+import { Logger } from "../common/logging/Logger.js";
+import { EOFException } from "../../../java/io/EOFException.js";
+import { IllegalArgumentException } from "../../../java/lang/IllegalArgumentException.js";
 
 /**
 A `PersistenceElement` in VitralSDK is a software element with
@@ -48,46 +51,133 @@ export abstract class PersistenceElement {
     // Long int should use an 8-sized array, not a 4-sized. Check.
     private static readonly bytesForLong = new Uint8Array(4);
 
+    private static signedByte2unsignedInteger(value: number): number {
+        return value & 0xff;
+    }
+
+    /**
+    Java's `(char)` cast of a (signed) byte: bytes 0x80..0xff sign-extend to
+    the chars U+FF80..U+FFFF.
+    */
+    private static byteToJavaChar(value: number): string {
+        return globalThis.String.fromCharCode(value >= 0x80 ? value | 0xff00 : value);
+    }
+
     public static readByteInt(is: InputStream): number {
-        let a: number;
-
-        is.readBytes(PersistenceElement.byteBuffer1byte, 0, 1);
-        a = VSDK.unsigned8BitInteger2signedByte(PersistenceElement.byteBuffer1byte[0] as number);
-
-        return a;
+        PersistenceElement.readBytes(is, PersistenceElement.byteBuffer1byte);
+        return VSDK.unsigned8BitInteger2signedByte(PersistenceElement.byteBuffer1byte[0] as number);
     }
 
     public static readByteUnsignedInt(is: InputStream): number {
-        let a: number;
+        PersistenceElement.readBytes(is, PersistenceElement.byteBuffer1byte);
+        return PersistenceElement.signedByte2unsignedInteger(PersistenceElement.byteBuffer1byte[0] as number);
+    }
 
-        is.readBytes(PersistenceElement.byteBuffer1byte, 0, 1);
-        a = PersistenceElement.byteBuffer1byte[0] as number;
+    public static writeByte(os: OutputStream, value: number): void {
+        PersistenceElement.byteBuffer1byte[0] = value;
+        PersistenceElement.writeBytes(os, PersistenceElement.byteBuffer1byte);
+    }
 
-        return a;
+    public static writeBool(os: OutputStream, value: boolean): void {
+        PersistenceElement.writeByte(os, value ? 1 : 0);
     }
 
     /**
     Given a previously initialized array of bytes, this method fills it
-    with information readed from the given input stream.  If it is not
-    enough information to read, this method generates an Exception.
+    with information readed from the given input stream.
+
+    `readBytes(is, bytesBuffer)` fills the whole array and throws
+    `EOFException` when the stream ends first. `readBytes(is, bytesBuffer,
+    length)` fills the first `length` bytes; when the stream ends first, it
+    reports the error through `Logger`, fills the rest with zeros and
+    returns.
     */
-    public static readBytes(is: InputStream, bytesBuffer: Uint8Array): void {
+    public static readBytes(is: InputStream, bytesBuffer: Uint8Array | null): void;
+    public static readBytes(is: InputStream, bytesBuffer: Uint8Array | null, length: number): void;
+    public static readBytes(is: InputStream, bytesBuffer: Uint8Array | null, length?: number): void {
+        if (length !== undefined) {
+            PersistenceElement.readBytesUpTo(is, bytesBuffer, length);
+            return;
+        }
+        if (bytesBuffer === null) {
+            throw new IllegalArgumentException("bytesBuffer can not be null");
+        }
+
         let offset = 0;
-        let numRead: number;
-        const length = bytesBuffer.length;
+        let numRead = 0;
+        const fullLength = bytesBuffer.length;
         do {
-            numRead = is.readBytes(bytesBuffer, offset, length - offset);
+            numRead = is.readBytes(bytesBuffer, offset, fullLength - offset);
+            if (numRead <= 0) {
+                break;
+            }
+            offset += numRead;
+        } while (offset < fullLength && numRead >= 0);
+
+        if (offset < fullLength) {
+            throw new EOFException("Could not read requested length (" + offset + "/" + fullLength + ")");
+        }
+    }
+
+    private static readBytesUpTo(is: InputStream, bytesBuffer: Uint8Array | null, length: number): void {
+        if (bytesBuffer === null || length < 0) {
+            Logger.reportMessage(null, Logger.ERROR, "PersistenceElement::readBytes", "invalid buffer");
+            return;
+        }
+
+        let offset = 0;
+        let numRead = 0;
+        do {
+            try {
+                numRead = is.readBytes(bytesBuffer, offset, length - offset);
+            } catch {
+                numRead = -1;
+            }
+            if (numRead <= 0) {
+                break;
+            }
             offset += numRead;
         } while (offset < length && numRead >= 0);
+
+        if (offset < length) {
+            for (let i = offset; i < length; i++) {
+                bytesBuffer[i] = 0;
+            }
+            Logger.reportMessage(
+                null,
+                Logger.ERROR,
+                "PersistenceElement::readBytes",
+                "could not read requested length (" + offset + "/" + length + ")",
+            );
+        }
     }
 
     /**
     Given a previously initialized array of bytes, this method writes it
-    with information readed from the given output stream.  If it is not
-    enough information to read, this method generates an Exception.
+    to the given output stream. `writeBytes(os, bytesBuffer, length)` writes
+    the first `length` bytes, reports invalid arguments through `Logger` and
+    ignores write failures, as the Java original does.
     */
-    public static writeBytes(os: OutputStream, bytesBuffer: Uint8Array): void {
-        os.writeBytes(bytesBuffer, 0, bytesBuffer.length);
+    public static writeBytes(os: OutputStream, bytesBuffer: Uint8Array): void;
+    public static writeBytes(os: OutputStream, bytesBuffer: Uint8Array | null, length: number): void;
+    public static writeBytes(os: OutputStream, bytesBuffer: Uint8Array | null, length?: number): void {
+        if (length === undefined) {
+            const buffer = bytesBuffer as Uint8Array;
+            os.writeBytes(buffer, 0, buffer.length);
+            return;
+        }
+        if (bytesBuffer === null || length < 0) {
+            Logger.reportMessage(null, Logger.ERROR, "PersistenceElement::writeBytes", "invalid arguments");
+            return;
+        }
+        if (length === 0) {
+            return;
+        }
+        try {
+            os.writeBytes(bytesBuffer, 0, length);
+        } catch {
+            // Java: catch (Exception ignored)
+        }
     }
 
     /**
@@ -283,7 +373,7 @@ export abstract class PersistenceElement {
     private static byteArray2doubleInvert(arr: Uint8Array, start: number): number {
         let i: number;
         const len = 8;
-        let cnt = 3;
+        let cnt = 7;
         const tmp = new Uint8Array(len);
         for (i = start; i < start + len; i++) {
             tmp[cnt] = arr[i] as number;
@@ -368,10 +458,11 @@ export abstract class PersistenceElement {
     on big endian order
     */
     public static byteArray2floatBE(arr: Uint8Array, start: number): number {
+        // Java returns the long integer, widened to float (not reinterpreted)
         if (PersistenceElement.bigEndianArchitecture) {
-            return PersistenceElement.byteArray2longDirect(arr, start);
+            return Math.fround(PersistenceElement.byteArray2longDirect(arr, start));
         }
-        return PersistenceElement.byteArray2longInvert(arr, start);
+        return Math.fround(PersistenceElement.byteArray2longInvert(arr, start));
     }
 
     public static float2byteArrayBE(arr: Uint8Array, start: number, num: number): void {
@@ -456,6 +547,22 @@ export abstract class PersistenceElement {
         return PersistenceElement.byteArray2longLE(PersistenceElement.bytesForLong, 0);
     }
 
+    public static writeInt32LE(os: OutputStream, num: number): void {
+        PersistenceElement.writeLongLE(os, num);
+    }
+
+    public static writeInt64LE(os: OutputStream, num: bigint): void {
+        const low = Number(BigInt.asIntN(32, num & 0xffffffffn));
+        const high = Number(BigInt.asIntN(32, (BigInt.asUintN(64, num) >> 32n) & 0xffffffffn));
+        PersistenceElement.writeInt32LE(os, low);
+        PersistenceElement.writeInt32LE(os, high);
+    }
+
+    public static writeDoubleLE(os: OutputStream, num: number): void {
+        const bits = Double.doubleToLongBits(num);
+        PersistenceElement.writeInt64LE(os, bits);
+    }
+
     /**
     Pending to check. Is this really managing 64 bit long integers?
     */
@@ -536,7 +643,7 @@ export abstract class PersistenceElement {
 
         do {
             PersistenceElement.readBytes(is, character);
-            letter = globalThis.String.fromCharCode(character[0] as number);
+            letter = PersistenceElement.byteToJavaChar(character[0] as number);
             if (character[0] !== 0x00) {
                 msg = msg + letter;
             }
@@ -577,16 +684,25 @@ export abstract class PersistenceElement {
     }
 
     public static buildUtf8Char(arr: Uint8Array): string | null {
-        let c: string;
-        const a = arr[0] as number;
-        const b = arr[1] as number;
-
-        if (a >> 5 === 0x06 && b >> 6 === 0x02) {
-            c = new TextDecoder("utf-8").decode(arr);
-        } else {
+        const outBytes = new Uint8Array(2);
+        if (!PersistenceElement.buildUtf8CharBytes(arr, outBytes)) {
             return null;
         }
-        return c;
+        return new TextDecoder("utf-8").decode(outBytes);
+    }
+
+    /** Java's private `buildUtf8Char(byte[], byte[])`. */
+    private static buildUtf8CharBytes(arr: Uint8Array, outBytes: Uint8Array): boolean {
+        const a = PersistenceElement.signedByte2unsignedInteger(arr[0] as number);
+        const b = PersistenceElement.signedByte2unsignedInteger(arr[1] as number);
+
+        if (a >> 5 === 0x06 && b >> 6 === 0x02) {
+            outBytes[0] = arr[0] as number;
+            outBytes[1] = arr[1] as number;
+            return true;
+        }
+
+        return false;
     }
 
     public static readUtf8Line(is: InputStream): string {
@@ -624,7 +740,7 @@ export abstract class PersistenceElement {
 
         do {
             PersistenceElement.readBytes(is, character);
-            letter = globalThis.String.fromCharCode(character[0] as number);
+            letter = PersistenceElement.byteToJavaChar(character[0] as number);
             if (character[0] !== 0x0a && character[0] !== 0x0d) {
                 stringBuffer += letter;
             }
@@ -633,10 +749,8 @@ export abstract class PersistenceElement {
         return stringBuffer;
     }
 
-    private static isInSet(key: number, set: Uint8Array): boolean {
-        let i: number;
-
-        for (i = 0; i < set.length; i++) {
+    private static isInSet(key: number, set: Uint8Array, setLength: number = set.length): boolean {
+        for (let i = 0; i < setLength; i++) {
             if (key === set[i]) {
                 return true;
             }
@@ -644,53 +758,79 @@ export abstract class PersistenceElement {
         return false;
     }
 
-    public static readAsciiToken(is: InputStream, separators: Uint8Array): string {
+    /**
+    `readAsciiToken(is, separators)` reads with `readBytes(is, character)`,
+    so the end of the stream throws `EOFException`. `readAsciiToken(is,
+    separators, separatorsLength)` reads with `readBytes(is, character, 1)`
+    and stops at a zero byte, which is also what the end of the stream
+    yields.
+    */
+    public static readAsciiToken(is: InputStream, separators: Uint8Array): string;
+    public static readAsciiToken(is: InputStream, separators: Uint8Array, separatorsLength: number): string;
+    public static readAsciiToken(is: InputStream, separators: Uint8Array, separatorsLength?: number): string {
         const character = new Uint8Array(1);
         let msg = "";
 
+        if (separatorsLength === undefined) {
+            do {
+                PersistenceElement.readBytes(is, character);
+                if (!PersistenceElement.isInSet(character[0] as number, separators)) {
+                    msg = msg + PersistenceElement.byteToJavaChar(character[0] as number);
+                }
+            } while (!PersistenceElement.isInSet(character[0] as number, separators));
+            return msg;
+        }
+
         do {
-            PersistenceElement.readBytes(is, character);
-            if (!PersistenceElement.isInSet(character[0] as number, separators)) {
-                msg = msg + globalThis.String.fromCharCode(character[0] as number);
+            PersistenceElement.readBytes(is, character, 1);
+            if (character[0] === 0x00) {
+                break;
             }
-        } while (!PersistenceElement.isInSet(character[0] as number, separators));
+            if (!PersistenceElement.isInSet(character[0] as number, separators, separatorsLength)) {
+                msg = msg + PersistenceElement.byteToJavaChar(character[0] as number);
+            }
+        } while (!PersistenceElement.isInSet(character[0] as number, separators, separatorsLength));
 
         return msg;
     }
 
-    public static writeAsciiString(writer: OutputStream, cad: string): void {
-        const arr = new TextEncoder().encode(cad);
-        writer.writeBytes(arr, 0, arr.length);
+    public static writeAsciiString(writer: OutputStream, cad: string | null): void {
+        const text = cad === null ? "" : cad;
+        const arr = new TextEncoder().encode(text);
+        PersistenceElement.writeBytes(writer, arr, arr.length);
 
         const end = new Uint8Array(1);
         end[0] = 0x00;
-        writer.writeBytes(end, 0, end.length);
+        PersistenceElement.writeBytes(writer, end, 1);
     }
 
-    public static writeUtf8String(writer: OutputStream, cad: string): void {
-        const arr = new TextEncoder().encode(cad);
-        writer.writeBytes(arr, 0, arr.length);
+    public static writeUtf8String(writer: OutputStream, cad: string | null): void {
+        const text = cad === null ? "" : cad;
+        const arr = new TextEncoder().encode(text);
+        PersistenceElement.writeBytes(writer, arr, arr.length);
 
         const end = new Uint8Array(1);
         end[0] = 0x00;
-        writer.writeBytes(end, 0, end.length);
+        PersistenceElement.writeBytes(writer, end, 1);
     }
 
-    public static writeAsciiLine(writer: OutputStream, cad: string): void {
-        const arr = new TextEncoder().encode(cad);
-        writer.writeBytes(arr, 0, arr.length);
+    public static writeAsciiLine(writer: OutputStream, cad: string | null): void {
+        const text = cad === null ? "" : cad;
+        const arr = new TextEncoder().encode(text);
+        PersistenceElement.writeBytes(writer, arr, arr.length);
 
         const end = new Uint8Array(1);
         end[0] = 0x0a;
-        writer.writeBytes(end, 0, end.length);
+        PersistenceElement.writeBytes(writer, end, 1);
     }
 
-    public static writeUtf8Line(writer: OutputStream, cad: string): void {
-        const arr = new TextEncoder().encode(cad);
-        writer.writeBytes(arr, 0, arr.length);
+    public static writeUtf8Line(writer: OutputStream, cad: string | null): void {
+        const text = cad === null ? "" : cad;
+        const arr = new TextEncoder().encode(text);
+        PersistenceElement.writeBytes(writer, arr, arr.length);
 
         const end = new Uint8Array(1);
         end[0] = 0x0a;
-        writer.writeBytes(end, 0, end.length);
+        PersistenceElement.writeBytes(writer, end, 1);
     }
 }

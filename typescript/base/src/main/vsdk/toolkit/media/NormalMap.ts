@@ -3,7 +3,7 @@ import { Vector3Dd } from "../common/linealAlgebra/Vector3Dd.js";
 import { RGBImageUncompressed } from "./RGBImageUncompressed.js";
 import { RGBAImageUncompressed } from "./RGBAImageUncompressed.js";
 import { IndexedColorImageUncompressed } from "./IndexedColorImageUncompressed.js";
-import { byte } from "./_pixel.js";
+import { byte, javaIntCast, positiveMod } from "./_pixel.js";
 import { VSDK } from "../common/VSDK.js";
 export class NormalMap extends MediaEntity {
     private xSize = 0;
@@ -44,10 +44,10 @@ export class NormalMap extends MediaEntity {
             h = this.ySize,
             U = (x - Math.floor(x)) * w,
             V = (y - Math.floor(y)) * h,
-            i0 = ((Math.floor(U) % w) + w) % w,
-            j0 = ((Math.floor(V) % h) + h) % h,
-            i1 = (i0 + 1) % w,
-            j1 = (j0 + 1) % h,
+            i0 = positiveMod(javaIntCast(Math.floor(U)), w),
+            j0 = positiveMod(javaIntCast(Math.floor(V)), h),
+            i1 = positiveMod(i0 + 1, w),
+            j1 = positiveMod(j0 + 1, h),
             du = U - i0,
             dv = V - j0,
             a = this.getNormal(i0, j0)!,
