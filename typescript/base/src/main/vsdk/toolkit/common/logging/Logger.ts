@@ -1,4 +1,5 @@
 import { Throwable } from "../../../../java/lang/Throwable.js";
+import { Exception } from "../../../../java/lang/Exception.js";
 import { VSDKFatalException } from "../VSDKFatalException.js";
 import {
     getWithFatalExceptions,
@@ -7,32 +8,49 @@ import {
     setWithSystemExit,
 } from "../VSDKRuntimeSettings.js";
 
-/** Platform-neutral Java Logger port. Browser runtimes report through console.error. */
+/** Platform-neutral Java Logger port. Host-specific names and stack frames come from JavaScript. */
 export class Logger {
     public static readonly WARNING = 1;
     public static readonly ERROR = 2;
     public static readonly FATAL_ERROR = 3;
+    private static readonly EXCEPTION_SEPARATOR =
+        "---------------------------------------------------------------------------";
     public static reportMessageWithException(
         origin: unknown,
         level: number,
-        method: string,
-        message: string,
+        method: string | null,
+        message: string | null,
         error: Error | null,
     ): void {
+        const frames = error === null ? [] : Logger.stackFrames(error);
+        const exceptionMessage = error instanceof Throwable ? (error.getMessage() ?? "null") : error?.message;
         const report =
             Logger.header(origin, method, `Vitral exception message:\n${message}`) +
             (error === null
                 ? " - Java exception is null! No detailed information about error.\n"
-                : ` - Java exception class:\n${error.name}\n - Java exception message:\n${error.message}\n${error.stack ?? ""}\n`) +
+                : ` - Java exception class:\n${error.name}\n - Java exception message:\n${exceptionMessage}\n` +
+                  frames.map((frame) => frame + "\n").join("")) +
             Logger.footer(level);
         console.error(report);
-        if (error === null) console.error("Given exception is null! not reporting details!");
-        else console.error(error.message, error.stack ?? "");
-        Logger.fatal(level, method, message, error);
+        console.error(Logger.EXCEPTION_SEPARATOR);
+        if (error === null) {
+            console.error("Given exception is null! not reporting details!");
+        } else {
+            console.error(exceptionMessage);
+            for (const frame of frames) console.error(frame);
+        }
+        console.error(Logger.EXCEPTION_SEPARATOR);
+        if (level === Logger.FATAL_ERROR) {
+            Logger.reportFatalStack();
+            Logger.processFatalError(method, message, error);
+        }
     }
-    public static reportMessage(origin: unknown, level: number, method: string, message: string): void {
+    public static reportMessage(origin: unknown, level: number, method: string | null, message: string | null): void {
         console.error(Logger.header(origin, method, `Exception message:\n${message}`) + Logger.footer(level));
-        Logger.fatal(level, method, message, null);
+        if (level === Logger.FATAL_ERROR) {
+            Logger.reportFatalStack();
+            Logger.processFatalError(method, message, null);
+        }
     }
     /**
     Java also reads the `vsdk.withSystemExit` system property in its static
@@ -48,7 +66,7 @@ export class Logger {
     public static setWithFatalExceptions(flag: boolean): void {
         setWithFatalExceptions(flag);
     }
-    private static header(origin: unknown, method: string, detail: string): string {
+    private static header(origin: unknown, method: string | null, detail: string): string {
         const type =
             origin === null || origin === undefined
                 ? " - An exception has been thrown from a static context\n"
@@ -58,11 +76,35 @@ export class Logger {
     private static footer(level: number): string {
         return `===========================================================================\n${level === Logger.FATAL_ERROR ? "Program excecution suspended!\n" : ""}`;
     }
-    private static fatal(level: number, method: string, message: string, cause: Error | null): void {
-        if (level !== Logger.FATAL_ERROR) return;
+    private static stackFrames(error: Error): string[] {
+        const lines = error.stack?.split("\n") ?? [];
+        const header = `${error.name}: ${error.message}`;
+        return lines
+            .slice(error.stack?.startsWith(header) ? error.message.split("\n").length : 0)
+            .map((line) => line.trim().replace(/^at /, ""))
+            .filter((line) => line.length > 0 && line !== error.name);
+    }
+
+    private static reportFatalStack(): void {
+        const error = new Error("Logger.reportMessage(FATAL_ERROR)");
+        console.error(error.message);
+        for (const frame of Logger.stackFrames(error).slice(1)) console.error(frame);
+    }
+
+    private static processFatalError(method: string | null, message: string | null, cause: Error | null): void {
+        // Java's System.exit(1) stops a JVM. A shared web library reports the
+        // failure to its host as an exception when system exit is requested.
         if (!getWithSystemExit() && !getWithFatalExceptions()) return;
-        const prefix = method.length === 0 ? "VSDK fatal error" : `VSDK fatal error at ${method}`;
-        const text = message.length === 0 ? prefix : `${prefix}: ${message}`;
-        throw new VSDKFatalException(text, cause instanceof Throwable ? cause : undefined);
+        let text = method === null || method.length === 0 ? "VSDK fatal error" : `VSDK fatal error at ${method}`;
+        if (message !== null && message.length > 0) text += ": " + message;
+        if (cause === null || cause instanceof Throwable) {
+            throw new VSDKFatalException(text, cause ?? undefined);
+        }
+        const adapted = new Exception(cause.message);
+        adapted.name = cause.name;
+        if (cause.stack !== undefined) adapted.stack = cause.stack;
+        const error = new VSDKFatalException(text, adapted);
+        error.cause = cause;
+        throw error;
     }
 }

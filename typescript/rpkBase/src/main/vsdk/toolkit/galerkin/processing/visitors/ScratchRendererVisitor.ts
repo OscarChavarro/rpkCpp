@@ -1,48 +1,38 @@
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinState } from "../../GalerkinState";
-import { SglContext } from "../../../render/sgl/SglContext";
-import { Patch } from "../../../environment/geometry/elements/Patch";
+import type { ScratchVisibilityBuffer } from "../ScratchVisibilityWorkspace";
 import { ClusterLeafVisitor } from "./ClusterLeafVisitor";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
 export class ScratchRendererVisitor implements ClusterLeafVisitor {
   private readonly eyePoint: Vector3Dd;
-  private readonly sglContext: SglContext | null;
+  private readonly target: ScratchVisibilityBuffer;
+  // TypeScript: the vertices of the element drawn, reused from one visit to the next
+  private readonly v: Vector3Dd[];
 
-  public constructor(inEyePoint: Vector3Dd, inSglContext: SglContext | null) {
+  public constructor(inEyePoint: Vector3Dd, inTarget: ScratchVisibilityBuffer) {
     this.eyePoint = inEyePoint;
-    this.sglContext = inSglContext;
+    this.target = inTarget;
+    this.v = new Array<Vector3Dd>(4);
   }
 
   public visit(
     galerkinElement: GalerkinElement,
     _galerkinState: GalerkinState,
   ): void {
-    const patch = galerkinElement.patch;
-    if (patch === null) {
-      return;
-    }
+    const patch = galerkinElement.patch!;
 
+    // Backface culling test: only render the element if it is turned towards
+    // the current eye point
     if (patch.getNormal().dotProduct(this.eyePoint) + patch.getPlaneConstant() < VSDK.EPSILON) {
       return;
     }
 
-    const v = new Array<Vector3Dd>(4);
     for (let i = 0; i < patch.numberOfVertices; i++) {
-      if (patch.vertex[i] !== null && patch.vertex[i]!.point !== null) {
-        v[i] = new Vector3Dd(patch.vertex[i]!.point.x(), patch.vertex[i]!.point.y(), patch.vertex[i]!.point.z());
-      }
-      else {
-        v[i] = new Vector3Dd();
-      }
+      this.v[i] = patch.vertex[i]!.point;
     }
 
-    if (this.sglContext === null) {
-      return;
-    }
-
-    this.sglContext.sglSetGalerkinElement(galerkinElement);
-    this.sglContext.sglPolygon((patch as Patch).numberOfVertices, v);
+    this.target.drawPolygon(patch.numberOfVertices, this.v, galerkinElement);
   }
 }

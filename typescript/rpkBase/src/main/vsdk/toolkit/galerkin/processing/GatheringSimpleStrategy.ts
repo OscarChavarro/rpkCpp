@@ -8,7 +8,7 @@ import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Potential } from "../../render/Potential";
 import type { DirectPotentialTable } from "../../scene/DirectPotentialTable";
-import type { FaceColorTable } from "../../scene/FaceColorTable";
+import type { FaceColorTable } from "../../environment/geometry/elements/FaceColorTable";
 import { Scene } from "../../scene/Scene";
 import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { Patch } from "../../environment/geometry/elements/Patch";

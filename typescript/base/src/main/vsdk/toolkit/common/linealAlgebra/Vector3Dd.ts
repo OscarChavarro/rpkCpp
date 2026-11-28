@@ -1,3 +1,5 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Double } from "../../../../java/lang/Double.js";
@@ -10,6 +12,7 @@ export class Vector3Dd extends FundamentalEntity {
     public constructor(o: Vector3Dd);
     public constructor(a: number | Vector3Dd = 0, b = 0, c = 0) {
         super();
+        if (a === null) throw new NullPointerException("Vector3Dd to copy cannot be null");
         if (typeof a === "number") {
             this.xv = a;
             this.yv = b;
@@ -21,7 +24,6 @@ export class Vector3Dd extends FundamentalEntity {
         }
     }
     public static copyOf(o: Vector3Dd): Vector3Dd {
-        if (o === null) throw new TypeError("Vector3Dd to copy cannot be null");
         return new Vector3Dd(o);
     }
     public multiply(a: number): Vector3Dd;
@@ -168,7 +170,7 @@ export class Vector3Dd extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector3Dd | null, e = VSDK.EPSILON): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
         return Math.abs(this.xv - o.xv) <= e && Math.abs(this.yv - o.yv) <= e && Math.abs(this.zv - o.zv) <= e;
     }
     public equals(other: unknown): boolean {

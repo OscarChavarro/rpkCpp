@@ -19,17 +19,38 @@ export class Double {
         // points up to U+0020) before parsing
         // eslint-disable-next-line no-control-regex
         const text = input.replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, "");
-        if (text.length === 0) throw new IllegalArgumentException(`For input string: "${input}"`);
-        if (text === "NaN") return NaN;
+        if (text === "NaN" || text === "+NaN" || text === "-NaN") return NaN;
         if (text === "Infinity" || text === "+Infinity") return Infinity;
         if (text === "-Infinity") return -Infinity;
-        const value = Number(
-            text.endsWith("d") || text.endsWith("D") || text.endsWith("f") || text.endsWith("F")
-                ? text.slice(0, -1)
-                : text,
+        const literal = text.replace(/[dDfF]$/, "");
+        if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(literal)) return Number(literal);
+        const hexadecimal = /^([+-]?)0[xX](?:([\da-fA-F]+)(?:\.([\da-fA-F]*))?|\.([\da-fA-F]+))[pP]([+-]?\d+)$/.exec(
+            literal,
         );
-        if (Number.isNaN(value)) throw new IllegalArgumentException(`For input string: "${text}"`);
-        return value;
+        if (hexadecimal !== null) {
+            const sign = hexadecimal[1] === "-" ? -1 : 1;
+            const fraction = hexadecimal[3] ?? hexadecimal[4] ?? "";
+            const significand = BigInt(`0x${hexadecimal[2] ?? ""}${fraction}`);
+            const exponent = Number(hexadecimal[5]) - 4 * fraction.length;
+            return sign * Double.scaleHexadecimal(significand, exponent);
+        }
+        throw new IllegalArgumentException(`For input string: "${input}"`);
+    }
+
+    private static scaleHexadecimal(significand: bigint, exponent: number): number {
+        if (significand === 0n) return 0;
+        const highestBit = significand.toString(2).length - 1;
+        if (highestBit + exponent > 1023) return Infinity;
+        if (highestBit + exponent < -1075) return 0;
+        // Round once to the larger of the normal and subnormal binary64 steps.
+        const shift = Math.max(highestBit - 52, -1074 - exponent, 0);
+        if (shift === 0) return Number(significand) * 2 ** exponent;
+        const discardedBits = BigInt(shift);
+        const high = significand >> discardedBits;
+        const remainder = significand - (high << discardedBits);
+        const half = 1n << (discardedBits - 1n);
+        const rounded = remainder > half || (remainder === half && (high & 1n) !== 0n) ? high + 1n : high;
+        return Number(rounded) * 2 ** (exponent + shift);
     }
     public static isNaN(value: number): boolean {
         return Number.isNaN(value);

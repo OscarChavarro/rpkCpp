@@ -68,7 +68,7 @@ export function createWorkerMessageHandler<TInput extends WorkerTransferValue, T
         notify: (value: WorkerTransferValue) => void,
     ) => Promise<TResult> | TResult,
     post: (response: WorkerResponse<TResult>) => void,
-): (event: MessageEvent<WorkerRequest<TInput>>) => void {
+): (event: Pick<MessageEvent<WorkerRequest<TInput>>, "data">) => void {
     const controllers = new Map<string, AbortController>();
     return (event): void => {
         const request = event.data;
@@ -76,7 +76,8 @@ export function createWorkerMessageHandler<TInput extends WorkerTransferValue, T
             controllers.get(request.id)?.abort();
             return;
         }
-        if (request.payload === undefined) {
+        const payload = request.payload;
+        if (payload === undefined) {
             post({ id: request.id, ok: false, error: { name: "TypeError", message: "Run request has no payload" } });
             return;
         }
@@ -85,15 +86,14 @@ export function createWorkerMessageHandler<TInput extends WorkerTransferValue, T
         const notify = (value: WorkerTransferValue): void => {
             if (!controller.signal.aborted) post({ id: request.id, ok: "notice", value });
         };
-        void Promise.resolve(run(request.payload, controller.signal, notify))
-            .then(
-                (value) => {
-                    if (!controller.signal.aborted) post({ id: request.id, ok: true, value });
-                },
-                (error: unknown) => {
-                    if (!controller.signal.aborted) post({ id: request.id, ok: false, error: workerError(error) });
-                },
-            )
+        void Promise.resolve()
+            .then(() => run(payload, controller.signal, notify))
+            .then((value) => {
+                if (!controller.signal.aborted) post({ id: request.id, ok: true, value });
+            })
+            .catch((error: unknown) => {
+                if (!controller.signal.aborted) post({ id: request.id, ok: false, error: workerError(error) });
+            })
             .finally(() => controllers.delete(request.id));
     };
 }

@@ -1,3 +1,5 @@
+import { Float } from "../../../../java/lang/Float.js";
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Vector3Dd } from "./Vector3Dd.js";
@@ -125,7 +127,7 @@ export class Vector3Df extends FundamentalEntity {
         return new Vector3Df(this.xv, this.yv, z);
     }
     public component(axis: number): number {
-        return axis === 0 ? this.xv : (axis === 1 ? this.yv : this.zv);
+        return axis === 0 ? this.xv : axis === 1 ? this.yv : this.zv;
     }
     public x(): number {
         return this.xv;
@@ -138,11 +140,22 @@ export class Vector3Df extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector3Df | null, e = f(VSDK.EPSILON)): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
-        return Math.abs(this.xv - o.xv) <= e && Math.abs(this.yv - o.yv) <= e && Math.abs(this.zv - o.zv) <= e;
+        e = f(e);
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
+        return Math.abs(f(this.xv - o.xv)) <= e && Math.abs(f(this.yv - o.yv)) <= e && Math.abs(f(this.zv - o.zv)) <= e;
     }
     public equals(other: unknown): boolean {
-        return other instanceof Vector3Df && this.xv === other.xv && this.yv === other.yv && this.zv === other.zv;
+        return (
+            other instanceof Vector3Df &&
+            Object.is(this.xv, other.xv) &&
+            Object.is(this.yv, other.yv) &&
+            Object.is(this.zv, other.zv)
+        );
+    }
+    public hashCode(): number {
+        let result = Float.hashCode(this.xv);
+        result = (Math.imul(31, result) + Float.hashCode(this.yv)) | 0;
+        return (Math.imul(31, result) + Float.hashCode(this.zv)) | 0;
     }
     private static absolute(a: number): number {
         return a < 0 ? -a : a;

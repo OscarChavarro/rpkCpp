@@ -40,7 +40,6 @@ export class GalerkinElement extends Element {
   public minimumArea: number;
   public blockerSize: number;
   public numberOfPatches: number;
-  public scratchVisibilityUsageCounter: number;
   public childNumber: number;
   public basisSize: number;
   public basisUsed: number;
@@ -87,7 +86,6 @@ export class GalerkinElement extends Element {
     this.minimumArea = 0.0;
     this.blockerSize = 0.0;
     this.numberOfPatches = 0;
-    this.scratchVisibilityUsageCounter = 0;
     this.childNumber = 0;
     this.basisSize = 0;
     this.basisUsed = 0;

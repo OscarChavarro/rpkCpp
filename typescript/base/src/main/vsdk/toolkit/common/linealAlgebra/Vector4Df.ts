@@ -1,3 +1,4 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Vector3Df } from "./Vector3Df.js";
@@ -39,7 +40,9 @@ export class Vector4Df extends FundamentalEntity {
             : new Vector4Df(f(this.xv / this.wv), f(this.yv / this.wv), f(this.zv / this.wv), 1);
     }
     public length(): number {
-        return f(Math.hypot(this.xv, this.yv, this.zv, this.wv));
+        const { xv, yv, zv, wv } = this;
+        const xy = f(f(xv * xv) + f(yv * yv));
+        return f(Math.sqrt(f(f(xy + f(zv * zv)) + f(wv * wv))));
     }
     public add(o: Vector4Df): Vector4Df {
         return new Vector4Df(f(this.xv + o.xv), f(this.yv + o.yv), f(this.zv + o.zv), f(this.wv + o.wv));
@@ -70,12 +73,13 @@ export class Vector4Df extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector4Df | null, e = f(VSDK.EPSILON)): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
+        e = f(e);
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
         return (
-            Math.abs(this.xv - o.xv) <= e &&
-            Math.abs(this.yv - o.yv) <= e &&
-            Math.abs(this.zv - o.zv) <= e &&
-            Math.abs(this.wv - o.wv) <= e
+            Math.abs(f(this.xv - o.xv)) <= e &&
+            Math.abs(f(this.yv - o.yv)) <= e &&
+            Math.abs(f(this.zv - o.zv)) <= e &&
+            Math.abs(f(this.wv - o.wv)) <= e
         );
     }
 }

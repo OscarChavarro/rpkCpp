@@ -13,7 +13,7 @@ import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
-import type { FaceColorTable } from "../../scene/FaceColorTable";
+import type { FaceColorTable } from "../../environment/geometry/elements/FaceColorTable";
 import { SceneQuery } from "../../scene/SceneQuery";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Element } from "../../environment/geometry/elements/Element";

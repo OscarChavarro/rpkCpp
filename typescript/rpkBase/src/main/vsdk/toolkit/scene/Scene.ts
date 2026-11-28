@@ -10,7 +10,7 @@ import { Background } from "./Background";
 import { Camera } from "./Camera";
 import { DirectPotentialTable } from "./DirectPotentialTable";
 import { FaceBoundsTable } from "./FaceBoundsTable";
-import { FaceColorTable } from "./FaceColorTable";
+import { FaceColorTable } from "../environment/geometry/elements/FaceColorTable";
 import { FaceVisibilityTable } from "./FaceVisibilityTable";
 import { RadianceElementTable } from "./RadianceElementTable";
 import { SceneAccelerationMethod } from "./SceneAccelerationMethod";

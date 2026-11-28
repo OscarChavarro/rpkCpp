@@ -6,7 +6,7 @@ import { Vector2Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector2
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { Material } from "../../../material/Material";
-import type { FaceColorTable } from "../../../scene/FaceColorTable";
+import type { FaceColorTable } from "./FaceColorTable";
 import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { PlanarFace } from "vitral/dist/vsdk/toolkit/environment/geometry/element/PlanarFace";
 import type { RayExclusionSet } from "./RayExclusionSet";

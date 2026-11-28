@@ -246,22 +246,34 @@ export class TriangleMesh extends Surface<Ray, RayHit> {
     public calculateNormals(): void {
         if (this.vertexPositions === null || this.triangleIndexes === null) return;
         this.triangleNormals = new Float64Array(this.getNumTriangles() * 3);
-        const sums = Array.from({ length: this.getNumVertices() }, () => new Vector3Dd());
+        for (let i = 0; i < this.getNumTriangles(); i++) {
+            const [a, b, c] = this.triangle(i);
+            const middle = this.position(b);
+            const firstEdge = middle.subtract(this.position(a)).normalized();
+            const secondEdge = this.position(c).subtract(middle).normalized();
+            const normal = firstEdge.crossProduct(secondEdge).normalized();
+            this.setVector(this.triangleNormals, i, normal);
+        }
+
         this.initIncidentTrianglesPerVertexArray();
         for (let i = 0; i < this.getNumTriangles(); i++) {
             const [a, b, c] = this.triangle(i);
-            const normal = this.position(b)
-                .subtract(this.position(a))
-                .crossProduct(this.position(c).subtract(this.position(a)))
-                .normalized();
-            this.setVector(this.triangleNormals, i, normal);
-            for (const index of [a, b, c]) {
-                sums[index] = sums[index]!.add(normal);
-                this.incidentTrianglesPerVertexArray![index]!.push(i);
-            }
+            this.incidentTrianglesPerVertexArray![a]!.push(i);
+            this.incidentTrianglesPerVertexArray![b]!.push(i);
+            this.incidentTrianglesPerVertexArray![c]!.push(i);
         }
         this.initVertexNormalsArray();
-        for (let i = 0; i < sums.length; i++) this.setVector(this.vertexNormals!, i, sums[i]!.normalized());
+        for (let i = 0; i < this.getNumVertices(); i++) {
+            let nx = 0,
+                ny = 0,
+                nz = 0;
+            for (const incident of this.incidentTrianglesPerVertexArray![i]!) {
+                nx += this.triangleNormals[3 * incident]!;
+                ny += this.triangleNormals[3 * incident + 1]!;
+                nz += this.triangleNormals[3 * incident + 2]!;
+            }
+            this.setVector(this.vertexNormals!, i, new Vector3Dd(nx, ny, nz).normalized());
+        }
     }
     public reorientateNormals(): void {
         if (this.vertexNormals === null) return;

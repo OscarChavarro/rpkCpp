@@ -4,18 +4,20 @@ import { Vector3Dd } from "./Vector3Dd.js";
 import { Vector4Dd } from "./Vector4Dd.js";
 import { Quaterniond } from "./Quaterniond.js";
 import { Double } from "../../../../java/lang/Double.js";
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { IndexOutOfBoundsException } from "../../../../java/lang/IndexOutOfBoundsException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 export class Matrix4x4d extends FundamentalEntity {
     private readonly m: number[][];
     public constructor();
     public constructor(o: Matrix4x4d | number[][]);
-    public constructor(o: Matrix4x4d | number[][] = Matrix4x4d.unit()) {
+    public constructor(o: Matrix4x4d | number[][] = Matrix4x4d.buildIdentityValues()) {
         super();
         const a = o instanceof Matrix4x4d ? o.m : o;
-        if (a.length !== 4 || a.some((r) => r.length !== 4))
-            throw new RangeError("Matrix must have 4 rows and 4 columns");
-        this.m = a.map((r) => r.slice());
+        Matrix4x4d.validate4x4(a);
+        this.m = Matrix4x4d.deepCopy(a);
     }
-    private static unit(): number[][] {
+    private static buildIdentityValues(): number[][] {
         return [
             [1, 0, 0, 0],
             [0, 1, 0, 0],
@@ -33,17 +35,17 @@ export class Matrix4x4d extends FundamentalEntity {
         return new Matrix4x4d();
     }
     public get(r: number, c: number): number {
-        this.pos(r, c);
+        Matrix4x4d.validatePosition(r, c);
         return this.m[r]![c]!;
     }
     public withVal(r: number, c: number, v: number): Matrix4x4d {
-        this.pos(r, c);
+        Matrix4x4d.validatePosition(r, c);
         const a = this.toArrayCopy();
         a[r]![c] = v;
         return new Matrix4x4d(a);
     }
     public toArrayCopy(): number[][] {
-        return this.m.map((r) => r.slice());
+        return Matrix4x4d.deepCopy(this.m);
     }
     public withoutTranslation(): Matrix4x4d {
         const a = this.withVal(0, 3, 0).withVal(1, 3, 0).withVal(2, 3, 0);
@@ -53,6 +55,7 @@ export class Matrix4x4d extends FundamentalEntity {
         return new Vector3Dd(this.get(0, 3), this.get(1, 3), this.get(2, 3));
     }
     public withTranslation(t: Vector3Dd): Matrix4x4d {
+        if (t === null) throw new NullPointerException("Translation vector cannot be null");
         return this.withVal(0, 3, t.x()).withVal(1, 3, t.y()).withVal(2, 3, t.z());
     }
     public orthogonalProjection(
@@ -174,7 +177,7 @@ export class Matrix4x4d extends FundamentalEntity {
     public multiply(o: number | Matrix4x4d | Vector3Dd | Vector4Dd): Matrix4x4d | Vector3Dd | Vector4Dd {
         if (typeof o === "number") return new Matrix4x4d(this.m.map((r) => r.map((v) => v * o)));
         if (o instanceof Matrix4x4d) {
-            const a = Matrix4x4d.unit().map((r) => r.map(() => 0));
+            const a = Array.from({ length: 4 }, () => [0, 0, 0, 0]);
             for (let i = 0; i < 4; i++)
                 for (let j = 0; j < 4; j++) for (let k = 0; k < 4; k++) a[i]![j]! += this.m[i]![k]! * o.m[k]![j]!;
             return new Matrix4x4d(a);
@@ -193,32 +196,28 @@ export class Matrix4x4d extends FundamentalEntity {
     }
     public cofactors(): Matrix4x4d {
         const result = Array.from({ length: 4 }, () => new Array<number>(4));
-        for (let row = 0; row < 4; row++)
+        const minor = new Array<number>(9);
+        for (let row = 0; row < 4; row++) {
             for (let column = 0; column < 4; column++) {
-                const minor: number[] = [];
-                for (let i = 0; i < 4; i++)
-                    for (let j = 0; j < 4; j++) if (i !== row && j !== column) minor.push(this.m[i]![j]!);
-                const determinant =
-                    minor[0]! * minor[4]! * minor[8]! +
-                    minor[3]! * minor[7]! * minor[2]! +
-                    minor[6]! * minor[1]! * minor[5]! -
-                    minor[2]! * minor[4]! * minor[6]! -
-                    minor[5]! * minor[7]! * minor[0]! -
-                    minor[8]! * minor[1]! * minor[3]!;
-                result[row]![column] = (row + column) % 2 === 0 ? determinant : -determinant;
+                this.fillMinor(minor, row, column);
+                const sign = (row + column) % 2 === 0 ? 1 : -1;
+                result[row]![column] = sign * Matrix4x4d.determinant3x3(minor);
             }
+        }
         return new Matrix4x4d(result);
     }
     public determinant(): number {
-        const cofactors = this.cofactors();
+        const minor = new Array<number>(9);
         let result = 0;
-        for (let column = 0; column < 4; column++) result += cofactors.m[0]![column]! * this.m[0]![column]!;
+        for (let column = 0, sign = 1; column < 4; column++, sign *= -1) {
+            this.fillMinor(minor, 0, column);
+            result += sign * Matrix4x4d.determinant3x3(minor) * this.m[0]![column]!;
+        }
         return result;
     }
     public invert(): Matrix4x4d {
-        return this.cofactors()
-            .transpose()
-            .multiply(1 / this.determinant());
+        const factor = 1 / this.determinant();
+        return this.cofactors().transpose().multiply(factor);
     }
     public inverse(): Matrix4x4d {
         return this.invert();
@@ -337,10 +336,49 @@ export class Matrix4x4d extends FundamentalEntity {
     }
     public epsilonEquals(o: Matrix4x4d | null, e = VSDK.EPSILON): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
-        return this.m.every((r, i) => r.every((v, j) => Math.abs(v - o.m[i]![j]!) <= e));
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (Math.abs(this.m[i]![j]! - o.m[i]![j]!) > e) return false;
+            }
+        }
+        return true;
     }
-    private pos(r: number, c: number): void {
-        if (r < 0 || r > 3 || c < 0 || c > 3) throw new RangeError(`Matrix position out of bounds: (${r}, ${c})`);
+
+    private static validate4x4(values: number[][] | null): void {
+        if (values === null || values.length !== 4) throw new IllegalArgumentException("Matrix must have 4 rows");
+        for (let i = 0; i < 4; i++) {
+            if (values[i]?.length !== 4) throw new IllegalArgumentException(`Matrix row ${i} must have 4 columns`);
+        }
+    }
+
+    private static validatePosition(r: number, c: number): void {
+        if (!Number.isInteger(r) || !Number.isInteger(c) || r < 0 || r >= 4 || c < 0 || c >= 4) {
+            throw new IndexOutOfBoundsException(`Matrix position out of bounds: (${r}, ${c})`);
+        }
+    }
+
+    private static deepCopy(values: number[][]): number[][] {
+        return values.map((row) => row.slice());
+    }
+
+    private static determinant3x3(minor: number[]): number {
+        return (
+            minor[0]! * minor[4]! * minor[8]! +
+            minor[3]! * minor[7]! * minor[2]! +
+            minor[6]! * minor[1]! * minor[5]! -
+            minor[2]! * minor[4]! * minor[6]! -
+            minor[5]! * minor[7]! * minor[0]! -
+            minor[8]! * minor[1]! * minor[3]!
+        );
+    }
+
+    private fillMinor(minor: number[], rowPivot: number, columnPivot: number): void {
+        let index = 0;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (i !== rowPivot && j !== columnPivot) minor[index++] = this.m[i]![j]!;
+            }
+        }
     }
 }

@@ -115,7 +115,11 @@ export class Entity implements ModelElement {
         }
     }
 
-    /** Pairs public getX/setX methods, as Java reflection does for this API. */
+    /**
+    Pairs Java-style getX/setX methods. TypeScript erases method signatures, so
+    control specifications provide declared types where available. Other pairs
+    use the getter's value to identify a supported runtime type.
+    */
     public getEncapsulatedVariables(): string[] {
         const getters = new Map<string, () => unknown>();
         const setters = new Set<string>();
@@ -124,32 +128,80 @@ export class Entity implements ModelElement {
             for (const name of Object.getOwnPropertyNames(prototype)) {
                 const descriptor = Object.getOwnPropertyDescriptor(prototype, name);
                 if (typeof descriptor?.value !== "function") continue;
-                if (name.startsWith("get") && name.length > 3 && descriptor.value.length === 0)
-                    getters.set(name.slice(3), descriptor.value.bind(this) as () => unknown);
+                if (name.startsWith("get") && name.length > 3 && descriptor.value.length === 0) {
+                    const property = name.slice(3);
+                    if (!getters.has(property)) getters.set(property, descriptor.value.bind(this) as () => unknown);
+                }
                 if (name.startsWith("set") && name.length > 3 && descriptor.value.length === 1)
                     setters.add(name.slice(3));
             }
             prototype = Object.getPrototypeOf(prototype);
         }
+        const declaredTypes = new Map<string, string>();
+        for (const specification of this.controlSpecifications ?? []) {
+            const [type, name] = specification.split(";", 2);
+            if (type !== undefined && name !== undefined) declaredTypes.set(name.trim(), type.trim());
+        }
+
         const variables: string[] = [];
         for (const [name, getter] of getters) {
             if (!setters.has(name)) continue;
-            const type = Entity.supportedTypeName(getter());
-            if (type !== undefined) variables.push(`${type}:${name.charAt(0).toLowerCase()}${name.slice(1)}`);
+            const variable = name.charAt(0).toLowerCase() + name.slice(1);
+            const declaredType = declaredTypes.get(variable);
+            let type: string | undefined;
+            if (declaredType !== undefined) {
+                type = Entity.typeIsSupported(declaredType) ? declaredType : undefined;
+            } else {
+                try {
+                    type = Entity.supportedTypeName(getter());
+                } catch {
+                    continue;
+                }
+            }
+            if (type !== undefined) variables.push(`${type}:${variable}`);
         }
         return variables;
+    }
+
+    private static typeIsSupported(type: string): boolean {
+        switch (type) {
+            case "long":
+            case "int":
+            case "float":
+            case "double":
+            case "byte":
+            case "boolean":
+            case "char":
+            case "short":
+            case "java.lang.String":
+            case "vsdk.toolkit.common.linealAlgebra.Vector2Dd":
+            case "vsdk.toolkit.common.linealAlgebra.Vector3Dd":
+            case "vsdk.toolkit.common.linealAlgebra.Vector4Dd":
+            case "vsdk.toolkit.common.linealAlgebra.ColorRgb":
+            case "vsdk.toolkit.common.color.ColorRgb":
+            case "vsdk.toolkit.common.linealAlgebra.Matrix4x4d":
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static supportedTypeName(value: unknown): string | undefined {
         switch (typeof value) {
             case "number":
                 return "double";
+            case "bigint":
+                return "long";
             case "boolean":
                 return "boolean";
             case "string":
                 return "java.lang.String";
-            case "object":
-                return value === null ? undefined : (value as { constructor: { name: string } }).constructor.name;
+            case "object": {
+                const name = value?.constructor?.name;
+                if (name === "ColorRgb") return "vsdk.toolkit.common.color.ColorRgb";
+                const type = `vsdk.toolkit.common.linealAlgebra.${name}`;
+                return Entity.typeIsSupported(type) ? type : undefined;
+            }
             default:
                 return undefined;
         }

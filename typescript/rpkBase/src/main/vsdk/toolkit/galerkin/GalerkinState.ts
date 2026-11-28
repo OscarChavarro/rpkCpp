@@ -1,11 +1,9 @@
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Statistics } from "../common/statistics/Statistics";
-import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { CubatureDegree } from "../numericalAnalysis/CubatureDegree";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
 import { QuadCubatureRule } from "../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../numericalAnalysis/TriangleCubatureRule";
-import { SglContext } from "../render/sgl/SglContext";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import type { Element } from "../environment/geometry/elements/Element";
 import type { Patch } from "../environment/geometry/elements/Patch";
@@ -13,6 +11,7 @@ import type { RadianceElementTable } from "../scene/RadianceElementTable";
 import { GalerkinBasisType } from "./GalerkinBasisType";
 import { GalerkinClusteringStrategy } from "./GalerkinClusteringStrategy";
 import { FormFactorWorkspace } from "./processing/FormFactorWorkspace";
+import type { ScratchVisibilityWorkspace } from "./processing/ScratchVisibilityWorkspace";
 import { GalerkinElement } from "./GalerkinElement";
 import { GalerkinErrorNorm } from "./GalerkinErrorNorm";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
@@ -59,10 +58,10 @@ export class GalerkinState {
   public basisType: GalerkinBasisType;
   public clusteringStrategy: GalerkinClusteringStrategy;
 
-  public scratch: SglContext | null;
+  // Scratch offscreen renderer of the serial solver for the Z-visibility
+  // clustering strategy (parallel Jacobi workers have their own)
+  public scratchVisibilityWorkspace: ScratchVisibilityWorkspace | null;
   public scratchFrameBufferSize: number;
-  public lastClusterId: number;
-  public lastEye: Vector3Dd;
 
   public lastClock: bigint;
   public cpuSeconds: number;
@@ -138,8 +137,6 @@ export class GalerkinState {
     this.sourceTriangleCubatureRule = null;
     this.sourceQuadCubatureRule = null;
     this.topCluster = null;
-    this.lastClusterId = 0;
-    this.lastEye = new Vector3Dd();
     this.lastClock = 0n;
     this.cpuSeconds = 0.0;
     this.toneMapOptions = null;
@@ -168,7 +165,7 @@ export class GalerkinState {
     this.exactVisibility = GalerkinState.DEFAULT_GAL_EXACT_VISIBILITY ? 1 : 0;
     this.multiResolutionVisibility = GalerkinState.DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY ? 1 : 0;
     this.scratchFrameBufferSize = GalerkinState.DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS;
-    this.scratch = null;
+    this.scratchVisibilityWorkspace = null;
     this.iterationNumber = GalerkinState.DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
     this.shaftCullStrategy = GalerkinState.DEFAULT_GAL_SHAFT_CULL_STRATEGY;
     this.toneMapOptions = null;

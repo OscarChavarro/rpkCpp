@@ -1,3 +1,7 @@
+/**
+Scratch renderer routines. Used for handling intra-cluster visibility
+with a Z-buffer visibility algorithm in software
+*/
 import { ColorRgbMutable } from "../../common/color/ColorRgbMutable";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
@@ -5,36 +9,60 @@ import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinState } from "../GalerkinState";
 import { ScratchRendererVisitor } from "./visitors/ScratchRendererVisitor";
-import { SglConstants } from "../../render/sgl/SglConstants";
-import { SglContext } from "../../render/sgl/SglContext";
 import { Camera } from "../../scene/Camera";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
-import { Element } from "../../environment/geometry/elements/Element";
 import { ClusterTraversalStrategy } from "./ClusterTraversalStrategy";
+import { ScratchVisibilityWorkspace } from "./ScratchVisibilityWorkspace";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
+/**
+Every operation works on the scratch workspace it is given, the solver's or a
+parallel Jacobi worker's, and reads the solver state only
+*/
 export class ScratchVisibilityStrategy {
-  public static scratchInit(galerkinState: GalerkinState): void {
-    galerkinState.scratch = new SglContext(galerkinState.scratchFrameBufferSize, galerkinState.scratchFrameBufferSize);
-    galerkinState.scratch.sglDepthTesting(true);
+  private constructor() {
   }
 
+  /**
+  Create a scratch software renderer for various operations on clusters
+  */
+  public static scratchInit(galerkinState: GalerkinState): void {
+    galerkinState.scratchVisibilityWorkspace = new ScratchVisibilityWorkspace(galerkinState.scratchFrameBufferSize);
+  }
+
+  /**
+  Terminates scratch rendering
+  */
   public static scratchTerminate(galerkinState: GalerkinState): void {
-    if (galerkinState.scratch !== null) {
-      galerkinState.scratch = null;
+    if (galerkinState.scratchVisibilityWorkspace !== null) {
+      galerkinState.scratchVisibilityWorkspace = null;
     }
   }
 
-  public static scratchRenderElements(cluster: GalerkinElement, eye: Vector3Dd, galerkinState: GalerkinState): BoundingBox {
-    const boundingBox = new BoundingBox();
+  /**
+  Sets up an orthographic projection of the cluster as
+  seen from the eye. Renders the element pointers to the elements
+  in cluster in the scratch frame buffer of the workspace and returns the bounding
+  box containing the size of the virtual screen. The cluster nicely fits
+  into the virtual screen.
+  TypeScript: the bounding box returned is the workspace's own (C++ returns a
+  copy), valid until the next rendering into the workspace
+  */
+  public static scratchRenderElements(
+    cluster: GalerkinElement,
+    eye: Vector3Dd,
+    scratchWorkspace: ScratchVisibilityWorkspace,
+    galerkinState: GalerkinState,
+  ): BoundingBox {
+    const boundingBox = scratchWorkspace.getBounds();
 
-    if (cluster.id === galerkinState.lastClusterId
-      && Numeric.vectorsEqual(eye, galerkinState.lastEye, Numeric.EPSILON)) {
+    if (scratchWorkspace.holdsRendering(cluster, eye)) {
       return boundingBox;
     }
 
-    galerkinState.lastClusterId = cluster.id;
-    galerkinState.lastEye = eye;
+    // Cache previously rendered cluster and eye point in order to
+    // avoid re-rendering the same situation next time
+    scratchWorkspace.setRendering(cluster, eye);
 
     const center = cluster.midPoint();
     let up = new Vector3Dd(0.0, 0.0, 1.0);
@@ -50,21 +78,20 @@ export class ScratchVisibilityStrategy {
 
     Camera.transformBoundingBox((cluster.geometry as NonNullable<GalerkinElement["geometry"]>).getBoundingBox(), lookAt, boundingBox);
 
-    const scratch = galerkinState.scratch as SglContext;
-    const o = Camera.projectionMatrixFromBoundingBox(boundingBox);
-    scratch.sglLoadMatrix(o);
-    scratch.sglMultiplyMatrix(lookAt);
+    const scratch = scratchWorkspace.getBuffer();
+    const projection = Camera.projectionMatrixFromBoundingBox(boundingBox);
+    scratch.setTransform(projection.multiply(lookAt));
 
-    let vpSize = globalThis.Math.trunc((boundingBox.dx() * boundingBox.dy()) / cluster.minimumArea);
-    if (vpSize > scratch.width) {
-      vpSize = scratch.width;
+    // Choose a viewport based on the smallest surface element in the cluster.
+    let viewportSize = globalThis.Math.trunc((boundingBox.dx() * boundingBox.dy()) / cluster.minimumArea);
+    if (viewportSize < 32) {
+      viewportSize = 32;
     }
-    if (vpSize < 32) {
-      vpSize = 32;
+    if (viewportSize > scratch.getWidth()) {
+      viewportSize = scratch.getWidth();
     }
-    scratch.sglViewport(0, 0, vpSize, vpSize);
-
-    scratch.sglClear(0x00, SglConstants.SGL_MAXIMUM_Z);
+    scratch.setViewport(0, 0, viewportSize, viewportSize);
+    scratch.clear();
 
     const leafVisitor = new ScratchRendererVisitor(eye, scratch);
     ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, cluster, galerkinState);
@@ -72,59 +99,113 @@ export class ScratchVisibilityStrategy {
     return boundingBox;
   }
 
-  public static scratchRadiance(galerkinState: GalerkinState): ColorRgbMutable {
-    const rad = new ColorRgbMutable();
-    rad.clear();
-    let nonBackGround = 0;
+  /**
+  After rendering element pointers in the scratch frame buffer, this routine
+  computes the average radiance of the virtual screen
+  */
+  public static scratchRadiance(scratchWorkspace: ScratchVisibilityWorkspace, galerkinState: GalerkinState): ColorRgbMutable {
+    let rad0 = 0.0;
+    let rad1 = 0.0;
+    let rad2 = 0.0;
 
-    for (let j = 0; j < (galerkinState.scratch as SglContext).vp_height; j++) {
-      const rowStart = j * (galerkinState.scratch as SglContext).width;
-      for (let i = 0; i < (galerkinState.scratch as SglContext).vp_width; i++) {
-        const elementBase = (galerkinState.scratch as SglContext).galerkinElementBuffer[rowStart + i];
-        if (elementBase instanceof GalerkinElement) {
-          const element = elementBase as GalerkinElement;
+    const scratch = scratchWorkspace.getBuffer();
+    const viewport = scratch.getViewport();
+
+    let nonBackground = 0;
+    for (let y = viewport.getMinY(); y <= viewport.getMaxY(); y++) {
+      for (let x = viewport.getMinX(); x <= viewport.getMaxX(); x++) {
+        const element = scratch.getSample(x, y);
+        if (element !== null) {
           if (galerkinState.galerkinIterationMethod === GalerkinIterationMethod.GAUSS_SEIDEL
             || galerkinState.isJacobi()) {
-            rad.add(rad, (element.radiance as ColorRgbMutable[])[0]!);
+            const radiance = (element.radiance as ColorRgbMutable[])[0]!;
+            rad0 += radiance.r;
+            rad1 += radiance.g;
+            rad2 += radiance.b;
           }
           else {
-            rad.add(rad, (element.unShotRadiance as ColorRgbMutable[])[0]!);
+            const unShotRadiance = (element.unShotRadiance as ColorRgbMutable[])[0]!;
+            rad0 += unShotRadiance.r;
+            rad1 += unShotRadiance.g;
+            rad2 += unShotRadiance.b;
           }
-          nonBackGround++;
+          nonBackground++;
         }
       }
     }
-    if (nonBackGround > 0) {
-      rad.scale(1.0 / ((galerkinState.scratch as SglContext).vp_width * (galerkinState.scratch as SglContext).vp_height));
+    if (nonBackground > 0) {
+      const scale = 1.0 / (scratch.getViewportWidth() * scratch.getViewportHeight());
+      rad0 *= scale;
+      rad1 *= scale;
+      rad2 *= scale;
     }
-    return rad;
+    return new ColorRgbMutable(rad0, rad1, rad2);
   }
 
-  public static scratchNonBackgroundPixels(galerkinState: GalerkinState): number {
-    let nonBackGround = 0;
+  /** Computes the number of covered samples in the scratch viewport. */
+  public static scratchNonBackgroundPixels(scratchWorkspace: ScratchVisibilityWorkspace): number {
+    const scratch = scratchWorkspace.getBuffer();
+    const viewport = scratch.getViewport();
+    let nonBackground = 0;
 
-    for (let j = 0; j < (galerkinState.scratch as SglContext).vp_height; j++) {
-      const rowStart = j * (galerkinState.scratch as SglContext).width;
-      for (let i = 0; i < (galerkinState.scratch as SglContext).vp_width; i++) {
-        const elementBase = (galerkinState.scratch as SglContext).galerkinElementBuffer[rowStart + i];
-        if (elementBase !== null) {
-          nonBackGround++;
+    for (let y = viewport.getMinY(); y <= viewport.getMaxY(); y++) {
+      for (let x = viewport.getMinX(); x <= viewport.getMaxX(); x++) {
+        if (scratch.getSample(x, y) !== null) {
+          nonBackground++;
         }
       }
     }
-    return nonBackGround;
+    return nonBackground;
   }
 
-  public static scratchPixelsPerElement(galerkinState: GalerkinState): void {
-    for (let i = 0; i < (galerkinState.scratch as SglContext).vp_height; i++) {
-      const rowStart = i * (galerkinState.scratch as SglContext).width;
-      for (let j = 0; j < (galerkinState.scratch as SglContext).vp_width; j++) {
-        const elementBase = (galerkinState.scratch as SglContext).galerkinElementBuffer[rowStart + j];
-        if (elementBase instanceof GalerkinElement) {
-          const elem = elementBase as GalerkinElement;
-          elem.scratchVisibilityUsageCounter++;
+  /**
+  Counts, in the workspace, the samples covered by each of the solver's
+  top-level surface elements in the last rendering
+  */
+  public static scratchPixelsPerElement(scratchWorkspace: ScratchVisibilityWorkspace, galerkinState: GalerkinState): void {
+    const scratch = scratchWorkspace.getBuffer();
+    const viewport = scratch.getViewport();
+
+    scratchWorkspace.startCounting();
+    // Neighbouring samples mostly show the same element: count runs of equal
+    // samples and add each run to its element at once
+    let runElement: GalerkinElement | null = null;
+    let runLength = 0;
+    for (let y = viewport.getMinY(); y <= viewport.getMaxY(); y++) {
+      for (let x = viewport.getMinX(); x <= viewport.getMaxX(); x++) {
+        const element = scratch.getSample(x, y);
+        if (element === runElement) {
+          runLength++;
+        }
+        else {
+          ScratchVisibilityStrategy.addSamples(scratchWorkspace, runElement, runLength, galerkinState);
+          runElement = element;
+          runLength = 1;
         }
       }
     }
+    ScratchVisibilityStrategy.addSamples(scratchWorkspace, runElement, runLength, galerkinState);
+  }
+
+  /** Adds the samples of a run showing the element (none for the background) */
+  private static addSamples(
+    scratchWorkspace: ScratchVisibilityWorkspace,
+    element: GalerkinElement | null,
+    samples: number,
+    galerkinState: GalerkinState,
+  ): void {
+    if (element === null || samples === 0) {
+      return;
+    }
+    // Cluster leaves are the same top-level elements bound to the scene faces.
+    const topLevel = galerkinState.topLevelElement(element.patch!);
+    scratchWorkspace.addSamples(topLevel, topLevel.id, samples);
+  }
+
+  /** Area of the virtual screen that one sample of the last rendering covers */
+  public static scratchPixelArea(boundingBox: BoundingBox, scratchWorkspace: ScratchVisibilityWorkspace): number {
+    const scratch = scratchWorkspace.getBuffer();
+    return boundingBox.dx() * boundingBox.dy()
+      / (scratch.getViewportWidth() * scratch.getViewportHeight());
   }
 }

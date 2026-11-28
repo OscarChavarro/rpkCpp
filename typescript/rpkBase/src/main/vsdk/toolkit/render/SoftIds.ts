@@ -1,105 +1,93 @@
+/**
+Software ID rendering: because hardware ID rendering is tricky due to frame buffer
+formats, etc.
+*/
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
-import { SglConstants } from "../render/sgl/SglConstants";
-import { SglContext } from "../render/sgl/SglContext";
+import { PolygonVisibilityBuffer } from "vitral/dist/vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer";
 import { Camera } from "../scene/Camera";
 import { Scene } from "../scene/Scene";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMap } from "../tonemap/ToneMap";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
+import { FaceIndexSample, type FaceVisibilityBuffer } from "./FaceVisibilityBuffer";
 
 export class SoftIds {
   private constructor() {
   }
 
-  public static setupSoftFrameBuffer(camera: Camera): SglContext {
-    const sgl = new SglContext(camera.xSize, camera.ySize);
-    sgl.sglDepthTesting(true);
-    sgl.sglClipping(true);
-    sgl.sglClear(0, SglConstants.SGL_MAXIMUM_Z);
-    const p = Camera.perspectiveMatrix(
-      ((camera.fieldOfVision * 2.0) * globalThis.Math.PI) / 180.0,
-      camera.xSize / camera.ySize,
-      camera.near,
-      camera.far
-    );
-    sgl.sglLoadMatrix(p);
-    const l = Camera.lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
-    sgl.sglMultiplyMatrix(l);
-
-    return sgl;
-  }
-
-  public static softRenderPatch(
-    patch: Patch | null,
-    camera: Camera | null,
-    renderOptions: RendererConfiguration | null,
-    sglContext: SglContext | null
+  private static drawPatch(
+    patch: Patch,
+    camera: Camera,
+    renderOptions: RendererConfiguration,
+    target: FaceVisibilityBuffer,
+    vertices: Vector3Dd[],
   ): void {
-    if (patch === null || camera === null || renderOptions === null || sglContext === null) {
-      return;
-    }
-
-    const vertices = new Array<Vector3Dd>(4);
-
     if (renderOptions.backfaceCulling &&
       patch.getNormal().dotProduct(camera.eyePosition) + patch.getPlaneConstant() < VSDK.EPSILON) {
       return;
     }
 
-    vertices[0] = patch.vertex[0]!.point;
-    vertices[1] = patch.vertex[1]!.point;
-    vertices[2] = patch.vertex[2]!.point;
-    if (patch.numberOfVertices > 3) {
-      vertices[3] = patch.vertex[3]!.point;
+    const count = patch.numberOfVertices;
+    for (let i = 0; i < count; i++) {
+      vertices[i] = patch.vertex[i]!.point;
     }
-
-    sglContext.sglSetPatch(patch);
-    sglContext.sglPolygon(patch.numberOfVertices, vertices);
+    target.drawPolygon(count, vertices, new FaceIndexSample(patch.getFaceIndex()));
   }
 
-  public static softRenderPatches(scene: Scene | null, renderOptions: RendererConfiguration | null, sglContext: SglContext | null): void {
-    if (scene === null || renderOptions === null || sglContext === null) {
+  /** Renders into a cleared target with the camera's dimensions and full viewport. */
+  public static renderVisibleFaces(scene: Scene, renderOptions: RendererConfiguration | null, target: FaceVisibilityBuffer): void {
+    if (renderOptions === null) {
       return;
     }
 
+    const camera = scene.camera!;
+    const projection = Camera.perspectiveMatrix(
+      camera.fieldOfVision * 2.0 * globalThis.Math.PI / 180.0,
+      camera.xSize / camera.ySize,
+      camera.near,
+      camera.far,
+    );
+    const view = Camera.lookAtMatrix(camera.eyePosition, camera.lookPosition, camera.upDirection);
+    target.setTransform(projection.multiply(view));
+
+    // TypeScript: the vertices of the patch drawn, reused from one patch to the next
+    const vertices = new Array<Vector3Dd>(4);
     for (let i = 0; scene.patchList !== null && i < scene.patchList.length; i++) {
-      SoftIds.softRenderPatch(scene.patchList[i]!, scene.camera, renderOptions, sglContext);
+      const patch = scene.patchList[i];
+      if (patch !== null && patch !== undefined) {
+        SoftIds.drawPatch(patch, camera, renderOptions, target, vertices);
+      }
     }
   }
 
-  public static softRenderIds(x: number[] | null, y: number[] | null, scene: Scene, renderOptions: RendererConfiguration): number[] {
-    const camera = scene.camera;
-    if (camera === null) {
-      if (x !== null && x.length > 0) {
-        x[0] = 0;
+  /**
+  Legacy patch ID export. Zero represents the background.
+  */
+  public static softRenderIds(width: number[], height: number[], scene: Scene, renderOptions: RendererConfiguration | null): number[] {
+    const target: FaceVisibilityBuffer = new PolygonVisibilityBuffer<FaceIndexSample>(
+      scene.camera!.xSize, scene.camera!.ySize, new FaceIndexSample());
+    SoftIds.renderVisibleFaces(scene, renderOptions, target);
+
+    width[0] = target.getWidth();
+    height[0] = target.getHeight();
+    const ids = new Array<number>(width[0] * height[0]);
+    for (let y = 0; y < height[0]; y++) {
+      const rowStart = y * width[0];
+      for (let x = 0; x < width[0]; x++) {
+        const face = target.getSample(x, y);
+        ids[rowStart + x] = face.isBackground() ? 0 : scene.getFace(face.getIndex()).id;
       }
-      if (y !== null && y.length > 0) {
-        y[0] = 0;
-      }
-      return [];
-    }
-
-    const currentSglContext = SoftIds.setupSoftFrameBuffer(camera);
-    SoftIds.softRenderPatches(scene, renderOptions, currentSglContext);
-
-    if (x !== null && x.length > 0) {
-      x[0] = currentSglContext.width;
-    }
-    if (y !== null && y.length > 0) {
-      y[0] = currentSglContext.height;
-    }
-
-    const ids = new Array<number>(currentSglContext.width * currentSglContext.height);
-    for (let i = 0; i < ids.length; i++) {
-      const patch = currentSglContext.patchBuffer[i];
-      ids[i] = patch == null ? 0 : patch.id;
     }
     return ids;
   }
 
+  /**
+  Renders in memory an image of m lines of n pixels at column x on row y (= lower
+  left corner of image, relative to the lower left corner of the window)
+  */
   public static softRenderPixels(width: number, height: number, rgb: ColorRgbMutable[], toneMapOptions: ToneMappingContext): void {
     const rowLength = ((4 * width * Uint8Array.BYTES_PER_ELEMENT + 7) & ~7);
     const c = new Uint8Array(height * rowLength + 8);

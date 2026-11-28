@@ -3,11 +3,11 @@ import { Logger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
 import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../common/statistics/Statistics";
-import { SglContext } from "../render/sgl/SglContext";
-import type { FaceVisibilityTable } from "../scene/FaceVisibilityTable";
+import { PolygonVisibilityBuffer } from "vitral/dist/vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer";
 import { Scene } from "../scene/Scene";
 import { Patch } from "../environment/geometry/elements/Patch";
 import { Canvas } from "./Canvas";
+import { FaceIndexSample, type FaceVisibilityBuffer } from "./FaceVisibilityBuffer";
 import { SoftIds } from "./SoftIds";
 
 /**
@@ -25,15 +25,12 @@ export class Potential {
   public static updateDirectPotential(scene: Scene, renderOptions: RendererConfiguration): void {
     Canvas.canvasPushMode();
 
-    const camera = scene.camera;
-    if (camera === null) {
-      Canvas.canvasPullMode();
-      return;
-    }
-    const target = SoftIds.setupSoftFrameBuffer(camera);
-    SoftIds.softRenderPatches(scene, renderOptions, target);
-    const x = [target.width];
-    const y = [target.height];
+    const camera = scene.camera!;
+    const target: FaceVisibilityBuffer = new PolygonVisibilityBuffer<FaceIndexSample>(
+      camera.xSize, camera.ySize, new FaceIndexSample());
+    SoftIds.renderVisibleFaces(scene, renderOptions, target);
+    const x = [target.getWidth()];
+    const y = [target.getHeight()];
 
     Canvas.canvasPullMode();
 
@@ -57,11 +54,10 @@ export class Potential {
     const pixelArea = h * v;
 
     for (let j = y[0]! - 1, ySample = (-v * (y[0]! - 1)) / 2.0; j >= 0; j--, ySample = ySample + v) {
-      const rowStart = j * x[0]!;
       let xSample = (-h * (x[0]! - 1)) / 2.0;
       for (let i = 0; i < x[0]!; i++, xSample = xSample + h) {
-        const visible = target.patchBuffer[rowStart + i];
-        const theId = visible == null ? 0 : visible.id & 0x00ffffff;
+        const face = target.getSample(i, j);
+        const theId = face.isBackground() ? 0 : scene.getFace(face.getIndex()).id & 0x00ffffff;
 
         if (theId > 0 && theId <= maximumPatchId) {
           let pixDir = new Vector3Dd();
@@ -111,30 +107,25 @@ export class Potential {
     statistics.potential.averageDirectPotential /= statistics.radiance.totalArea;
   }
 
-  private static softGetPatchPointers(sgl: SglContext, scenePatches: Patch[] | null, faceVisibility: FaceVisibilityTable): void {
-    for (let i = 0; scenePatches !== null && i < scenePatches.length; i++) {
-      faceVisibility.setVisible(scenePatches[i]!.getFaceIndex(), false);
-    }
+  private static softUpdateDirectVisibility(scene: Scene, renderOptions: RendererConfiguration): void {
+    const t = process.hrtime.bigint();
 
-    const pixelCount = sgl.width * sgl.height;
-    for (let i = 0; i < pixelCount; i++) {
-      const patch = sgl.patchBuffer[i]!; // softRenderPatches stores patch pointers there
-      if (patch !== null) {
-        faceVisibility.setVisible(patch.getFaceIndex(), true);
+    const target: FaceVisibilityBuffer = new PolygonVisibilityBuffer<FaceIndexSample>(
+      scene.camera!.xSize, scene.camera!.ySize, new FaceIndexSample());
+    SoftIds.renderVisibleFaces(scene, renderOptions, target);
+
+    const faceVisibility = scene.getFaceVisibility()!;
+    for (let i = 0; i < faceVisibility.getNumberOfFaces(); i++) {
+      faceVisibility.setVisible(i, false);
+    }
+    for (let y = 0; y < target.getHeight(); y++) {
+      for (let x = 0; x < target.getWidth(); x++) {
+        const face = target.getSample(x, y);
+        if (!face.isBackground()) {
+          faceVisibility.setVisible(face.getIndex(), true);
+        }
       }
     }
-  }
-
-  private static softUpdateDirectVisibility(scene: Scene, renderOptions: RendererConfiguration): void {
-    if (scene.camera === null) {
-      return;
-    }
-
-    const t = process.hrtime.bigint();
-    const currentSglContext = SoftIds.setupSoftFrameBuffer(scene.camera);
-
-    SoftIds.softRenderPatches(scene, renderOptions, currentSglContext);
-    Potential.softGetPatchPointers(currentSglContext, scene.patchList, scene.getFaceVisibility()!);
 
     const elapsedSec = Number(process.hrtime.bigint() - t) / 1_000_000_000.0;
     process.stderr.write(`Determining visible patches in software took ${elapsedSec} sec\n`);

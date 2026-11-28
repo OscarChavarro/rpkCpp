@@ -1,3 +1,4 @@
+import { Double } from "../../../../java/lang/Double.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { Vector2Dd } from "./Vector2Dd.js";
 /**
@@ -60,6 +61,7 @@ export class Matrix2x2 extends FundamentalEntity {
         );
     }
     public equals(other: unknown): boolean {
+        if (this === other) return true;
         return (
             other instanceof Matrix2x2 &&
             this.get(0, 0) === other.get(0, 0) &&
@@ -69,5 +71,14 @@ export class Matrix2x2 extends FundamentalEntity {
             this.getTranslation(0) === other.getTranslation(0) &&
             this.getTranslation(1) === other.getTranslation(1)
         );
+    }
+
+    public hashCode(): number {
+        let result = Double.hashCode(this.get(0, 0) + 0);
+        result = (Math.imul(31, result) + Double.hashCode(this.get(0, 1) + 0)) | 0;
+        result = (Math.imul(31, result) + Double.hashCode(this.get(1, 0) + 0)) | 0;
+        result = (Math.imul(31, result) + Double.hashCode(this.get(1, 1) + 0)) | 0;
+        result = (Math.imul(31, result) + Double.hashCode(this.getTranslation(0) + 0)) | 0;
+        return (Math.imul(31, result) + Double.hashCode(this.getTranslation(1) + 0)) | 0;
     }
 }

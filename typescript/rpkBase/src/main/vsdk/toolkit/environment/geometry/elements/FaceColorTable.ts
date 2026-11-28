@@ -1,4 +1,4 @@
-import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
+import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
 
 /**
 Display color of every face of a scene, indexed by the dense face index

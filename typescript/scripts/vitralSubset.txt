@@ -11,7 +11,18 @@
 # manhattanLength, distance, distanceSquared, multiplyByInverse,
 # normalized(epsilon), dominantAxis, component) and Vector2Dd (subtract,
 # lengthSquared) methods; Ray setters (setOrigin, setDirection, setT,
-# setOriginAndDirection), as in C++.
+# setOriginAndDirection), as in C++; and VITRAL 5c1a71c7 for the convex
+# polygon clipper of [SUTH1974b] (geometricProcessing/convexPolygonClipper) and
+# the polygon scan converter and visibility buffer of [HECK1990] and [BEKA1997]
+# (render/raster/polygonScanConverter), which moved from rpkBase into VITRAL.
+# Then VITRAL 95319652 (TypeScript port: migration from java advance seeking
+# 1:1 parity), the Java to TypeScript alignment: Java exceptions
+# (NullPointerException, IllegalArgumentException, IndexOutOfBoundsException)
+# instead of TypeError/RangeError in the lineal algebra, Math.sqrt instead of
+# Math.hypot in Vector2Dd/Vector4Dd lengths, the Java Double/Float parsing,
+# the Matrix4x4d minor/determinant helpers, Containment values -1/0/1, the
+# Cohen-Sutherland codes of ComputationalGeometry, Triangle closest point
+# containment and the TriangleMesh vertex normals of the Java port.
 # The list is the Java-like layer (java/) and the closure, by imports, of the
 # VITRAL classes RenderPark uses: the double precision lineal algebra, ColorRgb,
 # Cie, Logger, PersistenceElement, RaytraceStatistics, PlanarFace, Ray, the
@@ -40,6 +51,7 @@ java/lang/IndexOutOfBoundsException.ts
 java/lang/Integer.ts
 java/lang/Long.ts
 java/lang/Math.ts
+java/lang/NullPointerException.ts
 java/lang/Object.ts
 java/lang/ProcessBuilder.ts
 java/lang/RuntimeException.ts
@@ -128,6 +140,10 @@ vsdk/toolkit/environment/geometry/element/SurfaceDetail.ts
 vsdk/toolkit/environment/geometry/element/Triangle.ts
 vsdk/toolkit/environment/geometry/element/Vertex.ts
 vsdk/toolkit/environment/geometry/element/Vertex2D.ts
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.ts
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/HomogeneousHalfSpace.ts
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/PolygonVertex.ts
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ScreenPolygon.ts
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.ts
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.ts
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.ts
@@ -205,3 +221,11 @@ vsdk/toolkit/media/_pixel.ts
 vsdk/toolkit/processing/ComputationalGeometry.ts
 vsdk/toolkit/processing/Containment.ts
 vsdk/toolkit/processing/ProcessingElement.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBox.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipOutcome.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipResult.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanConverter.ts
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.ts
+vsdk/toolkit/render/raster/polygonScanConverter/RasterRectangle2D.ts

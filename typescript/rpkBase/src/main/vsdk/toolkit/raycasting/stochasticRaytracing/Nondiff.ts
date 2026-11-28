@@ -11,7 +11,7 @@ import { Ray } from "vitral/dist/vsdk/toolkit/environment/geometry/element/Ray";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
-import type { FaceColorTable } from "../../scene/FaceColorTable";
+import type { FaceColorTable } from "../../environment/geometry/elements/FaceColorTable";
 import { SceneQuery } from "../../scene/SceneQuery";
 import type { SceneQueryWorkspace } from "../../scene/SceneQuery";
 import { Patch } from "../../environment/geometry/elements/Patch";

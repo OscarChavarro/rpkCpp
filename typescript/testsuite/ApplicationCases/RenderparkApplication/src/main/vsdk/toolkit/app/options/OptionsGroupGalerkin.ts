@@ -4,6 +4,7 @@ import { OptionBase } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions
 import { OptionGroup } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionGroup";
 import { OptionParser } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/OptionParser";
 import { TypedOption } from "rpk-base/dist/vsdk/toolkit/common/commandLineOptions/TypedOption";
+import { GalerkinClusteringStrategy } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinClusteringStrategy";
 import { GalerkinIterationMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinIterationMethod";
 import { GalerkinRadianceMethod } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinRadianceMethod";
 import { GalerkinShaftCullMode } from "rpk-base/dist/vsdk/toolkit/galerkin/GalerkinShaftCullMode";
@@ -51,6 +52,22 @@ export class OptionsGroupGalerkin {
     }
   }
 
+  private static clusteringStrategyOption(value: TypedOption.MutableValue<string>): void {
+    const name = value.value;
+    if (OptionTextUtils.equalsIgnoreCase(name, "isotropic")) {
+      GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.ISOTROPIC;
+    }
+    else if (OptionTextUtils.equalsIgnoreCase(name, "oriented")) {
+      GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.ORIENTED;
+    }
+    else if (OptionTextUtils.equalsIgnoreCase(name, "z-visibility")) {
+      GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.Z_VISIBILITY;
+    }
+    else {
+      VsdkLogger.reportMessage(null, VsdkLogger.ERROR, "", JavaString.vformat("Invalid clustering strategy '%s' (isotropic, oriented or z-visibility)", [name]));
+    }
+  }
+
   private static hierarchicalOption(value: TypedOption.MutableValue<number>): void {
     GalerkinRadianceMethod.galerkinState.hierarchical = value.value !== 0;
   }
@@ -87,6 +104,14 @@ export class OptionsGroupGalerkin {
       shaftCullingName,
       1,
       (v) => OptionsGroupGalerkin.shaftCullingOption(v as TypedOption.MutableValue<string>),
+      null
+    );
+    const clusteringStrategyName = TypedOption.valueRef<string | null>(null);
+    const clusteringStrategyOpt = new TypedOption<string | null>(
+      "-gr-clustering-strategy",
+      clusteringStrategyName,
+      1,
+      (v) => OptionsGroupGalerkin.clusteringStrategyOption(v as TypedOption.MutableValue<string>),
       null
     );
     const grHierarchicalOpt = new TypedOption<number>(
@@ -198,6 +223,7 @@ export class OptionsGroupGalerkin {
     const galerkinOptions: OptionBase[] = [
       TypedOption.REGISTER_OPTION(iterationMethodOpt, 6),
       TypedOption.REGISTER_OPTION(shaftCullingOpt, 6),
+      TypedOption.REGISTER_OPTION(clusteringStrategyOpt, 6),
       TypedOption.REGISTER_OPTION(grHierarchicalOpt, 6),
       TypedOption.REGISTER_OPTION(grNotHierarchicalOpt, 10),
       TypedOption.REGISTER_OPTION(grLazyOpt, 6),
@@ -213,7 +239,7 @@ export class OptionsGroupGalerkin {
       TypedOption.REGISTER_OPTION(grThreadsOpt, 6),
     ];
     const galerkinGroups = [
-      new OptionGroup("galerkin", galerkinOptions, 15),
+      new OptionGroup("galerkin", galerkinOptions, 16),
     ];
     OptionParser.parse(argc, argv, galerkinGroups, 1);
   }

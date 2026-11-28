@@ -8,15 +8,19 @@ import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
 import { ClusterLeafVisitor } from "./visitors/ClusterLeafVisitor";
-import { DepthVisibilityGathererVisitor } from "./visitors/DepthVisibilityGathererVisitor";
 import { MaximumRadianceVisitor } from "./visitors/MaximumRadianceVisitor";
 import { OrientedGathererVisitor } from "./visitors/OrientedGathererVisitor";
 import { PowerAccumulatorVisitor } from "./visitors/PowerAccumulatorVisitor";
 import { ProjectedAreaAccumulatorVisitor } from "./visitors/ProjectedAreaAccumulatorVisitor";
-import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
+import { ElementSamples } from "./ElementSamples";
 import { ScratchVisibilityStrategy } from "./ScratchVisibilityStrategy";
+import type { ScratchVisibilityWorkspace } from "./ScratchVisibilityWorkspace";
 import { VSDK } from "vitral/dist/vsdk/toolkit/common/VSDK";
 
+/**
+The scratch workspace, used by the Z-visibility clustering strategy only (it
+may be null for the others), is the one of the calling thread
+*/
 export class ClusterTraversalStrategy {
   public static traverseAllLeafElements(
     leafVisitor: ClusterLeafVisitor,
@@ -44,6 +48,7 @@ export class ClusterTraversalStrategy {
   public static clusterRadianceToSamplePoint(
     sourceElement: GalerkinElement,
     samplePoint: Vector3Dd,
+    scratch: ScratchVisibilityWorkspace | null,
     galerkinState: GalerkinState,
   ): ColorRgbMutable {
     if (sourceElement === null || galerkinState === null) {
@@ -62,20 +67,41 @@ export class ClusterTraversalStrategy {
         return sourceRadiance;
       }
       case GalerkinClusteringStrategy.Z_VISIBILITY:
-        return (sourceElement.radiance as ColorRgbMutable[])[0]!;
+        if (!sourceElement.isCluster() || !sourceElement.geometry!.boundingBox.outOfBounds(samplePoint)) {
+          return (sourceElement.radiance as ColorRgbMutable[])[0]!;
+        }
+        else {
+          // Render pointers to the elements in the source cluster into the scratch frame
+          // buffer, seen from the samplePoint point
+          const boundingBox = ScratchVisibilityStrategy.scratchRenderElements(
+            sourceElement, samplePoint, scratch!, galerkinState);
+
+          // Compute average radiance on the virtual screen
+          const sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(scratch!, galerkinState);
+
+          // Area factor = area of virtual screen / source cluster area used for
+          // form factor computation
+          const areaFactor = (boundingBox.dx() * boundingBox.dy()) / (0.25 * sourceElement.area);
+          sourceRadiance.scale(areaFactor);
+          return sourceRadiance;
+        }
       default:
         VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "clusterRadianceToSamplePoint", JavaString.vformat("Invalid clustering strategy %s\n", [galerkinState.clusteringStrategy]));
         return new ColorRgbMutable();
     }
   }
 
-  public static sourceClusterRadiance(link: Interaction, galerkinState: GalerkinState): ColorRgbMutable {
+  public static sourceClusterRadiance(
+    link: Interaction,
+    scratch: ScratchVisibilityWorkspace | null,
+    galerkinState: GalerkinState,
+  ): ColorRgbMutable {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (sourceElement === null || receiverElement === null || !sourceElement.isCluster() || sourceElement === receiverElement) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
-    return ClusterTraversalStrategy.clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
+    return ClusterTraversalStrategy.clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), scratch, galerkinState);
   }
 
   public static surfaceProjectedAreaToSamplePoint(receiverElement: GalerkinElement): number {
@@ -100,7 +126,11 @@ export class ClusterTraversalStrategy {
     return rcvCos * receiverElement.area;
   }
 
-  public static receiverArea(link: Interaction, galerkinState: GalerkinState): number {
+  public static receiverArea(
+    link: Interaction,
+    scratch: ScratchVisibilityWorkspace | null,
+    galerkinState: GalerkinState,
+  ): number {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (receiverElement === null || sourceElement === null) {
@@ -118,8 +148,24 @@ export class ClusterTraversalStrategy {
         ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
         return leafVisitor.getTotalProjectedArea();
       }
-      case GalerkinClusteringStrategy.Z_VISIBILITY:
-        return receiverElement.area;
+      case GalerkinClusteringStrategy.Z_VISIBILITY: {
+        const samplePoint = sourceElement.midPoint();
+        if (!receiverElement.geometry!.boundingBox.outOfBounds(samplePoint)) {
+          return receiverElement.area;
+        }
+        else {
+          const boundingBox = ScratchVisibilityStrategy.scratchRenderElements(
+            receiverElement, samplePoint, scratch!, galerkinState);
+
+          // Projected area is the number of non-background pixels over
+          // the total number of pixels * area of the virtual screen
+          const projectedArea =
+            ScratchVisibilityStrategy.scratchNonBackgroundPixels(scratch!)
+            * boundingBox.dx() * boundingBox.dy()
+            / (scratch!.getBuffer().getViewportWidth() * scratch!.getBuffer().getViewportHeight());
+          return projectedArea;
+        }
+      }
       default:
         VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "receiverArea", JavaString.vformat("Invalid clustering strategy %s", [galerkinState.clusteringStrategy]));
         return receiverElement.area;
@@ -152,7 +198,12 @@ export class ClusterTraversalStrategy {
     }
   }
 
-  public static gatherRadiance(link: Interaction, srcRad: ColorRgbMutable[], galerkinState: GalerkinState): void {
+  public static gatherRadiance(
+    link: Interaction,
+    srcRad: ColorRgbMutable[],
+    scratch: ScratchVisibilityWorkspace | null,
+    galerkinState: GalerkinState,
+  ): void {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (!receiverElement.isCluster() || sourceElement === receiverElement) {
@@ -169,17 +220,74 @@ export class ClusterTraversalStrategy {
         break;
       }
       case GalerkinClusteringStrategy.Z_VISIBILITY: {
-        const samplePoint = sourceElement.midPoint();
-        const bb: BoundingBox = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
-        ScratchVisibilityStrategy.scratchPixelsPerElement(galerkinState);
-        const pixelArea = (bb.dx() * bb.dy()) / ((galerkinState.scratch as NonNullable<GalerkinState["scratch"]>).vp_width
-          * (galerkinState.scratch as NonNullable<GalerkinState["scratch"]>).vp_height);
-        const dvgv = new DepthVisibilityGathererVisitor(link, srcRad, pixelArea);
-        ClusterTraversalStrategy.traverseAllLeafElements(dvgv, receiverElement, galerkinState);
+        const pixelArea = [0.0];
+        if (ClusterTraversalStrategy.receiverSamples(link, scratch!, galerkinState, pixelArea)) {
+          const visible = scratch!.getVisibleElements();
+          ClusterTraversalStrategy.gatherRadianceFromSamples(
+            link, srcRad, pixelArea[0]!, visible, 0, visible.length);
+        }
+        else {
+          const leafVisitor = new OrientedGathererVisitor(link, srcRad);
+          ClusterTraversalStrategy.traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
+        }
         break;
       }
       default:
         VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "gatherRadiance", JavaString.vformat("Invalid clustering strategy %s", [galerkinState.clusteringStrategy]));
+    }
+  }
+
+  /**
+  Z-visibility clustering: when the receiver cluster of the link is seen from
+  outside (the midpoint of the source lies outside its bounding box), renders
+  its elements seen from that point and counts, in the workspace, how many
+  samples each one covers. Returns false, rendering nothing, otherwise.
+  @param pixelArea out: [0] is the area of the virtual screen a sample covers
+  */
+  public static receiverSamples(
+    link: Interaction,
+    scratch: ScratchVisibilityWorkspace,
+    galerkinState: GalerkinState,
+    pixelArea: number[],
+  ): boolean {
+    const receiverElement = link.receiverElement;
+    const samplePoint = link.sourceElement.midPoint();
+    if (!receiverElement.geometry!.boundingBox.outOfBounds(samplePoint)) {
+      return false;
+    }
+
+    const boundingBox = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, scratch, galerkinState);
+
+    // Count how many pixels each element occupies in the scratch frame buffer
+    ScratchVisibilityStrategy.scratchPixelsPerElement(scratch, galerkinState);
+
+    // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
+    pixelArea[0] = ScratchVisibilityStrategy.scratchPixelArea(boundingBox, scratch);
+    return true;
+  }
+
+  /**
+  Gathers the radiance to each element of the receiver cluster that occupies at
+  least one sample of its rendering, as counted by receiverSamples. The visible
+  fraction of an element is estimated from its samples times pixelArea,
+  normalized by one quarter of the receiver area. Each element receives one
+  sum, so the order of the elements does not change the result: only the
+  visible ones are visited, not every leaf of the cluster.
+  TypeScript: the elements are numberOfVisibleElements of visibleElements from
+  firstVisibleElement on (C++ takes a pointer to the first)
+  */
+  public static gatherRadianceFromSamples(
+    link: Interaction,
+    srcRad: ColorRgbMutable[],
+    pixelArea: number,
+    visibleElements: readonly ElementSamples[],
+    firstVisibleElement: number,
+    numberOfVisibleElements: number,
+  ): void {
+    for (let i = 0; i < numberOfVisibleElements; i++) {
+      const visible = visibleElements[firstVisibleElement + i]!;
+      const areaFactor = pixelArea * visible.getSamples() / (0.25 * link.receiverElement.area);
+      ClusterTraversalStrategy.isotropicGatherRadiance(visible.getElement(), areaFactor, link, srcRad);
     }
   }
 

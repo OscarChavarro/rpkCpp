@@ -20,6 +20,12 @@ export class ClippedLine2DResult {
     }
 }
 export class ComputationalGeometry extends ProcessingElement {
+    private static readonly COHEN_SUTHERLAND_2D_INSIDE = 0;
+    private static readonly COHEN_SUTHERLAND_2D_LEFT = 1;
+    private static readonly COHEN_SUTHERLAND_2D_RIGHT = 2;
+    private static readonly COHEN_SUTHERLAND_2D_BOTTOM = 4;
+    private static readonly COHEN_SUTHERLAND_2D_TOP = 8;
+
     public static lineToPointDistance(a: Vector3Dd, b: Vector3Dd, p: Vector3Dd): number {
         const v = b.subtract(a);
         if (v.length() < VSDK.EPSILON) return NaN;
@@ -36,10 +42,15 @@ export class ComputationalGeometry extends ProcessingElement {
     public static lineSegmentContainmentTest(a: Vector3Dd, b: Vector3Dd, p: Vector3Dd, t: number): Containment {
         const v = b.subtract(a),
             w = p.subtract(a);
-        if (v.length() < VSDK.EPSILON) return Containment.OUTSIDE;
-        if (v.crossProduct(w).length() / v.length() > t) return Containment.OUTSIDE;
-        const q = v.dotProduct(w) / v.dotProduct(v);
-        return q < -VSDK.EPSILON || q > 1 + VSDK.EPSILON ? Containment.OUTSIDE : Containment.LIMIT;
+        const denominator = v.length();
+        if (denominator < VSDK.EPSILON) return Containment.OUTSIDE;
+        const distance = v.crossProduct(w).length() / denominator;
+        if (distance <= t) {
+            const q = v.dotProduct(w) / v.dotProduct(v);
+            if (q < -VSDK.EPSILON || q > 1 + VSDK.EPSILON) return Containment.OUTSIDE;
+            return Containment.LIMIT;
+        }
+        return Containment.OUTSIDE;
     }
     public static cohenSutherlandLineClipping2D(
         a: Vector2Dd,
@@ -62,10 +73,8 @@ export class ComputationalGeometry extends ProcessingElement {
         const lo = new Vector2Dd(Math.min(min.x, max.x), Math.min(min.y, max.y)),
             hi = new Vector2Dd(Math.max(min.x, max.x), Math.max(min.y, max.y));
         if (hi.x - lo.x < VSDK.EPSILON || hi.y - lo.y < VSDK.EPSILON) return new ClippedLine2DResult(false, a, b);
-        const code = (v: Vector2Dd) =>
-            (v.x < lo.x + t ? 1 : 0) | (v.x > hi.x - t ? 2 : 0) | (v.y < lo.y + t ? 4 : 0) | (v.y > hi.y - t ? 8 : 0);
-        let cp = code(p),
-            cq = code(q);
+        let cp = ComputationalGeometry.computeCohenSutherland2DCode(p, lo, hi, t);
+        let cq = ComputationalGeometry.computeCohenSutherland2DCode(q, lo, hi, t);
         while (true) {
             if ((cp | cq) === 0) return new ClippedLine2DResult(true, p, q);
             if ((cp & cq) !== 0) return new ClippedLine2DResult(false, p, q);
@@ -73,13 +82,13 @@ export class ComputationalGeometry extends ProcessingElement {
                 e = 2 * t;
             let x = 0,
                 y = 0;
-            if (c & 8) {
+            if (c & ComputationalGeometry.COHEN_SUTHERLAND_2D_TOP) {
                 x = p.x + ((q.x - p.x) * (hi.y - e - p.y)) / (q.y - p.y);
                 y = hi.y - e;
-            } else if (c & 4) {
+            } else if (c & ComputationalGeometry.COHEN_SUTHERLAND_2D_BOTTOM) {
                 x = p.x + ((q.x - p.x) * (lo.y + e - p.y)) / (q.y - p.y);
                 y = lo.y + e;
-            } else if (c & 2) {
+            } else if (c & ComputationalGeometry.COHEN_SUTHERLAND_2D_RIGHT) {
                 y = p.y + ((q.y - p.y) * (hi.x - e - p.x)) / (q.x - p.x);
                 x = hi.x - e;
             } else {
@@ -88,11 +97,25 @@ export class ComputationalGeometry extends ProcessingElement {
             }
             if (c === cp) {
                 p = new Vector2Dd(x, y);
-                cp = code(p);
+                cp = ComputationalGeometry.computeCohenSutherland2DCode(p, lo, hi, t);
             } else {
                 q = new Vector2Dd(x, y);
-                cq = code(q);
+                cq = ComputationalGeometry.computeCohenSutherland2DCode(q, lo, hi, t);
             }
         }
+    }
+
+    private static computeCohenSutherland2DCode(
+        point: Vector2Dd,
+        min: Vector2Dd,
+        max: Vector2Dd,
+        tolerance: number,
+    ): number {
+        let outCode = ComputationalGeometry.COHEN_SUTHERLAND_2D_INSIDE;
+        if (point.x < min.x + tolerance) outCode |= ComputationalGeometry.COHEN_SUTHERLAND_2D_LEFT;
+        if (point.x > max.x - tolerance) outCode |= ComputationalGeometry.COHEN_SUTHERLAND_2D_RIGHT;
+        if (point.y < min.y + tolerance) outCode |= ComputationalGeometry.COHEN_SUTHERLAND_2D_BOTTOM;
+        if (point.y > max.y - tolerance) outCode |= ComputationalGeometry.COHEN_SUTHERLAND_2D_TOP;
+        return outCode;
     }
 }

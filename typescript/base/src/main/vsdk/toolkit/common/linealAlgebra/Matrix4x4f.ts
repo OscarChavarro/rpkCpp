@@ -1,3 +1,7 @@
+import { Float } from "../../../../java/lang/Float.js";
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { IndexOutOfBoundsException } from "../../../../java/lang/IndexOutOfBoundsException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { VSDKFatalException } from "../VSDKFatalException.js";
@@ -17,24 +21,11 @@ export class Matrix4x4f extends FundamentalEntity {
     private readonly m: number[][];
     public constructor();
     public constructor(o: Matrix4x4f | number[][]);
-    public constructor(o?: Matrix4x4f | number[][]) {
+    public constructor(o: Matrix4x4f | number[][] = Matrix4x4f.buildIdentityValues()) {
         super();
-        if (o === undefined) {
-            this.m = [];
-            for (let i = 0; i < 4; ++i) {
-                const row: number[] = [];
-                for (let j = 0; j < 4; ++j) {
-                    row.push(i === j ? 1 : 0);
-                }
-                this.m.push(row);
-            }
-        } else if (o instanceof Matrix4x4f) {
-            this.m = o.m.map((r) => r.slice());
-        } else {
-            if (o.length !== 4 || o.some((r) => r.length !== 4))
-                throw new RangeError("Matrix must have 4 rows and 4 columns");
-            this.m = o.map((r) => r.map(f));
-        }
+        const values = o instanceof Matrix4x4f ? o.m : o;
+        Matrix4x4f.validate4x4(values);
+        this.m = Matrix4x4f.deepCopy(values);
     }
     public static copyOf(o: Matrix4x4f | number[][]): Matrix4x4f {
         return new Matrix4x4f(o);
@@ -46,17 +37,17 @@ export class Matrix4x4f extends FundamentalEntity {
         return new Matrix4x4f();
     }
     public get(r: number, c: number): number {
-        this.pos(r, c);
+        Matrix4x4f.validatePosition(r, c);
         return this.m[r]![c]!;
     }
     public withVal(r: number, c: number, v: number): Matrix4x4f {
-        this.pos(r, c);
+        Matrix4x4f.validatePosition(r, c);
         const result = new Matrix4x4f(this);
         result.m[r]![c] = f(v);
         return result;
     }
     public toArrayCopy(): number[][] {
-        return this.m.map((r) => r.slice());
+        return Matrix4x4f.deepCopy(this.m);
     }
     public withoutTranslation(): Matrix4x4f {
         const r = new Matrix4x4f(this);
@@ -69,6 +60,7 @@ export class Matrix4x4f extends FundamentalEntity {
         return new Vector3Df(this.m[0]![3]!, this.m[1]![3]!, this.m[2]![3]!);
     }
     public withTranslation(t: Vector3Df): Matrix4x4f {
+        if (t === null) throw new NullPointerException("Translation vector cannot be null");
         return this.withVal(0, 3, t.x()).withVal(1, 3, t.y()).withVal(2, 3, t.z());
     }
     public orthogonalProjection(l: number, r: number, d: number, u: number, n: number, far: number): Matrix4x4f {
@@ -396,8 +388,7 @@ export class Matrix4x4f extends FundamentalEntity {
         if (o === null) return false;
         const eps = f(e);
         if (eps < 0.0) {
-            Logger.reportMessage(this, Logger.ERROR, "epsilonEquals", "epsilon must be >= 0");
-            throw new VSDKFatalException("epsilon must be >= 0");
+            throw new IllegalArgumentException("epsilon must be >= 0");
         }
         for (let i = 0; i < 4; ++i) {
             for (let j = 0; j < 4; ++j) {
@@ -407,29 +398,48 @@ export class Matrix4x4f extends FundamentalEntity {
         return true;
     }
     public equals(other: unknown): boolean {
+        if (this === other) return true;
         if (!(other instanceof Matrix4x4f)) return false;
-        for (let i = 0; i < 4; ++i) for (let j = 0; j < 4; ++j) if (this.m[i]![j]! !== other.m[i]![j]!) return false;
-        return true;
-    }
-    private static hashFloat(val: number): number {
-        const view = new DataView(new ArrayBuffer(4));
-        view.setFloat32(0, val, true);
-        let h = 0;
         for (let i = 0; i < 4; ++i) {
-            h = (Math.imul(h, 31) + view.getUint8(i)) >>> 0;
+            for (let j = 0; j < 4; ++j) {
+                if (!Object.is(this.m[i]![j], other.m[i]![j])) return false;
+            }
         }
-        return h;
+        return true;
     }
     public hashCode(): number {
         let result = 1;
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                result = (Math.imul(31, result) + Matrix4x4f.hashFloat(this.m[i]![j]!)) >>> 0;
-            }
+        for (const row of this.m) {
+            let rowHash = 1;
+            for (const value of row) rowHash = (Math.imul(31, rowHash) + Float.hashCode(value)) | 0;
+            result = (Math.imul(31, result) + rowHash) | 0;
         }
-        return result | 0;
+        return result;
     }
-    private pos(r: number, c: number): void {
-        if (r < 0 || r > 3 || c < 0 || c > 3) throw new RangeError(`Matrix position out of bounds: (${r}, ${c})`);
+
+    private static buildIdentityValues(): number[][] {
+        return [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ];
+    }
+
+    private static validate4x4(values: number[][] | null): void {
+        if (values === null || values.length !== 4) throw new IllegalArgumentException("Matrix must have 4 rows");
+        for (let i = 0; i < 4; i++) {
+            if (values[i]?.length !== 4) throw new IllegalArgumentException(`Matrix row ${i} must have 4 columns`);
+        }
+    }
+
+    private static validatePosition(r: number, c: number): void {
+        if (!Number.isInteger(r) || !Number.isInteger(c) || r < 0 || r >= 4 || c < 0 || c >= 4) {
+            throw new IndexOutOfBoundsException(`Matrix position out of bounds: (${r}, ${c})`);
+        }
+    }
+
+    private static deepCopy(values: number[][]): number[][] {
+        return values.map((row) => row.map(f));
     }
 }

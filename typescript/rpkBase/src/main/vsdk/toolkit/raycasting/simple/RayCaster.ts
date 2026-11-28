@@ -1,5 +1,5 @@
 /**
-Ray casting using the SGL library for rendering Patch pointers into
+Ray casting using the polygon visibility buffer for rendering Patch pointers into
 a software frame buffer directly.
 */
 

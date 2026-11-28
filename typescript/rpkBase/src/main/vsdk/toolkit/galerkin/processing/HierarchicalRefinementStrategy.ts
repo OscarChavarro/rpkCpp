@@ -18,11 +18,14 @@ import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../skin/Geometry";
 import { Patch } from "../../environment/geometry/elements/Patch";
+import { ClusterTransportPlan } from "./ClusterTransportPlan";
 import { ClusterTraversalStrategy } from "./ClusterTraversalStrategy";
+import { ElementSamples } from "./ElementSamples";
 import { FormFactorStrategy } from "./FormFactorStrategy";
 import { FormFactorWorkspace } from "./FormFactorWorkspace";
 import { InteractionEvaluationCode } from "./InteractionEvaluationCode";
 import { RefinementReplicas } from "./RefinementReplicas";
+import { ScratchVisibilityWorkspace } from "./ScratchVisibilityWorkspace";
 import {
   RefinementEvent,
   RefinementGroup,
@@ -172,6 +175,7 @@ export class HierarchicalRefinementStrategy {
     interaction: Interaction,
     srcRho: ColorRgbMutable,
     rcvRho: ColorRgbMutable,
+    scratch: ScratchVisibilityWorkspace | null,
     galerkinState: GalerkinState,
   ): number {
     const error = new ColorRgbMutable();
@@ -190,7 +194,7 @@ export class HierarchicalRefinementStrategy {
     else {
       if (interaction.sourceElement.isCluster()
         && interaction.sourceElement !== interaction.receiverElement) {
-        srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
+        srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState);
       }
       else {
         srcRad = (interaction.sourceElement.unShotRadiance as ColorRgbMutable[])[0]!;
@@ -206,6 +210,7 @@ export class HierarchicalRefinementStrategy {
     interaction: Interaction,
     rcvRho: ColorRgbMutable,
     receiverArea: number,
+    scratch: ScratchVisibilityWorkspace | null,
     galerkinState: GalerkinState,
   ): number {
     const K = interaction.K[0]!;
@@ -229,6 +234,7 @@ export class HierarchicalRefinementStrategy {
       const radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
         interaction.sourceElement,
         rcVertices[i]!,
+        scratch,
         galerkinState,
       );
       minimumSourceRadiance.minimum(minimumSourceRadiance, radiance);
@@ -242,6 +248,7 @@ export class HierarchicalRefinementStrategy {
 
   private static hierarchicRefinementEvaluateInteraction(
     interaction: Interaction,
+    scratch: ScratchVisibilityWorkspace | null,
     galerkinState: GalerkinState,
   ): InteractionEvaluationCode {
     if (!galerkinState.hierarchical) {
@@ -252,7 +259,7 @@ export class HierarchicalRefinementStrategy {
     const rcvRho = new ColorRgbMutable();
     if (interaction.receiverElement.isCluster()) {
       rcvRho.setMonochrome(1.0);
-      receiverArea = ClusterTraversalStrategy.receiverArea(interaction, galerkinState);
+      receiverArea = ClusterTraversalStrategy.receiverArea(interaction, scratch, galerkinState);
     }
     else {
       rcvRho.set(
@@ -284,6 +291,7 @@ export class HierarchicalRefinementStrategy {
       interaction,
       srcRho,
       rcvRho,
+      scratch,
       galerkinState,
     );
 
@@ -294,6 +302,7 @@ export class HierarchicalRefinementStrategy {
         interaction,
         rcvRho,
         receiverArea,
+        scratch,
         galerkinState,
       );
     }
@@ -329,19 +338,24 @@ export class HierarchicalRefinementStrategy {
 
   private static hierarchicRefinementComputeLightTransport(
     interaction: Interaction,
+    scratch: ScratchVisibilityWorkspace | null,
     galerkinState: GalerkinState,
   ): void {
-    HierarchicalRefinementStrategy.receiverLightTransport(interaction, galerkinState);
+    HierarchicalRefinementStrategy.receiverLightTransport(interaction, scratch, null, null, galerkinState);
     HierarchicalRefinementStrategy.sourceLightTransport(interaction, galerkinState);
   }
 
   /**
   The part of light transport that writes the receiver: the number of
   effectively used radiance coefficients and the received radiance. It reads
-  only the source radiance (frozen during gathering)
+  only the source radiance (frozen during gathering). What the plan, when given,
+  holds is used instead of computing it (see planClusterTransport)
   */
   private static receiverLightTransport(
     interaction: Interaction,
+    scratch: ScratchVisibilityWorkspace | null,
+    plan: ClusterTransportPlan | null,
+    samplePools: ElementSamples[][] | null,
     galerkinState: GalerkinState,
   ): void {
     const a = globalThis.Math.min(interaction.numberOfBasisFunctionsOnReceiver, interaction.receiverElement.basisSize);
@@ -359,12 +373,25 @@ export class HierarchicalRefinementStrategy {
     }
 
     if (interaction.sourceElement.isCluster() && interaction.sourceElement !== interaction.receiverElement) {
-      const linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
+      let linkClusterRad: ColorRgbMutable;
+      if (plan !== null && plan.hasSourceRadiance()) {
+        linkClusterRad = plan.getSourceRadiance();
+      }
+      else {
+        linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState);
+      }
       srcRad = [linkClusterRad];
     }
 
     if (interaction.receiverElement.isCluster() && interaction.sourceElement !== interaction.receiverElement) {
-      ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, galerkinState);
+      if (plan !== null && plan.hasReceiverSamples()) {
+        ClusterTraversalStrategy.gatherRadianceFromSamples(
+          interaction, srcRad, plan.getPixelArea(),
+          samplePools![plan.getPool()]!, plan.getFirstSample(), plan.getNumberOfSamples());
+      }
+      else {
+        ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, scratch, galerkinState);
+      }
     }
     else {
       const rcvRad = interaction.receiverElement.receivedRadiance as ColorRgbMutable[];
@@ -598,7 +625,8 @@ export class HierarchicalRefinementStrategy {
     if (workspace.getRecord() !== null) {
       VsdkLogger.reportMessage(null, VsdkLogger.FATAL_ERROR, "HierarchicalRefinementStrategy::unsubdividedLightTransport", "Element that can not be subdivided in a parallel Jacobi iteration");
     }
-    HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+    HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(
+      interaction, workspace.getScratchVisibilityWorkspace(), galerkinState);
   }
 
   private static hierarchicRefinementRegularSubdivideSource(
@@ -753,11 +781,13 @@ export class HierarchicalRefinementStrategy {
     let refined: boolean;
 
     const isClusteredGeometry = (candidatesList[0] === scene.clusteredGeometryList);
-    switch (HierarchicalRefinementStrategy.hierarchicRefinementEvaluateInteraction(interaction, galerkinState)) {
+    switch (HierarchicalRefinementStrategy.hierarchicRefinementEvaluateInteraction(
+      interaction, workspace.getScratchVisibilityWorkspace(), galerkinState)) {
       case InteractionEvaluationCode.ACCURATE_ENOUGH:
         // A parallel Jacobi worker leaves light transport to the commit
         if (workspace.getRecord() === null) {
-          HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+          HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(
+            interaction, workspace.getScratchVisibilityWorkspace(), galerkinState);
         }
         refined = false;
         break;
@@ -818,6 +848,7 @@ export class HierarchicalRefinementStrategy {
     const workspace = new RefinementWorkspace(
       scene.getSceneQueryWorkspace(),
       galerkinState.formFactorWorkspace,
+      galerkinState.scratchVisibilityWorkspace,
       HierarchicalRefinementStrategy.hierarchicalKPool,
       null,
       null,
@@ -937,7 +968,8 @@ export class HierarchicalRefinementStrategy {
   and every replica commits all the records, in its own heap.
   */
   private static parallelRefinementSupported(galerkinState: GalerkinState): boolean {
-    return galerkinState.clusteringStrategy === GalerkinClusteringStrategy.ISOTROPIC
+    return (galerkinState.clusteringStrategy === GalerkinClusteringStrategy.ISOTROPIC
+      || galerkinState.clusteringStrategy === GalerkinClusteringStrategy.Z_VISIBILITY)
       && galerkinState.shaftCullMode === GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING
       && galerkinState.multiResolutionVisibility === 0;
   }
@@ -999,17 +1031,104 @@ export class HierarchicalRefinementStrategy {
   /**
   Light transport over the interactions, as if done one after the other in
   their order.
+  With a clustering strategy other than isotropic, light transport to a receiver
+  cluster writes the surface elements in it, which other receivers (the clusters
+  containing it, or contained in it) write too, so it is done serially, with the
+  solver's scratch visibility workspace; with Z-visibility, its renderings are
+  made ahead (applyClusterLightTransports).
   TypeScript: in one thread (every replica needs all of it in its own heap);
   C++ splits it among its threads by the element written
   */
   private static applyLightTransports(
     transports: Interaction[],
     galerkinState: GalerkinState,
+    numberOfThreads: number,
+  ): void {
+    if (numberOfThreads > 1 && galerkinState.clusteringStrategy === GalerkinClusteringStrategy.Z_VISIBILITY) {
+      HierarchicalRefinementStrategy.applyClusterLightTransports(transports, galerkinState, numberOfThreads);
+      return;
+    }
+    const n = transports.length;
+    for (let i = 0; i < n; i++) {
+      HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(
+        transports[i]!, galerkinState.scratchVisibilityWorkspace, galerkinState);
+    }
+  }
+
+  /**
+  Computes ahead, in the plan, what the light transport over the interaction
+  takes from the scratch visibility renderer (Z-visibility clustering): the
+  radiance of a source cluster and the samples of a receiver cluster seen from
+  outside. It reads only state frozen during the iteration
+  */
+  private static planClusterTransport(
+    interaction: Interaction,
+    scratch: ScratchVisibilityWorkspace,
+    galerkinState: GalerkinState,
+    pool: number,
+    samplePool: ElementSamples[],
+    plan: ClusterTransportPlan,
+  ): void {
+    if (interaction.sourceElement === interaction.receiverElement) {
+      return;
+    }
+    if (interaction.sourceElement.isCluster()) {
+      plan.setSourceRadiance(ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState));
+    }
+    const pixelArea = HierarchicalRefinementStrategy.planPixelArea;
+    if (interaction.receiverElement.isCluster()
+      && ClusterTraversalStrategy.receiverSamples(interaction, scratch, galerkinState, pixelArea)) {
+      const visible = scratch.getVisibleElements();
+      plan.setReceiverSamples(pixelArea[0]!, pool, samplePool.length, visible.length);
+      for (let i = 0; i < visible.length; i++) {
+        samplePool.push(visible[i]!);
+      }
+    }
+  }
+
+  // Out parameter of receiverSamples in planClusterTransport, reused
+  private static readonly planPixelArea: number[] = [0.0];
+
+  /**
+  Light transport over the interactions with Z-visibility clustering, as if
+  done one after the other in their order. In batches, the workers first render
+  what each interaction needs into their own scratch visibility workspaces
+  (planClusterTransport); then the transport sums are done serially, in order,
+  from those plans.
+  TypeScript: the planning of a batch is done in this thread too, with one
+  workspace and one sample pool (every replica needs all of it in its own
+  heap), and the plans are reused from one batch to the next; the result is
+  the same as C++'s, which plans with its numberOfThreads workers
+  */
+  private static applyClusterLightTransports(
+    transports: Interaction[],
+    galerkinState: GalerkinState,
     _numberOfThreads: number,
   ): void {
     const n = transports.length;
-    for (let i = 0; i < n; i++) {
-      HierarchicalRefinementStrategy.hierarchicRefinementComputeLightTransport(transports[i]!, galerkinState);
+    const batchSize = 16384;
+    const workspace = new ScratchVisibilityWorkspace(galerkinState.scratchFrameBufferSize);
+    // The samples the plans count; cleared, keeping their storage, from one
+    // batch to the next
+    const samplePools: ElementSamples[][] = [[]];
+    const samplePool = samplePools[0]!;
+    const plans: ClusterTransportPlan[] = new Array<ClusterTransportPlan>(globalThis.Math.min(batchSize, n));
+    for (let i = 0; i < plans.length; i++) {
+      plans[i] = new ClusterTransportPlan();
+    }
+    for (let first = 0; first < n; first += batchSize) {
+      const end = globalThis.Math.min(first + batchSize, n);
+      samplePool.length = 0;
+      for (let i = first; i < end; i++) {
+        const plan = plans[i - first]!;
+        plan.clear();
+        HierarchicalRefinementStrategy.planClusterTransport(transports[i]!, workspace, galerkinState, 0, samplePool, plan);
+      }
+      for (let i = first; i < end; i++) {
+        HierarchicalRefinementStrategy.receiverLightTransport(
+          transports[i]!, galerkinState.scratchVisibilityWorkspace, plans[i - first]!, samplePools, galerkinState);
+        HierarchicalRefinementStrategy.sourceLightTransport(transports[i]!, galerkinState);
+      }
     }
   }
 
@@ -1083,9 +1202,10 @@ export class HierarchicalRefinementStrategy {
   the refinement and form factors of the interactions are computed by
   GalerkinState.numberOfThreads workers, and what they change (light
   transport, new interactions, element ids) is then committed in the serial
-  order. Configurations whose refinement reads or writes shared scratch (non
-  isotropic clustering, shaft culling, multi-resolution visibility) are refined
-  serially
+  order. Configurations whose refinement reads or writes shared scratch
+  (oriented clustering, shaft culling, multi-resolution visibility) are refined
+  serially; with Z-visibility clustering each worker renders into its own
+  scratch visibility workspace
   */
   public static refineInteractionsInParallel(
     scene: Scene,
@@ -1095,7 +1215,7 @@ export class HierarchicalRefinementStrategy {
     if (!HierarchicalRefinementStrategy.parallelRefinementSupported(galerkinState)) {
       if (galerkinState.iterationNumber <= 1) {
         VsdkLogger.reportMessage(null, VsdkLogger.WARNING, "refineInteractionsInParallel",
-          "Parallel Jacobi needs isotropic clustering, no shaft culling "
+          "Parallel Jacobi needs isotropic or Z-visibility clustering, no shaft culling "
           + "and no multi-resolution visibility: refining serially");
       }
       HierarchicalRefinementStrategy.refineInteractions(scene, parentElement, galerkinState);
@@ -1120,9 +1240,14 @@ export class HierarchicalRefinementStrategy {
     const w = replicas.getWorker();
     const record = new RefinementRecord(replicas.getRecordEvents(w));
     const shadowStatistics = new ShadowStatistics();
+    let scratchVisibilityWorkspace: ScratchVisibilityWorkspace | null = null;
+    if (galerkinState.clusteringStrategy === GalerkinClusteringStrategy.Z_VISIBILITY) {
+      scratchVisibilityWorkspace = new ScratchVisibilityWorkspace(galerkinState.scratchFrameBufferSize);
+    }
     const workspace = new RefinementWorkspace(
       scene.getSceneQueryWorkspace(),
       new FormFactorWorkspace(shadowStatistics),
+      scratchVisibilityWorkspace,
       HierarchicalRefinementStrategy.hierarchicalKPool,
       record,
       scheduler,

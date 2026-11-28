@@ -1,3 +1,5 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Double } from "../../../../java/lang/Double.js";
@@ -11,6 +13,7 @@ export class Vector4Dd extends FundamentalEntity {
     public constructor(other: Vector4Dd | Vector3Dd);
     public constructor(a: number | Vector4Dd | Vector3Dd, b = 0, c = 0, d = 1) {
         super();
+        if (a === null) throw new NullPointerException("Vector4Dd to copy cannot be null");
         if (typeof a === "number") {
             this.xv = a;
             this.yv = b;
@@ -37,7 +40,8 @@ export class Vector4Dd extends FundamentalEntity {
             : new Vector4Dd(this.xv / this.wv, this.yv / this.wv, this.zv / this.wv, 1);
     }
     public length(): number {
-        return Math.hypot(this.xv, this.yv, this.zv, this.wv);
+        const { xv, yv, zv, wv } = this;
+        return Math.sqrt(xv * xv + yv * yv + zv * zv + wv * wv);
     }
     public add(o: Vector4Dd): Vector4Dd {
         return new Vector4Dd(this.xv + o.xv, this.yv + o.yv, this.zv + o.zv, this.wv + o.wv);
@@ -68,7 +72,7 @@ export class Vector4Dd extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector4Dd | null, e = VSDK.EPSILON): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
         return (
             Math.abs(this.xv - o.xv) <= e &&
             Math.abs(this.yv - o.yv) <= e &&

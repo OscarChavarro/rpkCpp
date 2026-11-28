@@ -5,6 +5,7 @@ import type { Geometry } from "../../skin/Geometry";
 import { GalerkinElement } from "../GalerkinElement";
 import { Interaction } from "../Interaction";
 import type { FormFactorWorkspace } from "./FormFactorWorkspace";
+import type { ScratchVisibilityWorkspace } from "./ScratchVisibilityWorkspace";
 import { RefinementReplicas } from "./RefinementReplicas";
 
 /**
@@ -576,10 +577,11 @@ export class RefinementGroup {
 
 /**
 Mutable scratch of one thread of hierarchical refinement. The serial solver
-uses the scene's query workspace, the solver's form factor workspace and no
-record: light transport and interaction storage are done at once. A parallel
-Jacobi worker has its own form factor scratch, a record receiving what is to
-be done later in the serial order and the scheduler of the tasks.
+uses the scene's query workspace, the solver's form factor and scratch
+visibility workspaces and no record: light transport and interaction storage
+are done at once. A parallel Jacobi worker has its own form factor and scratch
+visibility (Z-visibility clustering only) scratch, a record receiving what is
+to be done later in the serial order and the scheduler of the tasks.
 Nothing is owned.
 TypeScript: there is no subdivision lock (each replica subdivides its own
 elements), and a worker uses the query workspace of its replica's scene (no
@@ -588,6 +590,7 @@ other thread uses it).
 export class RefinementWorkspace {
   private readonly sceneQueryWorkspace: SceneQueryWorkspace | null;
   private readonly formFactorWorkspace: FormFactorWorkspace;
+  private readonly scratchVisibilityWorkspace: ScratchVisibilityWorkspace | null;
   private readonly coefficientsPool: number[][];
   private readonly record: RefinementRecord | null;
   private readonly scheduler: RefinementScheduler | null;
@@ -595,12 +598,14 @@ export class RefinementWorkspace {
   public constructor(
     inSceneQueryWorkspace: SceneQueryWorkspace | null,
     inFormFactorWorkspace: FormFactorWorkspace,
+    inScratchVisibilityWorkspace: ScratchVisibilityWorkspace | null,
     inCoefficientsPool: number[][],
     inRecord: RefinementRecord | null,
     inScheduler: RefinementScheduler | null,
   ) {
     this.sceneQueryWorkspace = inSceneQueryWorkspace;
     this.formFactorWorkspace = inFormFactorWorkspace;
+    this.scratchVisibilityWorkspace = inScratchVisibilityWorkspace;
     this.coefficientsPool = inCoefficientsPool;
     this.record = inRecord;
     this.scheduler = inScheduler;
@@ -612,6 +617,11 @@ export class RefinementWorkspace {
 
   public getFormFactorWorkspace(): FormFactorWorkspace {
     return this.formFactorWorkspace;
+  }
+
+  /** null unless the clustering strategy is Z-visibility */
+  public getScratchVisibilityWorkspace(): ScratchVisibilityWorkspace | null {
+    return this.scratchVisibilityWorkspace;
   }
 
   public getCoefficientsPool(): number[][] {

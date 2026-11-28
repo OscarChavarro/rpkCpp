@@ -1,3 +1,5 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Vector3Dd } from "./Vector3Dd.js";
@@ -13,13 +15,13 @@ export class Quaterniond extends FundamentalEntity {
             this.dv = Vector3Dd.copyOf(a.dv);
             this.mv = a.mv;
         } else {
-            if (a === null) throw new TypeError("Quaterniond direction cannot be null");
+            if (a === null) throw new NullPointerException("Quaterniond direction cannot be null");
             this.dv = Vector3Dd.copyOf(a);
             this.mv = m;
         }
     }
     public static copyOf(o: Quaterniond): Quaterniond {
-        if (o === null) throw new TypeError("Quaterniond to copy cannot be null");
+        if (o === null) throw new NullPointerException("Quaterniond to copy cannot be null");
         return new Quaterniond(o);
     }
     public lengthSquared(): number {
@@ -36,7 +38,7 @@ export class Quaterniond extends FundamentalEntity {
         return new Quaterniond(this.dv.multiply(-1), this.mv);
     }
     public rotate(v: Vector3Dd): Vector3Dd {
-        if (v === null) throw new TypeError("Vector to rotate cannot be null");
+        if (v === null) throw new NullPointerException("Vector to rotate cannot be null");
         const uv = this.dv.crossProduct(v);
         return v.add(uv.multiply(2 * this.mv)).add(this.dv.crossProduct(uv).multiply(2));
     }
@@ -54,7 +56,7 @@ export class Quaterniond extends FundamentalEntity {
     }
     public epsilonEquals(o: Quaterniond | null, e = VSDK.EPSILON): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
         return this.dv.epsilonEquals(o.dv, e) && Math.abs(this.mv - o.mv) <= e;
     }
     public override toString(): string {

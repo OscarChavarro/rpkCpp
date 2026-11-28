@@ -14,7 +14,7 @@ import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";
-import type { FaceColorTable } from "../../scene/FaceColorTable";
+import type { FaceColorTable } from "../../environment/geometry/elements/FaceColorTable";
 import type { FaceVisibilityTable } from "../../scene/FaceVisibilityTable";
 import { Element } from "../../environment/geometry/elements/Element";
 import { ElementTypes } from "../../environment/geometry/elements/ElementTypes";

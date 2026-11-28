@@ -1,4 +1,4 @@
-import { IllegalArgumentException } from "./IllegalArgumentException.js";
+import { Double } from "./Double.js";
 
 /** Java float helpers. Every returned float value is rounded to IEEE-754 binary32. */
 export class Float {
@@ -15,18 +15,7 @@ export class Float {
         return typeof value === "number" ? Math.fround(value) : Float.parseFloat(value);
     }
     public static parseFloat(text: string): number {
-        if (text.length === 0 || text.trim() !== text)
-            throw new IllegalArgumentException(`For input string: "${text}"`);
-        if (text === "NaN") return NaN;
-        if (text === "Infinity" || text === "+Infinity") return Infinity;
-        if (text === "-Infinity") return -Infinity;
-        const value = Number(
-            text.endsWith("f") || text.endsWith("F") || text.endsWith("d") || text.endsWith("D")
-                ? text.slice(0, -1)
-                : text,
-        );
-        if (Number.isNaN(value)) throw new IllegalArgumentException(`For input string: "${text}"`);
-        return Math.fround(value);
+        return Math.fround(Double.parseDouble(text));
     }
     public static isNaN(value: number): boolean {
         return Number.isNaN(value);

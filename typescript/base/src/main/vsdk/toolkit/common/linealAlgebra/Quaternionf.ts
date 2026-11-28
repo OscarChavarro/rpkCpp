@@ -1,3 +1,5 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Vector3Df } from "./Vector3Df.js";
@@ -18,13 +20,13 @@ export class Quaternionf extends FundamentalEntity {
             this.dv = new Vector3Df(a.direction());
             this.mv = f(a.magnitude());
         } else {
-            if (a === null) throw new TypeError("Quaternion direction cannot be null");
+            if (a === null) throw new NullPointerException("Quaternion direction cannot be null");
             this.dv = new Vector3Df(a);
             this.mv = f(m);
         }
     }
     public static copyOf(o: Quaternionf): Quaternionf {
-        if (o === null) throw new TypeError("Quaternion to copy cannot be null");
+        if (o === null) throw new NullPointerException("Quaternion to copy cannot be null");
         return new Quaternionf(o);
     }
     public lengthSquared(): number {
@@ -35,13 +37,15 @@ export class Quaternionf extends FundamentalEntity {
     }
     public normalized(): Quaternionf {
         const l = this.length();
-        return Math.abs(l) < f(VSDK.EPSILON) ? this : new Quaternionf(this.dv.multiply(f(1 / l)), f(this.mv / l));
+        if (Math.abs(l) < f(VSDK.EPSILON)) return this;
+        const inverse = f(1 / l);
+        return new Quaternionf(this.dv.multiply(inverse), f(this.mv * inverse));
     }
     public conjugated(): Quaternionf {
         return new Quaternionf(this.dv.multiply(-1), this.mv);
     }
     public rotate(v: Vector3Df): Vector3Df {
-        if (v === null) throw new TypeError("Vector to rotate cannot be null");
+        if (v === null) throw new NullPointerException("Vector to rotate cannot be null");
         const uv = this.dv.crossProduct(v);
         return v.add(uv.multiply(f(2 * this.mv))).add(this.dv.crossProduct(uv).multiply(2));
     }
@@ -59,8 +63,9 @@ export class Quaternionf extends FundamentalEntity {
     }
     public epsilonEquals(o: Quaternionf | null, e = f(VSDK.EPSILON)): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
-        return this.dv.epsilonEquals(o.dv, e) && Math.abs(this.mv - o.mv) <= e;
+        e = f(e);
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
+        return this.dv.epsilonEquals(o.dv, e) && Math.abs(f(this.mv - o.mv)) <= e;
     }
     public override toString(): string {
         return `${this.dv.toString()} / ${VSDK.formatDouble(this.mv)}`;

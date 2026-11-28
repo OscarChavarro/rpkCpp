@@ -1,5 +1,5 @@
 export enum Containment {
-    OUTSIDE = 0,
+    OUTSIDE = -1,
+    LIMIT = 0,
     INSIDE = 1,
-    LIMIT = 2,
 }

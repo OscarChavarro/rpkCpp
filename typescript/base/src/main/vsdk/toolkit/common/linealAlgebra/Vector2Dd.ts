@@ -1,3 +1,5 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
+import { NullPointerException } from "../../../../java/lang/NullPointerException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Double } from "../../../../java/lang/Double.js";
@@ -9,6 +11,7 @@ export class Vector2Dd extends FundamentalEntity {
     public constructor(o: Vector2Dd);
     public constructor(a: number | Vector2Dd = 0, b = 0) {
         super();
+        if (a === null) throw new NullPointerException("Vector2Dd to copy cannot be null");
         if (a instanceof Vector2Dd) {
             this.x = a.x;
             this.y = a.y;
@@ -18,17 +21,18 @@ export class Vector2Dd extends FundamentalEntity {
         }
     }
     public static copyOf(o: Vector2Dd): Vector2Dd {
-        if (o === null) throw new TypeError("Vector2Dd to copy cannot be null");
         return new Vector2Dd(o);
     }
     public multiply(a: number): Vector2Dd {
         return new Vector2Dd(a * this.x, a * this.y);
     }
     public length(): number {
-        return Math.hypot(this.x, this.y);
+        return Math.sqrt(this.lengthSquared());
     }
     public static distance(a: Vector2Dd, b: Vector2Dd): number {
-        return Math.hypot(a.x - b.x, a.y - b.y);
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
     public add(o: Vector2Dd): Vector2Dd {
         return new Vector2Dd(this.x + o.x, this.y + o.y);
@@ -45,6 +49,7 @@ export class Vector2Dd extends FundamentalEntity {
     public set(a: Vector2Dd): void;
     public set(x: number, y: number): void;
     public set(a: number | Vector2Dd, b?: number): void {
+        if (a === null) throw new NullPointerException("Vector2Dd to copy cannot be null");
         if (a instanceof Vector2Dd) {
             this.x = a.x;
             this.y = a.y;
@@ -61,7 +66,7 @@ export class Vector2Dd extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector2Dd | null, e = VSDK.EPSILON): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
         return Math.abs(this.x - o.x) <= e && Math.abs(this.y - o.y) <= e;
     }
     public equals(other: unknown): boolean {

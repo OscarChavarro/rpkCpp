@@ -1,6 +1,6 @@
 import { OutputStream } from "vitral/dist/java/io/OutputStream";
 import type { DirectPotentialTable } from "../scene/DirectPotentialTable";
-import type { FaceColorTable } from "../scene/FaceColorTable";
+import type { FaceColorTable } from "../environment/geometry/elements/FaceColorTable";
 import { String as JavaString } from "vitral/dist/java/lang/String";
 import { ColorRgbMutable } from "../common/color/ColorRgbMutable";
 import { Logger as VsdkLogger } from "vitral/dist/vsdk/toolkit/common/logging/Logger";
@@ -31,7 +31,6 @@ import { GalerkinElement } from "./GalerkinElement";
 import { GalerkinIterationMethod } from "./GalerkinIterationMethod";
 import { GalerkinState } from "./GalerkinState";
 import { Interaction } from "./Interaction";
-import { Double } from "vitral/dist/java/lang/Double";
 
 export class GalerkinRadianceMethod extends RadianceMethod {
   private static readonly STRING_LENGTH = 2000;
@@ -55,9 +54,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
   public static galerkinState = new GalerkinState();
 
   public static freeMemory(): void {
-    if (GalerkinRadianceMethod.galerkinState.scratch !== null) {
-      GalerkinRadianceMethod.galerkinState.scratch = null;
-    }
+    ScratchVisibilityStrategy.scratchTerminate(GalerkinRadianceMethod.galerkinState);
   }
 
   // The scene's display colors, bound when the method is initialized; only
@@ -208,9 +205,6 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     if (GalerkinRadianceMethod.galerkinState.clusteringStrategy === GalerkinClusteringStrategy.Z_VISIBILITY) {
       ScratchVisibilityStrategy.scratchInit(GalerkinRadianceMethod.galerkinState);
     }
-
-    GalerkinRadianceMethod.galerkinState.lastClusterId = -1;
-    GalerkinRadianceMethod.galerkinState.lastEye = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
   }
 
   public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {

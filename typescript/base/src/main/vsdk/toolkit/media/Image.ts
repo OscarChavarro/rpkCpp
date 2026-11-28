@@ -37,16 +37,29 @@ export abstract class Image extends MediaEntity {
             const p = this.getPixelRgb(i, j);
             return new ColorRgb(unsigned(p.r) / 255, unsigned(p.g) / 255, unsigned(p.b) / 255);
         };
-        const a = c(i0, j0),
-            b = c(i1, j0),
-            d = c(i0, j1),
-            e = c(i1, j1),
-            q = (m: number, n: number, o: number, z: number) =>
-                m + du * (n - m) + dv * (o + du * (z - o) - m - du * (n - m));
+        const F00 = c(i0, j0),
+            F10 = c(i1, j0),
+            F01 = c(i0, j1),
+            F11 = c(i1, j1);
+
+        // Java's two horizontal interpolations, then the vertical one; the
+        // grouping is kept so that every rounding step matches
+        const FU0 = new ColorRgb(
+            F00.r() + du * (F10.r() - F00.r()),
+            F00.g() + du * (F10.g() - F00.g()),
+            F00.b() + du * (F10.b() - F00.b()),
+        );
+
+        const FU1 = new ColorRgb(
+            F01.r() + du * (F11.r() - F01.r()),
+            F01.g() + du * (F11.g() - F01.g()),
+            F01.b() + du * (F11.b() - F01.b()),
+        );
+
         return new ColorRgb(
-            q(a.r(), b.r(), d.r(), e.r()),
-            q(a.g(), b.g(), d.g(), e.g()),
-            q(a.b(), b.b(), d.b(), e.b()),
+            FU0.r() + dv * (FU1.r() - FU0.r()),
+            FU0.g() + dv * (FU1.g() - FU0.g()),
+            FU0.b() + dv * (FU1.b() - FU0.b()),
         );
     }
     public createTestPattern(): void {

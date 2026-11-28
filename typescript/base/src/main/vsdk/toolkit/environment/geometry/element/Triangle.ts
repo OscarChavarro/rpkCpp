@@ -287,18 +287,54 @@ export class Triangle extends FundamentalEntity {
             : RayFirstHitStatus.Miss;
     }
 
-    public static containmentTest(a: Vector3Dd, b: Vector3Dd, c: Vector3Dd, p: Vector3Dd, t: number): number {
-        const ab = b.subtract(a),
-            ac = c.subtract(a),
-            ap = p.subtract(a),
-            d1 = ab.dotProduct(ap),
-            d2 = ac.dotProduct(ap),
-            denom = ab.dotProduct(ab) * ac.dotProduct(ac) - ab.dotProduct(ac) ** 2;
-        if (Math.abs(denom) < VSDK.EPSILON) return Containment.OUTSIDE;
-        const u = (d1 * ac.dotProduct(ac) - d2 * ab.dotProduct(ac)) / denom,
-            v = (d2 * ab.dotProduct(ab) - d1 * ab.dotProduct(ac)) / denom,
-            q = a.add(ab.multiply(Math.max(0, Math.min(1, u)))).add(ac.multiply(Math.max(0, Math.min(1, v))));
-        return q.subtract(p).length() <= t ? Containment.LIMIT : Containment.OUTSIDE;
+    private static closestPointOnTriangle(p: Vector3Dd, a: Vector3Dd, b: Vector3Dd, c: Vector3Dd): Vector3Dd {
+        const ab = b.subtract(a);
+        const ac = c.subtract(a);
+        const ap = p.subtract(a);
+        const d1 = ab.dotProduct(ap);
+        const d2 = ac.dotProduct(ap);
+        if (d1 <= 0 && d2 <= 0) return a;
+
+        const bp = p.subtract(b);
+        const d3 = ab.dotProduct(bp);
+        const d4 = ac.dotProduct(bp);
+        if (d3 >= 0 && d4 <= d3) return b;
+
+        const vc = d1 * d4 - d3 * d2;
+        if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+            return a.add(ab.multiply(d1 / (d1 - d3)));
+        }
+
+        const cp = p.subtract(c);
+        const d5 = ab.dotProduct(cp);
+        const d6 = ac.dotProduct(cp);
+        if (d6 >= 0 && d5 <= d6) return c;
+
+        const vb = d5 * d2 - d1 * d6;
+        if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+            return a.add(ac.multiply(d2 / (d2 - d6)));
+        }
+
+        const va = d3 * d6 - d5 * d4;
+        if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
+            return b.add(c.subtract(b).multiply((d4 - d3) / (d4 - d3 + (d5 - d6))));
+        }
+
+        const denom = 1.0 / (va + vb + vc);
+        const v = vb * denom;
+        const w = vc * denom;
+        return a.add(ab.multiply(v)).add(ac.multiply(w));
+    }
+
+    public static containmentTest(
+        p0: Vector3Dd,
+        p1: Vector3Dd,
+        p2: Vector3Dd,
+        p: Vector3Dd,
+        distanceTolerance: number,
+    ): number {
+        const q = Triangle.closestPointOnTriangle(p, p0, p1, p2);
+        return q.subtract(p).length() <= distanceTolerance ? Containment.LIMIT : Containment.OUTSIDE;
     }
     public static minMax(a: Vector3Dd, b: Vector3Dd, c: Vector3Dd, m: Float64Array | number[]): void {
         m[0] = Math.min(a.x(), b.x(), c.x());

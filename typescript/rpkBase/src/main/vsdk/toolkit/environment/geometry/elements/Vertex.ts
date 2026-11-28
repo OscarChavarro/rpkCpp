@@ -1,5 +1,5 @@
 import { ColorRgbMutable } from "../../../common/color/ColorRgbMutable";
-import type { FaceColorTable } from "../../../scene/FaceColorTable";
+import type { FaceColorTable } from "./FaceColorTable";
 import { Vector3Dd } from "vitral/dist/vsdk/toolkit/common/linealAlgebra/Vector3Dd";
 import { Statistics } from "../../../common/statistics/Statistics";
 import { VertexCompareFlags } from "./VertexCompareFlags";

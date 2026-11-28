@@ -1,3 +1,4 @@
+import { IllegalArgumentException } from "../../../../java/lang/IllegalArgumentException.js";
 import { FundamentalEntity } from "../FundamentalEntity.js";
 import { VSDK } from "../VSDK.js";
 import { Vector2Dd } from "./Vector2Dd.js";
@@ -54,7 +55,8 @@ export class Vector2Df extends FundamentalEntity {
     }
     public epsilonEquals(o: Vector2Df | null, e = f(VSDK.EPSILON)): boolean {
         if (o === null) return false;
-        if (e < 0) throw new RangeError("epsilon must be >= 0");
-        return Math.abs(this.xv - o.xv) <= e && Math.abs(this.yv - o.yv) <= e;
+        e = f(e);
+        if (e < 0) throw new IllegalArgumentException("epsilon must be >= 0");
+        return Math.abs(f(this.xv - o.xv)) <= e && Math.abs(f(this.yv - o.yv)) <= e;
     }
 }
