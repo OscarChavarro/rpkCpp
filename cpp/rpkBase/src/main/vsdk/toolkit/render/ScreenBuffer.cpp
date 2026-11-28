@@ -8,6 +8,8 @@
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/io/wrapper/FileUncompressWrapper.h"
+#include "vsdk/toolkit/media/RGBImageFloatUncompressed.h"
+#include "vsdk/toolkit/media/RGBImageUncompressed.h"
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 #include "vsdk/toolkit/render/Softids.h"
 
@@ -147,9 +149,23 @@ ScreenBuffer::render() {
     SoftIds::softRenderPixels(camera.xSize, camera.ySize, rgbColor, requireToneMappingContext());
 }
 
+ColorRgb
+ScreenBuffer::gammaCorrect(const ColorRgb &rgb, const double gamma[3]) {
+    return ColorRgb(
+        gamma[0] == 1.0 ? rgb.getR() : java::Math::pow(rgb.getR(), 1.0 / gamma[0]),
+        gamma[1] == 1.0 ? rgb.getG() : java::Math::pow(rgb.getG(), 1.0 / gamma[1]),
+        gamma[2] == 1.0 ? rgb.getB() : java::Math::pow(rgb.getB(), 1.0 / gamma[2]));
+}
+
+/**
+Writes the image on the target: the radiances themselves for a high dynamic
+range format, or else display RGB values (radiances tone mapped, then gamma
+corrected). The rows are written from the top of the image, the last row of
+this buffer.
+*/
 void
-ScreenBuffer::writeFile(ImageOutputHandle *ip) {
-    if ( !ip ) {
+ScreenBuffer::writeFile(const ImageOutputTarget *target) {
+    if ( target == nullptr ) {
         return;
     }
 
@@ -157,31 +173,54 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         sync();
     }
 
-    java::System::err.printf("Writing %s file ... ", ip->driverName);
+    java::System::err.printf("Writing %s file ... ", target->getDriverName());
 
-    const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
-    ip->setToneMappingContext(&activeToneMapOptions);
-    ip->gamma[0] = static_cast<double>(activeToneMapOptions.gamma.getR()); // For default radiance -> display RGB
-    ip->gamma[1] = static_cast<double>(activeToneMapOptions.gamma.getG());
-    ip->gamma[2] = static_cast<double>(activeToneMapOptions.gamma.getB());
-    for ( int i = camera.ySize - 1; i >= 0; i-- ) {
-        // Write scan lines
-        if ( !isRgbImage() ) {
-            java::ArrayList<ColorRgb> scanline(camera.xSize > 0 ? camera.xSize : 1);
-            for ( int x = 0; x < camera.xSize; x++ ) {
-                const int index = 3 * (i * camera.xSize + x);
-                scanline.add(ColorRgb(radiance[index], radiance[index + 1], radiance[index + 2]));
-            }
-            ip->writeRadianceRGB(scanline.data());
+    const int width = camera.xSize;
+    const int height = camera.ySize;
+    if ( target->getFormat() == ImageOutputTarget::Format::RADIANCE_RGBE ) {
+        if ( isRgbImage() ) {
+            java::System::err.printf("%s does not support display RGB output.\n", target->getDriverName());
         } else {
-            java::ArrayList<double> scanline(camera.xSize * 3 > 0 ? camera.xSize * 3 : 1);
-            for ( int x = 0; x < camera.xSize; x++ ) {
-                const int index = 3 * (i * camera.xSize + x);
-                scanline.add(static_cast<double>(radiance[index]));
-                scanline.add(static_cast<double>(radiance[index + 1]));
-                scanline.add(static_cast<double>(radiance[index + 2]));
+            RGBImageFloatUncompressed image;
+            if ( image.initNoFill(width, height) ) {
+                for ( int row = 0; row < height; row++ ) {
+                    const int i = height - 1 - row;
+                    for ( int x = 0; x < width; x++ ) {
+                        const int index = 3 * (i * width + x);
+                        image.putPixel(x, row, radiance[index], radiance[index + 1], radiance[index + 2]);
+                    }
+                }
+                target->writeRadianceImage(&image);
             }
-            ip->writeDisplayRGB(scanline.data());
+        }
+    } else {
+        const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
+        // For default radiance -> display RGB
+        const double gamma[3] = {
+            activeToneMapOptions.gamma.getR(),
+            activeToneMapOptions.gamma.getG(),
+            activeToneMapOptions.gamma.getB()};
+        RGBImageUncompressed image;
+        if ( image.initNoFill(width, height) ) {
+            for ( int row = 0; row < height; row++ ) {
+                const int i = height - 1 - row;
+                for ( int x = 0; x < width; x++ ) {
+                    const int index = 3 * (i * width + x);
+                    ColorRgb displayRgb(radiance[index], radiance[index + 1], radiance[index + 2]);
+                    if ( !isRgbImage() ) {
+                        // Convert RGB radiance to display RGB
+                        displayRgb = ToneMap::radianceToRgb(displayRgb, activeToneMapOptions);
+                    }
+                    displayRgb = gammaCorrect(displayRgb, gamma);
+                    image.putPixel(
+                        x,
+                        row,
+                        static_cast<char>(static_cast<unsigned char>(displayRgb.getR() * 255.0)),
+                        static_cast<char>(static_cast<unsigned char>(displayRgb.getG() * 255.0)),
+                        static_cast<char>(static_cast<unsigned char>(displayRgb.getB() * 255.0)));
+                }
+            }
+            target->writeDisplayImage(&image);
         }
     }
 
@@ -424,17 +463,9 @@ ScreenBuffer::writeFile(const char *fileName, java::OutputStream *outputStream, 
         return;
     }
 
-    ImageOutputHandle *ip = ImageOutputHandle::createRadianceImageOutputHandle(
-        fileName,
-        outputStream,
-        isPipe,
-        camera.xSize,
-        camera.ySize);
-
-    writeFile(ip);
-    if ( ip != nullptr ) {
-        ImageOutputHandle::deleteImageOutputHandle(ip);
-    }
+    const ImageOutputTarget *target = ImageOutputTarget::create(fileName, outputStream, isPipe);
+    writeFile(target);
+    delete target;
 }
 
 void

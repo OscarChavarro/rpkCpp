@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/raycasting/common/RayTracer.h"
 
 /**
-Initializes an ImageOutputHandle taking into account the image filename extension,
+Initializes an ImageOutputTarget taking into account the image filename extension,
 and performs raytracing
 */
 void
@@ -15,15 +15,10 @@ RayTracer::rayTrace(
     ToneMappingContext *toneMapOptions,
     const RendererConfiguration *renderOptions)
 {
-    ImageOutputHandle *img = nullptr;
+    ImageOutputTarget *img = nullptr;
 
     if ( stream != nullptr ) {
-        img = ImageOutputHandle::createRadianceImageOutputHandle(
-            fileName,
-            stream,
-            isPipe,
-            scene->camera->xSize,
-            scene->camera->ySize);
+        img = ImageOutputTarget::create(fileName, stream, isPipe);
         if ( img == nullptr ) {
             return;
         }
@@ -34,6 +29,6 @@ RayTracer::rayTrace(
     }
 
     if ( img ) {
-        ImageOutputHandle::deleteImageOutputHandle(img);
+        delete img;
     }
 }

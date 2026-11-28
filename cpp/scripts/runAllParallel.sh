@@ -95,7 +95,7 @@ for line in $selection; do
     script=$(echo "$line" | cut -d'|' -f2)
     log=$(echo "$line" | cut -d'|' -f3)
     # A run that crashes must not leave the previous run's results to be compared
-    rm -f "output/$image.ppm" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
+    rm -f "output/$image.png" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
     start=$(date +%s.%N)
     corpusRunEntry "$SCRIPT_DIR" "$script" "$log"
     status=$?

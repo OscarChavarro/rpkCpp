@@ -61,7 +61,7 @@ pointed to by 'fp'
 */
 void
 BidirectionalPathRaytracer::execute(
-    ImageOutputHandle *ip,
+    ImageOutputTarget *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
@@ -203,10 +203,10 @@ BidirectionalPathRaytracer::execute(
 }
 
 bool
-BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( imageOutputHandle && bidirectionalPathState.lastScreen ) {
+BidirectionalPathRaytracer::saveImage(ImageOutputTarget *imageOutputTarget) const {
+    if ( imageOutputTarget && bidirectionalPathState.lastScreen ) {
         bidirectionalPathState.lastScreen->sync();
-        bidirectionalPathState.lastScreen->writeFile(imageOutputHandle);
+        bidirectionalPathState.lastScreen->writeFile(imageOutputTarget);
         return true;
     } else {
         return false;

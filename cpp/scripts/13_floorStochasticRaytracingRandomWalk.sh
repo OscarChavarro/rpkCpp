@@ -8,5 +8,5 @@ mkdir -p output
     -iterations 9 -radiance-method RandomWalk \
     -eyepoint 8.16 1.99 0.81 -center -1.72 2.63 -0.44 -updir 0 0 1 \
     -raycast -raytracing-image-savefile \
-    ./output/13_floorStochasticRaytracingRandomWalk.ppm \
+    ./output/13_floorStochasticRaytracingRandomWalk.png \
     -rts-samples-per-pixel 100 "$@"

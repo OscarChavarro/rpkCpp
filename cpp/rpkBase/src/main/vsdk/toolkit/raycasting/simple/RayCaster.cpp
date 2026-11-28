@@ -47,7 +47,7 @@ RayCaster::initialize(const java::ArrayList<Patch *> */*lightPatches*/) const {
 
 void
 RayCaster::execute(
-    ImageOutputHandle *ip,
+    ImageOutputTarget *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
@@ -64,12 +64,12 @@ RayCaster::execute(
 }
 
 bool
-RayCaster::saveImage(ImageOutputHandle *imageOutputHandle) const {
+RayCaster::saveImage(ImageOutputTarget *imageOutputTarget) const {
     if ( !rayCaster ) {
         return false;
     }
 
-    rayCaster->save(imageOutputHandle);
+    rayCaster->save(imageOutputTarget);
     return true;
 }
 
@@ -198,6 +198,6 @@ RayCaster::display() {
 }
 
 void
-RayCaster::save(ImageOutputHandle *ip) {
+RayCaster::save(ImageOutputTarget *ip) {
     screenBuffer->writeFile(ip);
 }

@@ -6,7 +6,7 @@
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Camera.h"
-#include "vsdk/toolkit/io/image/ImageOutputHandle.h"
+#include "vsdk/toolkit/render/ImageOutputTarget.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 /**
@@ -37,6 +37,7 @@ class ScreenBuffer {
   protected:
     void syncLine(int lineNumber);
     const ToneMappingContext &requireToneMappingContext() const;
+    static ColorRgb gammaCorrect(const ColorRgb &rgb, const double gamma[3]);
 
   public:
     explicit ScreenBuffer(const Camera *camera, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = nullptr); // Also calls mainInitApplication()
@@ -60,7 +61,7 @@ class ScreenBuffer {
     void set(int x, int y, const ColorRgb &inRadiance);
     void render();
     void renderScanline(int y);
-    void writeFile(ImageOutputHandle *ip);
+    void writeFile(const ImageOutputTarget *target);
     void add(int x, int y, const ColorRgb &inRadiance);
     void sync();
     void setToneMappingContext(ToneMappingContext *inToneMapOptions);

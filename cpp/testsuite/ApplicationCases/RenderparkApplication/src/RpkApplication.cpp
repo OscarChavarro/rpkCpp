@@ -9,7 +9,6 @@
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/tonemap/TumblinRushmeierToneMap.h"
 #include "vsdk/toolkit/tonemap/WardToneMap.h"
-#include "vsdk/toolkit/io/image/Dkcolor.h"
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/galerkin/processing/ClusterCreationStrategy.h"
 #include "Batch.h"
@@ -252,7 +251,6 @@ RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     if ( mgfContext->radianceMethod != nullptr ) {
         delete mgfContext->radianceMethod;
     }
-    DkColor::freeBuffer();
 }
 
 int

@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
-#include "vsdk/toolkit/io/image/ImageOutputHandle.h"
+#include "vsdk/toolkit/render/ImageOutputTarget.h"
 #include "vsdk/toolkit/io/wrapper/FileUncompressWrapper.h"
 #include "vsdk/toolkit/render/Canvas.h"
 #include "vsdk/toolkit/render/RadianceImageExporter.h"
@@ -103,7 +103,7 @@ Batch::batchSaveRadianceImage(
 
     Canvas::canvasPushMode();
 
-    extension = ImageOutputHandle::imageFileExtension(fileName);
+    extension = ImageOutputTarget::imageFileExtension(fileName);
     if ( strncasecmp(extension, "logluv", 6) == 0 ) {
         java::System::out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {

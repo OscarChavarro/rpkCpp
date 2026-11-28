@@ -43,6 +43,13 @@ add_library(vitral SHARED ${VITRAL_SRC})
 find_package(Threads REQUIRED)
 target_link_libraries(vitral PUBLIC Threads::Threads)
 
+# PNG export of the rendered images (ImagePersistence::exportPNG), the format
+# of the golden images
+find_package(PNG REQUIRED)
+target_include_directories(vitral PRIVATE ${PNG_INCLUDE_DIRS})
+target_link_libraries(vitral PRIVATE ${PNG_LIBRARIES})
+target_compile_definitions(vitral PRIVATE VITRAL_WITH_PNG)
+
 target_include_directories(vitral
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main

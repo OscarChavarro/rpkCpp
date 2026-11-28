@@ -66,7 +66,7 @@ RayMatter::initialize(const java::ArrayList<Patch *> */*lightPatches*/) const {
 
 void
 RayMatter::execute(
-    ImageOutputHandle *ip,
+    ImageOutputTarget *ip,
     Scene *scene,
     RadianceMethod */*radianceMethod*/,
     ToneMappingContext *toneMapOptions,
@@ -87,12 +87,12 @@ RayMatter::execute(
 }
 
 bool
-RayMatter::saveImage(ImageOutputHandle *imageOutputHandle) const {
+RayMatter::saveImage(ImageOutputTarget *imageOutputTarget) const {
     if ( rayMatter == nullptr ) {
         return false;
     }
 
-    rayMatter->save(imageOutputHandle);
+    rayMatter->save(imageOutputTarget);
     return true;
 }
 
@@ -183,7 +183,7 @@ RayMatter::display() {
 }
 
 void
-RayMatter::save(ImageOutputHandle *ip) {
+RayMatter::save(ImageOutputTarget *ip) {
     screenBuffer->writeFile(ip);
 }
 

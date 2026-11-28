@@ -31,7 +31,7 @@ class RayMatter final : public RayTracer {
     void createFilter();
     void doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace);
     void display();
-    void save(ImageOutputHandle *ip);
+    void save(ImageOutputTarget *ip);
 
     void defaults() final;
     const char *getName() const final;
@@ -39,13 +39,13 @@ class RayMatter final : public RayTracer {
 
     void
     execute(
-        ImageOutputHandle *ip,
+        ImageOutputTarget *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
         const RendererConfiguration *renderOptions) const final;
 
-    bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
+    bool saveImage(ImageOutputTarget *imageOutputTarget) const final;
     void terminate() const;
 };
 

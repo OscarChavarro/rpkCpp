@@ -36,13 +36,13 @@ Here is an example:
 ### On linux
 
 ```bash
-apt-get install cmake build-essential freeglut3-dev libglu1-mesa-dev libosmesa6-dev imagemagick
+apt-get install cmake build-essential freeglut3-dev libglu1-mesa-dev libosmesa6-dev libpng-dev imagemagick
 ```
 
 ### On MacOS
 
 ```bash
-brew install mesa cmake
+brew install mesa cmake libpng
 ```
 
 ## Build program
@@ -181,8 +181,9 @@ and compare against the C++ golden images within recorded RMSE bounds (`--golden
 
 ### Rebuilding the C++ golden images
 
-`cpp/etc/goldenImagesForTests` holds only the golden images, `<image>.ppm`, one per corpus output; they
-are versioned and they are the golden images of every port. On 2026-11-26 they replaced the former
+`cpp/etc/goldenImagesForTests` holds only the golden images, `<image>.png`, one per corpus output; they
+are versioned and they are the golden images of every port. Since 2026-11-28 they are PNG files written by
+VITRAL's `ImagePersistence::exportPNG` (libpng), pixel-identical to the former PPM set. On 2026-11-26 they replaced the former
 `doc/testBaseImages` set, captured again after the C++ port moved to double precision and two Galerkin
 fixes (links appended during an element's own refinement are no longer refined in the same pass, and the
 point-to-area form factor of the higher order cubature is bounded by 1), which removed the bright spots
@@ -192,7 +193,7 @@ tree whose outputs you trust:
 ```bash
 ./scripts/compile.sh
 ./scripts/runCorpus.sh
-./scripts/testReviewResults.sh --capture-references   # copies output/<image>.ppm to etc/goldenImagesForTests
+./scripts/testReviewResults.sh --capture-references   # copies output/<image>.png to etc/goldenImagesForTests
 ```
 
 The command accepts image or script names to rebuild only part of the set.

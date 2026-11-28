@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/skin/Numeric.h"
-#include "vsdk/toolkit/io/image/ImageOutputHandle.h"
+#include "vsdk/toolkit/render/ImageOutputTarget.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/render/RadianceImageExporter.h"
 #include "vsdk/toolkit/render/ScreenBuffer.h"
@@ -54,18 +54,13 @@ RadianceImageExporter::exportImage(
         }
     }
 
-    ImageOutputHandle *imageOutputHandle = ImageOutputHandle::createRadianceImageOutputHandle(
-        fileName,
-        outputStream,
-        isPipe,
-        scene->camera->xSize,
-        scene->camera->ySize);
-    if ( imageOutputHandle == nullptr ) {
+    ImageOutputTarget *imageOutputTarget = ImageOutputTarget::create(fileName, outputStream, isPipe);
+    if ( imageOutputTarget == nullptr ) {
         return;
     }
 
-    screenBuffer.writeFile(imageOutputHandle);
-    ImageOutputHandle::deleteImageOutputHandle(imageOutputHandle);
+    screenBuffer.writeFile(imageOutputTarget);
+    delete imageOutputTarget;
 }
 
 void

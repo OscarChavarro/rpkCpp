@@ -109,13 +109,13 @@ class BidirectionalPathRaytracer final : public RayTracer {
 
     void
     execute(
-        ImageOutputHandle *ip,
+        ImageOutputTarget *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
         const RendererConfiguration *renderOptions) const final;
 
-    bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
+    bool saveImage(ImageOutputTarget *imageOutputTarget) const final;
     void terminate() const;
 };
 
