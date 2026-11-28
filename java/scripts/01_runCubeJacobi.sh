@@ -7,4 +7,4 @@ mkdir -p output
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -gr-iteration-method jacobi \
     -eyepoint 4.78 -10.7 8 -center 4.8 -1 5.62 \
-    -raycast -save-last-only -radiance-image-savefile output/01_cubeJacobi.ppm"
+    -raycast -save-last-only -radiance-image-savefile output/01_cubeJacobi.png"

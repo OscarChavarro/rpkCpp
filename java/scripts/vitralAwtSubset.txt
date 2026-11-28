@@ -1,0 +1,13 @@
+# Files of java/awt/src/main that the Java port takes from VITRAL's Java port
+# unchanged: the ImageIO based image persistence plugin, which
+# vsdk.toolkit.io.image.ImagePersistence loads by reflection (when it is on
+# the class path) to write PNG files, and the AWT image converters it uses
+# (with their AwtRenderer base class).
+# awt/src/main holds exactly these files and nothing else.
+# scripts/vitralSubset.sh checks and refreshes them with the files of
+# scripts/vitralSubset.txt, against java/awt/src/main of the VITRAL checkout.
+vsdk/toolkit/io/image/ImagePersistenceAwt.java
+vsdk/toolkit/render/awt/AwtIndexedColorImageUncompressedRenderer.java
+vsdk/toolkit/render/awt/AwtRGBAImageUncompressedRenderer.java
+vsdk/toolkit/render/awt/AwtRGBImageUncompressedRenderer.java
+vsdk/toolkit/render/awt/AwtRenderer.java

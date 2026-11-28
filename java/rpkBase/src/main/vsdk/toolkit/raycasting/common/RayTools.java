@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.common;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;

@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
 
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.common.PathRayType;

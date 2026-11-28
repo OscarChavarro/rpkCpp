@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.environment.geometry.elements.Patch;

@@ -457,7 +457,7 @@ Returns true a component was chosen, false if absorbed
         if ( dChosen[0] ) {
             // Equation [ARVO1995b](6) in CoordinateSystem::setFromZAxis builds the
             // local tangent basis used by the spherical importance map.
-            coord.setFromZAxis(thisNode.m_normal);
+            coord.setFromZAxis(thisNode.m_normal, VSDK.EPSILON);
             glossy_exponent = 1;
             flags = (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT;
         } else {

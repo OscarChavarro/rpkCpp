@@ -3,7 +3,7 @@ package vsdk.toolkit.render.jogl.visualDebugTools;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.GalerkinOpenGLRenderer;

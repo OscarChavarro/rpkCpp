@@ -36,9 +36,9 @@ public final class ShadingContext {
         uv.x = inUv.x;
         uv.y = inUv.y;
         shadingFrame = new CoordinateSystem();
-        shadingFrame.setX(inShadingFrame.getX());
-        shadingFrame.setY(inShadingFrame.getY());
-        shadingFrame.setZ(inShadingFrame.getZ());
+        shadingFrame.setXAxis(inShadingFrame.getXAxis());
+        shadingFrame.setYAxis(inShadingFrame.getYAxis());
+        shadingFrame.setZAxis(inShadingFrame.getZAxis());
         material = inMaterial;
         flags = inFlags;
     }

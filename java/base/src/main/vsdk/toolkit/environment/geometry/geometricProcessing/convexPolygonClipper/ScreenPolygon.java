@@ -1,5 +1,7 @@
 package vsdk.toolkit.environment.geometry.geometricProcessing.convexPolygonClipper;
 
+import vsdk.toolkit.common.VSDKFatalException;
+
 /**
 Immutable convex polygon with homogeneous vertices, as clipped by
 ConvexWindowClipper. The mask is an interpolation mask whose kth bit
@@ -32,7 +34,8 @@ public final class ScreenPolygon {
         if ( inNumberOfVertices < 0 || inNumberOfVertices > MAXIMUM_SIDES_PER_POLYGON ) {
             System.err.printf("ScreenPolygon: invalid number of vertices: %d (max=%d)\n",
                 inNumberOfVertices, MAXIMUM_SIDES_PER_POLYGON);
-            System.exit(1);
+            throw new VSDKFatalException(String.format("ScreenPolygon: invalid number of vertices: %d (max=%d)",
+                inNumberOfVertices, MAXIMUM_SIDES_PER_POLYGON));
         }
         for ( int i = 0; i < inNumberOfVertices; i++ ) {
             vertices[i] = inVertices[i];

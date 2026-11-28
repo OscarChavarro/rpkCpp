@@ -5,7 +5,6 @@ import vsdk.toolkit.common.Random;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.galerkin.processing.ClusterCreationStrategy;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
-import vsdk.toolkit.io.image.DkColor;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathTracingState;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
 import vsdk.toolkit.raycasting.common.RayTracer;
@@ -191,7 +190,6 @@ Processes command line arguments
             mgfContext.radianceMethod = null;
             mgfContext.parserConfig.radianceMethod = null;
         }
-        DkColor.freeBuffer();
     }
 
     /**

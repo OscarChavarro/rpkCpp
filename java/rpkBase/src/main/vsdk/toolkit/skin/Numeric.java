@@ -1,4 +1,6 @@
-package vsdk.toolkit.common.linealAlgebra;
+package vsdk.toolkit.skin;
+
+import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 
 /**
 Tests whether two floating point numbers are equal within the given tolerance

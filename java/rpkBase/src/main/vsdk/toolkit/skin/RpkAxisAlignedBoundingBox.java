@@ -1,7 +1,6 @@
 package vsdk.toolkit.skin;
 
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 

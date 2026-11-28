@@ -5,7 +5,7 @@ import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupBatch;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.Canvas;
@@ -110,7 +110,7 @@ This routine was copied from uit.c, leaving out all interface related things
 
         Canvas.canvasPushMode();
 
-        String extension = ImageOutputHandle.imageFileExtension(fileName);
+        String extension = ImageOutputTarget.imageFileExtension(fileName);
         if ( extension != null && extension.regionMatches(true, 0, "logluv", 0, 6) ) {
             System.out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
         }

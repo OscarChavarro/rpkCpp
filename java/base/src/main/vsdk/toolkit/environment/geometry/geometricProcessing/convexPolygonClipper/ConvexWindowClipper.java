@@ -8,6 +8,8 @@
 
 package vsdk.toolkit.environment.geometry.geometricProcessing.convexPolygonClipper;
 
+import vsdk.toolkit.common.VSDKFatalException;
+
 /**
 Clipping against a convex window of [SUTH1974b]: the window is an intersection
 of homogeneous half-spaces, and the single-plane routine is the one of the
@@ -38,7 +40,7 @@ public final class ConvexWindowClipper {
     }
 
     /**
-    Stops the program when q, of ScreenPolygon::MAXIMUM_SIDES_PER_POLYGON
+    Throws a VSDKFatalException when q, of ScreenPolygon::MAXIMUM_SIDES_PER_POLYGON
     vertices, has no room for one more. Clipping a convex polygon against a plane
     adds at most one vertex, but an input that leaves no room for it, or one that
     is not convex, would otherwise write past the end of q.
@@ -48,7 +50,8 @@ public final class ConvexWindowClipper {
         if ( numberOfVertices >= ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON ) {
             System.err.printf("ConvexWindowClipper: too many vertices: %d (max=%d)\n",
                 numberOfVertices + 1, ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON);
-            System.exit(1);
+            throw new VSDKFatalException(String.format("ConvexWindowClipper: too many vertices: %d (max=%d)",
+                numberOfVertices + 1, ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON));
         }
     }
 

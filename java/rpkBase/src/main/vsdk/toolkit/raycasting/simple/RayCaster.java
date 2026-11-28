@@ -10,11 +10,11 @@ import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.ScreenBuffer;
 import vsdk.toolkit.render.SoftIdsWrapper;
@@ -58,7 +58,7 @@ public final class RayCaster extends RayTracer {
     @Override
     public void
     execute(
-        ImageOutputHandle ip,
+        ImageOutputTarget ip,
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
@@ -75,12 +75,12 @@ public final class RayCaster extends RayTracer {
     }
 
     @Override
-    public boolean saveImage(ImageOutputHandle imageOutputHandle) {
+    public boolean saveImage(ImageOutputTarget imageOutputTarget) {
         if (rayCaster == null) {
             return false;
         }
 
-        rayCaster.save(imageOutputHandle);
+        rayCaster.save(imageOutputTarget);
         return true;
     }
 
@@ -199,7 +199,7 @@ Determines the radiance of the nearest patch visible through the pixel
         screenBuffer.render();
     }
 
-    public void save(ImageOutputHandle ip) {
+    public void save(ImageOutputTarget ip) {
         screenBuffer.writeFile(ip);
     }
 }

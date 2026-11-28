@@ -42,7 +42,7 @@ Another reason for using this "comment-based conditional compilation" is
 to keep this class conceptually consistent with non-java VSDK realizations
 (particulary the corresponding C++ AQUYNZA class).
 */
-public class RGBImageUncompressed extends Image
+public class RGBImageUncompressed extends Image implements Cloneable
 {
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     @Serial private static final long serialVersionUID = 20060502L;

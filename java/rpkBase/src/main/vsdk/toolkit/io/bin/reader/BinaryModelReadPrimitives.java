@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.io.wrapper.PersistenceElement;
+import vsdk.toolkit.io.PersistenceElement;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.skin.BoundingBoxCoordinateIndex;

@@ -7,11 +7,11 @@ package vsdk.toolkit.io.wrl;
 import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.common.VSDK;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.io.wrapper.PersistenceElement;
+import vsdk.toolkit.io.PersistenceElement;
 import vsdk.toolkit.scene.Camera;
 
 public class VrmlWriter {

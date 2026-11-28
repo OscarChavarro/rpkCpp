@@ -12,7 +12,7 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RendererConfiguration;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.XxdfComponentFlag;
@@ -106,7 +106,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     @Override
     public void
     execute(
-        ImageOutputHandle ip,
+        ImageOutputTarget ip,
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
@@ -244,10 +244,10 @@ public final class BidirectionalPathRaytracer extends RayTracer {
     }
 
     @Override
-    public boolean saveImage(ImageOutputHandle imageOutputHandle) {
-        if ( imageOutputHandle != null && bidirectionalPathState.lastScreen != null ) {
+    public boolean saveImage(ImageOutputTarget imageOutputTarget) {
+        if ( imageOutputTarget != null && bidirectionalPathState.lastScreen != null ) {
             bidirectionalPathState.lastScreen.sync();
-            bidirectionalPathState.lastScreen.writeFile(imageOutputHandle);
+            bidirectionalPathState.lastScreen.writeFile(imageOutputTarget);
             return true;
         } else {
             return false;

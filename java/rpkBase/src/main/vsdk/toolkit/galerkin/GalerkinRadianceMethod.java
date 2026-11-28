@@ -23,7 +23,7 @@ import vsdk.toolkit.io.wrl.VrmlWriter;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
-import vsdk.toolkit.io.wrapper.PersistenceElement;
+import vsdk.toolkit.io.PersistenceElement;
 import vsdk.toolkit.galerkin.processing.ClusterCreationStrategy;
 import vsdk.toolkit.galerkin.processing.GatheringClusteredStrategy;
 import vsdk.toolkit.galerkin.processing.GatheringSimpleStrategy;

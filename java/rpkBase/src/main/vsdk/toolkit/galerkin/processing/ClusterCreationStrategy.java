@@ -3,7 +3,7 @@ package vsdk.toolkit.galerkin.processing;
 import vsdk.toolkit.galerkin.ColorRgbMath;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;

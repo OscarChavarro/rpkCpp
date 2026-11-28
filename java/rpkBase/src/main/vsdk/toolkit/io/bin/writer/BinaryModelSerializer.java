@@ -10,7 +10,7 @@ import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.element.PlanarFace;
-import vsdk.toolkit.io.wrapper.PersistenceElement;
+import vsdk.toolkit.io.PersistenceElement;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
 import vsdk.toolkit.io.context.ReaderContext;

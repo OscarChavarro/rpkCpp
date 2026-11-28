@@ -11,6 +11,8 @@ java {
 dependencies {
     implementation(project(":rpkBase"))
     implementation(project(":rpkOpenGL1"))
+    // ImagePersistence finds the PNG writer by reflection
+    runtimeOnly(project(":awt"))
 }
 
 application {

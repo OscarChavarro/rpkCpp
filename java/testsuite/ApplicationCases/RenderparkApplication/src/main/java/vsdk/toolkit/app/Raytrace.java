@@ -5,7 +5,7 @@ import java.util.Locale;
 import vsdk.toolkit.app.options.OptionsGroupRaytracing;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathRaytracer;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathTracingState;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
@@ -114,12 +114,7 @@ This routine sets the current raytracing method to be used
 
         long t = System.nanoTime();
 
-        ImageOutputHandle img = ImageOutputHandle.createRadianceImageOutputHandle(
-            fileName,
-            stream,
-            isPipe,
-            scene.camera.xSize,
-            scene.camera.ySize);
+        ImageOutputTarget img = ImageOutputTarget.create(fileName, stream, isPipe);
         if ( img == null ) {
             return;
         }
@@ -130,8 +125,6 @@ This routine sets the current raytracing method to be used
         else if ( !rayTracer.saveImage(img) ) {
             Logger.reportMessage(null, Logger.WARNING, "", String.format("No previous %s image available", rayTracer.getName()));
         }
-
-        ImageOutputHandle.deleteImageOutputHandle(img);
 
         System.out.printf(
             Locale.US,

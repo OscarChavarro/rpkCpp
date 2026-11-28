@@ -4,11 +4,12 @@ import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
+import vsdk.toolkit.media.RGBImageFloatUncompressed;
+import vsdk.toolkit.media.RGBImageUncompressed;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -201,8 +202,21 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
         SoftIds.softRenderPixels(camera.xSize, camera.ySize, rgbColor, requireToneMappingContext());
     }
 
-    public void writeFile(ImageOutputHandle ip) {
-        if (ip == null) {
+    public static ColorRgb gammaCorrect(ColorRgb rgb, final double[] gamma) {
+        double r = gamma[0] == 1.0 ? rgb.getR() : Math.pow(rgb.getR(), 1.0 / gamma[0]);
+        double g = gamma[1] == 1.0 ? rgb.getG() : Math.pow(rgb.getG(), 1.0 / gamma[1]);
+        double b = gamma[2] == 1.0 ? rgb.getB() : Math.pow(rgb.getB(), 1.0 / gamma[2]);
+        return new ColorRgb(r, g, b);
+    }
+
+    /**
+    Writes the image on the target: the radiances themselves for a high dynamic
+    range format, or else display RGB values (radiances tone mapped, then gamma
+    corrected). The rows are written from the top of the image, the last row of
+    this buffer.
+    */
+    public void writeFile(ImageOutputTarget target) {
+        if (target == null) {
             return;
         }
 
@@ -210,34 +224,54 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
             sync();
         }
 
-        System.err.printf("Writing %s file ... ", ip.driverName);
+        System.err.printf("Writing %s file ... ", target.getDriverName());
 
-        ToneMappingContext activeToneMapOptions = requireToneMappingContext();
-        ip.setToneMappingContext(activeToneMapOptions);
-        ip.gamma[0] = (double)activeToneMapOptions.gamma.getR(); // For default radiance -> display RGB
-        ip.gamma[1] = (double)activeToneMapOptions.gamma.getG();
-        ip.gamma[2] = (double)activeToneMapOptions.gamma.getB();
-        for (int i = camera.ySize - 1; i >= 0; i--) {
-            // Write scan lines
-            if (!isRgbImage()) {
-                ColorRgb[] scanline = new ColorRgb[camera.xSize];
-                int rowStart = i * camera.xSize;
-                for (int j = 0; j < camera.xSize; j++) {
-                    scanline[j] = radiance[rowStart + j];
-                }
-                ip.writeRadianceRGB(scanline);
+        int width = camera.xSize;
+        int height = camera.ySize;
+        if (target.getFormat() == ImageOutputTarget.Format.RADIANCE_RGBE) {
+            if (isRgbImage()) {
+                System.err.printf("%s does not support display RGB output.\n", target.getDriverName());
             }
             else {
-                double[] rgbFloatArray = new double[3 * camera.xSize];
-                int rowStart = i * camera.xSize;
-                for (int j = 0; j < camera.xSize; j++) {
-                    ColorRgb color = radiance[rowStart + j];
-                    int base = 3 * j;
-                    rgbFloatArray[base] = (double)color.getR();
-                    rgbFloatArray[base + 1] = (double)color.getG();
-                    rgbFloatArray[base + 2] = (double)color.getB();
+                RGBImageFloatUncompressed image = new RGBImageFloatUncompressed();
+                if (image.initNoFill(width, height)) {
+                    for (int row = 0; row < height; row++) {
+                        int i = height - 1 - row;
+                        for (int x = 0; x < width; x++) {
+                            image.putPixel(x, row, radiance[i * width + x]);
+                        }
+                    }
+                    target.writeRadianceImage(image);
                 }
-                ip.writeDisplayRGB(rgbFloatArray);
+            }
+        }
+        else {
+            ToneMappingContext activeToneMapOptions = requireToneMappingContext();
+            // For default radiance -> display RGB
+            double[] gamma = new double[] {
+                activeToneMapOptions.gamma.getR(),
+                activeToneMapOptions.gamma.getG(),
+                activeToneMapOptions.gamma.getB()};
+            RGBImageUncompressed image = new RGBImageUncompressed();
+            if (image.initNoFill(width, height)) {
+                for (int row = 0; row < height; row++) {
+                    int i = height - 1 - row;
+                    for (int x = 0; x < width; x++) {
+                        ColorRgb displayRgb = radiance[i * width + x];
+                        if (!isRgbImage()) {
+                            // Convert RGB radiance to display RGB
+                            displayRgb = ToneMap.radianceToRgb(displayRgb, activeToneMapOptions);
+                        }
+                        displayRgb = gammaCorrect(displayRgb, gamma);
+                        image.putPixel(
+                            x,
+                            row,
+                            (byte)(int)(displayRgb.getR() * 255.0),
+                            (byte)(int)(displayRgb.getG() * 255.0),
+                            (byte)(int)(displayRgb.getB() * 255.0));
+                    }
+                }
+                target.writeDisplayImage(image);
             }
         }
 
@@ -489,17 +523,8 @@ Screen resolution
             return;
         }
 
-        ImageOutputHandle ip = ImageOutputHandle.createRadianceImageOutputHandle(
-            fileName,
-            outputStream,
-            isPipe,
-            camera.xSize,
-            camera.ySize);
-
-        writeFile(ip);
-        if (ip != null) {
-            ImageOutputHandle.deleteImageOutputHandle(ip);
-        }
+        ImageOutputTarget target = ImageOutputTarget.create(fileName, outputStream, isPipe);
+        writeFile(target);
     }
 
     public void writeFile(String fileName) {

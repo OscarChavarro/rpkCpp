@@ -6,7 +6,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.environment.geometry.elements.RayExclusionSet;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.scene.SceneQuery;
@@ -29,9 +29,9 @@ Creates a coordinate system on the patch P with Z direction along the normal
         Vector3Dd y = new Vector3Dd();
         y = z.crossProduct(x);
 
-        coord.setX(x);
-        coord.setY(y);
-        coord.setZ(z);
+        coord.setXAxis(x);
+        coord.setYAxis(y);
+        coord.setZAxis(z);
     }
 
     /**

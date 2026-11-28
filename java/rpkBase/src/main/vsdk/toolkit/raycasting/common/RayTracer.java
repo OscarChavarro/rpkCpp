@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.environment.geometry.elements.Patch;
@@ -28,20 +28,20 @@ public abstract class RayTracer {
     // handle pointed by 'ip'
     public abstract void
     execute(
-        ImageOutputHandle ip,
+        ImageOutputTarget ip,
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
         RendererConfiguration renderOptions);
 
     // Saves last ray-traced image in the file describe dby the image output handle
-    public abstract boolean saveImage(ImageOutputHandle imageOutputHandle);
+    public abstract boolean saveImage(ImageOutputTarget imageOutputTarget);
 
     // Terminate raytracing computations
     public abstract void terminate();
 
     /**
-Initializes an ImageOutputHandle taking into account the image filename extension,
+Initializes an ImageOutputTarget taking into account the image filename extension,
 and performs raytracing
 */
     public static void
@@ -55,15 +55,10 @@ and performs raytracing
         ToneMappingContext toneMapOptions,
         RendererConfiguration renderOptions)
     {
-        ImageOutputHandle img = null;
+        ImageOutputTarget img = null;
 
         if (stream != null) {
-            img = ImageOutputHandle.createRadianceImageOutputHandle(
-                fileName,
-                stream,
-                isPipe,
-                scene.camera.xSize,
-                scene.camera.ySize);
+            img = ImageOutputTarget.create(fileName, stream, isPipe);
             if (img == null) {
                 return;
             }
@@ -71,10 +66,6 @@ and performs raytracing
 
         if (rayTracer != null) {
             rayTracer.execute(img, scene, radianceMethod, toneMapOptions, renderOptions);
-        }
-
-        if (img != null) {
-            ImageOutputHandle.deleteImageOutputHandle(img);
         }
     }
 }

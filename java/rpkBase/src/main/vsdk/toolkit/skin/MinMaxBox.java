@@ -1,6 +1,5 @@
 package vsdk.toolkit.skin;
 
-import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 
 public class MinMaxBox {

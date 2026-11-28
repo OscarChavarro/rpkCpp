@@ -6,9 +6,8 @@ import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -61,18 +60,12 @@ public final class RadianceImageExporter {
                 }
             }
         }
-        ImageOutputHandle imageOutputHandle = ImageOutputHandle.createRadianceImageOutputHandle(
-            fileName,
-            outputStream,
-            isPipe,
-            scene.camera.xSize,
-            scene.camera.ySize);
-        if (imageOutputHandle == null) {
+        ImageOutputTarget imageOutputTarget = ImageOutputTarget.create(fileName, outputStream, isPipe);
+        if (imageOutputTarget == null) {
             return;
         }
 
-        screenBuffer.writeFile(imageOutputHandle);
-        ImageOutputHandle.deleteImageOutputHandle(imageOutputHandle);
+        screenBuffer.writeFile(imageOutputTarget);
     }
 
     private static void clipUv(int numberOfVertices, double[] u, double[] v) {

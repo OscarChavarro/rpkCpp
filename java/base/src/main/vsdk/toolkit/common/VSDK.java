@@ -219,15 +219,14 @@ public class VSDK
 
 
     /**
-    When reporting a fatal error on desktop and mobile based applications
-    this class calls a process termination procedure as such Java's
-    System.exit. This should not be done (and is considered by some as
-    a bad practice) on some environments as such servlet based web applications
-    as the use of such a procedure would terminate the application container
-    process abnormally, affecting global system behavior.
+    VSDK no longer terminates the process on a fatal error (it used to call
+    System.exit, which would also bring down an application container such as
+    a servlet engine). A fatal error is raised to the caller as a
+    VSDKFatalException, and the calling application decides how to handle it.
 
-    This method could be used to instruct VSDK to do not terminate
-    the calling process on a fatal error situation.
+    This flag is kept for compatibility: when true (the default), fatal errors
+    raise that exception; when false, they raise it only if
+    setWithFatalExceptions(true) is set, and are only logged otherwise.
     @param flag
     */
     public static void setWithSystemExit(boolean flag)
@@ -237,7 +236,7 @@ public class VSDK
 
     /**
     Controls whether FATAL_ERROR reports should raise an unchecked exception
-    when process termination is disabled with setWithSystemExit(false).
+    when setWithSystemExit(false) is set.
     @param flag
     */
     public static void setWithFatalExceptions(boolean flag)

@@ -5,7 +5,7 @@ import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.EntityTypeContext;
 import vsdk.toolkit.io.context.MaterialContext;

@@ -1,9 +1,11 @@
 rootProject.name = "rpkJava"
 
-// Layers: base/ (the byte-identical VITRAL subset) <- rpkBase/ (RenderPark's
+// Layers: base/ (the byte-identical VITRAL subset) <- awt/ (VITRAL's AWT
+// image persistence plugin, PNG output) and rpkBase/ (RenderPark's
 // radiosity, raytracing and scene classes) <- rpkOpenGL1/ (OpenGL 1 viewer
 // over JOGL) <- the RenderPark application
 include(":base")
+include(":awt")
 include(":rpkBase")
 include(":rpkOpenGL1")
 include(":testsuite:ApplicationCases:RenderparkApplication")

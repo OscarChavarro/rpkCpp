@@ -32,14 +32,16 @@ public final class Logger
     {
     }
 
+    /**
+    A fatal error never terminates the process: it is raised to the caller as
+    an unchecked VSDKFatalException, and the calling application decides how
+    to handle it. `withSystemExit` (the former process-termination switch) and
+    `withFatalExceptions` both ask for that exception; with both off, the
+    report is only logged.
+    */
     private static void processFatalError(String method, String message, Exception cause)
     {
-        if ( withSystemExit ) {
-            System.exit(1);
-            return;
-        }
-
-        if ( !withFatalExceptions ) {
+        if ( !withSystemExit && !withFatalExceptions ) {
             return;
         }
 

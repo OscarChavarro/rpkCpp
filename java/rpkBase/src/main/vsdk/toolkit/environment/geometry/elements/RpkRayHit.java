@@ -21,7 +21,7 @@ public class RpkRayHit {
     private Vector3Dd texCoord; // Texture coordinate
     private Vector3Dd geometricNormal;
     private RpkMaterial material; // RpkMaterial of hit surface
-    // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
+    // Shading frame (Z = shading normal: hit->shadingFrame.getZAxis() == hit->normal)
     private CoordinateSystem shadingFrame;
     private Vector2Dd uv; // Bi-linear / barycentric parameters of hit
     // Flags indicating which of the above fields have been filled in
@@ -95,7 +95,7 @@ public class RpkRayHit {
         ShadingContext context = new ShadingContext(
             point,
             geometricNormal,
-            shadingFrame.getZ(),
+            shadingFrame.getZAxis(),
             texCoord,
             uv,
             shadingFrame,
@@ -153,9 +153,9 @@ public class RpkRayHit {
 
         Vector3Dd localNormal = new Vector3Dd(0.0, 0.0, 0.0);
         texCoord = localNormal;
-        shadingFrame.setX(localNormal);
-        shadingFrame.setY(localNormal);
-        shadingFrame.setZ(localNormal);
+        shadingFrame.setXAxis(localNormal);
+        shadingFrame.setYAxis(localNormal);
+        shadingFrame.setZAxis(localNormal);
         uv.x = 0.0;
         uv.y = 0.0;
 
@@ -193,18 +193,18 @@ public class RpkRayHit {
     */
     public boolean shadingNormal(Vector3Dd[] inNormal) {
         if (((flags & RayHitFlag.SHADING_FRAME) != 0) || ((flags & RayHitFlag.NORMAL) != 0)) {
-            inNormal[0] = shadingFrame.getZ();
+            inNormal[0] = shadingFrame.getZAxis();
             return true;
         }
 
-        Vector3Dd[] localNormal = {shadingFrame.getZ()};
+        Vector3Dd[] localNormal = {shadingFrame.getZAxis()};
         if (!pointShadingFrame(null, null, localNormal)) {
             return false;
         }
 
         flags |= RayHitFlag.NORMAL;
-        shadingFrame.setZ(localNormal[0]);
-        inNormal[0] = shadingFrame.getZ();
+        shadingFrame.setZAxis(localNormal[0]);
+        inNormal[0] = shadingFrame.getZAxis();
         return true;
     }
 
@@ -213,28 +213,28 @@ public class RpkRayHit {
     */
     public boolean setShadingFrame(CoordinateSystem frame) {
         if ((flags & RayHitFlag.SHADING_FRAME) != 0) {
-            frame.setX(shadingFrame.getX());
-            frame.setY(shadingFrame.getY());
-            frame.setZ(shadingFrame.getZ());
+            frame.setXAxis(shadingFrame.getXAxis());
+            frame.setYAxis(shadingFrame.getYAxis());
+            frame.setZAxis(shadingFrame.getZAxis());
             return true;
         }
 
-        Vector3Dd[] shadingX = {shadingFrame.getX()};
-        Vector3Dd[] shadingY = {shadingFrame.getY()};
-        Vector3Dd[] shadingZ = {shadingFrame.getZ()};
+        Vector3Dd[] shadingX = {shadingFrame.getXAxis()};
+        Vector3Dd[] shadingY = {shadingFrame.getYAxis()};
+        Vector3Dd[] shadingZ = {shadingFrame.getZAxis()};
 
         if (!pointShadingFrame(shadingX, shadingY, shadingZ)) {
             return false;
         }
 
-        shadingFrame.setX(shadingX[0]);
-        shadingFrame.setY(shadingY[0]);
-        shadingFrame.setZ(shadingZ[0]);
+        shadingFrame.setXAxis(shadingX[0]);
+        shadingFrame.setYAxis(shadingY[0]);
+        shadingFrame.setZAxis(shadingZ[0]);
         flags |= RayHitFlag.SHADING_FRAME | RayHitFlag.NORMAL;
 
-        frame.setX(shadingFrame.getX());
-        frame.setY(shadingFrame.getY());
-        frame.setZ(shadingFrame.getZ());
+        frame.setXAxis(shadingFrame.getXAxis());
+        frame.setYAxis(shadingFrame.getYAxis());
+        frame.setZAxis(shadingFrame.getZAxis());
         return true;
     }
 
@@ -293,11 +293,11 @@ public class RpkRayHit {
     }
 
     public Vector3Dd getNormal() {
-        return shadingFrame.getZ();
+        return shadingFrame.getZAxis();
     }
 
     public void setNormal(Vector3Dd n) {
-        shadingFrame.setZ(n);
+        shadingFrame.setZAxis(n);
     }
 
     public CoordinateSystem getShadingFrame() {
@@ -313,9 +313,9 @@ public class RpkRayHit {
     }
 
     public void setShadingFrame(Vector3Dd inX, Vector3Dd inY, Vector3Dd inZ) {
-        shadingFrame.setX(inX);
-        shadingFrame.setY(inY);
-        shadingFrame.setZ(inZ);
+        shadingFrame.setXAxis(inX);
+        shadingFrame.setYAxis(inY);
+        shadingFrame.setZAxis(inZ);
     }
 
     /**
@@ -335,9 +335,9 @@ public class RpkRayHit {
         texCoord = other.texCoord;
         geometricNormal = other.geometricNormal;
         material = other.material;
-        shadingFrame.setX(other.shadingFrame.getX());
-        shadingFrame.setY(other.shadingFrame.getY());
-        shadingFrame.setZ(other.shadingFrame.getZ());
+        shadingFrame.setXAxis(other.shadingFrame.getXAxis());
+        shadingFrame.setYAxis(other.shadingFrame.getYAxis());
+        shadingFrame.setZAxis(other.shadingFrame.getZAxis());
         uv.x = other.uv.x;
         uv.y = other.uv.y;
         flags = other.flags;

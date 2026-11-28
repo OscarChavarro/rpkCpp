@@ -4,7 +4,7 @@ import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4d;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;

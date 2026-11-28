@@ -15,7 +15,7 @@ import vsdk.toolkit.common.statistics.RayTracerStatistics;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.RendererConfiguration;
@@ -162,7 +162,7 @@ pointed to by 'fp'
 */
     @Override
     public void execute(
-        ImageOutputHandle ip,
+        ImageOutputTarget ip,
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
@@ -233,10 +233,10 @@ pointed to by 'fp'
     }
 
     @Override
-    public boolean saveImage(ImageOutputHandle imageOutputHandle) {
-        if ( imageOutputHandle != null && rayTracingState.lastScreen != null ) {
+    public boolean saveImage(ImageOutputTarget imageOutputTarget) {
+        if ( imageOutputTarget != null && rayTracingState.lastScreen != null ) {
             rayTracingState.lastScreen.sync();
-            rayTracingState.lastScreen.writeFile(imageOutputHandle);
+            rayTracingState.lastScreen.writeFile(imageOutputTarget);
             return true;
         } else {
             return false;

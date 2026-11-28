@@ -3,6 +3,7 @@ package vsdk.toolkit.raycasting.photonMap;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.material.BsdfComponent;
 
@@ -54,7 +55,7 @@ public class Photon {
         double[] theta = new double[1];
         // Equation [ARVO1995b](6): rectangularToSphericalCoord projects onto the
         // plane orthogonal to the local Z-axis before recovering (phi, theta).
-        coord.rectangularToSphericalCoord(m_dir, phi, theta);
+        coord.rectangularToSphericalCoord(m_dir, phi, theta, Numeric.EPSILON);
 
         // Compute r, s
         if ( flag == (byte)BsdfComponent.BRDF_DIFFUSE_COMPONENT ) {

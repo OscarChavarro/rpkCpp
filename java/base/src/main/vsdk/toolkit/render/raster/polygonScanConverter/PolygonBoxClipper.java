@@ -8,6 +8,8 @@
 
 package vsdk.toolkit.render.raster.polygonScanConverter;
 
+import vsdk.toolkit.common.VSDKFatalException;
+
 import vsdk.toolkit.environment.geometry.geometricProcessing.convexPolygonClipper.ConvexWindowClipper;
 import vsdk.toolkit.environment.geometry.geometricProcessing.convexPolygonClipper.HomogeneousHalfSpace;
 import vsdk.toolkit.environment.geometry.geometricProcessing.convexPolygonClipper.PolygonVertex;
@@ -57,7 +59,8 @@ public final class PolygonBoxClipper {
         if ( n + 6 > ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON ) {
             System.err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
                     n, ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON);
-            System.exit(1);
+            throw new VSDKFatalException(String.format("polyClipToBox: too many vertices: %d (max=%d-6)",
+                    n, ScreenPolygon.MAXIMUM_SIDES_PER_POLYGON));
         }
 
         // Homogeneous plane tests precede division by w ([SUTH1974b], p. 33).

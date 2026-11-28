@@ -1,0 +1,30 @@
+// VITRAL's AWT image persistence plugin: awt/src/main holds only the files
+// listed in scripts/vitralAwtSubset.txt, byte-identical to the VITRAL
+// checkout's java/awt/src/main (scripts/vitralSubset.sh --check).
+// vsdk.toolkit.io.image.ImagePersistence loads ImagePersistenceAwt by
+// reflection to write PNG files, so the application only needs it at run time.
+plugins {
+    id "java-library"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    api(project(":base"))
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main"]
+        }
+    }
+}
+
+tasks.named("compileJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/main")
+}

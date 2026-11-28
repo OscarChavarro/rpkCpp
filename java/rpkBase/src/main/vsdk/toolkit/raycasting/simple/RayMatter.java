@@ -9,10 +9,10 @@ import vsdk.toolkit.common.Random;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.RendererConfiguration;
-import vsdk.toolkit.common.linealAlgebra.Numeric;
+import vsdk.toolkit.skin.Numeric;
 import vsdk.toolkit.environment.geometry.element.Ray;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.io.image.ImageOutputHandle;
+import vsdk.toolkit.render.ImageOutputTarget;
 import vsdk.toolkit.raycasting.common.BoxFilter;
 import vsdk.toolkit.raycasting.common.NormalFilter;
 import vsdk.toolkit.raycasting.common.PixelFilter;
@@ -75,7 +75,7 @@ public final class RayMatter extends RayTracer {
     @Override
     public void
     execute(
-        ImageOutputHandle ip,
+        ImageOutputTarget ip,
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
@@ -96,12 +96,12 @@ public final class RayMatter extends RayTracer {
     }
 
     @Override
-    public boolean saveImage(ImageOutputHandle imageOutputHandle) {
+    public boolean saveImage(ImageOutputTarget imageOutputTarget) {
         if (rayMatter == null) {
             return false;
         }
 
-        rayMatter.save(imageOutputHandle);
+        rayMatter.save(imageOutputTarget);
         return true;
     }
 
@@ -185,7 +185,7 @@ public final class RayMatter extends RayTracer {
         screenBuffer.render();
     }
 
-    public void save(ImageOutputHandle ip) {
+    public void save(ImageOutputTarget ip) {
         screenBuffer.writeFile(ip);
     }
 }

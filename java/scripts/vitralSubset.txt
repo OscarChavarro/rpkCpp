@@ -33,12 +33,30 @@
 # FundamentalEntity, ModelElement, BinnedSahHierarchyNode, BinnedSahLeafVisitor,
 # BinnedSahStoppingLeafVisitor, _BinnedSahBox, _BinnedSahBuildTask,
 # ScatteringArithmetic).
+#
+# The lineal algebra classes CoordinateSystem and CoordinateAxis, RenderPark's
+# PersistenceElement (merged into VITRAL's io/PersistenceElement) and the image
+# output moved into VITRAL as in the C++ port: images are written by VITRAL's
+# ImagePersistence (PPM and PNG for display RGB, and the RGBE format of
+# Radiance for high dynamic range radiances, ImagePersistenceRgbe over a
+# RGBImageFloatUncompressed), which replace RenderPark's DkColor and image
+# output handles. The PNG writer of VITRAL's Java port is the ImageIO based
+# ImagePersistenceAwt plugin of its java/awt module, copied byte-identical in
+# awt/ (list in scripts/vitralAwtSubset.txt, checked by the same script);
+# RenderingElement is here as the base class of its AWT renderers.
+# With this change the subset follows VITRAL 7662979b (where these classes
+# were added; CoordinateSystem then renamed its axes xAxis, yAxis and zAxis, with
+# getXAxis/setXAxis style accessors), so fatal errors of the
+# VITRAL classes (Logger, ScreenPolygon, ConvexWindowClipper,
+# PolygonBoxClipper) raise a VSDKFatalException instead of calling System.exit.
 vsdk/toolkit/common/Entity.java
 vsdk/toolkit/common/EntityEvent.java
 vsdk/toolkit/common/EntityListener.java
 vsdk/toolkit/common/FundamentalEntity.java
 vsdk/toolkit/common/ModelElement.java
+vsdk/toolkit/common/NativeLibraryLoader.java
 vsdk/toolkit/common/VSDK.java
+vsdk/toolkit/common/VSDKException.java
 vsdk/toolkit/common/VSDKFatalException.java
 vsdk/toolkit/common/color/Cie.java
 vsdk/toolkit/common/color/ColorRgb.java
@@ -53,6 +71,8 @@ vsdk/toolkit/common/dataStructures/KDTree.java
 vsdk/toolkit/common/dataStructures/KDTreeAdapter.java
 vsdk/toolkit/common/dataStructures/KDTreeNode.java
 vsdk/toolkit/common/dataStructures/KDTreeVisitor.java
+vsdk/toolkit/common/linealAlgebra/CoordinateAxis.java
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.java
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.java
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.java
 vsdk/toolkit/common/linealAlgebra/Matrix4x4f.java
@@ -177,24 +197,36 @@ vsdk/toolkit/environment/scene/AffineToleranceMap.java
 vsdk/toolkit/environment/scene/InstanceRayCrossingBuffer.java
 vsdk/toolkit/environment/scene/SceneSolid.java
 vsdk/toolkit/io/PersistenceElement.java
+vsdk/toolkit/io/image/ImageNotRecognizedException.java
+vsdk/toolkit/io/image/ImagePersistence.java
+vsdk/toolkit/io/image/ImagePersistenceHelper.java
+vsdk/toolkit/io/image/ImagePersistenceRgbe.java
+vsdk/toolkit/io/image/ImagePersistenceSGI.java
+vsdk/toolkit/io/image/NativeImageReaderWrapper.java
+vsdk/toolkit/io/image/_NativeImageReaderWrapperHeaderInfo.java
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.java
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.java
 vsdk/toolkit/io/wrapper/PipeInputStream.java
 vsdk/toolkit/io/wrapper/PipeOutputStream.java
 vsdk/toolkit/io/wrapper/StreamOpenMode.java
 vsdk/toolkit/io/wrapper/Vector3DPrinter.java
+vsdk/toolkit/media/GrayScalePalette.java
 vsdk/toolkit/media/Image.java
 vsdk/toolkit/media/IndexedColorImageUncompressed.java
 vsdk/toolkit/media/MediaEntity.java
 vsdk/toolkit/media/NormalMap.java
+vsdk/toolkit/media/RGBAImageCompressed.java
 vsdk/toolkit/media/RGBAImageUncompressed.java
 vsdk/toolkit/media/RGBAPixel.java
 vsdk/toolkit/media/RGBColorPalette.java
+vsdk/toolkit/media/RGBImageFloatUncompressed.java
 vsdk/toolkit/media/RGBImageUncompressed.java
 vsdk/toolkit/media/RGBPixel.java
+vsdk/toolkit/media/RGBProceduralColorPalette.java
 vsdk/toolkit/processing/ComputationalGeometry.java
 vsdk/toolkit/processing/Containment.java
 vsdk/toolkit/processing/ProcessingElement.java
+vsdk/toolkit/render/RenderingElement.java
 vsdk/toolkit/render/raster/polygonScanConverter/PolygonBox.java
 vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.java
 vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipOutcome.java

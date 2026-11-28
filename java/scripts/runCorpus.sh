@@ -1,6 +1,6 @@
 #!/bin/sh
 # Runs the test corpus (or the images named as arguments) in parallel and waits
-# for every run to finish. Each run writes output/<image>.ppm and the logs
+# for every run to finish. Each run writes output/<image>.png and the logs
 # output/<log>.log (stdout) and output/<log>.err (stderr) used by
 # testReviewResults.sh, output/<log>.time (CPU time, wall clock and peak RSS,
 # read by timeReport.sh) and at its end output/<log>.status (exit status).
@@ -29,7 +29,7 @@ for line in $selection; do
     script=$(echo "$line" | cut -d'|' -f2)
     log=$(echo "$line" | cut -d'|' -f3)
     # A run that crashes must not leave the previous run's image to be compared
-    rm -f "output/$image.ppm" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
+    rm -f "output/$image.png" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
     corpusRunEntry "$SCRIPT_DIR" "$script" "$log" &
     pids="$pids $!"
 done
