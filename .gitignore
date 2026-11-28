@@ -80,5 +80,7 @@ AGENTS.md
 # Port references: the C++ golden images are the golden images of every port and are versioned;
 # for the other ports, images stay local and checksums and fingerprints are versioned
 turboc/etc/goldenImagesForTests/*.ppm
+turboc/etc/goldenImagesForTests/*.png
 java/etc/goldenImagesForTests/*.ppm
+java/etc/goldenImagesForTests/*.png
 typescript/etc/goldenImagesForTests/*.ppm

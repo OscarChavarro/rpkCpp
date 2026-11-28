@@ -27,7 +27,7 @@ class RpkRayHit {
     Vector3Dd texCoord; // Texture coordinate
     Vector3Dd geometricNormal;
     const RpkMaterial *material; // Material of hit surface
-    CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
+    CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.getZAxis() == hit->normal)
     Vector2Dd uv; // Bi-linear / barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
@@ -142,12 +142,12 @@ RpkRayHit::getGeometricNormal() const {
 
 inline Vector3Dd
 RpkRayHit::getNormal() const {
-    return shadingFrame.getZ();
+    return shadingFrame.getZAxis();
 }
 
 inline void
 RpkRayHit::setNormal(const Vector3Dd *n) {
-    shadingFrame.setZ(*n);
+    shadingFrame.setZAxis(*n);
 }
 
 inline CoordinateSystem
@@ -162,9 +162,9 @@ RpkRayHit::getMaterial() const {
 
 inline void
 RpkRayHit::setShadingFrame(const Vector3Dd *inX, const Vector3Dd *inY, const Vector3Dd *inZ) {
-    shadingFrame.setX(*inX);
-    shadingFrame.setY(*inY);
-    shadingFrame.setZ(*inZ);
+    shadingFrame.setXAxis(*inX);
+    shadingFrame.setYAxis(*inY);
+    shadingFrame.setZAxis(*inZ);
 }
 
 #endif

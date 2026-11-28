@@ -42,9 +42,10 @@ ImagePersistenceRgbe::rgbToRgbe(unsigned char *rgbe, double r, double g, double 
         return;
     }
 
-    // d = mantissa * 2^e, with mantissa in [0.5, 1)
-    int e = java::Math::getExponent(d) + 1;
-    if ( e > 255 - EXPONENT_EXCESS ) {
+    // d = mantissa * 2^e, with mantissa in [0.5, 1); compared before adding
+    // one, as the exponent of an infinite d is the largest int
+    int e = java::Math::getExponent(d);
+    if ( e >= 255 - EXPONENT_EXCESS ) {
         // Too large for the exponent byte: the brightest representable value
         rgbe[RED] = 255;
         rgbe[GREEN] = 255;
@@ -52,6 +53,7 @@ ImagePersistenceRgbe::rgbToRgbe(unsigned char *rgbe, double r, double g, double 
         rgbe[EXPONENT] = 255;
         return;
     }
+    e++;
     const double mantissa = java::Math::scalb(d, -e);
     d = mantissa * 255.9999 / d;
 

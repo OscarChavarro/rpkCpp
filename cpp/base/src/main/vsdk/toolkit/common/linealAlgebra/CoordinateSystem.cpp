@@ -7,20 +7,20 @@ When inZ is within epsilon of the world Z-axis, world X is taken as X-axis
 */
 void
 CoordinateSystem::setFromZAxis(const Vector3Dd *inZ, double epsilon) {
-    Z = *inZ;
+    zAxis = *inZ;
 
     // Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
     // X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
     double zz = java::Math::sqrt(1.0 - inZ->z() * inZ->z());
 
     if ( zz < epsilon ) {
-        X = Vector3Dd(1.0, 0.0, 0.0);
+        xAxis = Vector3Dd(1.0, 0.0, 0.0);
     } else {
-        X = Vector3Dd(inZ->y() / zz, -inZ->x() / zz, 0.0);
+        xAxis = Vector3Dd(inZ->y() / zz, -inZ->x() / zz, 0.0);
     }
 
     // Section [ARVO1995b].2: complete a local orthonormal frame to express spherical angles.
-    Y = Z.crossProduct(X);
+    yAxis = zAxis.crossProduct(xAxis);
 }
 
 /**
@@ -31,7 +31,7 @@ XY plane
 */
 void
 CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta, double epsilon) const {
-    double z = C->dotProduct(Z);
+    double z = C->dotProduct(zAxis);
     if ( z > 1.0 ) {
         z = 1.0;
     }
@@ -45,10 +45,10 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, d
     Vector3Dd c;
 
     // Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
-    c = (*C).add(Z.multiply(static_cast<double>(-z)));
+    c = (*C).add(zAxis.multiply(static_cast<double>(-z)));
     c = c.normalized(epsilon);
-    double x = c.dotProduct(X);
-    double y = c.dotProduct(Y);
+    double x = c.dotProduct(xAxis);
+    double y = c.dotProduct(yAxis);
 
     if ( x > 1.0 ) {
         x = 1.0;
@@ -76,8 +76,8 @@ CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *proba
     double sin_theta = static_cast<double>(java::Math::sqrt(xi2));
 
     Vector3Dd dir;
-    dir = X.multiply(cos_phi).add(Y.multiply(sin_phi));
-    dir = dir.multiply(sin_theta).add(Z.multiply(cos_theta));
+    dir = xAxis.multiply(cos_phi).add(yAxis.multiply(sin_phi));
+    dir = dir.multiply(sin_theta).add(zAxis.multiply(cos_theta));
 
     *probabilityDensityFunction = cos_theta / M_PI;
 
@@ -102,8 +102,8 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     double sinTheta = static_cast<double>(java::Math::sqrt(1.0 - cosTheta * cosTheta));
 
     Vector3Dd dir;
-    dir = X.multiply(cosPhi).add(Y.multiply(sinPhi));
-    dir = dir.multiply(sinTheta).add(Z.multiply(cosTheta));
+    dir = xAxis.multiply(cosPhi).add(yAxis.multiply(sinPhi));
+    dir = dir.multiply(sinTheta).add(zAxis.multiply(cosTheta));
     *probabilityDensityFunction = (n + 1.0) * java::Math::pow(static_cast<double>(cosTheta), n) / (2.0 * M_PI);
 
     return dir;

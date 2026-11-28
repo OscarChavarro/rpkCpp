@@ -27,9 +27,9 @@ Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     Vector3Dd y;
     y = z.crossProduct(x);
 
-    coord->setX(x);
-    coord->setY(y);
-    coord->setZ(z);
+    coord->setXAxis(x);
+    coord->setYAxis(y);
+    coord->setZAxis(z);
 }
 
 /**

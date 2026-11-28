@@ -63,9 +63,9 @@ RpkRayHit::init(
     Vector3Dd localNormal;
     localNormal = Vector3Dd(0, 0, 0);
     texCoord = localNormal;
-    shadingFrame.setX(localNormal);
-    shadingFrame.setY(localNormal);
-    shadingFrame.setZ(localNormal);
+    shadingFrame.setXAxis(localNormal);
+    shadingFrame.setYAxis(localNormal);
+    shadingFrame.setZAxis(localNormal);
     uv.x = 0.0;
     uv.y = 0.0;
     return hitInitialised();
@@ -123,18 +123,18 @@ of shading X and Y axis if possible
 bool
 RpkRayHit::shadingNormal(Vector3Dd *inNormal) {
     if ( flags & RayHitFlag::SHADING_FRAME || flags & RayHitFlag::NORMAL ) {
-        *inNormal = shadingFrame.getZ();
+        *inNormal = shadingFrame.getZAxis();
         return true;
     }
 
-    Vector3Dd localNormal = shadingFrame.getZ();
+    Vector3Dd localNormal = shadingFrame.getZAxis();
     if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
         return false;
     }
 
     flags |= RayHitFlag::NORMAL;
-    shadingFrame.setZ(localNormal);
-    *inNormal = shadingFrame.getZ();
+    shadingFrame.setZAxis(localNormal);
+    *inNormal = shadingFrame.getZAxis();
     return true;
 }
 
@@ -192,7 +192,7 @@ RpkRayHit::pointShadingFrame(Vector3Dd *inX, Vector3Dd *inY, Vector3Dd *inZ) {
         ShadingContext context(
             getPoint(),
             getGeometricNormal(),
-            shadingFrame.getZ(),
+            shadingFrame.getZAxis(),
             texCoord,
             uv,
             shadingFrame,
@@ -205,7 +205,7 @@ RpkRayHit::pointShadingFrame(Vector3Dd *inX, Vector3Dd *inY, Vector3Dd *inZ) {
         ShadingContext context(
             getPoint(),
             getGeometricNormal(),
-            shadingFrame.getZ(),
+            shadingFrame.getZAxis(),
             texCoord,
             uv,
             shadingFrame,
@@ -229,27 +229,27 @@ Fills in shading frame: Z is the shading normal
 bool
 RpkRayHit::setShadingFrame(CoordinateSystem *frame) {
     if ( flags & RayHitFlag::SHADING_FRAME ) {
-        frame->setX(shadingFrame.getX());
-        frame->setY(shadingFrame.getY());
-        frame->setZ(shadingFrame.getZ());
+        frame->setXAxis(shadingFrame.getXAxis());
+        frame->setYAxis(shadingFrame.getYAxis());
+        frame->setZAxis(shadingFrame.getZAxis());
         return true;
     }
 
-    Vector3Dd shadingX = shadingFrame.getX();
-    Vector3Dd shadingY = shadingFrame.getY();
-    Vector3Dd shadingZ = shadingFrame.getZ();
+    Vector3Dd shadingX = shadingFrame.getXAxis();
+    Vector3Dd shadingY = shadingFrame.getYAxis();
+    Vector3Dd shadingZ = shadingFrame.getZAxis();
 
     if ( !pointShadingFrame(&shadingX, &shadingY, &shadingZ) ) {
         return false;
     }
 
-    shadingFrame.setX(shadingX);
-    shadingFrame.setY(shadingY);
-    shadingFrame.setZ(shadingZ);
+    shadingFrame.setXAxis(shadingX);
+    shadingFrame.setYAxis(shadingY);
+    shadingFrame.setZAxis(shadingZ);
     flags |= RayHitFlag::SHADING_FRAME | RayHitFlag::NORMAL;
 
-    frame->setX(shadingFrame.getX());
-    frame->setY(shadingFrame.getY());
-    frame->setZ(shadingFrame.getZ());
+    frame->setXAxis(shadingFrame.getXAxis());
+    frame->setYAxis(shadingFrame.getYAxis());
+    frame->setZAxis(shadingFrame.getZAxis());
     return true;
 }
