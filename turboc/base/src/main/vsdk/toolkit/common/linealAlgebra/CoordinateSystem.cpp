@@ -1,36 +1,38 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
 
 /**
-Creates a coordinate system with the given UNIT direction vector as inZ-axis
+Creates a coordinate system with the given UNIT direction vector as inZ-axis.
+When inZ is within epsilon of the world Z-axis, world X is taken as X-axis
 */
 void
-CoordinateSystem::setFromZAxis(const Vector3Dd *inZ) {
-    Z = *inZ;
+CoordinateSystem::setFromZAxis(const Vector3Dd *inZ, double epsilon) {
+    zAxis = *inZ;
 
     // Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
     // X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
     double zz = Math::sqrt(1.0 - inZ->z() * inZ->z());
 
-    if ( zz < VSDK::EPSILON ) {
-        X = Vector3Dd(1.0, 0.0, 0.0);
+    if ( zz < epsilon ) {
+        xAxis = Vector3Dd(1.0, 0.0, 0.0);
     } else {
-        X = Vector3Dd(inZ->y() / zz, -inZ->x() / zz, 0.0);
+        xAxis = Vector3Dd(inZ->y() / zz, -inZ->x() / zz, 0.0);
     }
 
     // Section [ARVO1995b].2: complete a local orthonormal frame to express spherical angles.
-    Y = Z.crossProduct(X);
+    yAxis = zAxis.crossProduct(xAxis);
 }
 
 /**
 Given a unit vector and a coordinate system, this routine computes the spherical
-coordinates phi and theta of the vector with respect to the coordinate system
+coordinates phi and theta of the vector with respect to the coordinate system.
+epsilon is the length tolerance used to normalize the projection of C onto the
+XY plane
 */
 void
-CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta) const {
-    double z = C->dotProduct(Z);
+CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, double *theta, double epsilon) const {
+    double z = C->dotProduct(zAxis);
     if ( z > 1.0 ) {
         z = 1.0;
     }
@@ -44,10 +46,10 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3Dd *C, double *phi, d
     Vector3Dd c;
 
     // Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
-    c = (*C).add(Z.multiply(((double)(-z))));
-    c = c.normalized(Numeric::EPSILON);
-    double x = c.dotProduct(X);
-    double y = c.dotProduct(Y);
+    c = (*C).add(zAxis.multiply(((double)(-z))));
+    c = c.normalized(epsilon);
+    double x = c.dotProduct(xAxis);
+    double y = c.dotProduct(yAxis);
 
     if ( x > 1.0 ) {
         x = 1.0;
@@ -75,8 +77,8 @@ CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *proba
     double sin_theta = ((double)(Math::sqrt(xi2)));
 
     Vector3Dd dir;
-    dir = X.multiply(cos_phi).add(Y.multiply(sin_phi));
-    dir = dir.multiply(sin_theta).add(Z.multiply(cos_theta));
+    dir = xAxis.multiply(cos_phi).add(yAxis.multiply(sin_phi));
+    dir = dir.multiply(sin_theta).add(zAxis.multiply(cos_theta));
 
     *probabilityDensityFunction = cos_theta / M_PI;
 
@@ -101,8 +103,8 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     double sinTheta = ((double)(Math::sqrt(1.0 - cosTheta * cosTheta)));
 
     Vector3Dd dir;
-    dir = X.multiply(cosPhi).add(Y.multiply(sinPhi));
-    dir = dir.multiply(sinTheta).add(Z.multiply(cosTheta));
+    dir = xAxis.multiply(cosPhi).add(yAxis.multiply(sinPhi));
+    dir = dir.multiply(sinTheta).add(zAxis.multiply(cosTheta));
     *probabilityDensityFunction = (n + 1.0) * Math::pow(((double)(cosTheta)), n) / (2.0 * M_PI);
 
     return dir;

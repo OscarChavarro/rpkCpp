@@ -2,7 +2,7 @@
 #define __RPK_AXIS_ALIGNED_BOX__
 
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/environment/geometry/element/Ray.h"
 #include "vsdk/toolkit/skin/BoundingBoxCoordinateIndex.h"

@@ -1,5 +1,6 @@
+#include "vsdk/toolkit/common/VSDK.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
@@ -171,7 +172,7 @@ PhongEmitDistFunc::phongEdfSample(
 
         // Section [ARVO1995b].2: two independent samples (xi1, xi2) in [0,1]^2
         // are mapped to a direction on the hemisphere after building a local frame.
-        coord.setFromZAxis(&normal);
+        coord.setFromZAxis(&normal, VSDK::EPSILON);
         dir = coord.sampleHemisphereCosTheta(xi1, xi2, &sProbabilityDensityFunction);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = sProbabilityDensityFunction;

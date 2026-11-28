@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
@@ -210,7 +211,7 @@ PhongBidirReflDistFunc::sample(
         x1 = x1 / (localAverageKd / scatteredPower);
 
         // Section [ARVO1995b].2: square-to-sphere mapping in a frame aligned with the surface normal.
-        coord.setFromZAxis(normal);
+        coord.setFromZAxis(normal, VSDK::EPSILON);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
         double tmpFloat = idealDir.dotProduct(newDir);
@@ -225,7 +226,7 @@ PhongBidirReflDistFunc::sample(
         x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
         // Section [ARVO1995b].2: same 2D random-parameter mapping, but around the ideal reflection axis.
-        coord.setFromZAxis(&idealDir);
+        coord.setFromZAxis(&idealDir, VSDK::EPSILON);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
         double cosTheta = normal->dotProduct(newDir);

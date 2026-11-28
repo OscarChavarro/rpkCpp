@@ -92,7 +92,7 @@ Raytrace::rayTraceSaveImage(
     const char *fileName,
     OutputStream *stream,
     int isPipe,
-    const Scene *scene,
+    const Scene * /*scene*/,
     const RayTracer *rayTracer)
 {
     long t;
@@ -103,12 +103,7 @@ Raytrace::rayTraceSaveImage(
 
     t = System::nanoTime();
 
-    ImageOutputHandle *img = ImageOutputHandle::createRadianceImageOutputHandle(
-        fileName,
-        stream,
-        isPipe,
-        scene->camera->xSize,
-        scene->camera->ySize);
+    ImageOutputTarget *img = ImageOutputTarget::create(fileName, stream, isPipe);
     if ( !img ) {
         return;
     }
@@ -119,7 +114,7 @@ Raytrace::rayTraceSaveImage(
         Logger::reportMessage("Raytrace", Logger::WARNING, "", LoggerFormat::format("No previous %s image available", rayTracer->getName()));
     }
 
-    ImageOutputHandle::deleteImageOutputHandle(img);
+    delete img;
 
     System::out.printf(
         "Raytrace save image: %g secs.\n",

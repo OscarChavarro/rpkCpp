@@ -1,5 +1,5 @@
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -59,7 +59,7 @@ pointed to by 'fp'
 */
 void
 StochasticRaytracer::execute(
-    ImageOutputHandle *ip,
+    ImageOutputTarget *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
@@ -115,10 +115,10 @@ StochasticRaytracer::execute(
 }
 
 bool
-StochasticRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( imageOutputHandle && rayTracingState.lastScreen ) {
+StochasticRaytracer::saveImage(ImageOutputTarget *imageOutputTarget) const {
+    if ( imageOutputTarget && rayTracingState.lastScreen ) {
         rayTracingState.lastScreen->sync();
-        rayTracingState.lastScreen->writeFile(imageOutputHandle);
+        rayTracingState.lastScreen->writeFile(imageOutputTarget);
         return true;
     } else {
         return false;

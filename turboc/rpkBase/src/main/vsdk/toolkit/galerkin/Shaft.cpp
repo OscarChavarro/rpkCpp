@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/common/statistics/Statistics.h"
 #include "vsdk/toolkit/skin/Compound.h"

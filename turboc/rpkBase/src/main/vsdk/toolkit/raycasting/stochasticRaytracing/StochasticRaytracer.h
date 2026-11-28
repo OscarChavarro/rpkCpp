@@ -39,9 +39,9 @@ class StochasticRaytracer: public RayTracer{ private:
     void initialize(const ArrayList<Patch *> *lightPatches) const;
 
     void
-    execute( ImageOutputHandle *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
+    execute( ImageOutputTarget *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
 
-    bool saveImage(ImageOutputHandle *imageOutputHandle) const;
+    bool saveImage(ImageOutputTarget *imageOutputTarget) const;
     void terminate() const;
 };
 

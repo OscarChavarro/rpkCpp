@@ -31,16 +31,16 @@ class RayMatter: public RayTracer{ private:
     void createFilter();
     void doMatting(const Camera *camera, const SceneQuery *sceneQuery, SceneQueryWorkspace *sceneWorldSceneQueryWorkspace);
     void display();
-    void save(ImageOutputHandle *ip);
+    void save(ImageOutputTarget *ip);
 
     void defaults();
     const char *getName() const;
     void initialize(const ArrayList<Patch *> *lightPatches) const;
 
     void
-    execute( ImageOutputHandle *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
+    execute( ImageOutputTarget *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
 
-    bool saveImage(ImageOutputHandle *imageOutputHandle) const;
+    bool saveImage(ImageOutputTarget *imageOutputTarget) const;
     void terminate() const;
 };
 

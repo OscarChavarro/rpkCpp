@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/raycasting/common/Raytools.h"
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"

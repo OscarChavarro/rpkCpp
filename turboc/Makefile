@@ -12,6 +12,14 @@ CXXFLAGS ?= -O0 -g -Wall -fno-exceptions -fno-rtti
 LDFLAGS ?=
 LDLIBS ?= -lm
 
+# PNG output of VITRAL's ImagePersistence (the golden images are PNG files):
+# build with WITH_PNG= on a system without libpng (PPM and PIC output only)
+WITH_PNG ?= 1
+ifneq ($(WITH_PNG),)
+CPPFLAGS += -DVITRAL_WITH_PNG
+LDLIBS += -lpng -lz
+endif
+
 ROOT_DIR := .
 # base/ holds only the VITRAL subset (scripts/vitralSubset.txt); RenderPark's
 # own classes are in rpkBase/

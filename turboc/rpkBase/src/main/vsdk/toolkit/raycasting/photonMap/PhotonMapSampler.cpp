@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 
 /**
@@ -440,7 +440,7 @@ PhotonMapSampler::gdSample(
     if ( dChosen ) {
         // Equation [ARVO1995b](6) in CoordinateSystem::setFromZAxis builds the
         // local tangent basis used by the spherical importance map.
-        coord.setFromZAxis(&thisNode->m_normal);
+        coord.setFromZAxis(&thisNode->m_normal, VSDK::EPSILON);
         glossy_exponent = 1;
         flags = BRDF_DIFFUSE_COMPONENT;
     } else {

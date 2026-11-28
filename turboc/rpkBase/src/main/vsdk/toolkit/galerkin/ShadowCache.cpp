@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
 #include "vsdk/toolkit/galerkin/ShadowCache.h"
 

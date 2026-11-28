@@ -1,13 +1,13 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/logging/LoggerFormat.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
-
-const bool PersistenceElement::bigEndianArchitecture = false;
+const BOOLEAN PersistenceElement::bigEndianArchitecture = FALSE;
 unsigned char PersistenceElement::byteBuffer1byte[1] = {0};
 unsigned char PersistenceElement::byteBuffer2byte[2] = {0, 0};
 unsigned char PersistenceElement::byteBuffer4byte[4] = {0, 0, 0, 0};
@@ -37,7 +37,7 @@ PersistenceElement::writeByte(OutputStream &os, unsigned char value) {
 }
 
 void
-PersistenceElement::writeBool(OutputStream &os, bool value) {
+PersistenceElement::writeBool(OutputStream &os, BOOLEAN value) {
     writeByte(os, ((unsigned char)(value ? 1 : 0)));
 }
 
@@ -51,7 +51,7 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::readBytes(InputStream &is, unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == NULL || length < 0 ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readBytes", LoggerFormat::format("%s", "invalid buffer"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readBytes", "invalid buffer");
         return;
     }
     int offset = 0;
@@ -66,7 +66,7 @@ PersistenceElement::readBytes(InputStream &is, unsigned char *bytesBuffer, int l
 
     if ( offset < length ) {
         memset(bytesBuffer + offset, 0, ((size_t)(length - offset)));
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readBytes", LoggerFormat::format("could not read requested length (%d/%d)", offset, length));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readBytes", "could not read requested length");
     }
 }
 
@@ -80,7 +80,7 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::writeBytes(OutputStream &os, const unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == NULL || length < 0 ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::writeBytes", LoggerFormat::format("%s", "invalid arguments"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "writeBytes", "invalid arguments");
         return;
     }
     if ( length == 0 ) {
@@ -102,8 +102,8 @@ of short type.
 void
 PersistenceElement::signedShort2byteArrayDirect(
     unsigned char *outArrayToBeExported,
-    const int inStartIndexInsideArray,
-    const int inNumberToConvert)
+    int inStartIndexInsideArray,
+    int inNumberToConvert)
 {
     int i;
     const int length = 2;
@@ -257,8 +257,31 @@ PersistenceElement::byteArray2floatDirect(const unsigned char *arr, int start) {
         i++;
     }
 
-    float out = 0.0f;
+    float out = 0.0F;
     memcpy(&out, &accum, sizeof(float));
+    return out;
+}
+
+double
+PersistenceElement::byteArray2doubleDirect(const unsigned char *arr, int start) {
+    int i;
+    const int len = 8;
+    int cnt;
+    unsigned char tmp[len];
+
+    for ( i = start, cnt = 0; i < (start + len); i++, cnt++ ) {
+        tmp[cnt] = arr[i];
+    }
+
+    unsigned long long accum = 0;
+    i = 0;
+    for ( int shiftBy = 0; shiftBy < 64; shiftBy += 8 ) {
+        accum |= ((unsigned long long)(tmp[i] & 0xff)) << shiftBy;
+        i++;
+    }
+
+    double out = 0.0;
+    memcpy(&out, &accum, sizeof(double));
     return out;
 }
 
@@ -280,8 +303,31 @@ PersistenceElement::byteArray2floatInvert(const unsigned char *arr, int start) {
         i++;
     }
 
-    float out = 0.0f;
+    float out = 0.0F;
     memcpy(&out, &accum, sizeof(float));
+    return out;
+}
+
+double
+PersistenceElement::byteArray2doubleInvert(const unsigned char *arr, int start) {
+    int i;
+    const int len = 8;
+    int cnt = 7;
+    unsigned char tmp[len];
+    for ( i = start; i < (start + len); i++ ) {
+        tmp[cnt] = arr[i];
+        cnt--;
+    }
+
+    unsigned long long accum = 0;
+    i = 0;
+    for ( int shiftBy = 0; shiftBy < 64; shiftBy += 8 ) {
+        accum |= ((unsigned long long)(tmp[i] & 0xff)) << shiftBy;
+        i++;
+    }
+
+    double out = 0.0;
+    memcpy(&out, &accum, sizeof(double));
     return out;
 }
 
@@ -371,6 +417,22 @@ PersistenceElement::byteArray2floatLE(const unsigned char *arr, int start) {
     return byteArray2floatDirect(arr, start);
 }
 
+double
+PersistenceElement::byteArray2doubleLE(const unsigned char *arr, int start) {
+    if ( bigEndianArchitecture ) {
+        return byteArray2doubleInvert(arr, start);
+    }
+    return byteArray2doubleDirect(arr, start);
+}
+
+double
+PersistenceElement::byteArray2doubleBE(const unsigned char *arr, int start) {
+    if ( bigEndianArchitecture ) {
+        return byteArray2doubleDirect(arr, start);
+    }
+    return byteArray2doubleInvert(arr, start);
+}
+
 int
 PersistenceElement::readSignedShortLE(InputStream &is) {
     readBytes(is, byteBuffer2byte, 2);
@@ -412,6 +474,22 @@ PersistenceElement::writeInt32LE(OutputStream &os, int num) {
     writeLongLE(os, ((long)(num)));
 }
 
+void
+PersistenceElement::writeInt64LE(OutputStream &os, long long num) {
+    const unsigned long long bits = ((unsigned long long)(num));
+    const int low = ((int)(bits & VSDK_ULL(0xFFFFFFFF)));
+    const int high = ((int)((bits >> 32) & VSDK_ULL(0xFFFFFFFF)));
+    writeInt32LE(os, low);
+    writeInt32LE(os, high);
+}
+
+void
+PersistenceElement::writeDoubleLE(OutputStream &os, double num) {
+    unsigned long long bits = 0;
+    memcpy(&bits, &num, sizeof(double));
+    writeInt64LE(os, ((long long)(bits)));
+}
+
 /**
 Pending to check. Is this really managing 64 bit long integers?
 @param is
@@ -429,12 +507,24 @@ PersistenceElement::readFloatLE(InputStream &is) {
     return byteArray2floatLE(byteBuffer4byte, 0);
 }
 
+double
+PersistenceElement::readDoubleLE(InputStream &is) {
+    readBytes(is, byteBuffer8byte, 8);
+    return byteArray2doubleLE(byteBuffer8byte, 0);
+}
+
+double
+PersistenceElement::readDoubleBE(InputStream &is) {
+    readBytes(is, byteBuffer8byte, 8);
+    return byteArray2doubleBE(byteBuffer8byte, 0);
+}
+
 float
 PersistenceElement::readFloatBE(InputStream &is) {
     readBytes(is, byteBuffer4byte, 4);
     const long i = byteArray2longBE(byteBuffer4byte, 0);
     const unsigned int j = ((unsigned int)(i));
-    float out = 0.0f;
+    float out = 0.0F;
     memcpy(&out, &j, sizeof(float));
     return out;
 }
@@ -480,7 +570,7 @@ PersistenceElement::readAsciiFixedSizeString(InputStream &is, int size) {
 
     char *msg = ((char *)(malloc(((size_t)(size)) + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiFixedSizeString", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiFixedSizeString", "allocation failure");
         return duplicateCString("");
     }
     memcpy(msg, bytesForString.data(), ((size_t)(size)));
@@ -501,7 +591,7 @@ PersistenceElement::readAsciiString(InputStream &is) {
         readBytes(is, character, 1);
         if ( character[0] != 0x00 ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiString", LoggerFormat::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiString", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -510,7 +600,7 @@ PersistenceElement::readAsciiString(InputStream &is) {
     const size_t length = ((size_t)(bytes.size()));
     char *msg = ((char *)(malloc(length + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiString", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiString", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -520,7 +610,7 @@ PersistenceElement::readAsciiString(InputStream &is) {
     return msg;
 }
 
-bool
+BOOLEAN
 PersistenceElement::buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]) {
     const int a = signedByte2unsignedInteger(arr[0]);
     const int b = signedByte2unsignedInteger(arr[1]);
@@ -528,10 +618,10 @@ PersistenceElement::buildUtf8Char(const unsigned char arr[2], unsigned char outB
     if ( ((a >> 5) == 0x06) && ((b >> 6) == 0x02) ) {
         outBytes[0] = arr[0];
         outBytes[1] = arr[1];
-        return true;
+        return TRUE;
     }
 
-    return false;
+    return FALSE;
 }
 
 char *
@@ -546,7 +636,7 @@ PersistenceElement::readUtf8String(InputStream &is) {
 
         if ( character[0] != 0x00 && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", LoggerFormat::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
                 return duplicateCString("");
             }
         } else if ( character[0] != 0x00 ) {
@@ -558,7 +648,7 @@ PersistenceElement::readUtf8String(InputStream &is) {
             pair[1] = character[0];
             if ( buildUtf8Char(pair, utf8Char) ) {
                 if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", LoggerFormat::format("%s", "allocation failure"));
+                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
                     return duplicateCString("");
                 }
             } else {
@@ -570,7 +660,7 @@ PersistenceElement::readUtf8String(InputStream &is) {
     const size_t length = ((size_t)(bytes.size()));
     char *msg = ((char *)(malloc(length + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8String", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8String", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -595,7 +685,7 @@ PersistenceElement::readUtf8Line(InputStream &is) {
 
         if ( character[0] != '\n' && character[0] != '\r' && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", LoggerFormat::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
                 return duplicateCString("");
             }
         } else if ( character[0] != '\n' && character[0] != '\r' ) {
@@ -607,7 +697,7 @@ PersistenceElement::readUtf8Line(InputStream &is) {
             pair[1] = character[0];
             if ( buildUtf8Char(pair, utf8Char) ) {
                 if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", LoggerFormat::format("%s", "allocation failure"));
+                    Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
                     return duplicateCString("");
                 }
             }
@@ -617,7 +707,7 @@ PersistenceElement::readUtf8Line(InputStream &is) {
     const size_t length = ((size_t)(bytes.size()));
     char *msg = ((char *)(malloc(length + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readUtf8Line", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readUtf8Line", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -632,7 +722,7 @@ PersistenceElement::readAsciiLine(InputStream &is) {
     unsigned char character[1] = {0};
     ArrayList<unsigned char> bytes(64);
 
-    while ( true ) {
+    while ( TRUE ) {
         readBytes(is, character, 1);
         if ( character[0] == 0x00 ) {
             break;
@@ -640,7 +730,7 @@ PersistenceElement::readAsciiLine(InputStream &is) {
 
         if ( character[0] != '\n' && character[0] != '\r' ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiLine", LoggerFormat::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiLine", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -653,7 +743,7 @@ PersistenceElement::readAsciiLine(InputStream &is) {
     const size_t length = ((size_t)(bytes.size()));
     char *msg = ((char *)(malloc(length + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiLine", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiLine", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -663,14 +753,14 @@ PersistenceElement::readAsciiLine(InputStream &is) {
     return msg;
 }
 
-bool
+BOOLEAN
 PersistenceElement::isInSet(unsigned char key, const unsigned char *set, int setLength) {
     for ( int i = 0; i < setLength; i++ ) {
         if ( key == set[i] ) {
-            return true;
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 
 char *
@@ -685,7 +775,7 @@ PersistenceElement::readAsciiToken(InputStream &is, const unsigned char *separat
         }
         if ( !isInSet(character[0], separators, separatorsLength) ) {
             if ( !bytes.add(character[0]) ) {
-                Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiToken", LoggerFormat::format("%s", "allocation failure"));
+                Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiToken", "allocation failure");
                 return duplicateCString("");
             }
         }
@@ -694,7 +784,7 @@ PersistenceElement::readAsciiToken(InputStream &is, const unsigned char *separat
     const size_t length = ((size_t)(bytes.size()));
     char *msg = ((char *)(malloc(length + 1)));
     if ( msg == NULL ) {
-        Logger::reportMessage("PersistenceElement", Logger::ERROR, "PersistenceElement::readAsciiToken", LoggerFormat::format("%s", "allocation failure"));
+        Logger::reportMessage("PersistenceElement", Logger::ERROR, "readAsciiToken", "allocation failure");
         return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
@@ -799,44 +889,44 @@ PersistenceElement::joinCString3(const char *first, const char *second, const ch
     return joined;
 }
 
-bool
+BOOLEAN
 PersistenceElement::containsCString(const char *text, const char *fragment) {
     if ( text == NULL || fragment == NULL ) {
-        return false;
+        return FALSE;
     }
     return strstr(text, fragment) != NULL;
 }
 
-bool
+BOOLEAN
 PersistenceElement::startsWithCString(const char *text, const char *prefix) {
     if ( text == NULL || prefix == NULL ) {
-        return false;
+        return FALSE;
     }
     const size_t textLength = strlen(text);
     const size_t prefixLength = strlen(prefix);
     if ( prefixLength > textLength ) {
-        return false;
+        return FALSE;
     }
     return strncmp(text, prefix, prefixLength) == 0;
 }
 
-bool
+BOOLEAN
 PersistenceElement::endsWithCString(const char *text, const char *suffix) {
     if ( text == NULL || suffix == NULL ) {
-        return false;
+        return FALSE;
     }
     const size_t textLength = strlen(text);
     const size_t suffixLength = strlen(suffix);
     if ( suffixLength > textLength ) {
-        return false;
+        return FALSE;
     }
     return strncmp(text + textLength - suffixLength, suffix, suffixLength) == 0;
 }
 
-bool
+BOOLEAN
 PersistenceElement::containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname) {
     if ( pathList == NULL || nativeLibname == NULL || nativeLibname[0] == '\0' ) {
-        return false;
+        return FALSE;
     }
 
     const char *tokenStart = pathList;
@@ -859,7 +949,7 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
                     if ( candidate.exists() && candidate.canRead() && candidate.isFile() ) {
                         free(fullPath);
                         free(token);
-                        return true;
+                        return TRUE;
                     }
                     free(fullPath);
                 }
@@ -873,25 +963,102 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
         tokenStart = cursor + 1;
     }
 
-    return false;
+    return FALSE;
 }
 
-bool
+BOOLEAN
+PersistenceElement::verifyLibrary(const char *libname) {
+    if ( libname == NULL || libname[0] == '\0' ) {
+        return FALSE;
+    }
+
+    const char *prefix = "";
+    const char *suffix = "";
+    char separator = ':';
+#if defined(_WIN32)
+    suffix = ".dll";
+    separator = ';';
+#elif defined(__APPLE__)
+    prefix = "lib";
+    suffix = ".dylib";
+#else
+    prefix = "lib";
+    suffix = ".so";
+#endif
+
+    char *nativeLibname = joinCString3(prefix, libname, suffix);
+    if ( nativeLibname == NULL ) {
+        return FALSE;
+    }
+
+    const char *paths = getenv("JAVA_LIBRARY_PATH");
+    if ( paths == NULL || paths[0] == '\0' ) {
+        paths = getenv("LD_LIBRARY_PATH");
+    }
+
+    BOOLEAN exists = FALSE;
+    if ( paths != NULL && paths[0] != '\0' ) {
+        exists = containsExistingLibrary(paths, separator, nativeLibname);
+    }
+
+#if !defined(_WIN32)
+    if ( !exists ) {
+        const char *fallbackUnixPaths[] = {
+            "/lib", "/usr/lib", "/usr/local/lib", "/usr/X11R6/lib",
+            "/usr/X11R6/lib64", "/usr/openwin/lib", "/usr/dt/lib",
+            "/lib64", "/usr/lib64", "/usr/local/lib64"
+        };
+        for ( size_t i = 0; i < sizeof(fallbackUnixPaths) / sizeof(fallbackUnixPaths[0]); i++ ) {
+            char *candidate = joinCString3(fallbackUnixPaths[i], "/", nativeLibname);
+            if ( candidate != NULL ) {
+                File file(candidate);
+                if ( file.exists() && file.canRead() && file.isFile() ) {
+                    exists = TRUE;
+                    free(candidate);
+                    break;
+                }
+                free(candidate);
+            }
+        }
+    }
+#endif
+
+    free(nativeLibname);
+    return exists;
+}
+
+BOOLEAN
 PersistenceElement::checkDirectory(const char *dirName) {
     if ( dirName == NULL || dirName[0] == '\0' ) {
         System::err.print("Directory name is empty.\n");
-        return false;
+        return FALSE;
     }
 
     File directory(dirName);
-    if ( !directory.exists() || !directory.isDirectory() || !directory.canRead() || !directory.canWrite() ) {
+    if ( directory.exists() && !directory.isDirectory() ) {
         System::err.printf(
-            "Directory %s is not accessible and automatic creation is disabled.\n",
+            "Directory %s can not be created, because a file with that name already exists (not overwriten).\n",
             dirName);
-        return false;
+        return FALSE;
     }
 
-    return true;
+    if ( !directory.exists() ) {
+        if ( !directory.mkdirs() ) {
+            System::err.printf(
+                "Directory %s can not be created, check permisions and available free disk space.\n",
+                dirName);
+            return FALSE;
+        }
+    }
+
+    if ( !directory.canRead() || !directory.canWrite() ) {
+        System::err.printf(
+            "Directory %s is not accessible for read/write operations.\n",
+            dirName);
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 /**
@@ -912,7 +1079,7 @@ PersistenceElement::extractExtensionFromFile(const File &fd) {
 
     const char *extension = raw;
     const char *cursor = raw;
-    while ( true ) {
+    while ( TRUE ) {
         const char *dot = strchr(cursor, '.');
         if ( dot == NULL ) {
             break;

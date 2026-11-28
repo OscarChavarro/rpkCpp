@@ -1,5 +1,5 @@
 #include "java/lang/Double.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 /**
 Generate and trace a local line
 */
@@ -26,9 +26,9 @@ Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     Vector3Dd y;
     y = z.crossProduct(x);
 
-    coord->setX(x);
-    coord->setY(y);
-    coord->setZ(z);
+    coord->setXAxis(x);
+    coord->setYAxis(y);
+    coord->setZAxis(z);
 }
 
 /**

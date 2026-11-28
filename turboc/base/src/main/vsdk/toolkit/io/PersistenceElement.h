@@ -1,10 +1,10 @@
 #ifndef __PERSISTENCE_ELEMENT__
 #define __PERSISTENCE_ELEMENT__
 
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"
-
 /**
 A `PersistenceElement` in VitralSDK is a software element with
 algorithms and data structures (i.e. a class) with the specific functionality
@@ -32,13 +32,18 @@ reverse order (from little endian to big endian or from big endian to
 little endian) the "Invert" versions are used.
 */
 class PersistenceElement {
+  protected:
+    // As the Java abstract class: not instantiable by itself, but concrete
+    // persistence classes (e.g. `FontReader` implementations) derive from it
+    PersistenceElement() {}
+
   public:
-    PersistenceElement();
+    virtual ~PersistenceElement() {}
 
     static int readByteInt(InputStream &is);
     static int readByteUnsignedInt(InputStream &is);
     static void writeByte(OutputStream &os, unsigned char value);
-    static void writeBool(OutputStream &os, bool value);
+    static void writeBool(OutputStream &os, BOOLEAN value);
 
     static void readBytes(InputStream &is, unsigned char *bytesBuffer, int length);
 
@@ -57,6 +62,9 @@ class PersistenceElement {
     static void float2byteArrayLE(unsigned char *arr, int start, float num);
     static float byteArray2floatLE(const unsigned char *arr, int start);
 
+    static double byteArray2doubleLE(const unsigned char *arr, int start);
+    static double byteArray2doubleBE(const unsigned char *arr, int start);
+
     static int readSignedShortLE(InputStream &is);
     static int readSignedShortBE(InputStream &is);
     static void writeSignedShortBE(OutputStream &os, int num);
@@ -64,10 +72,14 @@ class PersistenceElement {
 
     static long readLongLE(InputStream &is);
     static void writeInt32LE(OutputStream &os, int num);
+    static void writeInt64LE(OutputStream &os, long long num);
+    static void writeDoubleLE(OutputStream &os, double num);
 
     static long readLongBE(InputStream &is);
 
     static float readFloatLE(InputStream &is);
+    static double readDoubleLE(InputStream &is);
+    static double readDoubleBE(InputStream &is);
     static float readFloatBE(InputStream &is);
 
     static void writeFloatBE(OutputStream &os, float num);
@@ -86,13 +98,14 @@ class PersistenceElement {
     static void writeUtf8String(OutputStream &writer, const char *cad);
     static void writeAsciiLine(OutputStream &writer, const char *cad);
     static void writeUtf8Line(OutputStream &writer, const char *cad);
-    static bool checkDirectory(const char *dirName);
+    static BOOLEAN verifyLibrary(const char *libname);
+    static BOOLEAN checkDirectory(const char *dirName);
 
   protected:
     static char *extractExtensionFromFile(const File &fd);
 
   private:
-    static const bool bigEndianArchitecture;
+    static const BOOLEAN bigEndianArchitecture;
 
     // Those are not thread safe / re-entrant... each different thread should
     // use its own arrays
@@ -119,17 +132,20 @@ class PersistenceElement {
     static int signedByte2unsignedInteger(unsigned char value);
 
     static float byteArray2floatDirect(const unsigned char *arr, int start);
+    static double byteArray2doubleDirect(const unsigned char *arr, int start);
     static float byteArray2floatInvert(const unsigned char *arr, int start);
+    static double byteArray2doubleInvert(const unsigned char *arr, int start);
 
-    static bool isInSet(unsigned char key, const unsigned char *set, int setLength);
-    static bool buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]);
+    static BOOLEAN isInSet(unsigned char key, const unsigned char *set, int setLength);
+    static BOOLEAN buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]);
     static char *duplicateCString(const char *text);
     static char *joinCString2(const char *left, const char *right);
     static char *joinCString3(const char *first, const char *second, const char *third);
-    static bool containsCString(const char *text, const char *fragment);
-    static bool startsWithCString(const char *text, const char *prefix);
-    static bool endsWithCString(const char *text, const char *suffix);
-    static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
+    static BOOLEAN containsCString(const char *text, const char *fragment);
+    static BOOLEAN startsWithCString(const char *text, const char *prefix);
+    static BOOLEAN endsWithCString(const char *text, const char *suffix);
+    static BOOLEAN containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
 };
+
 
 #endif

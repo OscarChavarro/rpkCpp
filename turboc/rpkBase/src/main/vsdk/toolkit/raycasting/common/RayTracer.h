@@ -6,7 +6,7 @@
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/scene/Scene.h"
-#include "vsdk/toolkit/io/image/ImageOutputHandle.h"
+#include "vsdk/toolkit/render/ImageOutputTarget.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 /**
@@ -31,14 +31,14 @@ class RayTracer {
     // handle pointed by 'ip'
     virtual void
     execute(
-        ImageOutputHandle *ip,
+        ImageOutputTarget *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions) const = 0;
 
     // Saves last ray-traced image in the file describe dby the image output handle
-    virtual bool saveImage(ImageOutputHandle *imageOutputHandle) const = 0;
+    virtual bool saveImage(ImageOutputTarget *imageOutputTarget) const = 0;
 
     // Terminate raytracing computations
     virtual void terminate() const = 0;

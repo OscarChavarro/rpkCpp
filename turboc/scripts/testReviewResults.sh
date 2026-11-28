@@ -4,7 +4,7 @@
 #   testReviewResults.sh [--capture-references] [image ...]
 #
 # With no option every output must equal its reference image
-# etc/goldenImagesForTests/<image>.ppm (compare -metric AE = 0).
+# etc/goldenImagesForTests/<image>.png (compare -metric AE = 0).
 # --capture-references stores the current outputs as the reference images.
 # The golden images of the project are the cpp port's
 # (../cpp/etc/goldenImagesForTests): compare the references with them
@@ -70,8 +70,8 @@ runCompare() {
 
 checkImage() {
     image="$1"
-    output="output/$image.ppm"
-    golden="$golden_dir/$image.ppm"
+    output="output/$image.png"
+    golden="$golden_dir/$image.png"
 
     if [ ! -f "$output" ]; then
         fail "$image: missing output $output"
@@ -100,13 +100,13 @@ checkImage() {
 
 captureImage() {
     image="$1"
-    output="output/$image.ppm"
+    output="output/$image.png"
     if [ ! -f "$output" ]; then
         fail "$image: missing output, not captured"
         return
     fi
     mkdir -p "$golden_dir"
-    cp -p "$output" "$golden_dir/$image.ppm"
+    cp -p "$output" "$golden_dir/$image.png"
     echo "CAPTURED: $image"
 }
 

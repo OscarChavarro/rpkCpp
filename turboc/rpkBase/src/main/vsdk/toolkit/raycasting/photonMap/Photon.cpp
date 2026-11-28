@@ -1,4 +1,5 @@
 #include "java/lang/Math.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonClass.h"
@@ -14,7 +15,7 @@ Photon::findRS(
     double theta;
     // Equation [ARVO1995b](6): rectangularToSphericalCoord projects onto the
     // plane orthogonal to the local Z-axis before recovering (phi, theta).
-    coord->rectangularToSphericalCoord(&m_dir, &phi, &theta);
+    coord->rectangularToSphericalCoord(&m_dir, &phi, &theta, Numeric::EPSILON);
 
     // Compute r, s
     if ( flag == BRDF_DIFFUSE_COMPONENT ) {

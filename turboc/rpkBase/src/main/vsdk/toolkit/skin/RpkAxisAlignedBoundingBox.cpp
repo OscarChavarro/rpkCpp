@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/skin/RpkAxisAlignedBoundingBox.h"
 #include "java/lang/Double.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 
 RpkAxisAlignedBoundingBox::RpkAxisAlignedBoundingBox(): coordinates() {
     coordinates[MIN_X] = Double::MAX_VALUE;

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Test corpus table shared by runCorpus.sh and testReviewResults.sh.
 # One line per output image: image name | run script | log name. The reference
-# image of each output is etc/goldenImagesForTests/<image name>.ppm.
+# image of each output is etc/goldenImagesForTests/<image name>.png.
 
 CORPUS_TABLE='01_cubeJacobi|01_runCubeJacobi|01_jacobi
 01_cubeGaussSiedel|01_runCubeGaussSiedel|01_gaussSiedel

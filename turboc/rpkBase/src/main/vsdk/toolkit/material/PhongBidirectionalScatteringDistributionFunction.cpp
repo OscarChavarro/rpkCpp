@@ -3,6 +3,7 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be NULL
 */
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Double.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -143,7 +144,7 @@ PhongBidirScattDistFunc::texturedScattererSample(
 {
     CoordinateSystem coord;
     // Section [ARVO1995b].2: map (x1, x2) from [0,1]^2 into a hemisphere direction.
-    coord.setFromZAxis(normal);
+    coord.setFromZAxis(normal, VSDK::EPSILON);
     return coord.sampleHemisphereCosTheta(x1, x2, probabilityDensityFunction);
 }
 

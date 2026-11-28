@@ -16,7 +16,6 @@
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
-#include "vsdk/toolkit/io/image/Dkcolor.h"
 #include "vsdk/toolkit/galerkin/GalerkinRadianceMethod.h"
 #include "vsdk/toolkit/galerkin/processing/ClusterCreationStrategy.h"
 #include "app/Batch.h"
@@ -204,7 +203,6 @@ RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     if ( mgfContext->radianceMethod != NULL ) {
         delete mgfContext->radianceMethod;
     }
-    DkColor::freeBuffer();
 }
 
 int

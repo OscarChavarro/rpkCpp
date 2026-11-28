@@ -4,7 +4,7 @@ formats, etc.
 */
 
 #include "vsdk/toolkit/common/VSDK.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "java/util/ArrayList.txx"
 #include "vsdk/toolkit/tonemap/ToneMap.h"
 #include "vsdk/toolkit/render/Softids.h"

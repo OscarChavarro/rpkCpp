@@ -49,6 +49,30 @@ target_include_directories(vitral-turboc
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main
 )
 
+# PNG output of VITRAL's ImagePersistence (the golden images are PNG files).
+# The 32-bit build links the i386 libpng: Debian and Ubuntu multiarch systems
+# may only have its runtime (libpng16-16:i386, without the libpng16.so link),
+# and the headers of the native libpng-dev serve both architectures.
+if((UNIX OR APPLE) AND FORCE_32BIT_UNIX_APPLE)
+    find_path(RPK_PNG_INCLUDE_DIR png.h)
+    find_library(RPK_PNG_LIBRARY
+        NAMES png16 png libpng16.so.16
+        PATHS /usr/lib/i386-linux-gnu /lib/i386-linux-gnu /usr/lib32 /usr/lib/i686-linux-gnu
+        NO_DEFAULT_PATH)
+    if(NOT RPK_PNG_INCLUDE_DIR OR NOT RPK_PNG_LIBRARY)
+        message(FATAL_ERROR "32-bit libpng not found: install libpng-dev and libpng16-16:i386")
+    endif()
+    set(RPK_PNG_INCLUDE_DIRS ${RPK_PNG_INCLUDE_DIR})
+    set(RPK_PNG_LIBRARIES ${RPK_PNG_LIBRARY})
+else()
+    find_package(PNG REQUIRED)
+    set(RPK_PNG_INCLUDE_DIRS ${PNG_INCLUDE_DIRS})
+    set(RPK_PNG_LIBRARIES ${PNG_LIBRARIES})
+endif()
+target_include_directories(vitral-turboc PRIVATE ${RPK_PNG_INCLUDE_DIRS})
+target_link_libraries(vitral-turboc PRIVATE ${RPK_PNG_LIBRARIES})
+target_compile_definitions(vitral-turboc PRIVATE VITRAL_WITH_PNG)
+
 set_target_properties(vitral-turboc PROPERTIES
     OUTPUT_NAME vitral-turboc
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

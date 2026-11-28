@@ -24,16 +24,16 @@ class RayCaster: public RayTracer{ private:
     void
     render( const Scene *scene, const RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions);
     void display();
-    void save(ImageOutputHandle *ip);
+    void save(ImageOutputTarget *ip);
 
     void defaults();
     const char *getName() const;
     void initialize(const ArrayList<Patch *> *lightPatches) const;
 
     void
-    execute( ImageOutputHandle *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
+    execute( ImageOutputTarget *ip, Scene *scene, RadianceMethod *radianceMethod, ToneMappingContext *toneMapOptions, const RenderOptions *renderOptions) const;
 
-    bool saveImage(ImageOutputHandle *imageOutputHandle) const;
+    bool saveImage(ImageOutputTarget *imageOutputTarget) const;
     void terminate() const;
 };
 

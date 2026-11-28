@@ -4,7 +4,7 @@
 # also starts the scenes outside the corpus (OPTIONAL_TABLE in corpus.sh: 08
 # soda), each writing output/<log>.status when it ends. Arguments select corpus
 # entries by image or script name, as in runCorpus.sh.
-# The corpus runs write output/<image>.ppm, output/<log>.log and
+# The corpus runs write output/<image>.png, output/<log>.log and
 # output/<log>.err, the files testReviewResults.sh reads; runCorpus.sh's own
 # messages and exit status go to output/runCorpus.log.
 
@@ -30,7 +30,7 @@ if [ $# -eq 0 ]; then
         log=$(echo "$line" | cut -d'|' -f3)
         # A run still in progress, or one that crashed, must not leave the
         # previous run's results to be compared
-        rm -f "output/$image.ppm" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
+        rm -f "output/$image.png" "output/$log.log" "output/$log.err" "output/$log.status" "output/$log.time"
         nohup bash -c ". '$SCRIPT_DIR/corpus.sh'; corpusRunEntry '$SCRIPT_DIR' '$script' '$log'" > /dev/null 2>&1 &
         disown
     done

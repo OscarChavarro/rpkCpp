@@ -9,7 +9,7 @@
 #include "vsdk/toolkit/common/logging/LoggerFormat.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3Dd.h"
 #include "vsdk/toolkit/io/context/ParseSnapshotContext.h"
-#include "vsdk/toolkit/io/wrapper/PersistenceElement.h"
+#include "vsdk/toolkit/io/PersistenceElement.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelReadPrimitives.h"

@@ -1,4 +1,4 @@
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 
 const double Numeric::HUGE_DOUBLE_VALUE = 1e30;
 const double Numeric::EPSILON = 1e-6;

@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 
 ColorRgbMutable::ColorRgbMutable(const double inR, const double inG, const double inB) {

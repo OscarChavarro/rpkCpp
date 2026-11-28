@@ -1,3 +1,4 @@
+#include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "java/lang/Double.h"
 #include "vsdk/toolkit/common/color/ColorRgbMutable.h"
@@ -213,7 +214,7 @@ PhongBidirTransDistFunc::sample(
         x1 = x1 / (localAverageKd / scatteredPower);
 
         // Section [ARVO1995b].2: square-to-sphere mapping in the frame of the transmitted hemisphere.
-        coord.setFromZAxis(&invNormal);
+        coord.setFromZAxis(&invNormal, VSDK::EPSILON);
 
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
@@ -229,7 +230,7 @@ PhongBidirTransDistFunc::sample(
         x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
         // Section [ARVO1995b].2: same 2D mapping with a lobe centered on the ideal transmitted direction.
-        coord.setFromZAxis(&idealDir);
+        coord.setFromZAxis(&idealDir, VSDK::EPSILON);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
         cosTheta = normal->dotProduct(newDir);

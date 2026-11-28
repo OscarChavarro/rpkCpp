@@ -153,6 +153,29 @@ Changes actually applied in this port are listed here. C++98/C++11 differences.
      VITRAL `PlanarFace`, shafts take their bounds from `Patch::computeAndGetBoundingBox`
      rather than the scene's `FaceBoundsTable`, and radiance arithmetic keeps
      `ColorRgbMutable` where the cpp port has the immutable `ColorRgb` (item 11)
+21. Lineal algebra and persistence support moved into VITRAL, as in the cpp port
+    (19b6fc7b): `CoordinateAxis` and `CoordinateSystem` are VITRAL's turboc port's
+    (`common/linealAlgebra`), with the epsilon of `setFromZAxis` and
+    `rectangularToSphericalCoord` a parameter (`VSDK::EPSILON` and
+    `Numeric::EPSILON`, the values they used), and so is `PersistenceElement`
+    (`io/`, no longer `io/wrapper/`); RenderPark's `Numeric` is in `skin/`
+   - The Phong materials still call `CoordinateSystem::setFromZAxis`, passing
+     `VSDK::EPSILON`: they are RenderPark's in this port, which has not taken
+     the cpp port's step to VITRAL's `PhongMaterial`
+22. Images are written by VITRAL's turboc port, as in the cpp port (dda9386b):
+    `render/ImageOutputTarget` chooses the format from the file name and
+    `ScreenBuffer::writeFile` fills a VITRAL image, exported by
+    `ImagePersistence` (`exportPPM`, `exportPNG` and `exportRGBE` on a stream);
+    RenderPark's `Dkcolor`, `ImageOutputHandle`, `PPMOutputHandle` and
+    `PicOutputHandle` were removed
+   - `.pic` files are Radiance RGBE images of the raw radiances
+     (`RGBImageFloatUncompressed`, `ImagePersistenceRgbe`), now also on a pipe
+   - PNG output needs libpng: the 32-bit CMake build links the i386 runtime
+     (`libpng16-16:i386`) with the headers of the native `libpng-dev`, and the
+     `Makefile` builds with `WITH_PNG=1` by default (`make WITH_PNG=` for PPM
+     and PIC only); Turbo C++ under DOS has no libpng, so there only the PPM and
+     PIC formats are available
+   - The PPM header carries VITRAL's comment line
 
 ## Library layout
 
@@ -192,12 +215,12 @@ This port is built as 32-bit code (`-m32`), as Turbo C targets do, so a process
 can address at most 4 GB. Scene `08_soda` needs more than that for its
 radiosity hierarchy: the render still finishes and writes an image, but the
 solution is not the one the 64-bit ports converge to, so it does not match
-the golden `cpp/etc/goldenImagesForTests/08_soda.ppm`. For that reason the
+the golden `cpp/etc/goldenImagesForTests/08_soda.png`. For that reason the
 corpus (`scripts/corpus.sh`) leaves `08_soda` out, and `scripts/08_runSoda.sh`
 is kept so the scene can still be rendered by hand.
 
 `scripts/testReviewResults.sh` checks, as in the cpp port, that every output
-equals its reference image `etc/goldenImagesForTests/<image>.ppm`
+equals its reference image `etc/goldenImagesForTests/<image>.png`
 (`compare -metric AE` = 0); `--capture-references` copies the current outputs
 there. The golden images of the project are the cpp port's
 (`../cpp/etc/goldenImagesForTests`): the references are captured only after the

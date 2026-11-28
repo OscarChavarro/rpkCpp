@@ -27,6 +27,13 @@
 # moved from rpkBase into VITRAL. PolygonScanConverter.cpp has no cpp
 # counterpart: it defines PolygonScanConverterDepth::MAXIMUM_DEPTH, a static
 # data member of the class template in the cpp port.
+# Added with cpp 19b6fc7b and dda9386b (VITRAL's turboc port, uncommitted on
+# top of the pin): CoordinateAxis and CoordinateSystem (common/linealAlgebra,
+# their epsilon now a parameter) and io/PersistenceElement moved from rpkBase
+# into VITRAL; the image persistence (io/image/ImagePersistence with
+# ImagePersistenceRgbe, the media images and palettes it needs,
+# RGBImageFloatUncompressed and java/io/BufferedOutputStream) replaced
+# RenderPark's Dkcolor and image output handles.
 # Files of the cpp port's subset left out of this port, although VITRAL's
 # turboc port carries them: PlanarFace (plan step 3 part 2), the
 # environment/material files of step 2a (Material.h, PhongLobe, PhongMaterial,
@@ -38,6 +45,8 @@
 # and GridSpatialIndex.txx (member templates) have no turboc counterpart.
 java/io/BufferedInputStream.cpp
 java/io/BufferedInputStream.h
+java/io/BufferedOutputStream.cpp
+java/io/BufferedOutputStream.h
 java/io/File.cpp
 java/io/File.h
 java/io/FileInputStream.cpp
@@ -128,6 +137,9 @@ vsdk/toolkit/common/dataStructures/KDTree.h
 vsdk/toolkit/common/dataStructures/KDTree.txx
 vsdk/toolkit/common/dataStructures/KDTreeNode.h
 vsdk/toolkit/common/linealAlgebra/AlgebraPrimitives.cpp
+vsdk/toolkit/common/linealAlgebra/CoordinateAxis.h
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.cpp
+vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h
 vsdk/toolkit/common/linealAlgebra/Matrix2x2.h
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.cpp
 vsdk/toolkit/common/linealAlgebra/Matrix4x4d.h
@@ -297,6 +309,12 @@ vsdk/toolkit/environment/geometry/volume/polyhedralBoundedSolid/nodes/_Polyhedra
 vsdk/toolkit/environment/material/Material.h
 vsdk/toolkit/environment/material/SimpleMaterial.cpp
 vsdk/toolkit/environment/material/SimpleMaterial.h
+vsdk/toolkit/io/PersistenceElement.cpp
+vsdk/toolkit/io/PersistenceElement.h
+vsdk/toolkit/io/image/ImagePersistence.cpp
+vsdk/toolkit/io/image/ImagePersistence.h
+vsdk/toolkit/io/image/ImagePersistenceRgbe.cpp
+vsdk/toolkit/io/image/ImagePersistenceRgbe.h
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.cpp
 vsdk/toolkit/io/wrapper/FileUncompressWrapper.h
 vsdk/toolkit/io/wrapper/Matrix2x2Printer.cpp
@@ -308,12 +326,30 @@ vsdk/toolkit/io/wrapper/PipeOutputStream.h
 vsdk/toolkit/io/wrapper/StreamOpenMode.h
 vsdk/toolkit/io/wrapper/Vector3DPrinter.cpp
 vsdk/toolkit/io/wrapper/Vector3DPrinter.h
+vsdk/toolkit/media/GrayScalePalette.cpp
+vsdk/toolkit/media/GrayScalePalette.h
 vsdk/toolkit/media/Image.cpp
 vsdk/toolkit/media/Image.h
+vsdk/toolkit/media/IndexedColorImageUncompressed.cpp
+vsdk/toolkit/media/IndexedColorImageUncompressed.h
 vsdk/toolkit/media/MediaEntity.cpp
 vsdk/toolkit/media/MediaEntity.h
+vsdk/toolkit/media/RGBAImageCompressed.cpp
+vsdk/toolkit/media/RGBAImageCompressed.h
+vsdk/toolkit/media/RGBAImageUncompressed.cpp
+vsdk/toolkit/media/RGBAImageUncompressed.h
+vsdk/toolkit/media/RGBAPixel.cpp
+vsdk/toolkit/media/RGBAPixel.h
+vsdk/toolkit/media/RGBColorPalette.cpp
+vsdk/toolkit/media/RGBColorPalette.h
+vsdk/toolkit/media/RGBImageFloatUncompressed.cpp
+vsdk/toolkit/media/RGBImageFloatUncompressed.h
+vsdk/toolkit/media/RGBImageUncompressed.cpp
+vsdk/toolkit/media/RGBImageUncompressed.h
 vsdk/toolkit/media/RGBPixel.cpp
 vsdk/toolkit/media/RGBPixel.h
+vsdk/toolkit/media/RGBProceduralColorPalette.cpp
+vsdk/toolkit/media/RGBProceduralColorPalette.h
 vsdk/toolkit/processing/ComputationalGeometry.cpp
 vsdk/toolkit/processing/ComputationalGeometry.h
 vsdk/toolkit/processing/Containment.h

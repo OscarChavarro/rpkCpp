@@ -6,7 +6,7 @@ with a Z-buffer visibility algorithm in software
 #include "vsdk/toolkit/common/VSDK.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/skin/Numeric.h"
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/galerkin/processing/ClusterTraversalStrategy.h"
 #include "vsdk/toolkit/galerkin/processing/ScratchVisibilityStrategy.h"
