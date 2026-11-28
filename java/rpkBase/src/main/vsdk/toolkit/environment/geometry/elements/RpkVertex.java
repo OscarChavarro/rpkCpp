@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.scene.FaceColorTable;
 
 public class RpkVertex {
     private static int currentComparisonFlags = VertexCompareFlags.VERTEX_COMPARE_LOCATION

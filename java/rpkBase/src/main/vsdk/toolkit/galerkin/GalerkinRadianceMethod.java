@@ -8,7 +8,7 @@ Galerkin radiosity, with the following variants:
 
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import vsdk.toolkit.scene.DirectPotentialTable;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -61,9 +61,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
     public static GalerkinState galerkinState = new GalerkinState();
 
     public static void freeMemory() {
-        if ( GalerkinRadianceMethod.galerkinState.scratch != null ) {
-            GalerkinRadianceMethod.galerkinState.scratch = null;
-        }
+        ScratchVisibilityStrategy.scratchTerminate(GalerkinRadianceMethod.galerkinState);
     }
 
     /**
@@ -186,9 +184,6 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
         if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy.Z_VISIBILITY ) {
             ScratchVisibilityStrategy.scratchInit(galerkinState);
         }
-
-        galerkinState.lastClusterId = -1;
-        galerkinState.lastEye = new Vector3Dd(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     @Override

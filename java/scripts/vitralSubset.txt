@@ -4,9 +4,14 @@
 # scripts/vitralSubset.sh --check compares each with a VITRAL checkout (its
 # java/base/src/main) byte for byte and fails on any file of base/src/main
 # missing from this list; --refresh copies them from it.
-# Pin: VITRAL 20e67173 (Cpp port: operations to support radiosity on double
-# precision arithmetic) plus the matching uncommitted Java port changes of
-# vitral/java: the operations of 20e67173 in Vector3Dd (lengthSquared,
+# Pin: VITRAL 0fa50d47 (Java port: Sutherland-Hodgman convex polygon clipper
+# and Heckbert scan converter added), which adds the convex polygon clipper of
+# [SUTH1974b] (environment/geometry/geometricProcessing/convexPolygonClipper)
+# and the polygon scan converter and visibility buffer of [HECK1990] and
+# [BEKA1997] (render/raster/polygonScanConverter) that moved from rpkBase into
+# VITRAL. It builds on VITRAL 20e67173 (Cpp port: operations to support
+# radiosity on double precision arithmetic) and the matching Java port changes
+# of vitral/java: the operations of 20e67173 in Vector3Dd (lengthSquared,
 # manhattanLength, distance, distanceSquared, multiplyByInverse, normalized,
 # dominantAxis, component) and Vector2Dd (subtract, lengthSquared), and
 # KDTree, KDQuery, KDTreeAdapter, Matrix2x2, PlanarFace, PhongLobe,
@@ -98,6 +103,10 @@ vsdk/toolkit/environment/geometry/element/SurfaceDetail.java
 vsdk/toolkit/environment/geometry/element/Triangle.java
 vsdk/toolkit/environment/geometry/element/Vertex.java
 vsdk/toolkit/environment/geometry/element/Vertex2D.java
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ConvexWindowClipper.java
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/HomogeneousHalfSpace.java
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/PolygonVertex.java
+vsdk/toolkit/environment/geometry/geometricProcessing/convexPolygonClipper/ScreenPolygon.java
 vsdk/toolkit/environment/geometry/spatialIndex/BinnedSahSpatialIndex.java
 vsdk/toolkit/environment/geometry/spatialIndex/GridSpatialIndex.java
 vsdk/toolkit/environment/geometry/spatialIndex/LinearSpatialIndex.java
@@ -186,3 +195,11 @@ vsdk/toolkit/media/RGBPixel.java
 vsdk/toolkit/processing/ComputationalGeometry.java
 vsdk/toolkit/processing/Containment.java
 vsdk/toolkit/processing/ProcessingElement.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBox.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonBoxClipper.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipOutcome.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonClipResult.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonRasterContext.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonScanConverter.java
+vsdk/toolkit/render/raster/polygonScanConverter/PolygonVisibilityBuffer.java
+vsdk/toolkit/render/raster/polygonScanConverter/RasterRectangle2D.java

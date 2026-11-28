@@ -1,13 +1,13 @@
 package vsdk.toolkit.render;
 
-import vsdk.toolkit.render.sgl.SglVisibilityBuffer;
+import vsdk.toolkit.render.raster.polygonScanConverter.PolygonVisibilityBuffer;
 
 /**
-Visible faces, as SglFaceIndex samples.
-Java adaptation: the C++ port's alias of SglVisibilityBuffer<SglFaceIndex>.
+Visible faces, as FaceIndexSample samples.
+Java adaptation: the C++ port's alias of PolygonVisibilityBuffer<FaceIndexSample>.
 */
-public final class FaceVisibilityBuffer extends SglVisibilityBuffer<SglFaceIndex> {
-    public FaceVisibilityBuffer(int width, int height, SglFaceIndex backgroundValue) {
+public final class FaceVisibilityBuffer extends PolygonVisibilityBuffer<FaceIndexSample> {
+    public FaceVisibilityBuffer(int width, int height, FaceIndexSample backgroundValue) {
         super(width, height, backgroundValue);
     }
 }

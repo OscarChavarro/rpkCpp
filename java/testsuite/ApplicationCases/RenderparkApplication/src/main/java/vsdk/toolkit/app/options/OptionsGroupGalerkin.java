@@ -5,6 +5,7 @@ import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
 import vsdk.toolkit.common.commandLineOptions.TypedOption;
+import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.galerkin.GalerkinShaftCullMode;
@@ -51,6 +52,22 @@ public final class OptionsGroupGalerkin {
         }
     }
 
+    private static void clusteringStrategyOption(TypedOption.MutableValue<String> value) {
+        String name = value.value;
+        if ( "isotropic".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.ISOTROPIC;
+        }
+        else if ( "oriented".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.ORIENTED;
+        }
+        else if ( "z-visibility".equalsIgnoreCase(name) ) {
+            GalerkinRadianceMethod.galerkinState.clusteringStrategy = GalerkinClusteringStrategy.Z_VISIBILITY;
+        }
+        else {
+            Logger.reportMessage(null, Logger.ERROR, "", String.format("Invalid clustering strategy '%s' (isotropic, oriented or z-visibility)", name));
+        }
+    }
+
     private static void hierarchicalOption(TypedOption.MutableValue<Integer> value) {
         GalerkinRadianceMethod.galerkinState.hierarchical = value.value != 0;
     }
@@ -86,6 +103,13 @@ public final class OptionsGroupGalerkin {
             shaftCullingName,
             1,
             OptionsGroupGalerkin::shaftCullingOption,
+            null);
+        TypedOption.ValueRef<String> clusteringStrategyName = TypedOption.valueRef((String)null);
+        TypedOption<String> clusteringStrategyOpt = new TypedOption<>(
+            "-gr-clustering-strategy",
+            clusteringStrategyName,
+            1,
+            OptionsGroupGalerkin::clusteringStrategyOption,
             null);
         TypedOption<Integer> grHierarchicalOpt = new TypedOption<>(
             "-gr-hierarchical",
@@ -174,6 +198,7 @@ public final class OptionsGroupGalerkin {
         OptionBase[] galerkinOptions = new OptionBase[] {
             TypedOption.REGISTER_OPTION(iterationMethodOpt, 6),
             TypedOption.REGISTER_OPTION(shaftCullingOpt, 6),
+            TypedOption.REGISTER_OPTION(clusteringStrategyOpt, 6),
             TypedOption.REGISTER_OPTION(grHierarchicalOpt, 6),
             TypedOption.REGISTER_OPTION(grNotHierarchicalOpt, 10),
             TypedOption.REGISTER_OPTION(grLazyOpt, 6),
@@ -189,7 +214,7 @@ public final class OptionsGroupGalerkin {
             TypedOption.REGISTER_OPTION(grThreadsOpt, 6)
         };
         OptionGroup[] galerkinGroups = new OptionGroup[] {
-            new OptionGroup("galerkin", galerkinOptions, 15)
+            new OptionGroup("galerkin", galerkinOptions, 16)
         };
         OptionParser.parse(argc, argv, galerkinGroups, 1);
     }

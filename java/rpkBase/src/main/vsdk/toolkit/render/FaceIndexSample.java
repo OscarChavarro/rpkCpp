@@ -1,15 +1,15 @@
 package vsdk.toolkit.render;
 
 /** A visible face in the scene's current face table. The default is background. */
-public final class SglFaceIndex {
-    private static final SglFaceIndex BACKGROUND = new SglFaceIndex(-1);
+public final class FaceIndexSample {
+    private static final FaceIndexSample BACKGROUND = new FaceIndexSample(-1);
     private final int index;
 
-    public SglFaceIndex(int faceIndex) {
+    public FaceIndexSample(int faceIndex) {
         index = faceIndex;
     }
 
-    public static SglFaceIndex background() {
+    public static FaceIndexSample background() {
         return BACKGROUND;
     }
 

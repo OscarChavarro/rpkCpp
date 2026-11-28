@@ -26,7 +26,7 @@ Updates directly received potential for all patches
     public static void updateDirectPotential(Scene scene, RendererConfiguration renderOptions) {
         Canvas.canvasPushMode();
 
-        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, FaceIndexSample.background());
         SoftIds.renderVisibleFaces(scene, renderOptions, target);
         long[] x = {target.getWidth()};
         long[] y = {target.getHeight()};
@@ -65,7 +65,7 @@ Updates directly received potential for all patches
              j--, ySample += v) {
             double xSample = -h * (double)(x[0] - 1) / 2.0;
             for (long i = 0; i < x[0]; i++, xSample += h) {
-                final SglFaceIndex face = target.getSample((int)i, (int)j);
+                final FaceIndexSample face = target.getSample((int)i, (int)j);
                 long the_id = face.isBackground() ? 0 :
                     scene.getFace(face.getIndex()).getId() & 0xffffffL;
 
@@ -118,7 +118,7 @@ Updates directly received potential for all patches
 
     private static void softUpdateDirectVisibility(Scene scene, RendererConfiguration renderOptions) {
         long t = System.nanoTime();
-        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, SglFaceIndex.background());
+        FaceVisibilityBuffer target = new FaceVisibilityBuffer(scene.camera.xSize, scene.camera.ySize, FaceIndexSample.background());
         SoftIds.renderVisibleFaces(scene, renderOptions, target);
 
         FaceVisibilityTable faceVisibility = scene.getFaceVisibility();
@@ -127,7 +127,7 @@ Updates directly received potential for all patches
         }
         for ( int y = 0; y < target.getHeight(); y++ ) {
             for ( int x = 0; x < target.getWidth(); x++ ) {
-                final SglFaceIndex face = target.getSample(x, y);
+                final FaceIndexSample face = target.getSample(x, y);
                 if ( !face.isBackground() ) {
                     faceVisibility.setVisible(face.getIndex(), true);
                 }

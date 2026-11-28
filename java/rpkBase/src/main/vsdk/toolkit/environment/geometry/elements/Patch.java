@@ -11,7 +11,6 @@ import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.RpkMaterial;
 import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
-import vsdk.toolkit.scene.FaceColorTable;
 
 public class Patch {
 

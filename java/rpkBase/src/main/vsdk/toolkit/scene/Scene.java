@@ -7,6 +7,7 @@ import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.RpkGeometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.environment.geometry.elements.PatchSet;
 

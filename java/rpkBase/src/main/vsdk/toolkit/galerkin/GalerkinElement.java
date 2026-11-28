@@ -50,7 +50,6 @@ public class GalerkinElement extends Element {
                               // of the smallest surface element in a cluster
     public double blockerSize; // Equivalent blocker size for multi-resolution visibility
     public int numberOfPatches; // Number of patches in a cluster
-    public int scratchVisibilityUsageCounter; // Used only on Z-depth visibility clustering strategy
     public int childNumber; // Rang nr of regular sub-element in parent
     public byte basisSize; // Number of coefficients to represent radiance
     public byte basisUsed; // Number of coefficients effectively used (<=basis_size)
@@ -92,7 +91,6 @@ public class GalerkinElement extends Element {
         minimumArea = 0.0;
         blockerSize = 0.0;
         numberOfPatches = 0;
-        scratchVisibilityUsageCounter = 0;
         childNumber = 0;
         basisSize = 0;
         basisUsed = 0;

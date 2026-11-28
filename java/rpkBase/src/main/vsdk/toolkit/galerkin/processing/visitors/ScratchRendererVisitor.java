@@ -4,14 +4,14 @@ import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
-import vsdk.toolkit.galerkin.GalerkinElementVisibilityBuffer;
+import vsdk.toolkit.render.raster.polygonScanConverter.PolygonVisibilityBuffer;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class ScratchRendererVisitor implements ClusterLeafVisitor {
     private final Vector3Dd eyePoint;
-    private final GalerkinElementVisibilityBuffer target;
+    private final PolygonVisibilityBuffer<GalerkinElement> target;
 
-    public ScratchRendererVisitor(Vector3Dd inEyePoint, GalerkinElementVisibilityBuffer inTarget) {
+    public ScratchRendererVisitor(Vector3Dd inEyePoint, PolygonVisibilityBuffer<GalerkinElement> inTarget) {
         eyePoint = inEyePoint;
         target = inTarget;
     }

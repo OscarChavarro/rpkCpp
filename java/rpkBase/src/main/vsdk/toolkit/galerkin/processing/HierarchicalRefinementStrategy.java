@@ -3,6 +3,7 @@ package vsdk.toolkit.galerkin.processing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.IntConsumer;
@@ -166,6 +167,7 @@ public class HierarchicalRefinementStrategy {
         Interaction interaction,
         ColorRgb srcRho,
         ColorRgb rcvRho,
+        ScratchVisibilityWorkspace scratch,
         GalerkinState galerkinState)
     {
         ColorRgb error = new ColorRgb();
@@ -184,7 +186,7 @@ public class HierarchicalRefinementStrategy {
         else {
             if ( interaction.sourceElement.isCluster()
                 && interaction.sourceElement != interaction.receiverElement ) {
-                srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
+                srcRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState);
             }
             else {
                 srcRad = interaction.sourceElement.unShotRadiance[0];
@@ -200,6 +202,7 @@ public class HierarchicalRefinementStrategy {
         Interaction interaction,
         ColorRgb rcvRho,
         double receiverArea,
+        ScratchVisibilityWorkspace scratch,
         GalerkinState galerkinState)
     {
         double K = interaction.K[0];
@@ -220,7 +223,7 @@ public class HierarchicalRefinementStrategy {
         maximumSourceRadiance = new ColorRgb(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
         for ( int i = 0; i < numberOfReceiverVertices; i++ ) {
             ColorRgb radiance = ClusterTraversalStrategy.clusterRadianceToSamplePoint(
-                interaction.sourceElement, rcVertices[i], galerkinState);
+                interaction.sourceElement, rcVertices[i], scratch, galerkinState);
             minimumSourceRadiance = minimumSourceRadiance.minimum(radiance);
             maximumSourceRadiance = maximumSourceRadiance.maximum(radiance);
         }
@@ -232,6 +235,7 @@ public class HierarchicalRefinementStrategy {
 
     private static InteractionEvaluationCode hierarchicRefinementEvaluateInteraction(
         Interaction interaction,
+        ScratchVisibilityWorkspace scratch,
         GalerkinState galerkinState)
     {
         if ( !galerkinState.hierarchical ) {
@@ -242,7 +246,7 @@ public class HierarchicalRefinementStrategy {
         ColorRgb rcvRho = new ColorRgb();
         if ( interaction.receiverElement.isCluster() ) {
             rcvRho = new ColorRgb(1.0, 1.0, 1.0);
-            receiveArea = ClusterTraversalStrategy.receiverArea(interaction, galerkinState);
+            receiveArea = ClusterTraversalStrategy.receiverArea(interaction, scratch, galerkinState);
         }
         else {
             rcvRho = interaction.receiverElement.galerkinState.topLevelElement(interaction.receiverElement.patch).Rd;
@@ -258,12 +262,12 @@ public class HierarchicalRefinementStrategy {
         }
 
         double threshold = hierarchicRefinementLinkErrorThreshold(interaction, receiveArea, galerkinState);
-        double error = hierarchicRefinementApproximationError(interaction, srcRho, rcvRho, galerkinState);
+        double error = hierarchicRefinementApproximationError(interaction, srcRho, rcvRho, scratch, galerkinState);
 
         if ( interaction.sourceElement.isCluster()
             && error < threshold
             && galerkinState.clusteringStrategy != GalerkinClusteringStrategy.ISOTROPIC ) {
-            error += sourceClusterRadianceVariationError(interaction, rcvRho, receiveArea, galerkinState);
+            error += sourceClusterRadianceVariationError(interaction, rcvRho, receiveArea, scratch, galerkinState);
         }
 
         double minimumArea = galerkinState.refinementMinimumArea;
@@ -297,19 +301,24 @@ public class HierarchicalRefinementStrategy {
 
     private static void hierarchicRefinementComputeLightTransport(
         Interaction interaction,
+        ScratchVisibilityWorkspace scratch,
         GalerkinState galerkinState)
     {
-        receiverLightTransport(interaction, galerkinState);
+        receiverLightTransport(interaction, scratch, null, null, galerkinState);
         sourceLightTransport(interaction, galerkinState);
     }
 
     /**
     The part of light transport that writes the receiver: the number of
     effectively used radiance coefficients and the received radiance. It reads
-    only the source radiance (frozen during gathering)
+    only the source radiance (frozen during gathering). What the plan, when given,
+    holds is used instead of computing it (see planClusterTransport)
     */
     private static void receiverLightTransport(
         Interaction interaction,
+        ScratchVisibilityWorkspace scratch,
+        ClusterTransportPlan plan,
+        ArrayList<ArrayList<ElementSamples>> samplePools,
         GalerkinState galerkinState)
     {
         int a = Math.min(interaction.numberOfBasisFunctionsOnReceiver, interaction.receiverElement.basisSize);
@@ -328,12 +337,24 @@ public class HierarchicalRefinementStrategy {
 
         ColorRgb linkClusterRad = new ColorRgb();
         if ( interaction.sourceElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
-            linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, galerkinState);
+            if ( plan != null && plan.hasSourceRadiance() ) {
+                linkClusterRad = plan.getSourceRadiance();
+            }
+            else {
+                linkClusterRad = ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState);
+            }
             srcRad = new ColorRgb[] {linkClusterRad};
         }
 
         if ( interaction.receiverElement.isCluster() && interaction.sourceElement != interaction.receiverElement ) {
-            ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, galerkinState);
+            if ( plan != null && plan.hasReceiverSamples() ) {
+                ClusterTraversalStrategy.gatherRadianceFromSamples(
+                    interaction, srcRad, plan.getPixelArea(),
+                    samplePools.get(plan.getPool()), plan.getFirstSample(), plan.getNumberOfSamples());
+            }
+            else {
+                ClusterTraversalStrategy.gatherRadiance(interaction, srcRad, scratch, galerkinState);
+            }
         }
         else {
             ColorRgb[] rcvRad = interaction.receiverElement.receivedRadiance;
@@ -577,7 +598,7 @@ public class HierarchicalRefinementStrategy {
         if ( sourceElement.regularSubElements == null ) {
             // Not for surface elements (they have a patch), so never with a record
             if ( workspace.getRecord() == null ) {
-                hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+                hierarchicRefinementComputeLightTransport(interaction, workspace.getScratchVisibilityWorkspace(), galerkinState);
             }
             return;
         }
@@ -610,7 +631,7 @@ public class HierarchicalRefinementStrategy {
         if ( receiverElement.regularSubElements == null ) {
             // Not for surface elements (they have a patch), so never with a record
             if ( workspace.getRecord() == null ) {
-                hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+                hierarchicRefinementComputeLightTransport(interaction, workspace.getScratchVisibilityWorkspace(), galerkinState);
             }
             return;
         }
@@ -708,11 +729,11 @@ public class HierarchicalRefinementStrategy {
         boolean refined;
 
         boolean isClusteredGeometry = (candidatesList[0] == scene.clusteredGeometryList);
-        switch ( hierarchicRefinementEvaluateInteraction(interaction, galerkinState) ) {
+        switch ( hierarchicRefinementEvaluateInteraction(interaction, workspace.getScratchVisibilityWorkspace(), galerkinState) ) {
             case ACCURATE_ENOUGH:
                 // A parallel Jacobi worker leaves light transport to the commit
                 if ( workspace.getRecord() == null ) {
-                    hierarchicRefinementComputeLightTransport(interaction, galerkinState);
+                    hierarchicRefinementComputeLightTransport(interaction, workspace.getScratchVisibilityWorkspace(), galerkinState);
                 }
                 refined = false;
                 break;
@@ -771,6 +792,7 @@ public class HierarchicalRefinementStrategy {
         RefinementWorkspace workspace = new RefinementWorkspace(
             scene.getSceneQueryWorkspace(),
             galerkinState.formFactorWorkspace,
+            galerkinState.scratchVisibilityWorkspace,
             hierarchicalCoefficientsPool,
             null,
             null,
@@ -892,7 +914,8 @@ public class HierarchicalRefinementStrategy {
     private static final ArrayList<MemoryPool<double[]>> workerCoefficientsPools = new ArrayList<>();
 
     private static boolean parallelRefinementSupported(GalerkinState galerkinState) {
-        return galerkinState.clusteringStrategy == GalerkinClusteringStrategy.ISOTROPIC
+        return (galerkinState.clusteringStrategy == GalerkinClusteringStrategy.ISOTROPIC
+                || galerkinState.clusteringStrategy == GalerkinClusteringStrategy.Z_VISIBILITY)
             && galerkinState.shaftCullMode == GalerkinShaftCullMode.NEVER_DO_SHAFT_CULLING
             && galerkinState.multiResolutionVisibility == 0;
     }
@@ -1024,7 +1047,12 @@ public class HierarchicalRefinementStrategy {
     Light transport over the interactions, as if done one after the other in
     their order. Each element gets its sums in that order: the interactions are
     partitioned by the element written (receiver, then in a second pass source),
-    keeping their order inside each part, and each part goes to one worker
+    keeping their order inside each part, and each part goes to one worker.
+    With a clustering strategy other than isotropic, light transport to a receiver
+    cluster writes the surface elements in it, which other receivers (the clusters
+    containing it, or contained in it) write too, so it is done serially, with the
+    solver's scratch visibility workspace; with Z-visibility, its renderings are
+    made ahead in parallel (applyClusterLightTransports).
     */
     private static void applyLightTransports(
         ArrayList<Interaction> transports,
@@ -1032,9 +1060,13 @@ public class HierarchicalRefinementStrategy {
         int numberOfThreads)
     {
         final int n = transports.size();
-        if ( numberOfThreads <= 1 || n < 4096 ) {
+        if ( numberOfThreads > 1 && galerkinState.clusteringStrategy == GalerkinClusteringStrategy.Z_VISIBILITY ) {
+            applyClusterLightTransports(transports, galerkinState, numberOfThreads);
+            return;
+        }
+        if ( numberOfThreads <= 1 || n < 4096 || galerkinState.clusteringStrategy != GalerkinClusteringStrategy.ISOTROPIC ) {
             for ( int i = 0; i < n; i++ ) {
-                hierarchicRefinementComputeLightTransport(transports.get(i), galerkinState);
+                hierarchicRefinementComputeLightTransport(transports.get(i), galerkinState.scratchVisibilityWorkspace, galerkinState);
             }
             return;
         }
@@ -1061,7 +1093,7 @@ public class HierarchicalRefinementStrategy {
             for ( int slice = 0; slice < W; slice++ ) {
                 IntList part = receiverParts[slice * W + owner];
                 for ( int k = 0; k < part.size(); k++ ) {
-                    receiverLightTransport(transports.get(part.get(k)), galerkinState);
+                    receiverLightTransport(transports.get(part.get(k)), null, null, null, galerkinState);
                 }
             }
         });
@@ -1073,6 +1105,91 @@ public class HierarchicalRefinementStrategy {
                 }
             }
         });
+    }
+
+    /**
+    Computes ahead, in the plan, what the light transport over the interaction
+    takes from the scratch visibility renderer (Z-visibility clustering): the
+    radiance of a source cluster and the samples of a receiver cluster seen from
+    outside. It reads only state frozen during the iteration.
+    Java adaptation: pixelArea is the worker's out-parameter scratch for
+    ClusterTraversalStrategy.receiverSamples
+    */
+    private static void planClusterTransport(
+        Interaction interaction,
+        ScratchVisibilityWorkspace scratch,
+        GalerkinState galerkinState,
+        int pool,
+        ArrayList<ElementSamples> samplePool,
+        double[] pixelArea,
+        ClusterTransportPlan plan)
+    {
+        if ( interaction.sourceElement == interaction.receiverElement ) {
+            return;
+        }
+        if ( interaction.sourceElement.isCluster() ) {
+            plan.setSourceRadiance(ClusterTraversalStrategy.sourceClusterRadiance(interaction, scratch, galerkinState));
+        }
+        if ( interaction.receiverElement.isCluster()
+          && ClusterTraversalStrategy.receiverSamples(interaction, scratch, galerkinState, pixelArea) ) {
+            final ArrayList<ElementSamples> visible = scratch.getVisibleElements();
+            plan.setReceiverSamples(pixelArea[0], pool, samplePool.size(), visible.size());
+            for ( int i = 0; i < visible.size(); i++ ) {
+                samplePool.add(visible.get(i));
+            }
+        }
+    }
+
+    /**
+    Light transport over the interactions with Z-visibility clustering, as if
+    done one after the other in their order. In batches, the workers first render
+    what each interaction needs into their own scratch visibility workspaces
+    (planClusterTransport); then the transport sums are done serially, in order,
+    from those plans.
+    Java adaptation: the plans of one batch are reused (reset) by the next,
+    where the C++ port allocates them per batch
+    */
+    private static void applyClusterLightTransports(
+        ArrayList<Interaction> transports,
+        GalerkinState galerkinState,
+        int numberOfThreads)
+    {
+        final int n = transports.size();
+        final int batchSize = 16384;
+        final ScratchVisibilityWorkspace[] workspaces = new ScratchVisibilityWorkspace[numberOfThreads];
+        // The samples the plans of each worker count; cleared, keeping their
+        // storage, from one batch to the next
+        final ArrayList<ArrayList<ElementSamples>> samplePools = new ArrayList<>(numberOfThreads);
+        for ( int w = 0; w < numberOfThreads; w++ ) {
+            workspaces[w] = new ScratchVisibilityWorkspace(galerkinState.scratchFrameBufferSize);
+            samplePools.add(new ArrayList<>());
+        }
+        final ClusterTransportPlan[] plans = new ClusterTransportPlan[Math.min(batchSize, n)];
+        for ( int i = 0; i < plans.length; i++ ) {
+            plans[i] = new ClusterTransportPlan();
+        }
+        for ( int batchFirst = 0; batchFirst < n; batchFirst += batchSize ) {
+            final int first = batchFirst;
+            final int end = Math.min(first + batchSize, n);
+            for ( int i = first; i < end; i++ ) {
+                plans[i - first].reset();
+            }
+            final AtomicLong next = new AtomicLong(first);
+            runWorkers(numberOfThreads, w -> {
+                final ArrayList<ElementSamples> samplePool = samplePools.get(w);
+                final double[] pixelArea = new double[1];
+                samplePool.clear();
+                for ( long i = next.getAndAdd(1); i < end; i = next.getAndAdd(1) ) {
+                    planClusterTransport(
+                        transports.get((int)i), workspaces[w], galerkinState, w, samplePool, pixelArea, plans[(int)i - first]);
+                }
+            });
+            for ( int i = first; i < end; i++ ) {
+                receiverLightTransport(
+                    transports.get(i), galerkinState.scratchVisibilityWorkspace, plans[i - first], samplePools, galerkinState);
+                sourceLightTransport(transports.get(i), galerkinState);
+            }
+        }
     }
 
     /**
@@ -1148,7 +1265,7 @@ public class HierarchicalRefinementStrategy {
     {
         if ( !parallelRefinementSupported(galerkinState) ) {
             if ( galerkinState.iterationNumber <= 1 ) {
-                Logger.reportMessage(null, Logger.WARNING, "refineInteractionsInParallel", "Parallel Jacobi needs isotropic clustering, no shaft culling " + "and no multi-resolution visibility: refining serially");
+                Logger.reportMessage(null, Logger.WARNING, "refineInteractionsInParallel", "Parallel Jacobi needs isotropic or Z-visibility clustering, no shaft culling " + "and no multi-resolution visibility: refining serially");
             }
             refineInteractions(scene, parentElement, galerkinState);
             return;
@@ -1186,9 +1303,14 @@ public class HierarchicalRefinementStrategy {
             SceneQueryWorkspace sceneQueryWorkspace = new SceneQueryWorkspace(sceneQuery);
             FormFactorWorkspace formFactorWorkspace = new FormFactorWorkspace(shadowStatistics[w]);
             formFactorWorkspace.setDeferredNodesTooClose(records[w].getNodesTooClose());
+            ScratchVisibilityWorkspace scratchVisibilityWorkspace = null;
+            if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy.Z_VISIBILITY ) {
+                scratchVisibilityWorkspace = new ScratchVisibilityWorkspace(galerkinState.scratchFrameBufferSize);
+            }
             RefinementWorkspace workspace = new RefinementWorkspace(
                 sceneQueryWorkspace,
                 formFactorWorkspace,
+                scratchVisibilityWorkspace,
                 workerCoefficientsPools.get(w),
                 records[w],
                 subdivisionLock,

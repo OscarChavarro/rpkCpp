@@ -1,13 +1,12 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 import vsdk.toolkit.environment.geometry.elements.Element;
 import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.scene.RadianceElementTable;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.processing.FormFactorWorkspace;
-import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
+import vsdk.toolkit.galerkin.processing.ScratchVisibilityWorkspace;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.numericalAnalysis.QuadCubatureRule;
@@ -62,11 +61,10 @@ public class GalerkinState {
     // Clustering strategy
     public GalerkinClusteringStrategy clusteringStrategy;
 
-    // Scratch offscreen renderer for various clustering operations
-    public GalerkinElementVisibilityBuffer scratch;
+    // Scratch offscreen renderer of the serial solver for the Z-visibility
+    // clustering strategy (parallel Jacobi workers have their own)
+    public ScratchVisibilityWorkspace scratchVisibilityWorkspace;
     public int scratchFrameBufferSize;
-    public int lastClusterId; // Used for caching cluster and eye point
-    public Vector3Dd lastEye; // Rendered into the scratch frame buffer
 
     public long lastClock; // For CPU timing (nanoseconds)
     public double cpuSeconds;
@@ -106,8 +104,6 @@ public class GalerkinState {
         sourceTriangleCubatureRule = null;
         sourceQuadCubatureRule = null;
         topCluster = null;
-        lastClusterId = 0;
-        lastEye = new Vector3Dd();
         lastClock = 0;
         cpuSeconds = 0.0;
         toneMapOptions = null;
@@ -136,7 +132,7 @@ public class GalerkinState {
         exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY ? 1 : 0;
         multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY ? 1 : 0;
         scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS;
-        scratch = null;
+        scratchVisibilityWorkspace = null;
         iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
         shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
         toneMapOptions = null;
@@ -159,10 +155,6 @@ public class GalerkinState {
     public boolean isJacobi() {
         return galerkinIterationMethod == GalerkinIterationMethod.JACOBI
             || galerkinIterationMethod == GalerkinIterationMethod.PARALLEL_JACOBI;
-    }
-
-    public RpkAxisAlignedBoundingBox getScratchBounds() {
-        return scratchBounds;
     }
 
     public RadianceElementTable getRadianceElements() {
@@ -194,5 +186,4 @@ public class GalerkinState {
 
     // The scene's table of top-level elements, bound when the method is initialized
     private RadianceElementTable radianceElements = null;
-    private final RpkAxisAlignedBoundingBox scratchBounds = new RpkAxisAlignedBoundingBox();
 }

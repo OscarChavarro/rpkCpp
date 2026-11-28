@@ -1,4 +1,4 @@
-package vsdk.toolkit.scene;
+package vsdk.toolkit.environment.geometry.elements;
 
 import vsdk.toolkit.common.color.ColorRgb;
 

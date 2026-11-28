@@ -1,6 +1,6 @@
 package vsdk.toolkit.render.jogl;
 
-import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;

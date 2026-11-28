@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import vsdk.toolkit.common.Random;
 
 import java.io.OutputStream;

@@ -9,6 +9,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 
 package vsdk.toolkit.galerkin.processing;
 
+import java.util.ArrayList;
 import vsdk.toolkit.common.VSDK;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
@@ -19,13 +20,16 @@ import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.processing.visitors.ClusterLeafVisitor;
-import vsdk.toolkit.galerkin.processing.visitors.DepthVisibilityGathererVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.MaximumRadianceVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.OrientedGathererVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.PowerAccumulatorVisitor;
 import vsdk.toolkit.galerkin.processing.visitors.ProjectedAreaAccumulatorVisitor;
 import vsdk.toolkit.skin.RpkAxisAlignedBoundingBox;
 
+/**
+The scratch workspace, used by the Z-visibility clustering strategy only (it
+may be null for the others), is the one of the calling thread
+*/
 public class ClusterTraversalStrategy {
     /**
 Executes func for every surface element in the cluster
@@ -61,6 +65,7 @@ towards the samplePoint point
     public static ColorRgb clusterRadianceToSamplePoint(
         GalerkinElement sourceElement,
         Vector3Dd samplePoint,
+        ScratchVisibilityWorkspace scratch,
         GalerkinState galerkinState)
     {
         if ( sourceElement == null || galerkinState == null ) {
@@ -87,10 +92,10 @@ towards the samplePoint point
                     // Render pointers to the elements in the source cluster into the scratch frame
                     // buffer, seen from the samplePoint point
                     final RpkAxisAlignedBoundingBox boundingBox =
-                        ScratchVisibilityStrategy.scratchRenderElements(sourceElement, samplePoint, galerkinState);
+                        ScratchVisibilityStrategy.scratchRenderElements(sourceElement, samplePoint, scratch, galerkinState);
 
                     // Compute average radiance on the virtual screen
-                    ColorRgb sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(galerkinState);
+                    ColorRgb sourceRadiance = ScratchVisibilityStrategy.scratchRadiance(scratch, galerkinState);
 
                     // Area factor = area of virtual screen / source cluster area used for
                     // form factor computation
@@ -109,13 +114,13 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-    public static ColorRgb sourceClusterRadiance(Interaction link, GalerkinState galerkinState) {
+    public static ColorRgb sourceClusterRadiance(Interaction link, ScratchVisibilityWorkspace scratch, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( sourceElement == null || receiverElement == null || !sourceElement.isCluster() || sourceElement == receiverElement ) {
             Logger.reportMessage(null, Logger.FATAL_ERROR, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
-        return clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
+        return clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), scratch, galerkinState);
     }
 
     /**
@@ -148,7 +153,7 @@ Ignores intra cluster visibility
 Computes projected area of receiver cluster as seen from the midpoint of the source,
 ignoring intra-receiver visibility
 */
-    public static double receiverArea(Interaction link, GalerkinState galerkinState) {
+    public static double receiverArea(Interaction link, ScratchVisibilityWorkspace scratch, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( receiverElement == null || sourceElement == null ) {
@@ -166,8 +171,23 @@ ignoring intra-receiver visibility
                 traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
                 return leafVisitor.getTotalProjectedArea();
             }
-            case Z_VISIBILITY:
-                return receiverElement.area;
+            case Z_VISIBILITY: {
+                Vector3Dd samplePoint = sourceElement.midPoint();
+                if ( !receiverElement.geometry.boundingBox.outOfBounds(samplePoint) ) {
+                    return receiverElement.area;
+                } else {
+                    final RpkAxisAlignedBoundingBox boundingBox =
+                        ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, scratch, galerkinState);
+
+                    // Projected area is the number of non-background pixels over
+                    // the total number of pixels * area of the virtual screen
+                    double projectedArea =
+                        (double)ScratchVisibilityStrategy.scratchNonBackgroundPixels(scratch) *
+                        boundingBox.dx() * boundingBox.dy() /
+                        (double)(scratch.getBuffer().getViewportWidth() * scratch.getBuffer().getViewportHeight());
+                    return projectedArea;
+                }
+            }
             default:
                 Logger.reportMessage(null, Logger.FATAL_ERROR, "receiverArea", String.format("Invalid clustering strategy %s", galerkinState.clusteringStrategy));
                 return receiverElement.area;
@@ -207,7 +227,7 @@ radiance is explicit given
 Distributes the source radiance to the surface elements in the
 receiver cluster
 */
-    public static void gatherRadiance(Interaction link, ColorRgb[] srcRad, GalerkinState galerkinState) {
+    public static void gatherRadiance(Interaction link, ColorRgb[] srcRad, ScratchVisibilityWorkspace scratch, GalerkinState galerkinState) {
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( !receiverElement.isCluster() || sourceElement == receiverElement ) {
@@ -223,16 +243,74 @@ receiver cluster
                 traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
                 break;
             }
-            case Z_VISIBILITY:
-                Vector3Dd samplePoint = sourceElement.midPoint();
-                RpkAxisAlignedBoundingBox bb = ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, galerkinState);
-                ScratchVisibilityStrategy.scratchPixelsPerElement(galerkinState);
-                double pixelArea = (bb.dx() * bb.dy()) / (double)(galerkinState.scratch.getViewportWidth() * galerkinState.scratch.getViewportHeight());
-                DepthVisibilityGathererVisitor dvgv = new DepthVisibilityGathererVisitor(link, srcRad, pixelArea);
-                traverseAllLeafElements(dvgv, receiverElement, galerkinState);
+            case Z_VISIBILITY: {
+                double[] pixelArea = new double[1];
+                if ( receiverSamples(link, scratch, galerkinState, pixelArea) ) {
+                    final ArrayList<ElementSamples> visible = scratch.getVisibleElements();
+                    gatherRadianceFromSamples(link, srcRad, pixelArea[0], visible, 0, visible.size());
+                } else {
+                    OrientedGathererVisitor leafVisitor = new OrientedGathererVisitor(link, srcRad);
+                    traverseAllLeafElements(leafVisitor, receiverElement, galerkinState);
+                }
                 break;
+            }
             default:
                 Logger.reportMessage(null, Logger.FATAL_ERROR, "gatherRadiance", String.format("Invalid clustering strategy %s", galerkinState.clusteringStrategy));
+        }
+    }
+
+    /**
+Z-visibility clustering: when the receiver cluster of the link is seen from
+outside (the midpoint of the source lies outside its bounding box), renders
+its elements seen from that point and counts, in the workspace, how many
+samples each one covers. Returns false, rendering nothing, otherwise.
+@param pixelArea out: [0] is the area of the virtual screen a sample covers
+*/
+    public static boolean receiverSamples(
+        Interaction link,
+        ScratchVisibilityWorkspace scratch,
+        GalerkinState galerkinState,
+        double[] pixelArea)
+    {
+        GalerkinElement receiverElement = link.receiverElement;
+        Vector3Dd samplePoint = link.sourceElement.midPoint();
+        if ( !receiverElement.geometry.boundingBox.outOfBounds(samplePoint) ) {
+            return false;
+        }
+
+        final RpkAxisAlignedBoundingBox boundingBox =
+            ScratchVisibilityStrategy.scratchRenderElements(receiverElement, samplePoint, scratch, galerkinState);
+
+        // Count how many pixels each element occupies in the scratch frame buffer
+        ScratchVisibilityStrategy.scratchPixelsPerElement(scratch, galerkinState);
+
+        // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
+        pixelArea[0] = ScratchVisibilityStrategy.scratchPixelArea(boundingBox, scratch);
+        return true;
+    }
+
+    /**
+Gathers the radiance to each element of the receiver cluster that occupies at
+least one sample of its rendering, as counted by receiverSamples. The visible
+fraction of an element is estimated from its samples times pixelArea,
+normalized by one quarter of the receiver area. Each element receives one
+sum, so the order of the elements does not change the result: only the
+visible ones are visited, not every leaf of the cluster.
+Java adaptation: the C++ port takes a pointer to the first of the elements;
+here it is the list holding them and the index of the first
+*/
+    public static void gatherRadianceFromSamples(
+        Interaction link,
+        ColorRgb[] srcRad,
+        double pixelArea,
+        ArrayList<ElementSamples> visibleElements,
+        int firstVisibleElement,
+        int numberOfVisibleElements)
+    {
+        for ( int i = 0; i < numberOfVisibleElements; i++ ) {
+            final ElementSamples visible = visibleElements.get(firstVisibleElement + i);
+            double areaFactor = pixelArea * (double)visible.getSamples() / (0.25 * link.receiverElement.area);
+            isotropicGatherRadiance(visible.getElement(), areaFactor, link, srcRad);
         }
     }
 

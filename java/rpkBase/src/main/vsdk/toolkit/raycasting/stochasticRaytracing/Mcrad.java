@@ -5,7 +5,7 @@ Monte Carlo radiosity
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.scene.FaceVisibilityTable;
-import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import java.util.function.BiConsumer;
 import java.util.ArrayList;
 import java.util.Arrays;

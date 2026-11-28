@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.scene.FaceColorTable;
+import vsdk.toolkit.environment.geometry.elements.FaceColorTable;
 import vsdk.toolkit.scene.DirectPotentialTable;
 import vsdk.toolkit.common.color.ColorRgb;
 
